@@ -272,9 +272,25 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      // Find user credits - check both userId and direct id match
+      const userCredits = allData.userCredits.find(uc => 
+        uc.userId === user.id || uc.id === user.id
+      );
+      
+      // Calculate credits - use total if available, otherwise calculate from balances
+      let credits = 0;
+      if (userCredits) {
+        if (userCredits.unlimited) {
+          credits = 'Unlimited';
+        } else {
+          credits = userCredits.total || 
+            ((userCredits.balances?.free || 0) + 
+             (userCredits.balances?.paid || 0) + 
+             (userCredits.balances?.bonus || 0));
+        }
+      }
+      
       const specCount = allData.specsByUser[user.id]?.length || 0;
-      const credits = userCredits?.total || 0;
       const plan = userCredits?.unlimited ? 'Pro' : (user.plan || 'Free');
       const isSelected = this.selectedUsers.has(user.id);
       

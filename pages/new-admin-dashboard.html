@@ -1,715 +1,510 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>New Admin Dashboard · Specifys.ai</title>
-  <meta name="description" content="Modern admin dashboard for Specifys.ai with real-time monitoring, analytics, and management tools.">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#000000">
-  <link rel="canonical" href="https://specifys-ai.com/pages/new-admin-dashboard.html">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="manifest" href="/site.webmanifest">
+---
+layout: default
+title: "Admin Dashboard"
+description: "Complete admin dashboard for Specifys.ai - manage users, monitor activity, and analyze platform data"
+permalink: /pages/new-admin-dashboard.html
+page_class: admin-dashboard-page
+custom_firebase: true
+extra_css:
+  - /assets/css/pages/new-admin-dashboard.css
+custom_js_modules:
+  - /assets/js/new-admin-dashboard/main.js
+---
 
-  <!-- Preconnect to external resources -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-  
-  <!-- CSS -->
-  <link rel="stylesheet" href="/assets/css/main-compiled.css">
-  <link rel="stylesheet" href="/assets/css/components/buttons.css">
-  <link rel="stylesheet" href="/assets/css/pages/new-admin-dashboard.css">
-  
-  <!-- Font Awesome -->
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer"></noscript>
-  
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
-  
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-  <div class="new-admin-shell" id="new-admin-shell">
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
-      <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Mobile Menu Backdrop -->
-    <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
-    
-    <!-- Sidebar -->
-    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin navigation" role="complementary">
-      <div class="sidebar-brand">
-        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
-        <span class="brand-subtitle">Admin v2</span>
-      </div>
-
-      <nav class="sidebar-nav" id="sidebar-nav">
-        <button class="nav-link active" data-target="overview-section" aria-label="Overview section">
-          <span class="icon"><i class="fas fa-chart-line"></i></span>
-          <span class="text">Overview</span>
-        </button>
-        <button class="nav-link" data-target="users-section" aria-label="Users section">
-          <span class="icon"><i class="fas fa-users"></i></span>
-          <span class="text">Users</span>
-        </button>
-        <button class="nav-link" data-target="payments-section" aria-label="Payments section">
-          <span class="icon"><i class="fas fa-credit-card"></i></span>
-          <span class="text">Payments</span>
-        </button>
-        <button class="nav-link" data-target="logs-section" aria-label="Live logs section">
-          <span class="icon"><i class="fas fa-stream"></i></span>
-          <span class="text">Live Logs</span>
-        </button>
-        <button class="nav-link" data-target="articles-section" aria-label="Articles management section">
-          <span class="icon"><i class="fas fa-file-alt"></i></span>
-          <span class="text">Articles</span>
-        </button>
-        <a href="/pages/admin/academy/index.html" class="nav-link" aria-label="Academy management">
-          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
-          <span class="text">Academy</span>
-        </a>
-        <button class="nav-link" data-target="analytics-section" aria-label="Analytics section">
-          <span class="icon"><i class="fas fa-chart-pie"></i></span>
-          <span class="text">Analytics</span>
-        </button>
-        <button class="nav-link" data-target="funnel-section" aria-label="Funnel analysis section">
-          <span class="icon"><i class="fas fa-filter"></i></span>
-          <span class="text">Funnel Analysis</span>
-        </button>
-        <button class="nav-link" data-target="content-analytics-section" aria-label="Content analytics section">
-          <span class="icon"><i class="fas fa-newspaper"></i></span>
-          <span class="text">Content Analytics</span>
-        </button>
-        <button class="nav-link" data-target="spec-usage-section" aria-label="Spec usage analytics section">
-          <span class="icon"><i class="fas fa-list-check"></i></span>
-          <span class="text">Spec Usage</span>
-        </button>
-        <button class="nav-link" data-target="alerts-section" aria-label="Alerts and notifications section">
-          <span class="icon"><i class="fas fa-bell"></i></span>
-          <span class="text">Alerts</span>
-        </button>
-        <button class="nav-link" data-target="performance-section" aria-label="Performance dashboard section">
-          <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
-          <span class="text">Performance</span>
-        </button>
-        <button class="nav-link" data-target="contact-section" aria-label="Contact submissions section">
-          <span class="icon"><i class="fas fa-envelope"></i></span>
-          <span class="text">Contact</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="connection-indicator" id="connection-indicator" title="Connection status">
-          <span class="dot status-pending"></span>
-          <span class="label">Connecting…</span>
-        </div>
-        <small class="sync-label">Last sync · <span id="sidebar-last-sync">Never</span></small>
-        <a class="home-link" href="/">
-          <i class="fas fa-arrow-left"></i>
-          <span>Back to site</span>
-        </a>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="admin-main">
-      <header class="admin-topbar">
-        <div class="topbar-left">
-          <div class="page-title">
-            <h1>Admin Dashboard</h1>
-            <p>Live control center for Specifys.ai</p>
-          </div>
-          <div class="topbar-status">
-            <span id="topbar-sync-status">Waiting for data…</span>
-          </div>
-        </div>
-        <div class="topbar-actions">
-          <button class="action-btn" id="console-logs-toggle" type="button" aria-label="Toggle console logs">
-            <i class="fas fa-terminal"></i>
-            <span id="console-logs-toggle-text">Logs: OFF</span>
-          </button>
-          <a href="/" class="action-btn home-btn" title="Back to homepage">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <button class="action-btn" id="global-search-trigger" type="button" aria-label="Open global search">
-            <i class="fas fa-search"></i>
-            <span>Search</span>
-            <span class="hint">⌘/</span>
-          </button>
-          <button class="action-btn" id="manual-refresh-btn" type="button" aria-label="Refresh dashboard data">
-            <i class="fas fa-sync-alt"></i>
-            <span>Refresh</span>
-          </button>
-          <button class="action-btn critical" id="sign-out-btn" type="button" aria-label="Sign out">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Sign out</span>
-          </button>
-        </div>
-      </header>
-
-      <main class="admin-content" id="main-content" role="main">
-        <!-- Overview Section -->
-        <section class="dashboard-section active" id="overview-section">
-          <header class="section-header">
-            <div>
-              <h2>Live Overview</h2>
-              <p>Real-time snapshot of the platform</p>
-            </div>
-            <div class="section-controls">
-              <button class="action-btn" id="sync-credits-btn" type="button">
-                <i class="fas fa-sync-alt"></i>
-                <span>Sync Credits</span>
-              </button>
-              <button class="action-btn" id="refresh-data-btn" type="button">
-                <i class="fas fa-refresh"></i>
-                <span>Refresh</span>
-              </button>
-            </div>
-          </header>
-
-          <!-- Main Metrics - 4 Large Cards -->
-          <div class="main-metrics-grid">
-            <article class="main-metric-card" data-metric="users-active-now">
-              <div class="main-metric-header">
-                <div class="main-metric-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                  <i class="fas fa-users"></i>
-                </div>
-                <div class="main-metric-info">
-                  <h3>Active Users Now</h3>
-                  <p class="main-metric-subtitle">Last 15 minutes</p>
-                </div>
-              </div>
-              <div class="main-metric-value">
-                <span class="value" id="metric-active-now">0</span>
-                <span class="main-metric-change" id="metric-active-now-change">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>0%</span>
-                </span>
-              </div>
-              <div class="main-metric-chart-wrapper">
-                <canvas class="main-metric-chart" id="chart-active-now" height="60"></canvas>
-              </div>
-            </article>
-
-            <article class="main-metric-card" data-metric="users-new-today">
-              <div class="main-metric-header">
-                <div class="main-metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                  <i class="fas fa-user-plus"></i>
-                </div>
-                <div class="main-metric-info">
-                  <h3>New Users Today</h3>
-                  <p class="main-metric-subtitle">Registered today</p>
-                </div>
-              </div>
-              <div class="main-metric-value">
-                <span class="value" id="metric-new-today">0</span>
-                <span class="main-metric-change" id="metric-new-today-change">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>0%</span>
-                </span>
-              </div>
-              <div class="main-metric-chart-wrapper">
-                <canvas class="main-metric-chart" id="chart-new-today" height="60"></canvas>
-              </div>
-            </article>
-
-            <article class="main-metric-card" data-metric="specs-created-today">
-              <div class="main-metric-header">
-                <div class="main-metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                  <i class="fas fa-file-alt"></i>
-                </div>
-                <div class="main-metric-info">
-                  <h3>Specs Created Today</h3>
-                  <p class="main-metric-subtitle">Created today</p>
-                </div>
-              </div>
-              <div class="main-metric-value">
-                <span class="value" id="metric-specs-today">0</span>
-                <span class="main-metric-change" id="metric-specs-today-change">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>0%</span>
-                </span>
-              </div>
-              <div class="main-metric-chart-wrapper">
-                <canvas class="main-metric-chart" id="chart-specs-today" height="60"></canvas>
-              </div>
-            </article>
-
-            <article class="main-metric-card" data-metric="purchases-today">
-              <div class="main-metric-header">
-                <div class="main-metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                  <i class="fas fa-shopping-cart"></i>
-                </div>
-                <div class="main-metric-info">
-                  <h3>Purchases Today</h3>
-                  <p class="main-metric-subtitle">Revenue today</p>
-                </div>
-              </div>
-              <div class="main-metric-value">
-                <span class="value" id="metric-purchases-today">0</span>
-                <span class="main-metric-amount" id="metric-revenue-today">$0</span>
-              </div>
-              <div class="main-metric-chart-wrapper">
-                <canvas class="main-metric-chart" id="chart-purchases-today" height="60"></canvas>
-              </div>
-            </article>
-          </div>
-
-          <!-- Overview Panels -->
-          <div class="overview-panels">
-            <div class="panel recent-activity">
-              <div class="panel-header">
-                <h3>Recent Activity</h3>
-                <div class="activity-filters">
-                  <button class="activity-filter-btn active" data-filter="all">All</button>
-                  <button class="activity-filter-btn" data-filter="spec">Specs</button>
-                  <button class="activity-filter-btn" data-filter="payment">Purchases</button>
-                  <button class="activity-filter-btn" data-filter="user">Users</button>
-                </div>
-              </div>
-              <ol class="activity-feed" id="activity-feed" aria-live="polite">
-                <li class="activity-placeholder">Loading activity…</li>
-              </ol>
-            </div>
-
-            <div class="panel sync-status">
-              <div class="panel-header">
-                <h3>Data Sources</h3>
-                <button class="action-btn small" id="refresh-sources-btn" type="button" title="Refresh all sources">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-              </div>
-              <ul class="source-list" id="source-status-list">
-                <li>
-                  <span class="source-label">
-                    <i class="fas fa-users"></i>
-                    Users
-                  </span>
-                  <span class="source-state pending" data-source="users">Pending</span>
-                </li>
-                <li>
-                  <span class="source-label">
-                    <i class="fas fa-file-alt"></i>
-                    Specs
-                  </span>
-                  <span class="source-state pending" data-source="specs">Pending</span>
-                </li>
-                <li>
-                  <span class="source-label">
-                    <i class="fas fa-credit-card"></i>
-                    Purchases
-                  </span>
-                  <span class="source-state pending" data-source="purchases">Pending</span>
-                </li>
-                <li>
-                  <span class="source-label">
-                    <i class="fas fa-stream"></i>
-                    Activity Logs
-                  </span>
-                  <span class="source-state pending" data-source="activityLogs">Pending</span>
-                </li>
-              </ul>
-              <div class="sync-info">
-                <div class="sync-time">
-                  <i class="fas fa-clock"></i>
-                  <span>Last sync: <span id="last-sync-time">Never</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Users Section -->
-        <section class="dashboard-section" id="users-section">
-          <header class="section-header">
-            <div>
-              <h2>Users Management</h2>
-              <p>Complete control over user accounts</p>
-            </div>
-            <div class="section-controls">
-              <button class="action-btn" id="export-users-btn" type="button">
-                <i class="fas fa-file-export"></i>
-                <span>Export CSV</span>
-              </button>
-              <button class="action-btn" id="export-users-pdf-btn" type="button">
-                <i class="fas fa-file-pdf"></i>
-                <span>Export PDF</span>
-              </button>
-            </div>
-          </header>
-
-          <!-- Quick Summary -->
-          <div class="users-summary-grid">
-            <div class="summary-card">
-              <div class="summary-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                <i class="fas fa-users"></i>
-              </div>
-              <div class="summary-content">
-                <div class="summary-label">Total Users</div>
-                <div class="summary-value" id="summary-total-users">0</div>
-              </div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                <i class="fas fa-crown"></i>
-              </div>
-              <div class="summary-content">
-                <div class="summary-label">Pro Users</div>
-                <div class="summary-value" id="summary-pro-users">0</div>
-              </div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                <i class="fas fa-user-check"></i>
-              </div>
-              <div class="summary-content">
-                <div class="summary-label">Active (30 days)</div>
-                <div class="summary-value" id="summary-active-users">0</div>
-              </div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                <i class="fas fa-user-plus"></i>
-              </div>
-              <div class="summary-content">
-                <div class="summary-label">New (7 days)</div>
-                <div class="summary-value" id="summary-new-users">0</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Filters and Search -->
-          <div class="users-filters">
-            <div class="search-box">
-              <i class="fas fa-search"></i>
-              <input type="search" id="users-search" placeholder="Search by email or name...">
-            </div>
-            <select id="users-plan-filter">
-              <option value="all">All Plans</option>
-              <option value="pro">Pro</option>
-              <option value="free">Free</option>
-            </select>
-            <select id="users-status-filter">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <input type="date" id="users-date-from" placeholder="From date">
-            <input type="date" id="users-date-to" placeholder="To date">
-          </div>
-
-          <!-- Quick Actions -->
-          <div class="quick-actions-bar">
-            <button class="action-btn" id="bulk-actions-btn" type="button" style="display: none;">
-              <i class="fas fa-tasks"></i>
-              <span>Bulk Actions (<span id="bulk-selected-count">0</span>)</span>
-            </button>
-            <div class="quick-actions-spacer"></div>
-            <button class="action-btn" id="add-credits-quick-btn" type="button">
-              <i class="fas fa-plus-circle"></i>
-              <span>Add Credits</span>
-            </button>
-            <button class="action-btn" id="change-plan-quick-btn" type="button">
-              <i class="fas fa-exchange-alt"></i>
-              <span>Change Plan</span>
-            </button>
-          </div>
-
-          <!-- Users Table -->
-          <div class="table-wrapper">
-            <table class="data-table" id="users-table">
-              <thead>
-                <tr>
-                  <th style="width: 40px;">
-                    <input type="checkbox" id="users-select-all" aria-label="Select all users">
-                  </th>
-                  <th>User</th>
-                  <th>Created</th>
-                  <th>Plan</th>
-                  <th>Specs</th>
-                  <th>Credits</th>
-                  <th>Last Active</th>
-                  <th style="width: 120px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="8" class="table-empty">Loading users…</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div class="pagination-wrapper" id="users-pagination"></div>
-        </section>
-
-        <!-- Payments Section -->
-        <section class="dashboard-section" id="payments-section">
-          <header class="section-header">
-            <div>
-              <h2>Payments</h2>
-              <p>Transaction history and revenue tracking</p>
-            </div>
-            <div class="section-controls">
-              <input type="search" id="payments-search" placeholder="Search payments...">
-              <select id="payments-range">
-                <option value="all">All time</option>
-                <option value="week" selected>Last 7 days</option>
-                <option value="month">Last 30 days</option>
-              </select>
-            </div>
-          </header>
-          <div class="table-wrapper">
-            <table class="data-table" id="payments-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>User</th>
-                  <th>Product</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5" class="table-empty">Loading payments…</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Logs Section -->
-        <section class="dashboard-section" id="logs-section">
-          <header class="section-header">
-            <div>
-              <h2>Live Logs</h2>
-              <p>Real-time activity and error logs</p>
-            </div>
-            <div class="section-controls">
-              <select id="logs-filter">
-                <option value="all">All logs</option>
-                <option value="error">Errors only</option>
-                <option value="info">Info only</option>
-              </select>
-            </div>
-          </header>
-          <div class="logs-stream" id="logs-stream">
-            <div class="log-placeholder">Loading logs…</div>
-          </div>
-        </section>
-
-        <!-- Articles Section -->
-        <section class="dashboard-section" id="articles-section">
-          <header class="section-header">
-            <div>
-              <h2>Articles</h2>
-              <p>Manage blog posts and content</p>
-            </div>
-          </header>
-          <div class="articles-content">
-            <p>Articles management coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Analytics Section -->
-        <section class="dashboard-section" id="analytics-section">
-          <header class="section-header">
-            <div>
-              <h2>Analytics</h2>
-              <p>Detailed data analysis and insights</p>
-            </div>
-            <div class="section-controls">
-              <select id="analytics-range">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-              </select>
-            </div>
-          </header>
-
-          <!-- Charts Grid -->
-          <div class="analytics-charts-grid">
-            <div class="chart-panel">
-              <div class="chart-header">
-                <h3>User Growth</h3>
-                <p>New users over time</p>
-              </div>
-              <div class="chart-container">
-                <canvas id="chart-user-growth" height="200"></canvas>
-              </div>
-            </div>
-
-            <div class="chart-panel">
-              <div class="chart-header">
-                <h3>Specs Created</h3>
-                <p>Specs created over time</p>
-              </div>
-              <div class="chart-container">
-                <canvas id="chart-specs-growth" height="200"></canvas>
-              </div>
-            </div>
-
-            <div class="chart-panel">
-              <div class="chart-header">
-                <h3>Revenue Trend</h3>
-                <p>Revenue over time</p>
-              </div>
-              <div class="chart-container">
-                <canvas id="chart-revenue-trend" height="200"></canvas>
-              </div>
-            </div>
-
-            <div class="chart-panel">
-              <div class="chart-header">
-                <h3>User Distribution</h3>
-                <p>Pro vs Free users</p>
-              </div>
-              <div class="chart-container">
-                <canvas id="chart-user-distribution" height="200"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <!-- Data Tables -->
-          <div class="analytics-tables-grid">
-            <div class="table-panel">
-              <div class="table-panel-header">
-                <h3>Top Users by Specs</h3>
-              </div>
-              <div class="table-wrapper">
-                <table class="data-table" id="top-users-specs-table">
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Specs</th>
-                      <th>Plan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colspan="3" class="table-empty">Loading...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="table-panel">
-              <div class="table-panel-header">
-                <h3>Top Users by Purchases</h3>
-              </div>
-              <div class="table-wrapper">
-                <table class="data-table" id="top-users-purchases-table">
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Purchases</th>
-                      <th>Total Revenue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colspan="3" class="table-empty">Loading...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Funnel Section -->
-        <section class="dashboard-section" id="funnel-section">
-          <header class="section-header">
-            <div>
-              <h2>Funnel Analysis</h2>
-              <p>User conversion funnel</p>
-            </div>
-          </header>
-          <div class="funnel-content">
-            <p>Funnel analysis coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Content Analytics Section -->
-        <section class="dashboard-section" id="content-analytics-section">
-          <header class="section-header">
-            <div>
-              <h2>Content Analytics</h2>
-              <p>Content performance metrics</p>
-            </div>
-          </header>
-          <div class="content-analytics-content">
-            <p>Content analytics coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Spec Usage Section -->
-        <section class="dashboard-section" id="spec-usage-section">
-          <header class="section-header">
-            <div>
-              <h2>Spec Usage</h2>
-              <p>Spec creation and usage analytics</p>
-            </div>
-          </header>
-          <div class="spec-usage-content">
-            <p>Spec usage analytics coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Alerts Section -->
-        <section class="dashboard-section" id="alerts-section">
-          <header class="section-header">
-            <div>
-              <h2>Alerts</h2>
-              <p>System alerts and notifications</p>
-            </div>
-          </header>
-          <div class="alerts-content">
-            <p>Alerts coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Performance Section -->
-        <section class="dashboard-section" id="performance-section">
-          <header class="section-header">
-            <div>
-              <h2>Performance</h2>
-              <p>System performance metrics</p>
-            </div>
-          </header>
-          <div class="performance-content">
-            <p>Performance metrics coming soon...</p>
-          </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section class="dashboard-section" id="contact-section">
-          <header class="section-header">
-            <div>
-              <h2>Contact Submissions</h2>
-              <p>User contact form submissions</p>
-            </div>
-          </header>
-          <div class="contact-content">
-            <p>Contact submissions coming soon...</p>
-          </div>
-        </section>
-      </main>
+<div class="admin-dashboard-container">
+  <!-- Top Navigation Bar -->
+  <nav class="admin-top-nav" role="navigation" aria-label="Admin navigation">
+    <div class="admin-nav-brand">
+      <a href="/">
+        <span class="brand-text">Specifys<span class="brand-dot">.</span>AI</span>
+        <span class="brand-badge">Admin</span>
+      </a>
     </div>
-  </div>
+    
+    <div class="admin-nav-links" id="admin-nav-links">
+      <button class="nav-tab active" data-section="overview" aria-label="Overview">
+        <i class="fas fa-chart-line"></i>
+        <span>Overview</span>
+      </button>
+      <button class="nav-tab" data-section="users" aria-label="Users">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </button>
+      <button class="nav-tab" data-section="analytics" aria-label="Analytics">
+        <i class="fas fa-chart-pie"></i>
+        <span>Analytics</span>
+      </button>
+      <button class="nav-tab" data-section="payments" aria-label="Payments">
+        <i class="fas fa-credit-card"></i>
+        <span>Payments</span>
+      </button>
+      <button class="nav-tab" data-section="logs" aria-label="Logs">
+        <i class="fas fa-stream"></i>
+        <span>Logs</span>
+      </button>
+    </div>
+    
+    <div class="admin-nav-actions">
+      <div class="connection-status" id="connection-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">Connecting...</span>
+      </div>
+      <button class="action-btn-icon" id="refresh-btn" title="Refresh data">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <button class="action-btn-icon" id="sign-out-btn" title="Sign out">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </nav>
 
-  <!-- Scripts -->
-  <script type="module" src="/assets/js/new-admin-dashboard/main.js"></script>
-</body>
-</html>
+  <!-- Main Dashboard Content -->
+  <main class="admin-dashboard-main" id="admin-dashboard-main">
+    
+    <!-- Overview Section -->
+    <section class="dashboard-content-section active" id="overview-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Live Overview</h1>
+          <p>Real-time snapshot of your platform</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-modern" id="sync-credits-btn">
+            <i class="fas fa-sync-alt"></i>
+            <span>Sync Credits</span>
+          </button>
+        </div>
+      </div>
 
+      <!-- Key Metrics - 4 Large Cards -->
+      <div class="key-metrics-grid">
+        <div class="key-metric-card" id="metric-active-users">
+          <div class="metric-card-header">
+            <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="metric-header-text">
+              <h3>Active Users Now</h3>
+              <p>Last 15 minutes</p>
+            </div>
+          </div>
+          <div class="metric-card-body">
+            <div class="metric-value-large" id="metric-active-value">0</div>
+            <div class="metric-change" id="metric-active-change">
+              <i class="fas fa-arrow-up"></i>
+              <span>0%</span>
+            </div>
+          </div>
+          <div class="metric-chart-container">
+            <canvas id="chart-active-users" height="60"></canvas>
+          </div>
+        </div>
+
+        <div class="key-metric-card" id="metric-new-users">
+          <div class="metric-card-header">
+            <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="metric-header-text">
+              <h3>New Users Today</h3>
+              <p>Registered today</p>
+            </div>
+          </div>
+          <div class="metric-card-body">
+            <div class="metric-value-large" id="metric-new-value">0</div>
+            <div class="metric-change" id="metric-new-change">
+              <i class="fas fa-arrow-up"></i>
+              <span>0%</span>
+            </div>
+          </div>
+          <div class="metric-chart-container">
+            <canvas id="chart-new-users" height="60"></canvas>
+          </div>
+        </div>
+
+        <div class="key-metric-card" id="metric-specs">
+          <div class="metric-card-header">
+            <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="metric-header-text">
+              <h3>Specs Created Today</h3>
+              <p>Created today</p>
+            </div>
+          </div>
+          <div class="metric-card-body">
+            <div class="metric-value-large" id="metric-specs-value">0</div>
+            <div class="metric-change" id="metric-specs-change">
+              <i class="fas fa-arrow-up"></i>
+              <span>0%</span>
+            </div>
+          </div>
+          <div class="metric-chart-container">
+            <canvas id="chart-specs" height="60"></canvas>
+          </div>
+        </div>
+
+        <div class="key-metric-card" id="metric-purchases">
+          <div class="metric-card-header">
+            <div class="metric-icon-wrapper" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="metric-header-text">
+              <h3>Purchases Today</h3>
+              <p>Revenue today</p>
+            </div>
+          </div>
+          <div class="metric-card-body">
+            <div class="metric-value-large" id="metric-purchases-value">0</div>
+            <div class="metric-revenue" id="metric-revenue-value">$0.00</div>
+          </div>
+          <div class="metric-chart-container">
+            <canvas id="chart-purchases" height="60"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="overview-columns">
+        <!-- Recent Activity -->
+        <div class="overview-card">
+          <div class="card-header">
+            <h2>Recent Activity</h2>
+            <div class="activity-filters">
+              <button class="filter-chip active" data-filter="all">All</button>
+              <button class="filter-chip" data-filter="user">Users</button>
+              <button class="filter-chip" data-filter="spec">Specs</button>
+              <button class="filter-chip" data-filter="payment">Purchases</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="activity-list" id="activity-list">
+              <div class="activity-empty">Loading activity...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="overview-card">
+          <div class="card-header">
+            <h2>System Status</h2>
+            <button class="btn-icon-small" id="refresh-status-btn" title="Refresh status">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="status-list" id="status-list">
+              <div class="status-item">
+                <div class="status-info">
+                  <i class="fas fa-users status-icon"></i>
+                  <span class="status-label">Users</span>
+                </div>
+                <span class="status-badge pending" data-source="users">Pending</span>
+              </div>
+              <div class="status-item">
+                <div class="status-info">
+                  <i class="fas fa-file-alt status-icon"></i>
+                  <span class="status-label">Specs</span>
+                </div>
+                <span class="status-badge pending" data-source="specs">Pending</span>
+              </div>
+              <div class="status-item">
+                <div class="status-info">
+                  <i class="fas fa-credit-card status-icon"></i>
+                  <span class="status-label">Purchases</span>
+                </div>
+                <span class="status-badge pending" data-source="purchases">Pending</span>
+              </div>
+              <div class="status-item">
+                <div class="status-info">
+                  <i class="fas fa-stream status-icon"></i>
+                  <span class="status-label">Activity Logs</span>
+                </div>
+                <span class="status-badge pending" data-source="activityLogs">Pending</span>
+              </div>
+            </div>
+            <div class="status-footer">
+              <i class="fas fa-clock"></i>
+              <span>Last sync: <span id="last-sync-time">Never</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Users Section -->
+    <section class="dashboard-content-section" id="users-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Users Management</h1>
+          <p>Complete control over user accounts</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-modern" id="export-users-csv-btn">
+            <i class="fas fa-file-export"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats-grid">
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="stat-total-users">0</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <i class="fas fa-crown"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Pro Users</div>
+            <div class="stat-value" id="stat-pro-users">0</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Active (30d)</div>
+            <div class="stat-value" id="stat-active-users">0</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">New (7d)</div>
+            <div class="stat-value" id="stat-new-users">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="search" id="users-search-input" placeholder="Search by email or name...">
+        </div>
+        <select id="users-plan-filter-select">
+          <option value="all">All Plans</option>
+          <option value="pro">Pro</option>
+          <option value="free">Free</option>
+        </select>
+        <select id="users-status-filter-select">
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <input type="date" id="users-date-from-input" placeholder="From">
+        <input type="date" id="users-date-to-input" placeholder="To">
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-card">
+        <table class="modern-table" id="users-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" id="users-select-all-checkbox">
+              </th>
+              <th>User</th>
+              <th>Created</th>
+              <th>Plan</th>
+              <th>Specs</th>
+              <th>Credits</th>
+              <th>Last Active</th>
+              <th style="width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="8" class="table-empty-state">Loading users...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-modern" id="users-pagination"></div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section class="dashboard-content-section" id="analytics-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Analytics</h1>
+          <p>Detailed data analysis and insights</p>
+        </div>
+        <div class="header-actions">
+          <select class="select-modern" id="analytics-range-select">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Analytics Charts -->
+      <div class="analytics-charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>User Growth</h3>
+            <p>New users over time</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-users" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Specs Created</h3>
+            <p>Specs created over time</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-specs" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Revenue Trend</h3>
+            <p>Revenue over time</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-revenue" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>User Distribution</h3>
+            <p>Pro vs Free users</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-distribution" height="250"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Users Tables -->
+      <div class="analytics-tables-grid">
+        <div class="table-card">
+          <div class="card-header">
+            <h3>Top Users by Specs</h3>
+          </div>
+          <table class="modern-table" id="top-users-specs-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Specs</th>
+                <th>Plan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="table-empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card">
+          <div class="card-header">
+            <h3>Top Users by Purchases</h3>
+          </div>
+          <table class="modern-table" id="top-users-purchases-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Purchases</th>
+                <th>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="table-empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payments Section -->
+    <section class="dashboard-content-section" id="payments-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Payments</h1>
+          <p>Transaction history and revenue tracking</p>
+        </div>
+        <div class="header-actions">
+          <select class="select-modern" id="payments-range-select">
+            <option value="all">All time</option>
+            <option value="week" selected>Last 7 days</option>
+            <option value="month">Last 30 days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <table class="modern-table" id="payments-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Product</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5" class="table-empty-state">Loading payments...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Logs Section -->
+    <section class="dashboard-content-section" id="logs-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Live Logs</h1>
+          <p>Real-time activity and error logs</p>
+        </div>
+        <div class="header-actions">
+          <select class="select-modern" id="logs-filter-select">
+            <option value="all">All logs</option>
+            <option value="error">Errors only</option>
+            <option value="warning">Warnings</option>
+            <option value="info">Info only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="logs-container" id="logs-container">
+        <div class="logs-empty">Loading logs...</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="/assets/js/firebase-config.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

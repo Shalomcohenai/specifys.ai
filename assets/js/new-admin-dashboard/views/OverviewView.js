@@ -1,19 +1,16 @@
 /**
- * Overview View - Redesigned from scratch
+ * Overview View - Complete redesign
  * Shows: Active users now, New users today, Specs created today, Purchases today
+ * With proper charts and Recent Activity
  */
 
-import { ChartComponent } from '../components/ChartComponent.js';
-import { MetricsCalculator } from '../core/MetricsCalculator.js';
 import { helpers } from '../utils/helpers.js';
 
 export class OverviewView {
   constructor(dataManager, stateManager) {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
-    this.metricsCalculator = new MetricsCalculator(dataManager);
     this.charts = new Map();
-    this.activityFeed = null;
     
     this.init();
   }
@@ -25,82 +22,89 @@ export class OverviewView {
     // Initialize charts
     this.initCharts();
     
-    // Initialize activity feed
-    this.initActivityFeed();
-    
-    // Setup event listeners
-    this.setupEventListeners();
-    
-    // Subscribe to data changes
+    // Setup data subscriptions
     this.setupDataSubscriptions();
   }
   
   /**
-   * Initialize charts
+   * Initialize charts - Better charts with proper sizing
    */
   initCharts() {
-    const chartIds = ['chart-active-now', 'chart-new-today', 'chart-specs-today', 'chart-purchases-today'];
+    if (!window.Chart) {
+      console.warn('[OverviewView] Chart.js not loaded');
+      return;
+    }
     
-    chartIds.forEach(chartId => {
-      const canvas = helpers.dom(`#${chartId}`);
-      if (canvas && window.Chart) {
-        // Set fixed size
-        canvas.style.width = '100%';
-        canvas.style.height = '60px';
-        canvas.width = canvas.offsetWidth;
-        canvas.height = 60;
-        
-        const chart = new ChartComponent(canvas, {
-          type: 'line',
-          data: {
-            labels: this.getLast7DaysLabels(),
-            datasets: [{
-              label: chartId,
-              data: new Array(7).fill(0),
-              borderColor: this.getChartColor(chartId),
-              backgroundColor: this.getChartColor(chartId, 0.1),
-              borderWidth: 2,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 0,
-              pointHoverRadius: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: { enabled: true }
-            },
-            scales: {
-              x: {
-                display: false
-              },
-              y: {
-                display: false,
-                beginAtZero: true
-              }
+    const chartConfigs = [
+      { id: 'chart-active-users', color: 'rgba(59, 130, 246, 1)', bgColor: 'rgba(59, 130, 246, 0.1)' },
+      { id: 'chart-new-users', color: 'rgba(16, 185, 129, 1)', bgColor: 'rgba(16, 185, 129, 0.1)' },
+      { id: 'chart-specs', color: 'rgba(139, 92, 246, 1)', bgColor: 'rgba(139, 92, 246, 0.1)' },
+      { id: 'chart-purchases', color: 'rgba(245, 158, 11, 1)', bgColor: 'rgba(245, 158, 11, 0.1)' }
+    ];
+    
+    chartConfigs.forEach(config => {
+      const canvas = helpers.dom(`#${config.id}`);
+      if (!canvas) return;
+      
+      // Set fixed size
+      canvas.style.width = '100%';
+      canvas.style.height = '60px';
+      
+      const ctx = canvas.getContext('2d');
+      const chart = new window.Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: this.getLast7DaysLabels(),
+          datasets: [{
+            label: config.id,
+            data: new Array(7).fill(0),
+            borderColor: config.color,
+            backgroundColor: config.bgColor,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBorderWidth: 2,
+            pointHoverBackgroundColor: config.color,
+            pointHoverBorderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: true,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 8,
+              titleFont: { size: 12 },
+              bodyFont: { size: 11 },
+              cornerRadius: 4,
+              displayColors: false
             }
+          },
+          scales: {
+            x: {
+              display: false,
+              grid: { display: false }
+            },
+            y: {
+              display: false,
+              beginAtZero: true,
+              grid: { display: false }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
           }
-        });
-        
-        this.charts.set(chartId, chart);
-      }
+        }
+      });
+      
+      this.charts.set(config.id, chart);
     });
-  }
-  
-  /**
-   * Get chart color
-   */
-  getChartColor(chartId, alpha = 1) {
-    const colors = {
-      'chart-active-now': `rgba(59, 130, 246, ${alpha})`,
-      'chart-new-today': `rgba(16, 185, 129, ${alpha})`,
-      'chart-specs-today': `rgba(139, 92, 246, ${alpha})`,
-      'chart-purchases-today': `rgba(245, 158, 11, ${alpha})`
-    };
-    return colors[chartId] || `rgba(99, 102, 241, ${alpha})`;
   }
   
   /**
@@ -118,64 +122,26 @@ export class OverviewView {
   }
   
   /**
-   * Initialize activity feed
-   */
-  initActivityFeed() {
-    this.activityFeed = helpers.dom('#activity-feed');
-    
-    // Setup filter buttons
-    const filterButtons = helpers.domAll('.activity-filter-btn');
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const filter = btn.dataset.filter || 'all';
-        this.stateManager.setState('activityFilter', filter);
-        this.renderActivityFeed();
-      });
-    });
-  }
-  
-  /**
-   * Setup event listeners
-   */
-  setupEventListeners() {
-    // Refresh button
-    const refreshBtn = helpers.dom('#refresh-data-btn');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => {
-        this.updateAll();
-      });
-    }
-  }
-  
-  /**
    * Setup data subscriptions
    */
   setupDataSubscriptions() {
     // Subscribe to all data sources
     ['users', 'userCredits', 'specs', 'purchases', 'activityLogs'].forEach(source => {
-      this.dataManager.on('data', ({ source: dataSource, data }) => {
+      this.dataManager.on('data', ({ source: dataSource }) => {
         if (dataSource === source) {
-          this.updateAll();
+          this.updateMetrics();
           if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases') {
             this.renderActivityFeed();
           }
         }
       });
     });
-    
-    // Subscribe to activity events
-    this.dataManager.on('activity', () => {
-      this.renderActivityFeed();
-    });
   }
   
   /**
    * Update all metrics
    */
-  updateAll() {
+  updateMetrics() {
     const allData = this.dataManager.getAllData();
     
     // Calculate today's date
@@ -192,13 +158,15 @@ export class OverviewView {
     
     // 1. Active Users Now (last 15 minutes)
     const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
-    const activeNow = allData.users.filter(u => 
-      u.lastActive && u.lastActive.getTime() >= fifteenMinutesAgo
-    ).length;
+    const activeNow = allData.users.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= fifteenMinutesAgo;
+    }).length;
     
     const activeYesterday = allData.users.filter(u => {
       if (!u.lastActive) return false;
-      const lastActive = u.lastActive.getTime();
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
       return lastActive >= yesterday.getTime() && lastActive <= yesterdayEnd.getTime();
     }).length;
     
@@ -206,20 +174,18 @@ export class OverviewView {
       ? Math.round(((activeNow - activeYesterday) / activeYesterday) * 100)
       : 0;
     
-    this.updateMetric('metric-active-now', activeNow);
-    this.updateChange('metric-active-now-change', activeChange);
-    this.updateChart('chart-active-now', this.calculateDailyData(allData.users, 'lastActive', today));
+    this.updateMetricCard('metric-active-users', activeNow, activeChange, 'chart-active-users', allData.users, 'lastActive');
     
     // 2. New Users Today
     const newToday = allData.users.filter(u => {
       if (!u.createdAt) return false;
-      const created = u.createdAt.getTime();
+      const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
       return created >= today.getTime() && created <= todayEnd.getTime();
     }).length;
     
     const newYesterday = allData.users.filter(u => {
       if (!u.createdAt) return false;
-      const created = u.createdAt.getTime();
+      const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
       return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
     }).length;
     
@@ -227,20 +193,18 @@ export class OverviewView {
       ? Math.round(((newToday - newYesterday) / newYesterday) * 100)
       : 0;
     
-    this.updateMetric('metric-new-today', newToday);
-    this.updateChange('metric-new-today-change', newChange);
-    this.updateChart('chart-new-today', this.calculateDailyData(allData.users, 'createdAt', today));
+    this.updateMetricCard('metric-new-users', newToday, newChange, 'chart-new-users', allData.users, 'createdAt');
     
     // 3. Specs Created Today
     const specsToday = allData.specs.filter(s => {
       if (!s.createdAt) return false;
-      const created = s.createdAt.getTime();
+      const created = s.createdAt instanceof Date ? s.createdAt.getTime() : new Date(s.createdAt).getTime();
       return created >= today.getTime() && created <= todayEnd.getTime();
     }).length;
     
     const specsYesterday = allData.specs.filter(s => {
       if (!s.createdAt) return false;
-      const created = s.createdAt.getTime();
+      const created = s.createdAt instanceof Date ? s.createdAt.getTime() : new Date(s.createdAt).getTime();
       return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
     }).length;
     
@@ -248,36 +212,104 @@ export class OverviewView {
       ? Math.round(((specsToday - specsYesterday) / specsYesterday) * 100)
       : 0;
     
-    this.updateMetric('metric-specs-today', specsToday);
-    this.updateChange('metric-specs-today-change', specsChange);
-    this.updateChart('chart-specs-today', this.calculateDailyData(allData.specs, 'createdAt', today));
+    this.updateMetricCard('metric-specs', specsToday, specsChange, 'chart-specs', allData.specs, 'createdAt');
     
     // 4. Purchases Today
     const purchasesToday = allData.purchases.filter(p => {
       if (!p.createdAt) return false;
-      const created = p.createdAt.getTime();
+      const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
       return created >= today.getTime() && created <= todayEnd.getTime();
     });
     
     const purchasesCount = purchasesToday.length;
     const revenueToday = purchasesToday.reduce((sum, p) => sum + (p.total || 0), 0);
     
-    this.updateMetric('metric-purchases-today', purchasesCount);
-    this.updateMetric('metric-revenue-today', revenueToday, true);
-    this.updateChart('chart-purchases-today', this.calculateDailyData(allData.purchases, 'createdAt', today, 'total'));
+    const purchasesYesterday = allData.purchases.filter(p => {
+      if (!p.createdAt) return false;
+      const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
+      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+    }).length;
+    
+    const purchasesChange = purchasesYesterday > 0
+      ? Math.round(((purchasesCount - purchasesYesterday) / purchasesYesterday) * 100)
+      : 0;
+    
+    this.updateMetricCard('metric-purchases', purchasesCount, purchasesChange, 'chart-purchases', allData.purchases, 'createdAt', 'total');
+    
+    // Update revenue
+    const revenueEl = helpers.dom('#metric-revenue-value');
+    if (revenueEl) {
+      revenueEl.textContent = helpers.formatCurrency(revenueToday);
+    }
+  }
+  
+  /**
+   * Update metric card
+   */
+  updateMetricCard(metricId, value, change, chartId, data, dateField, valueField = null) {
+    // Update value - fix ID mapping
+    const valueIdMap = {
+      'metric-active-users': 'metric-active-value',
+      'metric-new-users': 'metric-new-value',
+      'metric-specs': 'metric-specs-value',
+      'metric-purchases': 'metric-purchases-value'
+    };
+    
+    const valueEl = helpers.dom(`#${valueIdMap[metricId] || metricId + '-value'}`);
+    if (valueEl) {
+      valueEl.textContent = value.toLocaleString();
+    }
+    
+    // Update change - fix ID mapping
+    const changeIdMap = {
+      'metric-active-users': 'metric-active-change',
+      'metric-new-users': 'metric-new-change',
+      'metric-specs': 'metric-specs-change',
+      'metric-purchases': 'metric-purchases-change'
+    };
+    
+    const changeEl = helpers.dom(`#${changeIdMap[metricId] || metricId + '-change'}`);
+    if (changeEl) {
+      const icon = changeEl.querySelector('i');
+      const span = changeEl.querySelector('span');
+      
+      if (change > 0) {
+        if (icon) icon.className = 'fas fa-arrow-up';
+        changeEl.classList.remove('negative');
+        if (span) span.textContent = `+${change}%`;
+      } else if (change < 0) {
+        if (icon) icon.className = 'fas fa-arrow-down';
+        changeEl.classList.add('negative');
+        if (span) span.textContent = `${change}%`;
+      } else {
+        if (icon) icon.className = 'fas fa-minus';
+        changeEl.classList.remove('negative');
+        if (span) span.textContent = '0%';
+      }
+    }
+    
+    // Update chart
+    const chart = this.charts.get(chartId);
+    if (chart) {
+      const dailyData = this.calculateDailyData(data, dateField, valueField);
+      chart.data.datasets[0].data = dailyData;
+      chart.update('none');
+    }
   }
   
   /**
    * Calculate daily data for last 7 days
    */
-  calculateDailyData(data, dateField, today, valueField = null) {
+  calculateDailyData(data, dateField, valueField = null) {
     const dailyData = new Array(7).fill(0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
     data.forEach(item => {
       const itemDate = item[dateField];
       if (!itemDate) return;
       
-      const date = new Date(itemDate);
+      const date = itemDate instanceof Date ? itemDate : new Date(itemDate);
       date.setHours(0, 0, 0, 0);
       const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
       
@@ -291,88 +323,116 @@ export class OverviewView {
   }
   
   /**
-   * Update metric value
-   */
-  updateMetric(id, value, isCurrency = false) {
-    const element = helpers.dom(`#${id}`);
-    if (element) {
-      if (isCurrency) {
-        element.textContent = helpers.formatCurrency(value);
-      } else {
-        element.textContent = value.toLocaleString();
-      }
-    }
-  }
-  
-  /**
-   * Update change indicator
-   */
-  updateChange(id, change) {
-    const element = helpers.dom(`#${id}`);
-    if (element) {
-      const icon = element.querySelector('i');
-      const span = element.querySelector('span');
-      
-      if (change > 0) {
-        icon.className = 'fas fa-arrow-up';
-        element.style.color = 'var(--success)';
-        element.style.background = 'rgba(16, 185, 129, 0.1)';
-        span.textContent = `+${change}%`;
-      } else if (change < 0) {
-        icon.className = 'fas fa-arrow-down';
-        element.style.color = 'var(--error)';
-        element.style.background = 'rgba(239, 68, 68, 0.1)';
-        span.textContent = `${change}%`;
-      } else {
-        icon.className = 'fas fa-minus';
-        element.style.color = 'var(--text-tertiary)';
-        element.style.background = 'var(--gray-100)';
-        span.textContent = '0%';
-      }
-    }
-  }
-  
-  /**
-   * Update chart
-   */
-  updateChart(chartId, data) {
-    const chart = this.charts.get(chartId);
-    if (chart) {
-      chart.updateData({ data });
-    }
-  }
-  
-  /**
-   * Render activity feed
+   * Render activity feed - FIXED to show data
    */
   renderActivityFeed() {
-    if (!this.activityFeed) return;
+    const activityList = helpers.dom('#activity-list');
+    if (!activityList) return;
     
     const filter = this.stateManager.getState('activityFilter') || 'all';
-    const events = this.dataManager.getActivityEvents(filter);
+    const allData = this.dataManager.getAllData();
     
-    if (events.length === 0) {
-      this.activityFeed.innerHTML = '<li class="activity-placeholder">No activity yet</li>';
+    // Get activity events from multiple sources
+    const events = [];
+    
+    // From activity logs
+    if (allData.activityLogs && allData.activityLogs.length > 0) {
+      allData.activityLogs.forEach(log => {
+        events.push({
+          type: this.getEventType(log),
+          title: log.title || log.message || 'Activity',
+          description: log.description || log.path || '',
+          timestamp: log.timestamp || log.createdAt || new Date(),
+          user: log.user || log.userEmail || ''
+        });
+      });
+    }
+    
+    // From purchases
+    if (allData.purchases && allData.purchases.length > 0) {
+      allData.purchases.slice(0, 10).forEach(purchase => {
+        events.push({
+          type: 'payment',
+          title: `Purchase: ${purchase.productName || 'Product'}`,
+          description: `$${purchase.total || 0}`,
+          timestamp: purchase.createdAt || new Date(),
+          user: purchase.userEmail || purchase.userId || ''
+        });
+      });
+    }
+    
+    // From new users
+    if (allData.users && allData.users.length > 0) {
+      allData.users
+        .filter(u => {
+          if (!u.createdAt) return false;
+          const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
+          const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+          return created >= oneDayAgo;
+        })
+        .slice(0, 5)
+        .forEach(user => {
+          events.push({
+            type: 'user',
+            title: `New user registered`,
+            description: user.email || user.displayName || user.id,
+            timestamp: user.createdAt || new Date(),
+            user: user.email || user.displayName || user.id
+          });
+        });
+      }
+    
+    // Sort by timestamp (newest first)
+    events.sort((a, b) => {
+      const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return timeB - timeA;
+    });
+    
+    // Apply filter
+    const filteredEvents = filter === 'all' 
+      ? events 
+      : events.filter(e => e.type === filter);
+    
+    // Limit to 10
+    const displayEvents = filteredEvents.slice(0, 10);
+    
+    if (displayEvents.length === 0) {
+      activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
       return;
     }
     
-    const html = events.slice(0, 10).map(event => {
+    const html = displayEvents.map(event => {
       const icon = this.getActivityIcon(event.type);
-      const time = helpers.formatRelative(event.timestamp);
+      const time = this.formatRelativeTime(event.timestamp);
       
       return `
-        <li class="activity-item">
-          <span class="activity-icon"><i class="${icon}"></i></span>
-          <div class="activity-content">
-            <div class="activity-title">${this.escapeHtml(event.title || 'Activity')}</div>
-            <div class="activity-description">${this.escapeHtml(event.description || '')}</div>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <i class="${icon}"></i>
           </div>
-          <time class="activity-time">${time}</time>
-        </li>
+          <div class="activity-content">
+            <div class="activity-title">${this.escapeHtml(event.title)}</div>
+            <div class="activity-description">${this.escapeHtml(event.description)}</div>
+          </div>
+          <div class="activity-time">${time}</div>
+        </div>
       `;
     }).join('');
     
-    this.activityFeed.innerHTML = html;
+    activityList.innerHTML = html;
+  }
+  
+  /**
+   * Get event type from log
+   */
+  getEventType(log) {
+    if (log.type) return log.type;
+    if (log.level === 'error') return 'error';
+    if (log.level === 'warning') return 'warning';
+    if (log.path && log.path.includes('spec')) return 'spec';
+    if (log.path && log.path.includes('payment')) return 'payment';
+    return 'info';
   }
   
   /**
@@ -383,15 +443,40 @@ export class OverviewView {
       user: 'fas fa-user',
       spec: 'fas fa-file-alt',
       payment: 'fas fa-credit-card',
-      subscription: 'fas fa-sync-alt'
+      subscription: 'fas fa-sync-alt',
+      error: 'fas fa-exclamation-circle',
+      warning: 'fas fa-exclamation-triangle',
+      info: 'fas fa-info-circle'
     };
     return icons[type] || 'fas fa-circle';
+  }
+  
+  /**
+   * Format relative time
+   */
+  formatRelativeTime(timestamp) {
+    if (!timestamp) return 'Just now';
+    
+    const time = timestamp instanceof Date ? timestamp.getTime() : new Date(timestamp).getTime();
+    const now = Date.now();
+    const diff = now - time;
+    
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+    
+    return new Date(time).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
   }
   
   /**
    * Escape HTML
    */
   escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
@@ -402,12 +487,12 @@ export class OverviewView {
    */
   show() {
     console.log('[OverviewView] Showing view');
-    this.updateAll();
+    this.updateMetrics();
     this.renderActivityFeed();
     
     // Force update after a short delay
     setTimeout(() => {
-      this.updateAll();
+      this.updateMetrics();
       this.renderActivityFeed();
     }, 500);
   }
@@ -417,5 +502,13 @@ export class OverviewView {
    */
   hide() {
     // Cleanup if needed
+  }
+  
+  /**
+   * Update view
+   */
+  update() {
+    this.updateMetrics();
+    this.renderActivityFeed();
   }
 }

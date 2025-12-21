@@ -1,6 +1,6 @@
 /**
  * New Admin Dashboard - Main Entry Point
- * Modern, modular architecture with reliable Firebase connection
+ * Complete redesign with top navigation and modern layout
  */
 
 import { firebaseService } from './core/FirebaseService.js';
@@ -22,18 +22,14 @@ class NewAdminDashboard {
     
     // DOM elements
     this.elements = {
-      shell: helpers.dom('#new-admin-shell'),
-      sidebar: helpers.dom('#admin-sidebar'),
-      mobileMenuToggle: helpers.dom('#mobile-menu-toggle'),
-      mobileMenuBackdrop: helpers.dom('#mobile-menu-backdrop'),
-      navLinks: helpers.domAll('.nav-link'),
-      sections: helpers.domAll('.dashboard-section'),
-      connectionIndicator: helpers.dom('#connection-indicator'),
-      connectionLabel: helpers.dom('#connection-indicator .label'),
-      sidebarLastSync: helpers.dom('#sidebar-last-sync'),
-      topbarStatus: helpers.dom('#topbar-sync-status'),
+      navTabs: helpers.domAll('.nav-tab'),
+      sections: helpers.domAll('.dashboard-content-section'),
+      connectionStatus: helpers.dom('#connection-status'),
+      statusDot: helpers.dom('#status-dot'),
+      statusText: helpers.dom('#status-text'),
+      refreshBtn: helpers.dom('#refresh-btn'),
       signOutBtn: helpers.dom('#sign-out-btn'),
-      refreshBtn: helpers.dom('#manual-refresh-btn')
+      lastSyncTime: helpers.dom('#last-sync-time')
     };
     
     // Views
@@ -48,23 +44,11 @@ class NewAdminDashboard {
    */
   async init() {
     try {
-      // Setup UI first (so sections are visible)
+      // Setup UI first
       this.setupUI();
-      
-      // Initialize views (before navigation)
-      this.initViews();
-      
-      // Show overview section by default - MUST be after views are initialized
-      this.navigateToSection('overview-section');
       
       // Setup auth gate
       this.setupAuthGate();
-      
-      // Setup data listeners
-      this.setupDataListeners();
-      
-      // Setup connection monitoring
-      this.setupConnectionMonitoring();
       
     } catch (error) {
       console.error('[NewAdminDashboard] Initialization error:', error);
@@ -104,23 +88,24 @@ class NewAdminDashboard {
       // Initialize data manager
       await this.dataManager.initialize();
       
+      // Initialize views
+      this.initViews();
+      
       // Wait a bit for initial data to load
       await helpers.sleep(1000);
       
       // Update connection state
       this.updateConnectionState('online', 'Realtime sync active');
-      this.stateManager.setState('lastSync', new Date());
+      this.updateLastSync();
       
-      // Show overview view and update it
-      const overviewView = this.views.get('overview-section');
-      if (overviewView) {
-        overviewView.show();
-        // Force update after data loads
-        setTimeout(() => {
-          overviewView.updateMetrics();
-          overviewView.renderActivityFeed();
-        }, 500);
-      }
+      // Show overview section by default
+      this.navigateToSection('overview');
+      
+      // Setup data listeners
+      this.setupDataListeners();
+      
+      // Setup connection monitoring
+      this.setupConnectionMonitoring();
       
     } catch (error) {
       console.error('[NewAdminDashboard] Start error:', error);
@@ -132,30 +117,24 @@ class NewAdminDashboard {
    * Setup UI
    */
   setupUI() {
-    // Mobile menu
-    if (this.elements.mobileMenuToggle) {
-      this.elements.mobileMenuToggle.addEventListener('click', () => {
-        this.toggleMobileMenu();
-      });
-    }
-    
-    if (this.elements.mobileMenuBackdrop) {
-      this.elements.mobileMenuBackdrop.addEventListener('click', () => {
-        this.closeMobileMenu();
-      });
-    }
-    
-    // Navigation
-    this.elements.navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        if (link.dataset.target) {
-          e.preventDefault();
-          this.navigateToSection(link.dataset.target);
+    // Navigation tabs
+    this.elements.navTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const section = tab.dataset.section;
+        if (section) {
+          this.navigateToSection(section);
         }
       });
     });
     
-    // Sign out
+    // Refresh button
+    if (this.elements.refreshBtn) {
+      this.elements.refreshBtn.addEventListener('click', () => {
+        this.refreshData();
+      });
+    }
+    
+    // Sign out button
     if (this.elements.signOutBtn) {
       this.elements.signOutBtn.addEventListener('click', async () => {
         try {
@@ -167,13 +146,6 @@ class NewAdminDashboard {
       });
     }
     
-    // Refresh
-    if (this.elements.refreshBtn) {
-      this.elements.refreshBtn.addEventListener('click', () => {
-        this.refreshData();
-      });
-    }
-    
     // Sync credits button
     const syncCreditsBtn = helpers.dom('#sync-credits-btn');
     if (syncCreditsBtn) {
@@ -182,43 +154,23 @@ class NewAdminDashboard {
       });
     }
     
-    // Close mobile menu on window resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        this.closeMobileMenu();
-      }
+    // Activity filters
+    const filterChips = helpers.domAll('.filter-chip');
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        
+        const filter = chip.dataset.filter || 'all';
+        this.stateManager.setState('activityFilter', filter);
+        
+        // Update activity feed
+        const overviewView = this.views.get('overview');
+        if (overviewView && typeof overviewView.renderActivityFeed === 'function') {
+          overviewView.renderActivityFeed();
+        }
+      });
     });
-  }
-  
-  /**
-   * Toggle mobile menu
-   */
-  toggleMobileMenu() {
-    if (this.elements.sidebar) {
-      this.elements.sidebar.classList.toggle('mobile-open');
-      if (this.elements.mobileMenuBackdrop) {
-        this.elements.mobileMenuBackdrop.classList.toggle('active');
-      }
-      if (this.elements.mobileMenuToggle) {
-        const isOpen = this.elements.sidebar.classList.contains('mobile-open');
-        this.elements.mobileMenuToggle.setAttribute('aria-expanded', isOpen);
-      }
-    }
-  }
-  
-  /**
-   * Close mobile menu
-   */
-  closeMobileMenu() {
-    if (this.elements.sidebar) {
-      this.elements.sidebar.classList.remove('mobile-open');
-      if (this.elements.mobileMenuBackdrop) {
-        this.elements.mobileMenuBackdrop.classList.remove('active');
-      }
-      if (this.elements.mobileMenuToggle) {
-        this.elements.mobileMenuToggle.setAttribute('aria-expanded', 'false');
-      }
-    }
   }
   
   /**
@@ -227,24 +179,15 @@ class NewAdminDashboard {
   navigateToSection(sectionId) {
     console.log('[NewAdminDashboard] Navigating to section:', sectionId);
     
-    // Hide current view
-    const currentSection = this.stateManager.getState('activeSection');
-    if (currentSection) {
-      const currentView = this.views.get(currentSection);
-      if (currentView && typeof currentView.hide === 'function') {
-        currentView.hide();
-      }
-    }
-    
-    // Update active nav
-    this.elements.navLinks.forEach(link => {
-      const isActive = link.dataset.target === sectionId;
-      link.classList.toggle('active', isActive);
+    // Update active nav tabs
+    this.elements.navTabs.forEach(tab => {
+      const isActive = tab.dataset.section === sectionId;
+      tab.classList.toggle('active', isActive);
     });
     
-    // Update active section - CRITICAL: Make sure sections are shown
+    // Update active sections
     this.elements.sections.forEach(section => {
-      const isActive = section.id === sectionId;
+      const isActive = section.id === `${sectionId}-section`;
       if (isActive) {
         section.classList.add('active');
         section.style.display = 'block';
@@ -257,19 +200,41 @@ class NewAdminDashboard {
     // Update state
     this.stateManager.setState('activeSection', sectionId);
     
-    // Show new view
-    const newView = this.views.get(sectionId);
-    if (newView && typeof newView.show === 'function') {
-      newView.show();
+    // Show view
+    const view = this.views.get(sectionId);
+    if (view && typeof view.show === 'function') {
+      view.show();
     } else {
       console.warn('[NewAdminDashboard] No view found for section:', sectionId);
     }
     
-    // Close mobile menu
-    this.closeMobileMenu();
-    
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  /**
+   * Initialize views
+   */
+  initViews() {
+    try {
+      // Overview view
+      this.views.set('overview', new OverviewView(this.dataManager, this.stateManager));
+      
+      // Users view
+      this.views.set('users', new UsersView(this.dataManager, this.stateManager));
+      
+      // Analytics view
+      this.views.set('analytics', new AnalyticsView(this.dataManager, this.stateManager));
+      
+      // Payments view
+      this.views.set('payments', new PaymentsView(this.dataManager, this.stateManager));
+      
+      // Logs view
+      this.views.set('logs', new LogsView(this.dataManager, this.stateManager));
+      
+    } catch (error) {
+      console.error('[NewAdminDashboard] Error initializing views:', error);
+    }
   }
   
   /**
@@ -279,7 +244,7 @@ class NewAdminDashboard {
     // Listen to data changes
     this.dataManager.on('data', ({ source, data }) => {
       this.stateManager.setState(source, data);
-      this.updateSourceStatus(source, 'Ready');
+      this.updateSourceStatus(source, 'ready');
       this.updateUI(source);
     });
     
@@ -287,24 +252,22 @@ class NewAdminDashboard {
     this.dataManager.on('loading', ({ source, loading }) => {
       this.stateManager.setState(`loading.${source}`, loading);
       if (loading) {
-        this.updateSourceStatus(source, 'Pending');
+        this.updateSourceStatus(source, 'pending');
       }
     });
     
     // Listen to restricted (permission denied) - handle gracefully
     this.dataManager.on('restricted', ({ source, error }) => {
       console.warn(`[NewAdminDashboard] Access restricted for ${source}:`, error.message);
-      this.updateSourceStatus(source, 'Restricted');
-      // Don't show as error, just mark as restricted
+      this.updateSourceStatus(source, 'restricted');
       this.stateManager.setState(`restricted.${source}`, true);
     });
     
     // Listen to errors
     this.dataManager.on('error', ({ source, error }) => {
-      // Don't log permission errors as errors (they're handled as restricted)
       if (error?.code !== 'permission-denied') {
         this.stateManager.setState(`errors.${source}`, error);
-        this.updateSourceStatus(source, 'Error');
+        this.updateSourceStatus(source, 'error');
         console.error(`[NewAdminDashboard] Error in ${source}:`, error);
       }
     });
@@ -317,6 +280,7 @@ class NewAdminDashboard {
     firebaseService.onConnectionChange((connectionState) => {
       if (connectionState.online) {
         this.updateConnectionState('online', 'Realtime sync active');
+        this.updateLastSync();
       } else if (connectionState.retrying) {
         this.updateConnectionState('pending', 'Reconnecting…');
       } else {
@@ -329,56 +293,31 @@ class NewAdminDashboard {
    * Update connection state
    */
   updateConnectionState(status, label) {
-    if (this.elements.connectionIndicator) {
-      const dot = this.elements.connectionIndicator.querySelector('.dot');
-      if (dot) {
-        dot.classList.remove('status-online', 'status-offline', 'status-pending');
-        dot.classList.add(`status-${status}`);
-      }
+    if (this.elements.statusDot) {
+      this.elements.statusDot.className = 'status-dot';
+      this.elements.statusDot.classList.add(status);
     }
     
-    if (this.elements.connectionLabel) {
-      this.elements.connectionLabel.textContent = label;
-    }
-    
-    if (this.elements.topbarStatus) {
-      this.elements.topbarStatus.textContent = label;
-    }
-    
-    if (this.elements.sidebarLastSync && status === 'online') {
-      this.elements.sidebarLastSync.textContent = helpers.formatDate(new Date());
+    if (this.elements.statusText) {
+      this.elements.statusText.textContent = label;
     }
     
     this.stateManager.setState('connectionStatus', status);
   }
   
   /**
-   * Initialize views
+   * Update last sync time
    */
-  initViews() {
-    try {
-      // Overview view
-      this.views.set('overview-section', new OverviewView(this.dataManager, this.stateManager));
-      
-      // Users view
-      this.views.set('users-section', new UsersView(this.dataManager, this.stateManager));
-      
-      // Payments view
-      this.views.set('payments-section', new PaymentsView(this.dataManager, this.stateManager));
-      
-      // Logs view
-      this.views.set('logs-section', new LogsView(this.dataManager, this.stateManager));
-      
-      // Analytics view
-      this.views.set('analytics-section', new AnalyticsView(this.dataManager, this.stateManager));
-      
-      // Show overview view immediately
-      const overviewView = this.views.get('overview-section');
-      if (overviewView) {
-        overviewView.show();
-      }
-    } catch (error) {
-      console.error('[NewAdminDashboard] Error initializing views:', error);
+  updateLastSync() {
+    if (this.elements.lastSyncTime) {
+      const now = new Date();
+      this.elements.lastSyncTime.textContent = now.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     }
   }
   
@@ -386,7 +325,6 @@ class NewAdminDashboard {
    * Update UI based on data source
    */
   updateUI(source) {
-    // Update active view if it depends on this data source
     const activeSection = this.stateManager.getState('activeSection');
     const activeView = this.views.get(activeSection);
     
@@ -407,7 +345,7 @@ class NewAdminDashboard {
       await this.dataManager.initialize();
       
       this.updateConnectionState('online', 'Realtime sync active');
-      this.stateManager.setState('lastSync', new Date());
+      this.updateLastSync();
     } catch (error) {
       console.error('[NewAdminDashboard] Refresh error:', error);
       this.updateConnectionState('offline', 'Refresh failed');
@@ -448,8 +386,9 @@ class NewAdminDashboard {
   updateSourceStatus(source, status) {
     const statusElement = helpers.dom(`[data-source="${source}"]`);
     if (statusElement) {
-      statusElement.textContent = status;
-      statusElement.className = `source-state ${status.toLowerCase()}`;
+      statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+      statusElement.className = 'status-badge';
+      statusElement.classList.add(status);
     }
   }
 }
@@ -462,4 +401,3 @@ if (document.readyState === 'loading') {
 } else {
   window.newAdminDashboard = new NewAdminDashboard();
 }
-
