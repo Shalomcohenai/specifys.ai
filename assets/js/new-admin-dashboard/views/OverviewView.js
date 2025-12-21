@@ -22,8 +22,26 @@ export class OverviewView {
     // Initialize charts
     this.initCharts();
     
+    // Setup event listeners
+    this.setupEventListeners();
+    
     // Setup data subscriptions
     this.setupDataSubscriptions();
+  }
+  
+  /**
+   * Setup event listeners
+   */
+  setupEventListeners() {
+    // Overview range select
+    const rangeSelect = helpers.dom('#overview-range-select');
+    if (rangeSelect) {
+      rangeSelect.addEventListener('change', (e) => {
+        const range = e.target.value;
+        this.stateManager.setState('overviewRange', range);
+        this.updateMetrics();
+      });
+    }
   }
   
   /**
@@ -51,13 +69,14 @@ export class OverviewView {
       canvas.style.height = '60px';
       
       const ctx = canvas.getContext('2d');
+      const labels = this.getLast7DaysLabels();
       const chart = new window.Chart(ctx, {
         type: 'line',
         data: {
-          labels: this.getLast7DaysLabels(),
+          labels: labels,
           datasets: [{
             label: config.id,
-            data: new Array(7).fill(0),
+            data: new Array(labels.length).fill(0),
             borderColor: config.color,
             backgroundColor: config.bgColor,
             borderWidth: 2,
@@ -156,97 +175,96 @@ export class OverviewView {
     const yesterdayEnd = new Date(yesterday);
     yesterdayEnd.setHours(23, 59, 59, 999);
     
-    // 1. Active Users Now (last 15 minutes)
-    const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
-    const activeNow = allData.users.filter(u => {
+    // 1. Active Users (in selected range)
+    const activeInRange = allData.users.filter(u => {
       if (!u.lastActive) return false;
       const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
-      return lastActive >= fifteenMinutesAgo;
+      return lastActive >= startDate.getTime() && lastActive <= today.getTime();
     }).length;
     
-    const activeYesterday = allData.users.filter(u => {
+    const activeInPreviousRange = allData.users.filter(u => {
       if (!u.lastActive) return false;
       const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
-      return lastActive >= yesterday.getTime() && lastActive <= yesterdayEnd.getTime();
+      return lastActive >= previousStartDate.getTime() && lastActive <= previousEndDate.getTime();
     }).length;
     
-    const activeChange = activeYesterday > 0 
-      ? Math.round(((activeNow - activeYesterday) / activeYesterday) * 100)
-      : 0;
+    const activeChange = activeInPreviousRange > 0 
+      ? Math.round(((activeInRange - activeInPreviousRange) / activeInPreviousRange) * 100)
+      : (activeInRange > 0 ? 100 : 0);
     
-    this.updateMetricCard('metric-active-users', activeNow, activeChange, 'chart-active-users', allData.users, 'lastActive');
+    this.updateMetricCard('metric-active-users', activeInRange, activeChange, 'chart-active-users', allData.users, 'lastActive', null, startDate, today);
     
-    // 2. New Users Today
-    const newToday = allData.users.filter(u => {
+    // 2. New Users (in selected range)
+    const newInRange = allData.users.filter(u => {
       if (!u.createdAt) return false;
       const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
-      return created >= today.getTime() && created <= todayEnd.getTime();
+      return created >= startDate.getTime() && created <= today.getTime();
     }).length;
     
-    const newYesterday = allData.users.filter(u => {
+    const newInPreviousRange = allData.users.filter(u => {
       if (!u.createdAt) return false;
       const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
-      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+      return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const newChange = newYesterday > 0
-      ? Math.round(((newToday - newYesterday) / newYesterday) * 100)
-      : 0;
+    const newChange = newInPreviousRange > 0
+      ? Math.round(((newInRange - newInPreviousRange) / newInPreviousRange) * 100)
+      : (newInRange > 0 ? 100 : 0);
     
-    this.updateMetricCard('metric-new-users', newToday, newChange, 'chart-new-users', allData.users, 'createdAt');
+    this.updateMetricCard('metric-new-users', newInRange, newChange, 'chart-new-users', allData.users, 'createdAt', null, startDate, today);
     
-    // 3. Specs Created Today
-    const specsToday = allData.specs.filter(s => {
+    // 3. Specs Created (in selected range)
+    const specsInRange = allData.specs.filter(s => {
       if (!s.createdAt) return false;
       const created = s.createdAt instanceof Date ? s.createdAt.getTime() : new Date(s.createdAt).getTime();
-      return created >= today.getTime() && created <= todayEnd.getTime();
+      return created >= startDate.getTime() && created <= today.getTime();
     }).length;
     
-    const specsYesterday = allData.specs.filter(s => {
+    const specsInPreviousRange = allData.specs.filter(s => {
       if (!s.createdAt) return false;
       const created = s.createdAt instanceof Date ? s.createdAt.getTime() : new Date(s.createdAt).getTime();
-      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+      return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const specsChange = specsYesterday > 0
-      ? Math.round(((specsToday - specsYesterday) / specsYesterday) * 100)
-      : 0;
+    const specsChange = specsInPreviousRange > 0
+      ? Math.round(((specsInRange - specsInPreviousRange) / specsInPreviousRange) * 100)
+      : (specsInRange > 0 ? 100 : 0);
     
-    this.updateMetricCard('metric-specs', specsToday, specsChange, 'chart-specs', allData.specs, 'createdAt');
+    this.updateMetricCard('metric-specs', specsInRange, specsChange, 'chart-specs', allData.specs, 'createdAt', null, startDate, today);
     
-    // 4. Purchases Today
-    const purchasesToday = allData.purchases.filter(p => {
+    // 4. Purchases (in selected range)
+    const purchasesInRange = allData.purchases.filter(p => {
       if (!p.createdAt) return false;
       const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
-      return created >= today.getTime() && created <= todayEnd.getTime();
+      return created >= startDate.getTime() && created <= today.getTime();
     });
     
-    const purchasesCount = purchasesToday.length;
-    const revenueToday = purchasesToday.reduce((sum, p) => sum + (p.total || 0), 0);
+    const purchasesCount = purchasesInRange.length;
+    const revenueInRange = purchasesInRange.reduce((sum, p) => sum + (p.total || 0), 0);
     
-    const purchasesYesterday = allData.purchases.filter(p => {
+    const purchasesInPreviousRange = allData.purchases.filter(p => {
       if (!p.createdAt) return false;
       const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
-      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+      return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const purchasesChange = purchasesYesterday > 0
-      ? Math.round(((purchasesCount - purchasesYesterday) / purchasesYesterday) * 100)
-      : 0;
+    const purchasesChange = purchasesInPreviousRange > 0
+      ? Math.round(((purchasesCount - purchasesInPreviousRange) / purchasesInPreviousRange) * 100)
+      : (purchasesCount > 0 ? 100 : 0);
     
-    this.updateMetricCard('metric-purchases', purchasesCount, purchasesChange, 'chart-purchases', allData.purchases, 'createdAt', 'total');
+    this.updateMetricCard('metric-purchases', purchasesCount, purchasesChange, 'chart-purchases', allData.purchases, 'createdAt', 'total', startDate, today);
     
     // Update revenue
     const revenueEl = helpers.dom('#metric-revenue-value');
     if (revenueEl) {
-      revenueEl.textContent = helpers.formatCurrency(revenueToday);
+      revenueEl.textContent = helpers.formatCurrency(revenueInRange);
     }
   }
   
   /**
    * Update metric card
    */
-  updateMetricCard(metricId, value, change, chartId, data, dateField, valueField = null) {
+  updateMetricCard(metricId, value, change, chartId, data, dateField, valueField = null, startDate = null, endDate = null) {
     // Update value - fix ID mapping
     const valueIdMap = {
       'metric-active-users': 'metric-active-value',
@@ -276,14 +294,16 @@ export class OverviewView {
       if (change > 0) {
         if (icon) icon.className = 'fas fa-arrow-up';
         changeEl.classList.remove('negative');
+        changeEl.classList.add('positive');
         if (span) span.textContent = `+${change}%`;
       } else if (change < 0) {
         if (icon) icon.className = 'fas fa-arrow-down';
         changeEl.classList.add('negative');
+        changeEl.classList.remove('positive');
         if (span) span.textContent = `${change}%`;
       } else {
         if (icon) icon.className = 'fas fa-minus';
-        changeEl.classList.remove('negative');
+        changeEl.classList.remove('negative', 'positive');
         if (span) span.textContent = '0%';
       }
     }
@@ -291,31 +311,55 @@ export class OverviewView {
     // Update chart
     const chart = this.charts.get(chartId);
     if (chart) {
-      const dailyData = this.calculateDailyData(data, dateField, valueField);
+      const dailyData = this.calculateDailyData(data, dateField, valueField, startDate, endDate);
       chart.data.datasets[0].data = dailyData;
       chart.update('none');
     }
   }
   
   /**
-   * Calculate daily data for last 7 days
+   * Calculate daily data for selected range
    */
-  calculateDailyData(data, dateField, valueField = null) {
-    const dailyData = new Array(7).fill(0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  calculateDailyData(data, dateField, valueField = null, startDate = null, endDate = null) {
+    const range = this.stateManager.getState('overviewRange') || 'week';
+    
+    // Determine number of days based on range
+    let days = 7;
+    if (range === 'day') {
+      days = 1;
+    } else if (range === 'week') {
+      days = 7;
+    } else if (range === 'month') {
+      days = 30;
+    }
+    
+    const dailyData = new Array(days).fill(0);
+    const today = endDate || new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    const start = startDate || (() => {
+      const s = new Date(today);
+      s.setDate(s.getDate() - (days - 1));
+      s.setHours(0, 0, 0, 0);
+      return s;
+    })();
     
     data.forEach(item => {
       const itemDate = item[dateField];
       if (!itemDate) return;
       
       const date = itemDate instanceof Date ? itemDate : new Date(itemDate);
-      date.setHours(0, 0, 0, 0);
-      const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+      const dateTime = date.getTime();
       
-      if (daysAgo >= 0 && daysAgo < 7) {
-        const value = valueField ? (item[valueField] || 0) : 1;
-        dailyData[6 - daysAgo] += value;
+      // Check if date is within range
+      if (dateTime >= start.getTime() && dateTime <= today.getTime()) {
+        const daysAgo = Math.floor((today.getTime() - dateTime) / (1000 * 60 * 60 * 24));
+        const index = days - 1 - daysAgo;
+        
+        if (index >= 0 && index < days) {
+          const value = valueField ? (item[valueField] || 0) : 1;
+          dailyData[index] += value;
+        }
       }
     });
     

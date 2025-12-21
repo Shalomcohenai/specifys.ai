@@ -5,6 +5,8 @@ description: "Complete admin dashboard for Specifys.ai - manage users, monitor a
 permalink: /pages/new-admin-dashboard.html
 page_class: admin-dashboard-page
 custom_firebase: true
+hide_header: true
+hide_footer: true
 extra_css:
   - /assets/css/pages/new-admin-dashboard.css
 custom_js_modules:
@@ -57,20 +59,28 @@ custom_js_modules:
         <span class="status-dot" id="status-dot"></span>
         <span class="status-text" id="status-text">Connecting...</span>
       </div>
-      <div class="sync-buttons-group">
-        <button class="btn-sync" id="refresh-data-btn" title="Refresh all data">
-          <i class="fas fa-sync-alt"></i>
-          <span>Refresh Data</span>
+      
+      <!-- Sync Actions Dropdown -->
+      <div class="sync-actions-dropdown">
+        <button class="action-btn-icon" id="sync-actions-toggle" title="Sync actions" aria-label="Sync actions menu" aria-expanded="false">
+          <i class="fas fa-cog"></i>
         </button>
-        <button class="btn-sync" id="sync-credits-btn" title="Sync user credits">
-          <i class="fas fa-coins"></i>
-          <span>Sync Credits</span>
-        </button>
-        <button class="btn-sync" id="refresh-status-btn" title="Refresh system status">
-          <i class="fas fa-server"></i>
-          <span>System Status</span>
-        </button>
+        <div class="sync-dropdown-menu" id="sync-dropdown-menu">
+          <button class="sync-dropdown-item" id="refresh-data-btn" title="Refresh all data">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh Data</span>
+          </button>
+          <button class="sync-dropdown-item" id="sync-credits-btn" title="Sync user credits">
+            <i class="fas fa-coins"></i>
+            <span>Sync Credits</span>
+          </button>
+          <button class="sync-dropdown-item" id="refresh-status-btn" title="Refresh system status">
+            <i class="fas fa-server"></i>
+            <span>System Status</span>
+          </button>
+        </div>
       </div>
+      
       <button class="action-btn-icon" id="sign-out-btn" title="Sign out">
         <i class="fas fa-sign-out-alt"></i>
       </button>

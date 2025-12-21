@@ -131,11 +131,37 @@ class NewAdminDashboard {
       });
     });
     
+    // Sync actions dropdown toggle
+    const syncActionsToggle = helpers.dom('#sync-actions-toggle');
+    const syncDropdownMenu = helpers.dom('#sync-dropdown-menu');
+    if (syncActionsToggle && syncDropdownMenu) {
+      syncActionsToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = syncActionsToggle.closest('.sync-actions-dropdown');
+        if (dropdown) {
+          dropdown.classList.toggle('active');
+          syncActionsToggle.setAttribute('aria-expanded', dropdown.classList.contains('active'));
+        }
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!syncActionsToggle.contains(e.target) && !syncDropdownMenu.contains(e.target)) {
+          const dropdown = syncActionsToggle.closest('.sync-actions-dropdown');
+          if (dropdown) {
+            dropdown.classList.remove('active');
+            syncActionsToggle.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+    }
+    
     // Refresh data button
     const refreshDataBtn = helpers.dom('#refresh-data-btn');
     if (refreshDataBtn) {
       refreshDataBtn.addEventListener('click', () => {
         this.refreshData();
+        this.closeSyncDropdown();
       });
     }
     
@@ -144,6 +170,7 @@ class NewAdminDashboard {
     if (syncCreditsBtn) {
       syncCreditsBtn.addEventListener('click', () => {
         this.syncCredits();
+        this.closeSyncDropdown();
       });
     }
     
@@ -152,6 +179,7 @@ class NewAdminDashboard {
     if (refreshStatusBtn) {
       refreshStatusBtn.addEventListener('click', () => {
         this.refreshSystemStatus();
+        this.closeSyncDropdown();
       });
     }
     
@@ -365,6 +393,20 @@ class NewAdminDashboard {
     
     if (activeView && typeof activeView.update === 'function') {
       activeView.update();
+    }
+  }
+  
+  /**
+   * Close sync dropdown
+   */
+  closeSyncDropdown() {
+    const dropdown = helpers.dom('.sync-actions-dropdown');
+    const toggle = helpers.dom('#sync-actions-toggle');
+    if (dropdown) {
+      dropdown.classList.remove('active');
+    }
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
     }
   }
   

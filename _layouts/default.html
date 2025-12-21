@@ -3,7 +3,9 @@
 {% include head.html %}
 <body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}>
     <!-- Header -->
+    {% unless page.hide_header %}
     {% include header.html %}
+    {% endunless %}
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
@@ -11,7 +13,9 @@
     </main>
     
     <!-- Footer -->
+    {% unless page.hide_footer %}
     {% include footer.html %}
+    {% endunless %}
     
     <!-- Scroll to top button -->
     {% include scroll-to-top.html %}
