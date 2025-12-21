@@ -53,7 +53,7 @@ export class LogsView {
    */
   setupDataSubscriptions() {
     this.dataManager.on('data', ({ source }) => {
-      if (source === 'activityLogs') {
+      if (source === 'errorLogs' || source === 'activityLogs' || source === 'purchases') {
         this.render();
       }
     });
@@ -84,79 +84,131 @@ export class LogsView {
   }
   
   /**
-   * Render logs
+   * Render logs - Only errors
    */
   render() {
     if (!this.logsContainer) return;
     
     const allData = this.dataManager.getAllData();
-    const activityLogs = allData.activityLogs || [];
     
-    // Combine activity logs and render logs
-    const allLogs = [
-      ...this.renderLogsData.map(log => ({
-        id: log.id,
-        type: log.level?.toLowerCase() || 'info',
-        title: log.message || 'Log entry',
-        description: this.formatLogDescription(log),
-        timestamp: log.timestamp,
-        userId: log.userId,
-        userEmail: log.userEmail,
-        level: log.level
-      })),
-      ...activityLogs.map(log => ({
-        id: log.id || `log-${Date.now()}-${Math.random()}`,
-        type: log.type || log.level?.toLowerCase() || 'info',
-        title: log.title || log.message || 'Activity',
-        description: log.description || log.path || '',
-        timestamp: log.timestamp || log.createdAt || new Date(),
-        userId: log.userId || log.meta?.userId,
-        userEmail: log.userEmail || log.meta?.userEmail,
-        level: log.level || 'info'
-      }))
-    ];
+    // Collect all errors from different sources
+    const allErrors = [];
+    
+    // 1. Error logs from errorLogs collection
+    if (allData.errorLogs && allData.errorLogs.length > 0) {
+      allData.errorLogs.forEach(error => {
+        allErrors.push({
+          id: error.id,
+          type: 'error',
+          category: 'system',
+          title: error.errorMessage || error.message || 'System Error',
+          description: `Type: ${error.errorType || 'unknown'} | Code: ${error.errorCode || 'N/A'}${error.frequency > 1 ? ` | Occurred ${error.frequency} times` : ''}`,
+          timestamp: error.lastOccurrence || error.timestamp || new Date(),
+          userId: error.userId,
+          userEmail: null, // Will try to find from users
+          errorCode: error.errorCode,
+          errorType: error.errorType,
+          frequency: error.frequency || 1
+        });
+      });
+    }
+    
+    // 2. Errors from activity logs
+    if (allData.activityLogs && allData.activityLogs.length > 0) {
+      allData.activityLogs.forEach(log => {
+        const isError = log.type === 'error' || log.level === 'error' || 
+                       (log.message && log.message.toLowerCase().includes('error')) ||
+                       (log.title && log.title.toLowerCase().includes('error'));
+        
+        if (isError) {
+          allErrors.push({
+            id: log.id || `error-${Date.now()}-${Math.random()}`,
+            type: 'error',
+            category: 'user',
+            title: log.title || log.message || 'User Error',
+            description: log.description || log.path || '',
+            timestamp: log.timestamp || log.createdAt || new Date(),
+            userId: log.userId || log.meta?.userId,
+            userEmail: log.userEmail || log.meta?.userEmail,
+            path: log.path
+          });
+        }
+      });
+    }
+    
+    // 3. Failed purchases (status !== 'completed')
+    if (allData.purchases && allData.purchases.length > 0) {
+      allData.purchases.forEach(purchase => {
+        if (purchase.status && purchase.status !== 'completed' && purchase.status !== 'paid') {
+          allErrors.push({
+            id: `purchase-error-${purchase.id}`,
+            type: 'error',
+            category: 'purchase',
+            title: `Failed Purchase: ${purchase.productName || 'Unknown Product'}`,
+            description: `Status: ${purchase.status} | Amount: ${purchase.total || 0} ${purchase.currency || 'USD'}`,
+            timestamp: purchase.createdAt || new Date(),
+            userId: purchase.userId,
+            userEmail: purchase.email,
+            purchaseId: purchase.id
+          });
+        }
+      });
+    }
+    
+    // Enrich with user emails
+    allErrors.forEach(error => {
+      if (error.userId && !error.userEmail && allData.users) {
+        const user = allData.users.find(u => u.id === error.userId);
+        if (user) {
+          error.userEmail = user.email;
+        }
+      }
+    });
     
     // Sort by timestamp (newest first)
-    allLogs.sort((a, b) => {
+    allErrors.sort((a, b) => {
       const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
       const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
       return timeB - timeA;
     });
     
     // Apply filter
-    let filteredLogs = allLogs;
+    let filteredErrors = allErrors;
     if (this.currentFilter !== 'all') {
-      filteredLogs = allLogs.filter(log => {
-        if (this.currentFilter === 'error') return log.type === 'error' || log.level === 'error';
-        if (this.currentFilter === 'warning') return log.type === 'warning' || log.level === 'warning';
-        if (this.currentFilter === 'info') return log.type === 'info' || log.level === 'info';
+      filteredErrors = allErrors.filter(error => {
+        if (this.currentFilter === 'purchase') return error.category === 'purchase';
+        if (this.currentFilter === 'user') return error.category === 'user';
+        if (this.currentFilter === 'system') return error.category === 'system';
         return true;
       });
     }
     
-    // Limit to 100 most recent
-    const displayLogs = filteredLogs.slice(0, 100);
+    // Limit to 200 most recent errors
+    const displayErrors = filteredErrors.slice(0, 200);
     
-    if (displayLogs.length === 0) {
-      this.logsContainer.innerHTML = '<div class="logs-empty">No logs found</div>';
+    if (displayErrors.length === 0) {
+      this.logsContainer.innerHTML = '<div class="logs-empty">No errors found</div>';
       return;
     }
     
-    const html = displayLogs.map(log => {
-      const logClass = this.getLogClass(log.type || log.level);
-      const icon = this.getLogIcon(log.type || log.level);
-      const time = this.formatRelativeTime(log.timestamp);
+    const html = displayErrors.map(error => {
+      const time = this.formatRelativeTime(error.timestamp);
+      const categoryLabel = error.category === 'purchase' ? 'Purchase Error' : 
+                           error.category === 'user' ? 'User Error' : 
+                           'System Error';
       
       return `
-        <div class="log-entry ${logClass}">
+        <div class="log-entry log-error">
           <div class="log-header">
-            <span class="log-level">${(log.level || log.type || 'info').toUpperCase()}</span>
+            <span class="log-level">ERROR</span>
+            <span class="log-category">${categoryLabel}</span>
             <span class="log-time">${time}</span>
           </div>
-          <div class="log-title">${this.escapeHtml(log.title)}</div>
-          ${log.description ? `<div class="log-description">${this.escapeHtml(log.description)}</div>` : ''}
-          ${log.userEmail ? `<div class="log-user">User: ${this.escapeHtml(log.userEmail)}</div>` : ''}
-          ${log.path ? `<div class="log-path">Path: ${this.escapeHtml(log.path)}</div>` : ''}
+          <div class="log-title">${this.escapeHtml(error.title)}</div>
+          ${error.description ? `<div class="log-description">${this.escapeHtml(error.description)}</div>` : ''}
+          ${error.userEmail ? `<div class="log-user">User: ${this.escapeHtml(error.userEmail)}</div>` : ''}
+          ${error.errorCode ? `<div class="log-error-code">Error Code: ${this.escapeHtml(error.errorCode)}</div>` : ''}
+          ${error.frequency > 1 ? `<div class="log-frequency">Occurred ${error.frequency} times</div>` : ''}
         </div>
       `;
     }).join('');

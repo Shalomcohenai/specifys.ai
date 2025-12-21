@@ -437,8 +437,15 @@ custom_js_modules:
 
         <div class="chart-card">
           <div class="chart-header">
-            <h3>Conversion Funnel</h3>
-            <p>User journey from visit to purchase</p>
+            <div>
+              <h3>Conversion Funnel</h3>
+              <p>User journey from visit to purchase</p>
+            </div>
+            <select class="select-modern" id="funnel-range-select">
+              <option value="day">Today</option>
+              <option value="week" selected>Last 7 days</option>
+              <option value="month">Last 30 days</option>
+            </select>
           </div>
           <div class="chart-wrapper">
             <canvas id="analytics-chart-funnel" height="250"></canvas>
@@ -527,27 +534,27 @@ custom_js_modules:
       </div>
     </section>
 
-    <!-- Logs Section -->
-    <section class="dashboard-content-section" id="logs-section">
-      <div class="section-header-modern">
-        <div>
-          <h1>Live Logs</h1>
-          <p>Real-time activity and error logs</p>
-        </div>
-        <div class="header-actions">
-          <select class="select-modern" id="logs-filter-select">
-            <option value="all">All logs</option>
-            <option value="error">Errors only</option>
-            <option value="warning">Warnings</option>
-            <option value="info">Info only</option>
-          </select>
-        </div>
-      </div>
+          <!-- Logs Section -->
+          <section class="dashboard-content-section" id="logs-section">
+            <div class="section-header-modern">
+              <div>
+                <h1>Error Logs</h1>
+                <p>System errors, failed purchases, and user issues</p>
+              </div>
+              <div class="header-actions">
+                <select class="select-modern" id="logs-filter-select">
+                  <option value="all" selected>All Errors</option>
+                  <option value="purchase">Purchase Errors</option>
+                  <option value="user">User Errors</option>
+                  <option value="system">System Errors</option>
+                </select>
+              </div>
+            </div>
 
-      <div class="logs-container" id="logs-container">
-        <div class="logs-empty">Loading logs...</div>
-      </div>
-    </section>
+            <div class="logs-container" id="logs-container">
+              <div class="logs-empty">Loading error logs...</div>
+            </div>
+          </section>
 
     <!-- Articles Section -->
     <section class="dashboard-content-section" id="articles-section">

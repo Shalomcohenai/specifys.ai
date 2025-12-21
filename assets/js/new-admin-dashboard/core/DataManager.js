@@ -17,7 +17,8 @@ export class DataManager {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
-      contactSubmissions: []
+      contactSubmissions: [],
+      errorLogs: []
     };
     
     // Activity events (unified from all sources)
@@ -30,7 +31,8 @@ export class DataManager {
       specs: false,
       purchases: false,
       activityLogs: false,
-      contactSubmissions: false
+      contactSubmissions: false,
+      errorLogs: false
     };
     
     // Error states
@@ -624,8 +626,84 @@ export class DataManager {
       specsByUser: Object.fromEntries(this.data.specsByUser),
       purchases: this.data.purchases,
       activityLogs: this.data.activityLogs,
-      contactSubmissions: this.data.contactSubmissions
+      contactSubmissions: this.data.contactSubmissions,
+      errorLogs: this.data.errorLogs
     };
+  }
+  
+  /**
+   * Load error logs
+   */
+  async loadErrorLogs() {
+    this.loadingStates.errorLogs = true;
+    this.emit('loading', { source: 'errorLogs', loading: true });
+    
+    try {
+      await firebaseService.subscribe(
+        this.collections.ERROR_LOGS,
+        (snapshot) => {
+          this.data.errorLogs = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              errorType: data.errorType || 'unknown',
+              errorMessage: data.errorMessage || data.message || 'Unknown error',
+              errorCode: data.errorCode || '',
+              frequency: data.frequency || 1,
+              userId: data.userId || null,
+              userAgent: data.userAgent || '',
+              firstOccurrence: this.toDate(data.firstOccurrence),
+              lastOccurrence: this.toDate(data.lastOccurrence) || this.toDate(data.timestamp) || new Date(),
+              timestamp: this.toDate(data.lastOccurrence) || this.toDate(data.timestamp) || new Date(),
+              ...data
+            };
+          });
+          
+          // Sort by last occurrence (newest first)
+          this.data.errorLogs.sort((a, b) => {
+            const timeA = a.lastOccurrence?.getTime() || a.timestamp?.getTime() || 0;
+            const timeB = b.lastOccurrence?.getTime() || b.timestamp?.getTime() || 0;
+            return timeB - timeA;
+          });
+          
+          // Keep only last 200 error logs in memory
+          if (this.data.errorLogs.length > 200) {
+            this.data.errorLogs = this.data.errorLogs.slice(0, 200);
+          }
+          
+          this.loadingStates.errorLogs = false;
+          this.errors.delete('errorLogs');
+          this.emit('data', { source: 'errorLogs', data: this.data.errorLogs });
+          this.emit('loading', { source: 'errorLogs', loading: false });
+        },
+        {
+          orderByField: 'timestamp',
+          orderDirection: 'desc',
+          limitCount: 200
+        },
+        (error) => {
+          this.loadingStates.errorLogs = false;
+          if (error?.code === 'permission-denied') {
+            console.warn('[DataManager] Permission denied for errorLogs:', error);
+            this.emit('restricted', { source: 'errorLogs', error });
+          } else {
+            this.errors.set('errorLogs', error);
+            this.emit('error', { source: 'errorLogs', error });
+          }
+          this.emit('loading', { source: 'errorLogs', loading: false });
+        }
+      );
+    } catch (error) {
+      this.loadingStates.errorLogs = false;
+      if (error?.code === 'permission-denied') {
+        console.warn('[DataManager] Permission denied for errorLogs:', error);
+        this.emit('restricted', { source: 'errorLogs', error });
+      } else {
+        this.errors.set('errorLogs', error);
+        this.emit('error', { source: 'errorLogs', error });
+      }
+      this.emit('loading', { source: 'errorLogs', loading: false });
+    }
   }
   
   /**
@@ -638,7 +716,8 @@ export class DataManager {
       this.loadSpecs(),
       this.loadPurchases(),
       this.loadActivityLogs(),
-      this.loadContactSubmissions()
+      this.loadContactSubmissions(),
+      this.loadErrorLogs()
     ]);
   }
   
@@ -654,6 +733,7 @@ export class DataManager {
     this.data.purchases = [];
     this.data.activityLogs = [];
     this.data.contactSubmissions = [];
+    this.data.errorLogs = [];
     this.activityEvents = [];
     this.listeners.clear();
   }

@@ -117,7 +117,7 @@ export class UsersView {
    */
   setupDataSubscriptions() {
     this.dataManager.on('data', ({ source, data }) => {
-      if (source === 'users' || source === 'userCredits' || source === 'specs') {
+      if (source === 'users' || source === 'specs') {
         this.updateSummary();
         this.render();
       }
@@ -135,10 +135,9 @@ export class UsersView {
     const totalUsers = allUsers.length;
     this.updateSummaryValue('stat-total-users', totalUsers);
     
-    // Pro users - check from userCredits
+    // Pro users - check from user plan
     const proUsers = allUsers.filter(u => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === u.id);
-      return userCredits?.unlimited || u.plan === 'pro';
+      return u.plan === 'pro' || u.plan === 'Pro';
     }).length;
     this.updateSummaryValue('stat-pro-users', proUsers);
     
@@ -174,7 +173,7 @@ export class UsersView {
   /**
    * Filter users
    */
-  filterUsers(users, userCredits, applyDateFilter = true) {
+  filterUsers(users, applyDateFilter = true) {
     // Search filter
     const searchInput = helpers.dom('#users-search-input');
     const searchTerm = searchInput?.value.trim().toLowerCase() || '';
@@ -192,11 +191,10 @@ export class UsersView {
     
     if (planValue !== 'all') {
       users = users.filter(user => {
-        const userCredit = userCredits.find(uc => uc.userId === user.id);
         if (planValue === 'pro') {
-          return userCredit?.unlimited || user.plan === 'pro';
+          return user.plan === 'pro' || user.plan === 'Pro';
         }
-        return !userCredit?.unlimited && user.plan !== 'pro';
+        return user.plan !== 'pro' && user.plan !== 'Pro';
       });
     }
     
@@ -257,7 +255,7 @@ export class UsersView {
     let users = allData.users;
     
     // Apply filters
-    users = this.filterUsers(users, allData.userCredits);
+    users = this.filterUsers(users);
     
     // Pagination
     const totalPages = Math.ceil(users.length / this.perPage);
@@ -273,31 +271,20 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Find user credits - the document ID in user_credits IS the userId
-      // DataManager stores it as: Map where key = userId, value = { userId, balances, total, unlimited }
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
-      
-      // Also try to get from the Map directly if available
-      // The user_credits collection uses userId as document ID
-      // So we need to check the actual data structure
+      // Get credits directly from user document - free_specs_remaining field
+      // Credits are stored in: users/{userId}/free_specs_remaining
       let credits = 0;
-      if (userCredits) {
-        if (userCredits.unlimited) {
-          credits = 'Unlimited';
-        } else {
-          // Calculate total from balances
-          const free = userCredits.balances?.free || 0;
-          const paid = userCredits.balances?.paid || 0;
-          const bonus = userCredits.balances?.bonus || 0;
-          credits = userCredits.total !== undefined ? userCredits.total : (free + paid + bonus);
-        }
+      if (user.freeSpecsRemaining !== null && user.freeSpecsRemaining !== undefined) {
+        credits = user.freeSpecsRemaining;
+      } else if (user.metadata?.free_specs_remaining !== null && user.metadata?.free_specs_remaining !== undefined) {
+        credits = user.metadata.free_specs_remaining;
       } else {
-        // If no credits found, check if user has free_specs_remaining
-        credits = user.free_specs_remaining || 0;
+        credits = 0;
       }
       
       const specCount = allData.specsByUser[user.id]?.length || 0;
-      const plan = userCredits?.unlimited ? 'Pro' : (user.plan || 'Free');
+      // Check plan from user document
+      const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       const isSelected = this.selectedUsers.has(user.id);
       
       return `
@@ -460,15 +447,9 @@ export class UsersView {
       const { firebaseService } = await import('../core/FirebaseService.js');
       
       // Delete user document
+      // Note: Credits are stored in users/{userId}/free_specs_remaining
+      // No need to delete separate credits document
       await firebaseService.deleteDocument('users', userId);
-      
-      // Also delete user_credits if exists
-      try {
-        await firebaseService.deleteDocument('user_credits', userId);
-      } catch (error) {
-        console.warn('[UsersView] Could not delete user_credits:', error);
-        // Continue even if credits deletion fails
-      }
       
       // Show success message
       alert(`User "${user.email || user.displayName || userId}" has been deleted successfully.`);
@@ -560,14 +541,16 @@ export class UsersView {
    */
   exportCSV() {
     const allData = this.dataManager.getAllData();
-    const users = this.filterUsers(allData.users, allData.userCredits);
+    const users = this.filterUsers(allData.users);
     
     const headers = ['Email', 'Name', 'Plan', 'Specs', 'Credits', 'Created', 'Last Active'];
     const rows = users.map(user => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      // Get credits from user document - free_specs_remaining field
+      const credits = user.freeSpecsRemaining !== null && user.freeSpecsRemaining !== undefined 
+        ? user.freeSpecsRemaining 
+        : (user.metadata?.free_specs_remaining || 0);
       const specCount = allData.specsByUser[user.id]?.length || 0;
-      const credits = userCredits?.total || 0;
-      const plan = userCredits?.unlimited ? 'Pro' : (user.plan || 'Free');
+      const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       
       return [
         user.email,

@@ -1057,6 +1057,14 @@
 
 .chart-header {
   margin-bottom: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.chart-header > div {
+  flex: 1;
 }
 
 .chart-header h3 {
@@ -1070,6 +1078,11 @@
   font-size: 0.875rem;
   color: var(--text-muted);
   margin: 0;
+}
+
+.chart-header .select-modern {
+  flex-shrink: 0;
+  min-width: 150px;
 }
 
 .chart-wrapper {
@@ -1116,6 +1129,7 @@
 
 .log-entry.log-error {
   border-left-color: var(--error);
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .log-entry.log-warning {
@@ -1131,6 +1145,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .log-level {
@@ -1177,11 +1193,29 @@
 }
 
 .log-user,
-.log-path {
-  font-size: 0.75rem;
+.log-path,
+.log-error-code,
+.log-frequency {
+  font-size: 0.8rem;
   color: var(--text-light);
-  font-family: monospace;
   margin-top: 0.25rem;
+}
+
+.log-error-code {
+  font-family: monospace;
+  background: var(--bg-alt);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.log-category {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg);
 }
 
 .logs-empty {
