@@ -271,36 +271,23 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Get credits directly from user document - free_specs_remaining field
-      // Credits are stored in: users/{userId}/free_specs_remaining
-      let credits = 0;
-      
-      // Priority 1: Check normalized field (from DataManager.normalizeUser)
-      if (typeof user.freeSpecsRemaining === 'number') {
-        credits = user.freeSpecsRemaining;
-      } 
-      // Priority 2: Check metadata (raw Firebase data) - this is the source of truth
-      else if (user.metadata) {
-        // Check if free_specs_remaining exists in metadata
-        if (typeof user.metadata.free_specs_remaining === 'number') {
-          credits = user.metadata.free_specs_remaining;
-        }
-        // Try parsing if it's a string or other type
-        else if (user.metadata.free_specs_remaining !== null && user.metadata.free_specs_remaining !== undefined) {
-          const parsed = Number(user.metadata.free_specs_remaining);
-          if (!isNaN(parsed) && isFinite(parsed)) {
-            credits = parsed;
-          }
-        }
-      }
+      // Get credits from normalized user data
+      // DataManager.normalizeUser already handles:
+      // - Parsing free_specs_remaining from Firebase
+      // - Defaulting to 1 if not set
+      // - Ensuring it's always a number
+      // So we can directly use user.freeSpecsRemaining
+      const credits = typeof user.freeSpecsRemaining === 'number' 
+        ? user.freeSpecsRemaining 
+        : 1; // Fallback to 1 if somehow not a number
       
       // Debug log for first few users to troubleshoot
       if (pageUsers.indexOf(user) < 3) {
         console.log(`[UsersView] User ${user.email} credits:`, {
           credits,
           freeSpecsRemaining: user.freeSpecsRemaining,
-          metadata_free_specs_remaining: user.metadata?.free_specs_remaining,
-          metadata_keys: user.metadata ? Object.keys(user.metadata) : []
+          raw_free_specs_remaining: user.metadata?.free_specs_remaining,
+          type: typeof user.freeSpecsRemaining
         });
       }
       
@@ -567,10 +554,11 @@ export class UsersView {
     
     const headers = ['Email', 'Name', 'Plan', 'Specs', 'Credits', 'Created', 'Last Active'];
     const rows = users.map(user => {
-      // Get credits from user document - free_specs_remaining field
-      const credits = user.freeSpecsRemaining !== null && user.freeSpecsRemaining !== undefined 
+      // Get credits from normalized user data
+      // DataManager.normalizeUser already handles parsing and defaulting
+      const credits = typeof user.freeSpecsRemaining === 'number' 
         ? user.freeSpecsRemaining 
-        : (user.metadata?.free_specs_remaining || 0);
+        : 1; // Fallback to 1 if somehow not a number
       const specCount = allData.specsByUser[user.id]?.length || 0;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       

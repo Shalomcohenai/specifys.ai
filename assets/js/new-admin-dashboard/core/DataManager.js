@@ -77,16 +77,25 @@ export class DataManager {
    */
   normalizeUser(id, data) {
     // Get free_specs_remaining - check both direct field and ensure it's a number
-    let freeSpecsRemaining = null;
-    if (typeof data.free_specs_remaining === 'number') {
+    // Default to 1 if not set (as per DATABASE_SCHEMA.md)
+    let freeSpecsRemaining = 1; // Default value for new users
+    
+    if (typeof data.free_specs_remaining === 'number' && isFinite(data.free_specs_remaining)) {
+      // Use the number directly if it's valid
       freeSpecsRemaining = data.free_specs_remaining;
     } else if (data.free_specs_remaining !== null && data.free_specs_remaining !== undefined) {
-      // Try to parse if it's a string
+      // Try to parse if it's a string or other type
       const parsed = parseInt(data.free_specs_remaining, 10);
-      if (!isNaN(parsed)) {
+      if (!isNaN(parsed) && isFinite(parsed)) {
         freeSpecsRemaining = parsed;
       }
     }
+    // If free_specs_remaining is null/undefined/invalid, keep default of 1
+    
+    // Ensure we always return a valid number (never null/undefined)
+    freeSpecsRemaining = typeof freeSpecsRemaining === 'number' && isFinite(freeSpecsRemaining) 
+      ? freeSpecsRemaining 
+      : 1;
     
     return {
       id,
@@ -98,7 +107,7 @@ export class DataManager {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
-      freeSpecsRemaining: freeSpecsRemaining,
+      freeSpecsRemaining: freeSpecsRemaining, // Always a valid number
       metadata: data
     };
   }
