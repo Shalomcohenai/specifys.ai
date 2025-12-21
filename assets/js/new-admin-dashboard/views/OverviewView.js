@@ -109,63 +109,65 @@ export class OverviewView {
    * Update all metrics
    */
   updateMetrics() {
-    const allData = this.dataManager.getAllData();
-    const range = this.stateManager.getState('overviewRange') || 'week';
-    const metrics = this.metricsCalculator.calculateOverviewMetrics(range);
-    
-    // Update metric values
-    const valueElements = {
-      'users-total': helpers.dom('#metric-users-total'),
-      'users-live': helpers.dom('#metric-users-live'),
-      'users-pro': helpers.dom('#metric-users-pro'),
-      'specs-total': helpers.dom('#metric-specs-total'),
-      'revenue-total': helpers.dom('#metric-revenue-total')
-    };
-    
-    if (valueElements['users-total']) {
-      helpers.animateNumber(valueElements['users-total'], 0, metrics.totalUsers);
-    }
-    if (valueElements['users-live']) {
-      helpers.animateNumber(valueElements['users-live'], 0, metrics.liveUsers);
-    }
-    if (valueElements['users-pro']) {
-      helpers.animateNumber(valueElements['users-pro'], 0, metrics.proUsers);
-    }
-    if (valueElements['specs-total']) {
-      helpers.animateNumber(valueElements['specs-total'], 0, metrics.specsTotal);
-    }
-    if (valueElements['revenue-total']) {
-      const currentText = valueElements['revenue-total'].textContent;
-      const currentValue = parseFloat(currentText.replace(/[^0-9.-]/g, '')) || 0;
-      helpers.animateNumber(valueElements['revenue-total'], currentValue, metrics.revenueRange);
-      // Format as currency after animation
-      setTimeout(() => {
-        valueElements['revenue-total'].textContent = helpers.formatCurrency(metrics.revenueRange);
-      }, 1000);
-    }
-    
-    // Update each metric card chart
-    this.metricCards.forEach((card, key) => {
-      let data = [];
+    try {
+      const allData = this.dataManager.getAllData();
+      const range = this.stateManager.getState('overviewRange') || 'week';
+      const metrics = this.metricsCalculator.calculateOverviewMetrics(range);
       
-      switch (key) {
-        case 'users-total':
-        case 'users-live':
-        case 'users-pro':
-          data = allData.users;
-          break;
-        case 'specs-total':
-          data = allData.specs;
-          break;
-        case 'revenue-total':
-          data = allData.purchases;
-          break;
-        default:
-          data = [];
+      console.log('[OverviewView] Updating metrics:', metrics);
+      
+      // Update metric values
+      const valueElements = {
+        'users-total': helpers.dom('#metric-users-total'),
+        'users-live': helpers.dom('#metric-users-live'),
+        'users-pro': helpers.dom('#metric-users-pro'),
+        'specs-total': helpers.dom('#metric-specs-total'),
+        'revenue-total': helpers.dom('#metric-revenue-total')
+      };
+      
+      if (valueElements['users-total']) {
+        valueElements['users-total'].textContent = metrics.totalUsers.toLocaleString();
+      }
+      if (valueElements['users-live']) {
+        valueElements['users-live'].textContent = metrics.liveUsers.toLocaleString();
+      }
+      if (valueElements['users-pro']) {
+        valueElements['users-pro'].textContent = metrics.proUsers.toLocaleString();
+      }
+      if (valueElements['specs-total']) {
+        valueElements['specs-total'].textContent = metrics.specsTotal.toLocaleString();
+      }
+      if (valueElements['revenue-total']) {
+        valueElements['revenue-total'].textContent = helpers.formatCurrency(metrics.revenueRange);
       }
       
-      card.update(data);
-    });
+      // Update each metric card chart
+      this.metricCards.forEach((card, key) => {
+        let data = [];
+        
+        switch (key) {
+          case 'users-total':
+          case 'users-live':
+          case 'users-pro':
+            data = allData.users;
+            break;
+          case 'specs-total':
+            data = allData.specs;
+            break;
+          case 'revenue-total':
+            data = allData.purchases;
+            break;
+          default:
+            data = [];
+        }
+        
+        if (card && typeof card.update === 'function') {
+          card.update(data);
+        }
+      });
+    } catch (error) {
+      console.error('[OverviewView] Error updating metrics:', error);
+    }
   }
   
   /**
@@ -227,8 +229,24 @@ export class OverviewView {
    * Show view
    */
   show() {
+    console.log('[OverviewView] Showing view');
+    
+    // Make sure elements exist
+    if (!this.activityFeed) {
+      this.activityFeed = helpers.dom('#activity-feed');
+    }
+    
+    // Update metrics
     this.updateMetrics();
+    
+    // Render activity feed
     this.renderActivityFeed();
+    
+    // Force update after a short delay to ensure data is loaded
+    setTimeout(() => {
+      this.updateMetrics();
+      this.renderActivityFeed();
+    }, 500);
   }
   
   /**

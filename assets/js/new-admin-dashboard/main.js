@@ -47,13 +47,16 @@ class NewAdminDashboard {
    */
   async init() {
     try {
+      // Setup UI first (so sections are visible)
+      this.setupUI();
+      
+      // Show overview section by default
+      this.navigateToSection('overview-section');
+      
       // Setup auth gate
       this.setupAuthGate();
       
-      // Setup UI
-      this.setupUI();
-      
-      // Initialize views
+      // Initialize views (after UI is set up)
       this.initViews();
       
       // Setup data listeners
@@ -101,16 +104,21 @@ class NewAdminDashboard {
       await this.dataManager.initialize();
       
       // Wait a bit for initial data to load
-      await helpers.sleep(500);
+      await helpers.sleep(1000);
       
       // Update connection state
       this.updateConnectionState('online', 'Realtime sync active');
       this.stateManager.setState('lastSync', new Date());
       
-      // Show overview view
+      // Show overview view and update it
       const overviewView = this.views.get('overview-section');
       if (overviewView) {
         overviewView.show();
+        // Force update after data loads
+        setTimeout(() => {
+          overviewView.updateMetrics();
+          overviewView.renderActivityFeed();
+        }, 500);
       }
       
     } catch (error) {
@@ -333,17 +341,27 @@ class NewAdminDashboard {
    * Initialize views
    */
   initViews() {
-    // Overview view
-    this.views.set('overview-section', new OverviewView(this.dataManager, this.stateManager));
-    
-    // Users view
-    this.views.set('users-section', new UsersView(this.dataManager, this.stateManager));
-    
-    // Payments view
-    this.views.set('payments-section', new PaymentsView(this.dataManager, this.stateManager));
-    
-    // Logs view
-    this.views.set('logs-section', new LogsView(this.dataManager, this.stateManager));
+    try {
+      // Overview view
+      this.views.set('overview-section', new OverviewView(this.dataManager, this.stateManager));
+      
+      // Users view
+      this.views.set('users-section', new UsersView(this.dataManager, this.stateManager));
+      
+      // Payments view
+      this.views.set('payments-section', new PaymentsView(this.dataManager, this.stateManager));
+      
+      // Logs view
+      this.views.set('logs-section', new LogsView(this.dataManager, this.stateManager));
+      
+      // Show overview view immediately
+      const overviewView = this.views.get('overview-section');
+      if (overviewView) {
+        overviewView.show();
+      }
+    } catch (error) {
+      console.error('[NewAdminDashboard] Error initializing views:', error);
+    }
   }
   
   /**

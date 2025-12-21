@@ -21,16 +21,24 @@ export class MetricCard {
    * Initialize metric card
    */
   init() {
-    if (!this.element) return;
+    if (!this.element) {
+      console.warn('[MetricCard] No element provided');
+      return;
+    }
     
     // Get chart canvas
     const canvas = this.element.querySelector('.metric-chart');
     if (canvas && window.Chart) {
       this.initChart(canvas);
+    } else if (canvas && !window.Chart) {
+      console.warn('[MetricCard] Chart.js not loaded');
     }
     
     // Get value element
     this.valueElement = this.element.querySelector('.metric-value .value');
+    if (!this.valueElement) {
+      console.warn('[MetricCard] No value element found for', this.metricKey);
+    }
     
     // Subscribe to data changes
     this.setupDataSubscription();
