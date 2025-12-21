@@ -20,6 +20,8 @@ import {
   getDocs,
   doc,
   getDoc,
+  updateDoc,
+  serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -408,6 +410,44 @@ export class FirebaseService {
     const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const docRef = doc(this.db, collectionName, documentId);
     await deleteDoc(docRef);
+  }
+  
+  /**
+   * Update user document
+   */
+  async updateUser(userId, updates) {
+    const userRef = doc(this.db, COLLECTIONS.USERS, userId);
+    
+    // Prepare update object
+    const updateData = {
+      ...updates,
+      updatedAt: serverTimestamp()
+    };
+    
+    await updateDoc(userRef, updateData);
+    return updateData;
+  }
+  
+  /**
+   * Update user credits (free_specs_remaining)
+   */
+  async updateUserCredits(userId, credits) {
+    return this.updateUser(userId, {
+      free_specs_remaining: credits
+    });
+  }
+  
+  /**
+   * Update user plan
+   */
+  async updateUserPlan(userId, plan) {
+    if (!['free', 'pro'].includes(plan)) {
+      throw new Error('Invalid plan. Must be "free" or "pro"');
+    }
+    
+    return this.updateUser(userId, {
+      plan: plan
+    });
   }
 }
 

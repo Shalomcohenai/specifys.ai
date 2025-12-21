@@ -416,10 +416,164 @@ export class UsersView {
   /**
    * Edit user
    */
-  editUser(userId) {
-    // TODO: Implement edit user modal
-    console.log(`[UsersView] Edit user: ${userId}`);
-    alert('Edit user functionality coming soon');
+  async editUser(userId) {
+    const allData = this.dataManager.getAllData();
+    const user = allData.users.find(u => u.id === userId);
+    
+    if (!user) {
+      alert('User not found');
+      return;
+    }
+    
+    // Show edit modal
+    this.showEditUserModal(user);
+  }
+  
+  /**
+   * Show edit user modal
+   */
+  showEditUserModal(user) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('edit-user-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Get current values
+    const currentCredits = typeof user.freeSpecsRemaining === 'number' ? user.freeSpecsRemaining : 1;
+    const currentPlan = (user.plan || 'free').toLowerCase();
+    
+    // Create modal HTML
+    const modalHTML = `
+      <div class="modal-overlay" id="edit-user-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Edit User</h2>
+            <button class="modal-close" id="edit-user-modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="edit-user-email" value="${this.escapeHtml(user.email)}" disabled>
+              <small class="field-hint">Email cannot be changed</small>
+            </div>
+            <div class="form-group">
+              <label>Display Name</label>
+              <input type="text" id="edit-user-display-name" value="${this.escapeHtml(user.displayName || '')}">
+            </div>
+            <div class="form-group">
+              <label>Plan</label>
+              <select id="edit-user-plan">
+                <option value="free" ${currentPlan === 'free' ? 'selected' : ''}>Free</option>
+                <option value="pro" ${currentPlan === 'pro' ? 'selected' : ''}>Pro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Free Specs Remaining (Credits)</label>
+              <input type="number" id="edit-user-credits" min="0" step="1" value="${currentCredits}">
+              <small class="field-hint">Number of free specs the user can create</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-modern" id="edit-user-cancel-btn">Cancel</button>
+            <button class="btn-modern primary" id="edit-user-save-btn">
+              <i class="fas fa-save"></i>
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = document.getElementById('edit-user-modal');
+    
+    // Setup event listeners
+    const closeBtn = document.getElementById('edit-user-modal-close');
+    const cancelBtn = document.getElementById('edit-user-cancel-btn');
+    const saveBtn = document.getElementById('edit-user-save-btn');
+    
+    const closeModal = () => {
+      modal.remove();
+    };
+    
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Save changes
+    saveBtn.addEventListener('click', async () => {
+      const newPlan = document.getElementById('edit-user-plan').value;
+      const newCredits = parseInt(document.getElementById('edit-user-credits').value, 10);
+      const newDisplayName = document.getElementById('edit-user-display-name').value.trim();
+      
+      if (isNaN(newCredits) || newCredits < 0) {
+        alert('Please enter a valid number of credits (0 or higher)');
+        return;
+      }
+      
+      if (!newDisplayName) {
+        alert('Please enter a display name');
+        return;
+      }
+      
+      // Disable save button
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      
+      try {
+        const { firebaseService } = await import('../core/FirebaseService.js');
+        
+        // Update user data
+        const updates = {};
+        
+        // Update plan if changed
+        if (newPlan !== currentPlan) {
+          await firebaseService.updateUserPlan(user.id, newPlan);
+          updates.plan = newPlan;
+        }
+        
+        // Update credits if changed
+        if (newCredits !== currentCredits) {
+          await firebaseService.updateUserCredits(user.id, newCredits);
+          updates.free_specs_remaining = newCredits;
+        }
+        
+        // Update display name if changed
+        if (newDisplayName !== user.displayName) {
+          await firebaseService.updateUser(user.id, {
+            displayName: newDisplayName
+          });
+          updates.displayName = newDisplayName;
+        }
+        
+        // Show success message
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+        saveBtn.classList.add('success');
+        
+        setTimeout(() => {
+          closeModal();
+          // Refresh the view
+          this.updateSummary();
+          this.render();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('[UsersView] Error updating user:', error);
+        alert(`Error updating user: ${error.message}`);
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+      }
+    });
   }
   
   /**

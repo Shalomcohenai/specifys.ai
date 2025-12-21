@@ -174,16 +174,42 @@ export class OverviewView {
    */
   setupDataSubscriptions() {
     // Subscribe to all data sources
-    ['users', 'userCredits', 'specs', 'purchases', 'activityLogs'].forEach(source => {
+    ['users', 'specs', 'purchases', 'activityLogs', 'articles', 'academyGuides'].forEach(source => {
+      // Listen to data events
       this.dataManager.on('data', ({ source: dataSource }) => {
         if (dataSource === source) {
           this.updateMetrics();
           if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases') {
             this.renderActivityFeed();
           }
+          this.renderSystemStatus(); // Update status when data loads
+        }
+      });
+      
+      // Listen to loading events
+      this.dataManager.on('loading', ({ source: dataSource, loading }) => {
+        if (dataSource === source) {
+          this.renderSystemStatus(); // Update status when loading state changes
+        }
+      });
+      
+      // Listen to error events
+      this.dataManager.on('error', ({ source: dataSource }) => {
+        if (dataSource === source) {
+          this.renderSystemStatus(); // Update status when error occurs
+        }
+      });
+      
+      // Listen to restricted events
+      this.dataManager.on('restricted', ({ source: dataSource }) => {
+        if (dataSource === source) {
+          this.renderSystemStatus(); // Update status when restricted
         }
       });
     });
+    
+    // Initial render
+    this.renderSystemStatus();
   }
   
   /**
@@ -346,21 +372,34 @@ export class OverviewView {
       const icon = changeEl.querySelector('i');
       const span = changeEl.querySelector('span');
       
-      if (change > 0) {
-        if (icon) icon.className = 'fas fa-arrow-up';
-        changeEl.classList.remove('negative');
-        changeEl.classList.add('positive');
-        if (span) span.textContent = `+${change}%`;
-      } else if (change < 0) {
-        if (icon) icon.className = 'fas fa-arrow-down';
-        changeEl.classList.add('negative');
-        changeEl.classList.remove('positive');
-        if (span) span.textContent = `${change}%`;
-      } else {
-        if (icon) icon.className = 'fas fa-minus';
-        changeEl.classList.remove('negative', 'positive');
-        if (span) span.textContent = '0%';
+      // Ensure we have valid elements
+      if (!icon || !span) {
+        console.warn(`[OverviewView] Missing icon or span for ${metricId}`);
+        return;
       }
+      
+      // Update icon and text based on change value
+      if (change > 0) {
+        // Positive change - arrow up
+        icon.className = 'fas fa-arrow-up';
+        changeEl.classList.remove('negative', 'neutral');
+        changeEl.classList.add('positive');
+        span.textContent = `+${change}%`;
+      } else if (change < 0) {
+        // Negative change - arrow down
+        icon.className = 'fas fa-arrow-down';
+        changeEl.classList.remove('positive', 'neutral');
+        changeEl.classList.add('negative');
+        span.textContent = `${change}%`; // Already includes minus sign
+      } else {
+        // No change - minus sign
+        icon.className = 'fas fa-minus';
+        changeEl.classList.remove('negative', 'positive');
+        changeEl.classList.add('neutral');
+        span.textContent = '0%';
+      }
+    } else {
+      console.warn(`[OverviewView] Could not find change element for ${metricId}`);
     }
     
     // Update chart
@@ -572,6 +611,64 @@ export class OverviewView {
   }
   
   /**
+   * Render system status
+   */
+  renderSystemStatus() {
+    const statusList = helpers.dom('#status-list');
+    if (!statusList) return;
+
+    const sources = [
+      { key: 'users', label: 'Users', icon: 'fas fa-users' },
+      { key: 'specs', label: 'Specs', icon: 'fas fa-file-alt' },
+      { key: 'purchases', label: 'Purchases', icon: 'fas fa-credit-card' },
+      { key: 'activityLogs', label: 'Activity Logs', icon: 'fas fa-stream' }
+    ];
+    
+    const html = sources.map(({ key, label, icon }) => {
+      // Check loading state - if key doesn't exist, assume not loading
+      const loading = this.dataManager.loadingStates[key] === true;
+      const error = this.dataManager.errors.has(key);
+      const restricted = this.stateManager.getState(`restricted.${key}`);
+      
+      let status = 'Ready';
+      let statusClass = 'ready';
+      
+      if (loading) {
+        status = 'Pending';
+        statusClass = 'pending';
+      } else if (error) {
+        status = 'Error';
+        statusClass = 'error';
+      } else if (restricted) {
+        status = 'Restricted';
+        statusClass = 'restricted';
+      }
+
+      return `
+        <div class="status-item">
+          <div class="status-info">
+            <i class="${icon} status-icon"></i>
+            <span class="status-label">${label}</span>
+          </div>
+          <span class="status-badge ${statusClass}" data-source="${key}">${status}</span>
+        </div>
+      `;
+    }).join('');
+
+    statusList.innerHTML = html;
+    
+    // Update last sync time
+    const lastSyncTimeEl = helpers.dom('#last-sync-time');
+    if (lastSyncTimeEl) {
+      const now = new Date();
+      lastSyncTimeEl.textContent = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+  }
+  
+  /**
    * Escape HTML
    */
   escapeHtml(text) {
@@ -588,11 +685,13 @@ export class OverviewView {
     console.log('[OverviewView] Showing view');
     this.updateMetrics();
     this.renderActivityFeed();
+    this.renderSystemStatus(); // Render status on show
     
     // Force update after a short delay
     setTimeout(() => {
       this.updateMetrics();
       this.renderActivityFeed();
+      this.renderSystemStatus(); // Update status again
     }, 500);
   }
   
