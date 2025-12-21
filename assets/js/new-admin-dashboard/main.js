@@ -22,6 +22,9 @@ class NewAdminDashboard {
     this.stateManager = new StateManager();
     this.helpers = helpers;
     
+    // API Health Check state
+    this.apiHealthCheckInProgress = false;
+    
     // DOM elements
     this.elements = {
       navTabs: helpers.domAll('.nav-tab'),
@@ -29,7 +32,6 @@ class NewAdminDashboard {
       connectionStatus: helpers.dom('#connection-status'),
       statusDot: helpers.dom('#status-dot'),
       statusText: helpers.dom('#status-text'),
-      refreshBtn: helpers.dom('#refresh-btn'),
       signOutBtn: helpers.dom('#sign-out-btn'),
       lastSyncTime: helpers.dom('#last-sync-time')
     };
@@ -129,10 +131,27 @@ class NewAdminDashboard {
       });
     });
     
-    // Refresh button
-    if (this.elements.refreshBtn) {
-      this.elements.refreshBtn.addEventListener('click', () => {
+    // Refresh data button
+    const refreshDataBtn = helpers.dom('#refresh-data-btn');
+    if (refreshDataBtn) {
+      refreshDataBtn.addEventListener('click', () => {
         this.refreshData();
+      });
+    }
+    
+    // Sync credits button
+    const syncCreditsBtn = helpers.dom('#sync-credits-btn');
+    if (syncCreditsBtn) {
+      syncCreditsBtn.addEventListener('click', () => {
+        this.syncCredits();
+      });
+    }
+    
+    // Refresh status button
+    const refreshStatusBtn = helpers.dom('#refresh-status-btn');
+    if (refreshStatusBtn) {
+      refreshStatusBtn.addEventListener('click', () => {
+        this.refreshSystemStatus();
       });
     }
     
@@ -148,11 +167,19 @@ class NewAdminDashboard {
       });
     }
     
-    // Sync credits button
-    const syncCreditsBtn = helpers.dom('#sync-credits-btn');
-    if (syncCreditsBtn) {
-      syncCreditsBtn.addEventListener('click', () => {
-        this.syncCredits();
+    // API Health Check button
+    const apiHealthCheckBtn = helpers.dom('#api-health-check-btn');
+    if (apiHealthCheckBtn) {
+      apiHealthCheckBtn.addEventListener('click', () => {
+        this.performApiHealthCheck();
+      });
+    }
+    
+    // Copy health check logs button
+    const apiHealthCopyBtn = helpers.dom('#api-health-copy-btn');
+    if (apiHealthCopyBtn) {
+      apiHealthCopyBtn.addEventListener('click', () => {
+        this.copyHealthCheckLogs();
       });
     }
     
@@ -345,6 +372,14 @@ class NewAdminDashboard {
    * Refresh data
    */
   async refreshData() {
+    const btn = helpers.dom('#refresh-data-btn');
+    if (!btn) return;
+    
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Refreshing...</span>';
+    
     this.updateConnectionState('pending', 'Refreshing…');
     
     try {
@@ -354,9 +389,27 @@ class NewAdminDashboard {
       
       this.updateConnectionState('online', 'Realtime sync active');
       this.updateLastSync();
+      
+      btn.innerHTML = '<i class="fas fa-check"></i> <span>Refreshed</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('success');
+        btn.disabled = false;
+      }, 2000);
     } catch (error) {
       console.error('[NewAdminDashboard] Refresh error:', error);
       this.updateConnectionState('offline', 'Refresh failed');
+      
+      btn.innerHTML = '<i class="fas fa-times"></i> <span>Failed</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('error');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('error');
+        btn.disabled = false;
+      }, 2000);
     }
   }
   
@@ -365,27 +418,102 @@ class NewAdminDashboard {
    */
   async syncCredits() {
     const btn = helpers.dom('#sync-credits-btn');
-    if (btn) {
-      btn.disabled = true;
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing…';
+    if (!btn) return;
+    
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Syncing...</span>';
+    
+    try {
+      await apiService.syncCredits();
       
-      try {
-        await apiService.syncCredits();
-        btn.innerHTML = '<i class="fas fa-check"></i> Synced';
-        setTimeout(() => {
-          btn.innerHTML = originalHTML;
-          btn.disabled = false;
-        }, 2000);
-      } catch (error) {
-        console.error('[NewAdminDashboard] Sync credits error:', error);
-        btn.innerHTML = '<i class="fas fa-times"></i> Failed';
-        setTimeout(() => {
-          btn.innerHTML = originalHTML;
-          btn.disabled = false;
-        }, 2000);
-      }
+      btn.innerHTML = '<i class="fas fa-check"></i> <span>Synced</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('success');
+        btn.disabled = false;
+      }, 2000);
+    } catch (error) {
+      console.error('[NewAdminDashboard] Sync credits error:', error);
+      
+      btn.innerHTML = '<i class="fas fa-times"></i> <span>Failed</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('error');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('error');
+        btn.disabled = false;
+      }, 2000);
     }
+  }
+  
+  /**
+   * Refresh system status
+   */
+  async refreshSystemStatus() {
+    const btn = helpers.dom('#refresh-status-btn');
+    if (!btn) return;
+    
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Checking...</span>';
+    
+    try {
+      // Refresh all source statuses
+      const sources = ['users', 'specs', 'purchases', 'activityLogs', 'articles', 'academyGuides'];
+      sources.forEach(source => {
+        const loading = this.dataManager.loadingStates[source];
+        const error = this.dataManager.errors.has(source);
+        const restricted = this.stateManager.getState(`restricted.${source}`);
+        
+        if (loading) {
+          this.updateSourceStatus(source, 'pending');
+        } else if (error) {
+          this.updateSourceStatus(source, 'error');
+        } else if (restricted) {
+          this.updateSourceStatus(source, 'restricted');
+        } else {
+          this.updateSourceStatus(source, 'ready');
+        }
+      });
+      
+      this.updateLastSync();
+      
+      btn.innerHTML = '<i class="fas fa-check"></i> <span>Updated</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('success');
+        btn.disabled = false;
+      }, 2000);
+    } catch (error) {
+      console.error('[NewAdminDashboard] Refresh status error:', error);
+      
+      btn.innerHTML = '<i class="fas fa-times"></i> <span>Failed</span>';
+      btn.classList.remove('loading');
+      btn.classList.add('error');
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('error');
+        btn.disabled = false;
+      }, 2000);
+    }
+  }
+  
+  /**
+   * Update last sync time
+   */
+  updateLastSync() {
+    const lastSyncTime = helpers.dom('#last-sync-time');
+    if (lastSyncTime) {
+      lastSyncTime.textContent = helpers.formatDate(new Date(), { hour: '2-digit', minute: '2-digit' });
+    }
+    this.stateManager.setState('lastSync', new Date());
   }
   
   /**
@@ -394,9 +522,183 @@ class NewAdminDashboard {
   updateSourceStatus(source, status) {
     const statusElement = helpers.dom(`[data-source="${source}"]`);
     if (statusElement) {
-      statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+      // Map status to display text
+      const statusMap = {
+        'ready': 'Ready',
+        'pending': 'Pending',
+        'error': 'Error',
+        'restricted': 'Restricted'
+      };
+      
+      statusElement.textContent = statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1);
       statusElement.className = 'status-badge';
       statusElement.classList.add(status);
+    }
+  }
+  
+  /**
+   * Perform API Health Check
+   */
+  async performApiHealthCheck() {
+    if (this.apiHealthCheckInProgress) {
+      return;
+    }
+
+    this.apiHealthCheckInProgress = true;
+    const button = helpers.dom('#api-health-check-btn');
+    const responseText = helpers.dom('#api-response-text');
+    const originalLabel = button?.innerHTML;
+
+    try {
+      // Update UI
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Checking...</span>';
+      }
+      if (responseText) {
+        responseText.value = "Testing full spec generation flow...\n\nTesting: Backend → Cloudflare Worker → OpenAI\n\nThis uses the same pipeline as real spec generation.";
+        responseText.style.color = '';
+        responseText.style.backgroundColor = '';
+      }
+
+      // Call the test-spec health check endpoint
+      const responseData = await window.api.get('/api/health/test-spec');
+      
+      // Format the response message
+      let statusMessage = '';
+      let isHealthy = false;
+
+      if (responseData.status === 'healthy' && 
+          responseData.backend === 'ok' && 
+          responseData.cloudflare === 'ok' && 
+          responseData.openai === 'ok') {
+        // All systems operational
+        isHealthy = true;
+        statusMessage = `✅ ALL SYSTEMS OPERATIONAL\n\n`;
+        statusMessage += `Backend: ${responseData.backend.toUpperCase()}\n`;
+        statusMessage += `Cloudflare Worker: ${responseData.cloudflare.toUpperCase()}\n`;
+        statusMessage += `OpenAI API: ${responseData.openai.toUpperCase()}\n`;
+        if (responseData.totalResponseTime) {
+          statusMessage += `\nTotal Response Time: ${responseData.totalResponseTime}`;
+        }
+        if (responseData.openaiResponseTime) {
+          statusMessage += `\nOpenAI Response Time: ${responseData.openaiResponseTime}`;
+        }
+        statusMessage += `\n\nTimestamp: ${responseData.timestamp || new Date().toISOString()}`;
+      } else {
+        // System error detected
+        isHealthy = false;
+        statusMessage = `❌ SYSTEM ERROR DETECTED\n\n`;
+        statusMessage += `Backend: ${responseData.backend?.toUpperCase() || 'UNKNOWN'}\n`;
+        statusMessage += `Cloudflare Worker: ${responseData.cloudflare?.toUpperCase() || 'UNKNOWN'}\n`;
+        statusMessage += `OpenAI API: ${responseData.openai?.toUpperCase() || 'UNKNOWN'}\n`;
+        
+        if (responseData.error) {
+          statusMessage += `\n⚠️ ERROR DETAILS:\n${responseData.error}\n`;
+        }
+        
+        statusMessage += `\nTimestamp: ${responseData.timestamp || new Date().toISOString()}`;
+        statusMessage += `\n\nFull Response:\n${JSON.stringify(responseData, null, 2)}`;
+      }
+      
+      // Display response in textarea with color coding
+      if (responseText) {
+        responseText.value = statusMessage;
+        if (isHealthy) {
+          responseText.style.color = '#10b981';
+          responseText.style.backgroundColor = '#ecfdf5';
+        } else {
+          responseText.style.color = '#ef4444';
+          responseText.style.backgroundColor = '#fef2f2';
+        }
+      }
+
+      // Update button with result
+      if (button) {
+        if (isHealthy) {
+          button.innerHTML = '<i class="fas fa-check-circle"></i> <span>System Healthy</span>';
+          button.classList.remove('error');
+          button.classList.add('success');
+          setTimeout(() => {
+            button.classList.remove('success');
+            button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> <span>Check System Health</span>';
+          }, 3000);
+        } else {
+          button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Error Detected</span>';
+          button.classList.remove('success');
+          button.classList.add('error');
+        }
+      }
+
+    } catch (error) {
+      // Network error or other exception
+      const errorMessage = `❌ CONNECTION ERROR\n\n`;
+      const errorDetails = `Failed to connect to health check endpoint.\n\n`;
+      const errorInfo = `Error: ${error.message}\n\n`;
+      const stackTrace = error.stack ? `Stack:\n${error.stack}` : '';
+      
+      if (responseText) {
+        responseText.value = errorMessage + errorDetails + errorInfo + stackTrace;
+        responseText.style.color = '#ef4444';
+        responseText.style.backgroundColor = '#fef2f2';
+      }
+      
+      if (button) {
+        button.innerHTML = '<i class="fas fa-times-circle"></i> <span>Connection Failed</span>';
+        button.classList.remove('success');
+        button.classList.add('error');
+      }
+    } finally {
+      if (button && !button.classList.contains('success') && !button.classList.contains('error')) {
+        button.disabled = false;
+        button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> <span>Check System Health</span>';
+      } else if (button && (button.classList.contains('success') || button.classList.contains('error'))) {
+        button.disabled = false;
+      }
+      this.apiHealthCheckInProgress = false;
+    }
+  }
+
+  /**
+   * Copy health check logs to clipboard
+   */
+  async copyHealthCheckLogs() {
+    const responseText = helpers.dom('#api-response-text');
+    const copyButton = helpers.dom('#api-health-copy-btn');
+    
+    if (!responseText || !responseText.value || responseText.value.trim() === '') {
+      // No content to copy
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      }
+      return;
+    }
+
+    try {
+      // Copy to clipboard
+      await navigator.clipboard.writeText(responseText.value);
+      
+      // Visual feedback
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('[NewAdminDashboard] Error copying to clipboard:', error);
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-times"></i>';
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      }
     }
   }
 }

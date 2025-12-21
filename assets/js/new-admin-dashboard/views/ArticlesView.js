@@ -26,8 +26,7 @@ export class ArticlesView {
     // Setup event listeners
     this.setupEventListeners();
     
-    // Load articles
-    this.loadArticles();
+    // Don't load articles automatically - wait for show() to be called
   }
   
   /**
@@ -73,7 +72,7 @@ export class ArticlesView {
    * Handle form submission
    */
   async handleFormSubmit() {
-    const topicInput = helpers.dom('#article-topic-input');
+    const topicInput = helpers.dom('#article-topic');
     const topic = topicInput?.value.trim();
     
     if (!topic) {
@@ -94,13 +93,13 @@ export class ArticlesView {
       const result = await window.api.post('/api/articles/generate', { topic });
       
       if (result.success) {
-        this.setFeedback('Article generated successfully!', 'success');
+        this.setFeedback('Article generated successfully! The article is being generated and will appear in the list shortly.', 'success');
         if (topicInput) topicInput.value = '';
         
         // Reload articles after a short delay
         setTimeout(() => {
           this.loadArticles();
-        }, 1000);
+        }, 2000);
       } else {
         throw new Error(result.error || result.message || 'Failed to generate article');
       }
@@ -161,21 +160,42 @@ export class ArticlesView {
       // window.api already includes baseUrl, so just use the endpoint
       const result = await window.api.get('/api/articles/list?status=all&limit=1000');
       
+      console.log('[ArticlesView] API response:', result);
+      
       if (result && result.success && result.articles) {
-        this.articles = result.articles.map(article => ({
-          id: article.id,
-          title: article.title || 'Untitled',
-          status: article.status || 'draft',
-          views: article.views || 0,
-          createdAt: article.createdAt ? new Date(article.createdAt) : new Date(),
-          slug: article.slug || '',
-          description: article.description || ''
-        }));
+        this.articles = result.articles
+          .filter(article => article !== null) // Filter out null entries
+          .map(article => ({
+            id: article.id,
+            title: article.title || 'Untitled',
+            status: article.status || 'draft',
+            views: article.views || 0,
+            createdAt: article.createdAt ? (article.createdAt instanceof Date ? article.createdAt : new Date(article.createdAt)) : new Date(),
+            slug: article.slug || '',
+            description: article.description || article.description_160 || ''
+          }));
         
+        console.log('[ArticlesView] Loaded articles:', this.articles.length);
         this.updateSummary();
         this.render();
       } else {
-        throw new Error('Invalid response from server');
+        console.warn('[ArticlesView] Invalid response structure:', result);
+        // Try to handle case where articles might be directly in result
+        if (result && Array.isArray(result)) {
+          this.articles = result.map(article => ({
+            id: article.id,
+            title: article.title || 'Untitled',
+            status: article.status || 'draft',
+            views: article.views || 0,
+            createdAt: article.createdAt ? (article.createdAt instanceof Date ? article.createdAt : new Date(article.createdAt)) : new Date(),
+            slug: article.slug || '',
+            description: article.description || article.description_160 || ''
+          }));
+          this.updateSummary();
+          this.render();
+        } else {
+          throw new Error('Invalid response from server');
+        }
       }
     } catch (error) {
       console.error('[ArticlesView] Error loading articles:', error);
@@ -212,7 +232,12 @@ export class ArticlesView {
    * Render articles table
    */
   render() {
-    if (!this.table) return;
+    if (!this.table) {
+      console.warn('[ArticlesView] Table element not found');
+      return;
+    }
+    
+    console.log('[ArticlesView] Rendering', this.articles.length, 'articles');
     
     // Apply filters
     let filteredArticles = [...this.articles];
@@ -233,12 +258,18 @@ export class ArticlesView {
     }
     
     // Sort by date (newest first)
-    filteredArticles.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    filteredArticles.sort((a, b) => {
+      const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+      const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      return timeB - timeA;
+    });
     
     if (filteredArticles.length === 0) {
       this.table.innerHTML = '<tr><td colspan="5" class="table-empty-state">No articles found</td></tr>';
       return;
     }
+    
+    console.log('[ArticlesView] Rendering', filteredArticles.length, 'articles');
     
     // Render table
     const html = filteredArticles.map(article => {
@@ -330,6 +361,10 @@ export class ArticlesView {
    * Show view
    */
   show() {
+    console.log('[ArticlesView] Showing view, loading articles...');
+    if (!this.table) {
+      this.table = helpers.dom('#articles-table tbody');
+    }
     this.loadArticles();
   }
   
