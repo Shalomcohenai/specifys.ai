@@ -63,8 +63,15 @@ export class LogsView {
    */
   async loadRenderLogs() {
     try {
-      // window.api already includes baseUrl, so just use the endpoint
-      const response = await window.api.get('/api/logs/render');
+      // Try to load render logs - if endpoint doesn't exist, just use activity logs
+      const response = await window.api.get('/api/logs/render').catch(err => {
+        // Endpoint doesn't exist (404) - that's okay, we'll use activity logs only
+        if (err.status === 404 || err.message?.includes('404')) {
+          console.info('[LogsView] Render logs endpoint not available, using activity logs only');
+          return null;
+        }
+        throw err;
+      });
       
       if (response && Array.isArray(response)) {
         this.renderLogsData = response.map(log => ({
@@ -83,12 +90,16 @@ export class LogsView {
         
         // Sort by timestamp (newest first)
         this.renderLogsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-        
-        this.render();
+      } else {
+        // No render logs available, use empty array
+        this.renderLogsData = [];
       }
+      
+      this.render();
     } catch (error) {
-      console.error('[LogsView] Error loading render logs:', error);
+      console.warn('[LogsView] Error loading render logs:', error);
       // Continue with activity logs only
+      this.renderLogsData = [];
       this.render();
     }
   }

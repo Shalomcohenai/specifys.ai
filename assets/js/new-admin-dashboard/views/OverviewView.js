@@ -163,17 +163,43 @@ export class OverviewView {
   updateMetrics() {
     const allData = this.dataManager.getAllData();
     
-    // Calculate today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(today);
-    todayEnd.setHours(23, 59, 59, 999);
+    // Get selected range
+    const range = this.stateManager.getState('overviewRange') || 'week';
     
-    // Calculate yesterday
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayEnd = new Date(yesterday);
-    yesterdayEnd.setHours(23, 59, 59, 999);
+    // Calculate date range based on selection
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    let startDate = new Date();
+    let previousStartDate = new Date();
+    
+    switch (range) {
+      case 'day':
+        startDate.setHours(0, 0, 0, 0);
+        previousStartDate.setDate(startDate.getDate() - 1);
+        previousStartDate.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        startDate.setDate(today.getDate() - 6); // Last 7 days including today
+        startDate.setHours(0, 0, 0, 0);
+        previousStartDate.setDate(startDate.getDate() - 7);
+        previousStartDate.setHours(0, 0, 0, 0);
+        break;
+      case 'month':
+        startDate.setDate(today.getDate() - 29); // Last 30 days including today
+        startDate.setHours(0, 0, 0, 0);
+        previousStartDate.setDate(startDate.getDate() - 30);
+        previousStartDate.setHours(0, 0, 0, 0);
+        break;
+      default:
+        startDate.setDate(today.getDate() - 6);
+        startDate.setHours(0, 0, 0, 0);
+        previousStartDate.setDate(startDate.getDate() - 7);
+        previousStartDate.setHours(0, 0, 0, 0);
+    }
+    
+    const previousEndDate = new Date(startDate);
+    previousEndDate.setTime(startDate.getTime() - 1);
     
     // 1. Active Users (in selected range)
     const activeInRange = allData.users.filter(u => {
