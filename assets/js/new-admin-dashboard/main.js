@@ -268,11 +268,22 @@ class NewAdminDashboard {
       }
     });
     
+    // Listen to restricted (permission denied) - handle gracefully
+    this.dataManager.on('restricted', ({ source, error }) => {
+      console.warn(`[NewAdminDashboard] Access restricted for ${source}:`, error.message);
+      this.updateSourceStatus(source, 'Restricted');
+      // Don't show as error, just mark as restricted
+      this.stateManager.setState(`restricted.${source}`, true);
+    });
+    
     // Listen to errors
     this.dataManager.on('error', ({ source, error }) => {
-      this.stateManager.setState(`errors.${source}`, error);
-      this.updateSourceStatus(source, 'Error');
-      console.error(`[NewAdminDashboard] Error in ${source}:`, error);
+      // Don't log permission errors as errors (they're handled as restricted)
+      if (error?.code !== 'permission-denied') {
+        this.stateManager.setState(`errors.${source}`, error);
+        this.updateSourceStatus(source, 'Error');
+        console.error(`[NewAdminDashboard] Error in ${source}:`, error);
+      }
     });
   }
   

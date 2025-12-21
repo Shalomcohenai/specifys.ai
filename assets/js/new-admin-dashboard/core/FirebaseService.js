@@ -123,7 +123,7 @@ export class FirebaseService {
   /**
    * Subscribe to collection with retry logic
    */
-  async subscribe(collectionName, callback, options = {}) {
+  async subscribe(collectionName, callback, options = {}, errorCallback = null) {
     const {
       orderByField = null,
       orderDirection = 'desc',
@@ -172,11 +172,24 @@ export class FirebaseService {
           }
         },
         (error) => {
+          // Don't retry on permission errors
+          if (error?.code === 'permission-denied') {
+            console.warn(`[FirebaseService] Permission denied for ${collectionName}:`, error);
+            if (errorCallback) {
+              errorCallback(error);
+            }
+            return;
+          }
+          
           console.error(`[FirebaseService] Error subscribing to ${collectionName}:`, error);
           this.connectionState.lastError = error;
           this.notifyConnectionChange();
           
-          // Retry on error
+          if (errorCallback) {
+            errorCallback(error);
+          }
+          
+          // Retry on error (but not permission errors)
           if (retryCount < this.retryConfig.maxRetries) {
             this.connectionState.retrying = true;
             this.notifyConnectionChange();
@@ -191,7 +204,7 @@ export class FirebaseService {
               this.subscribe(collectionName, callback, {
                 ...options,
                 retryCount: retryCount + 1
-              });
+              }, errorCallback);
             }, delay);
           }
         }
@@ -201,9 +214,22 @@ export class FirebaseService {
       return unsubscribe;
       
     } catch (error) {
+      // Don't retry on permission errors
+      if (error?.code === 'permission-denied') {
+        console.warn(`[FirebaseService] Permission denied for ${collectionName}:`, error);
+        if (errorCallback) {
+          errorCallback(error);
+        }
+        return null;
+      }
+      
       console.error(`[FirebaseService] Failed to subscribe to ${collectionName}:`, error);
       this.connectionState.lastError = error;
       this.notifyConnectionChange();
+      
+      if (errorCallback) {
+        errorCallback(error);
+      }
       
       // Retry
       if (retryCount < this.retryConfig.maxRetries) {
@@ -217,7 +243,7 @@ export class FirebaseService {
             resolve(this.subscribe(collectionName, callback, {
               ...options,
               retryCount: retryCount + 1
-            }));
+            }, errorCallback));
           }, delay);
         });
       }

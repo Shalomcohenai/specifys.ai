@@ -239,12 +239,30 @@ export class DataManager {
           this.errors.delete('userCredits');
           this.emit('data', { source: 'userCredits', data: Array.from(this.data.userCredits.values()) });
           this.emit('loading', { source: 'userCredits', loading: false });
+        },
+        {},
+        (error) => {
+          // Handle permission errors gracefully
+          this.loadingStates.userCredits = false;
+          if (error?.code === 'permission-denied') {
+            console.warn('[DataManager] Permission denied for userCredits:', error);
+            this.emit('restricted', { source: 'userCredits', error });
+          } else {
+            this.errors.set('userCredits', error);
+            this.emit('error', { source: 'userCredits', error });
+          }
+          this.emit('loading', { source: 'userCredits', loading: false });
         }
       );
     } catch (error) {
       this.loadingStates.userCredits = false;
-      this.errors.set('userCredits', error);
-      this.emit('error', { source: 'userCredits', error });
+      if (error?.code === 'permission-denied') {
+        console.warn('[DataManager] Permission denied for userCredits:', error);
+        this.emit('restricted', { source: 'userCredits', error });
+      } else {
+        this.errors.set('userCredits', error);
+        this.emit('error', { source: 'userCredits', error });
+      }
       this.emit('loading', { source: 'userCredits', loading: false });
     }
   }
@@ -460,12 +478,29 @@ export class DataManager {
           orderByField: 'createdAt',
           orderDirection: 'desc',
           limitCount: 100
+        },
+        (error) => {
+          // Handle permission errors gracefully
+          this.loadingStates.contactSubmissions = false;
+          if (error?.code === 'permission-denied') {
+            console.warn('[DataManager] Permission denied for contactSubmissions:', error);
+            this.emit('restricted', { source: 'contactSubmissions', error });
+          } else {
+            this.errors.set('contactSubmissions', error);
+            this.emit('error', { source: 'contactSubmissions', error });
+          }
+          this.emit('loading', { source: 'contactSubmissions', loading: false });
         }
       );
     } catch (error) {
       this.loadingStates.contactSubmissions = false;
-      this.errors.set('contactSubmissions', error);
-      this.emit('error', { source: 'contactSubmissions', error });
+      if (error?.code === 'permission-denied') {
+        console.warn('[DataManager] Permission denied for contactSubmissions:', error);
+        this.emit('restricted', { source: 'contactSubmissions', error });
+      } else {
+        this.errors.set('contactSubmissions', error);
+        this.emit('error', { source: 'contactSubmissions', error });
+      }
       this.emit('loading', { source: 'contactSubmissions', loading: false });
     }
   }
