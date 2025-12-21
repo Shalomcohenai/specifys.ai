@@ -36,6 +36,10 @@ custom_js_modules:
         <i class="fas fa-chart-pie"></i>
         <span>Analytics</span>
       </button>
+      <button class="nav-tab" data-section="spec-usage" aria-label="Spec Usage">
+        <i class="fas fa-file-code"></i>
+        <span>Spec Usage</span>
+      </button>
       <button class="nav-tab" data-section="payments" aria-label="Payments">
         <i class="fas fa-credit-card"></i>
         <span>Payments</span>
@@ -565,6 +569,86 @@ custom_js_modules:
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <!-- Spec Usage Analytics Section -->
+    <section class="dashboard-content-section" id="spec-usage-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Spec Usage Analytics</h1>
+          <p>Track which features users utilize for each spec</p>
+        </div>
+        <div class="header-actions">
+          <select class="select-modern" id="spec-usage-range-select">
+            <option value="all">All time</option>
+            <option value="week" selected>Last 7 days</option>
+            <option value="month">Last 30 days</option>
+          </select>
+          <input type="search" id="spec-usage-search-input" placeholder="Search specs..." class="search-input-modern">
+        </div>
+      </div>
+
+      <!-- Summary Statistics -->
+      <div class="spec-usage-summary-grid">
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">Overview Only</div>
+          <div class="summary-value" id="spec-usage-overview-only">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">Overview + Technical</div>
+          <div class="summary-value" id="spec-usage-overview-technical">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">Overview + Technical + Market</div>
+          <div class="summary-value" id="spec-usage-overview-technical-market">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With Diagrams</div>
+          <div class="summary-value" id="spec-usage-with-diagrams">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With Design</div>
+          <div class="summary-value" id="spec-usage-with-design">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With Prompts</div>
+          <div class="summary-value" id="spec-usage-with-prompts">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With Mockups</div>
+          <div class="summary-value" id="spec-usage-with-mockups">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With AI Chat</div>
+          <div class="summary-value" id="spec-usage-with-aichat">0</div>
+        </div>
+      </div>
+
+      <!-- Specs Table -->
+      <div class="table-card">
+        <table class="modern-table" id="spec-usage-table">
+          <thead>
+            <tr>
+              <th>Spec</th>
+              <th>User</th>
+              <th>Created</th>
+              <th class="feature-column">Overview</th>
+              <th class="feature-column">Technical</th>
+              <th class="feature-column">Market</th>
+              <th class="feature-column">Design</th>
+              <th class="feature-column">Diagrams</th>
+              <th class="feature-column">Prompts</th>
+              <th class="feature-column">Mockups</th>
+              <th class="feature-column">AI Chat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="11" class="table-empty-state">Loading specs...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
