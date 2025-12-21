@@ -2498,8 +2498,64 @@ class AdminDashboardApp {
 
     this.bindNavigation();
     this.bindInteractions();
-    this.setupMobileTooltips();
+    this.setupMobileMenu();
     this.setupAuthGate();
+  }
+  
+  /**
+   * Setup mobile menu toggle
+   */
+  setupMobileMenu() {
+    const menuToggle = utils.dom("#mobile-menu-toggle");
+    const sidebar = utils.dom("#admin-sidebar");
+    const backdrop = utils.dom("#mobile-menu-backdrop");
+    
+    if (!menuToggle || !sidebar || !backdrop) return;
+    
+    // Toggle menu
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = sidebar.classList.contains("mobile-open");
+      
+      if (isOpen) {
+        sidebar.classList.remove("mobile-open");
+        backdrop.classList.remove("active");
+        menuToggle.setAttribute("aria-expanded", "false");
+      } else {
+        sidebar.classList.add("mobile-open");
+        backdrop.classList.add("active");
+        menuToggle.setAttribute("aria-expanded", "true");
+      }
+    });
+    
+    // Close menu when clicking backdrop
+    backdrop.addEventListener("click", () => {
+      sidebar.classList.remove("mobile-open");
+      backdrop.classList.remove("active");
+      menuToggle.setAttribute("aria-expanded", "false");
+    });
+    
+    // Close menu when clicking a nav link (on mobile)
+    if (this.dom.navButtons) {
+      this.dom.navButtons.forEach(link => {
+        link.addEventListener("click", () => {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove("mobile-open");
+            backdrop.classList.remove("active");
+            menuToggle.setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+    }
+    
+    // Close menu on window resize if switching to desktop
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.remove("mobile-open");
+        backdrop.classList.remove("active");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    });
   }
   
   /**

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>New Admin Dashboard · Specifys.ai</title>
+  <meta name="description" content="Modern admin dashboard for Specifys.ai with real-time monitoring, analytics, and management tools.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#000000">
+  <link rel="canonical" href="https://specifys-ai.com/pages/new-admin-dashboard.html">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/main-compiled.css">
+  <link rel="stylesheet" href="/assets/css/components/buttons.css">
+  <link rel="stylesheet" href="/assets/css/pages/new-admin-dashboard.css">
+  
+  <!-- Font Awesome -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer"></noscript>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="new-admin-shell" id="new-admin-shell">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin navigation" role="complementary">
+      <div class="sidebar-brand">
+        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
+        <span class="brand-subtitle">Admin v2</span>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <button class="nav-link active" data-target="overview-section" aria-label="Overview section">
+          <span class="icon"><i class="fas fa-chart-line"></i></span>
+          <span class="text">Overview</span>
+        </button>
+        <button class="nav-link" data-target="users-section" aria-label="Users section">
+          <span class="icon"><i class="fas fa-users"></i></span>
+          <span class="text">Users</span>
+        </button>
+        <button class="nav-link" data-target="payments-section" aria-label="Payments section">
+          <span class="icon"><i class="fas fa-credit-card"></i></span>
+          <span class="text">Payments</span>
+        </button>
+        <button class="nav-link" data-target="logs-section" aria-label="Live logs section">
+          <span class="icon"><i class="fas fa-stream"></i></span>
+          <span class="text">Live Logs</span>
+        </button>
+        <button class="nav-link" data-target="articles-section" aria-label="Articles management section">
+          <span class="icon"><i class="fas fa-file-alt"></i></span>
+          <span class="text">Articles</span>
+        </button>
+        <a href="/pages/admin/academy/index.html" class="nav-link" aria-label="Academy management">
+          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+          <span class="text">Academy</span>
+        </a>
+        <button class="nav-link" data-target="stats-section" aria-label="Statistics section">
+          <span class="icon"><i class="fas fa-chart-pie"></i></span>
+          <span class="text">Statistics</span>
+        </button>
+        <button class="nav-link" data-target="funnel-section" aria-label="Funnel analysis section">
+          <span class="icon"><i class="fas fa-filter"></i></span>
+          <span class="text">Funnel Analysis</span>
+        </button>
+        <button class="nav-link" data-target="content-analytics-section" aria-label="Content analytics section">
+          <span class="icon"><i class="fas fa-newspaper"></i></span>
+          <span class="text">Content Analytics</span>
+        </button>
+        <button class="nav-link" data-target="spec-usage-section" aria-label="Spec usage analytics section">
+          <span class="icon"><i class="fas fa-list-check"></i></span>
+          <span class="text">Spec Usage</span>
+        </button>
+        <button class="nav-link" data-target="alerts-section" aria-label="Alerts and notifications section">
+          <span class="icon"><i class="fas fa-bell"></i></span>
+          <span class="text">Alerts</span>
+        </button>
+        <button class="nav-link" data-target="performance-section" aria-label="Performance dashboard section">
+          <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+          <span class="text">Performance</span>
+        </button>
+        <button class="nav-link" data-target="contact-section" aria-label="Contact submissions section">
+          <span class="icon"><i class="fas fa-envelope"></i></span>
+          <span class="text">Contact</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-indicator" id="connection-indicator" title="Connection status">
+          <span class="dot status-pending"></span>
+          <span class="label">Connecting…</span>
+        </div>
+        <small class="sync-label">Last sync · <span id="sidebar-last-sync">Never</span></small>
+        <a class="home-link" href="/">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to site</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <div class="page-title">
+            <h1>Admin Dashboard</h1>
+            <p>Live control center for Specifys.ai</p>
+          </div>
+          <div class="topbar-status">
+            <span id="topbar-sync-status">Waiting for data…</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="action-btn" id="console-logs-toggle" type="button" aria-label="Toggle console logs">
+            <i class="fas fa-terminal"></i>
+            <span id="console-logs-toggle-text">Logs: OFF</span>
+          </button>
+          <a href="/" class="action-btn home-btn" title="Back to homepage">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <button class="action-btn" id="global-search-trigger" type="button" aria-label="Open global search">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+            <span class="hint">⌘/</span>
+          </button>
+          <button class="action-btn" id="manual-refresh-btn" type="button" aria-label="Refresh dashboard data">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh</span>
+          </button>
+          <button class="action-btn critical" id="sign-out-btn" type="button" aria-label="Sign out">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Sign out</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="admin-content" id="main-content" role="main">
+        <!-- Overview Section -->
+        <section class="dashboard-section active" id="overview-section">
+          <header class="section-header">
+            <div>
+              <h2>Live Overview</h2>
+              <p>Real-time snapshot of the platform</p>
+            </div>
+            <div class="section-controls">
+              <button class="action-btn" id="sync-credits-btn" type="button">
+                <i class="fas fa-sync-alt"></i>
+                <span>Sync Credits</span>
+              </button>
+              <select id="overview-range" aria-label="Overview range">
+                <option value="day">Last 24 hours</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="month">Last 30 days</option>
+              </select>
+            </div>
+          </header>
+
+          <!-- Metrics Grid -->
+          <div class="metrics-grid" id="overview-metrics">
+            <article class="metric-card" data-metric="users-total">
+              <div class="metric-header">
+                <h3>Total Users</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+12%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-users-total">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="users-total" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="users-live">
+              <div class="metric-header">
+                <h3>Live Users</h3>
+                <div class="metric-trend neutral">
+                  <i class="fas fa-circle"></i>
+                  <span>Now</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-users-live">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="users-live" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="users-pro">
+              <div class="metric-header">
+                <h3>Pro Users</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+5%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-users-pro">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="users-pro" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="specs-total">
+              <div class="metric-header">
+                <h3>Specs Created</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+8%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-specs-total">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="specs-total" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="revenue-total">
+              <div class="metric-header">
+                <h3>Revenue</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+15%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-revenue-total">$0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="revenue-total" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="articles-read">
+              <div class="metric-header">
+                <h3>Articles Read</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+20%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-articles-read">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="articles-read" height="80"></canvas>
+            </article>
+
+            <article class="metric-card" data-metric="guides-read">
+              <div class="metric-header">
+                <h3>Guides Views</h3>
+                <div class="metric-trend positive">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+10%</span>
+                </div>
+              </div>
+              <div class="metric-value">
+                <span class="value" id="metric-guides-read">0</span>
+              </div>
+              <canvas class="metric-chart" data-metric="guides-read" height="80"></canvas>
+            </article>
+          </div>
+
+          <!-- Overview Panels -->
+          <div class="overview-panels">
+            <div class="panel recent-activity">
+              <div class="panel-header">
+                <h3>Recent Activity</h3>
+                <div class="activity-filters">
+                  <button class="activity-filter-btn active" data-filter="all">All</button>
+                  <button class="activity-filter-btn" data-filter="spec">Specs</button>
+                  <button class="activity-filter-btn" data-filter="payment">Purchases</button>
+                  <button class="activity-filter-btn" data-filter="user">Users</button>
+                </div>
+              </div>
+              <ol class="activity-feed" id="activity-feed" aria-live="polite">
+                <li class="activity-placeholder">Loading activity…</li>
+              </ol>
+            </div>
+
+            <div class="panel sync-status">
+              <div class="panel-header">
+                <h3>Data Sources</h3>
+              </div>
+              <ul class="source-list" id="source-status-list">
+                <li><span class="source-label">Users</span><span class="source-state" data-source="users">Pending</span></li>
+                <li><span class="source-label">Specs</span><span class="source-state" data-source="specs">Pending</span></li>
+                <li><span class="source-label">Purchases</span><span class="source-state" data-source="purchases">Pending</span></li>
+                <li><span class="source-label">Activity logs</span><span class="source-state" data-source="activityLogs">Pending</span></li>
+              </ul>
+              <div class="auto-refresh">
+                <span>Auto refresh</span>
+                <span class="auto-refresh-next" id="auto-refresh-next">Scheduled in 24h</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Users Section -->
+        <section class="dashboard-section" id="users-section">
+          <header class="section-header">
+            <div>
+              <h2>Users</h2>
+              <p>Manage and monitor user accounts</p>
+            </div>
+            <div class="section-controls">
+              <input type="search" id="users-search" placeholder="Search users...">
+              <select id="users-plan-filter">
+                <option value="all">All plans</option>
+                <option value="pro">Pro</option>
+                <option value="free">Free</option>
+              </select>
+              <button class="action-btn" id="export-users-btn" type="button">
+                <i class="fas fa-file-export"></i>
+                <span>Export CSV</span>
+              </button>
+            </div>
+          </header>
+          <div class="table-wrapper">
+            <table class="data-table" id="users-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="users-select-all"></th>
+                  <th>User</th>
+                  <th>Created</th>
+                  <th>Plan</th>
+                  <th>Specs</th>
+                  <th>Credits</th>
+                  <th>Last Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="8" class="table-empty">Loading users…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-wrapper" id="users-pagination"></div>
+        </section>
+
+        <!-- Payments Section -->
+        <section class="dashboard-section" id="payments-section">
+          <header class="section-header">
+            <div>
+              <h2>Payments</h2>
+              <p>Transaction history and revenue tracking</p>
+            </div>
+            <div class="section-controls">
+              <input type="search" id="payments-search" placeholder="Search payments...">
+              <select id="payments-range">
+                <option value="all">All time</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="month">Last 30 days</option>
+              </select>
+            </div>
+          </header>
+          <div class="table-wrapper">
+            <table class="data-table" id="payments-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>User</th>
+                  <th>Product</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="5" class="table-empty">Loading payments…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Logs Section -->
+        <section class="dashboard-section" id="logs-section">
+          <header class="section-header">
+            <div>
+              <h2>Live Logs</h2>
+              <p>Real-time activity and error logs</p>
+            </div>
+            <div class="section-controls">
+              <select id="logs-filter">
+                <option value="all">All logs</option>
+                <option value="error">Errors only</option>
+                <option value="info">Info only</option>
+              </select>
+            </div>
+          </header>
+          <div class="logs-stream" id="logs-stream">
+            <div class="log-placeholder">Loading logs…</div>
+          </div>
+        </section>
+
+        <!-- Articles Section -->
+        <section class="dashboard-section" id="articles-section">
+          <header class="section-header">
+            <div>
+              <h2>Articles</h2>
+              <p>Manage blog posts and content</p>
+            </div>
+          </header>
+          <div class="articles-content">
+            <p>Articles management coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="dashboard-section" id="stats-section">
+          <header class="section-header">
+            <div>
+              <h2>Statistics</h2>
+              <p>Detailed analytics and insights</p>
+            </div>
+          </header>
+          <div class="stats-content">
+            <p>Statistics coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Funnel Section -->
+        <section class="dashboard-section" id="funnel-section">
+          <header class="section-header">
+            <div>
+              <h2>Funnel Analysis</h2>
+              <p>User conversion funnel</p>
+            </div>
+          </header>
+          <div class="funnel-content">
+            <p>Funnel analysis coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Content Analytics Section -->
+        <section class="dashboard-section" id="content-analytics-section">
+          <header class="section-header">
+            <div>
+              <h2>Content Analytics</h2>
+              <p>Content performance metrics</p>
+            </div>
+          </header>
+          <div class="content-analytics-content">
+            <p>Content analytics coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Spec Usage Section -->
+        <section class="dashboard-section" id="spec-usage-section">
+          <header class="section-header">
+            <div>
+              <h2>Spec Usage</h2>
+              <p>Spec creation and usage analytics</p>
+            </div>
+          </header>
+          <div class="spec-usage-content">
+            <p>Spec usage analytics coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Alerts Section -->
+        <section class="dashboard-section" id="alerts-section">
+          <header class="section-header">
+            <div>
+              <h2>Alerts</h2>
+              <p>System alerts and notifications</p>
+            </div>
+          </header>
+          <div class="alerts-content">
+            <p>Alerts coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Performance Section -->
+        <section class="dashboard-section" id="performance-section">
+          <header class="section-header">
+            <div>
+              <h2>Performance</h2>
+              <p>System performance metrics</p>
+            </div>
+          </header>
+          <div class="performance-content">
+            <p>Performance metrics coming soon...</p>
+          </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="dashboard-section" id="contact-section">
+          <header class="section-header">
+            <div>
+              <h2>Contact Submissions</h2>
+              <p>User contact form submissions</p>
+            </div>
+          </header>
+          <div class="contact-content">
+            <p>Contact submissions coming soon...</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/assets/js/new-admin-dashboard/main.js"></script>
+</body>
+</html>
+

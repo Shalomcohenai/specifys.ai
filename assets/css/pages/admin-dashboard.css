@@ -3592,6 +3592,11 @@ button.admin-shell .action-btn.grid,
   border-color: var(--admin-accent);
 }
 
+/* Mobile menu toggle - hidden on desktop, shown on mobile */
+.admin-shell .mobile-menu-toggle {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .admin-shell {
@@ -3615,15 +3620,93 @@ button.admin-shell .action-btn.grid,
 
 @media (max-width: 768px) {
   .admin-shell {
-    grid-template-columns: 70px 1fr;
+    grid-template-columns: 1fr;
   }
   
   .admin-shell .admin-sidebar {
-    width: 70px;
-    padding: 12px 8px;
-    position: sticky;
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    padding: var(--admin-spacing);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 4px 0 18px rgba(15, 23, 42, 0.15);
+    overflow-y: auto;
+  }
+  
+  .admin-shell .admin-sidebar.mobile-open {
     left: 0;
-    z-index: 100;
+  }
+  
+  /* Mobile menu overlay backdrop */
+  .admin-shell .mobile-menu-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .admin-shell .mobile-menu-backdrop.active {
+    display: block;
+    opacity: 1;
+  }
+  
+  /* Mobile menu toggle button */
+  .admin-shell .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    color: var(--admin-text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  
+  .admin-shell .mobile-menu-toggle:hover,
+  .admin-shell .mobile-menu-toggle:focus {
+    background: var(--admin-hover-bg);
+    border-color: var(--admin-accent);
+    color: var(--admin-accent-strong);
+    outline: none;
+  }
+  
+  .admin-shell .topbar-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .admin-shell .topbar-left .page-title {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .admin-shell .topbar-left .page-title h1 {
+    font-size: 1.2rem;
+  }
+  
+  .admin-shell .topbar-left .page-title p {
+    display: none;
+  }
+  
+  .admin-shell .topbar-left .topbar-status {
+    display: none;
   }
   
   /* Hide text in sidebar on mobile, show only icons */
