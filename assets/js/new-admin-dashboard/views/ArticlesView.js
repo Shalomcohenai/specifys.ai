@@ -90,8 +90,8 @@ export class ArticlesView {
     }
     
     try {
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-      const result = await window.api.post(`${apiBaseUrl}/api/articles/generate`, { topic });
+      // window.api already includes baseUrl, so just use the endpoint
+      const result = await window.api.post('/api/articles/generate', { topic });
       
       if (result.success) {
         this.setFeedback('Article generated successfully!', 'success');
@@ -158,8 +158,8 @@ export class ArticlesView {
     this.table.innerHTML = '<tr><td colspan="5" class="table-empty-state">Loading articles...</td></tr>';
     
     try {
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-      const result = await window.api.get(`${apiBaseUrl}/api/articles/list?status=all&limit=1000`);
+      // window.api already includes baseUrl, so just use the endpoint
+      const result = await window.api.get('/api/articles/list?status=all&limit=1000');
       
       if (result && result.success && result.articles) {
         this.articles = result.articles.map(article => ({

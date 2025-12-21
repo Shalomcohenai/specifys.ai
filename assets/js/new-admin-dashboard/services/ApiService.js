@@ -14,7 +14,9 @@ export class ApiService {
    */
   getApiBaseUrl() {
     if (typeof window.getApiBaseUrl === 'function') {
-      return window.getApiBaseUrl();
+      const url = window.getApiBaseUrl();
+      // Ensure URL doesn't have trailing slash
+      return url.endsWith('/') ? url.slice(0, -1) : url;
     }
     return 'https://specifys-ai-development.onrender.com';
   }
@@ -48,7 +50,10 @@ export class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const url = `${this.baseUrl}${endpoint}`;
+    // Ensure endpoint starts with / and baseUrl doesn't end with /
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const cleanBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    const url = `${cleanBaseUrl}${cleanEndpoint}`;
     
     try {
       const response = await fetch(url, {
@@ -111,10 +116,13 @@ export class ApiService {
   }
   
   /**
-   * Sync user credits
+   * Sync user credits - uses users sync endpoint
    */
   async syncCredits() {
-    return this.post('/api/admin/users/sync-credits');
+    return this.post('/api/admin/users/sync', {
+      ensureEntitlements: true,
+      includeDataCollections: false
+    });
   }
   
   /**

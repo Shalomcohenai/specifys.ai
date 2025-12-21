@@ -63,8 +63,8 @@ export class LogsView {
    */
   async loadRenderLogs() {
     try {
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-      const response = await window.api.get(`${apiBaseUrl}/api/logs/render`);
+      // window.api already includes baseUrl, so just use the endpoint
+      const response = await window.api.get('/api/logs/render');
       
       if (response && Array.isArray(response)) {
         this.renderLogsData = response.map(log => ({
