@@ -50,14 +50,14 @@ class NewAdminDashboard {
       // Setup UI first (so sections are visible)
       this.setupUI();
       
-      // Show overview section by default
+      // Initialize views (before navigation)
+      this.initViews();
+      
+      // Show overview section by default - MUST be after views are initialized
       this.navigateToSection('overview-section');
       
       // Setup auth gate
       this.setupAuthGate();
-      
-      // Initialize views (after UI is set up)
-      this.initViews();
       
       // Setup data listeners
       this.setupDataListeners();
@@ -224,21 +224,33 @@ class NewAdminDashboard {
    * Navigate to section
    */
   navigateToSection(sectionId) {
+    console.log('[NewAdminDashboard] Navigating to section:', sectionId);
+    
     // Hide current view
     const currentSection = this.stateManager.getState('activeSection');
-    const currentView = this.views.get(currentSection);
-    if (currentView && typeof currentView.hide === 'function') {
-      currentView.hide();
+    if (currentSection) {
+      const currentView = this.views.get(currentSection);
+      if (currentView && typeof currentView.hide === 'function') {
+        currentView.hide();
+      }
     }
     
     // Update active nav
     this.elements.navLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.target === sectionId);
+      const isActive = link.dataset.target === sectionId;
+      link.classList.toggle('active', isActive);
     });
     
-    // Update active section
+    // Update active section - CRITICAL: Make sure sections are shown
     this.elements.sections.forEach(section => {
-      section.classList.toggle('active', section.id === sectionId);
+      const isActive = section.id === sectionId;
+      if (isActive) {
+        section.classList.add('active');
+        section.style.display = 'block';
+      } else {
+        section.classList.remove('active');
+        section.style.display = 'none';
+      }
     });
     
     // Update state
@@ -248,6 +260,8 @@ class NewAdminDashboard {
     const newView = this.views.get(sectionId);
     if (newView && typeof newView.show === 'function') {
       newView.show();
+    } else {
+      console.warn('[NewAdminDashboard] No view found for section:', sectionId);
     }
     
     // Close mobile menu
