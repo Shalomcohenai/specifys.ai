@@ -55,9 +55,27 @@ const ADMIN_EMAILS = new Set([
 
 export class FirebaseService {
   constructor() {
-    this.app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    // Initialize Firebase app if not already initialized
+    if (getApps().length === 0) {
+      this.app = initializeApp(firebaseConfig);
+    } else {
+      this.app = getApps()[0];
+    }
+    
     this.auth = getAuth(this.app);
     this.db = getFirestore(this.app);
+    
+    // Make auth available globally for credits-v2-display.js compatibility
+    if (typeof window !== 'undefined') {
+      window.auth = this.auth;
+      // Also create firebase compat object for credits-v2-display.js
+      if (!window.firebase) {
+        window.firebase = {
+          auth: () => this.auth,
+          initializeApp: () => this.app
+        };
+      }
+    }
     
     // Connection management
     this.connections = new Map();
@@ -393,6 +411,25 @@ export class FirebaseService {
   }
 }
 
-// Export singleton instance
+// Export singleton instance - Initialize immediately
 export const firebaseService = new FirebaseService();
+
+// Make sure Firebase is available globally for credits-v2-display.js
+if (typeof window !== 'undefined') {
+  // Ensure auth is available
+  if (!window.auth) {
+    window.auth = firebaseService.auth;
+  }
+  
+  // Ensure firebase compat object exists
+  if (!window.firebase) {
+    window.firebase = {
+      auth: () => firebaseService.auth,
+      initializeApp: () => firebaseService.app
+    };
+  }
+  
+  // Dispatch firebase-ready event
+  window.dispatchEvent(new Event('firebase-ready'));
+}
 

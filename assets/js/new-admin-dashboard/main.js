@@ -15,8 +15,6 @@ import { LogsView } from './views/LogsView.js';
 import { AnalyticsView } from './views/AnalyticsView.js';
 import { ArticlesView } from './views/ArticlesView.js';
 import { AcademyView } from './views/AcademyView.js';
-import { ArticlesView } from './views/ArticlesView.js';
-import { AcademyView } from './views/AcademyView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -403,7 +401,11 @@ class NewAdminDashboard {
   }
 }
 
-// Initialize when DOM is ready
+// Initialize FirebaseService immediately to make auth available for credits-v2-display.js
+// This ensures Firebase is initialized before credits scripts try to access it
+firebaseService.getCurrentUser(); // This will initialize Firebase if not already initialized
+
+// Initialize dashboard when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.newAdminDashboard = new NewAdminDashboard();
