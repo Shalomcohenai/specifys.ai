@@ -1499,6 +1499,59 @@
   min-width: 200px;
 }
 
+/* Conversion Funnel */
+.funnel-details {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+}
+
+.funnel-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.funnel-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.funnel-metric.highlight {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.funnel-metric .metric-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.funnel-metric .metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.funnel-metric.highlight .metric-value {
+  color: var(--primary);
+}
+
+.funnel-metric .metric-count {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
 .articles-controls select,
 .academy-controls select {
   padding: var(--spacing-xs) var(--spacing-sm);

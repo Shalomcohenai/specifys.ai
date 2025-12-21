@@ -29,8 +29,9 @@ export class LogsView {
     // Subscribe to data changes
     this.setupDataSubscriptions();
     
-    // Load render logs from API
-    this.loadRenderLogs();
+    // Don't load render logs - endpoint doesn't exist
+    // Just use activity logs from Firebase
+    this.renderLogsData = [];
   }
   
   /**
@@ -58,59 +59,14 @@ export class LogsView {
     });
   }
   
-  /**
-   * Load render logs from API
-   */
-  async loadRenderLogs() {
-    try {
-      // Try to load render logs - if endpoint doesn't exist, just use activity logs
-      const response = await window.api.get('/api/logs/render').catch(err => {
-        // Endpoint doesn't exist (404) - that's okay, we'll use activity logs only
-        if (err.status === 404 || err.message?.includes('404')) {
-          console.info('[LogsView] Render logs endpoint not available, using activity logs only');
-          return null;
-        }
-        throw err;
-      });
-      
-      if (response && Array.isArray(response)) {
-        this.renderLogsData = response.map(log => ({
-          id: log.id || log._id,
-          level: log.level || 'info',
-          message: log.message || log.title || 'Log entry',
-          description: log.description || log.path || '',
-          timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
-          userId: log.userId || null,
-          userEmail: log.userEmail || null,
-          path: log.path || '',
-          method: log.method || '',
-          statusCode: log.statusCode || null,
-          errorStack: log.errorStack || null
-        }));
-        
-        // Sort by timestamp (newest first)
-        this.renderLogsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-      } else {
-        // No render logs available, use empty array
-        this.renderLogsData = [];
-      }
-      
-      this.render();
-    } catch (error) {
-      console.warn('[LogsView] Error loading render logs:', error);
-      // Continue with activity logs only
-      this.renderLogsData = [];
-      this.render();
-    }
-  }
   
   /**
    * Show view
    */
   show() {
+    // Don't load render logs - endpoint doesn't exist
+    // Just render activity logs from Firebase
     this.render();
-    // Reload render logs when showing
-    this.loadRenderLogs();
   }
   
   /**

@@ -84,14 +84,8 @@ export class AnalyticsView {
       backgroundColor: 'rgba(245, 158, 11, 0.1)'
     });
     
-    // User Distribution Chart
-    this.initChart('analytics-chart-distribution', 'doughnut', {
-      label: 'User Distribution',
-      backgroundColor: [
-        'rgba(139, 92, 246, 0.8)',
-        'rgba(156, 163, 175, 0.8)'
-      ]
-    });
+    // Conversion Funnel Chart
+    this.initFunnelChart('analytics-chart-funnel');
   }
   
   /**
@@ -164,7 +158,7 @@ export class AnalyticsView {
     this.updateUserGrowthChart(allData.users, startDate, endDate);
     this.updateSpecsGrowthChart(allData.specs, startDate, endDate);
     this.updateRevenueTrendChart(allData.purchases, startDate, endDate);
-    this.updateUserDistributionChart(allData.users, allData.userCredits);
+    this.updateConversionFunnel(allData, startDate, endDate);
     
     // Update tables
     this.updateTopUsersSpecs(allData.users, allData.specsByUser);
@@ -211,27 +205,244 @@ export class AnalyticsView {
   }
   
   /**
-   * Update user distribution chart
+   * Initialize funnel chart
    */
-  updateUserDistributionChart(users, userCredits) {
-    let proCount = 0;
-    let freeCount = 0;
+  initFunnelChart(canvasId) {
+    const canvas = helpers.dom(`#${canvasId}`);
+    if (!canvas || !window.Chart) return;
     
-    users.forEach(user => {
-      const userCredit = userCredits.find(uc => uc.userId === user.id);
-      if (userCredit?.unlimited || user.plan === 'pro') {
-        proCount++;
-      } else {
-        freeCount++;
+    canvas.style.width = '100%';
+    canvas.style.height = '250px';
+    
+    const ctx = canvas.getContext('2d');
+    const chart = new window.Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Visitors', 'Signups', 'Specs Created', 'Buy Now Clicks', 'Purchases'],
+        datasets: [{
+          label: 'Conversion Funnel',
+          data: [0, 0, 0, 0, 0],
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgba(59, 130, 246, 1)',
+            'rgba(16, 185, 129, 1)',
+            'rgba(139, 92, 246, 1)',
+            'rgba(245, 158, 11, 1)',
+            'rgba(239, 68, 68, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y', // Horizontal bar chart
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              afterLabel: (context) => {
+                const index = context.dataIndex;
+                const value = context.parsed.x;
+                if (index === 0) return '';
+                const prevValue = context.chart.data.datasets[0].data[index - 1];
+                if (prevValue === 0) return '';
+                const conversion = ((value / prevValue) * 100).toFixed(1);
+                return `Conversion: ${conversion}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            }
+          }
+        }
       }
     });
     
-    const chart = this.charts.get('analytics-chart-distribution');
+    this.charts.set(canvasId, chart);
+  }
+  
+  /**
+   * Update conversion funnel
+   */
+  updateConversionFunnel(allData, startDate, endDate) {
+    // Calculate funnel metrics
+    // 1. Visitors - approximate from activity logs (unique users who visited)
+    const visitors = this.calculateVisitors(allData.activityLogs, startDate, endDate);
+    
+    // 2. Signups - users who registered in the range
+    const signups = allData.users.filter(user => {
+      if (!user.createdAt) return false;
+      const created = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      return created >= startDate.getTime() && created <= endDate.getTime();
+    }).length;
+    
+    // 3. Specs Created - specs created in the range
+    const specsCreated = allData.specs.filter(spec => {
+      if (!spec.createdAt) return false;
+      const created = spec.createdAt instanceof Date ? spec.createdAt.getTime() : new Date(spec.createdAt).getTime();
+      return created >= startDate.getTime() && created <= endDate.getTime();
+    }).length;
+    
+    // 4. Buy Now Clicks - approximate from purchases (if they purchased, they clicked buy now)
+    // We can also check activity logs for "buy now" or "checkout" events
+    const buyNowClicks = this.calculateBuyNowClicks(allData.purchases, allData.activityLogs, startDate, endDate);
+    
+    // 5. Purchases - actual purchases in the range
+    const purchases = allData.purchases.filter(purchase => {
+      if (!purchase.createdAt) return false;
+      const created = purchase.createdAt instanceof Date ? purchase.createdAt.getTime() : new Date(purchase.createdAt).getTime();
+      return created >= startDate.getTime() && created <= endDate.getTime();
+    }).length;
+    
+    // Update chart
+    const chart = this.charts.get('analytics-chart-funnel');
     if (chart) {
-      chart.data.labels = ['Pro', 'Free'];
-      chart.data.datasets[0].data = [proCount, freeCount];
+      chart.data.datasets[0].data = [visitors, signups, specsCreated, buyNowClicks, purchases];
       chart.update('none');
     }
+    
+    // Calculate conversion rates
+    const conversions = {
+      visitorsToSignups: visitors > 0 ? ((signups / visitors) * 100).toFixed(1) : '0.0',
+      signupsToSpecs: signups > 0 ? ((specsCreated / signups) * 100).toFixed(1) : '0.0',
+      specsToBuyNow: specsCreated > 0 ? ((buyNowClicks / specsCreated) * 100).toFixed(1) : '0.0',
+      buyNowToPurchase: buyNowClicks > 0 ? ((purchases / buyNowClicks) * 100).toFixed(1) : '0.0',
+      overallConversion: visitors > 0 ? ((purchases / visitors) * 100).toFixed(1) : '0.0'
+    };
+    
+    // Update funnel details
+    this.renderFunnelDetails({
+      visitors,
+      signups,
+      specsCreated,
+      buyNowClicks,
+      purchases
+    }, conversions);
+  }
+  
+  /**
+   * Calculate visitors from activity logs
+   * Since we don't track all visitors, we approximate based on activity logs
+   */
+  calculateVisitors(activityLogs, startDate, endDate) {
+    if (!activityLogs || activityLogs.length === 0) {
+      // If no activity logs, return 0 (will be updated when we have data)
+      return 0;
+    }
+    
+    // Count unique users from activity logs in the date range
+    const uniqueUsers = new Set();
+    activityLogs.forEach(log => {
+      const timestamp = log.timestamp || log.createdAt;
+      if (!timestamp) return;
+      
+      const time = timestamp instanceof Date ? timestamp.getTime() : new Date(timestamp).getTime();
+      if (time >= startDate.getTime() && time <= endDate.getTime()) {
+        const userId = log.userId || log.userEmail || log.user || log.meta?.userId || log.meta?.userEmail;
+        if (userId) {
+          uniqueUsers.add(userId);
+        }
+      }
+    });
+    
+    // Return unique users count (this is an approximation)
+    // In a real scenario, you'd track all page views, but for now we use activity logs
+    return uniqueUsers.size;
+  }
+  
+  /**
+   * Calculate buy now clicks
+   */
+  calculateBuyNowClicks(purchases, activityLogs, startDate, endDate) {
+    // Count purchases (they clicked buy now)
+    const purchaseClicks = purchases.filter(p => {
+      if (!p.createdAt) return false;
+      const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
+      return created >= startDate.getTime() && created <= endDate.getTime();
+    }).length;
+    
+    // Also check activity logs for buy now / checkout events
+    let buyNowEvents = 0;
+    if (activityLogs && activityLogs.length > 0) {
+      buyNowEvents = activityLogs.filter(log => {
+        const timestamp = log.timestamp || log.createdAt;
+        if (!timestamp) return false;
+        
+        const time = timestamp instanceof Date ? timestamp.getTime() : new Date(timestamp).getTime();
+        if (time < startDate.getTime() || time > endDate.getTime()) return false;
+        
+        const message = (log.message || log.title || '').toLowerCase();
+        const description = (log.description || '').toLowerCase();
+        return message.includes('buy now') || 
+               message.includes('checkout') || 
+               description.includes('buy now') ||
+               description.includes('checkout') ||
+               log.type === 'payment' ||
+               log.level === 'payment';
+      }).length;
+    }
+    
+    // Return the higher value (either purchases or buy now events)
+    return Math.max(purchaseClicks, buyNowEvents);
+  }
+  
+  /**
+   * Render funnel details with conversion rates
+   */
+  renderFunnelDetails(funnel, conversions) {
+    const detailsEl = helpers.dom('#funnel-details');
+    if (!detailsEl) return;
+    
+    const html = `
+      <div class="funnel-metrics-grid">
+        <div class="funnel-metric">
+          <span class="metric-label">Visitors → Signups</span>
+          <span class="metric-value">${conversions.visitorsToSignups}%</span>
+          <span class="metric-count">${funnel.signups} / ${funnel.visitors}</span>
+        </div>
+        <div class="funnel-metric">
+          <span class="metric-label">Signups → Specs Created</span>
+          <span class="metric-value">${conversions.signupsToSpecs}%</span>
+          <span class="metric-count">${funnel.specsCreated} / ${funnel.signups}</span>
+        </div>
+        <div class="funnel-metric">
+          <span class="metric-label">Specs → Buy Now Clicks</span>
+          <span class="metric-value">${conversions.specsToBuyNow}%</span>
+          <span class="metric-count">${funnel.buyNowClicks} / ${funnel.specsCreated}</span>
+        </div>
+        <div class="funnel-metric">
+          <span class="metric-label">Buy Now → Purchases</span>
+          <span class="metric-value">${conversions.buyNowToPurchase}%</span>
+          <span class="metric-count">${funnel.purchases} / ${funnel.buyNowClicks}</span>
+        </div>
+        <div class="funnel-metric highlight">
+          <span class="metric-label">Overall Conversion</span>
+          <span class="metric-value">${conversions.overallConversion}%</span>
+          <span class="metric-count">${funnel.purchases} / ${funnel.visitors}</span>
+        </div>
+      </div>
+    `;
+    
+    detailsEl.innerHTML = html;
   }
   
   /**
