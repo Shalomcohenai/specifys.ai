@@ -128,6 +128,9 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         const creditsV2Service = require('./credits-v2-service');
         console.log(`[user-management] User ${uid}: Credits service loaded successfully`);
         
+        // Store authUser.creationTime for use inside transaction
+        const authCreationTime = authUser.creationTime ? (authUser.creationTime instanceof Date ? authUser.creationTime : new Date(authUser.creationTime)) : null;
+        
         console.log(`[user-management] User ${uid}: Step 3 - Starting Firestore transaction...`);
         const result = await db.runTransaction(async (transaction) => {
             console.log(`[user-management] User ${uid}: Inside transaction - Getting document references...`);
@@ -154,17 +157,70 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             const isNewUser = isNewUserFromClient === true || (!userExists || !entitlementsExist || !creditsExist);
             console.log(`[user-management] User ${uid}: Determining isNewUser - isNewUserFromClient=${isNewUserFromClient}, calculated isNewUser=${isNewUser}`);
             
-            // If all documents exist AND user is NOT new (client didn't say it's new), return early
-            // This optimization prevents unnecessary processing for existing users
+            // If all documents exist AND user is NOT new (client didn't say it's new), check if welcome credit was granted
+            // This optimization prevents unnecessary processing for existing users, but still checks for welcome credit
             if (userExists && entitlementsExist && creditsExist && isNewUserFromClient !== true) {
-                // User is fully initialized and client confirmed it's NOT a new user, return early
                 const existingCredits = creditsDoc.data();
+                const existingTotal = (existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0);
+                const welcomeCreditGranted = existingCredits.metadata?.welcomeCreditGranted || false;
+                
+                // Check if user was created recently (within last 10 minutes) and doesn't have welcome credit
+                // This handles cases where user was created but welcome credit wasn't granted
+                const userData = userDoc.data();
+                // Try multiple sources for creation time: userData.createdAt, authUser.creationTime
+                let userCreatedAt = null;
+                if (userData.createdAt) {
+                    userCreatedAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+                } else if (authCreationTime) {
+                    userCreatedAt = authCreationTime;
+                }
+                const isRecentlyCreated = userCreatedAt && (Date.now() - userCreatedAt.getTime()) < 10 * 60 * 1000; // 10 minutes
+                
+                // If user is recently created and doesn't have welcome credit, grant it
+                // Also check if total is 0 OR if welcomeCreditGranted is false (handles edge cases)
+                if (isRecentlyCreated && !welcomeCreditGranted && existingTotal === 0) {
+                    console.log(`[user-management] User ${uid}: ⚠️ RECENTLY CREATED USER - Credits exist but welcome credit not granted, granting now`);
+                    transaction.update(creditsRef, {
+                        'balances.free': admin.firestore.FieldValue.increment(1),
+                        'metadata.welcomeCreditGranted': true,
+                        'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
+                        'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    const updatedCredits = {
+                        ...existingCredits,
+                        balances: {
+                            ...existingCredits.balances,
+                            free: (existingCredits.balances?.free || 0) + 1
+                        },
+                        metadata: {
+                            ...existingCredits.metadata,
+                            welcomeCreditGranted: true,
+                            lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }
+                    };
+                    
+                    console.log(`[user-management] User ${uid}: ✅ WELCOME CREDIT GRANTED - Updated credits for recently created user`);
+                    return {
+                        created: false,
+                        updated: true,
+                        unchanged: false,
+                        user: userData,
+                        entitlements: entitlementsDoc.data(),
+                        credits: updatedCredits,
+                        _needsCreditsInit: false,
+                        _isNewUser: false
+                    };
+                }
+                
+                // User is fully initialized and welcome credit already granted (or user is not new), return early
                 console.log(`[user-management] User ${uid}: All documents exist and user is NOT new (isNewUserFromClient !== true), returning existing data`);
                 const result = {
                     created: false,
                     updated: false,
                     unchanged: true,
-                    user: userDoc.data(),
+                    user: userData,
                     entitlements: entitlementsDoc.data(),
                     credits: existingCredits,
                     _needsCreditsInit: false,

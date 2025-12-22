@@ -290,7 +290,64 @@ async function getUserCredits(userId, autoCreate = true) {
         throw new Error(`User credits not found for user ${userId}. User must be initialized first via /api/users/initialize`);
       }
       
-      // User exists, safe to create default credits (for backward compatibility with existing users)
+      // User exists - check if user was created recently (within last 5 minutes)
+      // If so, try to initialize user credits instead of creating default credits with 0
+      const userData = userDoc.data();
+      const userCreatedAt = userData.createdAt ? (userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt)) : null;
+      const isRecentlyCreated = userCreatedAt && (Date.now() - userCreatedAt.getTime()) < 5 * 60 * 1000; // 5 minutes
+      
+      if (isRecentlyCreated) {
+        logger.info({ userId }, '[CREDITS-V2] getUserCredits - User created recently, attempting to initialize credits via initializeUser...');
+        try {
+          // Try to initialize user credits - this will create credits with welcome credit if user is new
+          const userManagement = require('./user-management');
+          const initResult = await userManagement.initializeUser(userId, {}, true); // isNewUserFromClient = true
+          
+          if (initResult.credits) {
+            logger.info({ userId }, '[CREDITS-V2] getUserCredits - ✅ User initialized successfully, reading credits from Firestore');
+            // Read credits from Firestore to ensure we have the latest data
+            const freshCreditsDoc = await creditsRef.get();
+            if (freshCreditsDoc.exists) {
+              const creditsData = freshCreditsDoc.data();
+              // Enrich subscription data if needed (same logic as below)
+              if (creditsData.subscription && creditsData.subscription.type === 'pro') {
+                try {
+                  const subscriptionDoc = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId).get();
+                  if (subscriptionDoc.exists) {
+                    const subData = subscriptionDoc.data();
+                    // Merge subscription details (same logic as in getUserCredits below)
+                    creditsData.subscription = {
+                      ...creditsData.subscription,
+                      renewsAt: subData.renews_at || null,
+                      endsAt: subData.ends_at || null,
+                      expiresAt: subData.current_period_end || null,
+                      cancelAtPeriodEnd: subData.cancel_at_period_end || false,
+                      lastOrderTotal: subData.last_order_total || null,
+                      currency: subData.currency || 'USD',
+                      billingInterval: subData.billing_interval || null,
+                      purchaseDate: subData.purchase_date || null
+                    };
+                  }
+                } catch (error) {
+                  logger.warn({ userId, error: error.message }, '[CREDITS-V2] getUserCredits - Failed to fetch subscription details');
+                }
+              }
+              // Return credits in the same format as the rest of the function
+              return creditsData;
+            } else {
+              logger.warn({ userId }, '[CREDITS-V2] getUserCredits - Credits document still not found after initialization');
+            }
+          }
+          
+          // If initialization didn't create credits, fall through to create default credits
+          logger.warn({ userId }, '[CREDITS-V2] getUserCredits - Initialization didn\'t create credits, falling back to default credits');
+        } catch (initError) {
+          logger.warn({ userId, error: initError.message }, '[CREDITS-V2] getUserCredits - Failed to initialize user, falling back to default credits');
+          // Fall through to create default credits
+        }
+      }
+      
+      // User exists but not recently created, or initialization failed - create default credits (for backward compatibility with existing users)
       logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, user exists but credits do not exist, creating default credits (0)');
       // Create default credits (0 credits) - for backward compatibility
       // Note: New users should be initialized via initializeUser which creates credits with welcome credit
@@ -625,12 +682,14 @@ async function consumeCredit(userId, specId, options = {}) {
         throw new Error('Insufficient credits');
       }
       
-      // Consume credit
-      const newBalance = (credits.balances[creditType] || 0) - 1;
-      credits.balances[creditType] = Math.max(0, newBalance);
+      // Consume credit - use increment for atomic update
+      const currentBalance = credits.balances[creditType] || 0;
+      const newBalance = Math.max(0, currentBalance - 1);
       
-      // Update credits - use dot notation for nested fields to ensure proper update
+      // Update credits - use increment for atomic update to ensure consistency
       if (!creditsDoc.exists) {
+        // Create new document with updated balances
+        credits.balances[creditType] = newBalance;
         transaction.set(creditsRef, {
           ...credits,
           balances: credits.balances,
@@ -638,15 +697,16 @@ async function consumeCredit(userId, specId, options = {}) {
           'metadata.lastCreditConsume': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        // Update each balance field separately to ensure Firestore updates correctly
+        // Use increment for atomic update - more reliable than setting absolute values
         const updateData = {
-          'balances.free': credits.balances.free || 0,
-          'balances.paid': credits.balances.paid || 0,
-          'balances.bonus': credits.balances.bonus || 0,
+          [`balances.${creditType}`]: admin.firestore.FieldValue.increment(-1),
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditConsume': admin.firestore.FieldValue.serverTimestamp()
         };
         transaction.update(creditsRef, updateData);
+        
+        // Update local credits object for return value
+        credits.balances[creditType] = newBalance;
       }
       
       // Record in ledger
@@ -784,11 +844,14 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       // Determine credit type
       const creditType = determineCreditType(source, metadata);
       
-      // Grant credits
-      credits.balances[creditType] = (credits.balances[creditType] || 0) + amount;
+      // Grant credits - use increment for atomic update
+      const currentBalance = credits.balances[creditType] || 0;
+      const newBalance = currentBalance + amount;
       
-      // Update credits - use dot notation for nested fields to ensure proper update
+      // Update credits - use increment for atomic update to ensure consistency
       if (!creditsDoc.exists) {
+        // Create new document with updated balances
+        credits.balances[creditType] = newBalance;
         transaction.set(creditsRef, {
           ...credits,
           balances: credits.balances,
@@ -796,15 +859,16 @@ async function grantCredits(userId, amount, source, metadata = {}) {
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        // Update each balance field separately to ensure Firestore updates correctly
+        // Use increment for atomic update - more reliable than setting absolute values
         const updateData = {
-          'balances.free': credits.balances.free || 0,
-          'balances.paid': credits.balances.paid || 0,
-          'balances.bonus': credits.balances.bonus || 0,
+          [`balances.${creditType}`]: admin.firestore.FieldValue.increment(amount),
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         };
         transaction.update(creditsRef, updateData);
+        
+        // Update local credits object for return value
+        credits.balances[creditType] = newBalance;
       }
       
       // Record in ledger
@@ -953,11 +1017,14 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
       // Determine credit type (default to paid for refunds)
       const creditType = 'paid';
       
-      // Grant credits (refund = grant)
-      credits.balances[creditType] = (credits.balances[creditType] || 0) + amount;
+      // Grant credits (refund = grant) - use increment for atomic update
+      const currentBalance = credits.balances[creditType] || 0;
+      const newBalance = currentBalance + amount;
       
-      // Update credits - use dot notation for nested fields to ensure proper update
+      // Update credits - use increment for atomic update to ensure consistency
       if (!creditsDoc.exists) {
+        // Create new document with updated balances
+        credits.balances[creditType] = newBalance;
         transaction.set(creditsRef, {
           ...credits,
           balances: credits.balances,
@@ -965,15 +1032,16 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        // Update each balance field separately to ensure Firestore updates correctly
+        // Use increment for atomic update - more reliable than setting absolute values
         const updateData = {
-          'balances.free': credits.balances.free || 0,
-          'balances.paid': credits.balances.paid || 0,
-          'balances.bonus': credits.balances.bonus || 0,
+          [`balances.${creditType}`]: admin.firestore.FieldValue.increment(amount),
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         };
         transaction.update(creditsRef, updateData);
+        
+        // Update local credits object for return value
+        credits.balances[creditType] = newBalance;
       }
       
       // Record in ledger

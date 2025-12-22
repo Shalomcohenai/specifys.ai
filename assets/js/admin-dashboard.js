@@ -569,14 +569,21 @@ class DataAggregator {
               const data = docSnap.data();
               const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
               const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
+              
+              // Use nullish coalescing (??) to handle 0 values correctly
+              const freeCredits = data.balances?.free ?? 0;
+              const paidCredits = data.balances?.paid ?? 0;
+              const bonusCredits = data.balances?.bonus ?? 0;
+              const totalCredits = freeCredits + paidCredits + bonusCredits;
+              
               const normalized = {
                 userId: docSnap.id,
                 balances: {
-                  free: data.balances?.free || 0,
-                  paid: data.balances?.paid || 0,
-                  bonus: data.balances?.bonus || 0
+                  free: freeCredits,
+                  paid: paidCredits,
+                  bonus: bonusCredits
                 },
-                total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                total: totalCredits,
                 unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
                 updatedAt: utils.toDate(data.metadata?.updatedAt),
                 metadata: data
@@ -589,6 +596,7 @@ class DataAggregator {
               if (change.type === "removed") {
                 this.aggregatedData.userCredits.delete(change.doc.id);
               } else {
+                // Handle both "added" and "modified" types
                 const data = change.doc.data();
                 const previous = this.aggregatedData.userCredits.get(change.doc.id);
                 const previousSubscriptionType = previous ? (previous.metadata?.subscription?.type || (previous.unlimited ? 'pro' : 'none')) : 'none';
@@ -597,18 +605,31 @@ class DataAggregator {
                 
                 const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
                 const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
+                
+                // Always recalculate total from fresh data to ensure accuracy
+                // Use nullish coalescing (??) to handle 0 values correctly
+                const freeCredits = data.balances?.free ?? 0;
+                const paidCredits = data.balances?.paid ?? 0;
+                const bonusCredits = data.balances?.bonus ?? 0;
+                const totalCredits = freeCredits + paidCredits + bonusCredits;
+                
                 const normalized = {
                   userId: change.doc.id,
                   balances: {
-                    free: data.balances?.free || 0,
-                    paid: data.balances?.paid || 0,
-                    bonus: data.balances?.bonus || 0
+                    free: freeCredits,
+                    paid: paidCredits,
+                    bonus: bonusCredits
                   },
-                  total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                  total: totalCredits,
                   unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
                   updatedAt: utils.toDate(data.metadata?.updatedAt),
                   metadata: data
                 };
+                
+                // Log credit changes for debugging
+                if (previous && previous.total !== normalized.total) {
+                  console.log(`[DataAggregator] Credits changed for user ${change.doc.id}: ${previous.total} -> ${normalized.total} (free: ${freeCredits}, paid: ${paidCredits}, bonus: ${bonusCredits})`);
+                }
                 
                 const currentIsPro = subscriptionType === 'pro' && subscriptionStatus === 'active';
                 
@@ -770,7 +791,8 @@ class DataAggregator {
                 
                 // Create activity event for new specs
                 // Check if this is a new spec (either added or didn't exist before)
-                const isNewSpec = change.type === "added" || !previous;
+                // Also check if spec was created recently (within last 5 minutes) to catch specs created before dashboard loaded
+                const isNewSpec = change.type === "added" || (!previous && spec.createdAt && spec.createdAt.getTime() >= Date.now() - 5 * 60 * 1000);
                 if (isNewSpec) {
                   const user = this.aggregatedData.users.get(spec.userId);
                   const event = this.createActivityEvent('spec', spec, user);
@@ -782,6 +804,7 @@ class DataAggregator {
                     this.activityEvents.unshift(event);
                     this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
                     this.saveActivityEventsToStorage();
+                    console.log(`[DataAggregator] Created activity event for new spec: ${spec.id} by user ${spec.userId}`);
                   }
                 }
               }
