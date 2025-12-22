@@ -157,19 +157,15 @@ defer_vanta: true
     
     <!-- Modern Input Container -->
     <div class="modern-input-container hidden" id="modernInputContainer">
-        <div class="input-instruction" id="input-instruction" role="status" aria-live="polite">
-            Start typing, press Enter for next question, press Backspace for previous question
-        </div>
-        
         <div class="input-area">
             <label for="mainInput" class="visually-hidden">Answer input</label>
             <textarea 
                 class="main-input" 
                 id="mainInput"
-                placeholder="Write your answer here..."
+                placeholder="Start typing, press Enter for next question, press Backspace for previous question"
                 rows="1"
                 aria-label="Answer input"
-                aria-describedby="characterCount input-instruction"
+                aria-describedby="characterCount"
                 maxlength="900"
             ></textarea>
             <div class="character-count-container">
