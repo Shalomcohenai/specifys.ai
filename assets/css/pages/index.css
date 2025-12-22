@@ -545,21 +545,21 @@ body .logo a:hover .logo-dot {
 
 /* ===== MODERN INPUT CONTAINER ===== */
 .modern-input-container {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--border-radius-md, 0.5rem);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  padding: var(--spacing-lg, 1.5rem);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  width: 90%;
+  background: rgba(30, 30, 35, 0.95);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  max-width: 900px;
+  width: 95%;
   font-family: "Inter", sans-serif;
   opacity: 0;
   transition: all 0.8s ease-out;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) translateY(30px);
+  transform: translate(-50%, -50%) translateY(80px);
   z-index: 10;
   margin: 0;
 }
@@ -614,10 +614,13 @@ body .logo a:hover .logo-dot {
   }
 }
 .input-instruction {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
   margin-bottom: 12px;
   font-weight: 400;
+  line-height: 1.5;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Demo section */
@@ -633,10 +636,11 @@ body .logo a:hover .logo-dot {
 .progress-dots {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 8px auto 0 auto;
+  gap: 12px;
+  margin: 0 auto;
   justify-content: center;
   width: 100%;
+  flex: 1;
 }
 
 .progress-dot {
@@ -694,6 +698,16 @@ body .logo a:hover .logo-dot {
 .input-area {
   margin-bottom: 16px;
   position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+.input-area:focus-within {
+  border-color: rgba(255, 107, 53, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .main-input {
@@ -703,7 +717,7 @@ body .logo a:hover .logo-dot {
   resize: none;
   font-size: 16px;
   line-height: 1.6;
-  min-height: 60px;
+  min-height: 50px;
   max-height: 200px;
   font-family: inherit;
   background: transparent;
@@ -718,14 +732,15 @@ body .logo a:hover .logo-dot {
   display: flex;
   justify-content: flex-end;
   margin-top: 8px;
-  padding-right: 4px;
+  padding-right: 0;
 }
 
 .character-count {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
   transition: color 0.3s ease;
   font-family: inherit;
+  font-weight: 500;
 }
 
 .character-count.warning {
@@ -741,6 +756,10 @@ body .logo a:hover .logo-dot {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 16px;
+  margin-top: 0;
 }
 
 .left-controls {
@@ -750,12 +769,12 @@ body .logo a:hover .logo-dot {
 }
 
 .control-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 10px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -764,8 +783,10 @@ body .logo a:hover .logo-dot {
 }
 
 .control-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .control-btn.selected {
@@ -973,28 +994,31 @@ body .logo a:hover .logo-dot {
 
 .separator {
   width: 1px;
-  height: 20px;
-  background: #ddd;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
   margin: 0 4px;
 }
 
 .send-btn {
   cursor: pointer;
-  font-weight: 700;
-  transition: all 0.2s;
-  padding: 10px 20px;
-  border-radius: 5px;
-  background: #cccccc; /* Gray by default, orange when active */
-  border: 1px solid transparent;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: #FF6B35;
+  border: none;
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 15px;
   color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
 
 .send-btn:hover:not(:disabled) {
-  background: #FF8551; /* Orange hover */
+  background: #FF8551;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+  transform: translateY(-1px);
 }
 
 .send-btn svg {
@@ -2295,7 +2319,7 @@ body .logo a:hover .logo-dot {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) translateY(-200px);
+  transform: translate(-50%, -50%) translateY(-280px);
   z-index: 15;
   width: 90%;
   max-width: 800px;
@@ -2307,7 +2331,7 @@ body .logo a:hover .logo-dot {
 
 .questions-display.fade-in {
   opacity: 1;
-  transform: translate(-50%, -50%) translateY(-200px);
+  transform: translate(-50%, -50%) translateY(-280px);
   pointer-events: auto; /* Enable pointer events when visible */
 }
 
