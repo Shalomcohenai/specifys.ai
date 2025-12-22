@@ -1283,7 +1283,35 @@ async function generateSpecification() {
       } else {
         // Check if user already has a spec
         if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
+          // If spec already exists, try to get its ID and redirect to it
+          // But first check if credit was consumed - if spec exists but credit wasn't consumed, 
+          // it means the spec was created in a previous attempt, so we should redirect to it
+          console.warn('[index.js] User already has a spec, attempting to find existing spec...');
+          try {
+            const user = firebase.auth().currentUser;
+            if (user) {
+              const specsSnapshot = await firebase.firestore()
+                .collection('specs')
+                .where('userId', '==', user.uid)
+                .limit(1)
+                .get();
+              
+              if (!specsSnapshot.empty) {
+                const existingSpecId = specsSnapshot.docs[0].id;
+                console.log(`[index.js] Found existing spec: ${existingSpecId}, redirecting...`);
+                alert('You already have a spec. Redirecting to your existing spec...');
+                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
+                return;
+              }
+            }
+          } catch (fetchError) {
+            console.warn('[index.js] Failed to fetch existing spec:', fetchError);
+          }
+          
           errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
+          alert(errorMessage);
+          window.location.href = '/pages/profile.html';
+          return;
         }
         
         // Check if it's insufficient credits error

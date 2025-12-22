@@ -792,7 +792,14 @@ class DataAggregator {
                 // Create activity event for new specs
                 // Check if this is a new spec (either added or didn't exist before)
                 // Also check if spec was created recently (within last 5 minutes) to catch specs created before dashboard loaded
-                const isNewSpec = change.type === "added" || (!previous && spec.createdAt && spec.createdAt.getTime() >= Date.now() - 5 * 60 * 1000);
+                const specCreatedRecently = spec.createdAt && spec.createdAt.getTime() >= Date.now() - 5 * 60 * 1000;
+                const wasJustCreated = previous && previous.createdAt && spec.createdAt && 
+                  spec.createdAt.getTime() > previous.createdAt.getTime();
+                const isNewSpec = change.type === "added" || 
+                  (!previous && specCreatedRecently) ||
+                  (previous && !previous.createdAt && specCreatedRecently) ||
+                  wasJustCreated;
+                
                 if (isNewSpec) {
                   const user = this.aggregatedData.users.get(spec.userId);
                   const event = this.createActivityEvent('spec', spec, user);
@@ -804,7 +811,9 @@ class DataAggregator {
                     this.activityEvents.unshift(event);
                     this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
                     this.saveActivityEventsToStorage();
-                    console.log(`[DataAggregator] Created activity event for new spec: ${spec.id} by user ${spec.userId}`);
+                    console.log(`[DataAggregator] Created activity event for new spec: ${spec.id} by user ${spec.userId} (changeType: ${change.type}, wasJustCreated: ${wasJustCreated}, specCreatedRecently: ${specCreatedRecently})`);
+                  } else {
+                    console.log(`[DataAggregator] Skipped duplicate activity event for spec: ${spec.id}`);
                   }
                 }
               }

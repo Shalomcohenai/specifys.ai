@@ -566,6 +566,54 @@ async function consumeCredit(userId, specId, options = {}) {
     // This must be done BEFORE the transaction to ensure migration happens
     await getUserCredits(userId);
     
+    // Check if user already has a spec BEFORE transaction (can't use queries in transaction)
+    // If specId starts with "temp-", it's a new spec creation attempt
+    let existingSpecId = null;
+    let creditAlreadyConsumed = false;
+    
+    if (specId.startsWith('temp-')) {
+      // Check if user already has a spec
+      const specsQuery = db.collection('specs').where('userId', '==', userId).limit(1);
+      const existingSpecsSnapshot = await specsQuery.get();
+      
+      if (!existingSpecsSnapshot.empty) {
+        existingSpecId = existingSpecsSnapshot.docs[0].id;
+        logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V2] User already has a spec, checking if credit was consumed...');
+        
+        // Check if credit was already consumed recently (within last 10 minutes) for this user
+        // This handles the case where spec was created but consumeCredit failed or wasn't called
+        const tenMinutesAgo = admin.firestore.Timestamp.fromMillis(Date.now() - 10 * 60 * 1000);
+        const ledgerQuery = db.collection(LEDGER_COLLECTION)
+          .where('userId', '==', userId)
+          .where('type', '==', 'consume')
+          .where('timestamp', '>=', tenMinutesAgo)
+          .orderBy('timestamp', 'desc')
+          .limit(1);
+        const ledgerSnapshot = await ledgerQuery.get();
+        
+        if (!ledgerSnapshot.empty) {
+          // Credit was already consumed recently for this user
+          creditAlreadyConsumed = true;
+          logger.info({ requestId, userId, existingSpecId }, '[CREDITS-V2] Credit already consumed recently for this user, returning success (idempotency)');
+          const ledgerEntry = ledgerSnapshot.docs[0].data();
+          const credits = await getUserCredits(userId);
+          const remaining = calculateTotal(credits.balances);
+          
+          return {
+            success: true,
+            alreadyProcessed: true,
+            transactionId: ledgerEntry.id,
+            remaining: remaining,
+            creditType: ledgerEntry.creditType || 'free',
+            unlimited: false
+          };
+        } else {
+          // Spec exists but credit wasn't consumed - we'll consume it in the transaction
+          logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V2] Spec exists but credit not consumed - will consume credit now to fix inconsistency');
+        }
+      }
+    }
+    
     // Use Firestore transaction for atomic credit consumption
     const result = await db.runTransaction(async (transaction) => {
       // Check idempotency
@@ -586,13 +634,16 @@ async function consumeCredit(userId, specId, options = {}) {
       }
       
       // Check if user already has a spec (only one spec per user allowed)
-      const specsQuery = db.collection('specs').where('userId', '==', userId).limit(1);
-      const existingSpecsSnapshot = await transaction.get(specsQuery);
-      
-      if (!existingSpecsSnapshot.empty) {
-        const existingSpecId = existingSpecsSnapshot.docs[0].id;
-        logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V2] User already has a spec');
-        throw new Error('User already has a spec. Only one spec per user is allowed.');
+      // Only check if we didn't already check above (for non-temp specIds)
+      if (!specId.startsWith('temp-')) {
+        const specsQuery = db.collection('specs').where('userId', '==', userId).limit(1);
+        const existingSpecsSnapshot = await transaction.get(specsQuery);
+        
+        if (!existingSpecsSnapshot.empty) {
+          const existingSpecId = existingSpecsSnapshot.docs[0].id;
+          logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V2] User already has a spec');
+          throw new Error('User already has a spec. Only one spec per user is allowed.');
+        }
       }
       
       // Get user credits (should exist now after migration)
