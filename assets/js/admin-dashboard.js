@@ -769,12 +769,20 @@ class DataAggregator {
                 }
                 
                 // Create activity event for new specs
-                if (change.type === "added") {
+                // Check if this is a new spec (either added or didn't exist before)
+                const isNewSpec = change.type === "added" || !previous;
+                if (isNewSpec) {
                   const user = this.aggregatedData.users.get(spec.userId);
                   const event = this.createActivityEvent('spec', spec, user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  // Use stable ID to avoid duplicates
+                  const eventId = `spec-${spec.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    event.id = eventId;
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
                 }
               }
             });

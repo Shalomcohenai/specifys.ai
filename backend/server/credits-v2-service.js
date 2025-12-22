@@ -629,7 +629,7 @@ async function consumeCredit(userId, specId, options = {}) {
       const newBalance = (credits.balances[creditType] || 0) - 1;
       credits.balances[creditType] = Math.max(0, newBalance);
       
-      // Update credits
+      // Update credits - use dot notation for nested fields to ensure proper update
       if (!creditsDoc.exists) {
         transaction.set(creditsRef, {
           ...credits,
@@ -638,11 +638,15 @@ async function consumeCredit(userId, specId, options = {}) {
           'metadata.lastCreditConsume': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        transaction.update(creditsRef, {
-          balances: credits.balances,
+        // Update each balance field separately to ensure Firestore updates correctly
+        const updateData = {
+          'balances.free': credits.balances.free || 0,
+          'balances.paid': credits.balances.paid || 0,
+          'balances.bonus': credits.balances.bonus || 0,
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditConsume': admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        transaction.update(creditsRef, updateData);
       }
       
       // Record in ledger
@@ -783,7 +787,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       // Grant credits
       credits.balances[creditType] = (credits.balances[creditType] || 0) + amount;
       
-      // Update credits
+      // Update credits - use dot notation for nested fields to ensure proper update
       if (!creditsDoc.exists) {
         transaction.set(creditsRef, {
           ...credits,
@@ -792,11 +796,15 @@ async function grantCredits(userId, amount, source, metadata = {}) {
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        transaction.update(creditsRef, {
-          balances: credits.balances,
+        // Update each balance field separately to ensure Firestore updates correctly
+        const updateData = {
+          'balances.free': credits.balances.free || 0,
+          'balances.paid': credits.balances.paid || 0,
+          'balances.bonus': credits.balances.bonus || 0,
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        transaction.update(creditsRef, updateData);
       }
       
       // Record in ledger
@@ -948,7 +956,7 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
       // Grant credits (refund = grant)
       credits.balances[creditType] = (credits.balances[creditType] || 0) + amount;
       
-      // Update credits
+      // Update credits - use dot notation for nested fields to ensure proper update
       if (!creditsDoc.exists) {
         transaction.set(creditsRef, {
           ...credits,
@@ -957,11 +965,15 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
         });
       } else {
-        transaction.update(creditsRef, {
-          balances: credits.balances,
+        // Update each balance field separately to ensure Firestore updates correctly
+        const updateData = {
+          'balances.free': credits.balances.free || 0,
+          'balances.paid': credits.balances.paid || 0,
+          'balances.bonus': credits.balances.bonus || 0,
           'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
           'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        transaction.update(creditsRef, updateData);
       }
       
       // Record in ledger

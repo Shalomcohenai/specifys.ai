@@ -1250,17 +1250,81 @@ async function generateSpecification() {
         specId: tempSpecId
       });
       
+      // Check if credit was already consumed (idempotency)
       creditConsumed = true;
       consumeTransactionId = consumeResult.transactionId || tempSpecId;
+      
+      // Immediately update credits display after consumption
+      // Clear cache and refresh to show updated credits
+      if (typeof window.clearCreditsCache === 'function') {
+        window.clearCreditsCache();
+      }
+      if (typeof window.updateCreditsDisplay !== 'undefined') {
+        // Update credits display immediately after consumption
+        window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {
+          // Silently fail - credits will update on next page load
+          if (window.appLogger) {
+            window.appLogger.logError(err, { context: 'generateSpecification.updateCreditsAfterConsume' });
+          }
+        });
+      }
       
     } catch (creditError) {
       hideLoadingOverlay();
       let errorMessage = creditError.message || 'Failed to consume credit';
-      // Check if user already has a spec
-      if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
-        errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
+      
+      // Check if this is an "already processed" scenario (idempotency)
+      // If credit was already consumed, we can continue
+      if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
+        // Credit was already consumed, continue with spec creation
+        creditConsumed = true;
+        consumeTransactionId = `idempotent-${Date.now()}`;
+        // Don't throw error, continue with spec creation
+      } else {
+        // Check if user already has a spec
+        if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
+          errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
+        }
+        
+        // Check if it's insufficient credits error
+        if (errorMessage.includes('Insufficient credits') || errorMessage.includes('insufficient')) {
+          const paywallPayload = {
+            reason: 'insufficient_credits',
+            message: 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.'
+          };
+          try {
+            const searchParams = new URLSearchParams({
+              reason: paywallPayload.reason,
+              message: paywallPayload.message
+            });
+            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          } catch (redirectError) {
+            alert(paywallPayload.message);
+          }
+          return;
+        }
+        
+        // For other errors, check if error has status/data
+        if (creditError.status === 403) {
+          // Permission denied - likely insufficient credits
+          const paywallPayload = creditError.data?.paywallData || {
+            reason: 'insufficient_credits',
+            message: creditError.data?.message || 'You do not have enough credits to create a spec'
+          };
+          try {
+            const searchParams = new URLSearchParams({
+              reason: paywallPayload.reason || 'insufficient_credits',
+              message: paywallPayload.message || 'You do not have enough credits to create a spec'
+            });
+            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          } catch (redirectError) {
+            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+          }
+          return;
+        }
+        
+        throw new Error(`Failed to consume credit: ${errorMessage}`);
       }
-      throw new Error(`Failed to consume credit: ${errorMessage}`);
     }
     
     // Save to Firebase and redirect
