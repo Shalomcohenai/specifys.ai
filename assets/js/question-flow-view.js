@@ -128,10 +128,10 @@ class QuestionFlowView {
       questionsDisplay.style.pointerEvents = 'auto';
     }
     
-    // Hide bottom links when questions are shown
+    // Keep bottom links visible when questions are shown
     const bottomLinks = document.querySelector('.hero-bottom-links');
     if (bottomLinks) {
-      bottomLinks.style.display = 'none';
+      bottomLinks.style.display = 'flex';
     }
   }
   

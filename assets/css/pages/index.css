@@ -543,7 +543,7 @@ body .logo a:hover .logo-dot {
   line-height: 1.4;
 }
 
-/* ===== MODERN INPUT CONTAINER - NEW DESIGN FROM SCRATCH ===== */
+/* ===== MODERN INPUT CONTAINER - CLEAN DESIGN ===== */
 .modern-input-container {
   background: rgba(30, 30, 35, 0.95);
   border-radius: 16px;
@@ -555,7 +555,8 @@ body .logo a:hover .logo-dot {
   width: 95%;
   font-family: "Inter", sans-serif;
   opacity: 0;
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  visibility: hidden;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s ease-out;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -568,54 +569,119 @@ body .logo a:hover .logo-dot {
 }
 
 .modern-input-container.hidden {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.modern-input-container.fade-in,
 .modern-input-container:not(.hidden) {
-  opacity: 1 !important;
-  transform: translate(-50%, -50%) translateY(60px) !important;
-  display: flex !important;
-  visibility: visible !important;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
-/* Mobile: Use relative positioning for better flow */
+.modern-input-container.fade-in {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ===== MOBILE RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
+  /* Questions Display - Mobile */
   .questions-display {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    transform: none !important;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
     margin: 0 auto;
-    padding: 20px 15px;
+    padding: 20px 10px;
     width: 100%;
     max-width: 100%;
+    opacity: 1;
+    visibility: visible;
   }
-  
+
+  .questions-display.hidden {
+    display: none;
+  }
+
+  .questions-display:not(.hidden) {
+    display: flex;
+  }
+
+  /* Modern Input Container - Mobile */
   .modern-input-container {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    transform: none !important;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
     margin: 20px auto 0;
     width: 100%;
     max-width: 100%;
+    padding: 20px 10px;
+    opacity: 1;
+    visibility: visible;
   }
-  
+
+  .modern-input-container.hidden {
+    display: none;
+  }
+
+  .modern-input-container:not(.hidden) {
+    display: flex;
+  }
+
+  /* Typography adjustments for mobile */
   .current-question {
     font-size: 24px;
+    line-height: 1.2;
   }
-  
+
   .question-detail {
     font-size: 14px;
+    line-height: 1.5;
     margin-bottom: 24px;
   }
-  
+
+  /* Input area adjustments */
+  .input-area {
+    padding: 14px 16px;
+  }
+
   .main-input {
+    font-size: 15px;
     min-height: 80px;
+    line-height: 1.5;
+  }
+
+  /* Controls adjustments */
+  .input-controls {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .left-controls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .progress-dots {
+    order: -1;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .send-btn {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
   }
 }
 /* Input instruction removed - text is now in textarea placeholder */
@@ -973,9 +1039,9 @@ body .logo a:hover .logo-dot {
   z-index: 2;
 }
 
-/* Hide bottom links when questions are shown */
+/* Show bottom links even when questions are displayed */
 .hero-section:has(.questions-display:not(.hidden)) .hero-bottom-links {
-  display: none;
+  display: flex;
 }
 
 @media (max-width: 768px) {
@@ -2333,7 +2399,7 @@ body .logo a:hover .logo-dot {
     padding: 0 6px;
   }
 }
-/* ===== QUESTIONS DISPLAY - NEW DESIGN FROM SCRATCH ===== */
+/* ===== QUESTIONS DISPLAY - CLEAN DESIGN ===== */
 .questions-display {
   position: absolute;
   top: 50%;
@@ -2344,7 +2410,8 @@ body .logo a:hover .logo-dot {
   max-width: 900px;
   margin: 0 auto;
   opacity: 0;
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  visibility: hidden;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s ease-out;
   pointer-events: none;
   display: flex;
   flex-direction: column;
@@ -2353,19 +2420,22 @@ body .logo a:hover .logo-dot {
 }
 
 .questions-display.hidden {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.questions-display.fade-in,
 .questions-display:not(.hidden) {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  transform: translate(-50%, -50%) translateY(-140px) !important;
-  display: flex !important;
-  visibility: visible !important;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.questions-display.fade-in {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .questions-header {
@@ -2529,7 +2599,7 @@ body .logo a:hover .logo-dot {
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 0 15px;
+    padding: 0 10px;
   }
   .hero-main-title {
     font-size: clamp(2.5rem, 8vw, 4.5rem);
@@ -2546,74 +2616,7 @@ body .logo a:hover .logo-dot {
     order: 0;
     margin: 2rem 0 0 0;
   }
-  /* Using higher specificity in media query instead of !important */
-  body .modern-input-container {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    padding: 20px 15px;
-    margin: 20px 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    opacity: 1;
-  }
-  body .modern-input-container.hidden {
-    display: none;
-  }
-  body .questions-display {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 20px 15px;
-    background: transparent;
-    z-index: 2;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-    min-height: auto;
-  }
-  /* Ensure hidden class works on mobile */
-  body .questions-display.hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  body .hero-section:has(.questions-display:not(.hidden)) .modern-input-container:not(.hidden) {
-    display: flex;
-    opacity: 1;
-    visibility: visible;
-  }
-  .questions-header {
-    margin-bottom: 1.5rem;
-    gap: 1.5rem;
-    flex-shrink: 0;
-  }
-  .current-question {
-    font-size: 24px;
-    margin-bottom: 0.5rem;
-  }
-  .question-detail {
-    font-size: 14px;
-    margin-top: 12px;
-    line-height: 1.6;
-  }
-  .modern-input-container {
-    margin-top: 10px;
-  }
-  .input-area {
-    margin-bottom: 12px;
-  }
+  /* Questions and input container handled in main mobile section above */
 }
 @media (max-width: 480px) {
   .hero-section {
@@ -2634,7 +2637,7 @@ body .logo a:hover .logo-dot {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 8px;
   }
   .hero-main-title {
     font-size: clamp(2rem, 7vw, 3.5rem);
@@ -2656,83 +2659,25 @@ body .logo a:hover .logo-dot {
     margin-top: auto;
     padding-bottom: 0;
   }
-  /* Using higher specificity in media query instead of !important */
-  body .modern-input-container {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    padding: 18px 12px;
-    margin: 18px 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    opacity: 1;
-  }
-  body .modern-input-container.hidden {
-    display: none;
-  }
-  body .questions-display {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 15px 10px;
-    background: transparent;
-    z-index: 2;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-    min-height: auto;
-  }
-  /* Ensure hidden class works on mobile */
-  body .questions-display.hidden {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  body .hero-section:has(.questions-display:not(.hidden)) .modern-input-container:not(.hidden) {
-    display: flex;
-    opacity: 1;
-    visibility: visible;
-  }
-  .questions-header {
-    margin-bottom: 1.25rem;
-    gap: 1.25rem;
-    flex-shrink: 0;
-  }
+  /* Additional mobile adjustments for smaller screens */
   .current-question {
     font-size: 22px;
-    margin-bottom: 0.5rem;
   }
+  
   .question-detail {
     font-size: 13px;
-    margin-top: 12px;
-    line-height: 1.6;
   }
-  /* Input instruction removed */
+  
+  .questions-display {
+    padding: 20px 8px;
+  }
+  
+  .modern-input-container {
+    padding: 18px 8px;
+  }
+  
   .input-area {
-    margin-bottom: 10px;
-  }
-  .input-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .left-controls {
-    justify-content: center;
-  }
-  .send-btn,
-  .demo-btn {
-    width: 100%;
-    justify-content: center;
+    padding: 12px 14px;
   }
 }
 /* ===== ACCESS CODE MODAL ===== */
