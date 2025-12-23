@@ -208,12 +208,17 @@ custom_js_modules:
         <!-- Recent Activity -->
         <div class="overview-card">
           <div class="card-header">
-            <div class="card-header-title">
-              <h2>Recent Activity</h2>
-              <div class="activity-connection-status" id="activity-connection-status" title="Firebase connection status">
-                <span class="status-indicator" id="activity-status-indicator"></span>
-                <span class="status-text" id="activity-status-text">Connecting...</span>
+            <div class="card-header-top">
+              <div class="card-header-title">
+                <h2>Recent Activity</h2>
+                <div class="activity-connection-status" id="activity-connection-status" title="Firebase connection status">
+                  <span class="status-indicator" id="activity-status-indicator"></span>
+                  <span class="status-text" id="activity-status-text">Connecting...</span>
+                </div>
               </div>
+              <button class="activity-search-toggle" id="activity-search-toggle" type="button" aria-label="Toggle search and filters" title="Search and filter">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
             <div class="activity-filters">
               <button class="filter-chip active" data-filter="all">All</button>
@@ -223,8 +228,8 @@ custom_js_modules:
             </div>
           </div>
           <div class="card-body">
-            <!-- Activity Search and Date Range -->
-            <div class="activity-controls">
+            <!-- Activity Search and Date Range - Hidden by default -->
+            <div class="activity-controls" id="activity-controls" style="display: none;">
               <div class="activity-search-wrapper">
                 <i class="fas fa-search"></i>
                 <input type="search" id="activity-search-input" placeholder="Search activity..." class="activity-search-input">

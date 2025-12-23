@@ -51,6 +51,27 @@ export class OverviewView {
       });
     }
     
+    // Activity search toggle button
+    const activitySearchToggle = helpers.dom('#activity-search-toggle');
+    const activityControls = helpers.dom('#activity-controls');
+    if (activitySearchToggle && activityControls) {
+      activitySearchToggle.addEventListener('click', () => {
+        const isVisible = activityControls.style.display !== 'none';
+        activityControls.style.display = isVisible ? 'none' : 'flex';
+        activitySearchToggle.classList.toggle('active', !isVisible);
+        
+        // Focus search input when opening
+        if (!isVisible) {
+          setTimeout(() => {
+            const searchInput = helpers.dom('#activity-search-input');
+            if (searchInput) {
+              searchInput.focus();
+            }
+          }, 100);
+        }
+      });
+    }
+    
     // Activity date range filter
     const activityDateFrom = helpers.dom('#activity-date-from');
     const activityDateTo = helpers.dom('#activity-date-to');

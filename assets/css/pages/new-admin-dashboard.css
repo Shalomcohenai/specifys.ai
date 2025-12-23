@@ -571,6 +571,13 @@
   gap: var(--spacing-md);
 }
 
+.card-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
 .card-header-title {
   display: flex;
   align-items: center;
@@ -582,6 +589,34 @@
   font-weight: 600;
   color: var(--text);
   margin: 0;
+}
+
+/* Activity Search Toggle Button */
+.activity-search-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.activity-search-toggle:hover {
+  background: var(--bg-alt);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.activity-search-toggle.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* Activity Connection Status */
@@ -656,6 +691,7 @@
 .activity-filters {
   display: flex;
   gap: var(--spacing-xs);
+  flex-wrap: wrap;
 }
 
 .filter-chip {
@@ -745,13 +781,21 @@
   flex-shrink: 0;
 }
 
-/* Activity Controls */
+/* Activity Controls - Hidden by default, shown when search toggle is clicked */
 .activity-controls {
-  display: flex;
+  display: none;
+  flex-direction: column;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
-  flex-wrap: wrap;
-  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.activity-controls[style*="flex"],
+.activity-controls.show {
+  display: flex;
 }
 
 .activity-search-wrapper {
