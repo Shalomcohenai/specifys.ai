@@ -2245,6 +2245,13 @@ function triggerPlatformHint() {
     });
 
     currentTabIndex = index;
+    
+    // Update equal heights after tab switch (with delay for content rendering)
+    setTimeout(() => {
+      if (typeof setEqualTabHeights === 'function') {
+        setEqualTabHeights();
+      }
+    }, 300);
   }
   
   function renderBrowserDiagrams() {
@@ -2326,13 +2333,59 @@ function triggerPlatformHint() {
     }
   }
 
+  // Set equal height for all tab contents
+  function setEqualTabHeights() {
+      const tabContents = document.querySelectorAll('.browser-tab-content');
+      const specContainers = document.querySelectorAll('.spec-container');
+      
+      if (tabContents.length === 0 || specContainers.length === 0) return;
+      
+      let maxHeight = 0;
+      
+      // Temporarily show all tabs to measure their heights
+      tabContents.forEach(content => {
+        const originalDisplay = content.style.display;
+        content.style.display = 'block';
+        content.style.visibility = 'hidden';
+        
+        const container = content.querySelector('.spec-container');
+        if (container) {
+          const height = container.offsetHeight;
+          if (height > maxHeight) {
+            maxHeight = height;
+          }
+        }
+        
+        content.style.display = originalDisplay;
+        content.style.visibility = '';
+      });
+      
+      // Set min-height on all spec-containers
+      if (maxHeight > 0) {
+        specContainers.forEach(container => {
+          container.style.minHeight = maxHeight + 'px';
+        });
+      }
+    }
+
   // Initialize tabs on page load
   document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.browser-window-tab');
     if (tabButtons.length === 0) return;
-
-    // Set diagrams as default active
-    switchTab(4); // diagrams index
+    
+    // Set equal heights after a delay to ensure content is rendered
+    setTimeout(() => {
+      setEqualTabHeights();
+      // Recalculate after diagrams are rendered
+      setTimeout(setEqualTabHeights, 1500);
+    }, 500);
+    
+    // Recalculate heights on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(setEqualTabHeights, 250);
+    });
     
     // Initialize content visibility
     const tabContents = document.querySelectorAll('.browser-tab-content');
@@ -2341,6 +2394,9 @@ function triggerPlatformHint() {
         content.classList.add('active');
       }
     });
+    
+    // Set diagrams as default active
+    switchTab(4); // diagrams index
     
     // Render diagrams after a delay if diagrams tab is active
     setTimeout(() => {
