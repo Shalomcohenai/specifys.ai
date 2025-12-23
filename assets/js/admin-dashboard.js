@@ -3126,6 +3126,8 @@ class AdminDashboardApp {
     
     this.updateConnectionState("pending", "Connecting…");
     this.initializeCharts();
+    // Initialize activity connection status
+    this.updateActivityConnectionStatus('connecting');
     await this.subscribeToSources();
     // Initialize auto refresh timer (will schedule for 24h from now if no manual refresh)
     this.updateAutoRefreshTimer();
