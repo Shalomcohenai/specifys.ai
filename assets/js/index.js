@@ -2026,6 +2026,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (startButton) {
       setTimeout(() => {
         startButton.classList.add('fade-in');
+        
+        // Fade in browser window after Start button appears
+        const browserWindow = document.querySelector('.browser-window-preview');
+        if (browserWindow) {
+          setTimeout(() => {
+            browserWindow.classList.add('fade-in');
+          }, 500); // Appears 500ms after Start button
+        }
       }, 1100); // Appears after icons start, before Vanta
     }
   }
@@ -2191,3 +2199,215 @@ function triggerPlatformHint() {
     }
   });
 }
+
+// ===== BROWSER WINDOW TABS AUTO-SWITCH =====
+(function() {
+  const tabs = ['overview', 'technical', 'market', 'design', 'diagrams', 'prompts'];
+  let currentTabIndex = 4; // Start with 'diagrams' (index 4)
+  let autoSwitchInterval = null;
+  let hasScrolled = false;
+  let isHoveringTabs = false;
+  const switchInterval = 4000; // 4 seconds
+  const scrollDelayInterval = 5000; // 5 seconds after scroll
+
+  function switchTab(index) {
+    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    if (tabButtons.length === 0) return;
+
+    // Remove active class from all tabs
+    tabButtons.forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+    });
+
+    // Add active class to current tab
+    if (tabButtons[index]) {
+      tabButtons[index].classList.add('active');
+      tabButtons[index].setAttribute('aria-selected', 'true');
+    }
+
+    // Show corresponding content
+    const tabContents = document.querySelectorAll('.browser-tab-content');
+    const currentTab = tabs[index];
+    
+    tabContents.forEach(content => {
+      content.classList.remove('active');
+      if (content.getAttribute('data-tab-content') === currentTab) {
+        content.classList.add('active');
+        
+        // Render Mermaid diagrams if diagrams tab is active
+        if (currentTab === 'diagrams' && typeof mermaid !== 'undefined') {
+          setTimeout(() => {
+            renderBrowserDiagrams();
+          }, 300);
+        }
+      }
+    });
+
+    currentTabIndex = index;
+  }
+  
+  function renderBrowserDiagrams() {
+    if (typeof mermaid === 'undefined') {
+      console.warn('Mermaid not loaded');
+      return;
+    }
+    
+    try {
+      const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
+      if (!diagramsContainer) return;
+      
+      const mermaidElements = diagramsContainer.querySelectorAll('.mermaid:not(:has(svg))');
+      if (mermaidElements.length === 0) return;
+      
+      // Initialize Mermaid if not already initialized
+      if (!window.mermaidInitialized) {
+        mermaid.initialize({ 
+          startOnLoad: false,
+          theme: 'default',
+          themeVariables: {
+            primaryColor: '#FF6B35',
+            primaryTextColor: '#333',
+            primaryBorderColor: '#FF6B35',
+            lineColor: '#333',
+            secondaryColor: '#f5f5f5',
+            tertiaryColor: '#fff'
+          }
+        });
+        window.mermaidInitialized = true;
+      }
+      
+      // Render diagrams
+      if (mermaid.run) {
+        mermaid.run({ 
+          querySelector: '.browser-tab-content[data-tab-content="diagrams"] .mermaid:not(:has(svg))' 
+        });
+      } else if (mermaid.contentLoaded) {
+        mermaid.contentLoaded();
+      }
+    } catch (error) {
+      console.error('Error rendering browser diagrams:', error);
+    }
+  }
+
+  function nextTab() {
+    // Don't switch if hovering over tabs
+    if (isHoveringTabs) return;
+    
+    currentTabIndex = (currentTabIndex + 1) % tabs.length;
+    switchTab(currentTabIndex);
+  }
+
+  function startAutoSwitch() {
+    if (autoSwitchInterval) return; // Already running
+    if (isHoveringTabs) return; // Don't start if hovering
+    
+    autoSwitchInterval = setInterval(() => {
+      nextTab();
+    }, switchInterval);
+  }
+
+  function stopAutoSwitch() {
+    if (autoSwitchInterval) {
+      clearInterval(autoSwitchInterval);
+      autoSwitchInterval = null;
+    }
+  }
+
+  function checkIfScrolled() {
+    if (hasScrolled) return;
+    
+    if (window.scrollY > 100) {
+      hasScrolled = true;
+      // Start auto-switch after scrollDelayInterval (5 seconds)
+      setTimeout(() => {
+        startAutoSwitch();
+      }, scrollDelayInterval);
+    }
+  }
+
+  // Initialize tabs on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    if (tabButtons.length === 0) return;
+
+    // Set diagrams as default active
+    switchTab(4); // diagrams index
+    
+    // Initialize content visibility
+    const tabContents = document.querySelectorAll('.browser-tab-content');
+    tabContents.forEach(content => {
+      if (content.getAttribute('data-tab-content') === 'diagrams') {
+        content.classList.add('active');
+      }
+    });
+    
+    // Render diagrams after a delay if diagrams tab is active
+    setTimeout(() => {
+      if (document.querySelector('.browser-tab-content[data-tab-content="diagrams"]').classList.contains('active')) {
+        renderBrowserDiagrams();
+      }
+    }, 1000);
+
+    // Handle manual tab clicks
+    tabButtons.forEach((tab, index) => {
+      tab.addEventListener('click', function() {
+        stopAutoSwitch();
+        switchTab(index);
+        // Restart auto-switch after delay if user has scrolled
+        if (hasScrolled) {
+          setTimeout(() => {
+            startAutoSwitch();
+          }, scrollDelayInterval);
+        }
+      });
+      
+      // Pause auto-switch when hovering over tabs
+      tab.addEventListener('mouseenter', function() {
+        isHoveringTabs = true;
+        stopAutoSwitch();
+      });
+      
+      tab.addEventListener('mouseleave', function() {
+        isHoveringTabs = false;
+        // Restart auto-switch after delay if user has scrolled
+        if (hasScrolled) {
+          setTimeout(() => {
+            startAutoSwitch();
+          }, scrollDelayInterval);
+        }
+      });
+    });
+    
+    // Also handle hover on tabs container
+    const tabsContainer = document.querySelector('.browser-window-tabs');
+    if (tabsContainer) {
+      tabsContainer.addEventListener('mouseenter', function() {
+        isHoveringTabs = true;
+        stopAutoSwitch();
+      });
+      
+      tabsContainer.addEventListener('mouseleave', function() {
+        isHoveringTabs = false;
+        // Restart auto-switch after delay if user has scrolled
+        if (hasScrolled) {
+          setTimeout(() => {
+            startAutoSwitch();
+          }, scrollDelayInterval);
+        }
+      });
+    }
+
+    // Check scroll position - start timer only after user scrolls
+    let scrollCheckTimeout;
+    window.addEventListener('scroll', function() {
+      if (!hasScrolled) {
+        clearTimeout(scrollCheckTimeout);
+        scrollCheckTimeout = setTimeout(checkIfScrolled, 100);
+      }
+    });
+
+    // Initial check - don't start auto-switch until user scrolls
+    // checkIfScrolled(); // Commented out - wait for user scroll
+  });
+})();
