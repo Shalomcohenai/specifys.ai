@@ -267,39 +267,6 @@ export class LogsView {
     this.logsContainer.innerHTML = html;
   }
   
-  /**
-   * Old render method - kept for reference but not used
-   */
-  renderOld() {
-    if (!this.logsContainer) return;
-    
-    const allData = this.dataManager.getAllData();
-    
-    // Collect all errors from different sources
-    const allErrors = [];
-      const time = this.formatRelativeTime(error.timestamp);
-      const categoryLabel = error.category === 'purchase' ? 'Purchase Error' : 
-                           error.category === 'user' ? 'User Error' : 
-                           'System Error';
-      
-      return `
-        <div class="log-entry log-error">
-          <div class="log-header">
-            <span class="log-level">ERROR</span>
-            <span class="log-category">${categoryLabel}</span>
-            <span class="log-time">${time}</span>
-          </div>
-          <div class="log-title">${this.escapeHtml(error.title)}</div>
-          ${error.description ? `<div class="log-description">${this.escapeHtml(error.description)}</div>` : ''}
-          ${error.userEmail ? `<div class="log-user">User: ${this.escapeHtml(error.userEmail)}</div>` : ''}
-          ${error.errorCode ? `<div class="log-error-code">Error Code: ${this.escapeHtml(error.errorCode)}</div>` : ''}
-          ${error.frequency > 1 ? `<div class="log-frequency">Occurred ${error.frequency} times</div>` : ''}
-        </div>
-      `;
-    }).join('');
-    
-    this.logsContainer.innerHTML = html;
-  }
   
   /**
    * Format log description
