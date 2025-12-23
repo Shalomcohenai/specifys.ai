@@ -374,10 +374,14 @@ class NewAdminDashboard {
     if (this.elements.statusDot) {
       this.elements.statusDot.className = 'status-dot';
       this.elements.statusDot.classList.add(status);
+      // Update tooltip with status text
+      this.elements.statusDot.title = label;
     }
     
     if (this.elements.statusText) {
       this.elements.statusText.textContent = label;
+      // Keep text hidden but update it for accessibility
+      this.elements.statusText.setAttribute('aria-label', label);
     }
     
     this.stateManager.setState('connectionStatus', status);
