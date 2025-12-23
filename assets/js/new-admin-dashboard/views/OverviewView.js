@@ -31,6 +31,9 @@ export class OverviewView {
     // Initialize metric descriptions
     const range = this.stateManager.getState('overviewRange') || 'week';
     this.updateMetricDescriptions(range);
+    
+    // Initialize connection status
+    this.updateActivityConnectionStatus('connecting');
   }
   
   /**
@@ -45,6 +48,56 @@ export class OverviewView {
         this.stateManager.setState('overviewRange', range);
         this.updateMetricDescriptions(range);
         this.updateMetrics();
+      });
+    }
+    
+    // Activity date range filter
+    const activityDateFrom = helpers.dom('#activity-date-from');
+    const activityDateTo = helpers.dom('#activity-date-to');
+    if (activityDateFrom && activityDateTo) {
+      const updateDateFilter = () => {
+        const from = activityDateFrom.value;
+        const to = activityDateTo.value;
+        
+        if (from && to) {
+          const activityService = this.dataManager.getActivityService();
+          if (activityService) {
+            activityService.setFilter('dateRange', {
+              start: new Date(from),
+              end: new Date(to + 'T23:59:59')
+            });
+            this.stateManager.setState('activityPage', 1);
+            this.renderActivityFeed();
+          }
+        } else if (!from && !to) {
+          const activityService = this.dataManager.getActivityService();
+          if (activityService) {
+            activityService.setFilter('dateRange', null);
+            this.stateManager.setState('activityPage', 1);
+            this.renderActivityFeed();
+          }
+        }
+      };
+      
+      activityDateFrom.addEventListener('change', updateDateFilter);
+      activityDateTo.addEventListener('change', updateDateFilter);
+    }
+    
+    // Activity search
+    const activitySearch = helpers.dom('#activity-search-input');
+    if (activitySearch) {
+      let searchTimeout;
+      activitySearch.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const search = e.target.value.trim();
+          const activityService = this.dataManager.getActivityService();
+          if (activityService) {
+            activityService.setFilter('search', search || null);
+            this.stateManager.setState('activityPage', 1);
+            this.renderActivityFeed();
+          }
+        }, 300); // Debounce 300ms
       });
     }
   }
@@ -212,6 +265,35 @@ export class OverviewView {
     this.dataManager.on('activity', () => {
       this.renderActivityFeed();
     });
+    
+    // Listen to ActivityService updates
+    const activityService = this.dataManager.getActivityService();
+    if (activityService) {
+      activityService.on('update', () => {
+        this.renderActivityFeed();
+        // Update status based on events availability
+        if (activityService.events.length > 0) {
+          this.updateActivityConnectionStatus('connected');
+        }
+      });
+      
+      activityService.on('filter', () => {
+        this.renderActivityFeed();
+      });
+      
+      activityService.on('error', ({ error }) => {
+        console.error('[OverviewView] ActivityService error:', error);
+        this.updateActivityConnectionStatus('error');
+      });
+      
+      activityService.on('restricted', ({ error }) => {
+        console.warn('[OverviewView] ActivityService restricted:', error);
+        this.updateActivityConnectionStatus('restricted');
+      });
+    } else {
+      // ActivityService not initialized yet
+      this.updateActivityConnectionStatus('connecting');
+    }
     
     // Initial render
     this.renderSystemStatus();
@@ -466,43 +548,101 @@ export class OverviewView {
   }
   
   /**
-   * Render activity feed - Uses unified activity events from DataManager
+   * Update activity connection status indicator
+   */
+  updateActivityConnectionStatus(status) {
+    const indicator = helpers.dom('#activity-status-indicator');
+    const statusText = helpers.dom('#activity-status-text');
+    
+    if (!indicator || !statusText) return;
+    
+    // Remove all status classes
+    indicator.classList.remove('status-connected', 'status-connecting', 'status-error', 'status-restricted');
+    statusText.classList.remove('status-connected', 'status-connecting', 'status-error', 'status-restricted');
+    
+    switch (status) {
+      case 'connected':
+        indicator.classList.add('status-connected');
+        statusText.classList.add('status-connected');
+        indicator.title = 'Connected to Firebase';
+        statusText.textContent = 'Connected';
+        break;
+      case 'connecting':
+        indicator.classList.add('status-connecting');
+        statusText.classList.add('status-connecting');
+        indicator.title = 'Connecting to Firebase...';
+        statusText.textContent = 'Connecting...';
+        break;
+      case 'error':
+        indicator.classList.add('status-error');
+        statusText.classList.add('status-error');
+        indicator.title = 'Connection error';
+        statusText.textContent = 'Error';
+        break;
+      case 'restricted':
+        indicator.classList.add('status-restricted');
+        statusText.classList.add('status-restricted');
+        indicator.title = 'Access restricted';
+        statusText.textContent = 'Restricted';
+        break;
+      default:
+        indicator.classList.add('status-connecting');
+        statusText.classList.add('status-connecting');
+        indicator.title = 'Connecting...';
+        statusText.textContent = 'Connecting...';
+    }
+  }
+  
+  /**
+   * Render activity feed - Uses ActivityService with pagination
    */
   renderActivityFeed() {
     const activityList = helpers.dom('#activity-list');
     if (!activityList) return;
     
-    const filter = this.stateManager.getState('activityFilter') || 'all';
-    
-    // Get unified activity events from DataManager (includes activityLogs + generated events from specs, users, purchases)
-    const allEvents = this.dataManager.getActivityEvents(filter);
-    
-    // Limit to 20 most recent events
-    const displayEvents = allEvents.slice(0, 20);
-    
-    if (displayEvents.length === 0) {
-      activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
+    const activityService = this.dataManager.getActivityService();
+    if (!activityService) {
+      activityList.innerHTML = '<div class="activity-empty">Loading activity...</div>';
+      this.updateActivityConnectionStatus('connecting');
       return;
     }
     
-    const html = displayEvents.map(event => {
+    // Update connection status based on events availability
+    if (activityService.events.length > 0) {
+      this.updateActivityConnectionStatus('connected');
+    } else {
+      this.updateActivityConnectionStatus('connecting');
+    }
+    
+    const filter = this.stateManager.getState('activityFilter') || 'all';
+    const currentPage = this.stateManager.getState('activityPage') || 1;
+    
+    // Set filter and get paginated events
+    activityService.setFilter('type', filter);
+    const paginated = activityService.goToPage(currentPage);
+    
+    if (!paginated || paginated.events.length === 0) {
+      activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
+      this.updateActivityPagination(null);
+      return;
+    }
+    
+    const html = paginated.events.map(event => {
       const icon = this.getActivityIcon(event.type);
       const time = this.formatRelativeTime(event.timestamp);
       
       // Format description based on event type
       let description = event.description || '';
-      if (event.meta?.userEmail) {
+      if (event.userEmail) {
+        description = event.userEmail;
+      } else if (event.meta?.userEmail) {
         description = event.meta.userEmail;
       } else if (event.meta?.email) {
         description = event.meta.email;
-      } else if (event.user) {
-        description = event.user;
-      } else if (event.userEmail) {
-        description = event.userEmail;
       }
       
       return `
-        <div class="activity-item">
+        <div class="activity-item" data-activity-id="${event.id}">
           <div class="activity-icon">
             <i class="${icon}"></i>
           </div>
@@ -516,6 +656,86 @@ export class OverviewView {
     }).join('');
     
     activityList.innerHTML = html;
+    
+    // Update pagination controls
+    this.updateActivityPagination(paginated);
+  }
+  
+  /**
+   * Update activity pagination controls
+   */
+  updateActivityPagination(paginated) {
+    const paginationContainer = helpers.dom('#activity-pagination');
+    if (!paginationContainer) return;
+    
+    if (!paginated || paginated.totalPages <= 1) {
+      paginationContainer.innerHTML = '';
+      return;
+    }
+    
+    const { currentPage, totalPages, totalEvents } = paginated;
+    
+    let html = `
+      <div class="activity-pagination-info">
+        Showing ${(currentPage - 1) * 20 + 1}-${Math.min(currentPage * 20, totalEvents)} of ${totalEvents} events
+      </div>
+      <div class="activity-pagination-controls">
+    `;
+    
+    // Previous button
+    html += `
+      <button class="activity-pagination-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    `;
+    
+    // Page numbers (show max 5 pages)
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    if (startPage > 1) {
+      html += `<button class="activity-pagination-btn" data-page="1">1</button>`;
+      if (startPage > 2) {
+        html += `<span class="activity-pagination-ellipsis">...</span>`;
+      }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      html += `
+        <button class="activity-pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">
+          ${i}
+        </button>
+      `;
+    }
+    
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        html += `<span class="activity-pagination-ellipsis">...</span>`;
+      }
+      html += `<button class="activity-pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+    }
+    
+    // Next button
+    html += `
+      <button class="activity-pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    `;
+    
+    html += '</div>';
+    
+    paginationContainer.innerHTML = html;
+    
+    // Add event listeners
+    paginationContainer.querySelectorAll('.activity-pagination-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const page = parseInt(btn.dataset.page);
+        if (page && !btn.disabled) {
+          this.stateManager.setState('activityPage', page);
+          this.renderActivityFeed();
+        }
+      });
+    });
   }
   
   /**

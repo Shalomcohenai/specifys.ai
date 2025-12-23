@@ -4,10 +4,14 @@
  */
 
 import { firebaseService } from './FirebaseService.js';
+import { ActivityService } from '../services/ActivityService.js';
 
 export class DataManager {
   constructor() {
     this.collections = firebaseService.getCollections();
+    
+    // Initialize Activity Service
+    this.activityService = new ActivityService();
     
     // Data stores
     this.data = {
@@ -17,12 +21,12 @@ export class DataManager {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
-      adminActivityLogs: [], // New: Permanent activity log from admin_activity_log collection
+      adminActivityLogs: [], // Legacy: Keep for backward compatibility
       contactSubmissions: [],
       errorLogs: []
     };
     
-    // Activity events (unified from all sources)
+    // Activity events (unified from all sources) - Legacy support
     this.activityEvents = [];
     
     // Loading states
@@ -262,6 +266,22 @@ export class DataManager {
               
               // Create activity event for new users
               if (change.type === 'added' && !isInitial) {
+                // Use ActivityService to create event in Firestore
+                this.activityService.createEvent({
+                  type: 'user',
+                  category: 'user_management',
+                  title: `New user · ${user.displayName}`,
+                  description: user.email,
+                  userId: user.id,
+                  userEmail: user.email,
+                  userName: user.displayName,
+                  metadata: {
+                    plan: user.plan
+                  },
+                  severity: 'info'
+                });
+                
+                // Legacy: Also add to local array for backward compatibility
                 this.addActivityEvent({
                   type: 'user',
                   title: `New user · ${user.displayName}`,
@@ -407,6 +427,23 @@ export class DataManager {
               // Create activity event for new specs
               if (change.type === 'added' && !isInitial) {
                 const user = this.data.users.get(spec.userId);
+                
+                // Use ActivityService to create event in Firestore
+                this.activityService.createEvent({
+                  type: 'spec',
+                  category: 'content',
+                  title: `Spec created · ${spec.title}`,
+                  description: user?.email || spec.userId,
+                  userId: spec.userId,
+                  userEmail: user?.email,
+                  userName: user?.displayName,
+                  metadata: {
+                    specId: spec.id
+                  },
+                  severity: 'info'
+                });
+                
+                // Legacy: Also add to local array for backward compatibility
                 this.addActivityEvent({
                   type: 'spec',
                   title: `Spec created · ${spec.title}`,
@@ -478,6 +515,26 @@ export class DataManager {
               // Create activity event for new purchases
               if (change.type === 'added' && !isInitial) {
                 const user = this.data.users.get(purchase.userId);
+                
+                // Use ActivityService to create event in Firestore
+                this.activityService.createEvent({
+                  type: purchase.productType === 'subscription' ? 'subscription' : 'payment',
+                  category: 'revenue',
+                  title: purchase.productName,
+                  description: `${this.formatCurrency(purchase.total, purchase.currency)} • ${purchase.email || user?.email || 'Unknown'}`,
+                  userId: purchase.userId,
+                  userEmail: purchase.email || user?.email,
+                  userName: user?.displayName,
+                  metadata: {
+                    purchaseId: purchase.id,
+                    productType: purchase.productType,
+                    amount: purchase.total,
+                    currency: purchase.currency
+                  },
+                  severity: 'info'
+                });
+                
+                // Legacy: Also add to local array for backward compatibility
                 this.addActivityEvent({
                   type: 'payment',
                   title: purchase.productName,
@@ -697,9 +754,17 @@ export class DataManager {
   }
   
   /**
-   * Get activity events
+   * Get activity events - Now uses ActivityService
    */
   getActivityEvents(filter = 'all') {
+    // Use ActivityService for new implementation
+    if (this.activityService && this.activityService.events.length > 0) {
+      this.activityService.setFilter('type', filter);
+      const paginated = this.activityService.getPaginatedEvents(1);
+      return paginated.events;
+    }
+    
+    // Fallback to legacy implementation
     if (filter === 'all') {
       return [...this.data.activityLogs, ...this.activityEvents]
         .sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0))
@@ -710,6 +775,13 @@ export class DataManager {
       .filter(event => event.type === filter)
       .sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0))
       .slice(0, 200);
+  }
+  
+  /**
+   * Get ActivityService instance
+   */
+  getActivityService() {
+    return this.activityService;
   }
   
   /**
@@ -818,13 +890,16 @@ export class DataManager {
    * Initialize all subscriptions
    */
   async initialize() {
+    // Initialize ActivityService first
+    await this.activityService.initialize();
+    
     await Promise.all([
       this.loadUsers(),
       this.loadUserCredits(),
       this.loadSpecs(),
       this.loadPurchases(),
       this.loadActivityLogs(),
-      this.loadAdminActivityLogs(), // Load permanent activity log
+      this.loadAdminActivityLogs(), // Load permanent activity log (legacy)
       this.loadContactSubmissions(),
       this.loadErrorLogs()
     ]);
@@ -835,6 +910,7 @@ export class DataManager {
    */
   cleanup() {
     firebaseService.unsubscribeAll();
+    this.activityService.cleanup();
     this.data.users.clear();
     this.data.userCredits.clear();
     this.data.specs.clear();

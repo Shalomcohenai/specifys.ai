@@ -208,7 +208,13 @@ custom_js_modules:
         <!-- Recent Activity -->
         <div class="overview-card">
           <div class="card-header">
-            <h2>Recent Activity</h2>
+            <div class="card-header-title">
+              <h2>Recent Activity</h2>
+              <div class="activity-connection-status" id="activity-connection-status" title="Firebase connection status">
+                <span class="status-indicator" id="activity-status-indicator"></span>
+                <span class="status-text" id="activity-status-text">Connecting...</span>
+              </div>
+            </div>
             <div class="activity-filters">
               <button class="filter-chip active" data-filter="all">All</button>
               <button class="filter-chip" data-filter="user">Users</button>
@@ -217,9 +223,26 @@ custom_js_modules:
             </div>
           </div>
           <div class="card-body">
+            <!-- Activity Search and Date Range -->
+            <div class="activity-controls">
+              <div class="activity-search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="search" id="activity-search-input" placeholder="Search activity..." class="activity-search-input">
+              </div>
+              <div class="activity-date-range">
+                <input type="date" id="activity-date-from" class="activity-date-input" placeholder="From">
+                <span class="activity-date-separator">to</span>
+                <input type="date" id="activity-date-to" class="activity-date-input" placeholder="To">
+              </div>
+            </div>
+            
+            <!-- Activity List -->
             <div class="activity-list" id="activity-list">
               <div class="activity-empty">Loading activity...</div>
             </div>
+            
+            <!-- Activity Pagination -->
+            <div class="activity-pagination" id="activity-pagination"></div>
           </div>
         </div>
 

@@ -244,12 +244,19 @@
             <div class="panel recent-activity">
               <div class="panel-header">
                 <div class="activity-header-top">
-                  <h3>Recent activity</h3>
+                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <h3>Recent activity</h3>
+                    <div id="activity-connection-status" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--admin-text-muted);">
+                      <span class="status-dot" id="activity-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #999; display: inline-block; transition: background 0.3s;"></span>
+                      <span id="activity-status-text">Checking connection...</span>
+                    </div>
+                  </div>
                   <div class="activity-filters" role="group" aria-label="Activity filters">
                     <button class="activity-filter-btn active" data-filter="all" type="button" aria-label="Show all activities" aria-pressed="true">All</button>
                     <button class="activity-filter-btn" data-filter="spec" type="button" aria-label="Show spec activities" aria-pressed="false">Specs</button>
                     <button class="activity-filter-btn" data-filter="payment" type="button" aria-label="Show purchase activities" aria-pressed="false">Purchases</button>
                     <button class="activity-filter-btn" data-filter="user" type="button" aria-label="Show user activities" aria-pressed="false">Users</button>
+                    <button class="activity-filter-btn" data-filter="system" type="button" aria-label="Show system logs" aria-pressed="false">Logs</button>
                   </div>
                 </div>
                 <button class="panel-action pause-stream-btn" id="toggle-activity-pause" type="button" aria-label="Pause or resume activity stream">

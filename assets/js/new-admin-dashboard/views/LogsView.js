@@ -53,7 +53,7 @@ export class LogsView {
    */
   setupDataSubscriptions() {
     this.dataManager.on('data', ({ source }) => {
-      if (source === 'errorLogs' || source === 'activityLogs' || source === 'purchases') {
+      if (source === 'errorLogs' || source === 'activityLogs' || source === 'adminActivityLogs' || source === 'purchases') {
         this.render();
       }
     });
@@ -84,12 +84,31 @@ export class LogsView {
   }
   
   /**
-   * Render logs - Only errors
+   * Render logs - System Health Check logs from admin_activity_log
    */
   render() {
     if (!this.logsContainer) return;
     
     const allData = this.dataManager.getAllData();
+    
+    // Collect System Health Check logs from admin_activity_log
+    const systemLogs = [];
+    
+    // Get logs from admin_activity_log collection (System Health Check logs)
+    if (allData.adminActivityLogs && allData.adminActivityLogs.length > 0) {
+      allData.adminActivityLogs.forEach(log => {
+        systemLogs.push({
+          id: log.id,
+          type: log.type || 'info',
+          title: log.title || 'System Activity',
+          description: log.description || '',
+          timestamp: log.timestamp || new Date(),
+          userId: log.userId || null,
+          userEmail: log.userEmail || null,
+          metadata: log.metadata || {}
+        });
+      });
+    }
     
     // Collect all errors from different sources
     const allErrors = [];
@@ -172,26 +191,92 @@ export class LogsView {
       return timeB - timeA;
     });
     
+    // Combine system logs and errors
+    const allLogs = [...systemLogs, ...allErrors];
+    
+    // Sort by timestamp (newest first)
+    allLogs.sort((a, b) => {
+      const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return timeB - timeA;
+    });
+    
     // Apply filter
-    let filteredErrors = allErrors;
+    let filteredLogs = allLogs;
     if (this.currentFilter !== 'all') {
-      filteredErrors = allErrors.filter(error => {
-        if (this.currentFilter === 'purchase') return error.category === 'purchase';
-        if (this.currentFilter === 'user') return error.category === 'user';
-        if (this.currentFilter === 'system') return error.category === 'system';
+      filteredLogs = allLogs.filter(log => {
+        if (this.currentFilter === 'purchase') return log.category === 'purchase';
+        if (this.currentFilter === 'user') return log.category === 'user';
+        if (this.currentFilter === 'system') return log.category === 'system' || log.type === 'info' || log.type === 'system';
         return true;
       });
     }
     
-    // Limit to 200 most recent errors
-    const displayErrors = filteredErrors.slice(0, 200);
+    // Limit to 200 most recent logs
+    const displayLogs = filteredLogs.slice(0, 200);
     
-    if (displayErrors.length === 0) {
-      this.logsContainer.innerHTML = '<div class="logs-empty">No errors found</div>';
+    if (displayLogs.length === 0) {
+      this.logsContainer.innerHTML = '<div class="logs-empty">No logs found</div>';
       return;
     }
     
-    const html = displayErrors.map(error => {
+    const html = displayLogs.map(log => {
+      // Check if it's a system log (from admin_activity_log) or an error
+      const isSystemLog = systemLogs.some(sl => sl.id === log.id);
+      const isError = log.type === 'error' || log.category === 'system' || log.category === 'user' || log.category === 'purchase';
+      
+      if (isSystemLog && !isError) {
+        // System Health Check log
+        const time = this.formatRelativeTime(log.timestamp);
+        return `
+          <div class="log-entry log-info">
+            <div class="log-header">
+              <span class="log-level">SYSTEM</span>
+              <span class="log-category">Health Check</span>
+              <span class="log-time">${time}</span>
+            </div>
+            <div class="log-title">${this.escapeHtml(log.title)}</div>
+            ${log.description ? `<div class="log-description">${this.escapeHtml(log.description)}</div>` : ''}
+            ${log.userEmail ? `<div class="log-user">User: ${this.escapeHtml(log.userEmail)}</div>` : ''}
+          </div>
+        `;
+      }
+      
+      // Error log
+      const time = this.formatRelativeTime(log.timestamp);
+      const categoryLabel = log.category === 'purchase' ? 'Purchase Error' : 
+                           log.category === 'user' ? 'User Error' : 
+                           'System Error';
+      
+      return `
+        <div class="log-entry log-error">
+          <div class="log-header">
+            <span class="log-level">ERROR</span>
+            <span class="log-category">${categoryLabel}</span>
+            <span class="log-time">${time}</span>
+          </div>
+          <div class="log-title">${this.escapeHtml(log.title)}</div>
+          ${log.description ? `<div class="log-description">${this.escapeHtml(log.description)}</div>` : ''}
+          ${log.userEmail ? `<div class="log-user">User: ${this.escapeHtml(log.userEmail)}</div>` : ''}
+          ${log.errorCode ? `<div class="log-error-code">Error Code: ${this.escapeHtml(log.errorCode)}</div>` : ''}
+          ${log.frequency > 1 ? `<div class="log-frequency">Occurred ${log.frequency} times</div>` : ''}
+        </div>
+      `;
+    }).join('');
+    
+    this.logsContainer.innerHTML = html;
+  }
+  
+  /**
+   * Old render method - kept for reference but not used
+   */
+  renderOld() {
+    if (!this.logsContainer) return;
+    
+    const allData = this.dataManager.getAllData();
+    
+    // Collect all errors from different sources
+    const allErrors = [];
       const time = this.formatRelativeTime(error.timestamp);
       const categoryLabel = error.category === 'purchase' ? 'Purchase Error' : 
                            error.category === 'user' ? 'User Error' : 

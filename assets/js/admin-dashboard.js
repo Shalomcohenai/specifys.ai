@@ -1721,6 +1721,10 @@ class MetricsCalculator {
       if (filter === "spec") {
         return event.type === "spec" || event.category === "content";
       }
+      if (filter === "system") {
+        // Filter for system logs (System Health Check logs and other system events)
+        return event.type === "system" || event.category === "system";
+      }
       return event.type === filter || event.category === filter;
     });
   }
