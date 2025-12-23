@@ -573,44 +573,46 @@ export class OverviewView {
    */
   updateActivityConnectionStatus(status) {
     const indicator = helpers.dom('#activity-status-indicator');
-    const statusText = helpers.dom('#activity-status-text');
+    const statusContainer = helpers.dom('#activity-connection-status');
     
-    if (!indicator || !statusText) return;
+    if (!indicator) return;
     
     // Remove all status classes
     indicator.classList.remove('status-connected', 'status-connecting', 'status-error', 'status-restricted');
-    statusText.classList.remove('status-connected', 'status-connecting', 'status-error', 'status-restricted');
+    if (statusContainer) {
+      statusContainer.classList.remove('status-connected', 'status-connecting', 'status-error', 'status-restricted');
+    }
     
     switch (status) {
       case 'connected':
         indicator.classList.add('status-connected');
-        statusText.classList.add('status-connected');
+        if (statusContainer) statusContainer.classList.add('status-connected');
         indicator.title = 'Connected to Firebase';
-        statusText.textContent = 'Connected';
+        if (statusContainer) statusContainer.title = 'Connected to Firebase';
         break;
       case 'connecting':
         indicator.classList.add('status-connecting');
-        statusText.classList.add('status-connecting');
+        if (statusContainer) statusContainer.classList.add('status-connecting');
         indicator.title = 'Connecting to Firebase...';
-        statusText.textContent = 'Connecting...';
+        if (statusContainer) statusContainer.title = 'Connecting to Firebase...';
         break;
       case 'error':
         indicator.classList.add('status-error');
-        statusText.classList.add('status-error');
+        if (statusContainer) statusContainer.classList.add('status-error');
         indicator.title = 'Connection error';
-        statusText.textContent = 'Error';
+        if (statusContainer) statusContainer.title = 'Connection error';
         break;
       case 'restricted':
         indicator.classList.add('status-restricted');
-        statusText.classList.add('status-restricted');
+        if (statusContainer) statusContainer.classList.add('status-restricted');
         indicator.title = 'Access restricted';
-        statusText.textContent = 'Restricted';
+        if (statusContainer) statusContainer.title = 'Access restricted';
         break;
       default:
         indicator.classList.add('status-connecting');
-        statusText.classList.add('status-connecting');
+        if (statusContainer) statusContainer.classList.add('status-connecting');
         indicator.title = 'Connecting...';
-        statusText.textContent = 'Connecting...';
+        if (statusContainer) statusContainer.title = 'Connecting...';
     }
   }
   

@@ -208,18 +208,19 @@ custom_js_modules:
         <!-- Recent Activity -->
         <div class="overview-card">
           <div class="card-header">
+            <!-- Top row: Title + Status + Search Icon -->
             <div class="card-header-top">
-              <div class="card-header-title">
-                <h2>Recent Activity</h2>
+              <h2>Recent Activity</h2>
+              <div class="card-header-actions">
                 <div class="activity-connection-status" id="activity-connection-status" title="Firebase connection status">
-                  <span class="status-indicator" id="activity-status-indicator"></span>
-                  <span class="status-text" id="activity-status-text">Connecting...</span>
+                  <span class="status-indicator" id="activity-status-indicator" title="Connecting..."></span>
                 </div>
+                <button class="activity-search-toggle" id="activity-search-toggle" type="button" aria-label="Toggle search and filters" title="Search and filter">
+                  <i class="fas fa-search"></i>
+                </button>
               </div>
-              <button class="activity-search-toggle" id="activity-search-toggle" type="button" aria-label="Toggle search and filters" title="Search and filter">
-                <i class="fas fa-search"></i>
-              </button>
             </div>
+            <!-- Bottom row: Filter buttons -->
             <div class="activity-filters">
               <button class="filter-chip active" data-filter="all">All</button>
               <button class="filter-chip" data-filter="user">Users</button>

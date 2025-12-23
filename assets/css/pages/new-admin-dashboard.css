@@ -622,6 +622,19 @@
   margin-bottom: var(--spacing-md);
 }
 
+.card-header-top h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .card-header-title {
   display: flex;
   align-items: center;
@@ -667,11 +680,11 @@
 .activity-connection-status {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
+  justify-content: center;
+  padding: 0.5rem;
   border-radius: var(--radius);
   background: var(--bg-alt);
+  position: relative;
 }
 
 .status-indicator {
