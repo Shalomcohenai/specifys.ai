@@ -2367,13 +2367,23 @@ class AdminDashboardApp {
         this.markSourceReady('activityLogs');
         this.renderLogs();
         this.renderActivityFeed();
+        this.updateActivityConnectionStatus('connected');
       }
       if (source === 'activityLogs-restricted') {
         this.markSourceRestricted('activityLogs', 'Requires elevated Firebase permissions.');
+        this.updateActivityConnectionStatus('warning');
       }
       if (source === 'activityLogs-error') {
         const error = this.dataAggregator.getSourceError('activityLogs');
         this.markSourceError('activityLogs', error);
+        this.updateActivityConnectionStatus('error');
+      }
+      if (source === 'activityEvents') {
+        this.renderActivityFeed();
+        this.updateActivityConnectionStatus('connected');
+      }
+      if (source === 'activityEvents-error') {
+        this.updateActivityConnectionStatus('error');
       }
       if (source === 'contactSubmissions') {
         this.store.contactSubmissions = aggregatedData.contactSubmissions || [];
@@ -2464,6 +2474,8 @@ class AdminDashboardApp {
       activityFeed: utils.dom("#activity-feed"),
       toggleActivity: utils.dom("#toggle-activity-pause"),
       activityFilterButtons: utils.domAll(".activity-filter-btn"),
+      activityStatusDot: utils.dom("#activity-status-dot"),
+      activityStatusText: utils.dom("#activity-status-text"),
       sourceList: utils.dom("#source-status-list"),
       autoRefreshNext: utils.dom("#auto-refresh-next"),
       syncUsersButton: utils.dom("#sync-users-btn"),
@@ -4234,6 +4246,55 @@ class AdminDashboardApp {
     }
     // Fallback to Render URL (same as config.js)
     return "https://specifys-ai-development.onrender.com";
+  }
+
+  /**
+   * Update activity connection status indicator
+   * @param {string} status - 'connected' | 'connecting' | 'error' | 'warning' | 'disconnected'
+   */
+  updateActivityConnectionStatus(status) {
+    if (!this.dom.activityStatusDot || !this.dom.activityStatusText) return;
+    
+    const statusConfig = {
+      'connected': {
+        color: '#10b981', // green
+        text: 'Connected to Firestore & API',
+        bgColor: '#10b981'
+      },
+      'connecting': {
+        color: '#f59e0b', // orange/amber
+        text: 'Connecting...',
+        bgColor: '#f59e0b'
+      },
+      'warning': {
+        color: '#f59e0b', // orange
+        text: 'Limited access (permissions)',
+        bgColor: '#f59e0b'
+      },
+      'error': {
+        color: '#ef4444', // red
+        text: 'Connection error',
+        bgColor: '#ef4444'
+      },
+      'disconnected': {
+        color: '#6b7280', // gray
+        text: 'Disconnected',
+        bgColor: '#6b7280'
+      }
+    };
+    
+    const config = statusConfig[status] || statusConfig['disconnected'];
+    
+    // Update dot color
+    this.dom.activityStatusDot.style.background = config.bgColor;
+    this.dom.activityStatusDot.style.boxShadow = `0 0 0 2px ${config.bgColor}33`;
+    
+    // Update text
+    this.dom.activityStatusText.textContent = config.text;
+    this.dom.activityStatusText.style.color = config.color;
+    
+    // Log for debugging
+    console.log(`[AdminDashboard] Activity connection status: ${status}`);
   }
 
   renderActivityFeed() {
