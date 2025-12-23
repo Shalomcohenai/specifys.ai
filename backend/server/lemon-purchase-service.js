@@ -1,5 +1,5 @@
 const { db, admin } = require('./firebase-admin');
-const { recordPurchase } = require('./admin-activity-service');
+const { recordPurchase: recordPurchaseActivity } = require('./admin-activity-service');
 
 const PURCHASES_COLLECTION = 'purchases';
 
@@ -80,7 +80,7 @@ async function recordPurchase({
   
   // Record activity for new purchases
   if (!existing.exists) {
-    recordPurchase(
+    recordPurchaseActivity(
       orderId.toString(),
       userId || null,
       email || null,
