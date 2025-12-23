@@ -1524,7 +1524,16 @@ async function saveSpecToFirebase(overviewContent, answers) {
     docRef = await firebase.firestore().collection('specs').add(specDoc);
     // Don't store in localStorage - we always want to create new specs
     
-    return docRef.id;
+    const specId = docRef.id;
+    
+    // Record activity in admin log (fire and forget - don't block on this)
+    if (window.api) {
+      window.api.post(`/api/specs/${specId}/record-activity`).catch(err => {
+        console.warn('[index.js] Failed to record spec activity:', err);
+      });
+    }
+    
+    return specId;
   } catch (error) {
     throw error;
   }

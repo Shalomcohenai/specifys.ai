@@ -1,6 +1,7 @@
 const { db, admin } = require('./firebase-admin');
 const crypto = require('crypto');
 const { logger } = require('./logger');
+const { recordSubscriptionChange, recordCreditConsumption } = require('./admin-activity-service');
 
 const CREDITS_COLLECTION = 'user_credits';
 const LEDGER_COLLECTION = 'credit_ledger';
@@ -792,6 +793,36 @@ async function consumeCredit(userId, specId, options = {}) {
     const totalTime = Date.now() - startTime;
     logger.info({ requestId, totalTime, result }, '[CREDITS-V2] Credit consumed successfully');
     
+    // Record credit consumption activity (if not unlimited)
+    if (result.success && !result.unlimited && result.creditType) {
+      try {
+        // Get user email and spec title
+        const [userDoc, specDoc] = await Promise.all([
+          db.collection(USERS_COLLECTION).doc(userId).get(),
+          specId && !specId.startsWith('temp-') ? db.collection('specs').doc(specId).get() : Promise.resolve({ exists: false })
+        ]);
+        
+        const userEmail = userDoc.exists ? userDoc.data().email : null;
+        const specTitle = specDoc.exists ? specDoc.data().title : null;
+        
+        recordCreditConsumption(
+          userId,
+          userEmail,
+          specId,
+          specTitle,
+          result.creditType,
+          {
+            transactionId: result.transactionId,
+            remaining: result.remaining
+          }
+        ).catch(err => {
+          logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to record credit consumption activity');
+        });
+      } catch (err) {
+        logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to get user/spec data for activity recording');
+      }
+    }
+    
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
@@ -1275,6 +1306,32 @@ async function enableProSubscription(userId, options = {}) {
   });
   
   logger.info({ requestId, userId, result }, '[CREDITS-V2] Pro access enabled');
+  
+  // Record activity for subscription activation
+  try {
+    const userDoc = await db.collection(USERS_COLLECTION).doc(userId).get();
+    const userEmail = userDoc.exists ? userDoc.data().email : null;
+    
+    recordSubscriptionChange(
+      userId,
+      userEmail,
+      'pro',
+      subscriptionStatus || 'active',
+      {
+        subscriptionId,
+        productKey,
+        productName,
+        variantId,
+        subscriptionInterval,
+        orderId
+      }
+    ).catch(err => {
+      logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to record subscription activation activity');
+    });
+  } catch (err) {
+    logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to get user email for activity recording');
+  }
+  
   return result;
 }
 
@@ -1344,6 +1401,29 @@ async function disableProSubscription(userId, options = {}) {
   });
   
   logger.info({ requestId, userId, result }, '[CREDITS-V2] Pro access disabled');
+  
+  // Record activity for subscription cancellation
+  try {
+    const userDoc = await db.collection(USERS_COLLECTION).doc(userId).get();
+    const userEmail = userDoc.exists ? userDoc.data().email : null;
+    
+    recordSubscriptionChange(
+      userId,
+      userEmail,
+      'pro',
+      'cancelled',
+      {
+        subscriptionId,
+        cancelReason,
+        restoredCredits: creditsToRestore
+      }
+    ).catch(err => {
+      logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to record subscription cancellation activity');
+    });
+  } catch (err) {
+    logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V2] Failed to get user email for activity recording');
+  }
+  
   return result;
 }
 

@@ -1,5 +1,6 @@
 const { db, auth } = require('./firebase-admin');
 const admin = require('firebase-admin');
+const { recordUserRegistration } = require('./admin-activity-service');
 const MAX_REPORT_SAMPLE = 50;
 let lastUserSyncReport = null;
 
@@ -445,6 +446,17 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             console.log(`[user-management] User ${uid}: ⚠️ WARNING - result._isNewUser is null, applying fallback logic...`);
             result._isNewUser = isNewUserFromClient === true || false;
             console.log(`[user-management] User ${uid}: Fallback applied - result._isNewUser set to ${result._isNewUser}`);
+        }
+        
+        // Record activity for new user registration
+        if (result && result._isNewUser === true) {
+            const userEmail = authUser.email || result.user?.email || null;
+            const displayName = authUser.displayName || result.user?.displayName || userEmail?.split('@')[0] || uid;
+            recordUserRegistration(uid, userEmail, displayName, {
+                plan: result.user?.plan || 'free'
+            }).catch(err => {
+                console.error(`[user-management] Failed to record user registration activity:`, err);
+            });
         }
         
         // Log credits info for debugging

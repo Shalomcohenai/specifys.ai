@@ -1,4 +1,5 @@
 const { db, admin } = require('./firebase-admin');
+const { recordPurchase } = require('./admin-activity-service');
 
 const PURCHASES_COLLECTION = 'purchases';
 
@@ -76,6 +77,31 @@ async function recordPurchase({
   }
 
   await purchaseRef.set(purchaseData, { merge: true });
+  
+  // Record activity for new purchases
+  if (!existing.exists) {
+    recordPurchase(
+      orderId.toString(),
+      userId || null,
+      email || null,
+      productName || 'Product',
+      total || 0,
+      currency || 'USD',
+      {
+        orderNumber,
+        variantId,
+        productId,
+        productKey,
+        productType,
+        credits: normalizedCredits,
+        quantity,
+        testMode
+      }
+    ).catch(err => {
+      console.error('[lemon-purchase-service] Failed to record purchase activity:', err);
+    });
+  }
+  
   return purchaseData;
 }
 

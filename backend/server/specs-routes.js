@@ -9,6 +9,7 @@ const { rateLimiters } = require('./security');
 const specGenerationService = require('./spec-generation-service');
 const specQueue = require('./spec-queue');
 const specEvents = require('./spec-events');
+const { recordSpecCreation } = require('./admin-activity-service');
 
 /**
  * Function to send spec ready notification email

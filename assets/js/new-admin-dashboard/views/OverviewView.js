@@ -179,7 +179,7 @@ export class OverviewView {
       this.dataManager.on('data', ({ source: dataSource }) => {
         if (dataSource === source) {
           this.updateMetrics();
-          if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases' || dataSource === 'specs') {
+          if (dataSource === 'activityLogs' || dataSource === 'adminActivityLogs' || dataSource === 'users' || dataSource === 'purchases' || dataSource === 'specs') {
             this.renderActivityFeed();
           }
           this.renderSystemStatus(); // Update status when data loads

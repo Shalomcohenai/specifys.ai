@@ -17,6 +17,7 @@ export class DataManager {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
+      adminActivityLogs: [], // New: Permanent activity log from admin_activity_log collection
       contactSubmissions: [],
       errorLogs: []
     };
@@ -31,6 +32,7 @@ export class DataManager {
       specs: false,
       purchases: false,
       activityLogs: false,
+      adminActivityLogs: false,
       contactSubmissions: false,
       errorLogs: false
     };
@@ -552,6 +554,78 @@ export class DataManager {
   }
   
   /**
+   * Load admin activity logs - Permanent activity log from admin_activity_log collection
+   */
+  async loadAdminActivityLogs() {
+    this.loadingStates.adminActivityLogs = true;
+    this.emit('loading', { source: 'adminActivityLogs', loading: true });
+    
+    try {
+      await firebaseService.subscribe(
+        'admin_activity_log',
+        (snapshot) => {
+          this.data.adminActivityLogs = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              type: data.type || 'info',
+              title: data.title || 'Activity',
+              description: data.description || '',
+              userId: data.userId || null,
+              userEmail: data.userEmail || null,
+              timestamp: this.toDate(data.timestamp) || this.toDate(data.createdAt) || new Date(),
+              metadata: data.metadata || {}
+            };
+          });
+          
+          // Sort by timestamp (newest first)
+          this.data.adminActivityLogs.sort((a, b) => {
+            const timeA = a.timestamp?.getTime() || 0;
+            const timeB = b.timestamp?.getTime() || 0;
+            return timeB - timeA;
+          });
+          
+          // Keep only last 200 logs in memory
+          if (this.data.adminActivityLogs.length > 200) {
+            this.data.adminActivityLogs = this.data.adminActivityLogs.slice(0, 200);
+          }
+          
+          this.loadingStates.adminActivityLogs = false;
+          this.errors.delete('adminActivityLogs');
+          this.emit('data', { source: 'adminActivityLogs', data: this.data.adminActivityLogs });
+          this.emit('loading', { source: 'adminActivityLogs', loading: false });
+        },
+        {
+          orderByField: 'timestamp',
+          orderDirection: 'desc',
+          limitCount: 200
+        },
+        (error) => {
+          this.loadingStates.adminActivityLogs = false;
+          if (error?.code === 'permission-denied') {
+            console.warn('[DataManager] Permission denied for adminActivityLogs:', error);
+            this.emit('restricted', { source: 'adminActivityLogs', error });
+          } else {
+            this.errors.set('adminActivityLogs', error);
+            this.emit('error', { source: 'adminActivityLogs', error });
+          }
+          this.emit('loading', { source: 'adminActivityLogs', loading: false });
+        }
+      );
+    } catch (error) {
+      this.loadingStates.adminActivityLogs = false;
+      if (error?.code === 'permission-denied') {
+        console.warn('[DataManager] Permission denied for adminActivityLogs:', error);
+        this.emit('restricted', { source: 'adminActivityLogs', error });
+      } else {
+        this.errors.set('adminActivityLogs', error);
+        this.emit('error', { source: 'adminActivityLogs', error });
+      }
+      this.emit('loading', { source: 'adminActivityLogs', loading: false });
+    }
+  }
+  
+  /**
    * Load contact submissions
    */
   async loadContactSubmissions() {
@@ -659,6 +733,7 @@ export class DataManager {
       specsByUser: Object.fromEntries(this.data.specsByUser),
       purchases: this.data.purchases,
       activityLogs: this.data.activityLogs,
+      adminActivityLogs: this.data.adminActivityLogs,
       contactSubmissions: this.data.contactSubmissions,
       errorLogs: this.data.errorLogs
     };
@@ -749,6 +824,7 @@ export class DataManager {
       this.loadSpecs(),
       this.loadPurchases(),
       this.loadActivityLogs(),
+      this.loadAdminActivityLogs(), // Load permanent activity log
       this.loadContactSubmissions(),
       this.loadErrorLogs()
     ]);
@@ -765,6 +841,7 @@ export class DataManager {
     this.data.specsByUser.clear();
     this.data.purchases = [];
     this.data.activityLogs = [];
+    this.data.adminActivityLogs = [];
     this.data.contactSubmissions = [];
     this.data.errorLogs = [];
     this.activityEvents = [];
