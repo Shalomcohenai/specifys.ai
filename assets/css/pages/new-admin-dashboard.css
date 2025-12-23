@@ -352,6 +352,22 @@
   color: var(--text);
   margin: 0 0 var(--spacing-xs) 0;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Loading Spinner Inline (next to title) */
+.loading-spinner-inline {
+  display: inline-block;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.loading-spinner-inline i {
+  font-size: 1rem;
+  color: var(--primary);
+  animation: spin 1s linear infinite;
 }
 
 .section-header-modern p {

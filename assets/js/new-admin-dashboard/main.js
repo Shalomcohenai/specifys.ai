@@ -34,7 +34,8 @@ class NewAdminDashboard {
       statusDot: helpers.dom('#status-dot'),
       statusText: helpers.dom('#status-text'),
       signOutBtn: helpers.dom('#sign-out-btn'),
-      lastSyncTime: helpers.dom('#last-sync-time')
+      lastSyncTime: helpers.dom('#last-sync-time'),
+      overviewLoadingSpinner: helpers.dom('#overview-loading-spinner')
     };
     
     // Views
@@ -87,6 +88,11 @@ class NewAdminDashboard {
    */
   async start() {
     try {
+      // Show loading spinner next to "Live Overview" title
+      if (this.elements.overviewLoadingSpinner) {
+        this.elements.overviewLoadingSpinner.style.display = 'inline-block';
+      }
+      
       // Update connection state
       this.updateConnectionState('pending', 'Connecting…');
       
@@ -102,6 +108,11 @@ class NewAdminDashboard {
       // Update connection state
       this.updateConnectionState('online', 'Realtime sync active');
       this.updateLastSync();
+      
+      // Hide loading spinner when data is ready
+      if (this.elements.overviewLoadingSpinner) {
+        this.elements.overviewLoadingSpinner.style.display = 'none';
+      }
       
       // Show overview section by default
       this.navigateToSection('overview');
@@ -426,6 +437,11 @@ class NewAdminDashboard {
     btn.classList.add('loading');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Refreshing...</span>';
     
+    // Show loading spinner next to "Live Overview" title
+    if (this.elements.overviewLoadingSpinner) {
+      this.elements.overviewLoadingSpinner.style.display = 'inline-block';
+    }
+    
     this.updateConnectionState('pending', 'Refreshing…');
     
     try {
@@ -444,6 +460,15 @@ class NewAdminDashboard {
         btn.classList.remove('success');
         btn.disabled = false;
       }, 2000);
+      
+      // Hide loading spinner after refresh completes
+      if (this.elements.overviewLoadingSpinner) {
+        setTimeout(() => {
+          if (this.elements.overviewLoadingSpinner) {
+            this.elements.overviewLoadingSpinner.style.display = 'none';
+          }
+        }, 500);
+      }
     } catch (error) {
       console.error('[NewAdminDashboard] Refresh error:', error);
       this.updateConnectionState('offline', 'Refresh failed');
@@ -456,6 +481,11 @@ class NewAdminDashboard {
         btn.classList.remove('error');
         btn.disabled = false;
       }, 2000);
+      
+      // Hide loading spinner even on error
+      if (this.elements.overviewLoadingSpinner) {
+        this.elements.overviewLoadingSpinner.style.display = 'none';
+      }
     }
   }
   

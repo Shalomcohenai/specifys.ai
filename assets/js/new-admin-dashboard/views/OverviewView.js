@@ -179,7 +179,7 @@ export class OverviewView {
       this.dataManager.on('data', ({ source: dataSource }) => {
         if (dataSource === source) {
           this.updateMetrics();
-          if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases') {
+          if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases' || dataSource === 'specs') {
             this.renderActivityFeed();
           }
           this.renderSystemStatus(); // Update status when data loads
@@ -206,6 +206,11 @@ export class OverviewView {
           this.renderSystemStatus(); // Update status when restricted
         }
       });
+    });
+    
+    // Listen to activity events (from specs, users, purchases)
+    this.dataManager.on('activity', () => {
+      this.renderActivityFeed();
     });
     
     // Initial render
@@ -461,79 +466,19 @@ export class OverviewView {
   }
   
   /**
-   * Render activity feed - FIXED to show data
+   * Render activity feed - Uses unified activity events from DataManager
    */
   renderActivityFeed() {
     const activityList = helpers.dom('#activity-list');
     if (!activityList) return;
     
     const filter = this.stateManager.getState('activityFilter') || 'all';
-    const allData = this.dataManager.getAllData();
     
-    // Get activity events from multiple sources
-    const events = [];
+    // Get unified activity events from DataManager (includes activityLogs + generated events from specs, users, purchases)
+    const allEvents = this.dataManager.getActivityEvents(filter);
     
-    // From activity logs
-    if (allData.activityLogs && allData.activityLogs.length > 0) {
-      allData.activityLogs.forEach(log => {
-        events.push({
-          type: this.getEventType(log),
-          title: log.title || log.message || 'Activity',
-          description: log.description || log.path || '',
-          timestamp: log.timestamp || log.createdAt || new Date(),
-          user: log.user || log.userEmail || ''
-        });
-      });
-    }
-    
-    // From purchases
-    if (allData.purchases && allData.purchases.length > 0) {
-      allData.purchases.slice(0, 10).forEach(purchase => {
-        events.push({
-          type: 'payment',
-          title: `Purchase: ${purchase.productName || 'Product'}`,
-          description: `$${purchase.total || 0}`,
-          timestamp: purchase.createdAt || new Date(),
-          user: purchase.userEmail || purchase.userId || ''
-        });
-      });
-    }
-    
-    // From new users
-    if (allData.users && allData.users.length > 0) {
-      allData.users
-        .filter(u => {
-          if (!u.createdAt) return false;
-          const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
-          const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-          return created >= oneDayAgo;
-        })
-        .slice(0, 5)
-        .forEach(user => {
-          events.push({
-            type: 'user',
-            title: `New user registered`,
-            description: user.email || user.displayName || user.id,
-            timestamp: user.createdAt || new Date(),
-            user: user.email || user.displayName || user.id
-          });
-        });
-      }
-    
-    // Sort by timestamp (newest first)
-    events.sort((a, b) => {
-      const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
-      const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
-      return timeB - timeA;
-    });
-    
-    // Apply filter
-    const filteredEvents = filter === 'all' 
-      ? events 
-      : events.filter(e => e.type === filter);
-    
-    // Limit to 10
-    const displayEvents = filteredEvents.slice(0, 10);
+    // Limit to 20 most recent events
+    const displayEvents = allEvents.slice(0, 20);
     
     if (displayEvents.length === 0) {
       activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
@@ -544,14 +489,26 @@ export class OverviewView {
       const icon = this.getActivityIcon(event.type);
       const time = this.formatRelativeTime(event.timestamp);
       
+      // Format description based on event type
+      let description = event.description || '';
+      if (event.meta?.userEmail) {
+        description = event.meta.userEmail;
+      } else if (event.meta?.email) {
+        description = event.meta.email;
+      } else if (event.user) {
+        description = event.user;
+      } else if (event.userEmail) {
+        description = event.userEmail;
+      }
+      
       return `
         <div class="activity-item">
           <div class="activity-icon">
             <i class="${icon}"></i>
           </div>
           <div class="activity-content">
-            <div class="activity-title">${this.escapeHtml(event.title)}</div>
-            <div class="activity-description">${this.escapeHtml(event.description)}</div>
+            <div class="activity-title">${this.escapeHtml(event.title || 'Activity')}</div>
+            ${description ? `<div class="activity-description">${this.escapeHtml(description)}</div>` : ''}
           </div>
           <div class="activity-time">${time}</div>
         </div>
