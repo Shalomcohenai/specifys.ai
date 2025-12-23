@@ -4294,11 +4294,12 @@ button.admin-shell .action-btn.grid,
   background: rgba(247, 249, 252, 0.95);
   backdrop-filter: blur(4px);
   z-index: 9999;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   opacity: 1;
   transition: opacity 0.3s ease-out;
+  visibility: visible;
 }
 
 .admin-loading-overlay[style*="display: none"] {
@@ -4332,5 +4333,18 @@ button.admin-shell .action-btn.grid,
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ===== Loading Spinner Inline (next to title) ===== */
+.loading-spinner-inline {
+  display: inline-block;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.loading-spinner-inline i {
+  font-size: 1rem;
+  color: var(--admin-accent);
+  animation: spin 1s linear infinite;
 }
 

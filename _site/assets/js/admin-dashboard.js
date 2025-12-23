@@ -2384,6 +2384,7 @@ class AdminDashboardApp {
       consoleLogsToggleText: utils.dom("#console-logs-toggle-text"),
       overviewRange: utils.dom("#overview-range"),
       overviewMetrics: utils.dom("#overview-metrics"),
+      overviewLoadingSpinner: utils.dom("#overview-loading-spinner"),
       activityFeed: utils.dom("#activity-feed"),
       toggleActivity: utils.dom("#toggle-activity-pause"),
       activityFilterButtons: utils.domAll(".activity-filter-btn"),
@@ -3030,6 +3031,11 @@ class AdminDashboardApp {
   }
 
   async start() {
+    // Show loading spinner next to "Live Overview" title
+    if (this.dom.overviewLoadingSpinner) {
+      this.dom.overviewLoadingSpinner.style.display = 'inline-block';
+    }
+    
     this.updateConnectionState("pending", "Connecting…");
     this.initializeCharts();
     await this.subscribeToSources();
@@ -3517,14 +3523,9 @@ class AdminDashboardApp {
           this.dom.topbarStatus.textContent = `${readyCount}/${totalCount} data sources ready`;
         }
       }
-      // Hide loading overlay when critical data is ready
-      if (this.dom.loadingOverlay) {
-        this.dom.loadingOverlay.style.opacity = '0';
-        setTimeout(() => {
-          if (this.dom.loadingOverlay) {
-            this.dom.loadingOverlay.style.display = 'none';
-          }
-        }, 300);
+      // Hide loading spinner when critical data is ready
+      if (this.dom.overviewLoadingSpinner) {
+        this.dom.overviewLoadingSpinner.style.display = 'none';
       }
     } else if (states.some((state) => state === "error")) {
       const errorCount = states.filter(s => s === "error").length;
@@ -4979,14 +4980,9 @@ class AdminDashboardApp {
       refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i><span>Refreshing...</span>';
       this.refreshInProgress = true;
       
-      // Show loading overlay for manual refresh
-      if (this.dom.loadingOverlay) {
-        this.dom.loadingOverlay.style.display = 'flex';
-        this.dom.loadingOverlay.style.opacity = '1';
-        const spinnerText = this.dom.loadingOverlay.querySelector('.admin-loading-spinner p');
-        if (spinnerText) {
-          spinnerText.textContent = 'Refreshing dashboard data...';
-        }
+      // Show loading spinner next to "Live Overview" title
+      if (this.dom.overviewLoadingSpinner) {
+        this.dom.overviewLoadingSpinner.style.display = 'inline-block';
       }
     }
     
@@ -5024,18 +5020,13 @@ class AdminDashboardApp {
         refreshButton.innerHTML = originalButtonContent || '<i class="fas fa-sync-alt" aria-hidden="true"></i><span>Refresh</span>';
         this.refreshInProgress = false;
         
-        // Hide loading overlay after a short delay to ensure data is rendered
-        if (this.dom.loadingOverlay) {
+        // Hide loading spinner next to "Live Overview" title after a short delay
+        if (this.dom.overviewLoadingSpinner) {
           setTimeout(() => {
-            if (this.dom.loadingOverlay) {
-              this.dom.loadingOverlay.style.opacity = '0';
-              setTimeout(() => {
-                if (this.dom.loadingOverlay) {
-                  this.dom.loadingOverlay.style.display = 'none';
-                }
-              }, 300);
+            if (this.dom.overviewLoadingSpinner) {
+              this.dom.overviewLoadingSpinner.style.display = 'none';
             }
-          }, 300);
+          }, 500);
         }
       }
     }
