@@ -35,7 +35,8 @@ const COLLECTIONS = Object.freeze({
   PURCHASES: "purchases",
   SUBSCRIPTIONS: "subscriptions",
   CREDITS_TRANSACTIONS: "credits_transactions",
-  ACTIVITY_LOGS: "activityLogs",
+  ACTIVITY_LOGS: "activityLogs", // Legacy - kept for backward compatibility
+  ADMIN_ACTIVITY_LOG: "admin_activity_log", // New unified activity log
   ERROR_LOGS: "errorLogs",
   CSS_CRASH_LOGS: "cssCrashLogs",
   BLOG_QUEUE: "blogQueue"
@@ -254,8 +255,13 @@ class DataAggregator {
       contactSubmissions: [],
     };
     
-    // Unified activity events (generated from all sources)
-    this.activityEvents = this.loadActivityEventsFromStorage();
+    // Unified activity events (loaded from Firestore admin_activity_log)
+    this.activityEvents = [];
+    this.activityPagination = {
+      lastDocId: null,
+      hasMore: true,
+      isLoading: false
+    };
     
     // Content stats
     this.contentStats = {
@@ -284,42 +290,62 @@ class DataAggregator {
   }
   
   /**
-   * Load activity events from localStorage
+   * Load activity events from API (replaces localStorage)
+   * @param {Object} options - Query options
+   * @param {boolean} options.append - Append to existing events (for pagination)
+   * @param {string} options.type - Filter by type
+   * @param {string} options.category - Filter by category
+   * @param {string} options.userId - Filter by userId
+   * @param {string} options.searchText - Search text
    */
-  loadActivityEventsFromStorage() {
+  async loadActivityEventsFromAPI(options = {}) {
+    const { append = false, type = null, category = null, userId = null, searchText = null } = options;
+    
+    if (this.activityPagination.isLoading) {
+      return; // Already loading
+    }
+    
+    if (!append && !this.activityPagination.hasMore) {
+      return; // No more events to load
+    }
+    
     try {
-      const stored = localStorage.getItem('admin-activity-events');
-      if (stored) {
-        const events = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
-        return events.map(event => ({
+      this.activityPagination.isLoading = true;
+      
+      const params = new URLSearchParams();
+      if (this.activityPagination.lastDocId && append) {
+        params.append('startAfter', this.activityPagination.lastDocId);
+      }
+      params.append('limit', '50');
+      if (type) params.append('type', type);
+      if (category) params.append('category', category);
+      if (userId) params.append('userId', userId);
+      if (searchText) params.append('searchText', searchText);
+      
+      const response = await window.api.get(`/api/admin/activity?${params.toString()}`);
+      
+      if (response && response.success && response.events) {
+        const events = response.events.map(event => ({
           ...event,
           timestamp: event.timestamp ? new Date(event.timestamp) : utils.now()
-        })).filter(event => {
-          // Only keep events from last 7 days
-          const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-          return event.timestamp && event.timestamp.getTime() >= sevenDaysAgo;
-        });
+        }));
+        
+        if (append) {
+          this.activityEvents.push(...events);
+        } else {
+          this.activityEvents = events;
+        }
+        
+        this.activityPagination.hasMore = response.hasMore || false;
+        this.activityPagination.lastDocId = response.lastDocId || null;
+        
+        this.notifyDataChange('activityEvents');
       }
     } catch (error) {
-      // Failed to load activity events from storage
-    }
-    return [];
-  }
-  
-  /**
-   * Save activity events to localStorage
-   */
-  saveActivityEventsToStorage() {
-    try {
-      // Convert Date objects to ISO strings for storage
-      const eventsToStore = this.activityEvents.map(event => ({
-        ...event,
-        timestamp: event.timestamp ? event.timestamp.toISOString() : new Date().toISOString()
-      }));
-      localStorage.setItem('admin-activity-events', JSON.stringify(eventsToStore));
-    } catch (error) {
-      // Failed to save activity events to storage
+      console.error('[DataAggregator] Error loading activity events from API:', error);
+      this.notifyDataChange('activityEvents-error', error);
+    } finally {
+      this.activityPagination.isLoading = false;
     }
   }
   
@@ -958,33 +984,51 @@ class DataAggregator {
    */
   subscribeToActivityLogs() {
     try {
+      // Subscribe to new events only (real-time updates)
       const activityQuery = query(
-        collection(this.db, COLLECTIONS.ACTIVITY_LOGS),
+        collection(this.db, COLLECTIONS.ADMIN_ACTIVITY_LOG),
         orderBy("timestamp", "desc"),
-        limit(MAX_ACTIVITY_EVENTS)
+        limit(50) // Only listen to latest 50 for real-time updates
       );
       
       const unsubActivity = onSnapshot(
         activityQuery,
         (snapshot) => {
-          const events = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              type: data.type || "system",
-              title: data.title || data.event || "Activity",
-              description: data.description || data.message || "",
-              timestamp: utils.toDate(data.timestamp),
-              meta: data
-            };
+          // Only process new events (added documents)
+          const newEvents = [];
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              const data = change.doc.data();
+              const event = {
+                id: change.doc.id,
+                type: data.type || "system",
+                category: data.category || "system",
+                title: data.title || "Activity",
+                description: data.description || "",
+                userId: data.userId || null,
+                userEmail: data.userEmail || null,
+                userName: data.userName || null,
+                severity: data.severity || "info",
+                tags: data.tags || [],
+                timestamp: utils.toDate(data.timestamp),
+                meta: data.metadata || data.meta || {}
+              };
+              
+              // Check if event already exists (avoid duplicates)
+              const exists = this.activityEvents.some(e => e.id === event.id);
+              if (!exists) {
+                newEvents.push(event);
+              }
+            }
           });
           
-          this.aggregatedData.activityLogs = events;
-          
-          // Merge activity logs with generated events
-          this.updateActivityEvents();
-          
-          this.notifyDataChange('activityLogs');
+          // Add new events to the beginning of the array
+          if (newEvents.length > 0) {
+            this.activityEvents.unshift(...newEvents);
+            // Keep only latest 200 events in memory
+            this.activityEvents = this.activityEvents.slice(0, MAX_ACTIVITY_EVENTS);
+            this.notifyDataChange('activityLogs');
+          }
         },
         (error) => {
           if (error?.code === "permission-denied") {
@@ -999,6 +1043,10 @@ class DataAggregator {
       
       this.unsubscribeFns.push(unsubActivity);
       this.activeSubscriptions.add('activityLogs');
+      
+      // Load initial events from API
+      this.loadActivityEventsFromAPI({ append: false });
+      
       return unsubActivity;
     } catch (error) {
       if (error?.code === "permission-denied") {
@@ -1006,6 +1054,8 @@ class DataAggregator {
       } else {
         this.notifyDataChange('activityLogs-error', error);
       }
+      // Fallback: try to load from API anyway
+      this.loadActivityEventsFromAPI({ append: false });
       return null;
     }
   }
@@ -1312,6 +1362,28 @@ class DataAggregator {
    */
   getActivityEvents() {
     return this.activityEvents;
+  }
+  
+  /**
+   * Load more activity events (pagination)
+   */
+  async loadMoreActivityEvents(filter = null) {
+    if (!this.activityPagination.hasMore || this.activityPagination.isLoading) {
+      return;
+    }
+    
+    const options = { append: true };
+    if (filter) {
+      if (filter === 'payment') {
+        options.type = 'payment';
+      } else if (filter === 'user') {
+        options.type = 'user';
+      } else if (filter === 'spec') {
+        options.type = 'spec';
+      }
+    }
+    
+    await this.loadActivityEventsFromAPI(options);
   }
 }
 
@@ -1630,6 +1702,7 @@ class MetricsCalculator {
   
   /**
    * Calculate activity feed events (unified from all sources)
+   * Now uses events from admin_activity_log collection
    */
   calculateActivityFeed(filter = 'all') {
     const events = this.dataAggregator.getActivityEvents();
@@ -1640,12 +1713,15 @@ class MetricsCalculator {
     
     return events.filter((event) => {
       if (filter === "payment") {
-        return event.type === "payment" || event.type === "subscription";
+        return event.type === "payment" || event.type === "subscription" || event.category === "payment";
       }
       if (filter === "user") {
-        return event.type === "user" || event.type === "auth";
+        return event.type === "user" || event.type === "auth" || event.category === "user";
       }
-      return event.type === filter;
+      if (filter === "spec") {
+        return event.type === "spec" || event.category === "content";
+      }
+      return event.type === filter || event.category === filter;
     });
   }
   
@@ -4172,17 +4248,17 @@ class AdminDashboardApp {
       return;
     }
     
-    const html = events.slice(0, 20).map((event) => {
-      const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
-      const userEmail = event.meta?.email || event.meta?.userEmail || user?.email || "";
-      const userName = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
+    const html = events.slice(0, 50).map((event) => {
+      // Use event data directly (from admin_activity_log)
+      const userEmail = event.userEmail || event.meta?.email || event.meta?.userEmail || "";
+      const userName = event.userName || event.meta?.userName || userEmail || event.userId || "Unknown user";
       const emailBadge = userEmail ? `<span class="activity-badge">${userEmail}</span>` : "";
       const icon = this.getActivityIcon(event.type);
       return `
-        <li class="activity-item ${event.type}" data-activity-id="${event.id}">
+        <li class="activity-item ${event.type} ${event.category || ''}" data-activity-id="${event.id}">
           <span class="activity-icon"><i class="${icon}"></i></span>
           <div class="activity-item__info">
-            <span class="activity-item__title">${event.title}</span>
+            <span class="activity-item__title">${event.title || 'Activity'}</span>
             <span class="activity-item__meta">${userName} ${emailBadge}</span>
           </div>
           <time>${utils.formatRelative(event.timestamp)}</time>

@@ -6,6 +6,7 @@ const { syncAllUsers, getLastUserSyncReport } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
+const { getActivityEvents } = require('./admin-activity-service');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -995,6 +996,91 @@ router.stack.forEach((layer) => {
   if (layer.route) {
     const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
     logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
+  }
+});
+
+/**
+ * Get activity events with pagination and filtering (admin only)
+ * GET /api/admin/activity
+ * Query params:
+ *   - limit: Number of events (default: 50, max: 200)
+ *   - startAfter: Document ID for pagination
+ *   - type: Filter by type (user, spec, payment, subscription, credit, system)
+ *   - category: Filter by category (user, content, payment, system)
+ *   - userId: Filter by userId
+ *   - searchText: Search in title/description
+ *   - startDate: ISO date string - filter events after this date
+ *   - endDate: ISO date string - filter events before this date
+ */
+router.get('/activity', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /activity');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    query: req.query
+  }, '[admin-routes] GET /activity - Fetching activity events');
+  
+  try {
+    const {
+      limit,
+      startAfter,
+      type,
+      category,
+      userId,
+      searchText,
+      startDate,
+      endDate
+    } = req.query;
+    
+    // Parse dates if provided
+    let parsedStartDate = null;
+    let parsedEndDate = null;
+    
+    if (startDate) {
+      parsedStartDate = new Date(startDate);
+      if (isNaN(parsedStartDate.getTime())) {
+        return next(createError('Invalid startDate format. Use ISO 8601 format.', ERROR_CODES.INVALID_INPUT, 400));
+      }
+    }
+    
+    if (endDate) {
+      parsedEndDate = new Date(endDate);
+      if (isNaN(parsedEndDate.getTime())) {
+        return next(createError('Invalid endDate format. Use ISO 8601 format.', ERROR_CODES.INVALID_INPUT, 400));
+      }
+    }
+    
+    const result = await getActivityEvents({
+      limit: limit ? parseInt(limit) : undefined,
+      startAfter: startAfter || undefined,
+      type: type || undefined,
+      category: category || undefined,
+      userId: userId || undefined,
+      searchText: searchText || undefined,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate
+    });
+    
+    logger.info({ 
+      requestId, 
+      count: result.events.length,
+      hasMore: result.hasMore
+    }, '[admin-routes] GET /activity - Success');
+    
+    res.json({
+      success: true,
+      events: result.events,
+      hasMore: result.hasMore,
+      lastDocId: result.lastDocId,
+      count: result.events.length
+    });
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { message: error.message, stack: error.stack } 
+    }, '[admin-routes] GET /activity - Error');
+    next(createError('Failed to fetch activity events', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 

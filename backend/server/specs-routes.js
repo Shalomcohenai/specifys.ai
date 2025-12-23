@@ -585,5 +585,57 @@ async function triggerOpenAIUploadForSpec(specId) {
     }
 }
 
+/**
+ * Record spec creation activity (called from client after spec creation)
+ * POST /api/specs/:id/record-activity
+ */
+router.post('/:id/record-activity', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `record-activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+        const specId = req.params.id;
+        const userId = req.user.uid;
+        
+        // Get spec from Firestore
+        const specDoc = await db.collection('specs').doc(specId).get();
+        
+        if (!specDoc.exists) {
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+        }
+        
+        const specData = specDoc.data();
+        
+        // Verify ownership
+        if (specData.userId !== userId) {
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
+        }
+        
+        // Get user email
+        const userRecord = await auth.getUser(userId);
+        const userEmail = userRecord.email || null;
+        
+        // Record activity (fire and forget - don't block response)
+        recordSpecCreation(
+            specId,
+            userId,
+            userEmail,
+            specData.title || 'Untitled',
+            {
+                specId,
+                specTitle: specData.title,
+                mode: specData.mode || 'unified'
+            }
+        ).catch(err => {
+            logger.warn({ requestId, specId, error: err.message }, '[specs-routes] Failed to record spec creation activity');
+        });
+        
+        res.json({ success: true });
+    } catch (error) {
+        logger.error({ requestId, error: error.message }, '[specs-routes] Error recording spec activity');
+        // Don't fail the request if activity recording fails
+        res.json({ success: false, error: error.message });
+    }
+});
+
 module.exports = router;
 

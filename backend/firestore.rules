@@ -152,10 +152,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Activity logs collection
+    // Activity logs collection (legacy)
     match /activityLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // Admin activity log collection (new unified system)
+    match /admin_activity_log/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only backend can write
     }
 
     // Academy categories collection - public read, admin write

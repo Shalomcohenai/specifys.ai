@@ -2,6 +2,8 @@
  * Admin Activity Log Service
  * Records all platform activities to admin_activity_log collection
  * This provides a permanent, chronological record of all events
+ * 
+ * Improved version with better structure, categories, and searchability
  */
 
 const { db } = require('./firebase-admin');
@@ -12,11 +14,15 @@ const ADMIN_ACTIVITY_LOG_COLLECTION = 'admin_activity_log';
 /**
  * Record an activity event
  * @param {Object} params - Activity parameters
- * @param {string} params.type - Activity type: 'user' | 'spec' | 'payment' | 'subscription'
+ * @param {string} params.type - Activity type: 'user' | 'spec' | 'payment' | 'subscription' | 'credit' | 'system'
  * @param {string} params.title - Activity title (e.g., "Spec created · App Name")
  * @param {string} params.description - Activity description (e.g., user email)
  * @param {string} params.userId - User ID (optional)
  * @param {string} params.userEmail - User email (optional)
+ * @param {string} params.userName - User display name (optional)
+ * @param {string} params.category - Category for filtering: 'user' | 'content' | 'payment' | 'system' (optional, auto-derived from type)
+ * @param {string} params.severity - Severity level: 'info' | 'warning' | 'error' (default: 'info')
+ * @param {Array<string>} params.tags - Tags for searchability (optional)
  * @param {Object} params.metadata - Additional metadata (specId, purchaseId, etc.)
  * @param {Date|admin.firestore.Timestamp} params.timestamp - Event timestamp (defaults to server timestamp)
  * @returns {Promise<string>} - Document ID of created activity log
@@ -27,6 +33,10 @@ async function recordActivity({
   description = '',
   userId = null,
   userEmail = null,
+  userName = null,
+  category = null,
+  severity = 'info',
+  tags = [],
   metadata = {},
   timestamp = null
 }) {
@@ -35,20 +45,49 @@ async function recordActivity({
       throw new Error('type and title are required');
     }
 
+    // Auto-derive category from type if not provided
+    if (!category) {
+      const categoryMap = {
+        'user': 'user',
+        'spec': 'content',
+        'payment': 'payment',
+        'subscription': 'payment',
+        'credit': 'payment',
+        'system': 'system'
+      };
+      category = categoryMap[type] || 'system';
+    }
+
+    // Ensure tags is an array
+    if (!Array.isArray(tags)) {
+      tags = tags ? [tags] : [];
+    }
+
+    // Add type to tags for easier filtering
+    if (!tags.includes(type)) {
+      tags.push(type);
+    }
+
     const activityData = {
       type,
+      category,
       title,
       description,
+      severity,
+      tags,
       userId: userId || null,
       userEmail: userEmail || null,
+      userName: userName || null,
       metadata: metadata || {},
       timestamp: timestamp || admin.firestore.FieldValue.serverTimestamp(),
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      // Add searchable fields for better querying
+      searchText: `${title} ${description} ${userEmail || ''} ${userName || ''}`.toLowerCase().trim()
     };
 
-    // Remove null/undefined values
+    // Remove null/undefined values (but keep empty strings for searchText)
     Object.keys(activityData).forEach(key => {
-      if (activityData[key] === null || activityData[key] === undefined) {
+      if (key !== 'searchText' && (activityData[key] === null || activityData[key] === undefined)) {
         delete activityData[key];
       }
     });
@@ -79,6 +118,8 @@ async function recordUserRegistration(userId, userEmail, displayName, metadata =
     description: userEmail || userId,
     userId,
     userEmail,
+    userName: displayName,
+    tags: ['registration', 'user'],
     metadata: {
       displayName,
       ...metadata
@@ -101,6 +142,7 @@ async function recordSpecCreation(specId, userId, userEmail, specTitle, metadata
     description: userEmail || userId,
     userId,
     userEmail,
+    tags: ['spec', 'creation', 'content'],
     metadata: {
       specId,
       specTitle,
@@ -126,6 +168,7 @@ async function recordPurchase(purchaseId, userId, userEmail, productName, total,
     description: `${currency} ${total || 0} • ${userEmail || userId || 'Unknown'}`,
     userId,
     userEmail,
+    tags: ['purchase', 'payment', 'revenue'],
     metadata: {
       purchaseId,
       productName,
@@ -153,6 +196,7 @@ async function recordSubscriptionChange(userId, userEmail, subscriptionType, sub
     description: userEmail || userId,
     userId,
     userEmail,
+    tags: ['subscription', 'payment', subscriptionStatus === 'active' ? 'upgrade' : 'downgrade'],
     metadata: {
       subscriptionType,
       subscriptionStatus,
@@ -177,6 +221,7 @@ async function recordCreditConsumption(userId, userEmail, specId, specTitle, cre
     description: `${creditType || 'credit'} credit • ${userEmail || userId}`,
     userId,
     userEmail,
+    tags: ['credit', 'consumption', creditType],
     metadata: {
       specId,
       specTitle,
@@ -186,6 +231,114 @@ async function recordCreditConsumption(userId, userEmail, specId, specTitle, cre
   });
 }
 
+/**
+ * Get activity events with pagination and filtering
+ * @param {Object} options - Query options
+ * @param {number} options.limit - Number of events to return (default: 50, max: 200)
+ * @param {string} options.startAfter - Document ID to start after (for pagination)
+ * @param {string} options.type - Filter by type
+ * @param {string} options.category - Filter by category
+ * @param {string} options.userId - Filter by userId
+ * @param {string} options.searchText - Search in title/description
+ * @param {Date} options.startDate - Filter events after this date
+ * @param {Date} options.endDate - Filter events before this date
+ * @returns {Promise<{events: Array, hasMore: boolean, lastDocId: string}>}
+ */
+async function getActivityEvents({
+  limit = 50,
+  startAfter = null,
+  type = null,
+  category = null,
+  userId = null,
+  searchText = null,
+  startDate = null,
+  endDate = null
+} = {}) {
+  try {
+    // Clamp limit
+    const queryLimit = Math.min(Math.max(limit, 1), 200);
+    
+    let query = db.collection(ADMIN_ACTIVITY_LOG_COLLECTION);
+    
+    // Apply filters
+    if (type) {
+      query = query.where('type', '==', type);
+    }
+    
+    if (category) {
+      query = query.where('category', '==', category);
+    }
+    
+    if (userId) {
+      query = query.where('userId', '==', userId);
+    }
+    
+    if (startDate) {
+      query = query.where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate));
+    }
+    
+    if (endDate) {
+      query = query.where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate));
+    }
+    
+    // Order by timestamp descending (newest first)
+    query = query.orderBy('timestamp', 'desc');
+    
+    // Pagination
+    if (startAfter) {
+      const startAfterDoc = await db.collection(ADMIN_ACTIVITY_LOG_COLLECTION).doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        query = query.startAfter(startAfterDoc);
+      }
+    }
+    
+    // Limit results
+    query = query.limit(queryLimit + 1); // Get one extra to check if there are more
+    
+    const snapshot = await query.get();
+    const events = [];
+    let lastDocId = null;
+    
+    snapshot.forEach((doc) => {
+      if (events.length < queryLimit) {
+        const data = doc.data();
+        events.push({
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : data.timestamp,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
+        });
+        lastDocId = doc.id;
+      }
+    });
+    
+    const hasMore = snapshot.size > queryLimit;
+    
+    // Apply search text filter if provided (client-side filtering for now)
+    // In production, consider using Algolia or similar for better search
+    let filteredEvents = events;
+    if (searchText) {
+      const searchLower = searchText.toLowerCase();
+      filteredEvents = events.filter(event => 
+        event.searchText?.includes(searchLower) ||
+        event.title?.toLowerCase().includes(searchLower) ||
+        event.description?.toLowerCase().includes(searchLower) ||
+        event.userEmail?.toLowerCase().includes(searchLower) ||
+        event.userName?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    return {
+      events: filteredEvents,
+      hasMore,
+      lastDocId: hasMore ? lastDocId : null
+    };
+  } catch (error) {
+    console.error('[admin-activity-service] Error getting activity events:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   recordActivity,
   recordUserRegistration,
@@ -193,6 +346,7 @@ module.exports = {
   recordPurchase,
   recordSubscriptionChange,
   recordCreditConsumption,
+  getActivityEvents,
   ADMIN_ACTIVITY_LOG_COLLECTION
 };
 
