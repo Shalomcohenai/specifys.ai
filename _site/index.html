@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/">
+    <link rel="canonical" href="http://0.0.0.0:4000/">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Specifys.AI - Plan Your App Smarter">
     <meta property="og:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Specifys.AI - Plan Your App Smarter - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Specifys.AI - Plan Your App Smarter">
     <meta name="twitter:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Specifys.AI - Plan Your App Smarter - Specifys.ai">
     
     <!-- Favicon -->
@@ -575,6 +575,7 @@ function trackPreference(preferenceName, preferenceValue) {
 
 <body>
     <!-- Header -->
+    
     <!-- Header -->
 <header class="thematic-header" role="banner">
     <nav class="header-center" aria-label="Main navigation">
@@ -601,6 +602,7 @@ function trackPreference(preferenceName, preferenceValue) {
 <script src="/assets/js/credits-v2-display.js"></script>
 
 
+    
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
@@ -736,19 +738,15 @@ function trackPreference(preferenceName, preferenceValue) {
     
     <!-- Modern Input Container -->
     <div class="modern-input-container hidden" id="modernInputContainer">
-        <div class="input-instruction" id="input-instruction" role="status" aria-live="polite">
-            Start typing, press Enter for next question, press Backspace for previous question
-        </div>
-        
         <div class="input-area">
             <label for="mainInput" class="visually-hidden">Answer input</label>
             <textarea 
                 class="main-input" 
                 id="mainInput"
-                placeholder="Write your answer here..."
+                placeholder="Start typing, press Enter for next question, press Backspace for previous question"
                 rows="1"
                 aria-label="Answer input"
-                aria-describedby="characterCount input-instruction"
+                aria-describedby="characterCount"
                 maxlength="900"
             ></textarea>
             <div class="character-count-container">
@@ -1261,6 +1259,7 @@ graph TD
     </main>
     
     <!-- Footer -->
+    
     <!-- Footer -->
 <footer role="contentinfo">
   <nav class="footer-content" aria-label="Footer navigation">
@@ -1292,6 +1291,7 @@ graph TD
 
 <script src="/assets/js/contact-us-modal.js"></script>
 
+    
     
     <!-- Scroll to top button -->
     <!-- Scroll to top button -->

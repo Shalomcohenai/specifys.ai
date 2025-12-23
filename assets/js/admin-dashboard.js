@@ -523,10 +523,15 @@ class DataAggregator {
                 
                 // Create activity event for new users
                 if (change.type === "added") {
-                  const event = this.createActivityEvent('user', user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  const eventId = `user-${user.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    const event = this.createActivityEvent('user', user);
+                    event.id = eventId; // Use stable ID to avoid duplicates
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
                 }
               }
             });
@@ -914,12 +919,17 @@ class DataAggregator {
                 
                 // Create activity event for new purchases
                 if (change.type === "added") {
-                  const user = this.aggregatedData.users.get(purchase.userId);
-                  const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
-                  const event = this.createActivityEvent(eventType, purchase, user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  const eventId = `purchase-${purchase.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    const user = this.aggregatedData.users.get(purchase.userId);
+                    const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+                    const event = this.createActivityEvent(eventType, purchase, user);
+                    event.id = eventId; // Use stable ID to avoid duplicates
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
                 }
               }
             });
@@ -1070,9 +1080,28 @@ class DataAggregator {
   
   /**
    * Update unified activity events by merging generated events with activity logs
+   * Prevents duplicates by using event IDs
    */
   updateActivityEvents() {
-    const combined = [...this.activityEvents, ...this.aggregatedData.activityLogs];
+    // Create a map to avoid duplicates by ID
+    const eventsMap = new Map();
+    
+    // Add existing activity events
+    this.activityEvents.forEach(event => {
+      if (event.id) {
+        eventsMap.set(event.id, event);
+      }
+    });
+    
+    // Add activity logs, but skip if ID already exists
+    this.aggregatedData.activityLogs.forEach(log => {
+      if (log.id && !eventsMap.has(log.id)) {
+        eventsMap.set(log.id, log);
+      }
+    });
+    
+    // Convert back to array and sort by timestamp
+    const combined = Array.from(eventsMap.values());
     combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
     this.activityEvents = utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
     // Save to localStorage for persistence across page refreshes
@@ -2142,6 +2171,7 @@ class AdminDashboardApp {
     this.nextAutoRefreshAt = null;
     this.lastManualRefresh = null; // Track last manual refresh time
     this.syncInProgress = false;
+    this.refreshInProgress = false; // Track if refresh is in progress
     
     // Track if critical data has been loaded (for charts)
     this.criticalDataLoaded = {
@@ -2347,6 +2377,7 @@ class AdminDashboardApp {
       sidebarLastSync: utils.dom("#sidebar-last-sync"),
       topbarStatus: utils.dom("#topbar-sync-status"),
       manualRefresh: utils.dom("#manual-refresh-btn"),
+      loadingOverlay: utils.dom("#admin-loading-overlay"),
       syncCreditsBtn: utils.dom("#sync-credits-btn"),
       signOut: utils.dom("#sign-out-btn"),
       consoleLogsToggle: utils.dom("#console-logs-toggle"),
@@ -3485,6 +3516,15 @@ class AdminDashboardApp {
         } else {
           this.dom.topbarStatus.textContent = `${readyCount}/${totalCount} data sources ready`;
         }
+      }
+      // Hide loading overlay when critical data is ready
+      if (this.dom.loadingOverlay) {
+        this.dom.loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          if (this.dom.loadingOverlay) {
+            this.dom.loadingOverlay.style.display = 'none';
+          }
+        }, 300);
       }
     } else if (states.some((state) => state === "error")) {
       const errorCount = states.filter(s => s === "error").length;
@@ -4923,6 +4963,33 @@ class AdminDashboardApp {
   }
 
   async refreshAllData(reason = "manual") {
+    // Prevent multiple simultaneous refreshes
+    if (this.refreshInProgress && reason === "manual") {
+      return;
+    }
+    
+    const isManualRefresh = reason === "manual";
+    const refreshButton = this.dom.manualRefresh;
+    let originalButtonContent = null;
+    
+    // Show loading spinner on manual refresh button and overlay
+    if (isManualRefresh && refreshButton) {
+      originalButtonContent = refreshButton.innerHTML;
+      refreshButton.disabled = true;
+      refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i><span>Refreshing...</span>';
+      this.refreshInProgress = true;
+      
+      // Show loading overlay for manual refresh
+      if (this.dom.loadingOverlay) {
+        this.dom.loadingOverlay.style.display = 'flex';
+        this.dom.loadingOverlay.style.opacity = '1';
+        const spinnerText = this.dom.loadingOverlay.querySelector('.admin-loading-spinner p');
+        if (spinnerText) {
+          spinnerText.textContent = 'Refreshing dashboard data...';
+        }
+      }
+    }
+    
     this.updateConnectionState("pending", "Refreshing data…");
     
     // Track manual refresh time
@@ -4940,15 +5007,38 @@ class AdminDashboardApp {
       };
     }
     
-    await this.subscribeToSources();
-    this.updateAutoRefreshTimer();
-    
-    // Force update overview after refresh to ensure charts are updated
-    setTimeout(() => {
-      if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
-        this.updateOverview();
+    try {
+      await this.subscribeToSources();
+      this.updateAutoRefreshTimer();
+      
+      // Force update overview after refresh to ensure charts are updated
+      setTimeout(() => {
+        if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
+          this.updateOverview();
+        }
+      }, 500);
+    } finally {
+      // Restore button state after refresh completes
+      if (isManualRefresh && refreshButton) {
+        refreshButton.disabled = false;
+        refreshButton.innerHTML = originalButtonContent || '<i class="fas fa-sync-alt" aria-hidden="true"></i><span>Refresh</span>';
+        this.refreshInProgress = false;
+        
+        // Hide loading overlay after a short delay to ensure data is rendered
+        if (this.dom.loadingOverlay) {
+          setTimeout(() => {
+            if (this.dom.loadingOverlay) {
+              this.dom.loadingOverlay.style.opacity = '0';
+              setTimeout(() => {
+                if (this.dom.loadingOverlay) {
+                  this.dom.loadingOverlay.style.display = 'none';
+                }
+              }, 300);
+            }
+          }, 300);
+        }
       }
-    }, 500);
+    }
   }
 
   updateAutoRefreshTimer() {

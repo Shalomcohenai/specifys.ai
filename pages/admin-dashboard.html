@@ -62,6 +62,13 @@
 </head>
 <body>
   <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
+  <!-- Loading overlay for initial data load -->
+  <div class="admin-loading-overlay" id="admin-loading-overlay">
+    <div class="admin-loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading dashboard data...</p>
+    </div>
+  </div>
   <div class="admin-shell" id="admin-shell">
     <div class="mobile-menu-backdrop" id="mobile-menu-backdrop"></div>
     <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin navigation" role="complementary">

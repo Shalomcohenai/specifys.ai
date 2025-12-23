@@ -233,6 +233,16 @@ class DataAggregator {
     this.db = db;
     this.unsubscribeFns = [];
     
+    // Track which sources are currently subscribed
+    this.activeSubscriptions = new Set();
+    
+    // Retry configuration
+    this.retryConfig = {
+      maxRetries: 3,
+      retryDelay: 1000, // Start with 1 second
+      retryDelays: new Map() // Track retry delays per source
+    };
+    
     // Central aggregated data store
     this.aggregatedData = {
       users: new Map(),
@@ -513,10 +523,15 @@ class DataAggregator {
                 
                 // Create activity event for new users
                 if (change.type === "added") {
-                  const event = this.createActivityEvent('user', user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  const eventId = `user-${user.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    const event = this.createActivityEvent('user', user);
+                    event.id = eventId; // Use stable ID to avoid duplicates
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
                 }
               }
             });
@@ -531,6 +546,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubUsers);
+      this.activeSubscriptions.add('users');
       return unsubUsers;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to users:', error);
@@ -558,14 +574,21 @@ class DataAggregator {
               const data = docSnap.data();
               const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
               const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
+              
+              // Use nullish coalescing (??) to handle 0 values correctly
+              const freeCredits = data.balances?.free ?? 0;
+              const paidCredits = data.balances?.paid ?? 0;
+              const bonusCredits = data.balances?.bonus ?? 0;
+              const totalCredits = freeCredits + paidCredits + bonusCredits;
+              
               const normalized = {
                 userId: docSnap.id,
                 balances: {
-                  free: data.balances?.free || 0,
-                  paid: data.balances?.paid || 0,
-                  bonus: data.balances?.bonus || 0
+                  free: freeCredits,
+                  paid: paidCredits,
+                  bonus: bonusCredits
                 },
-                total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                total: totalCredits,
                 unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
                 updatedAt: utils.toDate(data.metadata?.updatedAt),
                 metadata: data
@@ -578,6 +601,7 @@ class DataAggregator {
               if (change.type === "removed") {
                 this.aggregatedData.userCredits.delete(change.doc.id);
               } else {
+                // Handle both "added" and "modified" types
                 const data = change.doc.data();
                 const previous = this.aggregatedData.userCredits.get(change.doc.id);
                 const previousSubscriptionType = previous ? (previous.metadata?.subscription?.type || (previous.unlimited ? 'pro' : 'none')) : 'none';
@@ -586,18 +610,31 @@ class DataAggregator {
                 
                 const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
                 const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
+                
+                // Always recalculate total from fresh data to ensure accuracy
+                // Use nullish coalescing (??) to handle 0 values correctly
+                const freeCredits = data.balances?.free ?? 0;
+                const paidCredits = data.balances?.paid ?? 0;
+                const bonusCredits = data.balances?.bonus ?? 0;
+                const totalCredits = freeCredits + paidCredits + bonusCredits;
+                
                 const normalized = {
                   userId: change.doc.id,
                   balances: {
-                    free: data.balances?.free || 0,
-                    paid: data.balances?.paid || 0,
-                    bonus: data.balances?.bonus || 0
+                    free: freeCredits,
+                    paid: paidCredits,
+                    bonus: bonusCredits
                   },
-                  total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                  total: totalCredits,
                   unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
                   updatedAt: utils.toDate(data.metadata?.updatedAt),
                   metadata: data
                 };
+                
+                // Log credit changes for debugging
+                if (previous && previous.total !== normalized.total) {
+                  console.log(`[DataAggregator] Credits changed for user ${change.doc.id}: ${previous.total} -> ${normalized.total} (free: ${freeCredits}, paid: ${paidCredits}, bonus: ${bonusCredits})`);
+                }
                 
                 const currentIsPro = subscriptionType === 'pro' && subscriptionStatus === 'active';
                 
@@ -646,6 +683,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubUserCredits);
+      this.activeSubscriptions.add('userCredits');
       return unsubUserCredits;
     } catch (error) {
       // Mark initial load as complete even on error
@@ -757,12 +795,31 @@ class DataAggregator {
                 }
                 
                 // Create activity event for new specs
-                if (change.type === "added") {
+                // Check if this is a new spec (either added or didn't exist before)
+                // Also check if spec was created recently (within last 5 minutes) to catch specs created before dashboard loaded
+                const specCreatedRecently = spec.createdAt && spec.createdAt.getTime() >= Date.now() - 5 * 60 * 1000;
+                const wasJustCreated = previous && previous.createdAt && spec.createdAt && 
+                  spec.createdAt.getTime() > previous.createdAt.getTime();
+                const isNewSpec = change.type === "added" || 
+                  (!previous && specCreatedRecently) ||
+                  (previous && !previous.createdAt && specCreatedRecently) ||
+                  wasJustCreated;
+                
+                if (isNewSpec) {
                   const user = this.aggregatedData.users.get(spec.userId);
                   const event = this.createActivityEvent('spec', spec, user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  // Use stable ID to avoid duplicates
+                  const eventId = `spec-${spec.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    event.id = eventId;
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                    console.log(`[DataAggregator] Created activity event for new spec: ${spec.id} by user ${spec.userId} (changeType: ${change.type}, wasJustCreated: ${wasJustCreated}, specCreatedRecently: ${specCreatedRecently})`);
+                  } else {
+                    console.log(`[DataAggregator] Skipped duplicate activity event for spec: ${spec.id}`);
+                  }
                 }
               }
             });
@@ -777,6 +834,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubSpecs);
+      this.activeSubscriptions.add('specs');
       return unsubSpecs;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to specs:', error);
@@ -861,12 +919,17 @@ class DataAggregator {
                 
                 // Create activity event for new purchases
                 if (change.type === "added") {
-                  const user = this.aggregatedData.users.get(purchase.userId);
-                  const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
-                  const event = this.createActivityEvent(eventType, purchase, user);
-                  this.activityEvents.unshift(event);
-                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                  this.saveActivityEventsToStorage();
+                  const eventId = `purchase-${purchase.id}`;
+                  const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                  if (!existingEventIds.has(eventId)) {
+                    const user = this.aggregatedData.users.get(purchase.userId);
+                    const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+                    const event = this.createActivityEvent(eventType, purchase, user);
+                    event.id = eventId; // Use stable ID to avoid duplicates
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
                 }
               }
             });
@@ -881,6 +944,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubPurchases);
+      this.activeSubscriptions.add('purchases');
       return unsubPurchases;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to purchases:', error);
@@ -934,6 +998,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubActivity);
+      this.activeSubscriptions.add('activityLogs');
       return unsubActivity;
     } catch (error) {
       if (error?.code === "permission-denied") {
@@ -1015,9 +1080,28 @@ class DataAggregator {
   
   /**
    * Update unified activity events by merging generated events with activity logs
+   * Prevents duplicates by using event IDs
    */
   updateActivityEvents() {
-    const combined = [...this.activityEvents, ...this.aggregatedData.activityLogs];
+    // Create a map to avoid duplicates by ID
+    const eventsMap = new Map();
+    
+    // Add existing activity events
+    this.activityEvents.forEach(event => {
+      if (event.id) {
+        eventsMap.set(event.id, event);
+      }
+    });
+    
+    // Add activity logs, but skip if ID already exists
+    this.aggregatedData.activityLogs.forEach(log => {
+      if (log.id && !eventsMap.has(log.id)) {
+        eventsMap.set(log.id, log);
+      }
+    });
+    
+    // Convert back to array and sort by timestamp
+    const combined = Array.from(eventsMap.values());
     combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
     this.activityEvents = utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
     // Save to localStorage for persistence across page refreshes
@@ -1078,6 +1162,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubContact);
+      this.activeSubscriptions.add('contactSubmissions');
       return unsubContact;
     } catch (error) {
       // Mark initial load as complete even on error (contactSubmissions doesn't block other data)
@@ -1094,15 +1179,56 @@ class DataAggregator {
   
   /**
    * Initialize all subscriptions
+   * Only subscribes to sources that aren't already active
    */
   subscribeAll() {
-    this.subscribeToUsers();
+    // Only subscribe if not already subscribed to avoid duplicate connections
+    if (!this.activeSubscriptions.has('users')) {
+      this.subscribeToUsers();
+    }
     // subscribeToEntitlements() removed - using new user_credits system only
-    this.subscribeToUserCredits();
-    this.subscribeToSpecs();
-    this.subscribeToPurchases();
-    this.subscribeToActivityLogs();
-    this.subscribeToContactSubmissions();
+    if (!this.activeSubscriptions.has('userCredits')) {
+      this.subscribeToUserCredits();
+    }
+    if (!this.activeSubscriptions.has('specs')) {
+      this.subscribeToSpecs();
+    }
+    if (!this.activeSubscriptions.has('purchases')) {
+      this.subscribeToPurchases();
+    }
+    if (!this.activeSubscriptions.has('activityLogs')) {
+      this.subscribeToActivityLogs();
+    }
+    if (!this.activeSubscriptions.has('contactSubmissions')) {
+      this.subscribeToContactSubmissions();
+    }
+  }
+  
+  /**
+   * Retry subscription with exponential backoff
+   */
+  async retrySubscription(sourceName, subscribeFn, retryCount = 0) {
+    const delay = this.retryConfig.retryDelays.get(sourceName) || this.retryConfig.retryDelay;
+    
+    try {
+      const result = subscribeFn();
+      // Reset retry delay on success
+      this.retryConfig.retryDelays.set(sourceName, this.retryConfig.retryDelay);
+      return result;
+    } catch (error) {
+      if (retryCount < this.retryConfig.maxRetries) {
+        const nextDelay = delay * Math.pow(2, retryCount); // Exponential backoff
+        this.retryConfig.retryDelays.set(sourceName, nextDelay);
+        
+        console.warn(`[DataAggregator] Retrying ${sourceName} subscription (attempt ${retryCount + 1}/${this.retryConfig.maxRetries}) after ${nextDelay}ms`);
+        
+        await new Promise(resolve => setTimeout(resolve, nextDelay));
+        return this.retrySubscription(sourceName, subscribeFn, retryCount + 1);
+      } else {
+        console.error(`[DataAggregator] Failed to subscribe to ${sourceName} after ${this.retryConfig.maxRetries} attempts`);
+        throw error;
+      }
+    }
   }
   
   /**
@@ -1117,6 +1243,16 @@ class DataAggregator {
       }
     });
     this.unsubscribeFns = [];
+    this.activeSubscriptions.clear();
+  }
+  
+  /**
+   * Unsubscribe from a specific source
+   */
+  unsubscribeSource(sourceName) {
+    // Find and remove unsubscribe function for this source
+    // Note: This is a simplified approach - in production you might want to track source->unsub mapping
+    this.activeSubscriptions.delete(sourceName);
   }
   
   /**
@@ -2035,6 +2171,21 @@ class AdminDashboardApp {
     this.nextAutoRefreshAt = null;
     this.lastManualRefresh = null; // Track last manual refresh time
     this.syncInProgress = false;
+    this.refreshInProgress = false; // Track if refresh is in progress
+    
+    // Track if critical data has been loaded (for charts)
+    this.criticalDataLoaded = {
+      users: false,
+      specs: false,
+      purchases: false,
+      userCredits: false
+    };
+    
+    // Debounced update for overview charts
+    this.debouncedUpdateOverview = utils.debounce(() => {
+      this.updateOverview();
+    }, 300);
+    
     this.charts = {
       usersPlan: null,
       specsTimeline: null,
@@ -2070,9 +2221,11 @@ class AdminDashboardApp {
       // Mark source as ready
       if (source === 'users') {
         this.markSourceReady('users');
+        this.criticalDataLoaded.users = true;
         this.renderUsersTable();
         this.rebuildSearchIndex();
-        this.updateOverview();
+        // Use debounced update for better performance
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'users-error') {
@@ -2086,15 +2239,17 @@ class AdminDashboardApp {
       // }
       if (source === 'userCredits') {
         this.markSourceReady('userCredits');
+        this.criticalDataLoaded.userCredits = true;
         this.renderUsersTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'userCredits-restricted') {
         this.markSourceRestricted('userCredits', 'Requires elevated Firebase permissions.');
         // Still render data even if userCredits is restricted - use user.plan as fallback
+        this.criticalDataLoaded.userCredits = true; // Mark as loaded even if restricted
         this.renderUsersTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'userCredits-error') {
@@ -2103,9 +2258,10 @@ class AdminDashboardApp {
       }
       if (source === 'specs') {
         this.markSourceReady('specs');
+        this.criticalDataLoaded.specs = true;
         this.renderUsersTable();
         this.rebuildSearchIndex();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
         this.renderLogs();
         this.updateStatistics();
@@ -2119,8 +2275,9 @@ class AdminDashboardApp {
       }
       if (source === 'purchases') {
         this.markSourceReady('purchases');
+        this.criticalDataLoaded.purchases = true;
         this.renderPaymentsTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderLogs();
         this.updateStatistics();
         this.rebuildSearchIndex();
@@ -2220,6 +2377,7 @@ class AdminDashboardApp {
       sidebarLastSync: utils.dom("#sidebar-last-sync"),
       topbarStatus: utils.dom("#topbar-sync-status"),
       manualRefresh: utils.dom("#manual-refresh-btn"),
+      loadingOverlay: utils.dom("#admin-loading-overlay"),
       syncCreditsBtn: utils.dom("#sync-credits-btn"),
       signOut: utils.dom("#sign-out-btn"),
       consoleLogsToggle: utils.dom("#console-logs-toggle"),
@@ -2411,7 +2569,131 @@ class AdminDashboardApp {
 
     this.bindNavigation();
     this.bindInteractions();
+    this.setupMobileMenu();
     this.setupAuthGate();
+  }
+  
+  /**
+   * Setup mobile menu toggle
+   */
+  setupMobileMenu() {
+    const menuToggle = utils.dom("#mobile-menu-toggle");
+    const sidebar = utils.dom("#admin-sidebar");
+    const backdrop = utils.dom("#mobile-menu-backdrop");
+    
+    if (!menuToggle || !sidebar || !backdrop) return;
+    
+    // Toggle menu
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = sidebar.classList.contains("mobile-open");
+      
+      if (isOpen) {
+        sidebar.classList.remove("mobile-open");
+        backdrop.classList.remove("active");
+        menuToggle.setAttribute("aria-expanded", "false");
+      } else {
+        sidebar.classList.add("mobile-open");
+        backdrop.classList.add("active");
+        menuToggle.setAttribute("aria-expanded", "true");
+      }
+    });
+    
+    // Close menu when clicking backdrop
+    backdrop.addEventListener("click", () => {
+      sidebar.classList.remove("mobile-open");
+      backdrop.classList.remove("active");
+      menuToggle.setAttribute("aria-expanded", "false");
+    });
+    
+    // Close menu when clicking a nav link (on mobile)
+    if (this.dom.navButtons) {
+      this.dom.navButtons.forEach(link => {
+        link.addEventListener("click", () => {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove("mobile-open");
+            backdrop.classList.remove("active");
+            menuToggle.setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+    }
+    
+    // Close menu on window resize if switching to desktop
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.remove("mobile-open");
+        backdrop.classList.remove("active");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+  
+  /**
+   * Setup mobile tooltips for sidebar navigation
+   */
+  setupMobileTooltips() {
+    // Only setup on mobile devices
+    if (window.innerWidth > 768) return;
+    
+    const navLinks = this.dom.navButtons || [];
+    navLinks.forEach(link => {
+      let touchTimeout;
+      
+      // Show tooltip on touch
+      link.addEventListener('touchstart', (e) => {
+        clearTimeout(touchTimeout);
+        link.classList.add('show-tooltip');
+      });
+      
+      // Hide tooltip after touch ends
+      link.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          link.classList.remove('show-tooltip');
+        }, 2000); // Hide after 2 seconds
+      });
+      
+      // Hide tooltip when clicking outside
+      link.addEventListener('click', () => {
+        setTimeout(() => {
+          link.classList.remove('show-tooltip');
+        }, 500);
+      });
+    });
+    
+    // Setup for connection indicator
+    const connectionIndicator = utils.dom("#connection-indicator");
+    if (connectionIndicator) {
+      let touchTimeout;
+      
+      connectionIndicator.addEventListener('touchstart', () => {
+        clearTimeout(touchTimeout);
+        connectionIndicator.classList.add('show-tooltip');
+      });
+      
+      connectionIndicator.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          connectionIndicator.classList.remove('show-tooltip');
+        }, 2000);
+      });
+    }
+    
+    // Setup for home link
+    const homeLink = utils.dom(".home-link");
+    if (homeLink) {
+      let touchTimeout;
+      
+      homeLink.addEventListener('touchstart', () => {
+        clearTimeout(touchTimeout);
+        homeLink.classList.add('show-tooltip');
+      });
+      
+      homeLink.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          homeLink.classList.remove('show-tooltip');
+        }, 2000);
+      });
+    }
   }
 
   bindNavigation() {
@@ -2760,6 +3042,14 @@ class AdminDashboardApp {
     this.initConsoleLogsToggle();
     // Don't auto-load alerts and performance - user must click Update button
     // This prevents unnecessary API calls and reduces server load
+    
+    // Force update overview after a short delay to ensure data is loaded
+    // This handles the case where data arrives before charts are initialized
+    setTimeout(() => {
+      if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
+        this.updateOverview();
+      }
+    }, 1000);
   }
 
   initializeCharts() {
@@ -3105,14 +3395,23 @@ class AdminDashboardApp {
   }
 
   async subscribeToSources() {
-    // Use new DataAggregator instead of old Firebase listeners
-    this.dataAggregator.unsubscribeAll();
-    this.dataAggregator.reset();
-    this.store.reset();
-    this.specsInitialLoad = true; // Reset for reconnection
-    this.updateAllSources("pending");
+    // Check if we already have active subscriptions - if so, don't disconnect
+    const hasActiveSubscriptions = this.dataAggregator.activeSubscriptions.size > 0;
+    
+    if (!hasActiveSubscriptions) {
+      // Only reset if we don't have active subscriptions
+      this.dataAggregator.unsubscribeAll();
+      this.dataAggregator.reset();
+      this.store.reset();
+      this.specsInitialLoad = true; // Reset for reconnection
+      this.updateAllSources("pending");
+    } else {
+      // We have active subscriptions - just update status to show we're checking
+      this.updateConnectionState("pending", "Checking connection…");
+    }
 
     // Subscribe to all data sources via DataAggregator
+    // subscribeAll will only subscribe to sources that aren't already active
     try {
       this.dataAggregator.subscribeAll();
       // Entitlements removed from UI - using user_credits system now
@@ -3196,16 +3495,47 @@ class AdminDashboardApp {
 
   updateConnectionStatus() {
     const states = Object.values(this.sourceState);
-    if (states.every((state) => state === "ready" || state === "restricted")) {
+    const criticalSources = ['users', 'specs', 'purchases'];
+    const criticalStates = criticalSources.map(key => this.sourceState[key] || 'pending');
+    
+    // Check if critical sources are ready
+    const criticalReady = criticalStates.every((state) => state === "ready" || state === "restricted");
+    
+    if (criticalReady && states.every((state) => state === "ready" || state === "restricted" || state === "pending")) {
       this.updateConnectionState("online", "Realtime sync active");
       const now = utils.now();
       if (this.dom.sidebarLastSync) {
         this.dom.sidebarLastSync.textContent = utils.formatDate(now);
       }
+      // Update topbar status with more detailed info
+      if (this.dom.topbarStatus) {
+        const readyCount = states.filter(s => s === "ready").length;
+        const totalCount = states.length;
+        if (readyCount === totalCount) {
+          this.dom.topbarStatus.textContent = "All data sources connected";
+        } else {
+          this.dom.topbarStatus.textContent = `${readyCount}/${totalCount} data sources ready`;
+        }
+      }
+      // Hide loading overlay when critical data is ready
+      if (this.dom.loadingOverlay) {
+        this.dom.loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          if (this.dom.loadingOverlay) {
+            this.dom.loadingOverlay.style.display = 'none';
+          }
+        }, 300);
+      }
     } else if (states.some((state) => state === "error")) {
-      this.updateConnectionState("offline", "Connection issues detected");
+      const errorCount = states.filter(s => s === "error").length;
+      this.updateConnectionState("offline", `Connection issues detected (${errorCount} error${errorCount > 1 ? 's' : ''})`);
     } else {
-      this.updateConnectionState("pending", "Connecting…");
+      const pendingCount = states.filter(s => s === "pending").length;
+      if (pendingCount > 0) {
+        this.updateConnectionState("pending", `Connecting… (${pendingCount} source${pendingCount > 1 ? 's' : ''} pending)`);
+      } else {
+        this.updateConnectionState("pending", "Connecting…");
+      }
     }
   }
 
@@ -3229,6 +3559,11 @@ class AdminDashboardApp {
     }
     if (this.dom.topbarStatus) {
       this.dom.topbarStatus.textContent = label;
+    }
+    // Update title attribute for mobile tooltip
+    const connectionIndicator = utils.dom("#connection-indicator");
+    if (connectionIndicator) {
+      connectionIndicator.setAttribute("title", label);
     }
   }
 
@@ -3728,6 +4063,16 @@ class AdminDashboardApp {
 
   async updateOverview() {
     const overviewRange = this.dom.overviewRange?.value ?? "week";
+    
+    // Check if we have critical data loaded - if not, wait for it
+    const hasCriticalData = this.criticalDataLoaded.users && 
+                            this.criticalDataLoaded.specs && 
+                            this.criticalDataLoaded.purchases;
+    
+    if (!hasCriticalData) {
+      // Data not ready yet, charts will be updated when data arrives
+      return;
+    }
     
     // Calculate daily data for last 7 days
     const dailyUsers = this.calculateDailyUsers();
@@ -4618,6 +4963,33 @@ class AdminDashboardApp {
   }
 
   async refreshAllData(reason = "manual") {
+    // Prevent multiple simultaneous refreshes
+    if (this.refreshInProgress && reason === "manual") {
+      return;
+    }
+    
+    const isManualRefresh = reason === "manual";
+    const refreshButton = this.dom.manualRefresh;
+    let originalButtonContent = null;
+    
+    // Show loading spinner on manual refresh button and overlay
+    if (isManualRefresh && refreshButton) {
+      originalButtonContent = refreshButton.innerHTML;
+      refreshButton.disabled = true;
+      refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i><span>Refreshing...</span>';
+      this.refreshInProgress = true;
+      
+      // Show loading overlay for manual refresh
+      if (this.dom.loadingOverlay) {
+        this.dom.loadingOverlay.style.display = 'flex';
+        this.dom.loadingOverlay.style.opacity = '1';
+        const spinnerText = this.dom.loadingOverlay.querySelector('.admin-loading-spinner p');
+        if (spinnerText) {
+          spinnerText.textContent = 'Refreshing dashboard data...';
+        }
+      }
+    }
+    
     this.updateConnectionState("pending", "Refreshing data…");
     
     // Track manual refresh time
@@ -4625,8 +4997,48 @@ class AdminDashboardApp {
       this.lastManualRefresh = Date.now();
     }
     
-    await this.subscribeToSources();
-    this.updateAutoRefreshTimer();
+    // Reset critical data flags if doing a full refresh
+    if (reason === "manual") {
+      this.criticalDataLoaded = {
+        users: false,
+        specs: false,
+        purchases: false,
+        userCredits: false
+      };
+    }
+    
+    try {
+      await this.subscribeToSources();
+      this.updateAutoRefreshTimer();
+      
+      // Force update overview after refresh to ensure charts are updated
+      setTimeout(() => {
+        if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
+          this.updateOverview();
+        }
+      }, 500);
+    } finally {
+      // Restore button state after refresh completes
+      if (isManualRefresh && refreshButton) {
+        refreshButton.disabled = false;
+        refreshButton.innerHTML = originalButtonContent || '<i class="fas fa-sync-alt" aria-hidden="true"></i><span>Refresh</span>';
+        this.refreshInProgress = false;
+        
+        // Hide loading overlay after a short delay to ensure data is rendered
+        if (this.dom.loadingOverlay) {
+          setTimeout(() => {
+            if (this.dom.loadingOverlay) {
+              this.dom.loadingOverlay.style.opacity = '0';
+              setTimeout(() => {
+                if (this.dom.loadingOverlay) {
+                  this.dom.loadingOverlay.style.display = 'none';
+                }
+              }, 300);
+            }
+          }, 300);
+        }
+      }
+    }
   }
 
   updateAutoRefreshTimer() {
