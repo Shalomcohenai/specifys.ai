@@ -470,6 +470,20 @@ function showModernInput(prefilledAnswers = null) {
       if (typeof showCurrentQuestion === 'function') {
         showCurrentQuestion();
       }
+      
+      // Scroll to top on mobile when questions are shown
+      // Check if mobile device (screen width <= 768px or touch device)
+      const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+      if (isMobile) {
+        // Use setTimeout to ensure DOM is updated before scrolling
+        setTimeout(() => {
+          questionsDisplay.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        }, 100);
+      }
     }
     
     if (specCardsShowcase) {
@@ -2022,10 +2036,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 700 + (index * 100)); // Each icon appears 100ms after the previous one
     });
     
-    // Fade in Start button last, before Vanta (~1.1s - after icons start appearing)
+    // Fade in Start button and View Demo button last, before Vanta (~1.1s - after icons start appearing)
     if (startButton) {
       setTimeout(() => {
         startButton.classList.add('fade-in');
+        
+        // Fade in View Demo button at the same time
+        const viewDemoButton = document.querySelector('.hero-cta-button-secondary');
+        if (viewDemoButton) {
+          viewDemoButton.classList.add('fade-in');
+        }
         
         // Fade in browser window after Start button appears
         const browserWindow = document.querySelector('.browser-window-preview');
@@ -2245,13 +2265,6 @@ function triggerPlatformHint() {
     });
 
     currentTabIndex = index;
-    
-    // Update equal heights after tab switch (with delay for content rendering)
-    setTimeout(() => {
-      if (typeof setEqualTabHeights === 'function') {
-        setEqualTabHeights();
-      }
-    }, 300);
   }
   
   function renderBrowserDiagrams() {
@@ -2333,59 +2346,12 @@ function triggerPlatformHint() {
     }
   }
 
-  // Set equal height for all tab contents
-  function setEqualTabHeights() {
-      const tabContents = document.querySelectorAll('.browser-tab-content');
-      const specContainers = document.querySelectorAll('.spec-container');
-      
-      if (tabContents.length === 0 || specContainers.length === 0) return;
-      
-      let maxHeight = 0;
-      
-      // Temporarily show all tabs to measure their heights
-      tabContents.forEach(content => {
-        const originalDisplay = content.style.display;
-        content.style.display = 'block';
-        content.style.visibility = 'hidden';
-        
-        const container = content.querySelector('.spec-container');
-        if (container) {
-          const height = container.offsetHeight;
-          if (height > maxHeight) {
-            maxHeight = height;
-          }
-        }
-        
-        content.style.display = originalDisplay;
-        content.style.visibility = '';
-      });
-      
-      // Set min-height on all spec-containers
-      if (maxHeight > 0) {
-        specContainers.forEach(container => {
-          container.style.minHeight = maxHeight + 'px';
-        });
-      }
-    }
 
   // Initialize tabs on page load
   document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.browser-window-tab');
     if (tabButtons.length === 0) return;
     
-    // Set equal heights after a delay to ensure content is rendered
-    setTimeout(() => {
-      setEqualTabHeights();
-      // Recalculate after diagrams are rendered
-      setTimeout(setEqualTabHeights, 1500);
-    }, 500);
-    
-    // Recalculate heights on window resize
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(setEqualTabHeights, 250);
-    });
     
     // Initialize content visibility
     const tabContents = document.querySelectorAll('.browser-tab-content');
@@ -2466,32 +2432,5 @@ function triggerPlatformHint() {
     // Initial check - don't start auto-switch until user scrolls
     // checkIfScrolled(); // Commented out - wait for user scroll
     
-    // Show Explore Demo button when browser window is visible
-    function checkBrowserWindowVisibility() {
-      const browserWindow = document.querySelector('.browser-window-preview');
-      const exploreButton = document.getElementById('exploreDemoButton');
-      
-      if (!browserWindow || !exploreButton) return;
-      
-      const windowRect = browserWindow.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Check if browser window is visible in viewport (at least 30% visible)
-      const isVisible = windowRect.top < windowHeight * 0.7 && windowRect.bottom > windowHeight * 0.3;
-      
-      if (isVisible) {
-        exploreButton.classList.add('visible', 'animate-in');
-      } else {
-        exploreButton.classList.remove('visible', 'animate-in');
-      }
-    }
-    
-    // Check on scroll
-    window.addEventListener('scroll', function() {
-      checkBrowserWindowVisibility();
-    }, { passive: true });
-    
-    // Initial check
-    setTimeout(checkBrowserWindowVisibility, 1000);
   });
 })();

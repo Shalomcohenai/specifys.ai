@@ -194,7 +194,9 @@ body .logo a:hover .logo-dot {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 16px;
   order: 0;
+  flex-wrap: wrap;
 }
 
 .hero-cta-button {
@@ -219,7 +221,9 @@ body .logo a:hover .logo-dot {
 
 /* New Orange Start Button */
 .hero-cta-button-new {
-  width: 160px;
+  min-width: 200px;
+  width: auto;
+  padding: 0 24px;
   height: 55px;
   display: flex;
   align-items: center;
@@ -233,11 +237,49 @@ body .logo a:hover .logo-dot {
   position: relative;
   cursor: pointer;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.116);
-  padding: 0;
   font-size: 1.1rem;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out, background-color 0.5s ease;
+}
+
+/* Secondary Button */
+.hero-cta-button-secondary {
+  min-width: 160px;
+  width: auto;
+  padding: 0 24px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.hero-cta-button-secondary.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-cta-button-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.hero-cta-button-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 0.2s;
 }
 
 .hero-cta-button-new.fade-in {
@@ -319,7 +361,7 @@ body .logo a:hover .logo-dot {
   font-family: "Inter", sans-serif;
   font-size: clamp(0.95rem, 2vw, 1.1rem);
   font-weight: 400;
-  color: #cccccc;
+  color: #ffffff;
   line-height: 1.6;
   margin: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -597,12 +639,13 @@ body .logo a:hover .logo-dot {
     right: auto;
     bottom: auto;
     transform: none;
-    margin: 0 auto;
-    padding: 20px 10px;
+    margin: 0;
+    padding: 20px 10px 0;
     width: 100%;
     max-width: 100%;
     opacity: 1;
     visibility: visible;
+    order: -1;
   }
 
   .questions-display.hidden {
@@ -621,10 +664,10 @@ body .logo a:hover .logo-dot {
     right: auto;
     bottom: auto;
     transform: none;
-    margin: 20px auto 0;
+    margin: 0 auto;
     width: 100%;
     max-width: 100%;
-    padding: 20px 10px;
+    padding: 0 10px 20px;
     opacity: 1;
     visibility: visible;
   }
@@ -1171,6 +1214,10 @@ body .logo a:hover .logo-dot {
   align-items: center;
   position: relative;
   z-index: 5;
+}
+
+.why-section.prompt-section {
+  margin-top: 200px;
 }
 
 .section {
@@ -2246,9 +2293,24 @@ body .logo a:hover .logo-dot {
     min-height: auto;
     height: auto;
     overflow: visible;
+    padding-top: 0;
+  }
+  
+  .hero-section:has(.questions-display:not(.hidden)) .hero-content {
+    display: none;
   }
   .hero-cta-button-new {
-    width: 140px;
+    min-width: 180px;
+    width: auto;
+    padding: 0 20px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
+  .hero-cta-button-secondary {
+    min-width: 140px;
+    width: auto;
+    padding: 0 20px;
     height: 50px;
     font-size: 1rem;
   }
@@ -2360,9 +2422,23 @@ body .logo a:hover .logo-dot {
     overflow: hidden;
   }
   .hero-cta-button-new {
-    width: 130px;
+    min-width: 160px;
+    width: auto;
+    padding: 0 18px;
     height: 48px;
     font-size: 0.95rem;
+  }
+  
+  .hero-cta-button-secondary {
+    min-width: 130px;
+    width: auto;
+    padding: 0 18px;
+    height: 48px;
+    font-size: 0.95rem;
+  }
+  
+  .hero-button-container {
+    gap: 12px;
   }
   .hero-description {
     margin-top: 0;
@@ -2638,7 +2714,13 @@ body .logo a:hover .logo-dot {
     min-height: auto;
     height: auto;
     overflow: visible;
+    padding-top: 0;
   }
+  
+  .hero-section:has(.questions-display:not(.hidden)) .hero-content {
+    display: none;
+  }
+  
   .hero-content {
     flex: 1;
     display: flex;
@@ -2971,7 +3053,7 @@ body .logo a:hover .logo-dot {
 /* ===== BROWSER WINDOW PREVIEW ===== */
 .browser-window-preview {
   width: 100%;
-  max-width: 1400px;
+  max-width: 980px;
   margin: 4rem auto 0;
   padding: 0 40px;
   display: flex;
@@ -2988,81 +3070,6 @@ body .logo a:hover .logo-dot {
 .browser-window-preview.fade-in {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Explore Demo Button */
-.explore-demo-button {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-  color: white;
-  padding: 14px 28px;
-  border-radius: 50px;
-  text-decoration: none;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
-  z-index: 1000;
-  opacity: 0;
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-  border: none;
-  cursor: pointer;
-}
-
-.explore-demo-button.visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.explore-demo-button:hover {
-  background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
-  box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5);
-  transform: translateX(-50%) translateY(-3px) scale(1.05);
-}
-
-.explore-demo-button:active {
-  transform: translateX(-50%) translateY(-1px) scale(1.02);
-}
-
-.explore-demo-text {
-  display: flex;
-  align-items: center;
-}
-
-.explore-demo-icon {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.3s ease;
-}
-
-.explore-demo-button:hover .explore-demo-icon {
-  transform: translateX(4px);
-}
-
-/* Bounce animation */
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(100px) scale(0.8);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-10px) scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-}
-
-.explore-demo-button.animate-in {
-  animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .browser-window-frame {
@@ -3143,7 +3150,7 @@ body .logo a:hover .logo-dot {
   border: none;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 10.4px;
   color: #bbb;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -3190,10 +3197,13 @@ body .logo a:hover .logo-dot {
 
 
 .browser-window-content {
-  min-height: 600px;
+  height: 686px;
   background: #f5f5f5;
   width: 100%;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .browser-tab-content {
@@ -3202,38 +3212,47 @@ body .logo a:hover .logo-dot {
 }
 
 .browser-tab-content.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .spec-wrapper {
   background: #f5f5f5;
-  min-height: 600px;
-  padding: 40px;
+  flex: 1;
+  padding: 20px 40px 0 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .spec-container {
   background: #ffffff;
-  border-radius: 8px;
-  padding: 40px;
+  border-radius: 8px 8px 0 0;
+  padding: 20px 40px 40px 40px;
   max-width: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .spec-label {
-  font-size: 14px;
+  font-size: 11.2px;
   font-weight: 500;
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-family: "Montserrat", sans-serif;
 }
 
 .spec-title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #333;
-  margin: 0 0 40px 0;
+  margin: 0 0 20px 0;
   font-family: "Montserrat", sans-serif;
   line-height: 1.2;
   text-align: center;
@@ -3253,10 +3272,10 @@ body .logo a:hover .logo-dot {
 }
 
 .diagram-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 15px 0;
+  margin: 0 0 7.5px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3265,13 +3284,13 @@ body .logo a:hover .logo-dot {
 
 .diagram-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .diagram-section-description {
   color: #666;
   margin-bottom: 25px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.6;
   font-family: "Inter", sans-serif;
 }
@@ -3305,10 +3324,10 @@ body .logo a:hover .logo-dot {
 }
 
 .prompt-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3317,7 +3336,7 @@ body .logo a:hover .logo-dot {
 
 .prompt-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .prompt-code-container {
@@ -3333,7 +3352,7 @@ body .logo a:hover .logo-dot {
   background: #2d2d2d;
   color: #f8f8f2;
   font-family: 'Monaco', 'Courier New', 'Consolas', monospace;
-  font-size: 13px;
+  font-size: 10.4px;
   line-height: 1.6;
   overflow-x: hidden;
   overflow-y: auto;
@@ -3370,10 +3389,10 @@ body .logo a:hover .logo-dot {
 }
 
 .design-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3382,12 +3401,12 @@ body .logo a:hover .logo-dot {
 
 .design-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .design-section-text {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   margin: 0;
   font-family: "Inter", sans-serif;
@@ -3404,7 +3423,7 @@ body .logo a:hover .logo-dot {
 }
 
 .brand-item-title {
-  font-size: 1.2rem;
+  font-size: 0.96rem;
   font-weight: 600;
   color: #333;
   margin: 0 0 10px 0;
@@ -3416,12 +3435,12 @@ body .logo a:hover .logo-dot {
 
 .brand-item-title i {
   color: #FF6B35;
-  font-size: 1.1rem;
+  font-size: 0.88rem;
 }
 
 .brand-item-text {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.7;
   margin: 0;
   font-family: "Inter", sans-serif;
@@ -3431,7 +3450,7 @@ body .logo a:hover .logo-dot {
   margin: 0;
   padding-left: 25px;
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
 }
@@ -3474,19 +3493,19 @@ body .logo a:hover .logo-dot {
   color: #333;
   margin-bottom: 5px;
   font-family: "Montserrat", sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
 }
 
 .color-code {
   color: #666;
-  font-size: 0.85rem;
+  font-size: 0.68rem;
   font-family: 'Monaco', 'Courier New', monospace;
   margin-bottom: 5px;
 }
 
 .color-description {
   color: #888;
-  font-size: 0.8rem;
+  font-size: 0.64rem;
   margin-top: 5px;
   font-family: "Inter", sans-serif;
 }
@@ -3505,10 +3524,10 @@ body .logo a:hover .logo-dot {
 }
 
 .market-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3517,12 +3536,12 @@ body .logo a:hover .logo-dot {
 
 .market-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .market-section-text {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   margin: 0 0 25px 0;
   font-family: "Inter", sans-serif;
@@ -3562,7 +3581,7 @@ body .logo a:hover .logo-dot {
 }
 
 .market-stat-title {
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   font-weight: 500;
   color: white;
   margin: 0 0 10px 0;
@@ -3571,7 +3590,7 @@ body .logo a:hover .logo-dot {
 }
 
 .market-stat-value {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: white;
   margin: 0;
@@ -3582,7 +3601,7 @@ body .logo a:hover .logo-dot {
   margin: 0;
   padding-left: 25px;
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
 }
@@ -3605,10 +3624,10 @@ body .logo a:hover .logo-dot {
 }
 
 .technical-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3617,12 +3636,12 @@ body .logo a:hover .logo-dot {
 
 .technical-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .technical-section-text {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   margin: 0 0 20px 0;
   font-family: "Inter", sans-serif;
@@ -3633,10 +3652,10 @@ body .logo a:hover .logo-dot {
 }
 
 .technical-subsection-title {
-  font-size: 1.2rem;
+  font-size: 0.96rem;
   font-weight: 600;
   color: #333;
-  margin: 25px 0 15px 0;
+  margin: 12.5px 0 7.5px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3649,14 +3668,14 @@ body .logo a:hover .logo-dot {
 
 .technical-subsection-title i {
   color: #FF6B35;
-  font-size: 1.1rem;
+  font-size: 0.88rem;
 }
 
 .technical-tables-list {
   margin: 0;
   padding-left: 25px;
   color: #666;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
 }
@@ -3674,7 +3693,7 @@ body .logo a:hover .logo-dot {
   margin: 0;
   padding-left: 25px;
   color: #666;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
   list-style: none;
@@ -3697,7 +3716,7 @@ body .logo a:hover .logo-dot {
   padding: 3px 8px;
   border-radius: 4px;
   font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.9em;
+  font-size: 0.72em;
   color: #e83e8c;
   margin: 0 8px;
 }
@@ -3716,10 +3735,10 @@ body .logo a:hover .logo-dot {
 }
 
 .overview-section-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-family: "Montserrat", sans-serif;
   display: flex;
   align-items: center;
@@ -3728,12 +3747,12 @@ body .logo a:hover .logo-dot {
 
 .overview-section-title i {
   color: #FF6B35;
-  font-size: 1.3rem;
+  font-size: 1.04rem;
 }
 
 .overview-summary-text {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
 }
@@ -3750,7 +3769,7 @@ body .logo a:hover .logo-dot {
   margin: 0;
   padding-left: 25px;
   color: #666;
-  font-size: 1rem;
+  font-size: 0.8rem;
   line-height: 1.8;
   font-family: "Inter", sans-serif;
 }
@@ -3781,7 +3800,7 @@ body .logo a:hover .logo-dot {
 .complexity-header h3 {
   margin: 0;
   color: #2c3e50;
-  font-size: 24px;
+  font-size: 19.2px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -3792,7 +3811,7 @@ body .logo a:hover .logo-dot {
 
 .complexity-header h3 .fa {
   color: #FF6B35;
-  font-size: 28px;
+  font-size: 22.4px;
 }
 
 /* Main Display - Circular Chart */
@@ -3849,7 +3868,7 @@ body .logo a:hover .logo-dot {
 }
 
 .circle-score {
-  font-size: 48px;
+  font-size: 38.4px;
   font-weight: 800;
   line-height: 1;
   margin-bottom: 4px;
@@ -3869,7 +3888,7 @@ body .logo a:hover .logo-dot {
 }
 
 .circle-label {
-  font-size: 18px;
+  font-size: 14.4px;
   color: #6b7280;
   font-weight: 500;
   margin-bottom: 8px;
@@ -3877,7 +3896,7 @@ body .logo a:hover .logo-dot {
 }
 
 .circle-level {
-  font-size: 14px;
+  font-size: 11.2px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -3936,7 +3955,7 @@ body .logo a:hover .logo-dot {
 }
 
 .legend-text {
-  font-size: 14px;
+  font-size: 11.2px;
   color: #6b7280;
   font-weight: 500;
   font-family: "Inter", sans-serif;
@@ -3975,13 +3994,13 @@ body .logo a:hover .logo-dot {
   gap: 10px;
   font-weight: 600;
   color: #374151;
-  font-size: 16px;
+  font-size: 12.8px;
   font-family: "Montserrat", sans-serif;
 }
 
 .metric-label .fa {
   color: #FF6B35;
-  font-size: 18px;
+  font-size: 14.4px;
   width: 20px;
   text-align: center;
 }
@@ -3993,7 +4012,7 @@ body .logo a:hover .logo-dot {
 }
 
 .metric-value {
-  font-size: 24px;
+  font-size: 19.2px;
   font-weight: 700;
   min-width: 50px;
   text-align: right;
@@ -4013,7 +4032,7 @@ body .logo a:hover .logo-dot {
 }
 
 .metric-level {
-  font-size: 12px;
+  font-size: 9.6px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -4093,16 +4112,6 @@ body .logo a:hover .logo-dot {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .explore-demo-button {
-    bottom: 20px;
-    padding: 12px 24px;
-    font-size: 0.85rem;
-  }
-  
-  .explore-demo-icon {
-    width: 18px;
-    height: 18px;
-  }
   
   .browser-window-preview {
     margin: 3rem auto 0;
@@ -4130,16 +4139,27 @@ body .logo a:hover .logo-dot {
   
   .browser-window-tab {
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: 9.6px;
     min-width: 100px;
   }
   
   .browser-window-content {
-    min-height: 400px;
+    height: 480px;
   }
   
   .spec-wrapper {
-    padding: 20px;
+    padding: 10px 20px 0 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .spec-container {
+    flex: 1;
+    min-height: 0;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 20px 30px 20px;
   }
   
   .spec-container {
@@ -4147,7 +4167,7 @@ body .logo a:hover .logo-dot {
   }
   
   .spec-title {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
   
   .diagram-section-container {
@@ -4155,7 +4175,7 @@ body .logo a:hover .logo-dot {
   }
   
   .diagram-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .diagram-container {
@@ -4167,11 +4187,11 @@ body .logo a:hover .logo-dot {
   }
   
   .prompt-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .prompt-code {
-    font-size: 12px;
+    font-size: 9.6px;
     padding: 15px;
     max-height: 500px;
   }
@@ -4181,7 +4201,7 @@ body .logo a:hover .logo-dot {
   }
   
   .design-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .color-palette-grid {
@@ -4194,7 +4214,7 @@ body .logo a:hover .logo-dot {
   }
   
   .market-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .market-stats-grid {
@@ -4203,7 +4223,7 @@ body .logo a:hover .logo-dot {
   }
   
   .market-stat-value {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
   }
   
   .technical-section-container {
@@ -4211,7 +4231,7 @@ body .logo a:hover .logo-dot {
   }
   
   .technical-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .overview-section-container {
@@ -4219,7 +4239,7 @@ body .logo a:hover .logo-dot {
   }
   
   .overview-section-title {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
   }
   
   .complexity-score-section {
@@ -4236,11 +4256,11 @@ body .logo a:hover .logo-dot {
   }
   
   .circle-score {
-    font-size: 40px;
+    font-size: 32px;
   }
   
   .circle-label {
-    font-size: 16px;
+    font-size: 12.8px;
   }
   
   .complexity-legend {
@@ -4252,7 +4272,7 @@ body .logo a:hover .logo-dot {
   }
   
   .metric-value {
-    font-size: 20px;
+    font-size: 16px;
   }
   
   .extra-sections {
@@ -4262,17 +4282,6 @@ body .logo a:hover .logo-dot {
 }
 
 @media (max-width: 480px) {
-  .explore-demo-button {
-    bottom: 15px;
-    padding: 10px 20px;
-    font-size: 0.8rem;
-    gap: 8px;
-  }
-  
-  .explore-demo-icon {
-    width: 16px;
-    height: 16px;
-  }
   
   .browser-window-preview {
     margin: 2rem auto 0;
@@ -4300,16 +4309,27 @@ body .logo a:hover .logo-dot {
   
   .browser-window-tab {
     padding: 8px 6px;
-    font-size: 11px;
+    font-size: 8.8px;
     min-width: 80px;
   }
   
   .browser-window-content {
-    min-height: 350px;
+    height: 411px;
   }
   
   .spec-wrapper {
-    padding: 15px;
+    padding: 7.5px 15px 0 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .spec-container {
+    flex: 1;
+    min-height: 0;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 15px 25px 15px;
   }
   
   .spec-container {
@@ -4317,11 +4337,11 @@ body .logo a:hover .logo-dot {
   }
   
   .spec-title {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
   }
   
   .spec-label {
-    font-size: 12px;
+    font-size: 9.6px;
   }
   
   .diagram-section-container {
@@ -4329,14 +4349,14 @@ body .logo a:hover .logo-dot {
   }
   
   .diagram-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .diagram-section-description {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .diagram-container {
@@ -4348,14 +4368,14 @@ body .logo a:hover .logo-dot {
   }
   
   .prompt-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .prompt-code {
-    font-size: 11px;
+    font-size: 8.8px;
     padding: 12px;
     max-height: 400px;
   }
@@ -4365,26 +4385,26 @@ body .logo a:hover .logo-dot {
   }
   
   .design-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .design-section-text {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .brand-item-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
   }
   
   .brand-item-text {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .brand-values-list {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .color-palette-grid {
@@ -4398,15 +4418,15 @@ body .logo a:hover .logo-dot {
   }
   
   .color-name {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
   }
   
   .color-code {
-    font-size: 0.75rem;
+    font-size: 0.6rem;
   }
   
   .color-description {
-    font-size: 0.7rem;
+    font-size: 0.56rem;
   }
   
   .market-section-container {
@@ -4414,14 +4434,14 @@ body .logo a:hover .logo-dot {
   }
   
   .market-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .market-section-text {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .market-stats-grid {
@@ -4434,15 +4454,15 @@ body .logo a:hover .logo-dot {
   }
   
   .market-stat-title {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
   }
   
   .market-stat-value {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
   
   .market-trends-list {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .market-trends-list li {
@@ -4454,30 +4474,30 @@ body .logo a:hover .logo-dot {
   }
   
   .technical-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .technical-section-text {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .technical-subsection-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
   }
   
   .technical-tables-list {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
   }
   
   .technical-endpoints-list {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
   }
   
   .technical-endpoints-list li code {
-    font-size: 0.8em;
+    font-size: 0.64em;
     padding: 2px 6px;
     display: block;
     margin: 5px 0;
@@ -4488,18 +4508,18 @@ body .logo a:hover .logo-dot {
   }
   
   .overview-section-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
   
   .overview-summary-text {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .overview-features-list {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
   }
   
   .complexity-score-section {
@@ -4507,11 +4527,11 @@ body .logo a:hover .logo-dot {
   }
   
   .complexity-header h3 {
-    font-size: 20px;
+    font-size: 16px;
   }
   
   .complexity-header h3 .fa {
-    font-size: 24px;
+    font-size: 19.2px;
   }
   
   .complexity-main-display {
@@ -4524,15 +4544,15 @@ body .logo a:hover .logo-dot {
   }
   
   .circle-score {
-    font-size: 32px;
+    font-size: 25.6px;
   }
   
   .circle-label {
-    font-size: 14px;
+    font-size: 11.2px;
   }
   
   .circle-level {
-    font-size: 11px;
+    font-size: 8.8px;
     padding: 3px 8px;
   }
   
@@ -4546,15 +4566,15 @@ body .logo a:hover .logo-dot {
   }
   
   .metric-label {
-    font-size: 14px;
+    font-size: 11.2px;
   }
   
   .metric-value {
-    font-size: 18px;
+    font-size: 14.4px;
   }
   
   .metric-level {
-    font-size: 10px;
+    font-size: 8px;
     padding: 3px 8px;
   }
   

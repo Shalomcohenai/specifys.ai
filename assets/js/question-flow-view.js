@@ -133,6 +133,20 @@ class QuestionFlowView {
     if (bottomLinks) {
       bottomLinks.style.display = 'flex';
     }
+    
+    // Scroll to top on mobile when questions are shown
+    // Check if mobile device (screen width <= 768px or touch device)
+    const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+    if (isMobile && questionsDisplay) {
+      // Use setTimeout to ensure DOM is updated before scrolling
+      setTimeout(() => {
+        questionsDisplay.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 100);
+    }
   }
   
   hideTypingMode() {

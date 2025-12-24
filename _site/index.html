@@ -633,19 +633,22 @@ function trackPreference(preferenceName, preferenceValue) {
     
     <!-- Hero Content -->
     <div class="hero-content" id="heroContent">
-        <h1 class="hero-main-title">Build faster with AI-driven insights</h1>
+        <h1 class="hero-main-title">Plan before you build</h1>
         
             <div class="hero-description">
-                <p class="hero-description-text">Transform your idea into a complete specification with AI-powered insights.</p>
+                <p class="hero-description-text">Generate structured PRDs, system diagrams, market insights and prompts - so builders, founders and teams know exactly what to build.</p>
             </div>
         
         <div class="hero-button-container">
-            <button class="hero-cta-button-new" id="startButton" aria-label="Start creating your app specification">
+            <button class="hero-cta-button-new" id="startButton" aria-label="Generate a specification">
                 <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
                 </svg>
-                Start
+                Generate a Spec
             </button>
+            <a href="/pages/demo-spec.html" class="hero-cta-button-secondary" aria-label="View demo">
+                View Demo
+            </a>
         </div>
         
         <!-- Browser Window Preview -->
@@ -698,124 +701,6 @@ function trackPreference(preferenceName, preferenceValue) {
                                         <li>Intelligent task suggestions based on past work patterns, time of day energy levels, and predictive analytics that understand when you do your best work</li>
                                         <li>Customizable workflows and automation rules that eliminate repetitive task management with triggers, conditions, and multi-step actions</li>
                                     </ul>
-            </div>
-                                
-                                <!-- Complexity Score -->
-                                <div class="overview-section-container">
-                                    <div class="complexity-score-section">
-                                        <div class="complexity-header">
-                                            <h3><i class="fa fa-chart-line"></i> Complexity Score</h3>
-                </div>
-                                        
-                                        <div class="complexity-main-display">
-                                            <div class="total-score-circle">
-                                                <svg class="circular-chart" viewBox="0 0 100 100">
-                                                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
-                                                    <circle 
-                                                        class="circle-progress" 
-                                                        cx="50" 
-                                                        cy="50" 
-                                                        r="45"
-                                                        style="stroke: #EF4444; stroke-dasharray: 283; stroke-dashoffset: 42;"
-                                                    ></circle>
-                                                </svg>
-                                                <div class="circle-content">
-                                                    <div class="circle-score score-high">85</div>
-                                                    <div class="circle-label">/ 100</div>
-                                                    <div class="circle-level score-high">High</div>
-                </div>
-            </div>
-                                            
-                                            <div class="complexity-legend">
-                                                <div class="legend-item">
-                                                    <span class="legend-color score-low"></span>
-                                                    <span class="legend-text">Low (0-40)</span>
-                </div>
-                                                <div class="legend-item">
-                                                    <span class="legend-color score-medium"></span>
-                                                    <span class="legend-text">Medium (41-70)</span>
-                </div>
-                                                <div class="legend-item">
-                                                    <span class="legend-color score-high"></span>
-                                                    <span class="legend-text">High (71-100)</span>
-            </div>
-                </div>
-                </div>
-                                        
-                                        <div class="complexity-metrics">
-                                            <div class="metric-item">
-                                                <div class="metric-header">
-                                                    <div class="metric-label">
-                                                        <i class="fa fa-sitemap"></i>
-                                                        <span>Architecture</span>
-            </div>
-                                                    <div class="metric-value-wrapper">
-                                                        <span class="metric-value score-high">90</span>
-                                                        <span class="metric-level score-high">High</span>
-                </div>
-                                                </div>
-                                                <div class="metric-bar-container">
-                                                    <div class="metric-bar">
-                                                        <div class="metric-fill score-high" style="width: 90%;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="metric-item">
-                                                <div class="metric-header">
-                                                    <div class="metric-label">
-                                                        <i class="fa fa-plug"></i>
-                                                        <span>Integrations</span>
-                                                    </div>
-                                                    <div class="metric-value-wrapper">
-                                                        <span class="metric-value score-high">90</span>
-                                                        <span class="metric-level score-high">High</span>
-                                                    </div>
-                                                </div>
-                                                <div class="metric-bar-container">
-                                                    <div class="metric-bar">
-                                                        <div class="metric-fill score-high" style="width: 90%;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="metric-item">
-                                                <div class="metric-header">
-                                                    <div class="metric-label">
-                                                        <i class="fa fa-cogs"></i>
-                                                        <span>Functionality</span>
-                                                    </div>
-                                                    <div class="metric-value-wrapper">
-                                                        <span class="metric-value score-high">90</span>
-                                                        <span class="metric-level score-high">High</span>
-                                                    </div>
-                                                </div>
-                                                <div class="metric-bar-container">
-                                                    <div class="metric-bar">
-                                                        <div class="metric-fill score-high" style="width: 90%;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="metric-item">
-                                                <div class="metric-header">
-                                                    <div class="metric-label">
-                                                        <i class="fa fa-users"></i>
-                                                        <span>User System</span>
-                                                    </div>
-                                                    <div class="metric-value-wrapper">
-                                                        <span class="metric-value score-medium">80</span>
-                                                        <span class="metric-level score-medium">Medium</span>
-                                                    </div>
-                                                </div>
-                                                <div class="metric-bar-container">
-                                                    <div class="metric-bar">
-                                                        <div class="metric-fill score-medium" style="width: 80%;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -842,18 +727,6 @@ function trackPreference(preferenceName, preferenceValue) {
                                         <i class="fa fa-database" aria-hidden="true"></i> Database Schema
                                     </h3>
                                     <p class="technical-section-text">Hybrid multi-database architecture using PostgreSQL for transactional relational data with strict schema enforcement, MongoDB for flexible document storage of user preferences and metadata, Elasticsearch for blazing-fast full-text search across all task content, and TimescaleDB for storing time-series analytics data like productivity metrics and completion rates over time</p>
-                                    
-                                    <h4 class="technical-subsection-title">
-                                        <i class="fa fa-table" aria-hidden="true"></i> Database Tables:
-                                    </h4>
-                                    <ul class="technical-tables-list">
-                                        <li><strong>users:</strong> id (UUID, PK), email (VARCHAR unique), name (VARCHAR), avatar_url (VARCHAR), timezone (VARCHAR), preferences (JSONB), subscription_tier (ENUM), created_at (TIMESTAMP), updated_at (TIMESTAMP), last_active (TIMESTAMP)</li>
-                                        <li><strong>tasks:</strong> id (UUID, PK), user_id (UUID FK), project_id (UUID FK nullable), title (VARCHAR), description (TEXT), status (ENUM: pending,in_progress,completed,archived), priority (INT 1-10), energy_required (INT 1-5), due_date (TIMESTAMP), completed_at (TIMESTAMP), estimated_time (INT minutes), actual_time (INT minutes), tags (TEXT[]), created_at (TIMESTAMP), updated_at (TIMESTAMP)</li>
-                                        <li><strong>projects:</strong> id (UUID, PK), name (VARCHAR), description (TEXT), owner_id (UUID FK), visibility (ENUM: private,team,public), color (VARCHAR), icon (VARCHAR), team_id (UUID FK nullable), archived (BOOLEAN), created_at (TIMESTAMP), updated_at (TIMESTAMP)</li>
-                                        <li><strong>teams:</strong> id (UUID, PK), name (VARCHAR), description (TEXT), owner_id (UUID FK), settings (JSONB), created_at (TIMESTAMP), updated_at (TIMESTAMP)</li>
-                                        <li><strong>team_members:</strong> id (UUID, PK), team_id (UUID FK), user_id (UUID FK), role (ENUM: owner,admin,member,viewer), permissions (JSONB), joined_at (TIMESTAMP)</li>
-                                        <li><strong>integrations:</strong> id (UUID, PK), user_id (UUID FK), service (VARCHAR), credentials (JSONB encrypted), enabled (BOOLEAN), last_sync (TIMESTAMP), created_at (TIMESTAMP)</li>
-                                    </ul>
                                 </div>
                                 
                                 <!-- API Endpoints -->
@@ -947,44 +820,6 @@ function trackPreference(preferenceName, preferenceValue) {
                                         <i class="fa fa-paint-brush" aria-hidden="true"></i> Design Philosophy
                                     </h3>
                                     <p class="design-section-text">Taskify Pro follows a philosophy of 'invisible intelligence' - where AI capabilities feel natural and unobtrusive. The interface is clean, minimal, and intelligent, designed to reduce cognitive load while maximizing productivity. Every UI element is purposefully placed to guide users toward their most important work without creating anxiety or overwhelm. The design language emphasizes clarity, trust, and empowerment, using progressive disclosure to reveal features when needed rather than cluttering the interface with options.</p>
-                                </div>
-                                
-                                <!-- Brand Identity -->
-                                <div class="design-section-container">
-                                    <h3 class="design-section-title">
-                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i> Brand Identity
-                                    </h3>
-                                    <div class="brand-identity-content">
-                                        <div class="brand-item">
-                                            <h4 class="brand-item-title">
-                                                <i class="fa fa-bullseye" aria-hidden="true"></i> Mission
-                                            </h4>
-                                            <p class="brand-item-text">Empowering professionals to achieve more with less stress through intelligent task management.</p>
-                                        </div>
-                                        <div class="brand-item">
-                                            <h4 class="brand-item-title">
-                                                <i class="fa fa-user" aria-hidden="true"></i> Personality
-                                            </h4>
-                                            <p class="brand-item-text">Professional yet approachable, intelligent without being arrogant, efficient without sacrificing humanity</p>
-                                        </div>
-                                        <div class="brand-item">
-                                            <h4 class="brand-item-title">
-                                                <i class="fa fa-comment" aria-hidden="true"></i> Brand Voice
-                                            </h4>
-                                            <p class="brand-item-text">Supportive, proactive, confident but never pushy. We speak in terms of outcomes and possibilities, never lecturing.</p>
-                                        </div>
-                                        <div class="brand-item">
-                                            <h4 class="brand-item-title">
-                                                <i class="fa fa-heart" aria-hidden="true"></i> Core Values
-                                            </h4>
-                                            <ul class="brand-values-list">
-                                                <li>User autonomy (you control the AI, not the other way around)</li>
-                                                <li>Transparency (we explain why we make suggestions)</li>
-                                                <li>Balance (productivity without burnout)</li>
-                                                <li>Trust (your data is yours, always)</li>
-                                            </ul>
-                                        </div>
-                                    </div>
                                 </div>
                                 
                                 <!-- Color Palette -->
