@@ -2465,5 +2465,33 @@ function triggerPlatformHint() {
 
     // Initial check - don't start auto-switch until user scrolls
     // checkIfScrolled(); // Commented out - wait for user scroll
+    
+    // Show Explore Demo button when browser window is visible
+    function checkBrowserWindowVisibility() {
+      const browserWindow = document.querySelector('.browser-window-preview');
+      const exploreButton = document.getElementById('exploreDemoButton');
+      
+      if (!browserWindow || !exploreButton) return;
+      
+      const windowRect = browserWindow.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Check if browser window is visible in viewport (at least 30% visible)
+      const isVisible = windowRect.top < windowHeight * 0.7 && windowRect.bottom > windowHeight * 0.3;
+      
+      if (isVisible) {
+        exploreButton.classList.add('visible', 'animate-in');
+      } else {
+        exploreButton.classList.remove('visible', 'animate-in');
+      }
+    }
+    
+    // Check on scroll
+    window.addEventListener('scroll', function() {
+      checkBrowserWindowVisibility();
+    }, { passive: true });
+    
+    // Initial check
+    setTimeout(checkBrowserWindowVisibility, 1000);
   });
 })();
