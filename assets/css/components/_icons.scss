@@ -51,7 +51,7 @@ body.dark-mode .btn i {
 /* Scroll to Top Button */
 .scroll-to-top {
   bottom: var(--spacing-lg);
-  right: var(--spacing-lg);
+  left: var(--spacing-lg);
   display: flex;
   transform: rotate(180deg);
   transition: transform var(--transition-normal);
