@@ -253,10 +253,10 @@ body .logo a:hover .logo-dot {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background-color: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: white;
+  border: none;
   border-radius: 5px;
-  color: white;
+  color: #FF6B35;
   font-weight: 600;
   text-decoration: none;
   position: relative;
@@ -264,7 +264,8 @@ body .logo a:hover .logo-dot {
   font-size: 1.1rem;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out, border-color 0.3s ease, background-color 0.3s ease;
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out, background-color 0.3s ease, color 0.3s ease;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.116);
 }
 
 .hero-cta-button-secondary.fade-in {
@@ -273,13 +274,16 @@ body .logo a:hover .logo-dot {
 }
 
 .hero-cta-button-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.6);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #fff;
+  color: #FF8551;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  text-decoration: none;
 }
 
 .hero-cta-button-secondary:active {
   transform: scale(0.97);
   transition-duration: 0.2s;
+  text-decoration: none;
 }
 
 .hero-cta-button-new.fade-in {
@@ -2313,6 +2317,9 @@ body .logo a:hover .logo-dot {
     padding: 0 20px;
     height: 50px;
     font-size: 1rem;
+    background-color: white;
+    color: #FF6B35;
+    border: none;
   }
   .hero-description {
     margin-top: 0;
@@ -2435,6 +2442,9 @@ body .logo a:hover .logo-dot {
     padding: 0 18px;
     height: 48px;
     font-size: 0.95rem;
+    background-color: white;
+    color: #FF6B35;
+    border: none;
   }
   
   .hero-button-container {
