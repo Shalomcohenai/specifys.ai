@@ -67,41 +67,89 @@ router.get('/', verifyFirebaseToken, async (req, res, next) => {
  */
 router.post('/consume', verifyFirebaseToken, async (req, res, next) => {
   const requestId = req.requestId || `credits-consume-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId, userId: req.user?.uid }, '[credits-v2-routes] POST /consume - Consuming credit');
+  const userId = req.user?.uid;
+  
+  logger.info({ 
+    requestId, 
+    userId,
+    hasBody: !!req.body,
+    bodyKeys: req.body ? Object.keys(req.body) : [],
+    specId: req.body?.specId,
+    priority: req.body?.priority
+  }, '[credits-v2-routes] POST /consume - Request received');
   
   try {
-    const userId = req.user.uid;
+    if (!userId) {
+      logger.error({ requestId }, '[credits-v2-routes] No userId in request');
+      return next(createError('User ID not found', ERROR_CODES.UNAUTHORIZED, 401));
+    }
+
     const { specId, priority } = req.body;
 
     if (!specId || typeof specId !== 'string') {
-      logger.warn({ requestId }, '[credits-v2-routes] Invalid specId');
+      logger.warn({ requestId, userId, specId, specIdType: typeof specId }, '[credits-v2-routes] Invalid specId');
       return next(createError('specId is required and must be a string', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
 
+    logger.debug({ requestId, userId, specId, priority }, '[credits-v2-routes] Calling consumeCredit service');
+    
     const result = await creditsV2Service.consumeCredit(userId, specId, { priority });
 
-    logger.info({ requestId, userId, specId }, '[credits-v2-routes] POST /consume - Success');
+    logger.info({ 
+      requestId, 
+      userId, 
+      specId,
+      success: result.success,
+      unlimited: result.unlimited,
+      creditType: result.creditType,
+      remaining: result.remaining
+    }, '[credits-v2-routes] POST /consume - Success');
+    
     res.json({
       success: true,
       ...result
     });
   } catch (error) {
-    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[credits-v2-routes] POST /consume - Error');
+    logger.error({ 
+      requestId, 
+      userId: req.user?.uid,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      },
+      errorString: error.toString()
+    }, '[credits-v2-routes] ❌ POST /consume - Error occurred');
     
-    if (error.message === 'Insufficient credits') {
+    if (error.message === 'Insufficient credits' || error.message.includes('Insufficient credits')) {
       return next(createError('Insufficient credits', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
         message: 'You do not have enough credits to create a spec'
       }));
     }
     
-    if (error.message === 'User already has a spec. Only one spec per user is allowed.') {
+    if (error.message === 'User already has a spec. Only one spec per user is allowed.' || error.message.includes('already has a spec')) {
       return next(createError('User already has a spec', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
         message: 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.'
       }));
     }
     
+    // For unknown errors, provide detailed error information
+    logger.error({ 
+      requestId, 
+      userId: req.user?.uid,
+      fullError: error,
+      errorDetails: {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }
+    }, '[credits-v2-routes] Unexpected error in consume endpoint');
+    
     next(createError('Failed to consume credit', ERROR_CODES.DATABASE_ERROR, 500, {
-      details: error.message
+      details: error.message,
+      requestId
     }));
   }
 });

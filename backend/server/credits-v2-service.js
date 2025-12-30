@@ -106,8 +106,16 @@ function calculateTotal(balances) {
  * @returns {string|null} - Credit type to consume, or null if no credits available
  */
 function selectCreditType(balances, priority = ['free', 'bonus', 'paid']) {
+  // Ensure balances is an object
+  if (!balances || typeof balances !== 'object' || Array.isArray(balances)) {
+    logger.warn({ balances, priority }, '[CREDITS-V2] selectCreditType - Invalid balances object');
+    return null;
+  }
+  
   for (const type of priority) {
-    if (balances[type] && balances[type] > 0) {
+    const balance = balances[type];
+    // Check if balance exists and is a positive number
+    if (typeof balance === 'number' && balance > 0) {
       return type;
     }
   }
@@ -461,12 +469,25 @@ async function getUserCredits(userId, autoCreate = true) {
 async function getAvailableCredits(userId) {
   const credits = await getUserCredits(userId);
   
-  // Check subscription first
-  if (credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+  // Check subscription first - ensure subscription exists and is valid
+  if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
     // Check if subscription expired
     if (credits.subscription.expiresAt) {
-      const expiresAt = credits.subscription.expiresAt.toDate ? credits.subscription.expiresAt.toDate() : new Date(credits.subscription.expiresAt);
-      if (expiresAt < new Date()) {
+      let expiresAt;
+      
+      // Handle Firestore Timestamp
+      if (credits.subscription.expiresAt.toDate && typeof credits.subscription.expiresAt.toDate === 'function') {
+        expiresAt = credits.subscription.expiresAt.toDate();
+      } else if (credits.subscription.expiresAt.seconds) {
+        // Firestore Timestamp object with seconds
+        expiresAt = new Date(credits.subscription.expiresAt.seconds * 1000);
+      } else {
+        // Try to parse as Date
+        expiresAt = new Date(credits.subscription.expiresAt);
+      }
+      
+      // Validate the date is valid
+      if (!isNaN(expiresAt.getTime()) && expiresAt < new Date()) {
         // Subscription expired, disable unlimited
         await updateSubscriptionStatus(userId, 'expired');
         return {
@@ -474,9 +495,13 @@ async function getAvailableCredits(userId) {
           total: calculateTotal(credits.balances),
           breakdown: credits.balances
         };
+      } else if (isNaN(expiresAt.getTime())) {
+        // Invalid date - log warning and treat as unlimited
+        logger.warn({ userId, expiresAt: credits.subscription.expiresAt }, '[CREDITS-V2] Invalid expiration date in getAvailableCredits, treating as unlimited');
       }
     }
     
+    // No expiration or expiration is in the future - unlimited access
     return {
       unlimited: true,
       total: null,
@@ -500,7 +525,8 @@ async function updateSubscriptionStatus(userId, status) {
   const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
   const credits = await getUserCredits(userId);
   
-  if (status === 'expired' && credits.subscription.type === 'pro') {
+  // Ensure subscription exists before accessing properties
+  if (status === 'expired' && credits.subscription && credits.subscription.type === 'pro') {
     // Restore preserved credits
     const preservedCredits = credits.subscription.preservedCredits || 0;
     if (preservedCredits > 0) {
@@ -508,9 +534,12 @@ async function updateSubscriptionStatus(userId, status) {
     }
   }
   
+  // Safely get subscription type
+  const currentSubscriptionType = credits.subscription && credits.subscription.type ? credits.subscription.type : 'none';
+  
   await creditsRef.update({
     'subscription.status': status,
-    'subscription.type': status === 'expired' ? 'none' : credits.subscription.type,
+    'subscription.type': status === 'expired' ? 'none' : currentSubscriptionType,
     'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
   });
 }
@@ -518,8 +547,36 @@ async function updateSubscriptionStatus(userId, status) {
 /**
  * Record ledger entry
  */
-async function recordLedgerEntry(transaction, entryData) {
+function recordLedgerEntry(transaction, entryData) {
   const ledgerRef = db.collection(LEDGER_COLLECTION).doc(entryData.transactionId);
+  
+  // Ensure source is a plain object (not a class instance or circular reference)
+  let sourceData = entryData.source;
+  if (sourceData && typeof sourceData === 'object') {
+    // Convert to plain object to ensure Firestore compatibility
+    sourceData = {
+      type: sourceData.type || null,
+      specId: sourceData.specId || null,
+      orderId: sourceData.orderId || null,
+      reason: sourceData.reason || null
+    };
+  } else if (!sourceData) {
+    sourceData = null;
+  }
+  
+  // Ensure balanceAfter is a plain object
+  let balanceAfter = entryData.balanceAfter;
+  if (balanceAfter && typeof balanceAfter === 'object' && !Array.isArray(balanceAfter)) {
+    // Safely extract balance values
+    balanceAfter = {
+      paid: typeof balanceAfter.paid === 'number' ? balanceAfter.paid : 0,
+      free: typeof balanceAfter.free === 'number' ? balanceAfter.free : 0,
+      bonus: typeof balanceAfter.bonus === 'number' ? balanceAfter.bonus : 0
+    };
+  } else {
+    // Default to zero balances if not provided or invalid
+    balanceAfter = { paid: 0, free: 0, bonus: 0 };
+  }
   
   const ledgerEntry = {
     id: entryData.transactionId,
@@ -527,8 +584,8 @@ async function recordLedgerEntry(transaction, entryData) {
     type: entryData.type,
     amount: entryData.amount,
     creditType: entryData.creditType,
-    source: entryData.source,
-    balanceAfter: entryData.balanceAfter,
+    source: sourceData,
+    balanceAfter: balanceAfter,
     metadata: entryData.metadata || {},
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     createdAt: admin.firestore.FieldValue.serverTimestamp()
@@ -616,7 +673,11 @@ async function consumeCredit(userId, specId, options = {}) {
     }
     
     // Use Firestore transaction for atomic credit consumption
+    logger.debug({ requestId, userId, specId, transactionId }, '[CREDITS-V2] Before runTransaction');
+    
     const result = await db.runTransaction(async (transaction) => {
+      logger.debug({ requestId }, '[CREDITS-V2] Inside transaction');
+      
       // Check idempotency
       const ledgerDocRef = db.collection(LEDGER_COLLECTION).doc(transactionId);
       const existingLedgerDoc = await transaction.get(ledgerDocRef);
@@ -661,44 +722,81 @@ async function consumeCredit(userId, specId, options = {}) {
       
       const credits = creditsDoc.data();
       
-      // Check subscription first
-      if (credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+      // Ensure balances exist
+      if (!credits.balances) {
+        logger.warn({ requestId, userId, creditsKeys: Object.keys(credits || {}) }, '[CREDITS-V2] Credits document missing balances, creating default structure');
+        credits.balances = {
+          paid: 0,
+          free: 0,
+          bonus: 0
+        };
+      }
+      
+      // Ensure subscription exists
+      if (!credits.subscription) {
+        logger.warn({ requestId, userId }, '[CREDITS-V2] Credits document missing subscription, creating default');
+        credits.subscription = {
+          type: 'none',
+          status: 'none',
+          expiresAt: null,
+          preservedCredits: 0
+        };
+      }
+      
+      logger.info({ 
+        requestId, 
+        userId,
+        subscriptionType: credits.subscription?.type, 
+        subscriptionStatus: credits.subscription?.status, 
+        balances: credits.balances,
+        hasExpiresAt: !!credits.subscription?.expiresAt
+      }, '[CREDITS-V2] Credits data in transaction');
+      
+      // Check subscription first - ensure subscription exists and is valid
+      if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+        logger.debug({ requestId, expiresAt: credits.subscription.expiresAt }, '[CREDITS-V2] Pro subscription detected');
+        
+        let isExpired = false;
+        let hasValidExpiration = false;
+        
         // Check expiration
         if (credits.subscription.expiresAt) {
-          const expiresAt = credits.subscription.expiresAt.toDate ? credits.subscription.expiresAt.toDate() : new Date(credits.subscription.expiresAt);
-          if (expiresAt < new Date()) {
-            // Subscription expired, continue to check credits
+          let expiresAt;
+          
+          // Handle Firestore Timestamp
+          if (credits.subscription.expiresAt.toDate && typeof credits.subscription.expiresAt.toDate === 'function') {
+            expiresAt = credits.subscription.expiresAt.toDate();
+          } else if (credits.subscription.expiresAt.seconds) {
+            // Firestore Timestamp object with seconds
+            expiresAt = new Date(credits.subscription.expiresAt.seconds * 1000);
           } else {
-            // Unlimited access - record transaction
-            await recordLedgerEntry(transaction, {
-              transactionId: transactionId,
-              userId: userId,
-              type: 'consume',
-              amount: 1,
-              creditType: 'paid',
-              source: {
-                type: 'spec_creation',
-                specId: specId,
-                orderId: null,
-                reason: 'unlimited_subscription'
-              },
-              balanceAfter: credits.balances,
-              metadata: {
-                notes: 'Unlimited subscription'
-              }
-            });
-            
-            return {
-              success: true,
-              remaining: null,
-              creditType: 'unlimited',
-              unlimited: true,
-              transactionId: transactionId
-            };
+            // Try to parse as Date
+            expiresAt = new Date(credits.subscription.expiresAt);
           }
-        } else {
-          // No expiration date, assume active
-          await recordLedgerEntry(transaction, {
+          
+          // Validate the date is valid
+          if (isNaN(expiresAt.getTime())) {
+            // Invalid date - log warning and treat as no expiration (unlimited)
+            logger.warn({ requestId, expiresAt: credits.subscription.expiresAt }, '[CREDITS-V2] Invalid expiration date, treating as unlimited');
+            hasValidExpiration = false;
+          } else {
+            hasValidExpiration = true;
+            logger.debug({ requestId, expiresAt: expiresAt.toISOString(), isExpired: expiresAt < new Date() }, '[CREDITS-V2] ExpiresAt conversion');
+            
+            if (expiresAt < new Date()) {
+              // Subscription expired
+              isExpired = true;
+              logger.debug({ requestId }, '[CREDITS-V2] Subscription expired, continuing to check credits');
+            }
+          }
+        }
+        
+        // If subscription is not expired (either no expiration date, invalid date treated as unlimited, or valid date in future)
+        if (!hasValidExpiration || !isExpired) {
+          // Unlimited access - record transaction
+          logger.debug({ requestId, transactionId, userId, specId }, '[CREDITS-V2] Pro user - granting unlimited access');
+          
+          recordLedgerEntry(transaction, {
             transactionId: transactionId,
             userId: userId,
             type: 'consume',
@@ -716,6 +814,8 @@ async function consumeCredit(userId, specId, options = {}) {
             }
           });
           
+          logger.debug({ requestId }, '[CREDITS-V2] After recordLedgerEntry for unlimited');
+          
           return {
             success: true,
             remaining: null,
@@ -724,18 +824,36 @@ async function consumeCredit(userId, specId, options = {}) {
             transactionId: transactionId
           };
         }
+        // If expired, continue to regular credit consumption below
       }
+      
+      // Ensure balances exist before selecting credit type
+      if (!credits.balances) {
+        logger.error({ requestId, userId }, '[CREDITS-V2] Credits balances missing after subscription check');
+        credits.balances = {
+          paid: 0,
+          free: 0,
+          bonus: 0
+        };
+      }
+      
+      logger.debug({ requestId, balances: credits.balances, priority: options.priority }, '[CREDITS-V2] Before selectCreditType');
       
       // Select credit type to consume
       const priority = options.priority || ['free', 'bonus', 'paid'];
       const creditType = selectCreditType(credits.balances, priority);
       
+      logger.debug({ requestId, creditType, balances: credits.balances }, '[CREDITS-V2] After selectCreditType');
+      
       if (!creditType) {
+        logger.warn({ requestId, userId, balances: credits.balances }, '[CREDITS-V2] No credits available to consume');
         throw new Error('Insufficient credits');
       }
       
       // Consume credit - use increment for atomic update
       const currentBalance = credits.balances[creditType] || 0;
+      
+      logger.debug({ requestId, creditType, currentBalance, newBalance: Math.max(0, currentBalance - 1) }, '[CREDITS-V2] Before consuming credit');
       const newBalance = Math.max(0, currentBalance - 1);
       
       // Update credits - use increment for atomic update to ensure consistency
@@ -762,7 +880,7 @@ async function consumeCredit(userId, specId, options = {}) {
       }
       
       // Record in ledger
-      await recordLedgerEntry(transaction, {
+      recordLedgerEntry(transaction, {
         transactionId: transactionId,
         userId: userId,
         type: 'consume',
@@ -791,7 +909,19 @@ async function consumeCredit(userId, specId, options = {}) {
     });
     
     const totalTime = Date.now() - startTime;
-    logger.info({ requestId, totalTime, result }, '[CREDITS-V2] Credit consumed successfully');
+    logger.info({ 
+      requestId, 
+      userId, 
+      specId,
+      totalTime, 
+      result: {
+        success: result.success,
+        unlimited: result.unlimited,
+        creditType: result.creditType,
+        remaining: result.remaining,
+        alreadyProcessed: result.alreadyProcessed
+      }
+    }, '[CREDITS-V2] Credit consumed successfully');
     
     // Record credit consumption activity (if not unlimited)
     if (result.success && !result.unlimited && result.creditType) {
@@ -826,8 +956,20 @@ async function consumeCredit(userId, specId, options = {}) {
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    logger.error({ requestId, totalTime, error: error.message, stack: error.stack }, '[CREDITS-V2] Error consuming credit');
+    logger.error({ 
+      requestId, 
+      userId, 
+      specId,
+      totalTime, 
+      error: {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        stack: error.stack
+      }
+    }, '[CREDITS-V2] ❌ Error consuming credit');
     
+    // Re-throw known errors
     if (error.message === 'Insufficient credits') {
       throw new Error('Insufficient credits');
     }
@@ -836,7 +978,10 @@ async function consumeCredit(userId, specId, options = {}) {
       throw new Error('User already has a spec. Only one spec per user is allowed.');
     }
     
-    throw error;
+    // For unknown errors, wrap with more context
+    const errorMessage = error.message || 'Unknown error occurred';
+    logger.error({ requestId, userId, specId, originalError: error }, '[CREDITS-V2] Unexpected error in consumeCredit');
+    throw new Error(`Failed to consume credit: ${errorMessage}`);
   }
 }
 
@@ -954,7 +1099,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       }
       
       // Record in ledger
-      await recordLedgerEntry(transaction, {
+      recordLedgerEntry(transaction, {
         transactionId: transactionId,
         userId: userId,
         type: 'grant',
@@ -1127,7 +1272,7 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
       }
       
       // Record in ledger
-      await recordLedgerEntry(transaction, {
+      recordLedgerEntry(transaction, {
         transactionId: transactionId,
         userId: userId,
         type: 'refund',
