@@ -310,19 +310,6 @@ window.selectPlatform = function(platform) {
     updateSectionIndicator('audience');
 }
 
-/**
- * Select gender
- */
-window.selectGender = function(gender) {
-    document.querySelectorAll('.gender-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    const selectedBtn = document.querySelector(`.gender-btn[data-gender="${gender}"]`);
-    if (selectedBtn) {
-        selectedBtn.classList.add('selected');
-    }
-    updateSectionIndicator('audience');
-}
 
 /**
  * Update age display and arc
@@ -930,12 +917,6 @@ window.generateJSON = function() {
     const ageMin = parseInt(document.getElementById('age-range-1-min')?.value || 18);
     const ageMax = parseInt(document.getElementById('age-range-1-max')?.value || 35);
     
-    const selectedGender = document.querySelector('.gender-btn.selected');
-    const gender = selectedGender ? {
-        type: selectedGender.dataset.gender || '',
-        label: selectedGender.querySelector('.gender-label')?.textContent?.trim() || ''
-    } : null;
-    
     // Build comprehensive JSON specification
     const spec = {
         metadata: {
@@ -998,8 +979,7 @@ window.generateJSON = function() {
                 max: ageMax,
                 explanation: `Target age range is ${ageMin} to ${ageMax} years old.`
             },
-            gender: gender,
-            explanation: `Target audience: ${platform ? platform.label : 'No platform selected'}, ${interests.length} interest(s), age ${ageMin}-${ageMax}, ${gender ? gender.label : 'no gender specified'}.`
+            explanation: `Target audience: ${platform ? platform.label : 'No platform selected'}, ${interests.length} interest(s), age ${ageMin}-${ageMax}.`
         }
     };
     
@@ -1103,9 +1083,6 @@ window.generatePlanningText = function() {
         if (data.audience.ageRange) {
             text += `Age Range: ${data.audience.ageRange.min} - ${data.audience.ageRange.max} years\n`;
         }
-        if (data.audience.gender) {
-            text += `Gender: ${data.audience.gender.label || data.audience.gender.type}\n`;
-        }
         text += '\n';
     }
     
@@ -1159,12 +1136,11 @@ function updateSectionIndicator(sectionId) {
         case 'audience':
             const hasPlatform = document.querySelector('.platform-btn.selected') !== null;
             const hasInterests = document.querySelectorAll('.interest-btn.selected').length > 0;
-            const hasGender = document.querySelector('.gender-btn.selected') !== null;
             const ageMin = document.getElementById('age-range-1-min');
             const ageMax = document.getElementById('age-range-1-max');
             const hasAgeRange = ageMin && ageMax && 
                 (parseInt(ageMin.value) !== 18 || parseInt(ageMax.value) !== 35);
-            hasData = hasPlatform || hasInterests || hasGender || hasAgeRange;
+            hasData = hasPlatform || hasInterests || hasAgeRange;
             break;
     }
     
@@ -1212,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     document.addEventListener('click', function(e) {
-        if (e.target.matches('.feature-btn, .integration-btn, .interest-btn, .platform-btn, .gender-btn, .design-card')) {
+        if (e.target.matches('.feature-btn, .integration-btn, .interest-btn, .platform-btn, .design-card')) {
             setTimeout(updateAllIndicators, 100);
         }
     });

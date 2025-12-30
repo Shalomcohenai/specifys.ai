@@ -578,68 +578,52 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
 
                 <div id="view-audience" class="section-view hidden-el">
                     <div class="audience-container">
-                        <div class="audience-section">
-                            <h3 class="audience-section-title">Platform</h3>
-                            <div class="platform-selector">
-                                <button class="platform-btn" data-platform="mobile" onclick="selectPlatform('mobile')">
-                                    <span class="platform-icon">📱</span>
-                                    <span class="platform-label">Mobile</span>
-                                </button>
-                                <button class="platform-btn" data-platform="web" onclick="selectPlatform('web')">
-                                    <span class="platform-icon">💻</span>
-                                    <span class="platform-label">Web</span>
-                                </button>
-                                <button class="platform-btn" data-platform="both" onclick="selectPlatform('both')">
-                                    <span class="platform-icon">📱💻</span>
-                                    <span class="platform-label">Both</span>
-                                </button>
+                        <div class="audience-section-row">
+                            <div class="audience-section audience-section-compact">
+                                <h3 class="audience-section-title">Platform</h3>
+                                <div class="platform-selector">
+                                    <button class="platform-btn" data-platform="mobile" onclick="selectPlatform('mobile')">
+                                        <span class="platform-icon">📱</span>
+                                        <span class="platform-label">Mobile</span>
+                                    </button>
+                                    <button class="platform-btn" data-platform="web" onclick="selectPlatform('web')">
+                                        <span class="platform-icon">💻</span>
+                                        <span class="platform-label">Web</span>
+                                    </button>
+                                    <button class="platform-btn" data-platform="both" onclick="selectPlatform('both')">
+                                        <span class="platform-icon">📱💻</span>
+                                        <span class="platform-label">Both</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="audience-section audience-section-compact">
+                                <h3 class="audience-section-title">Age Range</h3>
+                                <div class="age-range-container">
+                                    <div class="age-range-wrapper">
+                                        <div class="age-arc-container">
+                                            <svg class="age-arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                                                <path class="age-arc-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#D1D5DB" stroke-width="8"/>
+                                                <path class="age-arc-fill" id="age-arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#FF6B35" stroke-width="8" stroke-linecap="round"/>
+                                                <circle class="age-handle" id="age-handle-min" cx="20" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                                <circle class="age-handle" id="age-handle-max" cx="180" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                            </svg>
+                                            <div class="age-arc-labels">
+                                                <span class="age-arc-label-min">13</span>
+                                                <span class="age-arc-label-max">80</span>
+                                            </div>
+                                        </div>
+                                        <div class="age-display" id="age-display-1">18 - 35</div>
+                                        <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                        <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="audience-section">
                             <h3 class="audience-section-title">Interests & Topics</h3>
                             <div class="interests-grid" id="interests-grid"></div>
-                        </div>
-
-                        <div class="audience-section">
-                            <h3 class="audience-section-title">Age Range</h3>
-                            <div class="age-range-container">
-                                <div class="age-range-wrapper">
-                                    <div class="age-arc-container">
-                                        <svg class="age-arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-                                            <path class="age-arc-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#D1D5DB" stroke-width="8"/>
-                                            <path class="age-arc-fill" id="age-arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#FF6B35" stroke-width="8" stroke-linecap="round"/>
-                                            <circle class="age-handle" id="age-handle-min" cx="20" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
-                                            <circle class="age-handle" id="age-handle-max" cx="180" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
-                                        </svg>
-                                        <div class="age-arc-labels">
-                                            <span class="age-arc-label-min">13</span>
-                                            <span class="age-arc-label-max">80</span>
-                                        </div>
-                                    </div>
-                                    <div class="age-display" id="age-display-1">18 - 35</div>
-                                    <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider-hidden" oninput="updateAgeArc('1')">
-                                    <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider-hidden" oninput="updateAgeArc('1')">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="audience-section">
-                            <h3 class="audience-section-title">Gender</h3>
-                            <div class="gender-selector">
-                                <button class="gender-btn" data-gender="male" onclick="selectGender('male')">
-                                    <span class="gender-icon">♂</span>
-                                    <span class="gender-label">Male</span>
-                                </button>
-                                <button class="gender-btn" data-gender="female" onclick="selectGender('female')">
-                                    <span class="gender-icon">♀</span>
-                                    <span class="gender-label">Female</span>
-                                </button>
-                                <button class="gender-btn" data-gender="both" onclick="selectGender('both')">
-                                    <span class="gender-icon">⚥</span>
-                                    <span class="gender-label">Both</span>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
