@@ -74,10 +74,9 @@ IMPORTANT DETAILED REQUIREMENTS:
 - All values must be strings or arrays, never null or undefined
 
 User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}
-Note: Target Audience information should be inferred from the app description and workflow provided above.`;
+${appDescription}
+
+Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
   },
 
   // Technical specification prompt - generates detailed technical specs
@@ -248,10 +247,9 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}
-Note: Target Audience information should be inferred from the app description and workflow provided above.`;
+${appDescription}
+
+Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
   },
 
   // Market research prompt - generates market analysis
@@ -527,10 +525,9 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}
-Note: Target Audience information should be inferred from the app description and workflow provided above.`;
+${appDescription}
+
+Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
   },
 
   // Design & Branding prompt - generates design guidelines and branding
@@ -643,10 +640,9 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}
-Note: Target Audience information should be inferred from the app description and workflow provided above.`;
+${appDescription}
+
+Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
   },
 
   // Diagrams prompt - generates Mermaid diagrams
@@ -782,10 +778,9 @@ Create a comprehensive raw text response. Return JSON with rawText key containin
 }
 
 User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}
-Note: Target Audience information should be inferred from the app description and workflow provided above.`;
+${appDescription}
+
+Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
   },
 
   // Prompts generation - creates comprehensive development prompt and third-party integration instructions

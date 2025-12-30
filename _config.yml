@@ -93,6 +93,7 @@ include:
   - assets/css/pages/index-process-flow.css
   - assets/css/pages/index-why-sections.css
   - assets/css/pages/maintenance.css
+  - assets/css/pages/planning.css
   - assets/css/pages/pricing.css
   - assets/css/pages/profile.css
   - assets/css/pages/spec-viewer.css

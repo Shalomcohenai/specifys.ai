@@ -1,0 +1,204 @@
+---
+layout: default
+title: "Planning - Specifys.ai"
+description: "Plan your app development with comprehensive planning tools and resources."
+permalink: /pages/planning.html
+extra_css:
+  - /assets/css/pages/planning.css
+extra_js:
+  - /assets/js/planning.js
+---
+
+<main class="planning-page" id="main-content" role="main">
+    <div class="planning-container">
+        
+        <header class="planning-header">
+            <h1 class="planning-label">Application Vision</h1>
+            <textarea 
+                id="main-pitch" 
+                oninput="showInitialNav()" 
+                rows="2" 
+                class="planning-pitch-input" 
+                placeholder="Describe your app here..."></textarea>
+        </header>
+
+        <div id="workspace-container" class="workspace-container">
+            
+            <div id="home-nav" class="home-nav hidden">
+                <button onclick="openSection('pages')" class="nav-btn" data-section="pages">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Pages</span>
+                </button>
+                <button onclick="openSection('workflow')" class="nav-btn" data-section="workflow">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Workflows</span>
+                </button>
+                <button onclick="openSection('features')" class="nav-btn" data-section="features">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Features</span>
+                </button>
+                <button onclick="openSection('design')" class="nav-btn" data-section="design">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Design Style</span>
+                </button>
+                <button onclick="openSection('integrations')" class="nav-btn" data-section="integrations">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Integrations</span>
+                </button>
+                <button onclick="openSection('audience')" class="nav-btn" data-section="audience">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Audience</span>
+                </button>
+            </div>
+
+            <div id="section-panel" class="section-panel hidden-el">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <h2 id="sec-title" class="section-title">Title</h2>
+                        <p id="sec-description" class="section-description">Description text goes here.</p>
+                    </div>
+                </div>
+
+                <div id="view-pages" class="section-view hidden-el">
+                    <div class="pages-grid" id="pages-list">
+                        <div class="page-card add-page-card" onclick="addCustomPage()">
+                            <div class="add-page-icon">+</div>
+                            <div class="add-page-text">Add Page</div>
+                        </div>
+                    </div>
+                    <div class="pages-actions">
+                        <div class="predefined-pages">
+                            <h4 class="predefined-title">Quick Add Common Pages:</h4>
+                            <div class="predefined-buttons" id="predefined-pages-buttons"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-workflow" class="section-view hidden-el">
+                    <div id="workflow-area" class="workflow-area"></div>
+                    <div class="workflow-actions">
+                        <button onclick="createNewFlow()" class="create-flow-btn">
+                            <span class="create-flow-icon">+</span>
+                            <span>Create New Workflow</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="view-design" class="section-view hidden-el">
+                    <div class="design-grid" id="design-grid"></div>
+                </div>
+
+                <div id="view-integrations" class="section-view hidden-el">
+                    <div class="integrations-container">
+                        <section class="integration-section">
+                            <h3 class="integration-category">Popular & Easy</h3>
+                            <div class="integration-grid" id="int-popular"></div>
+                        </section>
+                        <section class="integration-section">
+                            <h3 class="integration-category">Backend & Data</h3>
+                            <div class="integration-grid" id="int-backend"></div>
+                        </section>
+                        <section class="integration-section">
+                            <h3 class="integration-category">Growth & Social</h3>
+                            <div class="integration-grid" id="int-growth"></div>
+                        </section>
+                    </div>
+                </div>
+
+                <div id="view-features" class="section-view hidden-el">
+                    <div class="features-container">
+                        <div class="features-grid" id="features-grid"></div>
+                        <div class="features-actions">
+                            <button onclick="addCustomFeature()" class="add-feature-btn">
+                                <span class="add-icon">+</span>
+                                <span>Add Custom Feature</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-audience" class="section-view hidden-el">
+                    <div class="audience-container">
+                        <!-- Platform Selection -->
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Platform</h3>
+                            <div class="platform-selector">
+                                <button class="platform-btn" data-platform="mobile" onclick="selectPlatform('mobile')">
+                                    <span class="platform-icon">📱</span>
+                                    <span class="platform-label">Mobile</span>
+                                </button>
+                                <button class="platform-btn" data-platform="web" onclick="selectPlatform('web')">
+                                    <span class="platform-icon">💻</span>
+                                    <span class="platform-label">Web</span>
+                                </button>
+                                <button class="platform-btn" data-platform="both" onclick="selectPlatform('both')">
+                                    <span class="platform-icon">📱💻</span>
+                                    <span class="platform-label">Both</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Interests -->
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Interests & Topics</h3>
+                            <div class="interests-grid" id="interests-grid"></div>
+                        </div>
+
+                        <!-- Age Range -->
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Age Range</h3>
+                            <div class="age-range-container">
+                                <div class="age-range-wrapper">
+                                    <div class="age-arc-container">
+                                        <svg class="age-arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                                            <path class="age-arc-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#D1D5DB" stroke-width="8"/>
+                                            <path class="age-arc-fill" id="age-arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#FF6B35" stroke-width="8" stroke-linecap="round"/>
+                                            <circle class="age-handle" id="age-handle-min" cx="20" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                            <circle class="age-handle" id="age-handle-max" cx="180" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                        </svg>
+                                        <div class="age-arc-labels">
+                                            <span class="age-arc-label-min">13</span>
+                                            <span class="age-arc-label-max">80</span>
+                                        </div>
+                                    </div>
+                                    <div class="age-display" id="age-display-1">18 - 35</div>
+                                    <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                    <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Gender</h3>
+                            <div class="gender-selector">
+                                <button class="gender-btn" data-gender="male" onclick="selectGender('male')">
+                                    <span class="gender-icon">♂</span>
+                                    <span class="gender-label">Male</span>
+                                </button>
+                                <button class="gender-btn" data-gender="female" onclick="selectGender('female')">
+                                    <span class="gender-icon">♀</span>
+                                    <span class="gender-label">Female</span>
+                                </button>
+                                <button class="gender-btn" data-gender="both" onclick="selectGender('both')">
+                                    <span class="gender-icon">⚥</span>
+                                    <span class="gender-label">Both</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="view-generic" class="section-view hidden-el">
+                    <div id="generic-grid" class="generic-grid"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer id="export-area" class="export-area hidden">
+            <button onclick="generateJSON()" class="export-btn">Generate Final Spec</button>
+        </footer>
+
+    </div>
+</main>

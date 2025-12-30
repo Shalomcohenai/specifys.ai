@@ -352,31 +352,68 @@ function handleStartButtonClick() {
     const user = firebase.auth().currentUser;
     window.appLogger.logFeatureUsage('AppPlanningStarted', {
       userId: user ? user.uid : null,
-      mode: 'typing'
+      mode: 'planning'
     });
   }
   
-  // Use new Question Flow Controller
-  if (window.questionFlowController) {
-    try {
-      window.questionFlowController.start('typing').catch(error => {
-        // Log error
-        if (window.appLogger) {
-          window.appLogger.logError(error, { context: 'questionFlowController.start' });
-        }
-        // Fallback to old flow if controller fails
-        proceedWithAppPlanning();
-      });
-    } catch (error) {
-      // Log error
-      if (window.appLogger) {
-        window.appLogger.logError(error, { context: 'questionFlowController.start (catch)' });
-      }
-      // Fallback to old flow if controller fails
-      proceedWithAppPlanning();
+  // Show planning interface
+  showPlanningInterface();
+}
+
+// ===== PLANNING INTERFACE =====
+function showPlanningInterface() {
+  const heroContent = document.getElementById('heroContent');
+  const planningContainer = document.getElementById('planningContainer');
+  
+  if (heroContent) {
+    heroContent.classList.add('fade-out');
+  }
+  
+  setTimeout(() => {
+    if (heroContent) {
+      heroContent.style.display = 'none';
     }
+    if (planningContainer) {
+      planningContainer.classList.remove('hidden');
+      planningContainer.style.display = 'block';
+      
+      // Initialize planning interface components
+      if (typeof renderDesign === 'function') {
+        renderDesign();
+      }
+      if (typeof renderIntegrations === 'function') {
+        renderIntegrations();
+      }
+      if (typeof renderFeatures === 'function') {
+        renderFeatures();
+      }
+      if (typeof renderAudience === 'function') {
+        renderAudience();
+      }
+      if (typeof renderPredefinedPages === 'function') {
+        renderPredefinedPages();
+      }
+    }
+  }, 500);
+}
+
+// ===== GENERATE SPEC FROM PLANNING =====
+window.generateSpecFromPlanning = function() {
+  // Get planning text
+  const planningText = window.generatePlanningText ? window.generatePlanningText() : '';
+  
+  // Store planning data for generateSpecification
+  if (window.generateJSON) {
+    const planningData = window.generateJSON();
+    window.planningData = planningData.object;
+    window.planningText = planningText;
+  }
+  
+  // Call generateSpecification
+  if (typeof generateSpecification === 'function') {
+    generateSpecification();
   } else {
-    proceedWithAppPlanning();
+    alert('Error: Could not generate specification.');
   }
 }
 
@@ -1118,8 +1155,20 @@ async function generateSpecification() {
     localStorage.removeItem('generatedOverviewContent');
     localStorage.removeItem('initialAnswers');
     
-    // Check if answers come from Live Brief modal
-    if (window.liveBriefAnswers && Array.isArray(window.liveBriefAnswers) && window.liveBriefAnswers.length === 3) {
+    // Check if planning data exists (new planning interface)
+    let planningText = '';
+    let planningData = null;
+    
+    if (window.planningText) {
+      planningText = window.planningText;
+      planningData = window.planningData;
+      // Clear after using
+      delete window.planningText;
+      delete window.planningData;
+    }
+    
+    // Fallback: Check if answers come from Live Brief modal (old flow)
+    if (!planningText && window.liveBriefAnswers && Array.isArray(window.liveBriefAnswers) && window.liveBriefAnswers.length === 3) {
       answers = window.liveBriefAnswers;
       if (window.liveBriefSelectedPlatforms) {
         selectedPlatforms = window.liveBriefSelectedPlatforms;
@@ -1129,14 +1178,16 @@ async function generateSpecification() {
       delete window.liveBriefSelectedPlatforms;
     }
     
-    // Check if answers exist (all questions are optional)
-    if (!answers || answers.length === 0) {
+    // Fallback: Check if answers exist (all questions are optional)
+    if (!planningText && (!answers || answers.length === 0)) {
       answers = [];
     }
     
-    // Ensure we have 3 answers (pad with empty strings if needed)
-    while (answers.length < 3) {
-      answers.push('');
+    // Fallback: Ensure we have 3 answers (pad with empty strings if needed)
+    if (!planningText) {
+      while (answers.length < 3) {
+        answers.push('');
+      }
     }
     
     // Check if user is authenticated
@@ -1181,18 +1232,62 @@ async function generateSpecification() {
     showLoadingOverlay();
     
     // Prepare the prompt for overview generation
-    const prompt = PROMPTS.overview(answers);
+    let prompt = '';
+    let enhancedPrompt = '';
     
-    // Add platform information to the prompt
-    const platformInfo = [];
-    if (selectedPlatforms.mobile) platformInfo.push("Mobile App");
-    if (selectedPlatforms.web) platformInfo.push("Web App");
+    if (planningText) {
+      // Use new planning data
+      const mainPitch = planningData?.vision?.description || '';
+      const pagesText = planningData?.pages?.list?.length > 0 
+        ? `\n\nPages:\n${planningData.pages.list.map((p, i) => `${i+1}. ${p.name}${p.description && p.description !== 'No description provided' ? ' - ' + p.description : ''}`).join('\n')}`
+        : '';
+      const workflowsText = planningData?.workflows?.list?.length > 0
+        ? `\n\nWorkflows:\n${planningData.workflows.list.map((w, i) => {
+            let text = `${i+1}. ${w.name || 'Unnamed Workflow'}`;
+            if (w.steps && w.steps.length > 0) {
+              text += '\n' + w.steps.map((s, si) => `   Step ${si+1}: ${s}`).join('\n');
+            }
+            return text;
+          }).join('\n\n')}`
+        : '';
+      const featuresText = planningData?.features 
+        ? `\n\nFeatures:\n${[...(planningData.features.selected || []), ...(planningData.features.custom || [])].map((f, i) => `${i+1}. ${f}`).join('\n')}`
+        : '';
+      const designText = planningData?.design?.selected
+        ? `\n\nDesign Style: ${planningData.design.selected}${planningData.design.description ? ' - ' + planningData.design.description : ''}`
+        : '';
+      const integrationsText = planningData?.integrations?.list?.length > 0
+        ? `\n\nIntegrations: ${planningData.integrations.list.join(', ')}`
+        : '';
+      const audienceText = planningData?.audience
+        ? `\n\nTarget Audience:\n${planningData.audience.platform ? `Platform: ${planningData.audience.platform.label || planningData.audience.platform.type}\n` : ''}${planningData.audience.interests?.list?.length > 0 ? `Interests: ${planningData.audience.interests.list.join(', ')}\n` : ''}${planningData.audience.ageRange ? `Age Range: ${planningData.audience.ageRange.min} - ${planningData.audience.ageRange.max} years\n` : ''}${planningData.audience.gender ? `Gender: ${planningData.audience.gender.label || planningData.audience.gender.type}` : ''}`
+        : '';
+      
+      // Create comprehensive user input from planning data
+      const userInput = `App Description: ${mainPitch}${pagesText}${workflowsText}${featuresText}${designText}${integrationsText}${audienceText}`;
+      
+      // Use PROMPTS.overview with the user input as a single answer
+      prompt = PROMPTS.overview([userInput, '', '']);
+    } else {
+      // Fallback to old 3-question flow
+      prompt = PROMPTS.overview(answers);
+      
+      // Add platform information to the prompt
+      const platformInfo = [];
+      if (selectedPlatforms && selectedPlatforms.mobile) platformInfo.push("Mobile App");
+      if (selectedPlatforms && selectedPlatforms.web) platformInfo.push("Web App");
+      
+      const platformText = platformInfo.length > 0 
+        ? `Target Platform: ${platformInfo.join(', ')}` 
+        : 'Target Platform: Not specified';
+      
+      enhancedPrompt = `${prompt}\n\n${platformText}`;
+    }
     
-    const platformText = platformInfo.length > 0 
-      ? `Target Platform: ${platformInfo.join(', ')}` 
-      : 'Target Platform: Not specified';
-    
-    const enhancedPrompt = `${prompt}\n\n${platformText}`;
+    // Use enhanced prompt if available, otherwise use regular prompt
+    if (!enhancedPrompt) {
+      enhancedPrompt = prompt;
+    }
     
     // Generate specification using API Client
     let data;

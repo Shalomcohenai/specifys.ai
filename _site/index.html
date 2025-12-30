@@ -173,6 +173,8 @@
       
         <link rel="stylesheet" href="/assets/css/pages/index-why-sections.css">
       
+        <link rel="stylesheet" href="/assets/css/pages/planning.css">
+      
     
     
     
@@ -1044,26 +1046,6 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
         </div>
     </div>
     
-    <!-- Questions Display -->
-    <div class="questions-display hidden" id="questionsDisplay">
-        <div class="questions-header">
-            <div class="current-question" id="currentQuestion">
-                Describe your application
-            </div>
-            <div class="mode-toggle-container typing-mode-toggle">
-                <span class="mode-label" data-mode="voice">Voice</span>
-                <label class="mode-toggle-switch">
-                    <input type="checkbox" id="typingModeToggleSwitch" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="mode-label active" data-mode="typing">Typing</span>
-            </div>
-        </div>
-        <div class="question-detail" id="currentQuestionDetail">
-            Describe the main idea of your application - including core features, target audience, and the problem it solves
-        </div>
-    </div>
-    
     <!-- Loading Overlay -->
     <div class="loading-overlay hidden" id="loadingOverlay">
         <div class="loading-content">
@@ -1073,80 +1055,191 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
         </div>
     </div>
     
-    <!-- Modern Input Container -->
-    <div class="modern-input-container hidden" id="modernInputContainer">
-        <div class="input-area">
-            <label for="mainInput" class="visually-hidden">Answer input</label>
-            <textarea 
-                class="main-input" 
-                id="mainInput"
-                placeholder="Start typing, press Enter for next question, press Backspace for previous question"
-                rows="1"
-                aria-label="Answer input"
-                aria-describedby="characterCount"
-                maxlength="900"
-            ></textarea>
-            <div class="character-count-container">
-                <span class="character-count" id="characterCount" aria-live="polite">0 / 900</span>
+    <!-- Planning Interface -->
+    <div class="planning-container hidden" id="planningContainer">
+        <header class="planning-header">
+            <h1 class="planning-label">Application Vision</h1>
+            <div class="pitch-input-wrapper">
+                <textarea 
+                    id="main-pitch" 
+                    oninput="showInitialNav(); updateCharacterCount()" 
+                    rows="2" 
+                    class="planning-pitch-input" 
+                    maxlength="2000"
+                    placeholder="Describe your app here..."></textarea>
+                <div class="character-count-wrapper">
+                    <span class="character-count" id="characterCount">0 / 2000</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="workspace-container" class="workspace-container">
+            <div id="home-nav" class="home-nav hidden">
+                <button onclick="openSection('pages')" class="nav-btn" data-section="pages">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Pages</span>
+                </button>
+                <button onclick="openSection('workflow')" class="nav-btn" data-section="workflow">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Workflows</span>
+                </button>
+                <button onclick="openSection('features')" class="nav-btn" data-section="features">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Features</span>
+                </button>
+                <button onclick="openSection('design')" class="nav-btn" data-section="design">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Design Style</span>
+                </button>
+                <button onclick="openSection('integrations')" class="nav-btn" data-section="integrations">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Integrations</span>
+                </button>
+                <button onclick="openSection('audience')" class="nav-btn" data-section="audience">
+                    <span class="nav-btn-indicator"></span>
+                    <span>Audience</span>
+                </button>
+            </div>
+
+            <div id="section-panel" class="section-panel hidden-el">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <h2 id="sec-title" class="section-title">Title</h2>
+                        <p id="sec-description" class="section-description">Description text goes here.</p>
+                    </div>
+                </div>
+
+                <div id="view-pages" class="section-view hidden-el">
+                    <div class="pages-grid" id="pages-list">
+                        <div class="page-card add-page-card" onclick="addCustomPage()">
+                            <div class="add-page-icon">+</div>
+                            <div class="add-page-text">Add Page</div>
+                        </div>
+                    </div>
+                    <div class="pages-actions">
+                        <div class="predefined-pages">
+                            <h4 class="predefined-title">Quick Add Common Pages:</h4>
+                            <div class="predefined-buttons" id="predefined-pages-buttons"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-workflow" class="section-view hidden-el">
+                    <div id="workflow-area" class="workflow-area"></div>
+                    <div class="workflow-actions">
+                        <button onclick="createNewFlow()" class="create-flow-btn">
+                            <span class="create-flow-icon">+</span>
+                            <span>Create New Workflow</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="view-design" class="section-view hidden-el">
+                    <div class="design-grid" id="design-grid"></div>
+                </div>
+
+                <div id="view-integrations" class="section-view hidden-el">
+                    <div class="integrations-container">
+                        <section class="integration-section">
+                            <h3 class="integration-category">Popular & Easy</h3>
+                            <div class="integration-grid" id="int-popular"></div>
+                        </section>
+                        <section class="integration-section">
+                            <h3 class="integration-category">Backend & Data</h3>
+                            <div class="integration-grid" id="int-backend"></div>
+                        </section>
+                        <section class="integration-section">
+                            <h3 class="integration-category">Growth & Social</h3>
+                            <div class="integration-grid" id="int-growth"></div>
+                        </section>
+                    </div>
+                </div>
+
+                <div id="view-features" class="section-view hidden-el">
+                    <div class="features-container">
+                        <div class="features-grid" id="features-grid"></div>
+                        <div class="features-actions">
+                            <button onclick="addCustomFeature()" class="add-feature-btn">
+                                <span class="add-icon">+</span>
+                                <span>Add Custom Feature</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-audience" class="section-view hidden-el">
+                    <div class="audience-container">
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Platform</h3>
+                            <div class="platform-selector">
+                                <button class="platform-btn" data-platform="mobile" onclick="selectPlatform('mobile')">
+                                    <span class="platform-icon">📱</span>
+                                    <span class="platform-label">Mobile</span>
+                                </button>
+                                <button class="platform-btn" data-platform="web" onclick="selectPlatform('web')">
+                                    <span class="platform-icon">💻</span>
+                                    <span class="platform-label">Web</span>
+                                </button>
+                                <button class="platform-btn" data-platform="both" onclick="selectPlatform('both')">
+                                    <span class="platform-icon">📱💻</span>
+                                    <span class="platform-label">Both</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Interests & Topics</h3>
+                            <div class="interests-grid" id="interests-grid"></div>
+                        </div>
+
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Age Range</h3>
+                            <div class="age-range-container">
+                                <div class="age-range-wrapper">
+                                    <div class="age-arc-container">
+                                        <svg class="age-arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                                            <path class="age-arc-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#D1D5DB" stroke-width="8"/>
+                                            <path class="age-arc-fill" id="age-arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#FF6B35" stroke-width="8" stroke-linecap="round"/>
+                                            <circle class="age-handle" id="age-handle-min" cx="20" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                            <circle class="age-handle" id="age-handle-max" cx="180" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
+                                        </svg>
+                                        <div class="age-arc-labels">
+                                            <span class="age-arc-label-min">13</span>
+                                            <span class="age-arc-label-max">80</span>
+                                        </div>
+                                    </div>
+                                    <div class="age-display" id="age-display-1">18 - 35</div>
+                                    <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                    <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider-hidden" oninput="updateAgeArc('1')">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="audience-section">
+                            <h3 class="audience-section-title">Gender</h3>
+                            <div class="gender-selector">
+                                <button class="gender-btn" data-gender="male" onclick="selectGender('male')">
+                                    <span class="gender-icon">♂</span>
+                                    <span class="gender-label">Male</span>
+                                </button>
+                                <button class="gender-btn" data-gender="female" onclick="selectGender('female')">
+                                    <span class="gender-icon">♀</span>
+                                    <span class="gender-label">Female</span>
+                                </button>
+                                <button class="gender-btn" data-gender="both" onclick="selectGender('both')">
+                                    <span class="gender-icon">⚥</span>
+                                    <span class="gender-label">Both</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="input-controls">
-            <div class="left-controls">
-                <button class="control-btn hidden" title="Microphone" id="microphoneBtn" aria-label="Use microphone for voice input">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                </button>
-                <button class="control-btn" title="Lightbulb" id="lightbulbBtn" aria-label="Get suggestions">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                    </svg>
-                </button>
-                
-                <div class="separator" aria-hidden="true"></div>
-                
-                <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app" aria-label="Select mobile app type">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
-                </button>
-                
-                <button class="control-btn" id="computerBtn" data-tooltip="Click for web app" aria-label="Select web app type">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                        <line x1="8" y1="21" x2="16" y2="21"></line>
-                        <line x1="12" y1="17" x2="12" y2="21"></line>
-                    </svg>
-                </button>
-                
-                <div class="separator"></div>
-                
-                
-            </div>
-            
-            <div class="progress-dots" role="progressbar" aria-label="Question progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3">
-                <div class="progress-dot" data-question="0" title="Question 1" aria-label="Question 1"></div>
-                <div class="progress-dot" data-question="1" title="Question 2" aria-label="Question 2"></div>
-                <div class="progress-dot" data-question="2" title="Question 3" aria-label="Question 3"></div>
-            </div>
-            
-            <button class="send-btn" id="sendBtn" aria-label="Submit answer and proceed to next question">
-                <span class="send-text">Next</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="20" width="20" class="send-arrow" aria-hidden="true">
-                    <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
-                </svg>
-            </button>
-        </div>
-        
-        <!-- Lightbulb Tooltip -->
-        <div class="lightbulb-tooltip" id="lightbulbTooltip">
-            <div class="tooltip-content"></div>
-        </div>
+        <footer id="export-area" class="export-area hidden">
+            <button onclick="generateSpecFromPlanning()" class="export-btn">Generate Final Spec</button>
+        </footer>
     </div>
 </section>
 
@@ -1997,13 +2090,7 @@ graph TD
       
         <script src="/assets/js/paywall.js"></script>
       
-        <script src="/assets/js/question-flow-state.js"></script>
-      
-        <script src="/assets/js/question-flow-view.js"></script>
-      
-        <script src="/assets/js/question-flow-controller.js"></script>
-      
-        <script src="/assets/js/live-brief-modal.js"></script>
+        <script src="/assets/js/planning.js"></script>
       
         <script src="/assets/js/index.js"></script>
       

@@ -1,0 +1,1249 @@
+/**
+ * Planning Page JavaScript - Architect Pro Tool
+ * Handles all interactive functionality for the planning page
+ */
+
+const helpTexts = {
+    pages: "Outline every screen in your app. Think about what the user sees first and where they go next.",
+    workflow: "Create step-by-step logic. 'If the user clicks X, then Y happens.'",
+    design: "Choose the visual DNA of your app. This affects fonts, spacing, and brand feel.",
+    integrations: "Connect your app to external worlds like payments, maps, or AI.",
+    features: "Select specific functional tools your app needs to work.",
+    audience: "Define who will use this and on which devices."
+};
+
+const sectionDescriptions = {
+    pages: "Outline every screen in your app. Think about what the user sees first and where they go next.",
+    workflow: "Create step-by-step logic. Define user journeys and flows that guide users through your app.",
+    design: "Choose the visual DNA of your app. This affects fonts, spacing, colors, and overall brand feel.",
+    integrations: "Connect your app to external services like payments, maps, AI, and other third-party tools.",
+    features: "Select specific functional tools and capabilities your app needs to work effectively.",
+    audience: "Define who will use this app and on which devices they'll access it."
+};
+
+const designStyles = [
+    { name: "Minimal", class: "design-minimal", description: "Clean, simple design with minimal elements and maximum focus on content." },
+    { name: "SaaS Soft", class: "design-saas", description: "Modern, friendly interface with rounded corners and soft colors for SaaS applications." },
+    { name: "Cyberpunk", class: "design-cyberpunk", description: "Bold, futuristic aesthetic with neon colors and high-tech visual elements." },
+    { name: "Corporate", class: "design-corporate", description: "Professional, trustworthy design suitable for business and enterprise applications." },
+    { name: "Toy/Playful", class: "design-playful", description: "Fun, energetic design with bold colors and playful elements for engaging user experience." },
+    { name: "Glassmorphic", class: "design-glass", description: "Modern glass-like effect with transparency and blur for a sleek, contemporary look." },
+    { name: "Neo-Brutalist", class: "design-brutalist", description: "Bold, raw design with sharp edges and strong shadows for a distinctive visual style." },
+    { name: "Elegant", class: "design-elegant", description: "Sophisticated, refined design with subtle details and classic typography." }
+];
+
+const integrations = {
+    popular: ["Stripe Payments", "Google Maps", "OpenAI / AI Chat", "Search Bar"],
+    backend: ["Firebase Database", "AWS S3 Storage", "Auth0 Login", "Supabase"],
+    growth: ["Slack Notifications", "Mailchimp Email", "Meta Pixel", "Google Analytics"]
+};
+
+const commonFeatures = [
+    "User Authentication",
+    "User Profiles",
+    "Search Functionality",
+    "Notifications",
+    "File Upload",
+    "Real-time Chat",
+    "Payment Processing",
+    "Analytics Dashboard",
+    "Admin Panel",
+    "Email Notifications",
+    "Social Login",
+    "Two-Factor Authentication",
+    "Data Export",
+    "Dark Mode",
+    "Multi-language Support"
+];
+
+const predefinedPages = [
+    { name: "Login", description: "User authentication and sign-in page" },
+    { name: "Sign Up", description: "New user registration page" },
+    { name: "Dashboard", description: "Main user dashboard with overview and navigation" },
+    { name: "Profile", description: "User profile management and settings" },
+    { name: "About", description: "Information about the app or company" },
+    { name: "Contact", description: "Contact form and information page" },
+    { name: "Settings", description: "Application settings and preferences" },
+    { name: "Home", description: "Landing page or homepage" },
+    { name: "Search", description: "Search functionality and results page" },
+    { name: "Help", description: "Help center and FAQ page" }
+];
+
+/**
+ * Show initial navigation when user types in the pitch textarea
+ */
+window.showInitialNav = function() {
+    const pitch = document.getElementById('main-pitch');
+    const footer = document.getElementById('export-area');
+    const homeNav = document.getElementById('home-nav');
+    
+    // Show navigation buttons only after user starts typing
+    if (pitch && pitch.value.length > 0) {
+        if (homeNav) {
+            homeNav.classList.remove('hidden');
+        }
+        if (footer) {
+            footer.classList.remove('hidden');
+        }
+    } else {
+        if (homeNav) {
+            homeNav.classList.add('hidden');
+        }
+        if (footer) {
+            footer.classList.add('hidden');
+        }
+    }
+};
+
+/**
+ * Open a specific section panel
+ */
+window.openSection = function(id) {
+    const sectionPanel = document.getElementById('section-panel');
+    const secTitle = document.getElementById('sec-title');
+    const secDescription = document.getElementById('sec-description');
+    const secHelp = document.getElementById('sec-help');
+    
+    if (!sectionPanel || !secTitle) return;
+    
+    // Prevent scroll jump - store current scroll position
+    const scrollY = window.scrollY;
+    
+    // Show section panel without animation
+    sectionPanel.classList.remove('hidden-el');
+    secTitle.innerText = id.charAt(0).toUpperCase() + id.slice(1);
+    
+    if (secDescription && sectionDescriptions[id]) {
+        secDescription.innerText = sectionDescriptions[id];
+    }
+    
+    if (secHelp && helpTexts[id]) {
+        secHelp.innerText = helpTexts[id];
+    }
+    
+    // Hide all sub-views
+    const allViews = sectionPanel.querySelectorAll('.section-view');
+    allViews.forEach(v => v.classList.add('hidden-el'));
+    
+    // Show specific view
+    if (id === 'design') {
+        renderDesign();
+        const designView = document.getElementById('view-design');
+        if (designView) designView.classList.remove('hidden-el');
+    } else if (id === 'integrations') {
+        renderIntegrations();
+        const integrationsView = document.getElementById('view-integrations');
+        if (integrationsView) integrationsView.classList.remove('hidden-el');
+    } else if (id === 'pages') {
+        renderPredefinedPages();
+        // Add default Homepage if no pages exist (excluding add-page-card)
+        const pagesList = document.getElementById('pages-list');
+        if (pagesList) {
+            const existingPages = pagesList.querySelectorAll('.page-card:not(.add-page-card)');
+            if (existingPages.length === 0) {
+                addPage("Homepage", "Main landing page or homepage of the application");
+            }
+        }
+        const pagesView = document.getElementById('view-pages');
+        if (pagesView) pagesView.classList.remove('hidden-el');
+    } else if (id === 'workflow') {
+        const workflowView = document.getElementById('view-workflow');
+        if (workflowView) workflowView.classList.remove('hidden-el');
+    } else if (id === 'features') {
+        renderFeatures();
+        const featuresView = document.getElementById('view-features');
+        if (featuresView) featuresView.classList.remove('hidden-el');
+    } else if (id === 'audience') {
+        renderAudience();
+        const audienceView = document.getElementById('view-audience');
+        if (audienceView) audienceView.classList.remove('hidden-el');
+    } else {
+        const genericView = document.getElementById('view-generic');
+        if (genericView) genericView.classList.remove('hidden-el');
+    }
+    
+    // Restore scroll position to prevent jump
+    window.scrollTo(0, scrollY);
+};
+
+/**
+ * Close the section panel and return to menu
+ * Note: Navigation buttons remain visible at all times
+ */
+window.closeSection = function() {
+    const sectionPanel = document.getElementById('section-panel');
+    const homeNav = document.getElementById('home-nav');
+    
+    if (sectionPanel) sectionPanel.classList.add('hidden-el');
+    // Keep navigation buttons visible
+    if (homeNav) {
+        homeNav.classList.remove('hidden');
+    }
+};
+
+/**
+ * Render design style cards
+ */
+function renderDesign() {
+    const grid = document.getElementById('design-grid');
+    if (!grid || grid.children.length > 0) return;
+    
+    designStyles.forEach(style => {
+        const div = document.createElement('div');
+        div.className = "design-card";
+        div.onclick = function() { 
+            document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            updateSectionIndicator('design');
+        };
+        
+        const button = document.createElement('button');
+        button.className = `design-preview-btn ${style.class}`;
+        button.textContent = "Button";
+        button.disabled = true;
+        
+        const name = document.createElement('p');
+        name.className = "design-name";
+        name.textContent = style.name;
+        
+        const description = document.createElement('p');
+        description.className = "design-description";
+        description.textContent = style.description;
+        
+        div.appendChild(button);
+        div.appendChild(name);
+        div.appendChild(description);
+        grid.appendChild(div);
+    });
+}
+
+/**
+ * Render integration buttons
+ */
+function renderIntegrations() {
+    for (const cat in integrations) {
+        const container = document.getElementById('int-' + cat);
+        if (!container || container.children.length > 0) continue;
+        
+        integrations[cat].forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "integration-btn";
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = item;
+            
+            const checkIcon = document.createElement('span');
+            checkIcon.className = "integration-check-icon";
+            checkIcon.textContent = "✓";
+            
+            btn.appendChild(textSpan);
+            btn.appendChild(checkIcon);
+            
+            btn.onclick = function() {
+                this.classList.toggle('selected');
+                updateSectionIndicator('integrations');
+            };
+            container.appendChild(btn);
+        });
+    }
+}
+
+/**
+ * Render features
+ */
+function renderFeatures() {
+    const grid = document.getElementById('features-grid');
+    if (!grid || grid.children.length > 0) return;
+    
+    commonFeatures.forEach(feature => {
+        const btn = document.createElement('button');
+        btn.className = "feature-btn";
+        btn.textContent = feature;
+        btn.onclick = function() {
+            this.classList.toggle('selected');
+            updateSectionIndicator('features');
+        };
+        grid.appendChild(btn);
+    });
+}
+
+/**
+ * Audience data
+ */
+const interestCategories = [
+    "Technology", "Business", "Health & Fitness", "Education", "Entertainment",
+    "Travel", "Food & Cooking", "Sports", "Music", "Art & Design",
+    "Fashion", "Finance", "Gaming", "Photography", "Social Media",
+    "News & Politics", "Science", "Environment", "Pets", "Parenting"
+];
+
+/**
+ * Render audience section
+ */
+function renderAudience() {
+    const interestsGrid = document.getElementById('interests-grid');
+    if (!interestsGrid || interestsGrid.children.length > 0) return;
+    
+    interestCategories.forEach(interest => {
+        const btn = document.createElement('button');
+        btn.className = "interest-btn";
+        btn.textContent = interest;
+        btn.onclick = function() {
+            this.classList.toggle('selected');
+            updateSectionIndicator('audience');
+        };
+        interestsGrid.appendChild(btn);
+    });
+}
+
+/**
+ * Select platform
+ */
+window.selectPlatform = function(platform) {
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    const selectedBtn = document.querySelector(`.platform-btn[data-platform="${platform}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    updateSectionIndicator('audience');
+}
+
+/**
+ * Select gender
+ */
+window.selectGender = function(gender) {
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    const selectedBtn = document.querySelector(`.gender-btn[data-gender="${gender}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    updateSectionIndicator('audience');
+}
+
+/**
+ * Update age display and arc
+ */
+window.updateAgeDisplay = function(rangeNum) {
+    updateAgeArc(rangeNum);
+}
+
+window.updateAgeArc = function(rangeNum) {
+    const minSlider = document.getElementById(`age-range-${rangeNum}-min`);
+    const maxSlider = document.getElementById(`age-range-${rangeNum}-max`);
+    const display = document.getElementById(`age-display-${rangeNum}`);
+    
+    if (!minSlider || !maxSlider || !display) return;
+    
+    let min = parseInt(minSlider.value);
+    let max = parseInt(maxSlider.value);
+    
+    // Ensure min <= max
+    if (min > max) {
+        if (minSlider === document.activeElement) {
+            max = min;
+            maxSlider.value = max;
+        } else {
+            min = max;
+            minSlider.value = min;
+        }
+    }
+    
+    display.textContent = `${min} - ${max}`;
+    
+    // Update indicator
+    updateSectionIndicator('audience');
+    
+    // Update arc visualization
+    const minHandle = document.getElementById('age-handle-min');
+    const maxHandle = document.getElementById('age-handle-max');
+    const arcFill = document.getElementById('age-arc-fill');
+    
+    if (minHandle && maxHandle && arcFill) {
+        // Convert age to angle (13-80 maps to 180-0 degrees for top arc)
+        // Arc goes from left (180°) to right (0°)
+        const minAngle = 180 - ((min - 13) / (80 - 13)) * 180;
+        const maxAngle = 180 - ((max - 13) / (80 - 13)) * 180;
+        
+        // Convert to radians
+        const minRad = (minAngle * Math.PI) / 180;
+        const maxRad = (maxAngle * Math.PI) / 180;
+        
+        // Calculate positions on arc (radius 80, center at 100, 100)
+        const radius = 80;
+        const centerX = 100;
+        const centerY = 100;
+        
+        const minX = centerX + radius * Math.cos(minRad);
+        const minY = centerY - radius * Math.sin(minRad);
+        const maxX = centerX + radius * Math.cos(maxRad);
+        const maxY = centerY - radius * Math.sin(maxRad);
+        
+        // Update handle positions
+        minHandle.setAttribute('cx', minX);
+        minHandle.setAttribute('cy', minY);
+        maxHandle.setAttribute('cx', maxX);
+        maxHandle.setAttribute('cy', maxY);
+        
+        // Update arc path (large arc flag: 1 if arc > 180°, 0 otherwise)
+        const angleDiff = Math.abs(maxAngle - minAngle);
+        const largeArcFlag = angleDiff > 180 ? 1 : 0;
+        const arcPath = `M ${minX} ${minY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${maxX} ${maxY}`;
+        arcFill.setAttribute('d', arcPath);
+    }
+}
+
+// Initialize age arc on page load and add drag functionality
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (document.getElementById('age-range-1-min')) {
+            updateAgeArc('1');
+            initAgeArcDrag();
+        }
+    }, 100);
+});
+
+/**
+ * Initialize drag functionality for age arc handles
+ */
+function initAgeArcDrag() {
+    const minHandle = document.getElementById('age-handle-min');
+    const maxHandle = document.getElementById('age-handle-max');
+    const svg = document.querySelector('.age-arc-svg');
+    
+    if (!minHandle || !maxHandle || !svg) return;
+    
+    let isDragging = false;
+    let currentHandle = null;
+    
+    function startDrag(e) {
+        isDragging = true;
+        currentHandle = e.target;
+        e.preventDefault();
+    }
+    
+    function drag(e) {
+        if (!isDragging || !currentHandle) return;
+        
+        const rect = svg.getBoundingClientRect();
+        
+        // Get SVG viewBox coordinates (viewBox="0 0 200 120")
+        const svgX = ((e.clientX - rect.left) / rect.width) * 200;
+        const svgY = ((e.clientY - rect.top) / rect.height) * 120;
+        
+        // Calculate angle from center (100, 100)
+        const centerX = 100;
+        const centerY = 100;
+        const radius = 80;
+        
+        const dx = svgX - centerX;
+        const dy = centerY - svgY; // Invert Y for SVG coordinates
+        let angle = Math.atan2(dy, dx);
+        
+        // Convert to 0-180 degrees range (top half of circle, left to right)
+        // Arc goes from 180° (left) to 0° (right)
+        if (angle < 0) angle = Math.PI + angle;
+        if (angle > Math.PI) angle = Math.PI;
+        
+        // Convert angle to age (13-80), where 180° = 13 and 0° = 80
+        const normalizedAngle = (Math.PI - angle) / Math.PI; // 0 at left (13), 1 at right (80)
+        const age = 13 + normalizedAngle * (80 - 13);
+        const ageInt = Math.round(Math.max(13, Math.min(80, age)));
+        
+        // Update slider
+        if (currentHandle.id === 'age-handle-min') {
+            const minSlider = document.getElementById('age-range-1-min');
+            const maxSlider = document.getElementById('age-range-1-max');
+            if (minSlider && maxSlider) {
+                if (ageInt <= parseInt(maxSlider.value)) {
+                    minSlider.value = ageInt;
+                    updateAgeArc('1');
+                }
+            }
+        } else {
+            const minSlider = document.getElementById('age-range-1-min');
+            const maxSlider = document.getElementById('age-range-1-max');
+            if (minSlider && maxSlider) {
+                if (ageInt >= parseInt(minSlider.value)) {
+                    maxSlider.value = ageInt;
+                    updateAgeArc('1');
+                }
+            }
+        }
+    }
+    
+    function stopDrag() {
+        isDragging = false;
+        currentHandle = null;
+    }
+    
+    minHandle.addEventListener('mousedown', startDrag);
+    maxHandle.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    // Touch support
+    minHandle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startDrag({ target: minHandle, clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+    });
+    maxHandle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startDrag({ target: maxHandle, clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+    });
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            drag({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        }
+    });
+    document.addEventListener('touchend', stopDrag);
+}
+
+/**
+ * Add a custom feature
+ */
+window.addCustomFeature = function() {
+    const grid = document.getElementById('features-grid');
+    if (!grid) return;
+    
+    const featureWrapper = document.createElement('div');
+    featureWrapper.className = "feature-custom-wrapper";
+    
+    const input = document.createElement('input');
+    input.type = "text";
+    input.className = "feature-custom-input";
+    input.placeholder = "Enter feature name...";
+    input.value = "New Feature";
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = "feature-delete-btn";
+    deleteBtn.innerHTML = "×";
+    deleteBtn.onclick = function(e) {
+        e.stopPropagation();
+        featureWrapper.remove();
+    };
+    
+    featureWrapper.appendChild(input);
+    featureWrapper.appendChild(deleteBtn);
+    grid.appendChild(featureWrapper);
+    
+    // Focus on the input
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 100);
+};
+
+/**
+ * Render predefined pages buttons
+ */
+function renderPredefinedPages() {
+    const container = document.getElementById('predefined-pages-buttons');
+    if (!container || container.children.length > 0) return;
+    
+    predefinedPages.forEach(page => {
+        const btn = document.createElement('button');
+        btn.className = "predefined-page-btn";
+        btn.textContent = page.name;
+        btn.onclick = function() {
+            addPage(page.name, page.description);
+        };
+        container.appendChild(btn);
+    });
+}
+
+/**
+ * Add a custom page (creates new empty page card)
+ */
+window.addCustomPage = function() {
+    addPage("New Page", "");
+    // Focus on the name input of the newly created page
+    setTimeout(() => {
+        const cards = document.querySelectorAll('.page-card:not(.add-page-card)');
+        if (cards.length > 0) {
+            const lastCard = cards[cards.length - 1];
+            const nameInput = lastCard.querySelector('.page-name-input');
+            if (nameInput) {
+                nameInput.focus();
+                nameInput.select();
+            }
+        }
+    }, 100);
+};
+
+/**
+ * Add a new page card
+ */
+window.addPage = function(name, description = "") {
+    const list = document.getElementById('pages-list');
+    if (!list) return;
+    
+    // Check if page already exists (excluding the add-page-card)
+    const existingPages = list.querySelectorAll('.page-card:not(.add-page-card)');
+    for (let page of existingPages) {
+        const pageName = page.querySelector('.page-name-input')?.value;
+        if (pageName === name) {
+            return; // Page already exists, don't add duplicate
+        }
+    }
+    
+    // Find the add-page-card to insert before it
+    const addCard = list.querySelector('.add-page-card');
+    
+    const card = document.createElement('div');
+    card.className = "page-card fade-in";
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = "text";
+    nameInput.className = "page-name-input";
+    nameInput.value = name;
+    nameInput.placeholder = "Page name";
+    
+    const descTextarea = document.createElement('textarea');
+    descTextarea.className = "page-description-input";
+    descTextarea.placeholder = "Describe this page's purpose and functionality...";
+    descTextarea.value = description;
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = "page-delete-btn";
+    deleteBtn.innerHTML = "×";
+    deleteBtn.onclick = function() {
+        card.remove();
+    };
+    
+    card.appendChild(nameInput);
+    card.appendChild(descTextarea);
+    card.appendChild(deleteBtn);
+    
+    // Insert before the add-page-card
+    if (addCard) {
+        list.insertBefore(card, addCard);
+    } else {
+        list.appendChild(card);
+    }
+};
+
+/**
+ * Create a new workflow flow
+ */
+window.createNewFlow = function() {
+    const area = document.getElementById('workflow-area');
+    if (!area) return;
+    
+    const flowId = Date.now();
+    const workflowWrapper = document.createElement('div');
+    workflowWrapper.className = "workflow-wrapper fade-in";
+    workflowWrapper.id = `workflow-${flowId}`;
+    
+    const workflowDelete = document.createElement('button');
+    workflowDelete.className = "workflow-delete-btn";
+    workflowDelete.innerHTML = "×";
+    workflowDelete.onclick = function(e) {
+        e.stopPropagation();
+        workflowWrapper.remove();
+    };
+    
+    const stepsContainer = document.createElement('div');
+    stepsContainer.className = "workflow-steps-container";
+    stepsContainer.id = `steps-${flowId}`;
+    stepsContainer.style.display = "flex";
+    
+    workflowWrapper.appendChild(workflowDelete);
+    workflowWrapper.appendChild(stepsContainer);
+    area.appendChild(workflowWrapper);
+    
+    // Add workflow name as first step (special colored box) - pass container directly
+    addWorkflowNameStepToContainer(stepsContainer);
+    
+    // Initialize arrows and add step button
+    updateWorkflowArrows(stepsContainer);
+    updateAddStepButton(stepsContainer, flowId);
+};
+
+/**
+ * Add workflow name step (first step, special color)
+ */
+function addWorkflowNameStep(flowId) {
+    const container = document.getElementById('steps-' + flowId);
+    if (!container) {
+        // Retry after a short delay if container not found
+        setTimeout(() => addWorkflowNameStep(flowId), 50);
+        return;
+    }
+    addWorkflowNameStepToContainer(container);
+}
+
+/**
+ * Add workflow name step to container (direct)
+ */
+function addWorkflowNameStepToContainer(container) {
+    if (!container) return;
+    
+    // Check if workflow name step already exists
+    if (container.querySelector('.workflow-name-step')) {
+        return;
+    }
+    
+    const stepWrapper = document.createElement('div');
+    stepWrapper.className = "workflow-step-wrapper workflow-name-step fade-in";
+    
+    const stepTextarea = document.createElement('textarea');
+    stepTextarea.className = "workflow-step-textarea workflow-name-textarea";
+    stepTextarea.placeholder = "Workflow Name (e.g. User Onboarding)";
+    stepTextarea.rows = 3;
+    
+    stepWrapper.appendChild(stepTextarea);
+    container.appendChild(stepWrapper);
+    
+    // Focus on the textarea
+    setTimeout(() => {
+        stepTextarea.focus();
+    }, 100);
+    
+    // Add input listener to update indicator
+    stepTextarea.addEventListener('input', function() {
+        updateSectionIndicator('workflow');
+    });
+}
+
+
+/**
+ * Add a step to a workflow
+ */
+window.addStep = function(flowId, insertAfter = null) {
+    const container = document.getElementById('steps-' + flowId);
+    if (!container) return;
+    
+    const stepWrapper = document.createElement('div');
+    stepWrapper.className = "workflow-step-wrapper fade-in";
+    
+    const stepTextarea = document.createElement('textarea');
+    stepTextarea.className = "workflow-step-textarea";
+    stepTextarea.placeholder = "Enter step description...";
+    stepTextarea.rows = 3;
+    
+    stepWrapper.appendChild(stepTextarea);
+    
+    // Only add delete button if it's not the workflow name step
+    if (!stepWrapper.classList.contains('workflow-name-step')) {
+        const deleteStepBtn = document.createElement('button');
+        deleteStepBtn.className = "delete-step-btn";
+        deleteStepBtn.innerHTML = "×";
+        deleteStepBtn.title = "Delete this step";
+        deleteStepBtn.onclick = function(e) {
+            e.stopPropagation();
+            stepWrapper.remove();
+            updateWorkflowArrows(container);
+            updateAddStepButton(container, flowId);
+        };
+        stepWrapper.appendChild(deleteStepBtn);
+    }
+    
+    if (insertAfter) {
+        // Insert after the specified step
+        insertAfter.parentNode.insertBefore(stepWrapper, insertAfter.nextSibling);
+    } else {
+        // Append to the end
+        container.appendChild(stepWrapper);
+    }
+    
+    // Update arrows and add step button
+    updateWorkflowArrows(container);
+    updateAddStepButton(container, flowId);
+    
+    // Focus on the new textarea
+    setTimeout(() => {
+        stepTextarea.focus();
+    }, 100);
+    
+    // Add input listener to update indicator
+    stepTextarea.addEventListener('input', function() {
+        updateSectionIndicator('workflow');
+    });
+    
+    updateSectionIndicator('workflow');
+};
+
+/**
+ * Update workflow arrows between steps
+ */
+function updateWorkflowArrows(container) {
+    // Get all steps except workflow name step
+    const allSteps = Array.from(container.querySelectorAll('.workflow-step-wrapper'));
+    // Remove all existing arrows
+    container.querySelectorAll('.workflow-arrow').forEach(el => el.remove());
+    
+    // Add arrows between steps (including after workflow name step)
+    allSteps.forEach((step, index) => {
+        if (index < allSteps.length - 1) {
+            // Add arrow
+            const arrow = document.createElement('span');
+            arrow.className = "workflow-arrow";
+            arrow.textContent = "→";
+            step.parentNode.insertBefore(arrow, step.nextSibling);
+        }
+    });
+}
+
+/**
+ * Update add step button (only after last step)
+ */
+function updateAddStepButton(container, flowId) {
+    // Remove existing add step button
+    container.querySelectorAll('.add-step-after-btn').forEach(btn => btn.remove());
+    
+    // Get all steps except workflow name step
+    const allSteps = Array.from(container.querySelectorAll('.workflow-step-wrapper')).filter(
+        step => !step.classList.contains('workflow-name-step')
+    );
+    
+    if (allSteps.length > 0) {
+        const lastStep = allSteps[allSteps.length - 1];
+        const addStepBtn = document.createElement('button');
+        addStepBtn.className = "add-step-after-btn";
+        addStepBtn.innerHTML = "+";
+        addStepBtn.title = "Add step after this one";
+        addStepBtn.onclick = function(e) {
+            e.stopPropagation();
+            addStep(flowId, lastStep);
+        };
+        lastStep.parentNode.insertBefore(addStepBtn, lastStep.nextSibling);
+    } else {
+        // If no regular steps, add button after workflow name step
+        const workflowNameStep = container.querySelector('.workflow-name-step');
+        if (workflowNameStep) {
+            const addStepBtn = document.createElement('button');
+            addStepBtn.className = "add-step-after-btn";
+            addStepBtn.innerHTML = "+";
+            addStepBtn.title = "Add step after this one";
+            addStepBtn.onclick = function(e) {
+                e.stopPropagation();
+                addStep(flowId, workflowNameStep);
+            };
+            workflowNameStep.parentNode.insertBefore(addStepBtn, workflowNameStep.nextSibling);
+        }
+    }
+}
+
+/**
+ * Generate final JSON specification
+ */
+window.generateJSON = function() {
+    // Collect main vision/pitch
+    const mainPitch = document.getElementById('main-pitch')?.value || '';
+    
+    // Collect pages
+    const pages = [];
+    document.querySelectorAll('.page-card:not(.add-page-card)').forEach(card => {
+        const name = card.querySelector('input[type="text"]')?.value?.trim() || '';
+        const description = card.querySelector('textarea')?.value?.trim() || '';
+        if (name) {
+            pages.push({
+                name: name,
+                description: description || 'No description provided'
+            });
+        }
+    });
+    
+    // Collect workflows
+    const workflows = [];
+    document.querySelectorAll('.workflow-wrapper').forEach(wrapper => {
+        const nameTextarea = wrapper.querySelector('.workflow-name-textarea');
+        const workflowName = nameTextarea?.value?.trim() || '';
+        
+        const steps = [];
+        wrapper.querySelectorAll('.workflow-step-textarea:not(.workflow-name-textarea)').forEach(stepTextarea => {
+            const stepText = stepTextarea?.value?.trim() || '';
+            if (stepText) {
+                steps.push(stepText);
+            }
+        });
+        
+        if (workflowName || steps.length > 0) {
+            workflows.push({
+                name: workflowName || 'Unnamed Workflow',
+                steps: steps.length > 0 ? steps : ['No steps defined']
+            });
+        }
+    });
+    
+    // Collect features
+    const features = {
+        selected: [],
+        custom: []
+    };
+    
+    // Selected features
+    document.querySelectorAll('.feature-btn.selected').forEach(btn => {
+        const featureName = btn.textContent?.trim() || '';
+        if (featureName) {
+            features.selected.push(featureName);
+        }
+    });
+    
+    // Custom features
+    document.querySelectorAll('.feature-custom-input').forEach(input => {
+        const featureName = input.value?.trim() || '';
+        if (featureName) {
+            features.custom.push(featureName);
+        }
+    });
+    
+    // Collect design style
+    const selectedDesignCard = document.querySelector('.design-card.selected');
+    const design = {
+        name: '',
+        description: ''
+    };
+    
+    if (selectedDesignCard) {
+        const designName = selectedDesignCard.querySelector('.design-name')?.textContent?.trim() || '';
+        const designDescription = selectedDesignCard.querySelector('.design-description')?.textContent?.trim() || '';
+        design.name = designName;
+        design.description = designDescription || 'No description available';
+    }
+    
+    // Collect integrations
+    const integrations = [];
+    document.querySelectorAll('.integration-btn.selected').forEach(btn => {
+        const textSpan = btn.querySelector('span');
+        const integrationName = textSpan?.textContent?.trim() || btn.textContent?.trim() || '';
+        if (integrationName) {
+            integrations.push(integrationName);
+        }
+    });
+    
+    // Collect audience data
+    const selectedPlatform = document.querySelector('.platform-btn.selected');
+    const platform = selectedPlatform ? {
+        type: selectedPlatform.dataset.platform || '',
+        label: selectedPlatform.querySelector('.platform-label')?.textContent?.trim() || ''
+    } : null;
+    
+    const interests = Array.from(document.querySelectorAll('.interest-btn.selected')).map(btn => {
+        return btn.textContent?.trim() || '';
+    }).filter(interest => interest.length > 0);
+    
+    const ageMin = parseInt(document.getElementById('age-range-1-min')?.value || 18);
+    const ageMax = parseInt(document.getElementById('age-range-1-max')?.value || 35);
+    
+    const selectedGender = document.querySelector('.gender-btn.selected');
+    const gender = selectedGender ? {
+        type: selectedGender.dataset.gender || '',
+        label: selectedGender.querySelector('.gender-label')?.textContent?.trim() || ''
+    } : null;
+    
+    // Build comprehensive JSON specification
+    const spec = {
+        metadata: {
+            generatedAt: new Date().toISOString(),
+            version: "1.0",
+            tool: "Specifys.ai Planning Tool"
+        },
+        vision: {
+            description: mainPitch || 'No vision description provided',
+            explanation: mainPitch ? 'This is the main application vision and purpose as described by the user.' : 'No vision was provided.'
+        },
+        pages: {
+            count: pages.length,
+            list: pages,
+            explanation: pages.length > 0 
+                ? `The application includes ${pages.length} page(s) with their names and descriptions.`
+                : 'No pages were defined for this application.'
+        },
+        workflows: {
+            count: workflows.length,
+            list: workflows,
+            explanation: workflows.length > 0
+                ? `The application includes ${workflows.length} workflow(s) defining user journeys and processes.`
+                : 'No workflows were defined for this application.'
+        },
+        features: {
+            selectedCount: features.selected.length,
+            customCount: features.custom.length,
+            selected: features.selected,
+            custom: features.custom,
+            explanation: features.selected.length > 0 || features.custom.length > 0
+                ? `The application includes ${features.selected.length} predefined feature(s) and ${features.custom.length} custom feature(s).`
+                : 'No features were selected for this application.'
+        },
+        design: {
+            selected: design.name || null,
+            description: design.description || null,
+            explanation: design.name
+                ? `The selected design style is "${design.name}". ${design.description}`
+                : 'No design style was selected for this application.'
+        },
+        integrations: {
+            count: integrations.length,
+            list: integrations,
+            explanation: integrations.length > 0
+                ? `The application integrates with ${integrations.length} external service(s): ${integrations.join(', ')}.`
+                : 'No integrations were selected for this application.'
+        },
+        audience: {
+            platform: platform,
+            interests: {
+                count: interests.length,
+                list: interests,
+                explanation: interests.length > 0
+                    ? `Target audience interests include: ${interests.join(', ')}.`
+                    : 'No specific interests were selected for the target audience.'
+            },
+            ageRange: {
+                min: ageMin,
+                max: ageMax,
+                explanation: `Target age range is ${ageMin} to ${ageMax} years old.`
+            },
+            gender: gender,
+            explanation: `Target audience: ${platform ? platform.label : 'No platform selected'}, ${interests.length} interest(s), age ${ageMin}-${ageMax}, ${gender ? gender.label : 'no gender specified'}.`
+        }
+    };
+    
+    // Convert to JSON string with pretty formatting
+    const jsonString = JSON.stringify(spec, null, 2);
+    
+    // Log to console
+    console.log("Generated Comprehensive Spec:", spec);
+    console.log("JSON String:", jsonString);
+    
+    // Return both object and string
+    return {
+        object: spec,
+        json: jsonString
+    };
+};
+
+/**
+ * Convert planning data to formatted text string for prompt
+ */
+window.generatePlanningText = function() {
+    const spec = window.generateJSON();
+    if (!spec || !spec.object) {
+        return '';
+    }
+    
+    const data = spec.object;
+    let text = '';
+    
+    // Main Vision
+    text += `Application Vision:\n${data.vision.description || 'No vision provided'}\n\n`;
+    
+    // Pages
+    if (data.pages && data.pages.list && data.pages.list.length > 0) {
+        text += `Pages (${data.pages.count}):\n`;
+        data.pages.list.forEach((page, index) => {
+            text += `${index + 1}. ${page.name}`;
+            if (page.description && page.description !== 'No description provided') {
+                text += ` - ${page.description}`;
+            }
+            text += '\n';
+        });
+        text += '\n';
+    }
+    
+    // Workflows
+    if (data.workflows && data.workflows.list && data.workflows.list.length > 0) {
+        text += `Workflows (${data.workflows.count}):\n`;
+        data.workflows.list.forEach((workflow, index) => {
+            text += `${index + 1}. ${workflow.name || 'Unnamed Workflow'}\n`;
+            if (workflow.steps && workflow.steps.length > 0) {
+                workflow.steps.forEach((step, stepIndex) => {
+                    text += `   Step ${stepIndex + 1}: ${step}\n`;
+                });
+            }
+        });
+        text += '\n';
+    }
+    
+    // Features
+    if (data.features) {
+        const allFeatures = [];
+        if (data.features.selected && data.features.selected.length > 0) {
+            allFeatures.push(...data.features.selected);
+        }
+        if (data.features.custom && data.features.custom.length > 0) {
+            allFeatures.push(...data.features.custom);
+        }
+        if (allFeatures.length > 0) {
+            text += `Features (${allFeatures.length}):\n`;
+            allFeatures.forEach((feature, index) => {
+                text += `${index + 1}. ${feature}\n`;
+            });
+            text += '\n';
+        }
+    }
+    
+    // Design
+    if (data.design && data.design.selected) {
+        text += `Design Style: ${data.design.selected}`;
+        if (data.design.description) {
+            text += ` - ${data.design.description}`;
+        }
+        text += '\n\n';
+    }
+    
+    // Integrations
+    if (data.integrations && data.integrations.list && data.integrations.list.length > 0) {
+        text += `Integrations (${data.integrations.count}): ${data.integrations.list.join(', ')}\n\n`;
+    }
+    
+    // Audience
+    if (data.audience) {
+        text += `Target Audience:\n`;
+        if (data.audience.platform) {
+            text += `Platform: ${data.audience.platform.label || data.audience.platform.type}\n`;
+        }
+        if (data.audience.interests && data.audience.interests.list && data.audience.interests.list.length > 0) {
+            text += `Interests: ${data.audience.interests.list.join(', ')}\n`;
+        }
+        if (data.audience.ageRange) {
+            text += `Age Range: ${data.audience.ageRange.min} - ${data.audience.ageRange.max} years\n`;
+        }
+        if (data.audience.gender) {
+            text += `Gender: ${data.audience.gender.label || data.audience.gender.type}\n`;
+        }
+        text += '\n';
+    }
+    
+    return text.trim();
+};
+
+/**
+ * Check if a section has data and update indicator
+ */
+function updateSectionIndicator(sectionId) {
+    const btn = document.querySelector(`.nav-btn[data-section="${sectionId}"]`);
+    if (!btn) return;
+    
+    let hasData = false;
+    
+    switch(sectionId) {
+        case 'pages':
+            const pageCards = document.querySelectorAll('.page-card:not(.add-page-card)');
+            hasData = pageCards.length > 0 && Array.from(pageCards).some(card => {
+                const nameInput = card.querySelector('input[type="text"]');
+                return nameInput && nameInput.value.trim().length > 0;
+            });
+            break;
+            
+        case 'workflow':
+            const workflows = document.querySelectorAll('.workflow-wrapper');
+            hasData = workflows.length > 0 && Array.from(workflows).some(wf => {
+                const nameTextarea = wf.querySelector('.workflow-name-textarea');
+                const steps = wf.querySelectorAll('.workflow-step-textarea:not(.workflow-name-textarea)');
+                return (nameTextarea && nameTextarea.value.trim().length > 0) ||
+                       Array.from(steps).some(step => step.value.trim().length > 0);
+            });
+            break;
+            
+        case 'features':
+            const selectedFeatures = document.querySelectorAll('.feature-btn.selected, .feature-custom-input');
+            hasData = selectedFeatures.length > 0 && Array.from(selectedFeatures).some(feature => {
+                if (feature.classList.contains('feature-btn')) return true;
+                return feature.value && feature.value.trim().length > 0;
+            });
+            break;
+            
+        case 'design':
+            hasData = document.querySelector('.design-card.selected') !== null;
+            break;
+            
+        case 'integrations':
+            hasData = document.querySelectorAll('.integration-btn.selected').length > 0;
+            break;
+            
+        case 'audience':
+            const hasPlatform = document.querySelector('.platform-btn.selected') !== null;
+            const hasInterests = document.querySelectorAll('.interest-btn.selected').length > 0;
+            const hasGender = document.querySelector('.gender-btn.selected') !== null;
+            const ageMin = document.getElementById('age-range-1-min');
+            const ageMax = document.getElementById('age-range-1-max');
+            const hasAgeRange = ageMin && ageMax && 
+                (parseInt(ageMin.value) !== 18 || parseInt(ageMax.value) !== 35);
+            hasData = hasPlatform || hasInterests || hasGender || hasAgeRange;
+            break;
+    }
+    
+    if (hasData) {
+        btn.classList.add('has-data');
+    } else {
+        btn.classList.remove('has-data');
+    }
+}
+
+/**
+ * Update all section indicators
+ */
+function updateAllIndicators() {
+    ['pages', 'workflow', 'features', 'design', 'integrations', 'audience'].forEach(sectionId => {
+        updateSectionIndicator(sectionId);
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const pitchInput = document.getElementById('main-pitch');
+    const homeNav = document.getElementById('home-nav');
+    
+    // Keep navigation buttons hidden initially
+    if (homeNav) {
+        homeNav.classList.add('hidden');
+    }
+    
+    if (pitchInput) {
+        pitchInput.addEventListener('input', function() {
+            showInitialNav();
+            updateAllIndicators();
+        });
+    }
+    
+    // Update indicators periodically
+    setInterval(updateAllIndicators, 1000);
+    
+    // Update indicators on various events
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input, textarea')) {
+            setTimeout(updateAllIndicators, 100);
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.feature-btn, .integration-btn, .interest-btn, .platform-btn, .gender-btn, .design-card')) {
+            setTimeout(updateAllIndicators, 100);
+        }
+    });
+    
+    // Initialize character count
+    if (pitchInput) {
+        updateCharacterCount();
+    }
+});
+
+/**
+ * Update character count for main pitch textarea
+ */
+window.updateCharacterCount = function() {
+    const pitchInput = document.getElementById('main-pitch');
+    const countElement = document.getElementById('characterCount');
+    
+    if (!pitchInput || !countElement) return;
+    
+    const currentLength = pitchInput.value.length;
+    const maxLength = parseInt(pitchInput.getAttribute('maxlength')) || 2000;
+    
+    countElement.textContent = `${currentLength} / ${maxLength}`;
+    
+    // Change color if approaching limit
+    if (currentLength > maxLength * 0.9) {
+        countElement.style.color = '#EF4444';
+    } else if (currentLength > maxLength * 0.75) {
+        countElement.style.color = '#F59E0B';
+    } else {
+        countElement.style.color = '';
+    }
+};
+
