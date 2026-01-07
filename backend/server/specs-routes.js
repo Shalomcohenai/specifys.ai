@@ -123,6 +123,43 @@ async function verifyFirebaseToken(req, res, next) {
 }
 
 /**
+ * Get all specs for current user
+ * GET /api/specs
+ */
+router.get('/', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `specs-list-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+        const userId = req.user.uid;
+        
+        logger.info({ requestId, userId }, '[specs-routes] GET /api/specs - Fetching user specs');
+        
+        const specsSnapshot = await db.collection('specs')
+            .where('userId', '==', userId)
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        const specs = specsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        
+        logger.info({ requestId, userId, count: specs.length }, '[specs-routes] GET /api/specs - Success');
+        
+        res.json({
+            success: true,
+            specs: specs
+        });
+        
+    } catch (error) {
+        logger.error({ requestId, userId: req.user?.uid, error: error.message }, '[specs-routes] GET /api/specs - Error');
+        next(createError('Failed to fetch specs', ERROR_CODES.DATABASE_ERROR, 500, {
+            details: error.message
+        }));
+    }
+});
+
+/**
  * Get user entitlements
  * GET /api/specs/entitlements
  * DEPRECATED: This endpoint is deprecated. Use /api/v2/credits instead.

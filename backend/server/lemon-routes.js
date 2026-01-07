@@ -598,6 +598,19 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
 });
 
 /**
+ * GET /api/lemon/webhook
+ * Health check endpoint for webhook (used by Render/Lemon Squeezy to verify endpoint exists)
+ */
+router.get('/webhook', async (req, res) => {
+  logger.info({ method: 'GET', path: '/webhook' }, '[lemon-routes] GET /webhook - Health check');
+  res.status(200).json({
+    success: true,
+    message: 'Webhook endpoint is active. Use POST method to send webhooks.',
+    method: 'POST'
+  });
+});
+
+/**
  * POST /api/lemon/webhook
  * Handle Lemon Squeezy webhooks
  * Note: This endpoint does NOT require Firebase auth (Lemon Squeezy calls it directly)

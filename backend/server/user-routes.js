@@ -179,4 +179,51 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
+/**
+ * Get current user information
+ * GET /api/users/me
+ */
+router.get('/me', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `user-me-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    try {
+        const userId = req.user.uid;
+        
+        // Get user document
+        const userDoc = await db.collection('users').doc(userId).get();
+        
+        if (!userDoc.exists) {
+            return next(createError('User not found', ERROR_CODES.NOT_FOUND, 404));
+        }
+        
+        const userData = userDoc.data();
+        
+        // Get credits
+        const creditsV2Service = require('./credits-v2-service');
+        const credits = await creditsV2Service.getUserCredits(userId);
+        
+        res.json({
+            success: true,
+            user: {
+                id: userId,
+                email: req.user.email || userData.email,
+                ...userData
+            },
+            credits: credits
+        });
+        
+    } catch (error) {
+        logger.error({ 
+            requestId,
+            userId: req.user?.uid,
+            error: {
+                name: error.name,
+                message: error.message
+            }
+        }, '[user-routes] Error getting user info');
+        next(createError('Failed to get user information', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
 module.exports = router;
