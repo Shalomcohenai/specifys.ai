@@ -7,7 +7,7 @@
   'use strict';
 
   // Use main backend server - get from config or fallback
-  const STORE_API_BASE_URL = (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com') + '/api';
+  const STORE_API_BASE_URL = (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com') + '/api';
 
   let lemonConfigPromise = null;
   let lemonSdkPromise = null;
@@ -276,7 +276,7 @@
 
     try {
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       // Use new credits API
       const data = await window.api.get('/api/v2/credits');
       

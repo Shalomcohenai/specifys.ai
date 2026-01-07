@@ -18,7 +18,7 @@ export class ApiService {
       // Ensure URL doesn't have trailing slash
       return url.endsWith('/') ? url.slice(0, -1) : url;
     }
-    return 'https://specifys-ai-development.onrender.com';
+    return 'https://specifys-ai.onrender.com';
   }
   
   /**

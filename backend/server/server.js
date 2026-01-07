@@ -108,6 +108,7 @@ const allowedOrigins = [
   'http://127.0.0.1:4000',
   'https://specifys-ai.com',
   'https://www.specifys-ai.com',
+  'https://specifys-ai.onrender.com',
   'https://specifys-ai-development.onrender.com',
   process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
 ].filter(Boolean);

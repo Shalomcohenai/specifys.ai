@@ -3,7 +3,7 @@
  * Client-side utility for tracking analytics events
  */
 
-const API_BASE_URL = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+const API_BASE_URL = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
 
 /**
  * Track a page view
