@@ -11,9 +11,9 @@ services:
   - type: web
     name: specifys-backend
     env: node
+    rootDirectory: backend
     buildCommand: npm install
     startCommand: npm start
-    rootDirectory: backend
     envVars:
       - key: NODE_ENV
         value: production
