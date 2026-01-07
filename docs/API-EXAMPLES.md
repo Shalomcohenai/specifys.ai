@@ -10,7 +10,7 @@ const user = await window.api.get('/api/users/me');
 
 // Using Fetch
 const token = await firebase.auth().currentUser.getIdToken();
-const response = await fetch('https://specifys-ai-development.onrender.com/api/users/me', {
+const response = await fetch('https://specifys-ai-backend.onrender.com/api/users/me', {
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -198,7 +198,7 @@ function useSpecs() {
 
 ```bash
 curl -X GET \
-  https://specifys-ai-development.onrender.com/api/users/me \
+  https://specifys-ai-backend.onrender.com/api/users/me \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json"
 ```
@@ -207,7 +207,7 @@ curl -X GET \
 
 ```bash
 curl -X POST \
-  https://specifys-ai-development.onrender.com/api/specs \
+  https://specifys-ai-backend.onrender.com/api/specs \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -225,7 +225,7 @@ You can import the OpenAPI specification into Postman:
 1. Go to Postman
 2. Click "Import"
 3. Select "Link"
-4. Enter: `https://specifys-ai-development.onrender.com/api-docs/swagger.json`
+4. Enter: `https://specifys-ai-backend.onrender.com/api-docs/swagger.json`
 5. Click "Import"
 
 This will create a Postman collection with all API endpoints.

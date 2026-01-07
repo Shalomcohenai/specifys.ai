@@ -22,7 +22,7 @@ Lemon Squeezy **לא שולח webhooks** אם הם לא מוגדרים מראש 
 1. היכנס ל: https://app.lemonsqueezy.com/settings/webhooks
 2. לחץ על **"Create Webhook"**
 3. מלא את הפרטים:
-   - **URL**: `https://specifys-ai-development.onrender.com/api/lemon/webhook`
+   - **URL**: `https://specifys-ai-backend.onrender.com/api/lemon/webhook`
    - **Secret**: `testpassword123` (חייב להיות זהה ל-`LEMON_WEBHOOK_SECRET` ב-Render!)
    - **Events**: בחר **`order_created`** (חובה!)
    - **Test Mode**: השאר unchecked (או סמן אם זה רק לבדיקות)
@@ -38,7 +38,7 @@ curl -X POST "https://api.lemonsqueezy.com/v1/webhooks" \
     "data": {
       "type": "webhooks",
       "attributes": {
-        "url": "https://specifys-ai-development.onrender.com/api/lemon/webhook",
+        "url": "https://specifys-ai-backend.onrender.com/api/lemon/webhook",
         "events": ["order_created"],
         "secret": "testpassword123"
       },
@@ -98,7 +98,7 @@ User ID: ...
 - בלוגים של Lemon Squeezy רואים Failed attempts
 
 **פתרון:**
-- ודא שה-URL הוא בדיוק: `https://specifys-ai-development.onrender.com/api/lemon/webhook`
+- ודא שה-URL הוא בדיוק: `https://specifys-ai-backend.onrender.com/api/lemon/webhook`
 - **לא** עם `/` בסוף
 - **רק** HTTPS (לא HTTP)
 - בלי typos
@@ -128,7 +128,7 @@ User ID: ...
 ### 6. Checklist לפני בדיקה נוספת
 
 - [ ] Webhook מוגדר ב-Lemon Squeezy Dashboard
-- [ ] URL נכון: `https://specifys-ai-development.onrender.com/api/lemon/webhook`
+- [ ] URL נכון: `https://specifys-ai-backend.onrender.com/api/lemon/webhook`
 - [ ] Secret זהה ב-Render וב-Lemon Squeezy: `testpassword123`
 - [ ] Event `order_created` נבחר ב-webhook
 - [ ] Webhook Status = Active
@@ -151,7 +151,7 @@ User ID: ...
 
 #### בדיקה ידנית של Endpoint
 ```bash
-curl -X POST https://specifys-ai-development.onrender.com/api/lemon/webhook \
+curl -X POST https://specifys-ai-backend.onrender.com/api/lemon/webhook \
   -H "Content-Type: application/json" \
   -H "x-signature: sha256=test" \
   -d '{"test": "data"}'
@@ -184,7 +184,7 @@ curl -X POST https://specifys-ai-development.onrender.com/api/lemon/webhook \
 
 **הפתרון:**
 1. הגדר webhook ב-Dashboard: https://app.lemonsqueezy.com/settings/webhooks
-2. URL: `https://specifys-ai-development.onrender.com/api/lemon/webhook`
+2. URL: `https://specifys-ai-backend.onrender.com/api/lemon/webhook`
 3. Secret: `testpassword123`
 4. Event: `order_created`
 5. בדוק את הלוגים אחרי רכישה נוספת

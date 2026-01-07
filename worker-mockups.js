@@ -12,6 +12,8 @@ const SCHEMA_VERSION = "1.0";
 const ALLOWED_ORIGINS = [
   'https://specifys-ai.com',
   'https://www.specifys-ai.com',
+  'https://specifys-ai.onrender.com',
+  'https://specifys-ai-backend.onrender.com',
   'https://specifys-ai-development.onrender.com'
 ];
 

@@ -6,7 +6,7 @@ The Specifys.ai API provides endpoints for user management, spec generation, cre
 
 ## Base URL
 
-- **Production**: `https://specifys-ai-development.onrender.com`
+- **Production**: `https://specifys-ai-backend.onrender.com`
 - **Development**: `http://localhost:3000`
 
 ## Authentication
@@ -23,7 +23,7 @@ Most endpoints require authentication using Firebase ID tokens.
 
 ```javascript
 const token = await firebase.auth().currentUser.getIdToken();
-const response = await fetch('https://specifys-ai-development.onrender.com/api/users/me', {
+const response = await fetch('https://specifys-ai-backend.onrender.com/api/users/me', {
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ Interactive API documentation is available at:
 ### Accessing Documentation
 
 1. **Local Development**: `http://localhost:3000/api-docs/swagger`
-2. **Production**: `https://specifys-ai-development.onrender.com/api-docs/swagger`
+2. **Production**: `https://specifys-ai-backend.onrender.com/api-docs/swagger`
 
 ## API Endpoints
 
@@ -182,7 +182,7 @@ await window.api.delete(`/api/specs/${specId}`);
 ```javascript
 const token = await firebase.auth().currentUser.getIdToken();
 
-const response = await fetch('https://specifys-ai-development.onrender.com/api/specs', {
+const response = await fetch('https://specifys-ai-backend.onrender.com/api/specs', {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,

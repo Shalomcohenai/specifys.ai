@@ -22,7 +22,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://specifys-ai.onrender.com',
+        url: 'https://specifys-ai-backend.onrender.com',
         description: 'Production server',
       },
       {

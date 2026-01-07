@@ -54,6 +54,8 @@ export default {
 function cors(res, origin = null) {
   if (origin && (
     origin.includes("specifys-ai.com") ||
+    origin.includes("specifys-ai.onrender.com") ||
+    origin.includes("specifys-ai-backend.onrender.com") ||
     origin.includes("specifys-ai-development.onrender.com") ||
     origin.includes("localhost")
   )) {

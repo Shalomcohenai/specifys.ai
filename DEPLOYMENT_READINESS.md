@@ -2,7 +2,7 @@
 
 **תאריך:** 2025-01-XX  
 **ענף:** `new-beckend`  
-**שרת Backend:** `https://specifys-ai-development.onrender.com`
+**שרת Backend:** `https://specifys-ai-backend.onrender.com`
 
 ---
 
@@ -11,7 +11,7 @@
 כל הקבצים מוגדרים נכון עם הכתובת החדשה:
 
 ### Frontend Configuration
-- ✅ `assets/js/config.js` - מוגדר ל-`https://specifys-ai-development.onrender.com`
+- ✅ `assets/js/config.js` - מוגדר ל-`https://specifys-ai-backend.onrender.com`
 - ✅ כל הקבצים המשתמשים ב-`getApiBaseUrl()` מקבלים את הכתובת הנכונה
 
 ### Backend Configuration
@@ -97,7 +97,7 @@ npm start
 curl http://localhost:10000/api/health
 
 # 3. בדוק שהכתובת נכונה ב-config
-grep -r "specifys-ai-development.onrender.com" assets/js/config.js
+grep -r "specifys-ai-backend.onrender.com" assets/js/config.js
 ```
 
 ### בדיקות ב-Render
@@ -129,7 +129,7 @@ git push origin new-beckend
 1. לך ל-Render Dashboard
 2. בדוק שה-service `specifys-backend` רץ
 3. בדוק את ה-logs
-4. בדוק: `https://specifys-ai-development.onrender.com/api/health`
+4. בדוק: `https://specifys-ai-backend.onrender.com/api/health`
 
 ### שלב 4: בדיקות Frontend
 1. פתח את האתר

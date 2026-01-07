@@ -37,10 +37,10 @@
         // Use production backend URL for production, development URL for dev
         if (isProduction) {
             // Production: use the same backend URL (Render service)
-            return 'https://specifys-ai.onrender.com';
+            return 'https://specifys-ai-backend.onrender.com';
         } else {
             // Development: use development backend
-            return 'https://specifys-ai.onrender.com';
+            return 'https://specifys-ai-backend.onrender.com';
         }
     }
 

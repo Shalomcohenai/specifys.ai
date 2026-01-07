@@ -4,7 +4,7 @@
 
   const API_BASE_URL = typeof window.getApiBaseUrl === "function"
     ? window.getApiBaseUrl()
-    : "https://specifys-ai.onrender.com";
+    : "https://specifys-ai-backend.onrender.com";
 
   async function loadBlogPosts() {
     const container = document.getElementById('blog-posts-container');
