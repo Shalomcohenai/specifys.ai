@@ -1,19 +1,71 @@
-// Prompts for New 3-Question Specification Flow
-// This file contains all the prompts for the simplified specification system
+// Prompts for Planning-Based Specification Flow
+// This file contains all the prompts for the planning-based specification system
+// The system now uses: App Description + Structured Cards (Pages, Workflows, Features, Design, Integrations, Target Audience)
 
 const PROMPTS = {
   // Overview prompt - generates general app information
   overview: (answers) => {
-    const appDescription = answers[0] || 'Not provided';
-    const workflow = answers[1] || 'Not provided';
-    const additionalDetails = answers[2] || 'Not provided';
-    // Target Audience information should be inferred from app description and workflow
+    // In the new structure, all information comes in answers[0] as structured text
+    // answers[1] and answers[2] are empty strings (kept for backward compatibility)
+    const userInput = answers[0] || 'Not provided';
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. If a value is unknown, return an empty array/object—never omit required keys.
 
 IMPORTANT: All output must be in English regardless of the input language.
 
-Create a comprehensive and detailed overview based on the user input. Analyze the provided information thoroughly and generate extensive content:
+INPUT STRUCTURE:
+The user input below is structured into clear sections:
+- "App Description:" - The main application description/vision
+- "Pages:" - Specific pages the user has defined (if provided)
+- "Workflows:" - Specific workflows with steps the user has defined (if provided)
+- "Features:" - Specific features the user has selected/defined (if provided)
+- "Design Style:" - Design preferences the user has selected (if provided)
+- "Integrations:" - Third-party integrations the user has specified (if provided)
+- "Target Audience:" - Audience details the user has provided (if provided)
+
+CRITICAL WORKFLOW - FOLLOW THIS EXACT ORDER:
+
+STEP 1: IDENTIFY USER-PROVIDED DATA
+First, scan the user input and identify which sections exist:
+- Does "Pages:" section exist? → List all pages mentioned
+- Does "Workflows:" section exist? → List all workflows and their steps
+- Does "Features:" section exist? → List all features mentioned
+- Does "Design Style:" section exist? → Note the design style
+- Does "Integrations:" section exist? → List all integrations
+- Does "Target Audience:" section exist? → Extract all audience details
+
+STEP 2: USE USER-PROVIDED DATA AS FOUNDATION (MANDATORY)
+For each section that EXISTS in the user input:
+- This data is MANDATORY and MUST appear in the specification
+- Use it as the foundation/base for that field
+- Do NOT replace, omit, or generalize user-provided information
+- If user provided specific pages → those EXACT pages must appear in screenDescriptions.screens
+- If user provided specific workflows → those EXACT workflows and steps must appear in detailedUserFlow.steps
+- If user provided specific features → those EXACT features must appear in coreFeaturesOverview
+- If user provided design style → it MUST be reflected in the design descriptions
+- If user provided integrations → they MUST be included in complexityScore and relevant sections
+- If user provided target audience details → those EXACT values must appear in targetAudience
+
+STEP 3: COMPLETE AND EXPAND (ONLY WHERE USER DATA EXISTS)
+After including all user-provided data:
+- You may expand on user-provided pages with additional details (but keep the core page names/descriptions)
+- You may expand on user-provided workflows with decision points, error handling, etc. (but keep the core workflow steps)
+- You may add descriptions to user-provided features (but keep the exact feature names)
+- You may enhance design descriptions based on the design style (but keep the style reference)
+- You may add context around integrations (but keep the exact integration names)
+- You may expand on target audience (but keep the exact values provided)
+
+STEP 4: FILL GAPS (ONLY WHERE USER DATA DOES NOT EXIST)
+For sections that DO NOT exist in the user input:
+- You may infer and create content based on the App Description
+- You may add additional pages if needed (but ONLY if "Pages:" section was empty)
+- You may add additional workflows if needed (but ONLY if "Workflows:" section was empty)
+- You may add additional features if needed (but ONLY if "Features:" section was empty)
+- You may infer design style if not provided (but ONLY if "Design Style:" section was empty)
+- You may infer integrations if not provided (but ONLY if "Integrations:" section was empty)
+- You may infer target audience if not provided (but ONLY if "Target Audience:" section was empty)
+
+Create a comprehensive and detailed overview based on the user input. Follow the workflow above to ensure user-provided data is prioritized:
 
 {
   "overview": {
@@ -73,10 +125,86 @@ IMPORTANT DETAILED REQUIREMENTS:
 - All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
 
-User Input:
-${appDescription}
+DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
 
-Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
+1. screenDescriptions.screens:
+   - IF "Pages:" section EXISTS in user input:
+     * EVERY page from "Pages:" MUST appear in screenDescriptions.screens
+     * Use the exact page names and descriptions provided
+     * You may expand with additional UI details, but the core page structure MUST match
+     * Minimum: Include ALL user-provided pages
+   - IF "Pages:" section DOES NOT EXIST:
+     * You may create 5-7 screens based on App Description analysis
+     * Infer pages from the application description
+
+2. detailedUserFlow.steps:
+   - IF "Workflows:" section EXISTS in user input:
+     * EVERY workflow from "Workflows:" MUST appear in detailedUserFlow.steps
+     * Include ALL steps from each workflow exactly as provided
+     * You may add decision points, error handling, confirmations, but the core workflow steps MUST match
+     * The userJourneySummary MUST incorporate these specific workflows
+   - IF "Workflows:" section DOES NOT EXIST:
+     * You may create workflows based on App Description analysis
+     * Infer user flows from the application description
+
+3. coreFeaturesOverview:
+   - IF "Features:" section EXISTS in user input:
+     * EVERY feature from "Features:" MUST appear in coreFeaturesOverview
+     * Use the exact feature names provided
+     * You may add brief descriptions, but feature names MUST match exactly
+     * Minimum: Include ALL user-provided features (both selected and custom)
+   - IF "Features:" section DOES NOT EXIST:
+     * You may create 6-8 features based on App Description analysis
+     * Infer features from the application description
+
+4. Design Style (in screenDescriptions and valueProposition):
+   - IF "Design Style:" section EXISTS in user input:
+     * The design style MUST be reflected in screenDescriptions and valueProposition
+     * Use the exact design style name and description provided
+     * Incorporate the design style into visual descriptions
+   - IF "Design Style:" section DOES NOT EXIST:
+     * You may infer design style based on App Description and target audience
+
+5. Integrations (in complexityScore.integrations and relevant sections):
+   - IF "Integrations:" section EXISTS in user input:
+     * EVERY integration from "Integrations:" MUST be considered in complexityScore.integrations
+     * Each integration service name MUST appear in relevant sections
+     * Use exact integration names provided
+   - IF "Integrations:" section DOES NOT EXIST:
+     * You may infer integrations based on App Description analysis
+     * Set complexityScore.integrations accordingly (0 if no integrations inferred)
+
+6. targetAudience:
+   - IF "Target Audience:" section EXISTS in user input:
+     * Platform (if provided) MUST be reflected in targetAudience.sector
+     * ALL interests (if provided) MUST appear in targetAudience.interests array
+     * Age range (if provided) MUST be used in targetAudience.ageRange
+     * Gender (if provided) MUST be considered
+     * Use EXACT values - do NOT infer or modify
+   - IF "Target Audience:" section DOES NOT EXIST:
+     * You may infer target audience based on App Description analysis
+
+7. ideaSummary, problemStatement, valueProposition:
+   - MUST be based on "App Description:" section
+   - Use the App Description as the foundation
+   - You may expand and enhance, but core content MUST align with user's description
+
+VALIDATION CHECKLIST (Before generating output):
+✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens?
+✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps in detailedUserFlow.steps?
+✓ Did I check if "Features:" section exists? If yes, did I include ALL features in coreFeaturesOverview?
+✓ Did I check if "Design Style:" section exists? If yes, did I incorporate it in design descriptions?
+✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?
+✓ Did I check if "Target Audience:" section exists? If yes, did I use EXACT values (platform, interests, age range)?
+✓ Did I base ideaSummary, problemStatement, and valueProposition on "App Description:" section?
+✓ For sections that DON'T exist, did I infer appropriately based on App Description?
+
+REMEMBER: User-provided data is MANDATORY if it exists. Only fill gaps where user data is missing.
+
+User Input:
+${userInput}
+
+Note: The user input above uses a structured format with sections. Follow the workflow: (1) Identify which sections exist, (2) Use user-provided data as mandatory foundation, (3) Expand on user data where it exists, (4) Fill gaps only where user data is missing. The specification MUST accurately reflect what the user provided, and only supplement where the user did not provide information.`;
   },
 
   // Technical specification prompt - generates detailed technical specs
@@ -249,7 +377,7 @@ Note: The system will retrieve the full overview content automatically. Use this
 User Input:
 ${appDescription}
 
-Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
+Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section. The technical specification MUST reflect the exact pages, workflows, features, design style, integrations, and target audience provided by the user.`;
   },
 
   // Market research prompt - generates market analysis
@@ -527,7 +655,7 @@ Note: The system will retrieve the full overview content automatically. Use this
 User Input:
 ${appDescription}
 
-Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
+Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section. The market research MUST reflect the exact pages, workflows, features, design style, integrations, and target audience provided by the user.`;
   },
 
   // Design & Branding prompt - generates design guidelines and branding
@@ -642,7 +770,22 @@ Note: The system will retrieve the full overview content automatically. Use this
 User Input:
 ${appDescription}
 
-Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
+CRITICAL FOR DESIGN SPECIFICATION:
+If the user input contains a "Design Style:" section:
+- The design style MUST be incorporated into the visualStyleGuide
+- The design style description MUST influence color palettes, typography, and overall aesthetic
+- If a specific design style is mentioned (e.g., "Minimalist", "Modern", "Corporate"), it MUST be reflected throughout the design specification
+- The design must align with the design style preferences provided by the user
+
+If the user input contains a "Pages:" section:
+- ALL pages listed MUST be considered when defining the design system
+- The design must account for the specific pages mentioned by the user
+
+If the user input contains a "Target Audience:" section:
+- The design style MUST be appropriate for the target audience mentioned
+- Platform preferences (mobile/web) from target audience MUST influence the design approach
+
+Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section. The design specification MUST reflect the exact pages, workflows, features, design style, integrations, and target audience provided by the user.`;
   },
 
   // Diagrams prompt - generates Mermaid diagrams
@@ -780,7 +923,7 @@ Create a comprehensive raw text response. Return JSON with rawText key containin
 User Input:
 ${appDescription}
 
-Note: The user input above contains comprehensive information about the application including vision, pages, workflows, features, design style, integrations, and target audience. Analyze all this information thoroughly to generate the specification.`;
+Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section when generating diagrams.`;
   },
 
   // Prompts generation - creates comprehensive development prompt and third-party integration instructions
