@@ -57,5 +57,57 @@
 
 # Articles redirects
 /pages/article.html /article.html 301
-/pages/articles.html /articles.html 301
+/articles.html /pages/articles.html 301
+
+# Format fixes - missing /pages/ or .html
+/about.html /pages/about.html 301
+/about /pages/about.html 301
+/ToolPicker /pages/ToolPicker.html 301
+/ToolPicker.html /pages/ToolPicker.html 301
+/Demo.html /pages/demo-spec.html 301
+
+# Non-existent pages - redirect to 404
+/TESTING-GUIDE/ /pages/404.html 301
+/STORE_SYSTEM_REMOVAL_LIST/ /pages/404.html 301
+/map/vibe-coding-tools-map.html /tools/map/vibe-coding-tools-map.html 301
+/blog/map/vibe-coding-tools-map.html /tools/map/vibe-coding-tools-map.html 301
+/result /pages/404.html 301
+/result-novice /pages/404.html 301
+/result-novice.html /pages/404.html 301
+/tools/result.html /pages/404.html 301
+/tools/result-novice.html /pages/404.html 301
+/tools/result-market.html /pages/404.html 301
+/tools/processing-market.html /pages/404.html 301
+/landing /pages/404.html 301
+/landing.html /pages/404.html 301
+/dashboard /pages/404.html 301
+/dashboard.html /pages/404.html 301
+/pages/demo.html /pages/demo-spec.html 301
+/blog-generator.html /pages/404.html 301
+
+# Non-existent pages - redirect to alternative pages
+/register /pages/auth.html 301
+/register.html /pages/auth.html 301
+/blog/about.html /pages/about.html 301
+/blog/how.html /pages/how.html 301
+
+# Non-existent blog posts - redirect to 404
+/blog/dsvsd.html /pages/404.html 301
+/blog/article10.html /pages/404.html 301
+/blog/vibe-coding-beginners-guide-2025.html /pages/404.html 301
+/blog/ai-role-vibe-coding-2025.html /pages/404.html 301
+/blog/vibe-coding-pioneer-interview-2025.html /pages/404.html 301
+/blog/vibe-coding-security-risks-2025.html /pages/404.html 301
+/blog/vibe-coding-education-2025.html /pages/404.html 301
+/blog/vibe-coding-future-trends-2026.html /pages/404.html 301
+
+# Articles with wrong format - redirect to articles page
+/article1.html /pages/articles.html 301
+/article2.html /pages/articles.html 301
+/article3.html /pages/articles.html 301
+/article4.html /pages/articles.html 301
+/article5.html /pages/articles.html 301
+/article6.html /pages/articles.html 301
+/article7.html /pages/articles.html 301
+/article8.html /pages/articles.html 301
 

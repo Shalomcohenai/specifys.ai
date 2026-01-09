@@ -806,7 +806,9 @@ class AcademyApp {
         const guideId = urlParams.get('guide');
 
         if (!guideId) {
-            window.location.href = '/academy.html';
+            // No guide ID - redirect to 404
+            console.warn('[AcademyApp] No guide ID provided, redirecting to 404');
+            window.location.href = '/pages/404.html';
             return;
         }
 
@@ -832,7 +834,9 @@ class AcademyApp {
             const guideDoc = await Promise.race([loadPromise, timeoutPromise]);
 
             if (!guideDoc.exists) {
-                window.location.href = '/academy.html';
+                // Guide doesn't exist - redirect to 404
+                console.warn('[AcademyApp] Guide not found, redirecting to 404', { guideId });
+                window.location.href = '/pages/404.html';
                 return;
             }
 
@@ -883,8 +887,17 @@ class AcademyApp {
             this.setupQuestions(guide);
 
         } catch (error) {
-            // Error loading guide
-            document.getElementById('guide-body').innerHTML = `<div class="loading-placeholder">Error loading guide: ${error.message}. Please try again later.</div>`;
+            // Error loading guide - check if it's a "not found" error
+            if (error.message.includes('not found') || error.message.includes('does not exist')) {
+                console.warn('[AcademyApp] Guide not found in error, redirecting to 404', { guideId, error: error.message });
+                window.location.href = '/pages/404.html';
+                return;
+            }
+            // Other errors - show error message
+            const guideBody = document.getElementById('guide-body');
+            if (guideBody) {
+                guideBody.innerHTML = `<div class="loading-placeholder">Error loading guide: ${error.message}. Please try again later.</div>`;
+            }
         }
     }
 

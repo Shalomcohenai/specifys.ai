@@ -81,7 +81,6 @@ include:
   - assets/css/pages/404.css
   - assets/css/pages/about.css
   - assets/css/pages/academy.css
-  - assets/css/pages/admin-dashboard.css
   - assets/css/pages/article.css
   - assets/css/pages/articles.css
   - assets/css/pages/auth.css
@@ -92,7 +91,6 @@ include:
   - assets/css/pages/index.css
   - assets/css/pages/index-process-flow.css
   - assets/css/pages/index-why-sections.css
-  - assets/css/pages/maintenance.css
   - assets/css/pages/planning.css
   - assets/css/pages/pricing.css
   - assets/css/pages/profile.css

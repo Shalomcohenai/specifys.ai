@@ -58,7 +58,7 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
     const staticUrls = [
         { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'weekly' },
         { loc: `${baseUrl}/blog/`, priority: '0.9', changefreq: 'weekly' },
-        { loc: `${baseUrl}/articles.html`, priority: '0.9', changefreq: 'weekly' },
+        { loc: `${baseUrl}/pages/articles.html`, priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/academy.html`, priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/pages/about.html`, priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/how.html`, priority: '0.8', changefreq: 'monthly' },

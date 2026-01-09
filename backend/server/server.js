@@ -991,6 +991,86 @@ app.get('/pages/articles.html', (req, res) => {
   });
 });
 
+// Handle /article.html route - check if article exists before serving (prevent Soft 404)
+app.get('/article.html', async (req, res, next) => {
+  const slug = req.query.slug;
+  const requestId = `article-check-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // If no slug, serve the page normally (it will show error on client side)
+  if (!slug) {
+    return next();
+  }
+  
+  logger.info({ requestId, slug }, '[UNIFIED SERVER] 📝 Checking if article exists before serving');
+  
+  try {
+    const { db } = require('./firebase-admin');
+    const ARTICLES_COLLECTION = 'articles';
+    const snapshot = await db.collection(ARTICLES_COLLECTION).get();
+    
+    const matchingDoc = snapshot.docs.find(doc => {
+      const data = doc.data();
+      return data.slug === slug && data.status === 'published';
+    });
+    
+    if (!matchingDoc) {
+      logger.warn({ requestId, slug }, '[UNIFIED SERVER] ⚠️ Article not found, returning 404');
+      const notFoundPath = path.join(staticRootPath, '_site', 'pages', '404.html');
+      const resolvedNotFoundPath = path.resolve(notFoundPath);
+      return res.status(404).sendFile(resolvedNotFoundPath, (err) => {
+        if (err) {
+          logger.error({ requestId, error: err.message }, '[UNIFIED SERVER] ❌ Error serving 404 page');
+          res.status(404).send('Article not found');
+        }
+      });
+    }
+    
+    logger.info({ requestId, slug, articleId: matchingDoc.id }, '[UNIFIED SERVER] ✅ Article exists, serving page');
+    next(); // Continue to serve the article page
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[UNIFIED SERVER] ❌ Error checking article existence');
+    next(); // On error, fall through to serve page (let client handle it)
+  }
+});
+
+// Handle /academy/guide.html route - check if guide exists before serving (prevent Soft 404)
+app.get('/academy/guide.html', async (req, res, next) => {
+  const guideId = req.query.guide;
+  const requestId = `guide-check-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // If no guide ID, serve the page normally (it will show error on client side)
+  if (!guideId) {
+    return next();
+  }
+  
+  logger.info({ requestId, guideId }, '[UNIFIED SERVER] 📝 Checking if guide exists before serving');
+  
+  try {
+    const { db } = require('./firebase-admin');
+    const ACADEMY_GUIDES_COLLECTION = 'academy_guides';
+    const guideRef = db.collection(ACADEMY_GUIDES_COLLECTION).doc(guideId);
+    const guideDoc = await guideRef.get();
+    
+    if (!guideDoc.exists) {
+      logger.warn({ requestId, guideId }, '[UNIFIED SERVER] ⚠️ Guide not found, returning 404');
+      const notFoundPath = path.join(staticRootPath, '_site', 'pages', '404.html');
+      const resolvedNotFoundPath = path.resolve(notFoundPath);
+      return res.status(404).sendFile(resolvedNotFoundPath, (err) => {
+        if (err) {
+          logger.error({ requestId, error: err.message }, '[UNIFIED SERVER] ❌ Error serving 404 page');
+          res.status(404).send('Guide not found');
+        }
+      });
+    }
+    
+    logger.info({ requestId, guideId }, '[UNIFIED SERVER] ✅ Guide exists, serving page');
+    next(); // Continue to serve the guide page
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[UNIFIED SERVER] ❌ Error checking guide existence');
+    next(); // On error, fall through to serve page (let client handle it)
+  }
+});
+
 // Serve root static files AFTER blog routes to avoid conflicts
 // Configure static files with caching headers for better performance
 app.use(express.static(staticRootPath, {
