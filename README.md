@@ -187,13 +187,13 @@ The site requires a backend server for API endpoints (user entitlements, spec cr
 ### Start the Backend Server
 
 ```bash
-cd backend
+cd scripts/backend
 ./start-server.sh
 ```
 
 Or manually:
 ```bash
-cd backend
+cd backend/server
 node server.js
 ```
 

@@ -43,7 +43,7 @@ FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
 ### שיטה 1: שימוש בסקריפט (מומלץ)
 
 ```bash
-cd backend/server
+cd ../../scripts/backend
 ./start-server.sh
 ```
 

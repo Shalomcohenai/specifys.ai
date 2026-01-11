@@ -5,5 +5,5 @@
  */
 
 // Import home page scripts
-import '../index.js';
+import '../features/index/index.js';
 import '../paywall.js';

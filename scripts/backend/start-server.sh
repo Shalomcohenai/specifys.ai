@@ -16,9 +16,9 @@ if ! command -v npm &> /dev/null; then
 fi
 
 # Install dependencies in server directory if needed
-if [ ! -d "server/node_modules" ]; then
+if [ ! -d "../../backend/server/node_modules" ]; then
     echo "📦 Installing dependencies..."
-    cd server && npm install && cd ..
+    cd ../../backend/server && npm install && cd ../../scripts/backend
 fi
 
 # Start the server
@@ -34,5 +34,6 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 # Start server and log output
+cd ../../backend
 node server/server.js 2>&1 | tee server.log
 

@@ -65,6 +65,7 @@ Thumbs.db
 *.bak
 *.backup
 *~
+*_backup_*.json
 
 # Optional: Local development files
 *.local

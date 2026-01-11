@@ -136,10 +136,10 @@
 
 ```bash
 # בדיקה מול production
-./backend/test-wakeup.sh
+../../scripts/backend/test-wakeup.sh
 
 # בדיקה מול שרת אחר
-./backend/test-wakeup.sh https://your-server.com
+../../scripts/backend/test-wakeup.sh https://your-server.com
 ```
 
 **הסקריפט בודק:**

@@ -50,9 +50,10 @@ exclude:
   - Thumbs.db
   - package.json
   - package-lock.json
-  - create-post.js
-  - create-post.sh
-  - create-post.bat
+  - scripts/blog/create-post.js
+  - scripts/blog/create-post.sh
+  - scripts/blog/create-post.bat
+  - scripts/
   - config/
   - backup-*
   - assets/css/main.scss

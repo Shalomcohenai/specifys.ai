@@ -4,8 +4,8 @@
  */
 
 // Import utility scripts
-import '../spec-formatter.js';
-import '../typingEffect.js';
-import '../mobile-optimizations.js';
+import '../utils/spec-formatter.js';
+import '../utils/typingEffect.js';
+import '../utils/mobile-optimizations.js';
 
 
