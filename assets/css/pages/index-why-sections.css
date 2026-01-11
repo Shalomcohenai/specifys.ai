@@ -16,11 +16,21 @@
   padding: 0 20px;
 }
 
+/* Match font sizes with .section h2 and .section p */
+.why-section .section-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.why-section .section-subtitle {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
 /* Prompt Section (The Promise That Falls Short) */
 .why-section.prompt-section {
   position: relative;
   min-height: 600px;
   overflow: hidden;
+  padding-top: 150px;
 }
 
 .prompt-animation-container {
@@ -149,7 +159,7 @@
   border-bottom: 1px solid #e0e0e0;
   font-size: 0.95rem;
   color: #333;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .variables-table tbody tr:last-child td {
@@ -258,13 +268,18 @@
   font-size: 1.1rem;
   line-height: 1.7;
   color: #333;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   margin-bottom: 15px;
 }
 
 .cta-container {
   margin-top: 30px;
   text-align: center;
+}
+
+/* How It Works section - add margin-top */
+.why-section[data-section="4"] {
+  margin-top: 80px;
 }
 
 /* Responsive */

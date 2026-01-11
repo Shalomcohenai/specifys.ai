@@ -467,7 +467,9 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
     <!-- Planning Interface -->
     <div class="planning-container hidden" id="planningContainer">
         <header class="planning-header">
-            <h1 class="planning-label">Application Vision</h1>
+            <div id="export-area" class="export-area hidden" style="margin-bottom: 15px;">
+                <button onclick="generateSpecFromPlanning()" class="export-btn">Generate Final Spec</button>
+            </div>
             <div class="pitch-input-wrapper">
                 <textarea 
                     id="main-pitch" 
@@ -583,16 +585,32 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                                 <h3 class="audience-section-title">Platform</h3>
                                 <div class="platform-selector">
                                     <button class="platform-btn" data-platform="mobile" onclick="selectPlatform('mobile')">
-                                        <span class="platform-icon">📱</span>
+                                        <span class="platform-icon">
+                                            <i class="fa fa-mobile-alt"></i>
+                                        </span>
                                         <span class="platform-label">Mobile</span>
+                                        <span class="selected-check-icon">
+                                            <i class="fa fa-check"></i>
+                                        </span>
                                     </button>
                                     <button class="platform-btn" data-platform="web" onclick="selectPlatform('web')">
-                                        <span class="platform-icon">💻</span>
+                                        <span class="platform-icon">
+                                            <i class="fa fa-desktop"></i>
+                                        </span>
                                         <span class="platform-label">Web</span>
+                                        <span class="selected-check-icon">
+                                            <i class="fa fa-check"></i>
+                                        </span>
                                     </button>
                                     <button class="platform-btn" data-platform="both" onclick="selectPlatform('both')">
-                                        <span class="platform-icon">📱💻</span>
+                                        <span class="platform-icon">
+                                            <i class="fa fa-mobile-alt"></i>
+                                            <i class="fa fa-desktop"></i>
+                                        </span>
                                         <span class="platform-label">Both</span>
+                                        <span class="selected-check-icon">
+                                            <i class="fa fa-check"></i>
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -601,21 +619,18 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                                 <h3 class="audience-section-title">Age Range</h3>
                                 <div class="age-range-container">
                                     <div class="age-range-wrapper">
-                                        <div class="age-arc-container">
-                                            <svg class="age-arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-                                                <path class="age-arc-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#D1D5DB" stroke-width="8"/>
-                                                <path class="age-arc-fill" id="age-arc-fill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#FF6B35" stroke-width="8" stroke-linecap="round"/>
-                                                <circle class="age-handle" id="age-handle-min" cx="20" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
-                                                <circle class="age-handle" id="age-handle-max" cx="180" cy="100" r="12" fill="#FF6B35" stroke="white" stroke-width="3" cursor="grab"/>
-                                            </svg>
-                                            <div class="age-arc-labels">
-                                                <span class="age-arc-label-min">13</span>
-                                                <span class="age-arc-label-max">80</span>
+                                        <div class="age-slider-container">
+                                            <div class="age-slider-labels">
+                                                <span class="age-slider-label-min">13</span>
+                                                <span class="age-slider-label-max">80</span>
                                             </div>
+                                            <div class="age-slider-track">
+                                                <div class="age-slider-fill" id="age-slider-fill-1"></div>
+                                                <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider age-slider-min" oninput="updateAgeRange('1')">
+                                                <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider age-slider-max" oninput="updateAgeRange('1')">
+                                            </div>
+                                            <div class="age-display" id="age-display-1">18 - 35</div>
                                         </div>
-                                        <div class="age-display" id="age-display-1">18 - 35</div>
-                                        <input type="range" id="age-range-1-min" min="13" max="80" value="18" class="age-slider-hidden" oninput="updateAgeArc('1')">
-                                        <input type="range" id="age-range-1-max" min="13" max="80" value="35" class="age-slider-hidden" oninput="updateAgeArc('1')">
                                     </div>
                                 </div>
                             </div>
@@ -629,10 +644,6 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                 </div>
             </div>
         </div>
-        
-        <footer id="export-area" class="export-area hidden">
-            <button onclick="generateSpecFromPlanning()" class="export-btn">Generate Final Spec</button>
-        </footer>
     </div>
 </section>
 
@@ -739,69 +750,8 @@ graph TD
 
 <!-- Content Sections -->
 <div class="extra-sections">
-  <!-- Tools Section -->
-  <div class="section" style="--section-index: 0;">
-    <h2>Discover Our Tools</h2>
-    <p>Everything you need to build your app - from planning to deployment</p>
-    <div class="tools-showcase" role="list" aria-label="Available tools">
-      <div class="tool-square" data-tool="tools-map" role="listitem">
-        <div class="icon" aria-hidden="true">
-          <i class="fa fa-map"></i>
-        </div>
-        <div class="content">
-          <h3>Tools Map</h3>
-          <p>Explore AI tools for developers</p>
-          <a href="/tools/map/vibe-coding-tools-map.html" class="tool-link" onclick="trackToolUsage('Tools Map', 'explore_now')" aria-label="Explore the Vibe Coding Tools Map">Explore Now</a>
-        </div>
-      </div>
-      <div class="tool-square" data-tool="tool-finder" role="listitem">
-        <div class="icon" aria-hidden="true">
-          <i class="fa fa-search"></i>
-        </div>
-        <div class="content">
-          <h3>Tool Finder</h3>
-          <p>Find perfect tools for your needs</p>
-          <a href="/pages/ToolPicker.html" class="tool-link" onclick="trackToolUsage('Tool Finder', 'find_now')" aria-label="Use the Tool Finder to find perfect tools">Find Now</a>
-        </div>
-      </div>
-      <div class="tool-square" data-tool="app-management" role="listitem">
-        <div class="icon" aria-hidden="true">
-          <i class="fa fa-cogs"></i>
-        </div>
-        <div class="content">
-          <h3>App Management</h3>
-          <p>Manage your apps & specs (Members)</p>
-          <a href="#startButton" class="tool-link" onclick="trackToolUsage('App Management', 'start_planning'); document.getElementById('startButton')?.scrollIntoView({ behavior: 'smooth' });" aria-label="Start planning your app">Start Here</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats Section -->
-  <div class="section" style="--section-index: 1;">
-    <h2>Our Impact</h2>
-    <p>Join thousands who've planned apps with Specifys.ai!</p>
-    <div class="stats-list">
-      <div class="stat-item">
-        <div class="stat-number" data-target="0" data-stats-type="tools">0+</div>
-        <h3>Vibe Coding Tools</h3>
-        <p>Curated tools in our Vibe Coding Tools Map.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="0" data-stats-type="specs">0+</div>
-        <h3>Specs Created</h3>
-        <p>AI-powered specifications created by our community.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="0" data-stats-type="tool-finder">0+</div>
-        <h3>Tool Finder Users</h3>
-        <p>Creators finding perfect tools with our AI-powered Tool Finder.</p>
-      </div>
-    </div>
-  </div>
-
   <!-- Pricing Table -->
-  <div class="section" style="--section-index: 2;">
+  <div class="section" style="--section-index: 0;">
     <h2>Choose Your Plan</h2>
     <p>Start free or upgrade for unlimited specifications</p>
     <div class="pricing-grid-home">
@@ -879,84 +829,8 @@ graph TD
     <p class="pricing-footer">Start for free • No credit card required</p>
   </div>
 
-  <!-- Benefits Section -->
-  <div class="section" style="--section-index: 3;">
-    <h2>Why Specifys.ai Shines</h2>
-    <p>Your complete AI-powered app planning ecosystem—from idea to launch!</p>
-    <div class="benefits-container">
-      <div class="benefit-card">
-        <div class="benefit-icon"><i class="fa fa-map"></i></div>
-        <div class="benefit-content">
-          <h3>Vibe Coding Tools Map</h3>
-          <p>Discover curated AI-driven development tools, all organized and categorized.</p>
-        </div>
-      </div>
-      <div class="benefit-card">
-        <div class="benefit-icon"><i class="fa fa-search"></i></div>
-        <div class="benefit-content">
-          <h3>Smart Tool Finder</h3>
-          <p>Find the perfect tools for your project with our AI-powered recommendation engine.</p>
-        </div>
-      </div>
-      <div class="benefit-card">
-        <div class="benefit-icon"><i class="fa fa-line-chart"></i></div>
-        <div class="benefit-content">
-          <h3>Market Research & Validation</h3>
-          <p>Get AI-powered market insights and competitor analysis.</p>
-        </div>
-      </div>
-      <div class="benefit-card">
-        <div class="benefit-icon"><i class="fa fa-cogs"></i></div>
-        <div class="benefit-content">
-          <h3>Complete Project Management</h3>
-          <p>Plan, track, and manage your entire app development journey.</p>
-        </div>
-      </div>
-      <div class="benefit-card">
-        <div class="benefit-icon"><i class="fa fa-gift"></i></div>
-        <div class="benefit-content">
-          <h3>Start Free</h3>
-          <p>Get one specification free, then upgrade for more with flexible pricing plans.</p>
-        </div>
-      </div>
-    </div>
-    <a href="/" class="cta-button" onclick="trackCTA('Start Planning Free', 'benefits_section')">Start Planning Free</a>
-  </div>
-
-  <!-- Use Cases Section -->
-  <div class="section" style="--section-index: 4;">
-    <h2>WHO'S USING SPECIFYS.AI?</h2>
-    <p>From dreamers to developers, entrepreneurs to teams!</p>
-    <div class="use-cases-list">
-      <div class="use-case-item">
-        <h3>Dreamers & Entrepreneurs</h3>
-        <p>Transform ideas into actionable plans with one free specification.</p>
-      </div>
-      <div class="use-case-item">
-        <h3>Developers & Coders</h3>
-        <p>Create multiple specs and accelerate development with Vibe Coding Tools Map.</p>
-      </div>
-      <div class="use-case-item">
-        <h3>Startup Teams</h3>
-        <p>Validate multiple ideas, track milestones with unlimited specifications on Pro.</p>
-      </div>
-      <div class="use-case-item">
-        <h3>Product Managers</h3>
-        <p>Plan and edit specs freely with the Pro subscription.</p>
-      </div>
-      <div class="use-case-item">
-        <h3>No-Code Creators</h3>
-        <p>Build multiple apps—start free and upgrade as you grow.</p>
-      </div>
-      <div class="use-case-item">
-        <h3>Freelancers & Consultants</h3>
-        <p>Deliver professional app plans with flexible pricing options.</p>
-      </div>
-    </div>
-  </div>
-
   <!-- FAQ Section -->
-  <div class="section" style="--section-index: 5;">
+  <div class="section" style="--section-index: 1;">
     <h2>Got Questions? We Got You!</h2>
     <p>Everything you need to know about Specifys.ai!</p>
     <div class="faq-list">
@@ -1001,37 +875,6 @@ graph TD
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Testimonials Section -->
-  <div class="section" style="--section-index: 6;">
-    <h2>Our Users Say</h2>
-    <p>Hear from users building amazing apps!</p>
-    <div class="testimonials-container">
-      <div class="testimonials-gallery">
-        <div class="testimonial-card">
-          <div class="testimonial-name">Sarah M.</div>
-          <div class="testimonial-text">"The user management system is a game-changer!"</div>
-        </div>
-        <div class="testimonial-card">
-          <div class="testimonial-name">David K.</div>
-          <div class="testimonial-text">"Vibe Coding Tools Map saved me weeks of research."</div>
-        </div>
-        <div class="testimonial-card">
-          <div class="testimonial-name">Lisa R.</div>
-          <div class="testimonial-text">"Tool Finder helped me find the right no-code platform."</div>
-        </div>
-        <div class="testimonial-card">
-          <div class="testimonial-name">Alex T.</div>
-          <div class="testimonial-text">"The market research feature gave me amazing insights."</div>
-        </div>
-        <div class="testimonial-card">
-          <div class="testimonial-name">Maria G.</div>
-          <div class="testimonial-text">"I love how I can save all my specs in one place."</div>
-        </div>
-      </div>
-    </div>
-    <p>Ready to join them? <a href="/" class="cta-button" onclick="trackCTA('Start Planning Free', 'testimonials_section')">Start Planning Free</a></p>
   </div>
 </div>
 

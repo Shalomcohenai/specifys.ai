@@ -70,26 +70,50 @@ const predefinedPages = [
 ];
 
 /**
- * Show initial navigation when user types in the pitch textarea
+ * Show initial navigation when user types in the pitch textarea or focuses on it
  */
 window.showInitialNav = function() {
     const pitch = document.getElementById('main-pitch');
     const footer = document.getElementById('export-area');
     const homeNav = document.getElementById('home-nav');
     
-    // Show navigation buttons only after user starts typing
-    if (pitch && pitch.value.length > 0) {
-        if (homeNav) {
+    // Show navigation buttons when user starts typing OR when textarea is focused
+    // Once shown, keep them visible if there's text (even if textarea loses focus)
+    const hasText = pitch && pitch.value.length > 0;
+    const isFocused = pitch && document.activeElement === pitch;
+    
+    // Keep buttons visible if there's text, even after clicking buttons
+    const shouldShow = hasText || isFocused;
+    
+    if (shouldShow) {
+        if (homeNav && homeNav.classList.contains('hidden')) {
+            // Remove hidden class first
             homeNav.classList.remove('hidden');
+            // Force reflow to ensure the element is visible before animation
+            void homeNav.offsetHeight;
+            // Add fade-in class for animation
+            homeNav.classList.add('fade-in');
         }
         if (footer) {
             footer.classList.remove('hidden');
         }
     } else {
-        if (homeNav) {
-            homeNav.classList.add('hidden');
+        // Only hide if there's no text AND textarea is not focused
+        // Don't hide if user just clicked a button (check if section panel is visible)
+        const sectionPanel = document.getElementById('section-panel');
+        const isSectionOpen = sectionPanel && !sectionPanel.classList.contains('hidden-el');
+        
+        if (!isSectionOpen && homeNav && !homeNav.classList.contains('hidden')) {
+            // Remove fade-in class first
+            homeNav.classList.remove('fade-in');
+            // Wait for animation to complete before hiding
+            setTimeout(() => {
+                if (homeNav && !homeNav.classList.contains('fade-in')) {
+                    homeNav.classList.add('hidden');
+                }
+            }, 400);
         }
-        if (footer) {
+        if (!isSectionOpen && footer) {
             footer.classList.add('hidden');
         }
     }
@@ -162,6 +186,19 @@ window.openSection = function(id) {
         if (genericView) genericView.classList.remove('hidden-el');
     }
     
+    // Ensure navigation buttons stay visible when section is open
+    const pitch = document.getElementById('main-pitch');
+    const homeNav = document.getElementById('home-nav');
+    if (pitch && homeNav) {
+        // Keep buttons visible if there's text OR if section is now open
+        if (pitch.value.length > 0 || !sectionPanel.classList.contains('hidden-el')) {
+            homeNav.classList.remove('hidden');
+            if (!homeNav.classList.contains('fade-in')) {
+                homeNav.classList.add('fade-in');
+            }
+        }
+    }
+    
     // Restore scroll position to prevent jump
     window.scrollTo(0, scrollY);
 };
@@ -210,9 +247,16 @@ function renderDesign() {
         description.className = "design-description";
         description.textContent = style.description;
         
+        const checkIcon = document.createElement('span');
+        checkIcon.className = "selected-check-icon";
+        const iconElement = document.createElement('i');
+        iconElement.className = "fa fa-check";
+        checkIcon.appendChild(iconElement);
+        
         div.appendChild(button);
         div.appendChild(name);
         div.appendChild(description);
+        div.appendChild(checkIcon);
         grid.appendChild(div);
     });
 }
@@ -234,7 +278,9 @@ function renderIntegrations() {
             
             const checkIcon = document.createElement('span');
             checkIcon.className = "integration-check-icon";
-            checkIcon.textContent = "✓";
+            const iconElement = document.createElement('i');
+            iconElement.className = "fa fa-check";
+            checkIcon.appendChild(iconElement);
             
             btn.appendChild(textSpan);
             btn.appendChild(checkIcon);
@@ -258,7 +304,17 @@ function renderFeatures() {
     commonFeatures.forEach(feature => {
         const btn = document.createElement('button');
         btn.className = "feature-btn";
-        btn.textContent = feature;
+        const textSpan = document.createElement('span');
+        textSpan.textContent = feature;
+        
+        const checkIcon = document.createElement('span');
+        checkIcon.className = "selected-check-icon";
+        const iconElement = document.createElement('i');
+        iconElement.className = "fa fa-check";
+        checkIcon.appendChild(iconElement);
+        
+        btn.appendChild(textSpan);
+        btn.appendChild(checkIcon);
         btn.onclick = function() {
             this.classList.toggle('selected');
             updateSectionIndicator('features');
@@ -287,7 +343,17 @@ function renderAudience() {
     interestCategories.forEach(interest => {
         const btn = document.createElement('button');
         btn.className = "interest-btn";
-        btn.textContent = interest;
+        const textSpan = document.createElement('span');
+        textSpan.textContent = interest;
+        
+        const checkIcon = document.createElement('span');
+        checkIcon.className = "selected-check-icon";
+        const iconElement = document.createElement('i');
+        iconElement.className = "fa fa-check";
+        checkIcon.appendChild(iconElement);
+        
+        btn.appendChild(textSpan);
+        btn.appendChild(checkIcon);
         btn.onclick = function() {
             this.classList.toggle('selected');
             updateSectionIndicator('audience');
@@ -312,16 +378,17 @@ window.selectPlatform = function(platform) {
 
 
 /**
- * Update age display and arc
+ * Update age display and slider
  */
 window.updateAgeDisplay = function(rangeNum) {
-    updateAgeArc(rangeNum);
+    updateAgeRange(rangeNum);
 }
 
-window.updateAgeArc = function(rangeNum) {
+window.updateAgeRange = function(rangeNum) {
     const minSlider = document.getElementById(`age-range-${rangeNum}-min`);
     const maxSlider = document.getElementById(`age-range-${rangeNum}-max`);
     const display = document.getElementById(`age-display-${rangeNum}`);
+    const fill = document.getElementById(`age-slider-fill-${rangeNum}`);
     
     if (!minSlider || !maxSlider || !display) return;
     
@@ -344,150 +411,24 @@ window.updateAgeArc = function(rangeNum) {
     // Update indicator
     updateSectionIndicator('audience');
     
-    // Update arc visualization
-    const minHandle = document.getElementById('age-handle-min');
-    const maxHandle = document.getElementById('age-handle-max');
-    const arcFill = document.getElementById('age-arc-fill');
-    
-    if (minHandle && maxHandle && arcFill) {
-        // Convert age to angle (13-80 maps to 180-0 degrees for top arc)
-        // Arc goes from left (180°) to right (0°)
-        const minAngle = 180 - ((min - 13) / (80 - 13)) * 180;
-        const maxAngle = 180 - ((max - 13) / (80 - 13)) * 180;
-        
-        // Convert to radians
-        const minRad = (minAngle * Math.PI) / 180;
-        const maxRad = (maxAngle * Math.PI) / 180;
-        
-        // Calculate positions on arc (radius 80, center at 100, 100)
-        const radius = 80;
-        const centerX = 100;
-        const centerY = 100;
-        
-        const minX = centerX + radius * Math.cos(minRad);
-        const minY = centerY - radius * Math.sin(minRad);
-        const maxX = centerX + radius * Math.cos(maxRad);
-        const maxY = centerY - radius * Math.sin(maxRad);
-        
-        // Update handle positions
-        minHandle.setAttribute('cx', minX);
-        minHandle.setAttribute('cy', minY);
-        maxHandle.setAttribute('cx', maxX);
-        maxHandle.setAttribute('cy', maxY);
-        
-        // Update arc path (large arc flag: 1 if arc > 180°, 0 otherwise)
-        const angleDiff = Math.abs(maxAngle - minAngle);
-        const largeArcFlag = angleDiff > 180 ? 1 : 0;
-        const arcPath = `M ${minX} ${minY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${maxX} ${maxY}`;
-        arcFill.setAttribute('d', arcPath);
+    // Update slider fill (the colored portion between min and max)
+    if (fill) {
+        const minPercent = ((min - 13) / (80 - 13)) * 100;
+        const maxPercent = ((max - 13) / (80 - 13)) * 100;
+        fill.style.left = minPercent + '%';
+        fill.style.width = (maxPercent - minPercent) + '%';
     }
 }
 
-// Initialize age arc on page load and add drag functionality
+// Initialize age range on page load
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         if (document.getElementById('age-range-1-min')) {
-            updateAgeArc('1');
-            initAgeArcDrag();
+            updateAgeRange('1');
         }
     }, 100);
 });
 
-/**
- * Initialize drag functionality for age arc handles
- */
-function initAgeArcDrag() {
-    const minHandle = document.getElementById('age-handle-min');
-    const maxHandle = document.getElementById('age-handle-max');
-    const svg = document.querySelector('.age-arc-svg');
-    
-    if (!minHandle || !maxHandle || !svg) return;
-    
-    let isDragging = false;
-    let currentHandle = null;
-    
-    function startDrag(e) {
-        isDragging = true;
-        currentHandle = e.target;
-        e.preventDefault();
-    }
-    
-    function drag(e) {
-        if (!isDragging || !currentHandle) return;
-        
-        const rect = svg.getBoundingClientRect();
-        
-        // Get SVG viewBox coordinates (viewBox="0 0 200 120")
-        const svgX = ((e.clientX - rect.left) / rect.width) * 200;
-        const svgY = ((e.clientY - rect.top) / rect.height) * 120;
-        
-        // Calculate angle from center (100, 100)
-        const centerX = 100;
-        const centerY = 100;
-        const radius = 80;
-        
-        const dx = svgX - centerX;
-        const dy = centerY - svgY; // Invert Y for SVG coordinates
-        let angle = Math.atan2(dy, dx);
-        
-        // Convert to 0-180 degrees range (top half of circle, left to right)
-        // Arc goes from 180° (left) to 0° (right)
-        if (angle < 0) angle = Math.PI + angle;
-        if (angle > Math.PI) angle = Math.PI;
-        
-        // Convert angle to age (13-80), where 180° = 13 and 0° = 80
-        const normalizedAngle = (Math.PI - angle) / Math.PI; // 0 at left (13), 1 at right (80)
-        const age = 13 + normalizedAngle * (80 - 13);
-        const ageInt = Math.round(Math.max(13, Math.min(80, age)));
-        
-        // Update slider
-        if (currentHandle.id === 'age-handle-min') {
-            const minSlider = document.getElementById('age-range-1-min');
-            const maxSlider = document.getElementById('age-range-1-max');
-            if (minSlider && maxSlider) {
-                if (ageInt <= parseInt(maxSlider.value)) {
-                    minSlider.value = ageInt;
-                    updateAgeArc('1');
-                }
-            }
-        } else {
-            const minSlider = document.getElementById('age-range-1-min');
-            const maxSlider = document.getElementById('age-range-1-max');
-            if (minSlider && maxSlider) {
-                if (ageInt >= parseInt(minSlider.value)) {
-                    maxSlider.value = ageInt;
-                    updateAgeArc('1');
-                }
-            }
-        }
-    }
-    
-    function stopDrag() {
-        isDragging = false;
-        currentHandle = null;
-    }
-    
-    minHandle.addEventListener('mousedown', startDrag);
-    maxHandle.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    
-    // Touch support
-    minHandle.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startDrag({ target: minHandle, clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-    });
-    maxHandle.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startDrag({ target: maxHandle, clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-    });
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging) {
-            drag({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-        }
-    });
-    document.addEventListener('touchend', stopDrag);
-}
 
 /**
  * Add a custom feature
@@ -1171,9 +1112,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (pitchInput) {
+        // Show buttons when user starts typing
         pitchInput.addEventListener('input', function() {
             showInitialNav();
             updateAllIndicators();
+        });
+        
+        // Show buttons when user focuses on textarea
+        pitchInput.addEventListener('focus', function() {
+            showInitialNav();
+        });
+        
+        // Hide buttons when user blurs (loses focus) and there's no text
+        // But keep them visible if there's text or if a section is open
+        pitchInput.addEventListener('blur', function(e) {
+            // Check if the blur was caused by clicking on a nav button or section panel
+            const relatedTarget = e.relatedTarget;
+            const isClickingNavButton = relatedTarget && (
+                relatedTarget.closest('.nav-btn') || 
+                relatedTarget.closest('#home-nav') ||
+                relatedTarget.closest('#section-panel')
+            );
+            
+            // Only hide if there's no text AND user didn't click on nav/section
+            if (pitchInput.value.length === 0 && !isClickingNavButton) {
+                // Use a small delay to check if focus moved to nav button or section
+                setTimeout(() => {
+                    // Double check that focus is not on nav button or section
+                    const activeElement = document.activeElement;
+                    const isNavFocused = activeElement && (
+                        activeElement.closest('.nav-btn') || 
+                        activeElement.closest('#home-nav') ||
+                        activeElement.closest('#section-panel')
+                    );
+                    
+                    // Also check if section panel is open
+                    const sectionPanel = document.getElementById('section-panel');
+                    const isSectionOpen = sectionPanel && !sectionPanel.classList.contains('hidden-el');
+                    
+                    if (pitchInput.value.length === 0 && !isNavFocused && !isSectionOpen) {
+                        const homeNav = document.getElementById('home-nav');
+                        if (homeNav) {
+                            homeNav.classList.remove('fade-in');
+                            homeNav.classList.add('hidden');
+                        }
+                        const footer = document.getElementById('export-area');
+                        if (footer) {
+                            footer.classList.add('hidden');
+                        }
+                    }
+                }, 150);
+            }
         });
     }
     

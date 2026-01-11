@@ -1,4 +1,33 @@
 /* Index Page Specific Styles - Specifys.ai */
+
+/* ===== FONT FAMILY SETUP ===== */
+/* Ensure all text on the home page uses Montserrat font */
+.hero-section,
+.why-section,
+.extra-sections {
+  font-family: "Montserrat", sans-serif;
+}
+
+.hero-section h1,
+.hero-section h2,
+.hero-section h3,
+.why-section h1,
+.why-section h2,
+.why-section h3,
+.section h1,
+.section h2,
+.section h3 {
+  font-family: "Montserrat", sans-serif;
+}
+
+.section p,
+.section span,
+.section div,
+.section li,
+.section a:not(.btn):not(.pricing-btn):not(.tool-link):not(.cta-button) {
+  font-family: "Montserrat", sans-serif;
+}
+
 /* ===== LOGO STYLES ===== */
 /* Using higher specificity instead of !important */
 body .logo a,
@@ -362,7 +391,7 @@ body .logo a:hover .logo-dot {
 }
 
 .hero-description-text {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: clamp(0.95rem, 2vw, 1.1rem);
   font-weight: 400;
   color: #ffffff;
@@ -599,7 +628,7 @@ body .logo a:hover .logo-dot {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
   max-width: 900px;
   width: 95%;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s ease-out;
@@ -1025,7 +1054,7 @@ body .logo a:hover .logo-dot {
   border: 1px solid #404040;
   border-radius: 12px;
   padding: 20px 24px;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 600;
   font-size: 15px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -1221,7 +1250,7 @@ body .logo a:hover .logo-dot {
 }
 
 .why-section.prompt-section {
-  margin-top: 200px;
+  margin-top: 280px;
 }
 
 .section {
@@ -1238,6 +1267,7 @@ body .logo a:hover .logo-dot {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
   color: #333;
+  font-family: "Montserrat", sans-serif;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -1279,6 +1309,7 @@ body .logo a:hover .logo-dot {
   font-size: clamp(1rem, 2vw, 1.2rem);
   font-weight: 500;
   color: #333;
+  font-family: "Montserrat", sans-serif;
   max-width: 800px;
   margin: 0 auto 1rem;
   line-height: 1.6;
@@ -2579,7 +2610,7 @@ body .logo a:hover .logo-dot {
 }
 
 .question-detail {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 16px;
   font-weight: 400;
   color: #cccccc;
@@ -2826,7 +2857,7 @@ body .logo a:hover .logo-dot {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .access-code-body {
@@ -2839,7 +2870,7 @@ body .logo a:hover .logo-dot {
   font-size: 0.95rem;
   line-height: 1.6;
   text-align: center;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .access-code-input {
@@ -2851,7 +2882,7 @@ body .logo a:hover .logo-dot {
   font-weight: 600;
   text-align: center;
   letter-spacing: 2px;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
@@ -2867,7 +2898,7 @@ body .logo a:hover .logo-dot {
   color: #dc2626;
   font-size: 0.9rem;
   text-align: center;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   animation: shake 0.4s ease-in-out;
 }
 
@@ -2895,7 +2926,7 @@ body .logo a:hover .logo-dot {
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -3015,7 +3046,7 @@ body .logo a:hover .logo-dot {
   font-weight: 700;
   color: #333;
   margin: 0 0 12px 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .credit-popup-message {
@@ -3023,7 +3054,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   margin: 0 0 24px 0;
   line-height: 1.5;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .credit-popup-timer {
@@ -3036,7 +3067,7 @@ body .logo a:hover .logo-dot {
   font-size: 18px;
   font-weight: 600;
   color: #FF6B35;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* Mobile adjustments for credit popup */
@@ -3302,7 +3333,7 @@ body .logo a:hover .logo-dot {
   margin-bottom: 25px;
   font-size: 0.8rem;
   line-height: 1.6;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .diagram-container {
@@ -3419,7 +3450,7 @@ body .logo a:hover .logo-dot {
   font-size: 0.8rem;
   line-height: 1.8;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .brand-identity-content {
@@ -3453,7 +3484,7 @@ body .logo a:hover .logo-dot {
   font-size: 0.8rem;
   line-height: 1.7;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .brand-values-list {
@@ -3462,7 +3493,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.8rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .brand-values-list li {
@@ -3517,7 +3548,7 @@ body .logo a:hover .logo-dot {
   color: #888;
   font-size: 0.64rem;
   margin-top: 5px;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .market-section-container {
@@ -3554,7 +3585,7 @@ body .logo a:hover .logo-dot {
   font-size: 0.8rem;
   line-height: 1.8;
   margin: 0 0 25px 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .market-stats-grid {
@@ -3613,7 +3644,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.8rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .market-trends-list li {
@@ -3654,7 +3685,7 @@ body .logo a:hover .logo-dot {
   font-size: 0.8rem;
   line-height: 1.8;
   margin: 0 0 20px 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .technical-section-text:last-child {
@@ -3687,7 +3718,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.76rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .technical-tables-list li {
@@ -3705,7 +3736,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.76rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   list-style: none;
 }
 
@@ -3764,7 +3795,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.8rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .overview-summary-text p {
@@ -3781,7 +3812,7 @@ body .logo a:hover .logo-dot {
   color: #666;
   font-size: 0.8rem;
   line-height: 1.8;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .overview-features-list li {
@@ -3902,7 +3933,7 @@ body .logo a:hover .logo-dot {
   color: #6b7280;
   font-weight: 500;
   margin-bottom: 8px;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 .circle-level {
@@ -3968,7 +3999,7 @@ body .logo a:hover .logo-dot {
   font-size: 11.2px;
   color: #6b7280;
   font-weight: 500;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* Metrics */
