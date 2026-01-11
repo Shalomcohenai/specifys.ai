@@ -610,33 +610,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
-  padding: 40px 20px;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding: 20px 10px;
 }
 
 .process-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 6px;
   flex: 1;
-  min-width: 200px;
-  max-width: 280px;
+  min-width: 100px;
+  max-width: 160px;
 }
 
 .process-icon {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   background: linear-gradient(135deg, #FF6B35, #FF8551);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2rem;
+  font-size: 1.3rem;
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .process-step:hover .process-icon {
@@ -645,20 +646,23 @@
 }
 
 .process-step h4 {
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
   margin: 0;
   font-family: "Montserrat", sans-serif;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .process-arrow {
-  font-size: 2rem;
+  font-size: 1.2rem;
   color: #FF6B35;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
+  min-width: 20px;
+  flex-shrink: 0;
   animation: arrowPulse 2s infinite;
 }
 
@@ -691,7 +695,7 @@
 .spec-card-square-orange {
   position: relative;
   aspect-ratio: 1;
-  background: #FF6B35;
+  background: #333;
   border: none;
   display: flex;
   align-items: center;
@@ -704,9 +708,9 @@
 
 .spec-card-square-orange:hover,
 .spec-card-square-orange.active {
-  background: #FF8551;
+  background: #333;
   transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
   z-index: 10;
 }
 
@@ -734,10 +738,15 @@
 
 .spec-card-square-orange:hover .spec-icon-orange,
 .spec-card-square-orange.active .spec-icon-orange {
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -50%) scale(0.8);
-  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.spec-card-square-orange:hover .spec-icon-orange i,
+.spec-card-square-orange.active .spec-icon-orange i {
+  color: #FF6B35;
 }
 
 .spec-content-orange {
@@ -881,13 +890,18 @@
   }
   
   .process-icon {
-    width: 70px;
-    height: 70px;
-    font-size: 1.8rem;
+    width: 55px;
+    height: 55px;
+    font-size: 1.3rem;
   }
   
   .process-step h4 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+  
+  .process-arrow {
+    font-size: 1.3rem;
+    min-width: 25px;
   }
   
   .spec-cards-showcase-orange {
@@ -901,13 +915,18 @@
   }
   
   .process-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
   }
   
   .process-step h4 {
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+  
+  .process-arrow {
+    font-size: 1.2rem;
+    min-width: 20px;
   }
   
   .mermaid-diagram {

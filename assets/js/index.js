@@ -2131,16 +2131,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 700 + (index * 100)); // Each icon appears 100ms after the previous one
     });
     
-    // Fade in Start button and View Demo button last, before Vanta (~1.1s - after icons start appearing)
+    // Fade in Start button and secondary buttons (Why? and View Demo) last, before Vanta (~1.1s - after icons start appearing)
     if (startButton) {
       setTimeout(() => {
         startButton.classList.add('fade-in');
         
-        // Fade in View Demo button at the same time
-        const viewDemoButton = document.querySelector('.hero-cta-button-secondary');
-        if (viewDemoButton) {
-          viewDemoButton.classList.add('fade-in');
-        }
+        // Fade in all secondary buttons (Why? and View Demo) at the same time
+        const secondaryButtons = document.querySelectorAll('.hero-cta-button-secondary');
+        secondaryButtons.forEach((button) => {
+          button.classList.add('fade-in');
+        });
         
         // Fade in browser window after Start button appears
         const browserWindow = document.querySelector('.browser-window-preview');
