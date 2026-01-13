@@ -111,7 +111,6 @@ router.post('/users/sync', requireAdmin, async (req, res, next) => {
     const options = req.body && typeof req.body === 'object' ? req.body : {};
     logger.debug({ requestId, options }, '[admin-routes] Sync options');
     const summary = await syncAllUsers({
-      ensureEntitlements: options.ensureEntitlements !== false,
       includeDataCollections: options.includeDataCollections !== false,
       dryRun: false,
       recordResult: true
@@ -153,7 +152,6 @@ router.get('/users/sync-status', requireAdmin, async (req, res, next) => {
     const includeDataCollections = req.query.includeDataCollections !== 'false';
     logger.debug({ requestId, includeDataCollections }, '[admin-routes] Computing sync status');
     const preview = await syncAllUsers({
-      ensureEntitlements: false,
       includeDataCollections,
       dryRun: true,
       recordResult: false
@@ -493,14 +491,6 @@ router.delete('/users/:userId', requireAdmin, async (req, res, next) => {
       deletedCount++;
     }
 
-    // Delete entitlements document
-    const entitlementsRef = db.collection('entitlements').doc(userId);
-    const entitlementsDoc = await entitlementsRef.get();
-    if (entitlementsDoc.exists) {
-      batch.delete(entitlementsRef);
-      deletedCount++;
-    }
-
     // Delete subscriptions document
     const subscriptionsRef = db.collection('subscriptions').doc(userId);
     const subscriptionsDoc = await subscriptionsRef.get();
@@ -800,10 +790,32 @@ router.get('/contact-submissions', requireAdmin, async (req, res, next) => {
     query = query.limit(limitCount);
     
     const snapshot = await query.get();
-    const submissions = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const submissions = snapshot.docs.map(doc => {
+      const data = doc.data();
+      // Convert Firestore Timestamps to ISO strings
+      const result = {
+        id: doc.id,
+        ...data
+      };
+      
+      // Convert createdAt
+      if (data.createdAt && data.createdAt.toDate) {
+        result.createdAt = data.createdAt.toDate().toISOString();
+      } else if (data.createdAt instanceof Date) {
+        result.createdAt = data.createdAt.toISOString();
+      } else if (data.timestamp) {
+        result.createdAt = new Date(data.timestamp).toISOString();
+      }
+      
+      // Convert updatedAt
+      if (data.updatedAt && data.updatedAt.toDate) {
+        result.updatedAt = data.updatedAt.toDate().toISOString();
+      } else if (data.updatedAt instanceof Date) {
+        result.updatedAt = data.updatedAt.toISOString();
+      }
+      
+      return result;
+    });
     
     logger.info({ requestId, count: submissions.length }, '[admin-routes] GET /contact-submissions - Success');
     res.json({ success: true, submissions });
@@ -933,17 +945,9 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
             results.migrated++;
             logger.info({ requestId, userId: user.id }, '[admin-routes] Migrated user credits');
           } else {
-            // Dry run - just check if migration is needed
-            const entitlementsRef = db.collection('entitlements').doc(user.id);
-            const entitlementsDoc = await entitlementsRef.get();
-            
-            if (entitlementsDoc.exists) {
-              results.migrated++;
-              logger.debug({ requestId, userId: user.id }, '[admin-routes] Would migrate user credits (dry run)');
-            } else {
-              results.alreadySynced++;
-              logger.debug({ requestId, userId: user.id }, '[admin-routes] User has no old credits to migrate (dry run)');
-            }
+            // Dry run - user needs credits initialization
+            results.migrated++;
+            logger.debug({ requestId, userId: user.id }, '[admin-routes] Would initialize user credits (dry run)');
           }
         }
       } catch (error) {

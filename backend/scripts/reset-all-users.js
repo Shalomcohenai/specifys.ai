@@ -16,27 +16,39 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 async function resetUser(uid) {
-  const entRef = db.collection('entitlements').doc(uid);
+  const creditsRef = db.collection('user_credits').doc(uid);
   const userRef = db.collection('users').doc(uid);
   const subRef = db.collection('subscriptions').doc(uid);
 
-  const entUpdate = {
-    unlimited: false,
-    can_edit: false,
-    spec_credits: 1,
-    preserved_credits: admin.firestore.FieldValue.delete(),
-    unlimited_since: admin.firestore.FieldValue.delete(),
-    updated_at: admin.firestore.FieldValue.serverTimestamp()
+  const creditsUpdate = {
+    userId: uid,
+    balances: {
+      paid: 0,
+      free: 1,
+      bonus: 0
+    },
+    subscription: {
+      type: 'none',
+      status: 'none',
+      expiresAt: null,
+      preservedCredits: 0
+    },
+    permissions: {
+      canEdit: false,
+      canCreateUnlimited: false
+    },
+    metadata: {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }
   };
 
   const userUpdate = {
     plan: 'free',
-    free_specs_remaining: 1,
     last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
   };
 
   const batch = db.batch();
-  batch.set(entRef, entUpdate, { merge: true });
+  batch.set(creditsRef, creditsUpdate, { merge: true });
   batch.set(userRef, userUpdate, { merge: true });
   await batch.commit();
 
@@ -50,10 +62,10 @@ async function resetUser(uid) {
 
 async function main() {
   try {
-    const snapshot = await db.collection('entitlements').get();
+    const snapshot = await db.collection('user_credits').get();
     const userIds = snapshot.docs.map(doc => doc.id);
 
-    console.log(`Found ${userIds.length} users in entitlements collection.`);
+    console.log(`Found ${userIds.length} users in user_credits collection.`);
 
     for (const uid of userIds) {
       await resetUser(uid);

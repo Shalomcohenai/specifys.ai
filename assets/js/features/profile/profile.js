@@ -831,11 +831,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 // Use new credits API instead of direct Firestore access
                 const creditsData = await window.api.get('/api/v2/credits');
                 
-                // Convert new format to old format for compatibility with existing UI code
+                // Use new format directly
                 // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
                 currentEntitlements = {
                     unlimited: creditsData?.unlimited || false,
-                    spec_credits: creditsData?.unlimited ? 0 : (creditsData?.breakdown?.paid || 0),
+                    total: creditsData?.total || 0,
+                    breakdown: creditsData?.breakdown || { paid: 0, free: 0, bonus: 0 },
                     can_edit: creditsData?.permissions?.canEdit || false
                 };
 
@@ -927,9 +928,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 } else if (ent.breakdown) {
                     // Calculate total from breakdown
                     credits = (ent.breakdown.paid || 0) + (ent.breakdown.free || 0) + (ent.breakdown.bonus || 0);
-                } else if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
-                    // Fallback to old format
-                    credits = ent.spec_credits;
                 } else {
                     // Use free_specs_remaining with fallback to 0 (not 1)
                     const freeSpecs = typeof user?.free_specs_remaining === 'number'

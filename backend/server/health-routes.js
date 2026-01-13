@@ -53,16 +53,25 @@ router.get('/credits', async (req, res) => {
     logger.debug({ requestId }, '[health-routes] GET /credits - Credits health check');
     
     try {
-        // Count users by type
-        const proUsersSnapshot = await db.collection('entitlements')
-            .where('unlimited', '==', true)
-            .count()
-            .get();
+        // Count users by type using user_credits collection
+        // Get all user_credits documents to count Pro users and credit users
+        const allCreditsSnapshot = await db.collection('user_credits').get();
         
-        const creditUsersSnapshot = await db.collection('entitlements')
-            .where('spec_credits', '>', 0)
-            .count()
-            .get();
+        let proUsers = 0;
+        let creditUsers = 0;
+        
+        allCreditsSnapshot.docs.forEach(doc => {
+            const credits = doc.data();
+            // Check if user has Pro subscription
+            if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+                proUsers++;
+            }
+            // Check if user has any credits
+            const total = (credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0);
+            if (total > 0) {
+                creditUsers++;
+            }
+        });
         
         // Get total users
         const totalUsersSnapshot = await db.collection('users').count().get();
@@ -73,8 +82,6 @@ router.get('/credits', async (req, res) => {
             .count()
             .get();
         
-        const proUsers = proUsersSnapshot.data().count;
-        const creditUsers = creditUsersSnapshot.data().count;
         const totalUsers = totalUsersSnapshot.data().count;
         const activeSubs = activeSubsSnapshot.data().count;
         

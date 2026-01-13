@@ -63,39 +63,7 @@
         options.body = JSON.stringify(body);
       }
 
-      let response = await fetch(url, options);
-      
-      // If 404, try fallback to old API (for backward compatibility during deployment)
-      if (response.status === 404 && path === '/') {
-        // Fallback to old entitlements endpoint
-        const fallbackUrl = `${apiBaseUrl}/api/specs/entitlements`;
-        response = await fetch(fallbackUrl, options);
-        
-        if (response.ok) {
-          // Convert old format to new format
-          const oldData = await response.json();
-          return {
-            success: true,
-            unlimited: oldData.entitlements?.unlimited || false,
-            total: oldData.entitlements?.unlimited 
-              ? null 
-              : (oldData.entitlements?.spec_credits || 0) + (oldData.user?.free_specs_remaining || 0),
-            breakdown: {
-              paid: oldData.entitlements?.spec_credits || 0,
-              free: oldData.user?.free_specs_remaining || 0,
-              bonus: 0
-            },
-            subscription: {
-              type: oldData.entitlements?.unlimited ? 'pro' : 'none',
-              status: oldData.entitlements?.unlimited ? 'active' : 'none'
-            },
-            permissions: {
-              canEdit: oldData.entitlements?.can_edit || false,
-              canCreateUnlimited: oldData.entitlements?.unlimited || false
-            }
-          };
-        }
-      }
+      const response = await fetch(url, options);
       
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: 'Unknown error' }));
@@ -132,61 +100,6 @@
       } catch (error) {
         if (window.appLogger) {
           window.appLogger.logError(error, { context: 'CreditsV2Manager.fetchCredits' });
-        }
-        
-        // If 404 and no cache, try fallback to old API
-        if (error.message.includes('404') && !this.cache) {
-          try {
-            const token = await this.getAuthToken();
-            const apiBaseUrl = this.getApiBaseUrl();
-            const fallbackUrl = `${apiBaseUrl}/api/specs/entitlements`;
-            
-            const response = await fetch(fallbackUrl, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            if (response.ok) {
-              const oldData = await response.json();
-              // Convert old format to new format
-              const data = {
-                success: true,
-                unlimited: oldData.entitlements?.unlimited || false,
-                total: oldData.entitlements?.unlimited 
-                  ? null 
-                  : (oldData.entitlements?.spec_credits || 0) + (oldData.user?.free_specs_remaining || 0),
-                breakdown: {
-                  paid: oldData.entitlements?.spec_credits || 0,
-                  free: oldData.user?.free_specs_remaining || 0,
-                  bonus: 0
-                },
-                subscription: {
-                  type: oldData.entitlements?.unlimited ? 'pro' : 'none',
-                  status: oldData.entitlements?.unlimited ? 'active' : 'none'
-                },
-                permissions: {
-                  canEdit: oldData.entitlements?.can_edit || false,
-                  canCreateUnlimited: oldData.entitlements?.unlimited || false
-                }
-              };
-              
-              // Update cache
-              this.cache = data;
-              this.cacheTimestamp = Date.now();
-              
-              // Notify listeners
-              this.notifyListeners(data);
-              
-              return data;
-            }
-          } catch (fallbackError) {
-            if (window.appLogger) {
-              window.appLogger.logError(fallbackError, { context: 'CreditsV2Manager.fallbackAPI' });
-            }
-          }
         }
         
         // Return cached data if available, even if stale

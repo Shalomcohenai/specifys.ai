@@ -836,6 +836,10 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
       if (isActive) {
         try {
+          // Extract renewal/expiration date from subscription data
+          // Prioritize renewsAt (for active subscriptions), then endsAt (for cancelled)
+          const renewalDate = subscriptionData.renewsAt || subscriptionData.endsAt || null;
+          
           await creditsV2Service.enableProSubscription(subscriptionUserId, {
             plan: 'pro',
             orderId: subscriptionData.orderId || null,
@@ -847,6 +851,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             subscriptionId: subscriptionData.subscriptionId,
             subscriptionStatus: subscriptionData.status || 'active',
             subscriptionInterval: productConfig?.billing_interval || null,
+            currentPeriodEnd: renewalDate, // Pass renewal date as currentPeriodEnd
+            cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
             total: null,
             currency: null,
             metadata: {

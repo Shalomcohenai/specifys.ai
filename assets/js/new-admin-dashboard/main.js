@@ -16,6 +16,7 @@ import { AnalyticsView } from './views/AnalyticsView.js';
 import { SpecUsageView } from './views/SpecUsageView.js';
 import { ArticlesView } from './views/ArticlesView.js';
 import { AcademyView } from './views/AcademyView.js';
+import { ContactView } from './views/ContactView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -309,6 +310,12 @@ class NewAdminDashboard {
       
       // Academy view
       this.views.set('academy', new AcademyView(this.dataManager, this.stateManager));
+      
+      // Contact view
+      const contactView = new ContactView(this.dataManager, this.stateManager);
+      this.views.set('contact', contactView);
+      // Expose to window for onclick handlers
+      window.contactView = contactView;
       
     } catch (error) {
       console.error('[NewAdminDashboard] Error initializing views:', error);

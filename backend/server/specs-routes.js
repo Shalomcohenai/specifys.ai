@@ -181,38 +181,7 @@ router.get('/', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
-/**
- * Get user entitlements
- * GET /api/specs/entitlements
- * DEPRECATED: This endpoint is deprecated. Use /api/v2/credits instead.
- * Kept for backward compatibility during migration.
- */
-router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
-    try {
-        const userId = req.user.uid;
-        // Use new credits system
-        const credits = await creditsV2Service.getUserCredits(userId);
-        const available = await creditsV2Service.getAvailableCredits(userId);
-        
-        // Convert to old format for backward compatibility
-        const result = {
-            entitlements: {
-                unlimited: available.unlimited || false,
-                spec_credits: available.unlimited ? 0 : (available.breakdown?.paid || 0),
-                can_edit: credits.permissions.canEdit || false,
-                preserved_credits: credits.subscription.preservedCredits || 0
-            },
-            user: {
-                free_specs_remaining: available.unlimited ? 0 : (available.breakdown?.free || 0)
-            }
-        };
-        
-        res.json(result);
-    } catch (error) {
-        logger.error({ error: error.message, userId: req.user?.uid }, 'Error fetching entitlements');
-        next(createError('Failed to fetch entitlements', ERROR_CODES.DATABASE_ERROR, 500, { details: error.message }));
-    }
-});
+// /entitlements endpoint removed - use /api/v2/credits instead
 
 /**
  * Consume a credit when creating a spec

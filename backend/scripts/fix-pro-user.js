@@ -3,11 +3,11 @@
  * 
  * Usage: node backend/scripts/fix-pro-user.js USER_ID
  * 
- * This script fixes a Pro user whose entitlements were not properly set
- * due to the batch.update bug in enableProSubscription
+ * This script fixes a Pro user whose user_credits were not properly set
  */
 
 const { db, admin } = require('../server/firebase-admin');
+const creditsV2Service = require('../server/credits-v2-service');
 
 const userId = process.argv[2];
 
@@ -25,7 +25,7 @@ async function fixProUser(uid) {
         // Check current state
         console.log('📋 Current State:');
         const userDoc = await db.collection('users').doc(uid).get();
-        const entDoc = await db.collection('entitlements').doc(uid).get();
+        const creditsDoc = await db.collection('user_credits').doc(uid).get();
         
         if (!userDoc.exists) {
             console.error('❌ User not found!');
@@ -33,40 +33,36 @@ async function fixProUser(uid) {
         }
         
         console.log('User plan:', userDoc.data().plan);
-        console.log('Entitlements:', entDoc.exists() ? entDoc.data() : 'Document not found');
+        console.log('User credits:', creditsDoc.exists() ? creditsDoc.data() : 'Document not found');
         
         // Fix the user
         console.log('\n🔧 Applying fixes...\n');
-        const batch = db.batch();
         
         // Update user plan
         const userRef = db.collection('users').doc(uid);
-        batch.update(userRef, { 
+        await userRef.update({ 
             plan: 'pro',
             last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
         });
         console.log('✓ Set user plan to "pro"');
         
-        // Fix entitlements using set with merge (the correct way)
-        const entRef = db.collection('entitlements').doc(uid);
-        batch.set(entRef, {
-            unlimited: true,
-            can_edit: true,
-            updated_at: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-        console.log('✓ Set unlimited=true and can_edit=true');
+        // Fix user_credits using enableProSubscription
+        await creditsV2Service.enableProSubscription(uid, {
+            plan: 'pro',
+            subscriptionStatus: 'active'
+        });
+        console.log('✓ Enabled Pro subscription in user_credits');
         
-        await batch.commit();
         console.log('\n✅ Pro user fixed successfully!');
         
         // Verify
         console.log('\n📋 New State:');
         const newUserDoc = await userRef.get();
-        const newEntDoc = await entRef.get();
+        const newCreditsDoc = await db.collection('user_credits').doc(uid).get();
         console.log('User plan:', newUserDoc.data().plan);
-        console.log('Entitlements:', newEntDoc.data());
+        console.log('User credits:', newCreditsDoc.exists() ? newCreditsDoc.data() : 'Document not found');
         
-        console.log('\n✅ Done! User should now see "pro" in the credits display.');
+        console.log('\n✅ Done! User should now see "Unlimited" in the credits display.');
         process.exit(0);
         
     } catch (error) {

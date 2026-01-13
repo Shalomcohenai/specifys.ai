@@ -182,7 +182,7 @@ app.use((req, res, next) => {
   req.requestId = requestId;
   
   // Skip logging for health checks and other routine checks
-  const skipLoggingPaths = ['/api/health', '/api/status', '/api/specs/entitlements', '/api/credits/entitlements'];
+  const skipLoggingPaths = ['/api/health', '/api/status'];
   const shouldSkipLogging = skipLoggingPaths.some(path => req.path.startsWith(path));
   
   // Log request start (only for API routes, skip health checks)

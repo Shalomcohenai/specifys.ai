@@ -108,7 +108,7 @@ function determineIfNewUser(uid, authUser, credits, isNewUserFromClient) {
 }
 
 /**
- * Initialize user documents (users + entitlements) in a single transaction
+ * Initialize user documents (users + user_credits) in a single transaction
  * This ensures atomicity and prevents race conditions
  */
 async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient = null) {
@@ -132,35 +132,32 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         // Store authUser.creationTime for use inside transaction
         const authCreationTime = authUser.creationTime ? (authUser.creationTime instanceof Date ? authUser.creationTime : new Date(authUser.creationTime)) : null;
         
-        console.log(`[user-management] User ${uid}: Step 3 - Starting Firestore transaction...`);
+            console.log(`[user-management] User ${uid}: Step 3 - Starting Firestore transaction...`);
         const result = await db.runTransaction(async (transaction) => {
             console.log(`[user-management] User ${uid}: Inside transaction - Getting document references...`);
             const userRef = db.collection('users').doc(uid);
-            const entitlementsRef = db.collection('entitlements').doc(uid);
             const creditsRef = db.collection('user_credits').doc(uid);
             
-            // Get all three documents in parallel
-            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, entitlements, user_credits)...`);
-            const [userDoc, entitlementsDoc, creditsDoc] = await Promise.all([
+            // Get user and credits documents in parallel
+            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, user_credits)...`);
+            const [userDoc, creditsDoc] = await Promise.all([
                 transaction.get(userRef),
-                transaction.get(entitlementsRef),
                 transaction.get(creditsRef)
             ]);
             
             const userExists = userDoc.exists;
-            const entitlementsExist = entitlementsDoc.exists;
             const creditsExist = creditsDoc.exists;
             
-            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, entitlementsExist=${entitlementsExist}, creditsExist=${creditsExist}`);
+            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, creditsExist=${creditsExist}`);
             
             // Determine if this is a new user - prioritize isNewUserFromClient flag
-            // If all three documents exist, user is definitely not new (unless client explicitly says otherwise)
-            const isNewUser = isNewUserFromClient === true || (!userExists || !entitlementsExist || !creditsExist);
+            // If both documents exist, user is definitely not new (unless client explicitly says otherwise)
+            const isNewUser = isNewUserFromClient === true || (!userExists || !creditsExist);
             console.log(`[user-management] User ${uid}: Determining isNewUser - isNewUserFromClient=${isNewUserFromClient}, calculated isNewUser=${isNewUser}`);
             
             // If all documents exist AND user is NOT new (client didn't say it's new), check if welcome credit was granted
             // This optimization prevents unnecessary processing for existing users, but still checks for welcome credit
-            if (userExists && entitlementsExist && creditsExist && isNewUserFromClient !== true) {
+            if (userExists && creditsExist && isNewUserFromClient !== true) {
                 const existingCredits = creditsDoc.data();
                 const existingTotal = (existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0);
                 const welcomeCreditGranted = existingCredits.metadata?.welcomeCreditGranted || false;
@@ -208,7 +205,6 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                         updated: true,
                         unchanged: false,
                         user: userData,
-                        entitlements: entitlementsDoc.data(),
                         credits: updatedCredits,
                         _needsCreditsInit: false,
                         _isNewUser: false
@@ -222,7 +218,6 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     updated: false,
                     unchanged: true,
                     user: userData,
-                    entitlements: entitlementsDoc.data(),
                     credits: existingCredits,
                     _needsCreditsInit: false,
                     _isNewUser: false
@@ -297,30 +292,8 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 console.log(`[user-management] User ${uid}: No changes to user document, skipping write`);
             }
             
-            // For backward compatibility, still create entitlements document if it doesn't exist
-            // but don't set spec_credits (that's now in user_credits)
-            console.log(`[user-management] User ${uid}: Step 5 - Handling entitlements document...`);
-            if (!entitlementsExist) {
-                console.log(`[user-management] User ${uid}: Creating NEW entitlements document...`);
-                const entitlementsDocToWrite = {
-                    userId: uid,
-                    unlimited: false,
-                    can_edit: false,
-                    updated_at: admin.firestore.FieldValue.serverTimestamp()
-                };
-                transaction.set(entitlementsRef, entitlementsDocToWrite);
-                console.log(`[user-management] User ${uid}: Entitlements document SET in transaction`);
-            } else {
-                console.log(`[user-management] User ${uid}: Entitlements document already exists, skipping creation`);
-            }
-            
-            // Get final entitlements data (for backward compatibility)
-            const finalEntitlements = entitlementsExist 
-                ? entitlementsDoc.data() 
-                : { userId: uid, unlimited: false, can_edit: false };
-            
-            console.log(`[user-management] User ${uid}: Step 6 - Handling user_credits document...`);
-            console.log(`[user-management] User ${uid}: Document status - userExists=${userExists}, entitlementsExist=${entitlementsExist}, creditsExist=${creditsExist}, isNewUser=${isNewUser}`);
+            console.log(`[user-management] User ${uid}: Step 5 - Handling user_credits document...`);
+            console.log(`[user-management] User ${uid}: Document status - userExists=${userExists}, creditsExist=${creditsExist}, isNewUser=${isNewUser}`);
             
             // Initialize user_credits atomically in transaction
             let finalCredits = null;
@@ -411,13 +384,12 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 }
             }
             
-            console.log(`[user-management] User ${uid}: Step 7 - Building result object...`);
+            console.log(`[user-management] User ${uid}: Step 6 - Building result object...`);
             const result = {
-                created: !userExists || !entitlementsExist || !creditsExist,
-                updated: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length > 0,
-                unchanged: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length === 0,
+                created: !userExists || !creditsExist,
+                updated: userExists && creditsExist && Object.keys(userDocToWrite).length > 0,
+                unchanged: userExists && creditsExist && Object.keys(userDocToWrite).length === 0,
                 user: { ...(existingUserData || {}), ...userDocToWrite },
-                entitlements: finalEntitlements,
                 credits: finalCredits,
                 _needsCreditsInit: false, // Credits already initialized in transaction
                 _isNewUser: isNewUser
@@ -489,92 +461,13 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
     }
 }
 
-async function ensureEntitlementDocument(uid, overrides = {}) {
-    const entitlementsRef = db.collection('entitlements').doc(uid);
-    const snapshot = await entitlementsRef.get();
-    const isNew = !snapshot.exists;
-
-    // If entitlements already exist, don't modify spec_credits unless explicitly overridden
-    if (!isNew) {
-        const existingData = snapshot.data();
-        const dataToWrite = { ...overrides };
-        
-        // Don't modify spec_credits if it's not in overrides and entitlements already exist
-        if (!('spec_credits' in overrides)) {
-            // Preserve existing spec_credits
-            delete dataToWrite.spec_credits;
-        }
-        
-        Object.keys(dataToWrite).forEach((key) => {
-            if (dataToWrite[key] === undefined) {
-                delete dataToWrite[key];
-            }
-        });
-
-        if (Object.keys(dataToWrite).length > 0) {
-            dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
-            await entitlementsRef.set(dataToWrite, { merge: true });
-        }
-
-        return {
-            created: false,
-            updated: Object.keys(dataToWrite).length > 0,
-            unchanged: Object.keys(dataToWrite).length === 0,
-            data: { ...existingData, ...dataToWrite }
-        };
-    }
-
-    // Entitlements don't exist - check if this is a new user
-    // Check if user was created recently (within last 5 minutes) to determine if it's a new user
-    const userRef = db.collection('users').doc(uid);
-    const userSnapshot = await userRef.get();
-    
-    let isNewUser = false;
-    if (!userSnapshot.exists) {
-        isNewUser = true;
-    } else {
-        const userData = userSnapshot.data();
-        if (userData.createdAt) {
-            const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
-            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-            isNewUser = createdAt > fiveMinutesAgo;
-        }
-    }
-    
-    // Credits are only given during registration in auth.html
-    // But if this is a new user and entitlements don't exist, give 1 credit as fallback
-    const defaultData = {
-        userId: uid,
-        spec_credits: isNewUser ? 1 : 0,
-        unlimited: false,
-        can_edit: false
-    };
-
-    const dataToWrite = { ...defaultData, ...overrides };
-
-    Object.keys(dataToWrite).forEach((key) => {
-        if (dataToWrite[key] === undefined) {
-            delete dataToWrite[key];
-        }
-    });
-
-    dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
-    await entitlementsRef.set(dataToWrite, { merge: true });
-
-    return {
-        created: true,
-        updated: false,
-        unchanged: false,
-        data: dataToWrite
-    };
-}
+// ensureEntitlementDocument removed - no longer using entitlements collection
 
 /**
  * Sync all users - create Firestore documents for users who don't have them
  */
 async function syncAllUsers(options = {}) {
     const {
-        ensureEntitlements: shouldEnsureEntitlements = true,
         includeDataCollections = true,
         dryRun = false,
         recordResult = !options.dryRun
@@ -592,12 +485,9 @@ async function syncAllUsers(options = {}) {
             created: 0,
             updated: 0,
             unchanged: 0,
-            entitlementsCreated: 0,
-            entitlementsUpdated: 0,
             errors: 0,
             errorDetails: [],
-            potentialCreates: 0,
-            potentialEntitlementCreates: 0
+            potentialCreates: 0
         };
 
         if (!dryRun) {
@@ -612,29 +502,15 @@ async function syncAllUsers(options = {}) {
                 // Process batch in parallel
                 await Promise.all(batch.map(async (user) => {
                     try {
-                        // Use initializeUser for atomicity (creates both users and entitlements)
+                        // Use initializeUser for atomicity (creates users and user_credits)
                         const result = await initializeUser(user.uid);
                         
                         if (result.created) {
                             summary.created += 1;
-                            // Check if entitlements were created (they should be if user was created)
-                            if (result.entitlements) {
-                                summary.entitlementsCreated += 1;
-                            }
                         } else if (result.updated) {
                             summary.updated += 1;
                         } else {
                             summary.unchanged += 1;
-                        }
-
-                        // If entitlements weren't created by initializeUser, ensure them
-                        if (shouldEnsureEntitlements && !result.entitlements) {
-                            const entitlementResult = await ensureEntitlementDocument(user.uid);
-                            if (entitlementResult.created) {
-                                summary.entitlementsCreated += 1;
-                            } else if (entitlementResult.updated) {
-                                summary.entitlementsUpdated += 1;
-                            }
                         }
                     } catch (error) {
                         summary.errors += 1;
@@ -654,19 +530,13 @@ async function syncAllUsers(options = {}) {
         const firestoreUsers = firestoreUsersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         const firestoreUserIds = new Set(firestoreUsers.map((user) => user.id));
 
-        const entitlementsSnapshot = await db.collection('entitlements').get();
-        const entitlementIds = new Set(entitlementsSnapshot.docs.map((doc) => doc.id));
-
         const authWithoutFirestore = [...authUserIds].filter((id) => !firestoreUserIds.has(id));
         const firestoreWithoutAuth = [...firestoreUserIds].filter((id) => !authUserIds.has(id));
-        const missingEntitlements = [...authUserIds].filter((id) => !entitlementIds.has(id));
 
         summary.firestoreTotal = firestoreUsersSnapshot.size;
-        summary.entitlementsTotal = entitlementsSnapshot.size;
         summary.inconsistencies = {
             authWithoutFirestore: summarizeIdList(authWithoutFirestore),
-            firestoreWithoutAuth: summarizeIdList(firestoreWithoutAuth),
-            missingEntitlements: summarizeIdList(missingEntitlements)
+            firestoreWithoutAuth: summarizeIdList(firestoreWithoutAuth)
         };
 
         if (includeDataCollections) {
@@ -694,7 +564,6 @@ async function syncAllUsers(options = {}) {
 
         if (dryRun) {
             summary.potentialCreates = authWithoutFirestore.length;
-            summary.potentialEntitlementCreates = missingEntitlements.length;
             summary.unchanged = authUsers.length;
         }
 
