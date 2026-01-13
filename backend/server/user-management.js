@@ -751,7 +751,6 @@ async function deleteUser(uid) {
 module.exports = {
     getAllUsers,
     getUserByUid,
-    ensureEntitlementDocument,
     initializeUser,
     syncAllUsers,
     getUserStats,

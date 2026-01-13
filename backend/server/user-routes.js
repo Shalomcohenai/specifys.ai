@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { auth, db, admin } = require('./firebase-admin');
-const { ensureEntitlementDocument, initializeUser } = require('./user-management');
+const { initializeUser } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { recordEvent } = require('./analytics-service');
