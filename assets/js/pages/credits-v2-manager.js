@@ -23,7 +23,7 @@
       if (typeof window.getApiBaseUrl === 'function') {
         return window.getApiBaseUrl();
       }
-      return 'https://specifys-ai-backend.onrender.com';
+      return 'https://specifys-ai-development.onrender.com';
     }
 
     /**

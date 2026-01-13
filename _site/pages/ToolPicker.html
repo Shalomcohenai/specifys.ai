@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/pages/ToolPicker.html">
+    <link rel="canonical" href="http://localhost:4000/pages/ToolPicker.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Tool Finder">
     <meta property="og:description" content="Find the perfect AI tools for your project">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://0.0.0.0:4000/pages/ToolPicker.html">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/pages/ToolPicker.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Tool Finder - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Tool Finder">
     <meta name="twitter:description" content="Find the perfect AI tools for your project">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Tool Finder - Specifys.ai">
     
     <!-- Favicon -->
@@ -463,13 +463,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://0.0.0.0:4000/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Tool Finder",
-          "item": "http://0.0.0.0:4000/pages/ToolPicker.html"
+          "item": "http://localhost:4000/pages/ToolPicker.html"
         }
       ]
     }
@@ -890,7 +890,7 @@ function trackPreference(preferenceName, preferenceValue) {
       }
       
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-backend.onrender.com');
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development.onrender.com');
       
       // Check if user is new based on sessionStorage flag (set in auth.html during registration)
       // This helps the server correctly identify new users even if documents were created by race condition

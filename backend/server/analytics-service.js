@@ -115,16 +115,88 @@ async function recordGuideView(guideId, userId = null, ip = null) {
 }
 
 /**
- * Record a page view
+ * Get or create session ID for a user
+ * Sessions expire after 30 minutes of inactivity
  */
-async function recordPageView(page, userId = null, metadata = {}) {
+async function getOrCreateSession(userId, pageViewData) {
+  if (!userId) return null;
+  
+  const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+  const now = Date.now();
+  
+  try {
+    // Get the most recent page view for this user
+    const recentPageViews = await db.collection(COLLECTIONS.PAGE_VIEWS)
+      .where('userId', '==', userId)
+      .orderBy('viewedAt', 'desc')
+      .limit(1)
+      .get();
+    
+    if (!recentPageViews.empty) {
+      const lastPageView = recentPageViews.docs[0].data();
+      const lastViewTime = lastPageView.viewedAt?.toDate?.()?.getTime() || 
+                          (lastPageView.viewedAt instanceof Date ? lastPageView.viewedAt.getTime() : null);
+      
+      // If last view was within session timeout, reuse session ID
+      if (lastViewTime && (now - lastViewTime) < SESSION_TIMEOUT_MS && lastPageView.sessionId) {
+        return lastPageView.sessionId;
+      }
+    }
+    
+    // Create new session ID
+    return `session_${userId}_${now}_${Math.random().toString(36).substr(2, 9)}`;
+  } catch (error) {
+    logger.warn({ userId, error: error.message }, '[analytics-service] Error getting session, creating new one');
+    // Fallback: create new session ID
+    return `session_${userId}_${now}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+
+/**
+ * Record a page view
+ * Enhanced to track sessionId, referrer, and pagePath
+ */
+async function recordPageView(page, userId = null, metadata = {}, req = null) {
   const requestId = `page-view-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   try {
+    // Extract referrer from request headers if available
+    let referrer = metadata.referrer || null;
+    if (req && !referrer) {
+      referrer = req.get('referer') || req.get('referrer') || null;
+    }
+    
+    // Extract pagePath from request if available
+    let pagePath = metadata.pagePath || page;
+    if (req && !metadata.pagePath) {
+      pagePath = req.path || req.originalUrl || page;
+    }
+    
+    // Extract UTM parameters from query string if available
+    const utmParams = {};
+    if (req && req.query) {
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(param => {
+        if (req.query[param]) {
+          utmParams[param] = req.query[param];
+        }
+      });
+    }
+    
+    // Get or create session ID
+    let sessionId = metadata.sessionId || null;
+    if (userId && !sessionId) {
+      sessionId = await getOrCreateSession(userId, { page, pagePath });
+    }
+    
     const viewData = {
       page,
+      pagePath: pagePath || page,
       userId: userId || null,
       viewedAt: admin.firestore.FieldValue.serverTimestamp(),
+      referrer: referrer,
+      sessionId: sessionId,
+      duration: metadata.duration || null,
+      ...utmParams,
       ...metadata
     };
     
@@ -138,11 +210,17 @@ async function recordPageView(page, userId = null, metadata = {}) {
       entityType: 'page',
       userId: userId || null,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      metadata
+      metadata: {
+        pagePath,
+        referrer,
+        sessionId,
+        ...utmParams,
+        ...metadata
+      }
     });
     
-    logger.debug({ requestId, page, userId }, '[analytics-service] Page view recorded');
-    return { success: true };
+    logger.debug({ requestId, page, pagePath, userId, sessionId }, '[analytics-service] Page view recorded');
+    return { success: true, sessionId };
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[analytics-service] Failed to record page view');
     throw error;
@@ -232,6 +310,7 @@ module.exports = {
   recordEvent,
   getArticleViewsCount,
   getGuideViewsCount,
+  getOrCreateSession,
   COLLECTIONS
 };
 

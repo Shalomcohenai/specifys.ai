@@ -298,9 +298,11 @@ export class OverviewView {
         }
       });
       
-      activityService.on('filter', () => {
-        this.renderActivityFeed();
-      });
+      // Remove the 'filter' event listener to prevent infinite loop
+      // The filter is already applied in renderActivityFeed when needed
+      // activityService.on('filter', () => {
+      //   this.renderActivityFeed();
+      // });
       
       activityService.on('error', ({ error }) => {
         console.error('[OverviewView] ActivityService error:', error);
@@ -620,35 +622,53 @@ export class OverviewView {
    * Render activity feed - Uses ActivityService with pagination
    */
   renderActivityFeed() {
-    const activityList = helpers.dom('#activity-list');
-    if (!activityList) return;
-    
-    const activityService = this.dataManager.getActivityService();
-    if (!activityService) {
-      activityList.innerHTML = '<div class="activity-empty">Loading activity...</div>';
-      this.updateActivityConnectionStatus('connecting');
+    // Prevent infinite loop - if already rendering, skip
+    if (this._renderingActivityFeed) {
       return;
     }
+    this._renderingActivityFeed = true;
     
-    // Update connection status based on events availability
-    if (activityService.events.length > 0) {
-      this.updateActivityConnectionStatus('connected');
-    } else {
-      this.updateActivityConnectionStatus('connecting');
-    }
+    try {
+      const activityList = helpers.dom('#activity-list');
+      if (!activityList) {
+        this._renderingActivityFeed = false;
+        return;
+      }
+      
+      const activityService = this.dataManager.getActivityService();
+      if (!activityService) {
+        activityList.innerHTML = '<div class="activity-empty">Loading activity...</div>';
+        this.updateActivityConnectionStatus('connecting');
+        this._renderingActivityFeed = false;
+        return;
+      }
+      
+      // Update connection status based on events availability
+      if (activityService.events.length > 0) {
+        this.updateActivityConnectionStatus('connected');
+      } else {
+        this.updateActivityConnectionStatus('connecting');
+      }
+      
+      const filter = this.stateManager.getState('activityFilter') || 'all';
+      const currentPage = this.stateManager.getState('activityPage') || 1;
+      
+      // Get current filter value to avoid unnecessary updates
+      const currentFilter = activityService.filters?.type;
+      
+      // Only set filter if it changed
+      if (currentFilter !== filter) {
+        activityService.setFilter('type', filter);
+      }
+      
+      const paginated = activityService.goToPage(currentPage);
     
-    const filter = this.stateManager.getState('activityFilter') || 'all';
-    const currentPage = this.stateManager.getState('activityPage') || 1;
-    
-    // Set filter and get paginated events
-    activityService.setFilter('type', filter);
-    const paginated = activityService.goToPage(currentPage);
-    
-    if (!paginated || paginated.events.length === 0) {
-      activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
-      this.updateActivityPagination(null);
-      return;
-    }
+      if (!paginated || paginated.events.length === 0) {
+        activityList.innerHTML = '<div class="activity-empty">No activity yet</div>';
+        this.updateActivityPagination(null);
+        this._renderingActivityFeed = false;
+        return;
+      }
     
     const html = paginated.events.map(event => {
       const icon = this.getActivityIcon(event.type);
@@ -678,10 +698,14 @@ export class OverviewView {
       `;
     }).join('');
     
-    activityList.innerHTML = html;
-    
-    // Update pagination controls
-    this.updateActivityPagination(paginated);
+      activityList.innerHTML = html;
+      
+      // Update pagination controls
+      this.updateActivityPagination(paginated);
+    } finally {
+      // Always reset the flag
+      this._renderingActivityFeed = false;
+    }
   }
   
   /**

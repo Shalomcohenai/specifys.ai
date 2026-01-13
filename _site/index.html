@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/">
+    <link rel="canonical" href="http://localhost:4000/">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Specifys.AI - Plan Your App Smarter">
     <meta property="og:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://0.0.0.0:4000/">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Specifys.AI - Plan Your App Smarter - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Specifys.AI - Plan Your App Smarter">
     <meta name="twitter:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Specifys.AI - Plan Your App Smarter - Specifys.ai">
     
     <!-- Favicon -->
@@ -1737,7 +1737,7 @@ graph TD
       }
       
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-backend.onrender.com');
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development.onrender.com');
       
       // Check if user is new based on sessionStorage flag (set in auth.html during registration)
       // This helps the server correctly identify new users even if documents were created by race condition

@@ -828,7 +828,7 @@ class LiveBriefModal {
     
     try {
       // Always use Render backend URL
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-backend.onrender.com';
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
       
       const data = await window.api.post('/api/live-brief/transcribe', {
         sessionId: this.sessionId,
@@ -1013,7 +1013,7 @@ class LiveBriefModal {
 
   async convertToAnswers() {
     // Always use Render backend URL
-    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-backend.onrender.com';
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
     
     const data = await window.api.post('/api/live-brief/convert-to-answers', {
       summary: this.summary || '',

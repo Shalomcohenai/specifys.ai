@@ -4,6 +4,7 @@
  */
 
 import { helpers } from '../utils/helpers.js';
+import { UserDetailsModal } from '../components/UserDetailsModal.js';
 
 export class UsersView {
   constructor(dataManager, stateManager) {
@@ -13,6 +14,7 @@ export class UsersView {
     this.currentPage = 1;
     this.perPage = 25;
     this.selectedUsers = new Set();
+    this.userDetailsModal = new UserDetailsModal();
     
     this.init();
   }
@@ -303,7 +305,7 @@ export class UsersView {
           </td>
           <td>
             <div class="user-info">
-              <div class="user-name">${this.escapeHtml(user.displayName)}</div>
+              <div class="user-name clickable" data-user-id="${user.id}" style="cursor: pointer; color: var(--admin-accent); text-decoration: underline;">${this.escapeHtml(user.displayName)}</div>
               <div class="user-email">${this.escapeHtml(user.email)}</div>
             </div>
           </td>
@@ -350,6 +352,16 @@ export class UsersView {
         const action = e.currentTarget.dataset.action;
         const userId = e.currentTarget.dataset.userId;
         this.handleUserAction(action, userId);
+      });
+    });
+    
+    // Add click listeners to user names
+    this.table.querySelectorAll('.user-name.clickable').forEach(nameEl => {
+      nameEl.addEventListener('click', (e) => {
+        const userId = e.currentTarget.dataset.userId;
+        if (userId) {
+          this.viewUser(userId);
+        }
       });
     });
     
@@ -580,9 +592,8 @@ export class UsersView {
    * View user details
    */
   viewUser(userId) {
-    // TODO: Implement view user modal
     console.log(`[UsersView] View user: ${userId}`);
-    alert('View user details functionality coming soon');
+    this.userDetailsModal.show(userId);
   }
   
   /**

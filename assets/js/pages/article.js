@@ -28,7 +28,7 @@ class ArticlePage {
     // Get API base URL
     getApiBaseUrl() {
         // Always use Render backend URL
-        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-backend.onrender.com';
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
     }
 
     // Load article from API

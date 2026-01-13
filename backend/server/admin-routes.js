@@ -7,6 +7,7 @@ const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
 const { getActivityEvents } = require('./admin-activity-service');
+const { getUserAnalytics } = require('./user-analytics-service');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -990,12 +991,42 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Debug: Log all registered routes
-logger.info('[admin-routes] Admin routes initialized. Registered routes:');
-router.stack.forEach((layer) => {
-  if (layer.route) {
-    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-    logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
+/**
+ * Get user analytics (admin only)
+ * GET /api/admin/users/:userId/analytics
+ */
+router.get('/users/:userId/analytics', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /users/:userId/analytics');
+  const { userId } = req.params;
+  logger.info({ 
+    requestId,
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /users/:userId/analytics - Fetching user analytics');
+  
+  try {
+    const analytics = await getUserAnalytics(userId);
+    
+    logger.info({ requestId, userId }, '[admin-routes] GET /users/:userId/analytics - Success');
+    res.json({
+      success: true,
+      analytics
+    });
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      userId,
+      error: { message: error.message, stack: error.stack } 
+    }, '[admin-routes] GET /users/:userId/analytics - Error');
+    
+    if (error.message === 'User not found') {
+      return next(createError('User not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    
+    next(createError('Failed to fetch user analytics', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 
@@ -1081,6 +1112,15 @@ router.get('/activity', requireAdmin, async (req, res, next) => {
       error: { message: error.message, stack: error.stack } 
     }, '[admin-routes] GET /activity - Error');
     next(createError('Failed to fetch activity events', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+// Debug: Log all registered routes
+logger.info('[admin-routes] Admin routes initialized. Registered routes:');
+router.stack.forEach((layer) => {
+  if (layer.route) {
+    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+    logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
   }
 });
 

@@ -339,7 +339,7 @@ class ArticlesManager {
             return window.getApiBaseUrl();
         }
         // Always use Render backend URL
-        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-backend.onrender.com';
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
     }
 
     // Get auth token

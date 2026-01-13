@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { auth, db } = require('./firebase-admin');
+const { auth, db, admin } = require('./firebase-admin');
 const { ensureEntitlementDocument, initializeUser } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
@@ -48,6 +48,51 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
 
         const userDataOverrides = req.body && typeof req.body === 'object' ? req.body.userData || {} : {};
         const isNewUserFromClient = req.body?.isNewUser === true;
+        
+        // Extract referrer and UTM parameters from request for new users
+        if (isNewUserFromClient) {
+          // Get referrer from headers
+          const referrer = req.get('referer') || req.get('referrer') || null;
+          
+          // Extract UTM parameters from query string or body
+          const utmParams = {};
+          ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(param => {
+            if (req.query[param]) {
+              utmParams[param] = req.query[param];
+            } else if (req.body && req.body[param]) {
+              utmParams[param] = req.body[param];
+            }
+          });
+          
+          // Get landing page from request
+          const landingPage = req.body?.landingPage || req.query?.landingPage || req.path || null;
+          
+          // Only set these if they don't already exist in userDataOverrides
+          if (referrer && !userDataOverrides.referrer) {
+            userDataOverrides.referrer = referrer;
+          }
+          if (landingPage && !userDataOverrides.landing_page) {
+            userDataOverrides.landing_page = landingPage;
+          }
+          if (!userDataOverrides.first_visit_at) {
+            userDataOverrides.first_visit_at = admin.firestore.FieldValue.serverTimestamp();
+          }
+          
+          // Add UTM parameters
+          Object.keys(utmParams).forEach(key => {
+            if (!userDataOverrides[key]) {
+              userDataOverrides[key] = utmParams[key];
+            }
+          });
+          
+          logger.debug({ 
+            requestId, 
+            userId, 
+            referrer, 
+            landingPage, 
+            utmParams 
+          }, '[user-routes] Extracted referrer/UTM data for new user');
+        }
         
         logger.info({ 
             requestId, 
