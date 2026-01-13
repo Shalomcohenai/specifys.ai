@@ -5,6 +5,7 @@
 
 import { helpers } from '../utils/helpers.js';
 import { firebaseService } from '../core/FirebaseService.js';
+import { apiService } from '../services/ApiService.js';
 
 export class UserDetailsModal {
   constructor() {
@@ -103,30 +104,8 @@ export class UserDetailsModal {
     const body = this.modal.querySelector('#user-details-modal-body');
     
     try {
-      // Get auth token
-      const auth = firebaseService.getAuth();
-      const user = auth.currentUser;
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-      
-      const token = await user.getIdToken();
-      
-      // Fetch user analytics
-      const response = await fetch(`/api/admin/users/${userId}/analytics`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to fetch user data');
-      }
-      
-      const data = await response.json();
+      // Use ApiService to make the request
+      const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
       const analytics = data.analytics;
       
       // Render user data

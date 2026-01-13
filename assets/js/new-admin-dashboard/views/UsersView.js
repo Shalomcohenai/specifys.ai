@@ -355,9 +355,10 @@ export class UsersView {
       });
     });
     
-    // Add click listeners to user names
-    this.table.querySelectorAll('.user-name.clickable').forEach(nameEl => {
+    // Add click listeners to user names (both classes: user-name and clickable)
+    this.table.querySelectorAll('.user-name.clickable, .user-name[data-user-id]').forEach(nameEl => {
       nameEl.addEventListener('click', (e) => {
+        e.stopPropagation();
         const userId = e.currentTarget.dataset.userId;
         if (userId) {
           this.viewUser(userId);
