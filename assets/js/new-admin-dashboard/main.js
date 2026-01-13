@@ -246,7 +246,7 @@ class NewAdminDashboard {
    * Navigate to section
    */
   navigateToSection(sectionId) {
-    console.log('[NewAdminDashboard] Navigating to section:', sectionId);
+    // Navigating to section
     
     // Update active nav tabs
     this.elements.navTabs.forEach(tab => {
@@ -274,7 +274,7 @@ class NewAdminDashboard {
     if (view && typeof view.show === 'function') {
       view.show();
     } else {
-      console.warn('[NewAdminDashboard] No view found for section:', sectionId);
+      // No view found for section
     }
     
     // Scroll to top
@@ -336,7 +336,7 @@ class NewAdminDashboard {
     
     // Listen to restricted (permission denied) - handle gracefully
     this.dataManager.on('restricted', ({ source, error }) => {
-      console.warn(`[NewAdminDashboard] Access restricted for ${source}:`, error.message);
+      // Access restricted
       this.updateSourceStatus(source, 'restricted');
       this.stateManager.setState(`restricted.${source}`, true);
     });

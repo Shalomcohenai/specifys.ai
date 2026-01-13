@@ -160,7 +160,7 @@ export class ArticlesView {
       // window.api already includes baseUrl, so just use the endpoint
       const result = await window.api.get('/api/articles/list?status=all&limit=1000');
       
-      console.log('[ArticlesView] API response:', result);
+      // API response received
       
       if (result && result.success && result.articles) {
         this.articles = result.articles
@@ -175,11 +175,11 @@ export class ArticlesView {
             description: article.description || article.description_160 || ''
           }));
         
-        console.log('[ArticlesView] Loaded articles:', this.articles.length);
+        // Articles loaded
         this.updateSummary();
         this.render();
       } else {
-        console.warn('[ArticlesView] Invalid response structure:', result);
+        // Invalid response structure
         // Try to handle case where articles might be directly in result
         if (result && Array.isArray(result)) {
           this.articles = result.map(article => ({
@@ -233,11 +233,11 @@ export class ArticlesView {
    */
   render() {
     if (!this.table) {
-      console.warn('[ArticlesView] Table element not found');
+      // Table element not found
       return;
     }
     
-    console.log('[ArticlesView] Rendering', this.articles.length, 'articles');
+    // Rendering articles
     
     // Apply filters
     let filteredArticles = [...this.articles];
@@ -269,7 +269,7 @@ export class ArticlesView {
       return;
     }
     
-    console.log('[ArticlesView] Rendering', filteredArticles.length, 'articles');
+    // Rendering filtered articles
     
     // Render table
     const html = filteredArticles.map(article => {
@@ -334,7 +334,7 @@ export class ArticlesView {
         }
         break;
       default:
-        console.warn(`[ArticlesView] Unknown action: ${action}`);
+        console.error(`[ArticlesView] Unknown action: ${action}`);
     }
   }
   
@@ -343,7 +343,7 @@ export class ArticlesView {
    */
   editArticle(article) {
     // TODO: Implement edit modal or redirect to edit page
-    console.log('[ArticlesView] Edit article:', article);
+    // Editing article
     alert('Edit functionality coming soon. Article ID: ' + article.id);
   }
   
@@ -361,7 +361,7 @@ export class ArticlesView {
    * Show view
    */
   show() {
-    console.log('[ArticlesView] Showing view, loading articles...');
+    // Showing articles view
     if (!this.table) {
       this.table = helpers.dom('#articles-table tbody');
     }

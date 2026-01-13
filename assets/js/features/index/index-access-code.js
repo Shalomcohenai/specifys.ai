@@ -36,15 +36,6 @@
     modal.style.display = 'none';
     if (mainContent) mainContent.style.display = 'block';
     if (header) header.style.display = 'flex';
-    
-    // Log successful access
-    if (window.appLogger) {
-      window.appLogger.logAccessCodeAttempt(true, attemptCount + 1);
-      window.appLogger.logUserAction('AccessGranted', {
-        method: 'access_code',
-        attemptCount: attemptCount + 1
-      });
-    }
   }
   
   function denyAccess() {
@@ -52,11 +43,6 @@
     errorMsg.style.display = 'block';
     input.value = '';
     input.focus();
-    
-    // Log failed attempt
-    if (window.appLogger) {
-      window.appLogger.logAccessCodeAttempt(false, attemptCount);
-    }
   }
   
   function checkAccess() {
@@ -70,13 +56,6 @@
   
   // Initialize
   if (!hasAccess) {
-    // Log that access modal was shown
-    if (window.appLogger) {
-      window.appLogger.log('AccessModalShown', 'Access code modal displayed', {
-        hasPreviousAccess: false
-      });
-    }
-    
     // Hide main content until access is granted
     if (mainContent) mainContent.style.display = 'none';
     if (header) header.style.display = 'none';
@@ -101,12 +80,6 @@
       });
     }
   } else {
-    // Access already granted - log this
-    if (window.appLogger) {
-      window.appLogger.log('AccessGrantedFromStorage', 'Access granted from session storage', {
-        hasPreviousAccess: true
-      });
-    }
     modal.style.display = 'none';
   }
 })();

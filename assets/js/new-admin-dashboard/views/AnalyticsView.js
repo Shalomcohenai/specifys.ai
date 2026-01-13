@@ -69,7 +69,7 @@ export class AnalyticsView {
    */
   initCharts() {
     if (!window.Chart) {
-      console.warn('[AnalyticsView] Chart.js not loaded');
+      // Chart.js not loaded
       return;
     }
     

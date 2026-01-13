@@ -152,7 +152,7 @@ export class OverviewView {
    */
   initCharts() {
     if (!window.Chart) {
-      console.warn('[OverviewView] Chart.js not loaded');
+      // Chart.js not loaded
       return;
     }
     
@@ -310,7 +310,7 @@ export class OverviewView {
       });
       
       activityService.on('restricted', ({ error }) => {
-        console.warn('[OverviewView] ActivityService restricted:', error);
+        // ActivityService restricted
         this.updateActivityConnectionStatus('restricted');
       });
     } else {
@@ -484,7 +484,7 @@ export class OverviewView {
       
       // Ensure we have valid elements
       if (!icon || !span) {
-        console.warn(`[OverviewView] Missing icon or span for ${metricId}`);
+        // Missing icon or span
         return;
       }
       
@@ -509,7 +509,7 @@ export class OverviewView {
         span.textContent = '0%';
       }
     } else {
-      console.warn(`[OverviewView] Could not find change element for ${metricId}`);
+      // Could not find change element
     }
     
     // Update chart
@@ -906,7 +906,7 @@ export class OverviewView {
    * Show view
    */
   show() {
-    console.log('[OverviewView] Showing view');
+    // Showing overview view
     this.updateMetrics();
     this.renderActivityFeed();
     this.renderSystemStatus(); // Render status on show

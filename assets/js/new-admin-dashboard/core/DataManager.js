@@ -252,15 +252,7 @@ export class DataManager {
               const rawData = change.doc.data();
               const user = this.normalizeUser(change.doc.id, rawData);
               
-              // Debug: Log first few users to check credits
-              if (this.data.users.size < 3) {
-                console.log(`[DataManager] Normalized user ${user.email}:`, {
-                  id: user.id,
-                  freeSpecsRemaining: user.freeSpecsRemaining,
-                  raw_free_specs_remaining: rawData.free_specs_remaining,
-                  rawData_keys: Object.keys(rawData)
-                });
-              }
+              // User normalized
               
               this.data.users.set(change.doc.id, user);
               
@@ -359,7 +351,7 @@ export class DataManager {
           // Handle permission errors gracefully
           this.loadingStates.userCredits = false;
           if (error?.code === 'permission-denied') {
-            console.warn('[DataManager] Permission denied for userCredits:', error);
+            // Permission denied for userCredits
             this.emit('restricted', { source: 'userCredits', error });
           } else {
             this.errors.set('userCredits', error);
@@ -371,7 +363,7 @@ export class DataManager {
     } catch (error) {
       this.loadingStates.userCredits = false;
       if (error?.code === 'permission-denied') {
-        console.warn('[DataManager] Permission denied for userCredits:', error);
+        // Permission denied for userCredits
         this.emit('restricted', { source: 'userCredits', error });
       } else {
         this.errors.set('userCredits', error);
@@ -660,7 +652,7 @@ export class DataManager {
         (error) => {
           this.loadingStates.adminActivityLogs = false;
           if (error?.code === 'permission-denied') {
-            console.warn('[DataManager] Permission denied for adminActivityLogs:', error);
+            // Permission denied for adminActivityLogs
             this.emit('restricted', { source: 'adminActivityLogs', error });
           } else {
             this.errors.set('adminActivityLogs', error);
@@ -672,7 +664,7 @@ export class DataManager {
     } catch (error) {
       this.loadingStates.adminActivityLogs = false;
       if (error?.code === 'permission-denied') {
-        console.warn('[DataManager] Permission denied for adminActivityLogs:', error);
+        // Permission denied for adminActivityLogs
         this.emit('restricted', { source: 'adminActivityLogs', error });
       } else {
         this.errors.set('adminActivityLogs', error);
@@ -716,7 +708,7 @@ export class DataManager {
           // Handle permission errors gracefully
           this.loadingStates.contactSubmissions = false;
           if (error?.code === 'permission-denied') {
-            console.warn('[DataManager] Permission denied for contactSubmissions:', error);
+            // Permission denied for contactSubmissions
             this.emit('restricted', { source: 'contactSubmissions', error });
           } else {
             this.errors.set('contactSubmissions', error);
@@ -728,7 +720,7 @@ export class DataManager {
     } catch (error) {
       this.loadingStates.contactSubmissions = false;
       if (error?.code === 'permission-denied') {
-        console.warn('[DataManager] Permission denied for contactSubmissions:', error);
+        // Permission denied for contactSubmissions
         this.emit('restricted', { source: 'contactSubmissions', error });
       } else {
         this.errors.set('contactSubmissions', error);
@@ -864,7 +856,7 @@ export class DataManager {
         (error) => {
           this.loadingStates.errorLogs = false;
           if (error?.code === 'permission-denied') {
-            console.warn('[DataManager] Permission denied for errorLogs:', error);
+            // Permission denied for errorLogs
             this.emit('restricted', { source: 'errorLogs', error });
           } else {
             this.errors.set('errorLogs', error);
@@ -876,7 +868,7 @@ export class DataManager {
     } catch (error) {
       this.loadingStates.errorLogs = false;
       if (error?.code === 'permission-denied') {
-        console.warn('[DataManager] Permission denied for errorLogs:', error);
+        // Permission denied for errorLogs
         this.emit('restricted', { source: 'errorLogs', error });
       } else {
         this.errors.set('errorLogs', error);

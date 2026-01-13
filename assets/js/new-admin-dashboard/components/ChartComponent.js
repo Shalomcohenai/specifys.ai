@@ -11,7 +11,7 @@ export class ChartComponent {
     if (window.Chart) {
       this.init();
     } else {
-      console.warn('[ChartComponent] Chart.js not loaded');
+      // Chart.js not loaded
     }
   }
   

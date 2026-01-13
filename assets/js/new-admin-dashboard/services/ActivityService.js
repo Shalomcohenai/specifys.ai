@@ -119,7 +119,7 @@ export class ActivityService {
         },
         (error) => {
           if (error?.code === 'permission-denied') {
-            console.warn('[ActivityService] Permission denied for admin_activity_log:', error);
+            // Permission denied for admin_activity_log
             this.emit('restricted', { error });
           } else {
             console.error('[ActivityService] Error subscribing to activity events:', error);
@@ -330,7 +330,7 @@ export class ActivityService {
         if (createError?.code === 'permission-denied') {
           // Expected - collection is read-only from client
           // Events should be created server-side
-          console.warn('[ActivityService] Permission denied for creating event - admin_activity_log is read-only. Events should be created server-side.');
+          // Permission denied for creating event
           return { success: false, error: createError, silent: true };
         }
         throw createError;

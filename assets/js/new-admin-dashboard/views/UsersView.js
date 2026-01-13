@@ -282,15 +282,7 @@ export class UsersView {
         ? user.freeSpecsRemaining 
         : 1; // Fallback to 1 if somehow not a number
       
-      // Debug log for first few users to troubleshoot
-      if (pageUsers.indexOf(user) < 3) {
-        console.log(`[UsersView] User ${user.email} credits:`, {
-          credits,
-          freeSpecsRemaining: user.freeSpecsRemaining,
-          raw_free_specs_remaining: user.metadata?.free_specs_remaining,
-          type: typeof user.freeSpecsRemaining
-        });
-      }
+      // Credits loaded for user
       
       const specCount = allData.specsByUser[user.id]?.length || 0;
       // Check plan from user document
@@ -408,7 +400,7 @@ export class UsersView {
    * Handle user action
    */
   handleUserAction(action, userId) {
-    console.log(`[UsersView] Action: ${action} for user: ${userId}`);
+    // Action triggered
     
     switch (action) {
       case 'edit':
@@ -421,7 +413,7 @@ export class UsersView {
         this.deleteUser(userId);
         break;
       default:
-        console.warn(`[UsersView] Unknown action: ${action}`);
+        console.error(`[UsersView] Unknown action: ${action}`);
     }
   }
   
@@ -592,7 +584,7 @@ export class UsersView {
    * View user details - opens in new window
    */
   async viewUser(userId) {
-    console.log(`[UsersView] View user: ${userId}`);
+    // Viewing user details
     
     try {
       // Fetch user analytics data
@@ -1145,7 +1137,7 @@ export class UsersView {
     if (count === 0) return;
     
     // TODO: Show bulk actions modal
-    console.log(`[UsersView] Bulk actions for ${count} users`);
+    // Bulk action triggered
   }
   
   /**
@@ -1256,7 +1248,7 @@ export class UsersView {
    * Export to PDF (placeholder)
    */
   exportPDF() {
-    console.log('[UsersView] PDF export not yet implemented');
+    // PDF export not yet implemented
     // TODO: Implement PDF export
   }
   

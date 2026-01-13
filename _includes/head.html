@@ -210,6 +210,9 @@
     <!-- State Management -->
     <script defer src="{{ '/assets/js/store.js' | relative_url }}"></script>
     
+    <!-- Safe localStorage utilities (must load early) -->
+    <script src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
+    
     <!-- Application Logger -->
     <script defer src="{{ '/assets/js/app-logger.js' | relative_url }}"></script>
     

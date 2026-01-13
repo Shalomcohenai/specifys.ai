@@ -18,13 +18,13 @@ export class UserDetailsModal {
    * Show modal with user data
    */
   async show(userId) {
-    console.log('[UserDetailsModal] show() called with userId:', userId);
+    // Showing modal
     this.currentUserId = userId;
     this.isOpen = true;
     
     // Create modal if it doesn't exist
     if (!this.modal) {
-      console.log('[UserDetailsModal] Creating modal...');
+      // Creating modal
       this.createModal();
     }
     
@@ -34,26 +34,12 @@ export class UserDetailsModal {
     }
     
     // Show modal
-    console.log('[UserDetailsModal] Showing modal...', {
-      modal: this.modal,
-      beforeDisplay: window.getComputedStyle(this.modal).display
-    });
-    
-    // Force show modal
     this.modal.style.display = 'flex';
     this.modal.style.visibility = 'visible';
     this.modal.style.opacity = '1';
     this.modal.style.zIndex = '99999';
     this.modal.setAttribute('data-modal-open', 'true');
     document.body.style.overflow = 'hidden';
-    
-    console.log('[UserDetailsModal] Modal styles set', {
-      display: this.modal.style.display,
-      visibility: this.modal.style.visibility,
-      computedDisplay: window.getComputedStyle(this.modal).display,
-      computedVisibility: window.getComputedStyle(this.modal).visibility,
-      computedZIndex: window.getComputedStyle(this.modal).zIndex
-    });
     
     // Load user data
     try {
@@ -67,7 +53,7 @@ export class UserDetailsModal {
    * Hide modal
    */
   hide() {
-    console.log('[UserDetailsModal] hide() called');
+    // Hiding modal
     if (this.modal) {
       this.modal.style.display = 'none';
       this.modal.style.visibility = 'hidden';
@@ -121,19 +107,14 @@ export class UserDetailsModal {
       return;
     }
     
-    console.log('[UserDetailsModal] Modal created successfully', {
-      modal: this.modal,
-      display: window.getComputedStyle(this.modal).display,
-      visibility: window.getComputedStyle(this.modal).visibility,
-      zIndex: window.getComputedStyle(this.modal).zIndex
-    });
+    // Modal created
     
     // Setup event listeners
     const closeBtn = this.modal.querySelector('.user-details-modal-close');
     if (closeBtn) {
       closeBtn.addEventListener('click', () => this.hide());
     } else {
-      console.warn('[UserDetailsModal] Close button not found!');
+      // Close button not found
     }
     
     // Close on overlay click

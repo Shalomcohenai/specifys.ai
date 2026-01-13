@@ -22,7 +22,7 @@ export class MetricCard {
    */
   init() {
     if (!this.element) {
-      console.warn('[MetricCard] No element provided');
+      // No element provided
       return;
     }
     
@@ -31,13 +31,13 @@ export class MetricCard {
     if (canvas && window.Chart) {
       this.initChart(canvas);
     } else if (canvas && !window.Chart) {
-      console.warn('[MetricCard] Chart.js not loaded');
+      // Chart.js not loaded
     }
     
     // Get value element
     this.valueElement = this.element.querySelector('.metric-value .value');
     if (!this.valueElement) {
-      console.warn('[MetricCard] No value element found for', this.metricKey);
+      // No value element found
     }
     
     // Subscribe to data changes

@@ -192,6 +192,9 @@
     <!-- State Management -->
     <script defer src="/assets/js/store.js"></script>
     
+    <!-- Safe localStorage utilities (must load early) -->
+    <script src="/assets/js/utils/localStorage-safe.js"></script>
+    
     <!-- Application Logger -->
     <script defer src="/assets/js/app-logger.js"></script>
     
@@ -594,8 +597,8 @@ function trackPreference(preferenceName, preferenceValue) {
 </header>
 
 <!-- Credits V2 Display Scripts -->
-<script src="/assets/js/credits-v2-manager.js"></script>
-<script src="/assets/js/credits-v2-display.js"></script>
+<script src="/assets/js/pages/credits-v2-manager.js"></script>
+<script src="/assets/js/pages/credits-v2-display.js"></script>
 
 
     
@@ -768,7 +771,7 @@ function trackPreference(preferenceName, preferenceValue) {
             Investment-ready market reports
           </li>
         </ul>
-        <a href="/tools/processing-market.html" class="btn" aria-label="Analyze market for your app" onclick="trackButtonClick('Analyze Market', 'Tools', 'how_page')">Analyze Market</a>
+        <a href="/pages/spec-viewer.html" class="btn" aria-label="Create your specification" onclick="trackButtonClick('Create Spec', 'Tools', 'how_page')">Create Your Spec</a>
       </article>
 
     </div>
@@ -959,12 +962,26 @@ function trackPreference(preferenceName, preferenceValue) {
     if (typeof trackAuthEvent !== 'undefined') {
       trackAuthEvent('logout', 'email');
     }
-    auth.signOut()
+    
+    // Get auth instance safely
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    
+    if (!authInstance) {
+      console.warn('[firebase-auth] logout called but auth is not available');
+      // Redirect to auth page as fallback
+      window.location.href = '/pages/auth.html';
+      return;
+    }
+    
+    authInstance.signOut()
       .then(() => {
         // Logged out successfully
+        window.location.reload();
       })
       .catch(error => {
-        // Error logging out
+        console.error('[firebase-auth] Error logging out:', error);
+        // Still redirect to auth page even if signOut fails
+        window.location.href = '/pages/auth.html';
       });
   };
 

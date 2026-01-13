@@ -1473,8 +1473,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                         <div class="no-specs-icon"><i class="fas fa-search"></i></div>
                         <h4>No market research yet</h4>
                         <p>Create your first market research to get started!</p>
-                        <button class="btn" onclick="window.location.href='processing-market.html'">
-                            Create New Market Research
+                        <button class="btn" onclick="window.location.href='/pages/how.html'">
+                            Learn More
                         </button>
                     </div>
                 `;

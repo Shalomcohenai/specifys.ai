@@ -194,7 +194,7 @@ export class FirebaseService {
         (error) => {
           // Don't retry on permission errors
           if (error?.code === 'permission-denied') {
-            console.warn(`[FirebaseService] Permission denied for ${collectionName}:`, error);
+            // Permission denied
             if (errorCallback) {
               errorCallback(error);
             }
@@ -236,7 +236,7 @@ export class FirebaseService {
     } catch (error) {
       // Don't retry on permission errors
       if (error?.code === 'permission-denied') {
-        console.warn(`[FirebaseService] Permission denied for ${collectionName}:`, error);
+        // Permission denied
         if (errorCallback) {
           errorCallback(error);
         }

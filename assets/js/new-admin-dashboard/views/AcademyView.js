@@ -66,7 +66,7 @@ export class AcademyView {
       const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
       const guidesSnapshot = await getDocs(collection(db, 'academy_guides'));
       
-      console.log('[AcademyView] Loaded guides count:', guidesSnapshot.docs.length);
+      // Guides loaded
       
       this.guides = guidesSnapshot.docs.map(doc => {
         const data = doc.data();
@@ -81,7 +81,7 @@ export class AcademyView {
         };
       });
       
-      console.log('[AcademyView] Processed guides:', this.guides.length);
+      // Guides processed
       this.updateSummary();
       this.render();
     } catch (error) {
@@ -133,11 +133,11 @@ export class AcademyView {
    */
   render() {
     if (!this.table) {
-      console.warn('[AcademyView] Table element not found');
+      // Table element not found
       return;
     }
     
-    console.log('[AcademyView] Rendering', this.guides.length, 'guides');
+    // Rendering guides
     
     // Apply search filter
     let filteredGuides = [...this.guides];
@@ -200,7 +200,7 @@ export class AcademyView {
    * Show view
    */
   show() {
-    console.log('[AcademyView] Showing view, loading guides...');
+    // Showing academy view
     if (!this.table) {
       this.table = helpers.dom('#academy-table tbody');
     }

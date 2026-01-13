@@ -194,6 +194,9 @@
     <!-- State Management -->
     <script defer src="/assets/js/store.js"></script>
     
+    <!-- Safe localStorage utilities (must load early) -->
+    <script src="/assets/js/utils/localStorage-safe.js"></script>
+    
     <!-- Application Logger -->
     <script defer src="/assets/js/app-logger.js"></script>
     
@@ -574,8 +577,8 @@ function trackPreference(preferenceName, preferenceValue) {
 </header>
 
 <!-- Credits V2 Display Scripts -->
-<script src="/assets/js/credits-v2-manager.js"></script>
-<script src="/assets/js/credits-v2-display.js"></script>
+<script src="/assets/js/pages/credits-v2-manager.js"></script>
+<script src="/assets/js/pages/credits-v2-display.js"></script>
 
 
     

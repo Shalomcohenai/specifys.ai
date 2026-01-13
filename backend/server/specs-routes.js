@@ -38,7 +38,15 @@ async function sendSpecReadyEmail(userEmail, specTitle, specId, baseUrl) {
       auth: {
         user: emailUser,
         pass: emailPassword
-      }
+      },
+      // Add timeout and connection settings
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 5000, // 5 seconds
+      socketTimeout: 10000, // 10 seconds
+      // Retry settings
+      pool: true,
+      maxConnections: 1,
+      maxMessages: 3
     });
     
     // Generate spec link
@@ -83,14 +91,28 @@ async function sendSpecReadyEmail(userEmail, specTitle, specId, baseUrl) {
       `
     };
     
-    const info = await transporter.sendMail(mailOptions);
+    // Send email with timeout
+    const sendEmailPromise = transporter.sendMail(mailOptions);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Email send timeout after 15 seconds')), 15000);
+    });
+    
+    const info = await Promise.race([sendEmailPromise, timeoutPromise]);
     console.log('✅ Spec ready notification email sent successfully to:', userEmail);
     return { success: true, messageId: info.messageId };
     
   } catch (error) {
-    console.error('❌ Error sending spec ready notification email:', error);
+    const errorMessage = error.message || 'Unknown error';
+    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT');
+    
+    if (isTimeout) {
+      console.error('❌ Error sending spec ready notification email: Connection timeout');
+    } else {
+      console.error('❌ Error sending spec ready notification email:', error);
+    }
+    
     // Don't fail the entire request if email fails
-    return { success: false, error: error.message };
+    return { success: false, error: errorMessage, isTimeout };
   }
 }
 

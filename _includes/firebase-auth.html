@@ -42,12 +42,26 @@
     if (typeof trackAuthEvent !== 'undefined') {
       trackAuthEvent('logout', 'email');
     }
-    auth.signOut()
+    
+    // Get auth instance safely
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    
+    if (!authInstance) {
+      console.warn('[firebase-auth] logout called but auth is not available');
+      // Redirect to auth page as fallback
+      window.location.href = '{{ "/pages/auth.html" | relative_url }}';
+      return;
+    }
+    
+    authInstance.signOut()
       .then(() => {
         // Logged out successfully
+        window.location.reload();
       })
       .catch(error => {
-        // Error logging out
+        console.error('[firebase-auth] Error logging out:', error);
+        // Still redirect to auth page even if signOut fails
+        window.location.href = '{{ "/pages/auth.html" | relative_url }}';
       });
   };
 

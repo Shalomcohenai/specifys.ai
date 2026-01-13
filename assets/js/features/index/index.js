@@ -155,31 +155,15 @@ function closeCreditPopup() {
 
 function checkForCreditPopup() {
   // Check if we should show the credit popup
-  console.log('[index.js] checkForCreditPopup - Starting check...');
   const showPopup = sessionStorage.getItem('showCreditPopup');
-  console.log('[index.js] checkForCreditPopup - showPopup value:', showPopup, 'type:', typeof showPopup);
-  console.log('[index.js] checkForCreditPopup - showPopup === "true":', showPopup === 'true');
-  console.log('[index.js] checkForCreditPopup - All sessionStorage keys:', Object.keys(sessionStorage));
   
   if (showPopup === 'true') {
-    console.log('[index.js] checkForCreditPopup - ✅ Condition met! Showing credit popup');
     // Remove the flag
     sessionStorage.removeItem('showCreditPopup');
-    console.log('[index.js] checkForCreditPopup - Removed showCreditPopup from sessionStorage');
     // Show popup after a short delay to ensure page is loaded
     setTimeout(() => {
-      console.log('[index.js] checkForCreditPopup - Calling showCreditPopup()...');
       showCreditPopup();
     }, 500);
-  } else {
-    console.log('[index.js] checkForCreditPopup - ❌ NOT showing popup. showPopup value:', showPopup, 'is not "true"');
-    if (showPopup === null) {
-      console.log('[index.js] checkForCreditPopup - showCreditPopup was never set in sessionStorage');
-    } else if (showPopup === '') {
-      console.log('[index.js] checkForCreditPopup - showCreditPopup is empty string');
-    } else {
-      console.log('[index.js] checkForCreditPopup - showCreditPopup has unexpected value:', showPopup);
-    }
   }
 }
 
@@ -324,36 +308,12 @@ function isUserAuthenticated() {
 function handleStartButtonClick() {
   trackStartNowClick();
   
-  // Log button click
-  if (window.appLogger) {
-    window.appLogger.logUserAction('StartButtonClicked', {
-      page: 'homepage'
-    });
-  }
-  
   // Check if user is authenticated
   if (!isUserAuthenticated()) {
-    // Log authentication required
-    if (window.appLogger) {
-      window.appLogger.logUserAction('AuthRequired', {
-        action: 'start_planning',
-        redirectTo: '/pages/auth.html'
-      });
-    }
-    
     // Show alert and redirect to auth page
     alert('You must be logged in to create a specification. Please sign in or register first.');
     window.location.href = '/pages/auth.html';
     return;
-  }
-  
-  // Log feature usage
-  if (window.appLogger) {
-    const user = firebase.auth().currentUser;
-    window.appLogger.logFeatureUsage('AppPlanningStarted', {
-      userId: user ? user.uid : null,
-      mode: 'planning'
-    });
   }
   
   // Show planning interface
@@ -1372,9 +1332,6 @@ async function generateSpecification() {
         // Update credits display immediately after consumption
         window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {
           // Silently fail - credits will update on next page load
-          if (window.appLogger) {
-            window.appLogger.logError(err, { context: 'generateSpecification.updateCreditsAfterConsume' });
-          }
         });
       }
       
@@ -1395,7 +1352,6 @@ async function generateSpecification() {
           // If spec already exists, try to get its ID and redirect to it
           // But first check if credit was consumed - if spec exists but credit wasn't consumed, 
           // it means the spec was created in a previous attempt, so we should redirect to it
-          console.warn('[index.js] User already has a spec, attempting to find existing spec...');
           try {
             const user = firebase.auth().currentUser;
             if (user) {
@@ -1407,14 +1363,13 @@ async function generateSpecification() {
               
               if (!specsSnapshot.empty) {
                 const existingSpecId = specsSnapshot.docs[0].id;
-                console.log(`[index.js] Found existing spec: ${existingSpecId}, redirecting...`);
                 alert('You already have a spec. Redirecting to your existing spec...');
                 window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
                 return;
               }
             }
           } catch (fetchError) {
-            console.warn('[index.js] Failed to fetch existing spec:', fetchError);
+            // Failed to fetch existing spec
           }
           
           errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
@@ -1638,7 +1593,7 @@ async function saveSpecToFirebase(overviewContent, answers) {
     // Record activity in admin log (fire and forget - don't block on this)
     if (window.api) {
       window.api.post(`/api/specs/${specId}/record-activity`).catch(err => {
-        console.warn('[index.js] Failed to record spec activity:', err);
+        // Failed to record spec activity
       });
     }
     
@@ -1692,7 +1647,6 @@ function checkAutoStart() {
 async function initializeCreditsWithLoading() {
   // Wait for Firebase to be available
   if (typeof firebase === 'undefined' || !firebase.auth) {
-    console.log('[index.js] initializeCreditsWithLoading - Firebase not ready yet, waiting...');
     setTimeout(initializeCreditsWithLoading, 100);
     return;
   }
@@ -1701,8 +1655,6 @@ async function initializeCreditsWithLoading() {
   if (!user) {
     return; // User not authenticated, skip
   }
-  
-  console.log('[index.js] initializeCreditsWithLoading - Starting credit initialization for user:', user.uid);
   
   try {
     // Show loading state in credits button immediately (via updateCreditsDisplay)
@@ -1714,8 +1666,6 @@ async function initializeCreditsWithLoading() {
     
     // Wait for ensureUserDocument to complete (it's called from firebase-auth.html)
     // Poll until user is initialized or timeout
-    console.log('[index.js] initializeCreditsWithLoading - Waiting for user initialization...');
-    
     let attempts = 0;
     const maxAttempts = 10; // 10 attempts * 500ms = 5 seconds max (reduced from 20 for faster loading)
     let userInitialized = false;
@@ -1734,7 +1684,6 @@ async function initializeCreditsWithLoading() {
           // Try to update credits - if user is initialized, this will work
           await window.updateCreditsDisplay({ forceRefresh: true });
           userInitialized = true;
-          console.log('[index.js] initializeCreditsWithLoading - ✅ User initialized, credits loaded (attempt', attempts, ')');
           break;
         }
       } catch (error) {
@@ -1749,24 +1698,13 @@ async function initializeCreditsWithLoading() {
             errorString.includes('must be initialized') ||
             errorString.includes('user credits not found')) {
           // User not initialized yet, keep waiting
-          if (attempts % 2 === 0) { // Log every second (2 attempts * 500ms)
-            console.log('[index.js] initializeCreditsWithLoading - Still waiting for user initialization... (attempt', attempts, '/', maxAttempts, ')');
-          }
           continue;
         }
-        // Other errors - might be network issues, but log and continue
-        if (attempts % 2 === 0) { // Log every second
-          console.warn('[index.js] initializeCreditsWithLoading - Error checking credits (attempt', attempts, '):', error);
-        }
+        // Other errors - might be network issues
       }
     }
     
     if (!userInitialized) {
-      console.warn('[index.js] initializeCreditsWithLoading - ⚠️ User initialization timeout after', attempts, 'attempts');
-      if (lastError) {
-        console.warn('[index.js] initializeCreditsWithLoading - Last error:', lastError);
-      }
-      
       // Try one more time with forceRefresh - maybe user was initialized in the meantime
       if (typeof window.clearCreditsCache === 'function') {
         window.clearCreditsCache();
@@ -1774,9 +1712,7 @@ async function initializeCreditsWithLoading() {
       if (typeof window.updateCreditsDisplay === 'function') {
         try {
           await window.updateCreditsDisplay({ forceRefresh: true });
-          console.log('[index.js] initializeCreditsWithLoading - ✅ Credits loaded on final attempt');
         } catch (finalError) {
-          console.error('[index.js] initializeCreditsWithLoading - ❌ Final attempt failed:', finalError);
           // Credits will show "unavailable" - user can refresh page
         }
       }
@@ -1789,17 +1725,13 @@ async function initializeCreditsWithLoading() {
         await window.updateCreditsDisplay({ forceRefresh: true });
       }
     }
-    
-    console.log('[index.js] initializeCreditsWithLoading - ✅ Credit initialization complete');
   } catch (error) {
-    console.error('[index.js] initializeCreditsWithLoading - Error:', error);
     // Even on error, try to show credits (might be cached)
     if (typeof window.updateCreditsDisplay === 'function') {
       try {
         await window.updateCreditsDisplay({ forceRefresh: false });
       } catch (e) {
         // Ignore secondary errors
-        console.error('[index.js] initializeCreditsWithLoading - Secondary error:', e);
       }
     }
   }
@@ -1824,13 +1756,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const user = firebase.auth().currentUser;
     if (user) {
-      console.log('[index.js] User authenticated, starting credit initialization with loading...');
       initializeCreditsWithLoading();
     } else {
       // Listen for auth state changes
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          console.log('[index.js] User signed in, starting credit initialization with loading...');
           initializeCreditsWithLoading();
         }
       });
@@ -2364,7 +2294,6 @@ function triggerPlatformHint() {
   
   function renderBrowserDiagrams() {
     if (typeof mermaid === 'undefined') {
-      console.warn('Mermaid not loaded');
       return;
     }
     
@@ -2401,7 +2330,7 @@ function triggerPlatformHint() {
         mermaid.contentLoaded();
       }
     } catch (error) {
-      console.error('Error rendering browser diagrams:', error);
+      // Error rendering browser diagrams
     }
   }
 

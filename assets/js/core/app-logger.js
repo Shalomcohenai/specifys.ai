@@ -169,11 +169,41 @@
     });
   });
 
-  // Log unhandled promise rejections
+  // Log unhandled promise rejections with filtering for known non-critical errors
   window.addEventListener('unhandledrejection', (event) => {
-    logError(event.reason, {
-      type: 'unhandledPromiseRejection'
-    });
+    const error = event.reason;
+    const errorMessage = error?.message || String(error);
+    const errorName = error?.name || 'UnknownError';
+    
+    // Filter out known non-critical errors that don't need logging
+    const ignoredErrors = [
+      'Connection to Indexed Database server lost',
+      'Database deleted by request of the user',
+      'Failed to execute \'decodeAudioData\' on \'BaseAudioContext\'',
+      'Attempt to get records from database without an in-progress transaction'
+    ];
+    
+    // Check if this is an ignored error
+    const shouldIgnore = ignoredErrors.some(ignored => 
+      errorMessage.includes(ignored)
+    );
+    
+    // Also ignore if it's a user-initiated database deletion
+    if (errorName === 'UnknownError' && errorMessage.includes('Database deleted by request')) {
+      shouldIgnore = true;
+    }
+    
+    if (!shouldIgnore) {
+      logError(error, {
+        type: 'unhandledPromiseRejection'
+      });
+    } else {
+      // Silently handle known non-critical errors
+      // These are expected in certain scenarios (e.g., user clears browser data)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.debug('[App Logger] Ignored non-critical error:', errorMessage);
+      }
+    }
   });
 })();
 
