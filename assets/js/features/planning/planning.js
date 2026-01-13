@@ -927,10 +927,6 @@ window.generateJSON = function() {
     // Convert to JSON string with pretty formatting
     const jsonString = JSON.stringify(spec, null, 2);
     
-    // Log to console
-    console.log("Generated Comprehensive Spec:", spec);
-    console.log("JSON String:", jsonString);
-    
     // Return both object and string
     return {
         object: spec,

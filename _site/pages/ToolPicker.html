@@ -855,7 +855,6 @@ function trackPreference(preferenceName, preferenceValue) {
     const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
     
     if (!authInstance) {
-      console.warn('[firebase-auth] logout called but auth is not available');
       // Redirect to auth page as fallback
       window.location.href = '/pages/auth.html';
       return;
@@ -867,7 +866,6 @@ function trackPreference(preferenceName, preferenceValue) {
         window.location.reload();
       })
       .catch(error => {
-        console.error('[firebase-auth] Error logging out:', error);
         // Still redirect to auth page even if signOut fails
         window.location.href = '/pages/auth.html';
       });
@@ -914,8 +912,6 @@ function trackPreference(preferenceName, preferenceValue) {
       const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
       const isNewUser = showCreditPopup; // If showCreditPopup is set, user is likely new
       
-      console.log('[firebase-auth.html] ensureUserDocument - Checking isNewUser flag:', { showCreditPopup, isNewUser });
-      
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5 second timeout (reduced from 5s for faster loading)
@@ -935,8 +931,6 @@ function trackPreference(preferenceName, preferenceValue) {
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        // Log error for debugging but don't block user experience
-        console.warn('[firebase-auth.html] ensureUserDocument - API call failed:', fetchError.name, fetchError.message);
         // Handle network errors gracefully - don't block user from using the site
         if (fetchError.name === 'AbortError' || 
             fetchError.message.includes('Failed to fetch') || 
@@ -946,8 +940,7 @@ function trackPreference(preferenceName, preferenceValue) {
           // User can still use the site, credits will be initialized on next page load or when API is available
           return;
         }
-        // For other errors, log but don't throw (don't block user)
-        console.error('[firebase-auth.html] ensureUserDocument - Unexpected error:', fetchError);
+        // For other errors, silently fail (don't block user)
         return;
       }
       
@@ -955,22 +948,17 @@ function trackPreference(preferenceName, preferenceValue) {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('[firebase-auth.html] ensureUserDocument - result:', result);
-        console.log('[firebase-auth.html] ensureUserDocument - isNewUser:', result.isNewUser, 'created:', result.created);
         
         // Don't rely on server response for isNewUser - it may be incorrect if documents already exist
         // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
         // The flag should be set in auth.html using getAdditionalUserInfo or for registration
         const existingFlag = sessionStorage.getItem('showCreditPopup');
         if (!existingFlag && result && result.isNewUser) {
-          console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user (no existing flag)');
           sessionStorage.setItem('showCreditPopup', 'true');
-          console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
           
           // Note: checkForCreditPopup will be called from index.js after credit initialization
           // No need to call it here to avoid duplicate calls
         } else if (existingFlag) {
-          console.log('[firebase-auth.html] ensureUserDocument - showCreditPopup flag already exists, not overwriting');
           // נקה cache
           if (typeof window.clearCreditsCache === 'function') {
             window.clearCreditsCache();

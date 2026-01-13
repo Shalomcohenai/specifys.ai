@@ -146,33 +146,15 @@
 <body class="page-default">
     <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
     <main class="auth-page-layout" id="main-content" role="main">
-        <!-- Left Panel - Steps Animation -->
-        <div class="auth-left-panel">
-            <!-- Logo -->
-            <div class="auth-logo">
-                <a href="../index.html">Specifys.ai</a>
-            </div>
-            
-            <div class="steps-container">
-                <!-- All three sections displayed together -->
-                <div class="step-section">
-                    <h3 class="step-title">App Specification</h3>
-                    <p class="step-description">Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories.</p>
-                </div>
-                
-                <div class="step-section">
-                    <h3 class="step-title">Market Research</h3>
-                    <p class="step-description">Conduct comprehensive market analysis to understand your target audience and competition. Get insights on market trends and user needs.</p>
-                </div>
-                
-                <div class="step-section">
-                    <h3 class="step-title">Development Management</h3>
-                    <p class="step-description">Manage your app development process efficiently with our project management tools. Track progress, coordinate teams, and ensure timely delivery.</p>
-                </div>
-            </div>
+        <!-- Animated Background -->
+        <div class="auth-animated-bg"></div>
+        
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="../index.html">Specifys.ai</a>
         </div>
 
-        <!-- Right Panel - Compact Login -->
+        <!-- Centered Login Panel -->
         <div class="auth-right-panel">
             <div class="compact-login-container">
                 <div class="compact-login-header">
@@ -322,7 +304,7 @@
     </div>
 
     <script defer src="../assets/js/script.js"></script>
-    <script defer src="../assets/js/mobile-optimizations.js"></script>
+    <script defer src="../assets/js/utils/mobile-optimizations.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -1127,81 +1109,6 @@
             }
         });
 
-        // Animated headers for left panel
-        const stepsData = [
-            {
-                title: "App Specification",
-                description: "Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories."
-            },
-            {
-                title: "Development Management",
-                description: "Manage your app development process efficiently with our project management tools. Track progress, coordinate teams, and ensure timely delivery."
-            },
-            {
-                title: "AI-Powered Planning",
-                description: "Leverage artificial intelligence to create comprehensive app specifications. Get detailed project plans, technical requirements, and market analysis."
-            }
-        ];
-
-        let currentStep = 0;
-        let titleElement, descriptionElement, stepDots;
-
-        function updateStep() {
-            if (!titleElement || !descriptionElement) return;
-            
-            // Fade out
-            titleElement.style.opacity = '0';
-            descriptionElement.style.opacity = '0';
-            
-            setTimeout(() => {
-                // Update content
-                titleElement.textContent = stepsData[currentStep].title;
-                descriptionElement.textContent = stepsData[currentStep].description;
-                
-                // Update step indicators
-                if (stepDots) {
-                    stepDots.forEach((dot, index) => {
-                        dot.classList.toggle('active', index === currentStep);
-                    });
-                }
-                
-                // Fade in
-                titleElement.style.opacity = '1';
-                descriptionElement.style.opacity = '1';
-                
-                // Move to next step
-                currentStep = (currentStep + 1) % stepsData.length;
-            }, 300);
-        }
-
-        // Initialize animation
-        function initAnimation() {
-            // Get elements after DOM is loaded
-            titleElement = document.getElementById('dynamic-title');
-            descriptionElement = document.getElementById('dynamic-description');
-            stepDots = document.querySelectorAll('.step-dot');
-            
-            // Check if elements exist
-            if (!titleElement || !descriptionElement) {
-                // Elements not found - silently skip animation
-                return;
-            }
-            
-            titleElement.style.transition = 'opacity 0.3s ease';
-            descriptionElement.style.transition = 'opacity 0.3s ease';
-            
-            // Start the animation
-            setInterval(updateStep, 2000); // Change every 2 seconds
-        }
-
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initAnimation);
-        } else {
-            // DOM already loaded
-            initAnimation();
-        }
-        
         // Ensure privacy policy checkbox is checked on page load
         function ensurePrivacyCheckboxChecked() {
             const privacyCheckbox = document.getElementById('privacy-policy-agreement');
