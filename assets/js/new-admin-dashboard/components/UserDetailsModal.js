@@ -18,32 +18,70 @@ export class UserDetailsModal {
    * Show modal with user data
    */
   async show(userId) {
+    console.log('[UserDetailsModal] show() called with userId:', userId);
     this.currentUserId = userId;
     this.isOpen = true;
     
     // Create modal if it doesn't exist
     if (!this.modal) {
+      console.log('[UserDetailsModal] Creating modal...');
       this.createModal();
     }
     
+    if (!this.modal) {
+      console.error('[UserDetailsModal] Modal was not created!');
+      return;
+    }
+    
     // Show modal
+    console.log('[UserDetailsModal] Showing modal...', {
+      modal: this.modal,
+      beforeDisplay: window.getComputedStyle(this.modal).display
+    });
+    
+    // Force show modal
     this.modal.style.display = 'flex';
+    this.modal.style.visibility = 'visible';
+    this.modal.style.opacity = '1';
+    this.modal.style.zIndex = '99999';
+    this.modal.setAttribute('data-modal-open', 'true');
     document.body.style.overflow = 'hidden';
     
+    console.log('[UserDetailsModal] Modal styles set', {
+      display: this.modal.style.display,
+      visibility: this.modal.style.visibility,
+      computedDisplay: window.getComputedStyle(this.modal).display,
+      computedVisibility: window.getComputedStyle(this.modal).visibility,
+      computedZIndex: window.getComputedStyle(this.modal).zIndex
+    });
+    
     // Load user data
-    await this.loadUserData(userId);
+    try {
+      await this.loadUserData(userId);
+    } catch (error) {
+      console.error('[UserDetailsModal] Error in show():', error);
+    }
   }
 
   /**
    * Hide modal
    */
   hide() {
+    console.log('[UserDetailsModal] hide() called');
     if (this.modal) {
       this.modal.style.display = 'none';
+      this.modal.style.visibility = 'hidden';
+      this.modal.style.opacity = '0';
       document.body.style.overflow = '';
     }
     this.isOpen = false;
     this.currentUserId = null;
+    
+    // Remove escape key handler
+    if (this._escapeHandler) {
+      document.removeEventListener('keydown', this._escapeHandler);
+      this._escapeHandler = null;
+    }
   }
 
   /**
@@ -78,9 +116,25 @@ export class UserDetailsModal {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     this.modal = document.getElementById('user-details-modal');
     
+    if (!this.modal) {
+      console.error('[UserDetailsModal] Failed to create modal element!');
+      return;
+    }
+    
+    console.log('[UserDetailsModal] Modal created successfully', {
+      modal: this.modal,
+      display: window.getComputedStyle(this.modal).display,
+      visibility: window.getComputedStyle(this.modal).visibility,
+      zIndex: window.getComputedStyle(this.modal).zIndex
+    });
+    
     // Setup event listeners
     const closeBtn = this.modal.querySelector('.user-details-modal-close');
-    closeBtn.addEventListener('click', () => this.hide());
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.hide());
+    } else {
+      console.warn('[UserDetailsModal] Close button not found!');
+    }
     
     // Close on overlay click
     this.modal.addEventListener('click', (e) => {
@@ -89,12 +143,17 @@ export class UserDetailsModal {
       }
     });
     
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
+    // Close on Escape key - use a unique handler to avoid duplicates
+    const escapeHandler = (e) => {
       if (e.key === 'Escape' && this.isOpen) {
         this.hide();
       }
-    });
+    };
+    
+    // Remove existing handler if any
+    document.removeEventListener('keydown', this._escapeHandler);
+    this._escapeHandler = escapeHandler;
+    document.addEventListener('keydown', this._escapeHandler);
   }
 
   /**

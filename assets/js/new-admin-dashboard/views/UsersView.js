@@ -4,7 +4,7 @@
  */
 
 import { helpers } from '../utils/helpers.js';
-import { UserDetailsModal } from '../components/UserDetailsModal.js';
+import { apiService } from '../services/ApiService.js';
 
 export class UsersView {
   constructor(dataManager, stateManager) {
@@ -14,7 +14,6 @@ export class UsersView {
     this.currentPage = 1;
     this.perPage = 25;
     this.selectedUsers = new Set();
-    this.userDetailsModal = new UserDetailsModal();
     
     this.init();
   }
@@ -590,11 +589,510 @@ export class UsersView {
   }
   
   /**
-   * View user details
+   * View user details - opens in new window
    */
-  viewUser(userId) {
+  async viewUser(userId) {
     console.log(`[UsersView] View user: ${userId}`);
-    this.userDetailsModal.show(userId);
+    
+    try {
+      // Fetch user analytics data
+      const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
+      const analytics = data.analytics;
+      
+      // Open new window with user details
+      this.openUserDetailsWindow(userId, analytics);
+    } catch (error) {
+      console.error('[UsersView] Error loading user data:', error);
+      alert(`Error loading user details: ${error.message}`);
+    }
+  }
+  
+  /**
+   * Open user details in new window
+   */
+  openUserDetailsWindow(userId, analytics) {
+    const user = analytics.user || {};
+    const credits = analytics.credits || null;
+    const specs = analytics.specs || { count: 0, specs: [] };
+    const acquisition = analytics.acquisition || {};
+    const visits = analytics.visits || {};
+    const pageJourney = analytics.pageJourney || [];
+    
+    // Create HTML content
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Details - ${this.escapeHtml(user.email || userId)}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      color: #1f2937;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+      padding: 32px;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+    .section {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .section:last-child {
+      border-bottom: none;
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title i {
+      color: #ff6b35;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .item .value {
+      font-size: 1rem;
+      color: #1f2937;
+      font-weight: 500;
+    }
+    .item .value-large {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #ff6b35;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .badge.pro {
+      background: rgba(255, 107, 53, 0.1);
+      color: #ff6b35;
+    }
+    .badge.free {
+      background: rgba(107, 114, 128, 0.1);
+      color: #6b7280;
+    }
+    .badge.active {
+      background: rgba(24, 180, 125, 0.1);
+      color: #18b47d;
+    }
+    .badge.disabled {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+    .specs-list, .sessions-list {
+      margin-top: 20px;
+    }
+    .specs-list ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .specs-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .session-card {
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 12px;
+    }
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .session-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    .session-details > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .session-details i {
+      color: #ff6b35;
+      width: 16px;
+    }
+    .page-journey {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+    .page-journey-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .page-journey-item:last-child {
+      border-bottom: none;
+    }
+    .page-journey-number {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ff6b35;
+      color: white;
+      border-radius: 50%;
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .page-journey-content {
+      flex: 1;
+    }
+    .page-journey-page {
+      font-weight: 500;
+      color: #1f2937;
+    }
+    .page-journey-time {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>User Details</h1>
+    <p class="subtitle">${this.escapeHtml(user.email || userId)}</p>
+    
+    <!-- Basic Information -->
+    <div class="section">
+      <h2 class="section-title">
+        <i class="fas fa-user"></i>
+        Basic Information
+      </h2>
+      <div class="grid">
+        <div class="item">
+          <label>Email</label>
+          <div class="value">${this.escapeHtml(user.email || '—')}</div>
+        </div>
+        <div class="item">
+          <label>Display Name</label>
+          <div class="value">${this.escapeHtml(user.displayName || '—')}</div>
+        </div>
+        <div class="item">
+          <label>Plan</label>
+          <div class="value">
+            <span class="badge ${(user.plan || 'free').toLowerCase()}">${(user.plan || 'free').charAt(0).toUpperCase() + (user.plan || 'free').slice(1)}</span>
+          </div>
+        </div>
+        <div class="item">
+          <label>Account Created</label>
+          <div class="value">${user.createdAt ? this.formatDateTime(user.createdAt) : '—'}</div>
+        </div>
+        <div class="item">
+          <label>Last Active</label>
+          <div class="value">${user.lastActive ? this.formatDateTime(user.lastActive) : '—'}</div>
+        </div>
+        <div class="item">
+          <label>Status</label>
+          <div class="value">
+            <span class="badge ${user.disabled ? 'disabled' : 'active'}">
+              ${user.disabled ? 'Disabled' : 'Active'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credits & Usage -->
+    <div class="section">
+      <h2 class="section-title">
+        <i class="fas fa-coins"></i>
+        Credits & Usage
+      </h2>
+      <div class="grid">
+        ${credits ? `
+          <div class="item">
+            <label>Total Credits</label>
+            <div class="value-large">${credits.total || 0}</div>
+          </div>
+          <div class="item">
+            <label>Free Credits</label>
+            <div class="value">${credits.free || 0}</div>
+          </div>
+          <div class="item">
+            <label>Paid Credits</label>
+            <div class="value">${credits.paid || 0}</div>
+          </div>
+          <div class="item">
+            <label>Bonus Credits</label>
+            <div class="value">${credits.bonus || 0}</div>
+          </div>
+        ` : `
+          <div class="item">
+            <div class="value">No credits data available</div>
+          </div>
+        `}
+        <div class="item">
+          <label>Specs Created</label>
+          <div class="value-large">${specs.count || 0}</div>
+        </div>
+      </div>
+      ${specs.specs && specs.specs.length > 0 ? `
+        <div class="specs-list">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Recent Specs</h3>
+          <ul>
+            ${specs.specs.slice(0, 10).map(spec => `
+              <li>
+                <span>${this.escapeHtml(spec.title)}</span>
+                <span style="color: #6b7280; font-size: 0.85rem;">${spec.createdAt ? this.formatDate(spec.createdAt) : '—'}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- Acquisition Data -->
+    <div class="section">
+      <h2 class="section-title">
+        <i class="fas fa-chart-line"></i>
+        Acquisition Data
+      </h2>
+      <div class="grid">
+        <div class="item">
+          <label>Referrer</label>
+          <div class="value">${acquisition.referrer ? this.escapeHtml(acquisition.referrer) : '—'}</div>
+        </div>
+        <div class="item">
+          <label>Landing Page</label>
+          <div class="value">${acquisition.landing_page ? this.escapeHtml(acquisition.landing_page) : '—'}</div>
+        </div>
+        <div class="item">
+          <label>First Visit</label>
+          <div class="value">${acquisition.first_visit_at ? this.formatDateTime(acquisition.first_visit_at) : '—'}</div>
+        </div>
+        ${acquisition.utm_source ? `
+          <div class="item">
+            <label>UTM Source</label>
+            <div class="value">${this.escapeHtml(acquisition.utm_source)}</div>
+          </div>
+        ` : ''}
+        ${acquisition.utm_medium ? `
+          <div class="item">
+            <label>UTM Medium</label>
+            <div class="value">${this.escapeHtml(acquisition.utm_medium)}</div>
+          </div>
+        ` : ''}
+        ${acquisition.utm_campaign ? `
+          <div class="item">
+            <label>UTM Campaign</label>
+            <div class="value">${this.escapeHtml(acquisition.utm_campaign)}</div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+
+    <!-- Visit History -->
+    <div class="section">
+      <h2 class="section-title">
+        <i class="fas fa-history"></i>
+        Visit History
+      </h2>
+      <div class="grid">
+        <div class="item">
+          <label>Total Time on Site</label>
+          <div class="value-large">${visits.totalTimeOnSiteFormatted || '0s'}</div>
+        </div>
+        <div class="item">
+          <label>Total Visits</label>
+          <div class="value-large">${visits.totalVisits || 0}</div>
+        </div>
+        <div class="item">
+          <label>Total Sessions</label>
+          <div class="value">${visits.sessions ? visits.sessions.length : 0}</div>
+        </div>
+        ${visits.lastVisit ? `
+          <div class="item">
+            <label>Last Visit</label>
+            <div class="value">${this.formatDateTime(visits.lastVisit.date)}</div>
+          </div>
+          <div class="item">
+            <label>Last Visit Page</label>
+            <div class="value">${this.escapeHtml(visits.lastVisit.page)}</div>
+          </div>
+        ` : ''}
+      </div>
+      ${visits.sessions && visits.sessions.length > 0 ? `
+        <div class="sessions-list">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Sessions</h3>
+          ${visits.sessions.map((session, index) => `
+            <div class="session-card">
+              <div class="session-header">
+                <span style="font-weight: 600;">Session ${index + 1}</span>
+                <span style="font-weight: 600; color: #ff6b35;">${session.durationFormatted || '0s'}</span>
+              </div>
+              <div class="session-details">
+                <div>
+                  <i class="fas fa-clock"></i>
+                  ${this.formatDateTime(session.startTime)} - ${this.formatDateTime(session.endTime)}
+                </div>
+                <div>
+                  <i class="fas fa-file"></i>
+                  ${session.pageCount || 0} pages
+                </div>
+                <div>
+                  <i class="fas fa-sign-in-alt"></i>
+                  Entry: ${this.escapeHtml(session.entryPage)}
+                </div>
+                <div>
+                  <i class="fas fa-sign-out-alt"></i>
+                  Exit: ${this.escapeHtml(session.exitPage)}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- Page Journey -->
+    ${pageJourney.length > 0 ? `
+      <div class="section">
+        <h2 class="section-title">
+          <i class="fas fa-route"></i>
+          Page Journey
+        </h2>
+        <div class="page-journey">
+          ${pageJourney.slice(0, 50).map((page, index) => `
+            <div class="page-journey-item">
+              <div class="page-journey-number">${index + 1}</div>
+              <div class="page-journey-content">
+                <div class="page-journey-page">${this.escapeHtml(page.page)}</div>
+                <div class="page-journey-time">${page.viewedAt ? this.formatDateTime(page.viewedAt) : '—'}</div>
+              </div>
+            </div>
+          `).join('')}
+          ${pageJourney.length > 50 ? `
+            <div style="padding: 16px; text-align: center; color: #6b7280;">
+              Showing first 50 of ${pageJourney.length} page views
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    ` : ''}
+  </div>
+</body>
+</html>
+    `;
+    
+    // Open new window
+    const newWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    if (newWindow) {
+      newWindow.document.write(html);
+      newWindow.document.close();
+      newWindow.focus();
+    } else {
+      alert('Please allow popups to view user details');
+    }
+  }
+  
+  /**
+   * Format date and time
+   */
+  formatDateTime(dateString) {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  /**
+   * Format date only
+   */
+  formatDate(dateString) {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  /**
+   * Escape HTML
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
   
   /**
