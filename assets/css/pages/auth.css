@@ -11,7 +11,7 @@
 
 .auth-page-layout {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-height: 100vh;
   width: 100%;
@@ -19,6 +19,7 @@
   position: relative;
   font-family: var(--font-family-primary, 'Inter', 'Montserrat', sans-serif);
   overflow: hidden;
+  padding-top: var(--spacing-sm, 0.5rem);
 }
 
 /* Remove default page styles that might interfere */
@@ -42,88 +43,162 @@ body.page-default > footer {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 25%, #FFA07A 50%, #FF8551 75%, #FF6B35 100%);
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 15%, #FF8C42 30%, #FF7F50 45%, #FFA07A 60%, #FF8551 75%, #FF8C42 90%, #FF6B35 100%);
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  opacity: 0.15;
+  animation: gradientShift 10s ease infinite;
   z-index: 0;
+  overflow: hidden;
 }
 
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
   }
-  50% {
+  25% {
     background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
   }
   100% {
     background-position: 0% 50%;
   }
 }
 
-/* Additional animated shapes */
+/* Multiple animated shapes for dynamic background */
 .auth-animated-bg::before,
 .auth-animated-bg::after {
   content: '';
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 107, 53, 0.1);
-  animation: float 20s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0) 70%);
+  animation: float 25s ease-in-out infinite;
 }
 
 .auth-animated-bg::before {
-  width: 300px;
-  height: 300px;
-  top: -150px;
-  left: -150px;
+  width: 400px;
+  height: 400px;
+  top: -200px;
+  left: -200px;
   animation-delay: 0s;
 }
 
 .auth-animated-bg::after {
-  width: 200px;
-  height: 200px;
-  bottom: -100px;
-  right: -100px;
-  animation-delay: 5s;
+  width: 350px;
+  height: 350px;
+  bottom: -175px;
+  right: -175px;
+  animation-delay: 8s;
 }
 
-@keyframes float {
+/* Additional floating shapes */
+.bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0) 70%);
+  pointer-events: none;
+}
+
+.bg-shape-1 {
+  width: 300px;
+  height: 300px;
+  top: 20%;
+  left: 10%;
+  animation: float1 20s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.bg-shape-2 {
+  width: 250px;
+  height: 250px;
+  top: 60%;
+  right: 15%;
+  animation: float2 18s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+.bg-shape-3 {
+  width: 200px;
+  height: 200px;
+  bottom: 20%;
+  left: 20%;
+  animation: float1 22s ease-in-out infinite;
+  animation-delay: 8s;
+}
+
+.auth-animated-bg::before {
+  animation-name: float1;
+}
+
+.auth-animated-bg::after {
+  animation-name: float2;
+}
+
+@keyframes float1 {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1) rotate(0deg);
     opacity: 0.1;
   }
-  33% {
-    transform: translate(50px, 50px) scale(1.2);
-    opacity: 0.15;
-  }
-  66% {
-    transform: translate(-30px, 30px) scale(0.9);
+  25% {
+    transform: translate(100px, 80px) scale(1.3) rotate(90deg);
     opacity: 0.12;
+  }
+  50% {
+    transform: translate(200px, 50px) scale(0.9) rotate(180deg);
+    opacity: 0.08;
+  }
+  75% {
+    transform: translate(80px, 150px) scale(1.1) rotate(270deg);
+    opacity: 0.1;
+  }
+}
+
+@keyframes float2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.08;
+  }
+  25% {
+    transform: translate(-120px, -100px) scale(1.2) rotate(-90deg);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate(-200px, -50px) scale(0.85) rotate(-180deg);
+    opacity: 0.06;
+  }
+  75% {
+    transform: translate(-80px, -150px) scale(1.15) rotate(-270deg);
+    opacity: 0.09;
   }
 }
 
 /* ============================================
-   Logo - Top Left
+   Logo - Inside Container
    ============================================ */
 
 .auth-logo {
-  position: absolute;
-  top: var(--spacing-xl, 2rem);
-  left: var(--spacing-xl, 2rem);
-  z-index: 100;
+  text-align: center;
+  margin-bottom: var(--spacing-md, 1rem);
+  position: relative;
+  z-index: 1;
 }
 
 .auth-logo a {
-  font-size: var(--font-size-xl, 1.25rem);
+  font-size: var(--font-size-2xl, 1.5rem);
   font-weight: var(--font-weight-bold, 700);
   color: var(--text-color, #333);
   text-decoration: none;
   font-family: 'Montserrat', sans-serif;
-  transition: opacity var(--transition-normal, 0.3s ease);
+  transition: all var(--transition-normal, 0.3s ease);
+  display: inline-block;
 }
 
 .auth-logo a:hover {
   opacity: 0.8;
+  transform: scale(1.05);
 }
 
 /* ============================================
@@ -134,11 +209,12 @@ body.page-default > footer {
   position: relative;
   z-index: 10;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--spacing-2xl, 3rem) var(--spacing-xl, 2rem);
+  padding: 0 var(--spacing-xl, 2rem);
   width: 100%;
   max-width: 500px;
+  margin-top: 0;
 }
 
 .compact-login-container {
@@ -146,7 +222,7 @@ body.page-default > footer {
   max-width: 450px;
   margin: 0 auto;
   background: var(--bg-primary, #ffffff);
-  padding: var(--spacing-2xl, 3rem);
+  padding: var(--spacing-lg, 1.5rem) var(--spacing-xl, 2rem);
   border-radius: var(--border-radius-lg, 1rem);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -155,14 +231,14 @@ body.page-default > footer {
 
 .compact-login-header {
   text-align: center;
-  margin-bottom: var(--spacing-xl, 2rem);
+  margin-bottom: var(--spacing-md, 1rem);
 }
 
 .compact-login-header h1 {
   font-size: var(--font-size-3xl, 1.875rem);
   font-weight: var(--font-weight-bold, 700);
   color: var(--text-color, #333);
-  margin-bottom: var(--spacing-sm, 0.5rem);
+  margin-bottom: var(--spacing-xs, 0.25rem);
   font-family: 'Montserrat', sans-serif;
   line-height: var(--line-height-tight, 1.2);
 }
@@ -181,7 +257,7 @@ body.page-default > footer {
 .auth-tabs {
   display: flex;
   gap: var(--spacing-xs, 0.25rem);
-  margin-bottom: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-md, 1rem);
   border-bottom: 2px solid var(--border-light, #e9ecef);
 }
 
@@ -238,7 +314,7 @@ body.page-default > footer {
 }
 
 .compact-form-group {
-  margin-bottom: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-md, 1rem);
   text-align: left;
 }
 
@@ -423,6 +499,35 @@ body.page-default > footer {
   margin-top: 2px;
   cursor: pointer;
   accent-color: var(--primary-color, #FF6B35);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid var(--border-light, #e9ecef);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #ffffff);
+  position: relative;
+  transition: all var(--transition-normal, 0.3s ease);
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background-color: var(--primary-color, #FF6B35);
+  border-color: var(--primary-color, #FF6B35);
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-white, #ffffff);
+  font-size: 14px;
+  font-weight: var(--font-weight-bold, 700);
+  line-height: 1;
+}
+
+.checkbox-label input[type="checkbox"]:hover {
+  border-color: var(--primary-color, #FF6B35);
 }
 
 .checkbox-label .checkmark {
@@ -637,23 +742,28 @@ body.page-default > footer {
 
 @media (max-width: 968px) {
   .auth-page-layout {
-    padding: var(--spacing-lg, 1.5rem);
+    padding-top: var(--spacing-md, 1rem);
+    padding-left: var(--spacing-sm, 0.5rem);
+    padding-right: var(--spacing-sm, 0.5rem);
   }
 
   .auth-right-panel {
     width: 100%;
     max-width: 100%;
-    padding: 0;
+    padding: 0 var(--spacing-sm, 0.5rem);
   }
 
   .compact-login-container {
     max-width: 100%;
-    padding: var(--spacing-xl, 2rem) var(--spacing-lg, 1.5rem);
+    padding: var(--spacing-lg, 1.5rem) var(--spacing-md, 1rem);
   }
 
   .auth-logo {
-    top: var(--spacing-lg, 1.5rem);
-    left: var(--spacing-lg, 1.5rem);
+    margin-bottom: var(--spacing-md, 1rem);
+  }
+  
+  .auth-logo a {
+    font-size: var(--font-size-xl, 1.25rem);
   }
 }
 
