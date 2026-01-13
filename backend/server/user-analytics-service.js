@@ -226,6 +226,24 @@ async function getUserAnalytics(userId) {
       logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting credits data');
     }
 
+    // Get subscription data
+    let subscriptionData = null;
+    try {
+      const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
+      if (subscriptionDoc.exists) {
+        const subData = subscriptionDoc.data();
+        subscriptionData = {
+          status: subData.status || null,
+          renewsAt: subData.renews_at ? toDate(subData.renews_at)?.toISOString() : null,
+          endsAt: subData.ends_at ? toDate(subData.ends_at)?.toISOString() : null,
+          cancelAtPeriodEnd: subData.cancel_at_period_end || false,
+          subscriptionId: subData.lemon_subscription_id || null
+        };
+      }
+    } catch (error) {
+      logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting subscription data');
+    }
+
     // Get specs count and list
     let specsData = { count: 0, specs: [] };
     try {
@@ -305,6 +323,8 @@ async function getUserAnalytics(userId) {
       },
       // Credits information
       credits: creditsData,
+      // Subscription information
+      subscription: subscriptionData,
       // Specs information
       specs: specsData,
       // Acquisition data

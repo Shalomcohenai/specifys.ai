@@ -751,6 +751,22 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                 }
               } else if (productConfig.type === 'subscription') {
                 try {
+                  // For subscription orders, calculate currentPeriodEnd from billing interval
+                  // This will be calculated in enableProSubscription from purchase_date if not provided
+                  // But we can also try to get it from subscription data if available
+                  let currentPeriodEnd = null;
+                  
+                  // If subscription already exists, try to get renewsAt from it
+                  if (orderData.subscriptionId) {
+                    try {
+                      // Note: renewsAt is typically not in order_created, but might be in subscription
+                      // For now, we'll let enableProSubscription calculate it from purchase_date + interval
+                      // This is safer and more reliable
+                    } catch (err) {
+                      // Ignore - will calculate from purchase_date
+                    }
+                  }
+                  
                   await creditsV2Service.enableProSubscription(orderData.userId, {
                     plan: 'pro',
                     orderId: orderData.orderId,
@@ -762,6 +778,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                     subscriptionId: orderData.subscriptionId || null,
                     subscriptionStatus: orderData.subscriptionStatus || 'active',
                     subscriptionInterval: productConfig.billing_interval || null,
+                    currentPeriodEnd: currentPeriodEnd, // Will be null, calculated from purchase_date + interval
                     total: orderData.total,
                     currency: orderData.currency,
                     metadata: {

@@ -198,6 +198,12 @@ export class UserDetailsModal {
               <span class="plan-badge plan-${(user.plan || 'free').toLowerCase()}">${(user.plan || 'free').charAt(0).toUpperCase() + (user.plan || 'free').slice(1)}</span>
             </div>
           </div>
+          ${analytics.subscription && user.plan === 'pro' ? `
+            <div class="user-details-item">
+              <label>Subscription Renewal</label>
+              <div class="user-details-value">${this.formatSubscriptionRenewal(analytics.subscription)}</div>
+            </div>
+          ` : ''}
           <div class="user-details-item">
             <label>Account Created</label>
             <div class="user-details-value">${user.createdAt ? this.formatDateTime(user.createdAt) : '—'}</div>
@@ -425,6 +431,74 @@ export class UserDetailsModal {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  /**
+   * Format subscription renewal date
+   */
+  formatSubscriptionRenewal(subscription) {
+    if (!subscription) return '—';
+    
+    // Check if subscription is cancelled/expired
+    const isCancelledStatus = subscription.status === 'cancelled' || subscription.status === 'expired';
+    
+    // If cancelled status, show cancelled
+    if (isCancelledStatus) {
+      return '<span class="subscription-status-cancelled">Cancelled</span>';
+    }
+    
+    // Determine renewal/end date
+    // If cancel_at_period_end is true, use endsAt (when subscription will actually end)
+    // Otherwise, use renewsAt (when subscription will renew)
+    const renewalDate = subscription.cancelAtPeriodEnd 
+      ? (subscription.endsAt || subscription.renewsAt)
+      : (subscription.renewsAt || subscription.endsAt);
+    
+    if (!renewalDate) {
+      return '—';
+    }
+    
+    const date = new Date(renewalDate);
+    const now = new Date();
+    const diffMs = date - now;
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+    // Format date
+    const formattedDate = date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    
+    // Format time
+    const formattedTime = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // If cancelled at period end, show when it will end
+    if (subscription.cancelAtPeriodEnd) {
+      if (diffDays < 0) {
+        return '<span class="subscription-status-cancelled">Cancelled</span>';
+      } else if (diffDays === 0) {
+        return `<span class="subscription-status-cancelled">Cancelled (ends today at ${formattedTime})</span>`;
+      } else if (diffDays === 1) {
+        return `<span class="subscription-status-cancelled">Cancelled (ends tomorrow, ${formattedDate} at ${formattedTime})</span>`;
+      } else {
+        return `<span class="subscription-status-cancelled">Cancelled (ends in ${diffDays} days, ${formattedDate} at ${formattedTime})</span>`;
+      }
+    }
+    
+    // Active subscription - show renewal date
+    if (diffDays < 0) {
+      return `<span class="subscription-status-expired">Expired (${formattedDate})</span>`;
+    } else if (diffDays === 0) {
+      return `<span class="subscription-status-renewing">Renews today at ${formattedTime}</span>`;
+    } else if (diffDays === 1) {
+      return `<span class="subscription-status-renewing">Renews tomorrow (${formattedDate} at ${formattedTime})</span>`;
+    } else {
+      return `<span class="subscription-status-active">Renews in ${diffDays} days (${formattedDate} at ${formattedTime})</span>`;
+    }
   }
 
   /**

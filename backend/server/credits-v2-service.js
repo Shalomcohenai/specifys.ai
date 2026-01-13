@@ -429,6 +429,12 @@ async function getUserCredits(userId, autoCreate = true) {
         }
         
         // Merge subscription details
+        // Prioritize expiresAt from user_credits (most accurate), then calculated from subscriptions
+        const finalExpiresAt = creditsData.subscription.expiresAt || 
+                               calculatedRenewalDate || 
+                               renewalDate || 
+                               null;
+        
         creditsData.subscription = {
           ...creditsData.subscription,
           renewsAt: renewsAt || calculatedRenewalDate,
@@ -438,8 +444,8 @@ async function getUserCredits(userId, autoCreate = true) {
           currency: subData.currency || 'USD',
           billingInterval: subData.billing_interval || null,
           purchaseDate: subData.purchase_date || null,
-          // Use the determined renewal date
-          expiresAt: calculatedRenewalDate || renewalDate || creditsData.subscription.expiresAt || null
+          // Use expiresAt from user_credits if available (most accurate), otherwise calculate
+          expiresAt: finalExpiresAt
         };
         logger.info({ 
           userId, 
@@ -1383,6 +1389,26 @@ async function enableProSubscription(userId, options = {}) {
   const requestId = `pro-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   logger.info({ requestId, userId }, '[CREDITS-V2] Enabling Pro access');
   
+  // Calculate currentPeriodEnd if not provided but subscriptionInterval is available
+  let calculatedPeriodEnd = currentPeriodEnd;
+  if (!calculatedPeriodEnd && subscriptionInterval) {
+    // Calculate from current date + billing interval
+    const now = new Date();
+    const interval = subscriptionInterval.toLowerCase();
+    
+    if (interval === 'month' || interval === 'monthly') {
+      calculatedPeriodEnd = new Date(now);
+      calculatedPeriodEnd.setMonth(calculatedPeriodEnd.getMonth() + 1);
+    } else if (interval === 'year' || interval === 'yearly' || interval === 'annual') {
+      calculatedPeriodEnd = new Date(now);
+      calculatedPeriodEnd.setFullYear(calculatedPeriodEnd.getFullYear() + 1);
+    }
+    
+    if (calculatedPeriodEnd) {
+      logger.debug({ requestId, userId, calculatedPeriodEnd: calculatedPeriodEnd.toISOString() }, '[CREDITS-V2] Calculated currentPeriodEnd from interval');
+    }
+  }
+  
   const result = await db.runTransaction(async (transaction) => {
     const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
     const subscriptionRef = db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId);
@@ -1399,11 +1425,13 @@ async function enableProSubscription(userId, options = {}) {
     // Preserve current credits
     const preservedCredits = currentCredits;
     
-    // Update credits
+    // Update credits - use calculated period end if available
+    const finalPeriodEnd = calculatedPeriodEnd || currentPeriodEnd || null;
+    
     const creditsUpdate = {
       'subscription.type': 'pro',
       'subscription.status': subscriptionStatus,
-      'subscription.expiresAt': currentPeriodEnd || null,
+      'subscription.expiresAt': finalPeriodEnd,
       'subscription.preservedCredits': preservedCredits,
       'permissions.canEdit': true,
       'permissions.canCreateUnlimited': true,
@@ -1434,8 +1462,16 @@ async function enableProSubscription(userId, options = {}) {
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     };
     
-    if (currentPeriodEnd) {
-      subscriptionData.current_period_end = currentPeriodEnd;
+    // Store current_period_end in subscriptions collection
+    // Use calculated period end if available, otherwise use provided currentPeriodEnd
+    const finalPeriodEndForSub = calculatedPeriodEnd || currentPeriodEnd || null;
+    if (finalPeriodEndForSub) {
+      subscriptionData.current_period_end = finalPeriodEndForSub;
+    }
+    
+    // Also store renews_at if we calculated it (for consistency with Lemon Squeezy)
+    if (calculatedPeriodEnd && !subscriptionData.renews_at) {
+      subscriptionData.renews_at = calculatedPeriodEnd;
     }
     
     transaction.set(subscriptionRef, subscriptionData, { merge: true });
