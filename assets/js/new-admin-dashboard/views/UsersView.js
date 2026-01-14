@@ -272,17 +272,27 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Get credits from normalized user data
-      // DataManager.normalizeUser already handles:
-      // - Parsing free_specs_remaining from Firebase
-      // - Defaulting to 1 if not set
-      // - Ensuring it's always a number
-      // So we can directly use user.freeSpecsRemaining
-      const credits = typeof user.freeSpecsRemaining === 'number' 
-        ? user.freeSpecsRemaining 
-        : 1; // Fallback to 1 if somehow not a number
+      // Get credits from user_credits collection (same source as users see)
+      // This matches what users see in their profile via /api/v2/credits
+      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
-      // Credits loaded for user
+      let creditsDisplay = '0';
+      if (userCredits) {
+        if (userCredits.unlimited) {
+          // Pro users with unlimited access
+          creditsDisplay = '∞';
+        } else if (typeof userCredits.total === 'number') {
+          // Regular users with specific credit count
+          creditsDisplay = userCredits.total.toString();
+        }
+      } else {
+        // Fallback: if user_credits not loaded yet, try to use user.freeSpecsRemaining
+        // This is a temporary fallback until userCredits loads
+        const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
+          ? user.freeSpecsRemaining 
+          : 0;
+        creditsDisplay = fallbackCredits.toString();
+      }
       
       const specCount = allData.specsByUser[user.id]?.length || 0;
       // Check plan from user document
@@ -303,7 +313,7 @@ export class UsersView {
           <td>${helpers.formatDate(user.createdAt)}</td>
           <td><span class="plan-badge plan-${plan.toLowerCase()}">${plan}</span></td>
           <td>${specCount}</td>
-          <td>${credits}</td>
+          <td>${creditsDisplay}</td>
           <td>${helpers.formatRelative(user.lastActive)}</td>
           <td>
             <div class="action-buttons">
@@ -1210,11 +1220,24 @@ export class UsersView {
     
     const headers = ['Email', 'Name', 'Plan', 'Specs', 'Credits', 'Created', 'Last Active'];
     const rows = users.map(user => {
-      // Get credits from normalized user data
-      // DataManager.normalizeUser already handles parsing and defaulting
-      const credits = typeof user.freeSpecsRemaining === 'number' 
-        ? user.freeSpecsRemaining 
-        : 1; // Fallback to 1 if somehow not a number
+      // Get credits from user_credits collection (same source as users see)
+      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      
+      let creditsDisplay = '0';
+      if (userCredits) {
+        if (userCredits.unlimited) {
+          creditsDisplay = 'unlimited';
+        } else if (typeof userCredits.total === 'number') {
+          creditsDisplay = userCredits.total.toString();
+        }
+      } else {
+        // Fallback: if user_credits not loaded yet, use user.freeSpecsRemaining
+        const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
+          ? user.freeSpecsRemaining 
+          : 0;
+        creditsDisplay = fallbackCredits.toString();
+      }
+      
       const specCount = allData.specsByUser[user.id]?.length || 0;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       
@@ -1223,7 +1246,7 @@ export class UsersView {
         user.displayName,
         plan,
         specCount,
-        credits,
+        creditsDisplay,
         user.createdAt ? user.createdAt.toISOString() : '',
         user.lastActive ? user.lastActive.toISOString() : ''
       ];

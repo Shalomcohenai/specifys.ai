@@ -198,12 +198,6 @@ export class UserDetailsModal {
               <span class="plan-badge plan-${(user.plan || 'free').toLowerCase()}">${(user.plan || 'free').charAt(0).toUpperCase() + (user.plan || 'free').slice(1)}</span>
             </div>
           </div>
-          ${analytics.subscription && user.plan === 'pro' ? `
-            <div class="user-details-item">
-              <label>Subscription Renewal</label>
-              <div class="user-details-value">${this.formatSubscriptionRenewal(analytics.subscription)}</div>
-            </div>
-          ` : ''}
           <div class="user-details-item">
             <label>Account Created</label>
             <div class="user-details-value">${user.createdAt ? this.formatDateTime(user.createdAt) : '—'}</div>
@@ -270,6 +264,56 @@ export class UserDetailsModal {
             </ul>
           </div>
         ` : ''}
+      </div>
+
+      <!-- Subscription Information -->
+      <div class="user-details-section">
+        <h3 class="user-details-section-title">
+          <i class="fas fa-credit-card"></i>
+          Subscription Information
+        </h3>
+        <div class="user-details-grid">
+          ${analytics.subscription ? `
+            <div class="user-details-item">
+              <label>Status</label>
+              <div class="user-details-value">
+                ${analytics.subscription.status ? `<span class="subscription-status-${this.getSubscriptionStatusClass(analytics.subscription.status)}">${this.escapeHtml(analytics.subscription.status)}</span>` : '—'}
+              </div>
+            </div>
+            <div class="user-details-item">
+              <label>Renewal Date</label>
+              <div class="user-details-value">${this.formatSubscriptionRenewal(analytics.subscription)}</div>
+            </div>
+            ${analytics.subscription.renewsAt ? `
+              <div class="user-details-item">
+                <label>Renews At</label>
+                <div class="user-details-value">${this.formatDateTime(analytics.subscription.renewsAt)}</div>
+              </div>
+            ` : ''}
+            ${analytics.subscription.endsAt ? `
+              <div class="user-details-item">
+                <label>Ends At</label>
+                <div class="user-details-value">${this.formatDateTime(analytics.subscription.endsAt)}</div>
+              </div>
+            ` : ''}
+            <div class="user-details-item">
+              <label>Cancelled at Period End</label>
+              <div class="user-details-value">
+                ${analytics.subscription.cancelAtPeriodEnd ? '<span class="subscription-status-cancelled">Yes</span>' : 'No'}
+              </div>
+            </div>
+            ${analytics.subscription.subscriptionId ? `
+              <div class="user-details-item">
+                <label>Subscription ID</label>
+                <div class="user-details-value user-details-value-monospace">${this.escapeHtml(analytics.subscription.subscriptionId)}</div>
+              </div>
+            ` : ''}
+          ` : `
+            <div class="user-details-item">
+              <div class="user-details-value">No subscription data available</div>
+            </div>
+          `}
+        </div>
       </div>
 
       <!-- Acquisition Data -->
@@ -431,6 +475,17 @@ export class UserDetailsModal {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  /**
+   * Get CSS class for subscription status
+   */
+  getSubscriptionStatusClass(status) {
+    if (!status) return 'unknown';
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'active' || statusLower === 'on_trial') return 'active';
+    if (statusLower === 'cancelled' || statusLower === 'expired' || statusLower === 'past_due') return 'cancelled';
+    return 'unknown';
   }
 
   /**

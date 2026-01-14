@@ -4549,7 +4549,7 @@ body.dark-mode .card-type {
 .spec-card-square-orange {
   position: relative;
   aspect-ratio: 1;
-  background: #FF6B35;
+  background: #333;
   border: none;
   display: flex;
   align-items: center;
@@ -4562,9 +4562,9 @@ body.dark-mode .card-type {
 
 .spec-card-square-orange:hover,
 .spec-card-square-orange.active {
-  background: #FF8551;
+  background: #333;
   transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
   z-index: 10;
 }
 
@@ -4592,10 +4592,15 @@ body.dark-mode .card-type {
 
 .spec-card-square-orange:hover .spec-icon-orange,
 .spec-card-square-orange.active .spec-icon-orange {
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -50%) scale(0.8);
-  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.spec-card-square-orange:hover .spec-icon-orange i,
+.spec-card-square-orange.active .spec-icon-orange i {
+  color: #FF6B35;
 }
 
 .spec-content-orange {
