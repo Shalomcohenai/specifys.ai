@@ -219,7 +219,9 @@ async function getUserAnalytics(userId) {
         // Check if user has Pro subscription with unlimited access
         const hasProSubscription = credits.subscription?.type === 'pro' && credits.subscription?.status === 'active';
         const hasUnlimitedPermission = credits.permissions?.canCreateUnlimited === true;
-        isUnlimited = hasProSubscription || hasUnlimitedPermission;
+        // Fallback: check user.plan if subscription data is missing (for existing users)
+        const hasProPlan = userData.plan === 'pro' || userData.plan === 'Pro';
+        isUnlimited = hasProSubscription || hasUnlimitedPermission || (hasProPlan && !credits.subscription);
         
         creditsData = {
           unlimited: isUnlimited,
@@ -229,6 +231,20 @@ async function getUserAnalytics(userId) {
           bonus: credits.balances?.bonus || 0,
           subscription: credits.subscription || null
         };
+      } else {
+        // If no user_credits document exists, check user.plan as fallback
+        const hasProPlan = userData.plan === 'pro' || userData.plan === 'Pro';
+        if (hasProPlan) {
+          isUnlimited = true;
+          creditsData = {
+            unlimited: true,
+            total: null,
+            paid: 0,
+            free: 0,
+            bonus: 0,
+            subscription: null
+          };
+        }
       }
     } catch (error) {
       logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting credits data');
@@ -255,6 +271,15 @@ async function getUserAnalytics(userId) {
             status: creditsData.subscription.status || null,
             renewsAt: creditsData.subscription.expiresAt ? toDate(creditsData.subscription.expiresAt)?.toISOString() : null,
             endsAt: creditsData.subscription.expiresAt ? toDate(creditsData.subscription.expiresAt)?.toISOString() : null,
+            cancelAtPeriodEnd: false,
+            subscriptionId: null
+          };
+        } else if (userData.plan === 'pro' || userData.plan === 'Pro') {
+          // Fallback for existing users: if user has plan: 'pro' but no subscription data
+          subscriptionData = {
+            status: 'active',
+            renewsAt: null,
+            endsAt: null,
             cancelAtPeriodEnd: false,
             subscriptionId: null
           };
