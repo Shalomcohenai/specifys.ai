@@ -1047,6 +1047,34 @@ export class UsersView {
         </div>
       </div>
     ` : ''}
+
+    <!-- Raw Data / Debug Information -->
+    <div class="section">
+      <h2 class="section-title">
+        <i class="fas fa-code"></i>
+        Raw Data (Debug)
+      </h2>
+      <div>
+        <details style="margin-bottom: 16px;">
+          <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+            users Collection
+          </summary>
+          <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.users || {}, null, 2))}</pre>
+        </details>
+        <details style="margin-bottom: 16px;">
+          <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+            user_credits Collection
+          </summary>
+          <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.user_credits || {}, null, 2))}</pre>
+        </details>
+        <details style="margin-bottom: 16px;">
+          <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+            subscriptions Collection
+          </summary>
+          <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.subscriptions || {}, null, 2))}</pre>
+        </details>
+      </div>
+    </div>
   </div>
 </body>
 </html>

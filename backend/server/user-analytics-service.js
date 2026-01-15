@@ -354,6 +354,36 @@ async function getUserAnalytics(userId) {
       }
     }
 
+    // Collect raw data for debugging
+    const rawData = {
+      users: {
+        exists: userDoc.exists,
+        data: userData
+      },
+      user_credits: null,
+      subscriptions: null
+    };
+
+    try {
+      const creditsDoc = await db.collection('user_credits').doc(userId).get();
+      rawData.user_credits = {
+        exists: creditsDoc.exists,
+        data: creditsDoc.exists ? creditsDoc.data() : null
+      };
+    } catch (error) {
+      rawData.user_credits = { error: error.message };
+    }
+
+    try {
+      const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
+      rawData.subscriptions = {
+        exists: subscriptionDoc.exists,
+        data: subscriptionDoc.exists ? subscriptionDoc.data() : null
+      };
+    } catch (error) {
+      rawData.subscriptions = { error: error.message };
+    }
+
     // Build comprehensive analytics object
     const analytics = {
       // Basic user info
@@ -400,7 +430,9 @@ async function getUserAnalytics(userId) {
           viewedAt: pv.viewedAt ? toDate(pv.viewedAt)?.toISOString() : null,
           referrer: pv.referrer || null,
           sessionId: pv.sessionId || null
-        }))
+        })),
+      // Raw data for debugging
+      rawData: rawData
     };
 
     logger.info({ requestId, userId, sessionsCount: sessions.length, pageViewsCount: pageViews.length }, '[user-analytics-service] User analytics retrieved successfully');
