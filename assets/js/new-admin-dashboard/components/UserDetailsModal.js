@@ -227,20 +227,24 @@ export class UserDetailsModal {
           ${credits ? `
             <div class="user-details-item">
               <label>Total Credits</label>
-              <div class="user-details-value user-details-value-large">${credits.total || 0}</div>
+              <div class="user-details-value user-details-value-large">
+                ${credits.unlimited ? '∞' : (credits.total || 0)}
+              </div>
             </div>
-            <div class="user-details-item">
-              <label>Free Credits</label>
-              <div class="user-details-value">${credits.free || 0}</div>
-            </div>
-            <div class="user-details-item">
-              <label>Paid Credits</label>
-              <div class="user-details-value">${credits.paid || 0}</div>
-            </div>
-            <div class="user-details-item">
-              <label>Bonus Credits</label>
-              <div class="user-details-value">${credits.bonus || 0}</div>
-            </div>
+            ${!credits.unlimited ? `
+              <div class="user-details-item">
+                <label>Free Credits</label>
+                <div class="user-details-value">${credits.free || 0}</div>
+              </div>
+              <div class="user-details-item">
+                <label>Paid Credits</label>
+                <div class="user-details-value">${credits.paid || 0}</div>
+              </div>
+              <div class="user-details-item">
+                <label>Bonus Credits</label>
+                <div class="user-details-value">${credits.bonus || 0}</div>
+              </div>
+            ` : ''}
           ` : `
             <div class="user-details-item">
               <div class="user-details-value">No credits data available</div>

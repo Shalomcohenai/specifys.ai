@@ -118,7 +118,7 @@ export class UsersView {
    */
   setupDataSubscriptions() {
     this.dataManager.on('data', ({ source, data }) => {
-      if (source === 'users' || source === 'specs') {
+      if (source === 'users' || source === 'specs' || source === 'userCredits') {
         this.updateSummary();
         this.render();
       }
@@ -876,20 +876,24 @@ export class UsersView {
         ${credits ? `
           <div class="item">
             <label>Total Credits</label>
-            <div class="value-large">${credits.total || 0}</div>
+            <div class="value-large">
+              ${credits.unlimited ? '∞' : (credits.total || 0)}
+            </div>
           </div>
-          <div class="item">
-            <label>Free Credits</label>
-            <div class="value">${credits.free || 0}</div>
-          </div>
-          <div class="item">
-            <label>Paid Credits</label>
-            <div class="value">${credits.paid || 0}</div>
-          </div>
-          <div class="item">
-            <label>Bonus Credits</label>
-            <div class="value">${credits.bonus || 0}</div>
-          </div>
+          ${!credits.unlimited ? `
+            <div class="item">
+              <label>Free Credits</label>
+              <div class="value">${credits.free || 0}</div>
+            </div>
+            <div class="item">
+              <label>Paid Credits</label>
+              <div class="value">${credits.paid || 0}</div>
+            </div>
+            <div class="item">
+              <label>Bonus Credits</label>
+              <div class="value">${credits.bonus || 0}</div>
+            </div>
+          ` : ''}
         ` : `
           <div class="item">
             <div class="value">No credits data available</div>

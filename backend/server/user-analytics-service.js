@@ -210,12 +210,20 @@ async function getUserAnalytics(userId) {
 
     // Get credits data
     let creditsData = null;
+    let isUnlimited = false;
     try {
       const creditsDoc = await db.collection('user_credits').doc(userId).get();
       if (creditsDoc.exists) {
         const credits = creditsDoc.data();
+        
+        // Check if user has Pro subscription with unlimited access
+        const hasProSubscription = credits.subscription?.type === 'pro' && credits.subscription?.status === 'active';
+        const hasUnlimitedPermission = credits.permissions?.canCreateUnlimited === true;
+        isUnlimited = hasProSubscription || hasUnlimitedPermission;
+        
         creditsData = {
-          total: (credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0),
+          unlimited: isUnlimited,
+          total: isUnlimited ? null : ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0)),
           paid: credits.balances?.paid || 0,
           free: credits.balances?.free || 0,
           bonus: credits.balances?.bonus || 0,
@@ -226,9 +234,10 @@ async function getUserAnalytics(userId) {
       logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting credits data');
     }
 
-    // Get subscription data
+    // Get subscription data - check both collections
     let subscriptionData = null;
     try {
+      // First, try subscriptions collection
       const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
       if (subscriptionDoc.exists) {
         const subData = subscriptionDoc.data();
@@ -239,6 +248,17 @@ async function getUserAnalytics(userId) {
           cancelAtPeriodEnd: subData.cancel_at_period_end || false,
           subscriptionId: subData.lemon_subscription_id || null
         };
+      } else {
+        // Fallback: check user_credits.subscription
+        if (creditsData && creditsData.subscription && creditsData.subscription.type === 'pro') {
+          subscriptionData = {
+            status: creditsData.subscription.status || null,
+            renewsAt: creditsData.subscription.expiresAt ? toDate(creditsData.subscription.expiresAt)?.toISOString() : null,
+            endsAt: creditsData.subscription.expiresAt ? toDate(creditsData.subscription.expiresAt)?.toISOString() : null,
+            cancelAtPeriodEnd: false,
+            subscriptionId: null
+          };
+        }
       }
     } catch (error) {
       logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting subscription data');
