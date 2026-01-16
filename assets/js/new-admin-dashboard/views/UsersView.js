@@ -1050,10 +1050,26 @@ export class UsersView {
 
     <!-- Raw Data / Debug Information -->
     <div class="section">
-      <h2 class="section-title">
-        <i class="fas fa-code"></i>
-        Raw Data (Debug)
-      </h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 class="section-title" style="margin: 0;">
+          <i class="fas fa-code"></i>
+          Raw Data (Debug)
+        </h2>
+        <button onclick="
+          const rawData = {
+            users: ${JSON.stringify(analytics.rawData?.users || {})},
+            user_credits: ${JSON.stringify(analytics.rawData?.user_credits || {})},
+            subscriptions: ${JSON.stringify(analytics.rawData?.subscriptions || {})}
+          };
+          navigator.clipboard.writeText(JSON.stringify(rawData, null, 2)).then(() => {
+            this.innerHTML = '<i class=\"fas fa-check\"></i> Copied!';
+            const original = this.innerHTML;
+            setTimeout(() => this.innerHTML = original, 2000);
+          }).catch(() => alert('Failed to copy'));
+        " style="padding: 8px 16px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+          <i class="fas fa-copy"></i> Copy All Data
+        </button>
+      </div>
       <div>
         <details style="margin-bottom: 16px;">
           <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">

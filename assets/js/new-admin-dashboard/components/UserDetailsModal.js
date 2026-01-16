@@ -151,6 +151,9 @@ export class UserDetailsModal {
       // Render user data
       this.renderUserData(analytics);
       
+      // Setup copy button after rendering
+      setTimeout(() => this.setupCopyButton(), 100);
+      
     } catch (error) {
       console.error('[UserDetailsModal] Error loading user data:', error);
       body.innerHTML = `
@@ -453,11 +456,17 @@ export class UserDetailsModal {
 
       <!-- Raw Data / Debug Information -->
       <div class="user-details-section">
-        <h3 class="user-details-section-title">
-          <i class="fas fa-code"></i>
-          Raw Data (Debug)
-        </h3>
-        <div class="user-details-raw-data">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 class="user-details-section-title" style="margin: 0;">
+            <i class="fas fa-code"></i>
+            Raw Data (Debug)
+          </h3>
+          <button class="btn-modern small" id="copy-raw-data-btn" style="margin-left: auto;">
+            <i class="fas fa-copy"></i>
+            Copy All Data
+          </button>
+        </div>
+        <div class="user-details-raw-data" id="raw-data-container">
           <details style="margin-bottom: 16px;">
             <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
               users Collection
@@ -586,6 +595,58 @@ export class UserDetailsModal {
     } else {
       return `<span class="subscription-status-active">Renews in ${diffDays} days (${formattedDate} at ${formattedTime})</span>`;
     }
+  }
+
+  /**
+   * Setup copy button for raw data
+   */
+  setupCopyButton() {
+    const copyBtn = this.modal?.querySelector('#copy-raw-data-btn');
+    if (!copyBtn) return;
+    
+    copyBtn.addEventListener('click', () => {
+      const rawDataContainer = this.modal?.querySelector('#raw-data-container');
+      if (!rawDataContainer) return;
+      
+      // Collect all raw data
+      const rawData = {
+        users: null,
+        user_credits: null,
+        subscriptions: null
+      };
+      
+      // Extract data from pre elements
+      const preElements = rawDataContainer.querySelectorAll('pre');
+      preElements.forEach((pre, index) => {
+        try {
+          const data = JSON.parse(pre.textContent);
+          if (index === 0) rawData.users = data;
+          else if (index === 1) rawData.user_credits = data;
+          else if (index === 2) rawData.subscriptions = data;
+        } catch (e) {
+          // If parsing fails, use text content
+          if (index === 0) rawData.users = pre.textContent;
+          else if (index === 1) rawData.user_credits = pre.textContent;
+          else if (index === 2) rawData.subscriptions = pre.textContent;
+        }
+      });
+      
+      // Copy to clipboard
+      const jsonString = JSON.stringify(rawData, null, 2);
+      navigator.clipboard.writeText(jsonString).then(() => {
+        // Show success feedback
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        copyBtn.classList.add('success');
+        setTimeout(() => {
+          copyBtn.innerHTML = originalHTML;
+          copyBtn.classList.remove('success');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy data to clipboard');
+      });
+    });
   }
 
   /**

@@ -334,7 +334,8 @@ export class DataManager {
                   bonus: data.balances?.bonus || 0
                 },
                 total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
-                unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
+                // "paid" status also means active subscription
+                unlimited: subscriptionType === 'pro' && (subscriptionStatus === 'active' || subscriptionStatus === 'paid'),
                 updatedAt: this.toDate(data.metadata?.updatedAt),
                 metadata: data
               });

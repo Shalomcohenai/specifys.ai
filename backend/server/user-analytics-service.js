@@ -217,7 +217,8 @@ async function getUserAnalytics(userId) {
         const credits = creditsDoc.data();
         
         // Check if user has Pro subscription with unlimited access
-        const hasProSubscription = credits.subscription?.type === 'pro' && credits.subscription?.status === 'active';
+        const hasProSubscription = credits.subscription?.type === 'pro' && 
+          (credits.subscription?.status === 'active' || credits.subscription?.status === 'paid');
         const hasUnlimitedPermission = credits.permissions?.canCreateUnlimited === true;
         // Fallback: check user.plan if subscription data is missing (for existing users)
         const hasProPlan = userData.plan === 'pro' || userData.plan === 'Pro';
@@ -252,18 +253,41 @@ async function getUserAnalytics(userId) {
 
     // Get subscription data - check both collections
     let subscriptionData = null;
+    let needsSync = false; // Flag to indicate if user_credits needs syncing from subscriptions
     try {
       // First, try subscriptions collection
       const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
       if (subscriptionDoc.exists) {
         const subData = subscriptionDoc.data();
+        // Normalize status: "paid" means active subscription
+        const normalizedStatus = subData.status === 'paid' ? 'active' : (subData.status || null);
+        const isActiveSubscription = normalizedStatus === 'active' || normalizedStatus === 'on_trial';
+        
         subscriptionData = {
-          status: subData.status || null,
+          status: normalizedStatus,
           renewsAt: subData.renews_at ? toDate(subData.renews_at)?.toISOString() : null,
           endsAt: subData.ends_at ? toDate(subData.ends_at)?.toISOString() : null,
           cancelAtPeriodEnd: subData.cancel_at_period_end || false,
           subscriptionId: subData.lemon_subscription_id || null
         };
+        
+        // Check if user_credits needs syncing: if subscription exists but user_credits doesn't have pro subscription
+        if (isActiveSubscription && subData.product_type === 'subscription' && 
+            (subData.product_key === 'pro_monthly' || subData.product_key === 'pro_yearly')) {
+          const creditsDoc = await db.collection('user_credits').doc(userId).get();
+          if (creditsDoc.exists) {
+            const credits = creditsDoc.data();
+            const hasProInCredits = credits.subscription?.type === 'pro' && 
+              (credits.subscription?.status === 'active' || credits.subscription?.status === 'paid');
+            if (!hasProInCredits) {
+              needsSync = true;
+              logger.warn({ requestId, userId }, '[user-analytics-service] Subscription exists but user_credits not synced - needs sync');
+            }
+          } else {
+            needsSync = true;
+            logger.warn({ requestId, userId }, '[user-analytics-service] Subscription exists but user_credits document missing - needs sync');
+          }
+        }
       } else {
         // Fallback: check user_credits.subscription
         if (creditsData && creditsData.subscription && creditsData.subscription.type === 'pro') {
@@ -432,10 +456,39 @@ async function getUserAnalytics(userId) {
           sessionId: pv.sessionId || null
         })),
       // Raw data for debugging
-      rawData: rawData
+      rawData: rawData,
+      // Sync flag - indicates if user_credits needs syncing from subscriptions
+      needsSync: needsSync
     };
 
-    logger.info({ requestId, userId, sessionsCount: sessions.length, pageViewsCount: pageViews.length }, '[user-analytics-service] User analytics retrieved successfully');
+    // Auto-sync if needed (fire and forget - don't block response)
+    if (needsSync && subscriptionData && subscriptionData.status === 'active') {
+      try {
+        const creditsV2Service = require('./credits-v2-service');
+        const productConfig = subscriptionData.subscriptionId ? {
+          billing_interval: subscriptionData.renewsAt ? 'month' : null // Default to month if renewsAt exists
+        } : null;
+        
+        creditsV2Service.enableProSubscription(userId, {
+          plan: 'pro',
+          subscriptionId: subscriptionData.subscriptionId || null,
+          subscriptionStatus: 'active',
+          subscriptionInterval: productConfig?.billing_interval || null,
+          currentPeriodEnd: subscriptionData.renewsAt || subscriptionData.endsAt || null,
+          cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
+          metadata: {
+            source: 'analytics_auto_sync',
+            requestId
+          }
+        }).catch(syncError => {
+          logger.warn({ requestId, userId, error: syncError.message }, '[user-analytics-service] Auto-sync failed (non-critical)');
+        });
+      } catch (syncError) {
+        logger.warn({ requestId, userId, error: syncError.message }, '[user-analytics-service] Auto-sync error (non-critical)');
+      }
+    }
+
+    logger.info({ requestId, userId, sessionsCount: sessions.length, pageViewsCount: pageViews.length, needsSync }, '[user-analytics-service] User analytics retrieved successfully');
     return analytics;
   } catch (error) {
     logger.error({ requestId, userId, error: { message: error.message, stack: error.stack } }, '[user-analytics-service] Error getting user analytics');

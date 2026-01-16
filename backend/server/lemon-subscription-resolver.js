@@ -1,10 +1,16 @@
 const { URLSearchParams } = require('url');
 
-const ACTIVE_STATUSES = new Set(['active', 'on_trial', 'paused', 'past_due']);
+const ACTIVE_STATUSES = new Set(['active', 'on_trial', 'paused', 'past_due', 'paid']);
 const CANCELLED_STATUSES = new Set(['cancelled', 'expired', 'unpaid']);
 
 function normalizeStatus(status) {
-  return typeof status === 'string' ? status.trim().toLowerCase() : '';
+  if (!status || typeof status !== 'string') return '';
+  const normalized = status.trim().toLowerCase();
+  // Normalize "paid" to "active" for subscriptions (paid means active subscription)
+  if (normalized === 'paid') {
+    return 'active';
+  }
+  return normalized;
 }
 
 function hasActiveStatus(status) {
@@ -656,6 +662,60 @@ async function upsertSubscriptionFromWebhook({
       subscriptionId: subscriptionRecord.id.toString(),
       status: payload.status
     });
+    
+    // Auto-sync to user_credits if subscription is active and product is Pro
+    const normalizedStatus = normalizeStatus(payload.status);
+    const isActive = hasActiveStatus(normalizedStatus);
+    const productKey = payload.update.product_key || existingData.product_key;
+    const isProProduct = productKey === 'pro_monthly' || productKey === 'pro_yearly';
+    
+    if (isActive && isProProduct) {
+      // Check if user_credits needs syncing
+      try {
+        const creditsDoc = await db.collection('user_credits').doc(userId).get();
+        let needsSync = false;
+        
+        if (!creditsDoc.exists) {
+          needsSync = true;
+        } else {
+          const credits = creditsDoc.data();
+          const hasProInCredits = credits.subscription?.type === 'pro' && 
+            (credits.subscription?.status === 'active' || credits.subscription?.status === 'paid');
+          if (!hasProInCredits) {
+            needsSync = true;
+          }
+        }
+        
+        if (needsSync) {
+          // Sync user_credits (fire and forget - don't block webhook response)
+          const creditsV2Service = require('./credits-v2-service');
+          creditsV2Service.enableProSubscription(userId, {
+            plan: 'pro',
+            subscriptionId: subscriptionRecord.id.toString(),
+            subscriptionStatus: normalizedStatus === 'paid' ? 'active' : normalizedStatus,
+            subscriptionInterval: payload.update.billing_interval || existingData.billing_interval || null,
+            currentPeriodEnd: payload.update.renews_at || payload.update.ends_at || null,
+            cancelAtPeriodEnd: payload.update.cancel_at_period_end || false,
+            productKey: productKey,
+            metadata: {
+              source: 'webhook_auto_sync',
+              requestId
+            }
+          }).catch(syncError => {
+            log.warn('Auto-sync to user_credits failed (non-critical)', { 
+              userId, 
+              error: syncError?.message || syncError 
+            });
+          });
+        }
+      } catch (syncCheckError) {
+        log.warn('Failed to check if sync needed (non-critical)', { 
+          userId, 
+          error: syncCheckError?.message || syncCheckError 
+        });
+      }
+    }
+    
     return {
       userId,
       subscriptionId: subscriptionRecord.id.toString(),

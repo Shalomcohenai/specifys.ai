@@ -62,8 +62,9 @@ router.get('/credits', async (req, res) => {
         
         allCreditsSnapshot.docs.forEach(doc => {
             const credits = doc.data();
-            // Check if user has Pro subscription
-            if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+            // Check if user has Pro subscription (active or paid both mean active subscription)
+            if (credits.subscription && credits.subscription.type === 'pro' && 
+                (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
                 proUsers++;
             }
             // Check if user has any credits
@@ -76,9 +77,9 @@ router.get('/credits', async (req, res) => {
         // Get total users
         const totalUsersSnapshot = await db.collection('users').count().get();
         
-        // Get active subscriptions
+        // Get active subscriptions (check both 'active' and 'paid' statuses)
         const activeSubsSnapshot = await db.collection('subscriptions')
-            .where('status', '==', 'active')
+            .where('status', 'in', ['active', 'paid'])
             .count()
             .get();
         

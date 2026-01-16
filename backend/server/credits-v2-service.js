@@ -476,7 +476,9 @@ async function getAvailableCredits(userId) {
   const credits = await getUserCredits(userId);
   
   // Check subscription first - ensure subscription exists and is valid
-  if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+  // "paid" status also means active subscription
+  if (credits.subscription && credits.subscription.type === 'pro' && 
+      (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
     // Check if subscription expired
     if (credits.subscription.expiresAt) {
       let expiresAt;
@@ -759,7 +761,9 @@ async function consumeCredit(userId, specId, options = {}) {
       }, '[CREDITS-V2] Credits data in transaction');
       
       // Check subscription first - ensure subscription exists and is valid
-      if (credits.subscription && credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
+      // "paid" status also means active subscription
+      if (credits.subscription && credits.subscription.type === 'pro' && 
+          (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
         logger.debug({ requestId, expiresAt: credits.subscription.expiresAt }, '[CREDITS-V2] Pro subscription detected');
         
         let isExpired = false;
@@ -1420,7 +1424,9 @@ async function enableProSubscription(userId, options = {}) {
       : getDefaultCredits(userId);
     
     const currentCredits = calculateTotal(credits.balances);
-    const alreadyUnlimited = credits.subscription.type === 'pro' && credits.subscription.status === 'active';
+    // "paid" status also means active subscription
+    const alreadyUnlimited = credits.subscription.type === 'pro' && 
+      (credits.subscription.status === 'active' || credits.subscription.status === 'paid');
     
     // Preserve current credits
     const preservedCredits = currentCredits;
