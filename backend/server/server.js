@@ -356,6 +356,17 @@ const creditsV2Routes = require('./credits-v2-routes');
 app.use('/api/v2/credits', creditsV2Routes);
 logger.info({ type: 'route_mounted', path: '/api/v2/credits' }, '[UNIFIED SERVER] ✅ Credits V2 routes mounted');
 
+// Credits V3 routes for improved credit system (parallel system)
+const config = require('./config');
+if (config.creditsV3.enabled) {
+  logger.info({ type: 'route_mount', path: '/api/v3/credits', route: 'creditsV3Routes', mode: config.creditsV3.migrationMode }, '[UNIFIED SERVER] 📌 Mounting credits V3 routes');
+  const creditsV3Routes = require('./credits-v3-routes');
+  app.use('/api/v3/credits', creditsV3Routes);
+  logger.info({ type: 'route_mounted', path: '/api/v3/credits', mode: config.creditsV3.migrationMode }, '[UNIFIED SERVER] ✅ Credits V3 routes mounted');
+} else {
+  logger.info({ type: 'route_skipped', path: '/api/v3/credits', reason: 'CREDITS_V3_ENABLED=false' }, '[UNIFIED SERVER] ⏭️  Credits V3 routes disabled (feature flag)');
+}
+
 // Chat routes for AI chat functionality
 logger.info({ type: 'route_mount', path: '/api/chat', route: 'chatRoutes' }, '[UNIFIED SERVER] 📌 Mounting chat routes');
 const chatRoutes = require('./chat-routes');

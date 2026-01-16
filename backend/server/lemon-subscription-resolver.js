@@ -656,7 +656,34 @@ async function upsertSubscriptionFromWebhook({
   payload.update.lemon_subscription_id = subscriptionRecord.id.toString();
 
   try {
+    // Update subscriptions collection (V2)
     await subscriptionDocRef.set(payload.update, { merge: true });
+    
+    // Also update subscriptions_v3 (archive) if V3 is enabled
+    const config = require('./config');
+    if (config.creditsV3.enabled) {
+      try {
+        const subscriptionsV3Ref = db.collection('subscriptions_v3').doc(userId);
+        const v3SubscriptionData = {
+          ...payload.update,
+          userId: userId,
+          last_synced_at: admin.firestore.FieldValue.serverTimestamp(),
+          last_synced_source: 'webhook',
+          last_synced_mode: mode
+        };
+        await subscriptionsV3Ref.set(v3SubscriptionData, { merge: true });
+        log.info('Subscription document updated in V3 archive', {
+          userId,
+          subscriptionId: subscriptionRecord.id.toString()
+        });
+      } catch (v3Error) {
+        log.warn('Failed to update V3 subscription archive (non-critical)', {
+          userId,
+          error: v3Error?.message || v3Error
+        });
+      }
+    }
+    
     log.info('Subscription document updated from webhook', {
       userId,
       subscriptionId: subscriptionRecord.id.toString(),
@@ -707,6 +734,36 @@ async function upsertSubscriptionFromWebhook({
               error: syncError?.message || syncError 
             });
           });
+          
+          // Also sync to user_credits_v3 if V3 is enabled
+          if (config.creditsV3.enabled) {
+            try {
+              const creditsV3Service = require('./credits-v3-service');
+              creditsV3Service.enableProSubscription(userId, {
+                plan: 'pro',
+                subscriptionId: subscriptionRecord.id.toString(),
+                subscriptionStatus: normalizedStatus === 'paid' ? 'active' : normalizedStatus,
+                subscriptionInterval: payload.update.billing_interval || existingData.billing_interval || null,
+                currentPeriodEnd: payload.update.renews_at || payload.update.ends_at || null,
+                cancelAtPeriodEnd: payload.update.cancel_at_period_end || false,
+                productKey: productKey,
+                metadata: {
+                  source: 'webhook_auto_sync',
+                  requestId
+                }
+              }).catch(v3SyncError => {
+                log.warn('Auto-sync to user_credits_v3 failed (non-critical)', {
+                  userId,
+                  error: v3SyncError?.message || v3SyncError
+                });
+              });
+            } catch (v3Error) {
+              log.warn('Failed to sync to V3 (non-critical)', {
+                userId,
+                error: v3Error?.message || v3Error
+              });
+            }
+          }
         }
       } catch (syncCheckError) {
         log.warn('Failed to check if sync needed (non-critical)', { 

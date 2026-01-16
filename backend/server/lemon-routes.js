@@ -20,6 +20,7 @@ const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = req
 const { recordPurchase } = require('./lemon-purchase-service');
 const creditsV2Service = require('./credits-v2-service');
 const { recordSubscriptionChange } = require('./admin-activity-service');
+const config = require('./config');
 const {
   resolveSubscription,
   upsertSubscriptionFromWebhook,
@@ -767,7 +768,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                     }
                   }
                   
-                  await creditsV2Service.enableProSubscription(orderData.userId, {
+                  const enableProOptions = {
                     plan: 'pro',
                     orderId: orderData.orderId,
                     productId: orderData.productId,
@@ -784,7 +785,21 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                     metadata: {
                       lemonCustomerId: orderData.customerId || null
                     }
-                  });
+                  };
+                  
+                  // Update V2 (always)
+                  await creditsV2Service.enableProSubscription(orderData.userId, enableProOptions);
+                  
+                  // Update V3 if enabled
+                  if (config.creditsV3.enabled) {
+                    try {
+                      const creditsV3Service = require('./credits-v3-service');
+                      await creditsV3Service.enableProSubscription(orderData.userId, enableProOptions);
+                      logger.info({ userId: orderData.userId }, '[lemon-routes] V3 subscription enabled from order webhook');
+                    } catch (v3Error) {
+                      logger.warn({ userId: orderData.userId, error: v3Error.message }, '[lemon-routes] Failed to enable V3 subscription from order (non-critical)');
+                    }
+                  }
                 } catch (subscriptionError) {
                   throw subscriptionError;
                 }
@@ -857,7 +872,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
           // Prioritize renewsAt (for active subscriptions), then endsAt (for cancelled)
           const renewalDate = subscriptionData.renewsAt || subscriptionData.endsAt || null;
           
-          await creditsV2Service.enableProSubscription(subscriptionUserId, {
+          const enableProOptions = {
             plan: 'pro',
             orderId: subscriptionData.orderId || null,
             productId: subscriptionData.productId || productConfig?.product_id || null,
@@ -876,7 +891,21 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               lemonCustomerId: subscriptionData.customerId || null,
               webhookRequestId
             }
-          });
+          };
+          
+          // Update V2 (always)
+          await creditsV2Service.enableProSubscription(subscriptionUserId, enableProOptions);
+          
+          // Update V3 if enabled
+          if (config.creditsV3.enabled) {
+            try {
+              const creditsV3Service = require('./credits-v3-service');
+              await creditsV3Service.enableProSubscription(subscriptionUserId, enableProOptions);
+              logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription enabled from webhook');
+            } catch (v3Error) {
+              logger.warn({ webhookRequestId, userId: subscriptionUserId, error: v3Error.message }, '[lemon-routes] Failed to enable V3 subscription (non-critical)');
+            }
+          }
           
           // Record activity (already done in enableProSubscription, but adding here for webhook context)
           try {
@@ -905,7 +934,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
         }
       } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
         try {
-          await creditsV2Service.disableProSubscription(subscriptionUserId, {
+          const disableProOptions = {
             subscriptionId: subscriptionData.subscriptionId,
             cancelReason: 'webhook',
             cancelMode: subscriptionData.cancelAtPeriodEnd ? 'period_end' : 'immediate',

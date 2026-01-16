@@ -535,8 +535,9 @@ async function updateSubscriptionStatus(userId, status) {
   
   // Ensure subscription exists before accessing properties
   if (status === 'expired' && credits.subscription && credits.subscription.type === 'pro') {
-    // Restore preserved credits
-    const preservedCredits = credits.subscription.preservedCredits || 0;
+    // Restore preserved credits (handle both nested and flat structures)
+    const preservedCredits = (credits.subscription && credits.subscription.preservedCredits) || 
+                             credits['subscription.preservedCredits'] || 0;
     if (preservedCredits > 0) {
       credits.balances.paid = (credits.balances.paid || 0) + preservedCredits;
     }
@@ -545,9 +546,21 @@ async function updateSubscriptionStatus(userId, status) {
   // Safely get subscription type
   const currentSubscriptionType = credits.subscription && credits.subscription.type ? credits.subscription.type : 'none';
   
+  // Update nested objects properly (not flat paths)
+  // Preserve existing subscription data if it exists
+  const subscriptionUpdate = credits.subscription ? {
+    ...credits.subscription,
+    status: status,
+    type: status === 'expired' ? 'none' : currentSubscriptionType
+  } : {
+    type: status === 'expired' ? 'none' : currentSubscriptionType,
+    status: status,
+    expiresAt: null,
+    preservedCredits: 0
+  };
+  
   await creditsRef.update({
-    'subscription.status': status,
-    'subscription.type': status === 'expired' ? 'none' : currentSubscriptionType,
+    subscription: subscriptionUpdate,
     'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
   });
 }
@@ -1434,13 +1447,21 @@ async function enableProSubscription(userId, options = {}) {
     // Update credits - use calculated period end if available
     const finalPeriodEnd = calculatedPeriodEnd || currentPeriodEnd || null;
     
+    // Update nested objects properly (not flat paths)
+    // Normalize subscriptionStatus: "paid" means active
+    const normalizedSubscriptionStatus = subscriptionStatus === 'paid' ? 'active' : subscriptionStatus;
+    
     const creditsUpdate = {
-      'subscription.type': 'pro',
-      'subscription.status': subscriptionStatus,
-      'subscription.expiresAt': finalPeriodEnd,
-      'subscription.preservedCredits': preservedCredits,
-      'permissions.canEdit': true,
-      'permissions.canCreateUnlimited': true,
+      subscription: {
+        type: 'pro',
+        status: normalizedSubscriptionStatus,
+        expiresAt: finalPeriodEnd,
+        preservedCredits: preservedCredits
+      },
+      permissions: {
+        canEdit: true,
+        canCreateUnlimited: true
+      },
       'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
     };
     
@@ -1550,7 +1571,9 @@ async function disableProSubscription(userId, options = {}) {
       ? creditsDoc.data()
       : getDefaultCredits(userId);
     
-    const preservedCredits = credits.subscription.preservedCredits || 0;
+    // Safely get preserved credits (handle both nested and flat structures)
+    const preservedCredits = (credits.subscription && credits.subscription.preservedCredits) || 
+                             credits['subscription.preservedCredits'] || 0;
     const creditsToRestore = restoreCredits !== null ? restoreCredits : preservedCredits;
     
     // Restore credits if any
@@ -1558,14 +1581,18 @@ async function disableProSubscription(userId, options = {}) {
       credits.balances.paid = (credits.balances.paid || 0) + creditsToRestore;
     }
     
-    // Update credits
+    // Update credits - use nested objects properly (not flat paths)
     transaction.set(creditsRef, {
-      'subscription.type': 'none',
-      'subscription.status': 'cancelled',
-      'subscription.expiresAt': null,
-      'subscription.preservedCredits': 0,
-      'permissions.canEdit': false,
-      'permissions.canCreateUnlimited': false,
+      subscription: {
+        type: 'none',
+        status: 'cancelled',
+        expiresAt: null,
+        preservedCredits: 0
+      },
+      permissions: {
+        canEdit: false,
+        canCreateUnlimited: false
+      },
       balances: credits.balances,
       'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
