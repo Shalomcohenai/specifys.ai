@@ -1055,18 +1055,7 @@ export class UsersView {
           <i class="fas fa-code"></i>
           Raw Data (Debug)
         </h2>
-        <button onclick="
-          const rawData = {
-            users: ${JSON.stringify(analytics.rawData?.users || {})},
-            user_credits: ${JSON.stringify(analytics.rawData?.user_credits || {})},
-            subscriptions: ${JSON.stringify(analytics.rawData?.subscriptions || {})}
-          };
-          navigator.clipboard.writeText(JSON.stringify(rawData, null, 2)).then(() => {
-            this.innerHTML = '<i class=\"fas fa-check\"></i> Copied!';
-            const original = this.innerHTML;
-            setTimeout(() => this.innerHTML = original, 2000);
-          }).catch(() => alert('Failed to copy'));
-        " style="padding: 8px 16px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+        <button id="copy-raw-data-window-btn" style="padding: 8px 16px; background: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
           <i class="fas fa-copy"></i> Copy All Data
         </button>
       </div>
@@ -1092,6 +1081,31 @@ export class UsersView {
       </div>
     </div>
   </div>
+  <script>
+    (function() {
+      const rawData = ${JSON.stringify({
+        users: analytics.rawData?.users || {},
+        user_credits: analytics.rawData?.user_credits || {},
+        subscriptions: analytics.rawData?.subscriptions || {}
+      })};
+      
+      const copyBtn = document.getElementById('copy-raw-data-window-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+          const jsonString = JSON.stringify(rawData, null, 2);
+          navigator.clipboard.writeText(jsonString).then(() => {
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              this.innerHTML = originalHTML;
+            }, 2000);
+          }).catch(() => {
+            alert('Failed to copy data to clipboard');
+          });
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
     `;

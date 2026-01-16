@@ -148,6 +148,9 @@ export class UserDetailsModal {
       const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
       const analytics = data.analytics;
       
+      // Store analytics for copy button
+      this.currentAnalytics = analytics;
+      
       // Render user data
       this.renderUserData(analytics);
       
@@ -604,43 +607,28 @@ export class UserDetailsModal {
     const copyBtn = this.modal?.querySelector('#copy-raw-data-btn');
     if (!copyBtn) return;
     
-    copyBtn.addEventListener('click', () => {
-      const rawDataContainer = this.modal?.querySelector('#raw-data-container');
-      if (!rawDataContainer) return;
-      
-      // Collect all raw data
-      const rawData = {
-        users: null,
-        user_credits: null,
-        subscriptions: null
+    // Remove existing listener if any
+    const newCopyBtn = copyBtn.cloneNode(true);
+    copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+    
+    newCopyBtn.addEventListener('click', () => {
+      // Use stored analytics data
+      const rawData = this.currentAnalytics?.rawData || {
+        users: {},
+        user_credits: {},
+        subscriptions: {}
       };
-      
-      // Extract data from pre elements
-      const preElements = rawDataContainer.querySelectorAll('pre');
-      preElements.forEach((pre, index) => {
-        try {
-          const data = JSON.parse(pre.textContent);
-          if (index === 0) rawData.users = data;
-          else if (index === 1) rawData.user_credits = data;
-          else if (index === 2) rawData.subscriptions = data;
-        } catch (e) {
-          // If parsing fails, use text content
-          if (index === 0) rawData.users = pre.textContent;
-          else if (index === 1) rawData.user_credits = pre.textContent;
-          else if (index === 2) rawData.subscriptions = pre.textContent;
-        }
-      });
       
       // Copy to clipboard
       const jsonString = JSON.stringify(rawData, null, 2);
       navigator.clipboard.writeText(jsonString).then(() => {
         // Show success feedback
-        const originalHTML = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        copyBtn.classList.add('success');
+        const originalHTML = newCopyBtn.innerHTML;
+        newCopyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        newCopyBtn.classList.add('success');
         setTimeout(() => {
-          copyBtn.innerHTML = originalHTML;
-          copyBtn.classList.remove('success');
+          newCopyBtn.innerHTML = originalHTML;
+          newCopyBtn.classList.remove('success');
         }, 2000);
       }).catch(err => {
         console.error('Failed to copy:', err);
