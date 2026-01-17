@@ -639,11 +639,25 @@ export class UsersView {
    * View user details - opens in modal
    */
   async viewUser(userId) {
-    // Viewing user details
+    console.log('[UsersView] viewUser called with userId:', userId);
+    
+    if (!userId) {
+      console.error('[UsersView] No userId provided');
+      alert('User ID is required');
+      return;
+    }
+    
+    if (!this.userDetailsModal) {
+      console.error('[UsersView] userDetailsModal is not initialized');
+      alert('Modal component is not available. Please refresh the page.');
+      return;
+    }
     
     try {
+      console.log('[UsersView] Showing user details modal...');
       // Show user details modal (it will load the data internally)
       await this.userDetailsModal.show(userId);
+      console.log('[UsersView] Modal show() completed');
     } catch (error) {
       console.error('[UsersView] Error showing user details:', error);
       alert(`Error loading user details: ${error.message}`);

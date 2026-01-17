@@ -18,34 +18,71 @@ export class UserDetailsModal {
    * Show modal with user data
    */
   async show(userId) {
-    // Showing modal
+    console.log('[UserDetailsModal] show() called with userId:', userId);
     this.currentUserId = userId;
     this.isOpen = true;
     
     // Create modal if it doesn't exist
     if (!this.modal) {
-      // Creating modal
+      console.log('[UserDetailsModal] Creating modal...');
       this.createModal();
     }
     
     if (!this.modal) {
       console.error('[UserDetailsModal] Modal was not created!');
+      alert('Failed to create modal. Please check console for errors.');
       return;
     }
     
-    // Show modal
-    this.modal.style.display = 'flex';
-    this.modal.style.visibility = 'visible';
-    this.modal.style.opacity = '1';
-    this.modal.style.zIndex = '99999';
+    console.log('[UserDetailsModal] Showing modal...');
+    // Show modal - ensure it's displayed as flex with proper positioning
+    this.modal.style.cssText = `
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 99999 !important;
+      background: rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(4px) !important;
+      padding: 20px !important;
+    `;
     this.modal.setAttribute('data-modal-open', 'true');
     document.body.style.overflow = 'hidden';
+    
+    // Force a reflow to ensure styles are applied
+    void this.modal.offsetHeight;
+    
+    console.log('[UserDetailsModal] Modal displayed', {
+      display: window.getComputedStyle(this.modal).display,
+      visibility: window.getComputedStyle(this.modal).visibility,
+      opacity: window.getComputedStyle(this.modal).opacity,
+      zIndex: window.getComputedStyle(this.modal).zIndex,
+      position: window.getComputedStyle(this.modal).position,
+      background: window.getComputedStyle(this.modal).background
+    });
     
     // Load user data
     try {
       await this.loadUserData(userId);
     } catch (error) {
       console.error('[UserDetailsModal] Error in show():', error);
+      // Show error in modal
+      const body = this.modal.querySelector('#user-details-modal-body');
+      if (body) {
+        body.innerHTML = `
+          <div class="user-details-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Error loading user data: ${error.message}</p>
+            <button class="btn-modern" onclick="document.getElementById('user-details-modal').querySelector('.user-details-modal-close').click()">Close</button>
+          </div>
+        `;
+      }
     }
   }
 
@@ -81,17 +118,17 @@ export class UserDetailsModal {
     }
 
     const modalHTML = `
-      <div class="user-details-modal-overlay" id="user-details-modal">
-        <div class="user-details-modal-content">
-          <div class="user-details-modal-header">
-            <h2>User Details</h2>
-            <button class="user-details-modal-close" aria-label="Close">
+      <div class="user-details-modal-overlay" id="user-details-modal" style="display: none; visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+        <div class="user-details-modal-content" style="background: #ffffff; border-radius: 12px; width: min(900px, 95%); max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden;">
+          <div class="user-details-modal-header" style="padding: 24px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+            <h2 style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #1f2937;">User Details</h2>
+            <button class="user-details-modal-close" aria-label="Close" style="background: transparent; border: none; color: #6b7280; font-size: 1.5rem; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 8px; width: 36px; height: 36px;">
               <i class="fas fa-times"></i>
             </button>
           </div>
-          <div class="user-details-modal-body" id="user-details-modal-body">
-            <div class="user-details-loading">
-              <i class="fas fa-spinner fa-spin"></i>
+          <div class="user-details-modal-body" id="user-details-modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
+            <div class="user-details-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; color: #6b7280;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 16px;"></i>
               <p>Loading user data...</p>
             </div>
           </div>
@@ -114,7 +151,7 @@ export class UserDetailsModal {
     if (closeBtn) {
       closeBtn.addEventListener('click', () => this.hide());
     } else {
-      // Close button not found
+      console.warn('[UserDetailsModal] Close button not found');
     }
     
     // Close on overlay click
@@ -132,7 +169,9 @@ export class UserDetailsModal {
     };
     
     // Remove existing handler if any
-    document.removeEventListener('keydown', this._escapeHandler);
+    if (this._escapeHandler) {
+      document.removeEventListener('keydown', this._escapeHandler);
+    }
     this._escapeHandler = escapeHandler;
     document.addEventListener('keydown', this._escapeHandler);
   }
@@ -208,6 +247,11 @@ export class UserDetailsModal {
    */
   renderUserData(analytics) {
     const body = this.modal.querySelector('#user-details-modal-body');
+    
+    if (!body) {
+      console.error('[UserDetailsModal] Modal body not found!');
+      return;
+    }
     
     const user = analytics.user || {};
     const credits = analytics.credits || null;
@@ -319,12 +363,10 @@ export class UserDetailsModal {
         <h3 class="user-details-section-title">
           <i class="fas fa-credit-card"></i>
           Subscription Information
-          ${analytics.subscription?.subscriptionId ? `
-            <button class="refresh-subscription-btn" id="refresh-subscription-btn" title="Refresh subscription data from Lemon Squeezy API">
-              <i class="fas fa-sync-alt"></i>
-              Refresh
-            </button>
-          ` : ''}
+          <button class="refresh-subscription-btn" id="refresh-subscription-btn" title="Refresh subscription data from Lemon Squeezy API">
+            <i class="fas fa-sync-alt"></i>
+            Refresh from Lemon Squeezy
+          </button>
         </h3>
         <div class="user-details-grid">
           ${analytics.subscription ? `
@@ -649,7 +691,10 @@ export class UserDetailsModal {
    */
   setupRefreshButton() {
     const refreshBtn = this.modal?.querySelector('#refresh-subscription-btn');
-    if (!refreshBtn || !this.currentUserId) return;
+    if (!refreshBtn || !this.currentUserId) {
+      console.log('[UserDetailsModal] Refresh button not found or no userId', { refreshBtn: !!refreshBtn, userId: this.currentUserId });
+      return;
+    }
     
     // Remove existing listener if any
     const newRefreshBtn = refreshBtn.cloneNode(true);
@@ -660,6 +705,7 @@ export class UserDetailsModal {
       
       const originalHTML = newRefreshBtn.innerHTML;
       newRefreshBtn.disabled = true;
+      newRefreshBtn.classList.add('refreshing');
       newRefreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
       
       try {
@@ -704,6 +750,7 @@ export class UserDetailsModal {
         setTimeout(() => errorMsg.remove(), 5000);
       } finally {
         newRefreshBtn.disabled = false;
+        newRefreshBtn.classList.remove('refreshing');
         newRefreshBtn.innerHTML = originalHTML;
       }
     });

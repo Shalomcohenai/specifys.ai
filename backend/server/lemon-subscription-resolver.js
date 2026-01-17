@@ -160,7 +160,10 @@ async function listSubscriptions({ fetch, apiKey, storeId, status, mode, filters
     searchParams.append('filter[store_id]', storeId.toString());
   }
 
-  searchParams.append('filter[status]', status || 'active');
+  // Only add status filter if status is provided
+  if (status !== undefined && status !== null) {
+    searchParams.append('filter[status]', status);
+  }
   searchParams.append('page[size]', '5');
 
   Object.entries(filters).forEach(([key, value]) => {
@@ -808,6 +811,7 @@ module.exports = {
   upsertSubscriptionFromWebhook,
   buildSubscriptionUpdateFromRecord,
   fetchSubscriptionById,
+  listSubscriptions,
   ACTIVE_STATUSES,
   CANCELLED_STATUSES,
   hasActiveStatus,

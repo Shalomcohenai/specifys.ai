@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
 const { getActivityEvents } = require('./admin-activity-service');
 const { getUserAnalytics } = require('./user-analytics-service');
-const { fetchSubscriptionById } = require('./lemon-subscription-resolver');
+const { fetchSubscriptionById, listSubscriptions } = require('./lemon-subscription-resolver');
 const { getProductKeyByVariantId, getProductByKey } = require('./lemon-products-config');
 const creditsV3Service = require('./credits-v3-service');
 
@@ -1146,19 +1146,22 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
   }, '[admin-routes] POST /users/:userId/refresh-subscription - Refreshing subscription data from Lemon Squeezy');
   
   try {
-    // Get user credits to find lemonSubscriptionId
-    const creditsV3Ref = db.collection('user_credits_v3').doc(userId);
-    const creditsV3Doc = await creditsV3Ref.get();
-    
-    if (!creditsV3Doc.exists) {
-      return next(createError('User credits not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    // Get user email from Firebase Auth
+    let userEmail = null;
+    try {
+      const userRecord = await admin.auth().getUser(userId);
+      userEmail = userRecord.email;
+    } catch (error) {
+      logger.warn({ requestId, userId, error: error.message }, '[admin-routes] Could not fetch user from Auth, trying Firestore');
+      // Fallback to Firestore
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        userEmail = userDoc.data().email;
+      }
     }
     
-    const creditsData = creditsV3Doc.data();
-    const lemonSubscriptionId = creditsData.subscription?.lemonSubscriptionId;
-    
-    if (!lemonSubscriptionId) {
-      return next(createError('No Lemon Squeezy subscription ID found for this user', ERROR_CODES.INVALID_INPUT, 400));
+    if (!userEmail) {
+      return next(createError('User email not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
     }
     
     // Get Lemon Squeezy API credentials
@@ -1169,20 +1172,89 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
       return next(createError('Lemon Squeezy API key not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
     
-    // Fetch subscription from Lemon Squeezy API
+    // First, try to find subscription by email in Lemon Squeezy API
     const fetch = globalThis.fetch || require('node-fetch');
-    const subscriptionRecord = await fetchSubscriptionById({
+    let subscriptionRecord = null;
+    let lemonSubscriptionId = null;
+    
+    // Try to find subscription by email
+    logger.info({ requestId, userId, userEmail }, '[admin-routes] Searching for subscription by email in Lemon Squeezy');
+    
+    // First try with active status
+    let { records, error: listError } = await listSubscriptions({
       fetch,
       apiKey,
-      subscriptionId: lemonSubscriptionId,
       storeId: storeId ? storeId.toString() : null,
+      status: 'active',
+      mode: 'live',
+      filters: { customer_email: userEmail },
       logger,
       requestId
     });
     
-    if (!subscriptionRecord) {
-      return next(createError('Subscription not found in Lemon Squeezy', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    // If no active subscriptions found or error, try without status filter
+    if (listError || !records || records.length === 0) {
+      logger.info({ requestId, userId, error: listError, activeCount: records?.length || 0 }, '[admin-routes] No active subscriptions found, trying all statuses');
+      const allStatusResult = await listSubscriptions({
+        fetch,
+        apiKey,
+        storeId: storeId ? storeId.toString() : null,
+        // Don't pass status to get all subscriptions
+        mode: 'live',
+        filters: { customer_email: userEmail },
+        logger,
+        requestId
+      });
+      
+      if (allStatusResult.records && allStatusResult.records.length > 0) {
+        records = allStatusResult.records;
+        listError = allStatusResult.error;
+      }
     }
+    
+    if (records && records.length > 0) {
+      // Find the most recent active subscription, or take the first one
+      subscriptionRecord = records.find((rec) => {
+        const status = rec?.attributes?.status;
+        return status === 'active' || status === 'on_trial' || status === 'past_due';
+      }) || records[0];
+      lemonSubscriptionId = subscriptionRecord.id.toString();
+      logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId, status: subscriptionRecord?.attributes?.status }, '[admin-routes] Found subscription by email');
+    }
+    
+    // If not found by email, try to get from Firebase as fallback
+    if (!subscriptionRecord) {
+      logger.info({ requestId, userId }, '[admin-routes] Subscription not found by email, checking Firebase for existing subscription ID');
+      
+      const creditsV3Ref = db.collection('user_credits_v3').doc(userId);
+      const creditsV3Doc = await creditsV3Ref.get();
+      
+      if (creditsV3Doc.exists) {
+        const creditsData = creditsV3Doc.data();
+        lemonSubscriptionId = creditsData.subscription?.lemonSubscriptionId;
+        
+        if (lemonSubscriptionId) {
+          subscriptionRecord = await fetchSubscriptionById({
+            fetch,
+            apiKey,
+            subscriptionId: lemonSubscriptionId,
+            storeId: storeId ? storeId.toString() : null,
+            logger,
+            requestId
+          });
+        }
+      }
+    }
+    
+    if (!subscriptionRecord) {
+      return next(createError(
+        `No subscription found in Lemon Squeezy for user email: ${userEmail}. Please ensure the user has an active subscription.`,
+        ERROR_CODES.RESOURCE_NOT_FOUND,
+        404
+      ));
+    }
+    
+    lemonSubscriptionId = lemonSubscriptionId || subscriptionRecord.id.toString();
     
     // Extract data from subscription record
     const attributes = subscriptionRecord.attributes || {};
@@ -1245,6 +1317,8 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     logger.info({ 
       requestId, 
       userId,
+      userEmail,
+      lemonSubscriptionId,
       productKey,
       productName,
       billingInterval
@@ -1252,8 +1326,9 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     
     res.json({
       success: true,
-      message: 'Subscription data refreshed successfully',
+      message: 'Subscription data refreshed successfully from Lemon Squeezy',
       data: {
+        lemonSubscriptionId,
         productKey,
         productName,
         billingInterval,
