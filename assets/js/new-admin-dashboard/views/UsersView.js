@@ -666,6 +666,12 @@ export class UsersView {
     const credits = analytics.credits || null;
     const specs = analytics.specs || { count: 0, specs: [] };
     const subscription = analytics.subscription || null;
+    const acquisition = analytics.acquisition || {};
+    const visits = analytics.visits || {};
+    const pageJourney = analytics.pageJourney || [];
+    const acquisition = analytics.acquisition || {};
+    const visits = analytics.visits || {};
+    const pageJourney = analytics.pageJourney || [];
     
     // Format dates
     const formatDateTime = (dateString) => {
@@ -690,41 +696,108 @@ export class UsersView {
       });
     };
     
+    // Helper function to get subscription status class
+    const getSubscriptionStatusClass = (status) => {
+      if (!status) return 'unknown';
+      const statusLower = status.toLowerCase();
+      if (statusLower === 'active' || statusLower === 'on_trial') return 'active';
+      if (statusLower === 'cancelled' || statusLower === 'expired' || statusLower === 'past_due') return 'cancelled';
+      return 'unknown';
+    };
+    
+    // Helper function to format subscription renewal
+    const formatSubscriptionRenewal = (sub) => {
+      if (!sub) return '—';
+      const isCancelledStatus = sub.status === 'cancelled' || sub.status === 'expired';
+      if (isCancelledStatus) {
+        return '<span class="subscription-status-cancelled">Cancelled</span>';
+      }
+      const renewalDate = sub.cancelAtPeriodEnd 
+        ? (sub.endsAt || sub.renewsAt)
+        : (sub.renewsAt || sub.endsAt);
+      if (!renewalDate) return '—';
+      const date = new Date(renewalDate);
+      const now = new Date();
+      const diffMs = date - now;
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      const formattedDate = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      const formattedTime = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      if (diffDays < 0) {
+        return `<span class="subscription-status-expired">Expired (${formattedDate})</span>`;
+      } else if (diffDays === 0) {
+        return `<span class="subscription-status-renewing">Renews today at ${formattedTime}</span>`;
+      } else if (diffDays === 1) {
+        return `<span class="subscription-status-renewing">Renews tomorrow (${formattedDate} at ${formattedTime})</span>`;
+      } else {
+        return `<span class="subscription-status-active">Renews in ${diffDays} days (${formattedDate} at ${formattedTime})</span>`;
+      }
+    };
+    
     // Build subscription info HTML
-    let subscriptionHTML = '<div class="user-details-value">No subscription data available</div>';
+    let subscriptionHTML = '<div style="color: #999;">No subscription data available</div>';
     if (subscription) {
       subscriptionHTML = `
-        <div class="user-details-item">
-          <label>Status</label>
-          <div class="user-details-value">
-            ${subscription.status ? `<span class="subscription-status-${subscription.status === 'active' ? 'active' : 'cancelled'}">${this.escapeHtml(subscription.status)}</span>` : '—'}
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Status</label>
+          <div style="color: #333;">
+            ${subscription.status ? `<span class="subscription-status-${getSubscriptionStatusClass(subscription.status)}">${this.escapeHtml(subscription.status)}</span>` : '—'}
           </div>
         </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Renewal Date</label>
+          <div style="color: #333;">${formatSubscriptionRenewal(subscription)}</div>
+        </div>
         ${subscription.renewsAt ? `
-          <div class="user-details-item">
-            <label>Renews At</label>
-            <div class="user-details-value">${formatDateTime(subscription.renewsAt)}</div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Renews At</label>
+            <div style="color: #333;">${formatDateTime(subscription.renewsAt)}</div>
           </div>
         ` : ''}
         ${subscription.endsAt ? `
-          <div class="user-details-item">
-            <label>Ends At</label>
-            <div class="user-details-value">${formatDateTime(subscription.endsAt)}</div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Ends At</label>
+            <div style="color: #333;">${formatDateTime(subscription.endsAt)}</div>
           </div>
         ` : ''}
-        <div class="user-details-item">
-          <label>Cancelled at Period End</label>
-          <div class="user-details-value">
+        <div>
+          <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Cancelled at Period End</label>
+          <div style="color: #333;">
             ${subscription.cancelAtPeriodEnd ? '<span class="subscription-status-cancelled">Yes</span>' : 'No'}
           </div>
         </div>
         ${subscription.subscriptionId ? `
-          <div class="user-details-item">
-            <label>Subscription ID</label>
-            <div class="user-details-value user-details-value-monospace">${this.escapeHtml(subscription.subscriptionId)}</div>
+          <div>
+            <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Subscription ID</label>
+            <div style="color: #333; font-family: monospace; font-size: 0.875rem;">${this.escapeHtml(subscription.subscriptionId)}</div>
           </div>
         ` : ''}
       `;
+    }
+    
+    // Inject styles if not already added
+    if (!document.getElementById('user-details-modal-styles')) {
+      const style = document.createElement('style');
+      style.id = 'user-details-modal-styles';
+      style.textContent = `
+        .subscription-status-active { color: #10b981; font-weight: 600; }
+        .subscription-status-cancelled { color: #ef4444; font-weight: 600; }
+        .subscription-status-expired { color: #f59e0b; font-weight: 600; }
+        .subscription-status-renewing { color: #3b82f6; font-weight: 600; }
+        .plan-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem; font-weight: 600; }
+        .plan-badge.plan-pro { background: #4f46e5; color: white; }
+        .plan-badge.plan-free { background: #6b7280; color: white; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.875rem; font-weight: 600; }
+        .status-badge.status-active { background: #10b981; color: white; }
+        .status-badge.status-disabled { background: #ef4444; color: white; }
+      `;
+      document.head.appendChild(style);
     }
     
     // Create modal HTML
@@ -818,6 +891,26 @@ export class UsersView {
               </div>
             </div>
             
+            <!-- Recent Specs -->
+            ${specs.specs && specs.specs.length > 0 ? `
+              <div style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-file-alt"></i>
+                  Recent Specs
+                </h3>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                  <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${specs.specs.slice(0, 10).map(spec => `
+                      <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 500; color: #333;">${this.escapeHtml(spec.title)}</span>
+                        <span style="color: #666; font-size: 0.875rem;">${spec.createdAt ? formatDate(spec.createdAt) : '—'}</span>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+              </div>
+            ` : ''}
+            
             <!-- Subscription Information -->
             <div style="margin-bottom: 24px;">
               <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; justify-content: space-between;">
@@ -834,6 +927,161 @@ export class UsersView {
               </h3>
               <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
                 ${subscriptionHTML}
+              </div>
+            </div>
+            
+            <!-- Acquisition Data -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-chart-line"></i>
+                Acquisition Data
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Referrer</label>
+                  <div style="color: #333;">${acquisition.referrer ? this.escapeHtml(acquisition.referrer) : '—'}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Landing Page</label>
+                  <div style="color: #333;">${acquisition.landing_page ? this.escapeHtml(acquisition.landing_page) : '—'}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">First Visit</label>
+                  <div style="color: #333;">${acquisition.first_visit_at ? formatDateTime(acquisition.first_visit_at) : '—'}</div>
+                </div>
+                ${acquisition.utm_source ? `
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">UTM Source</label>
+                    <div style="color: #333;">${this.escapeHtml(acquisition.utm_source)}</div>
+                  </div>
+                ` : ''}
+                ${acquisition.utm_medium ? `
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">UTM Medium</label>
+                    <div style="color: #333;">${this.escapeHtml(acquisition.utm_medium)}</div>
+                  </div>
+                ` : ''}
+                ${acquisition.utm_campaign ? `
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">UTM Campaign</label>
+                    <div style="color: #333;">${this.escapeHtml(acquisition.utm_campaign)}</div>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <!-- Visit History -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-history"></i>
+                Visit History
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px;">
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Total Time on Site</label>
+                  <div style="color: #333; font-size: 1.2rem; font-weight: 600;">${visits.totalTimeOnSiteFormatted || '0s'}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Total Visits</label>
+                  <div style="color: #333; font-size: 1.2rem; font-weight: 600;">${visits.totalVisits || 0}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Total Sessions</label>
+                  <div style="color: #333;">${visits.sessions ? visits.sessions.length : 0}</div>
+                </div>
+                ${visits.lastVisit ? `
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Last Visit</label>
+                    <div style="color: #333;">${formatDateTime(visits.lastVisit.date)}</div>
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Last Visit Page</label>
+                    <div style="color: #333;">${this.escapeHtml(visits.lastVisit.page)}</div>
+                  </div>
+                ` : ''}
+              </div>
+              ${visits.sessions && visits.sessions.length > 0 ? `
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                  <h4 style="margin-bottom: 12px; font-size: 0.95rem; font-weight: 600;">Sessions</h4>
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    ${visits.sessions.map((session, index) => `
+                      <div style="padding: 12px; background: #f9f9f9; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                          <span style="font-weight: 600; color: #333;">Session ${index + 1}</span>
+                          <span style="color: #666; font-size: 0.875rem;">${session.durationFormatted || '0s'}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.875rem; color: #666;">
+                          <div><i class="fas fa-clock"></i> ${formatDateTime(session.startTime)} - ${formatDateTime(session.endTime)}</div>
+                          <div><i class="fas fa-file"></i> ${session.pageCount || 0} pages</div>
+                          <div><i class="fas fa-sign-in-alt"></i> Entry: ${this.escapeHtml(session.entryPage)}</div>
+                          <div><i class="fas fa-sign-out-alt"></i> Exit: ${this.escapeHtml(session.exitPage)}</div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            <!-- Page Journey -->
+            ${pageJourney.length > 0 ? `
+              <div style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-route"></i>
+                  Page Journey
+                </h3>
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${pageJourney.slice(0, 50).map((page, index) => `
+                      <div style="display: flex; align-items: center; gap: 12px; padding: 8px; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}; border-radius: 4px;">
+                        <div style="min-width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: var(--admin-accent, #4f46e5); color: white; border-radius: 50%; font-weight: 600; font-size: 0.875rem;">${index + 1}</div>
+                        <div style="flex: 1;">
+                          <div style="font-weight: 500; color: #333;">${this.escapeHtml(page.page)}</div>
+                          <div style="font-size: 0.875rem; color: #666;">${page.viewedAt ? formatDateTime(page.viewedAt) : '—'}</div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                  ${pageJourney.length > 50 ? `
+                    <div style="margin-top: 12px; padding: 8px; text-align: center; color: #666; font-size: 0.875rem;">
+                      Showing first 50 of ${pageJourney.length} page views
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : ''}
+            
+            <!-- Raw Data / Debug Information -->
+            <div style="margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-code"></i>
+                  Raw Data (Debug)
+                </h3>
+                <button class="btn-modern small" id="copy-raw-data-btn-view" style="padding: 6px 12px; background: var(--admin-accent, #4f46e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">
+                  <i class="fas fa-copy"></i>
+                  Copy All Data
+                </button>
+              </div>
+              <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;">
+                <details style="margin-bottom: 12px;">
+                  <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+                    users Collection
+                  </summary>
+                  <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb; max-height: 300px; overflow-y: auto;">${this.escapeHtml(JSON.stringify(analytics.rawData?.users || {}, null, 2))}</pre>
+                </details>
+                <details style="margin-bottom: 12px;">
+                  <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+                    user_credits_v3 Collection
+                  </summary>
+                  <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb; max-height: 300px; overflow-y: auto;">${this.escapeHtml(JSON.stringify(analytics.rawData?.user_credits_v3 || {}, null, 2))}</pre>
+                </details>
+                <details style="margin-bottom: 12px;">
+                  <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
+                    subscriptions_v3 Collection
+                  </summary>
+                  <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb; max-height: 300px; overflow-y: auto;">${this.escapeHtml(JSON.stringify(analytics.rawData?.subscriptions_v3 || {}, null, 2))}</pre>
+                </details>
               </div>
             </div>
           </div>
@@ -901,6 +1149,32 @@ export class UsersView {
             refreshBtn.disabled = false;
           }, 2000);
         }
+      });
+    }
+    
+    // Setup copy raw data button
+    const copyBtn = document.getElementById('copy-raw-data-btn-view');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const rawData = {
+          users: analytics.rawData?.users || {},
+          user_credits_v3: analytics.rawData?.user_credits_v3 || {},
+          subscriptions_v3: analytics.rawData?.subscriptions_v3 || {}
+        };
+        
+        const jsonString = JSON.stringify(rawData, null, 2);
+        navigator.clipboard.writeText(jsonString).then(() => {
+          const originalHTML = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          copyBtn.style.background = '#10b981';
+          setTimeout(() => {
+            copyBtn.innerHTML = originalHTML;
+            copyBtn.style.background = 'var(--admin-accent, #4f46e5)';
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          alert('Failed to copy data to clipboard');
+        });
       });
     }
   }
