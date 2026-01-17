@@ -196,6 +196,33 @@ class NewAdminDashboard {
       });
     }
     
+    // Subscription refresh event listeners
+    window.addEventListener('subscriptionRefreshStart', () => {
+      this.stateManager.setState('subscriptionRefresh.active', true);
+      this.stateManager.setState('subscriptionRefresh.lastRefresh', null);
+      // Trigger status update
+      if (this.views.has('overview')) {
+        this.views.get('overview').renderSystemStatus();
+      }
+    });
+    
+    window.addEventListener('subscriptionRefreshSuccess', () => {
+      this.stateManager.setState('subscriptionRefresh.active', false);
+      this.stateManager.setState('subscriptionRefresh.lastRefresh', new Date().toISOString());
+      // Trigger status update
+      if (this.views.has('overview')) {
+        this.views.get('overview').renderSystemStatus();
+      }
+    });
+    
+    window.addEventListener('subscriptionRefreshError', () => {
+      this.stateManager.setState('subscriptionRefresh.active', false);
+      // Trigger status update
+      if (this.views.has('overview')) {
+        this.views.get('overview').renderSystemStatus();
+      }
+    });
+    
     // Sign out button
     if (this.elements.signOutBtn) {
       this.elements.signOutBtn.addEventListener('click', async () => {

@@ -807,6 +807,7 @@ module.exports = {
   resolveSubscription,
   upsertSubscriptionFromWebhook,
   buildSubscriptionUpdateFromRecord,
+  fetchSubscriptionById,
   ACTIVE_STATUSES,
   CANCELLED_STATUSES,
   hasActiveStatus,

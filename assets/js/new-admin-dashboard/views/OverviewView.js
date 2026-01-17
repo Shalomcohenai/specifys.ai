@@ -845,10 +845,38 @@ export class OverviewView {
       { key: 'users', label: 'Users', icon: 'fas fa-users' },
       { key: 'specs', label: 'Specs', icon: 'fas fa-file-alt' },
       { key: 'purchases', label: 'Purchases', icon: 'fas fa-credit-card' },
-      { key: 'activityLogs', label: 'Activity Logs', icon: 'fas fa-stream' }
+      { key: 'activityLogs', label: 'Activity Logs', icon: 'fas fa-stream' },
+      { key: 'subscriptionRefresh', label: 'Subscription Refresh', icon: 'fas fa-sync-alt' }
     ];
     
     const html = sources.map(({ key, label, icon }) => {
+      // Special handling for subscriptionRefresh
+      if (key === 'subscriptionRefresh') {
+        const isRefreshing = this.stateManager.getState('subscriptionRefresh.active') === true;
+        const lastRefresh = this.stateManager.getState('subscriptionRefresh.lastRefresh');
+        
+        let status = 'Ready';
+        let statusClass = 'ready';
+        
+        if (isRefreshing) {
+          status = 'Refreshing...';
+          statusClass = 'pending';
+        } else if (lastRefresh) {
+          status = 'Ready';
+          statusClass = 'ready';
+        }
+        
+        return `
+          <div class="status-item">
+            <div class="status-info">
+              <i class="${icon} status-icon"></i>
+              <span class="status-label">${label}</span>
+            </div>
+            <span class="status-badge ${statusClass}" data-source="${key}">${status}</span>
+          </div>
+        `;
+      }
+      
       // Check loading state - if key doesn't exist, assume not loading
       const loading = this.dataManager.loadingStates[key] === true;
       const error = this.dataManager.errors.has(key);

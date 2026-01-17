@@ -186,7 +186,10 @@ export class UserDetailsModal {
       this.renderUserData(analytics);
       
       // Setup copy button after rendering
-      setTimeout(() => this.setupCopyButton(), 100);
+      setTimeout(() => {
+        this.setupCopyButton();
+        this.setupRefreshButton();
+      }, 100);
       
     } catch (error) {
       console.error('[UserDetailsModal] Error loading user data:', error);
@@ -316,6 +319,12 @@ export class UserDetailsModal {
         <h3 class="user-details-section-title">
           <i class="fas fa-credit-card"></i>
           Subscription Information
+          ${analytics.subscription?.subscriptionId ? `
+            <button class="refresh-subscription-btn" id="refresh-subscription-btn" title="Refresh subscription data from Lemon Squeezy API">
+              <i class="fas fa-sync-alt"></i>
+              Refresh
+            </button>
+          ` : ''}
         </h3>
         <div class="user-details-grid">
           ${analytics.subscription ? `
@@ -633,6 +642,71 @@ export class UserDetailsModal {
     } else {
       return `<span class="subscription-status-active">Renews in ${diffDays} days (${formattedDate} at ${formattedTime})</span>`;
     }
+  }
+
+  /**
+   * Setup refresh subscription button
+   */
+  setupRefreshButton() {
+    const refreshBtn = this.modal?.querySelector('#refresh-subscription-btn');
+    if (!refreshBtn || !this.currentUserId) return;
+    
+    // Remove existing listener if any
+    const newRefreshBtn = refreshBtn.cloneNode(true);
+    refreshBtn.parentNode.replaceChild(newRefreshBtn, refreshBtn);
+    
+    newRefreshBtn.addEventListener('click', async () => {
+      if (newRefreshBtn.disabled) return;
+      
+      const originalHTML = newRefreshBtn.innerHTML;
+      newRefreshBtn.disabled = true;
+      newRefreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+      
+      try {
+        // Emit refresh start event
+        window.dispatchEvent(new CustomEvent('subscriptionRefreshStart', { detail: { userId: this.currentUserId } }));
+        
+        const response = await apiService.post(`/api/admin/users/${this.currentUserId}/refresh-subscription`);
+        
+        if (response.success) {
+          // Emit refresh success event
+          window.dispatchEvent(new CustomEvent('subscriptionRefreshSuccess', { detail: { userId: this.currentUserId } }));
+          
+          // Show success message
+          const successMsg = document.createElement('div');
+          successMsg.className = 'refresh-success-message';
+          successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin: 12px 0; border: 1px solid #c3e6cb;';
+          successMsg.innerHTML = '<i class="fas fa-check-circle"></i> Subscription data refreshed successfully!';
+          newRefreshBtn.parentNode.insertBefore(successMsg, newRefreshBtn.nextSibling);
+          
+          // Remove success message after 3 seconds
+          setTimeout(() => successMsg.remove(), 3000);
+          
+          // Reload user data
+          await this.loadUserData(this.currentUserId);
+        } else {
+          throw new Error(response.message || 'Failed to refresh subscription data');
+        }
+      } catch (error) {
+        console.error('[UserDetailsModal] Error refreshing subscription:', error);
+        
+        // Emit refresh error event
+        window.dispatchEvent(new CustomEvent('subscriptionRefreshError', { detail: { userId: this.currentUserId, error: error.message } }));
+        
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'refresh-error-message';
+        errorMsg.style.cssText = 'background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin: 12px 0; border: 1px solid #f5c6cb;';
+        errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'Failed to refresh subscription data'}`;
+        newRefreshBtn.parentNode.insertBefore(errorMsg, newRefreshBtn.nextSibling);
+        
+        // Remove error message after 5 seconds
+        setTimeout(() => errorMsg.remove(), 5000);
+      } finally {
+        newRefreshBtn.disabled = false;
+        newRefreshBtn.innerHTML = originalHTML;
+      }
+    });
   }
 
   /**
