@@ -37,11 +37,11 @@ const firebaseConfig = {
 
 const COLLECTIONS = Object.freeze({
   USERS: "users",
-  USER_CREDITS: "user_credits",
+  USER_CREDITS: "user_credits_v3",  // V3: Single source of truth
   SPECS: "specs",
   PURCHASES: "purchases",
-  SUBSCRIPTIONS: "subscriptions",
-  CREDITS_TRANSACTIONS: "credits_transactions",
+  SUBSCRIPTIONS: "subscriptions_v3",  // V3: Archive/logs only
+  CREDITS_TRANSACTIONS: "credit_ledger_v3",  // V3: Credit ledger
   ACTIVITY_LOGS: "activityLogs",
   ERROR_LOGS: "errorLogs",
   CSS_CRASH_LOGS: "cssCrashLogs",

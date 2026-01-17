@@ -357,7 +357,6 @@ app.use('/api/v2/credits', creditsV2Routes);
 logger.info({ type: 'route_mounted', path: '/api/v2/credits' }, '[UNIFIED SERVER] ✅ Credits V2 routes mounted');
 
 // Credits V3 routes for improved credit system (parallel system)
-const config = require('./config');
 if (config.creditsV3.enabled) {
   logger.info({ type: 'route_mount', path: '/api/v3/credits', route: 'creditsV3Routes', mode: config.creditsV3.migrationMode }, '[UNIFIED SERVER] 📌 Mounting credits V3 routes');
   const creditsV3Routes = require('./credits-v3-routes');

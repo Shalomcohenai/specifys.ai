@@ -212,7 +212,7 @@ async function getUserAnalytics(userId) {
     let creditsData = null;
     let isUnlimited = false;
     try {
-      const creditsDoc = await db.collection('user_credits').doc(userId).get();
+      const creditsDoc = await db.collection('user_credits_v3').doc(userId).get();
       if (creditsDoc.exists) {
         const credits = creditsDoc.data();
         
@@ -255,8 +255,8 @@ async function getUserAnalytics(userId) {
     let subscriptionData = null;
     let needsSync = false; // Flag to indicate if user_credits needs syncing from subscriptions
     try {
-      // First, try subscriptions collection
-      const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
+      // First, try subscriptions collection (V3)
+      const subscriptionDoc = await db.collection('subscriptions_v3').doc(userId).get();
       if (subscriptionDoc.exists) {
         const subData = subscriptionDoc.data();
         // Normalize status: "paid" means active subscription
@@ -274,7 +274,7 @@ async function getUserAnalytics(userId) {
         // Check if user_credits needs syncing: if subscription exists but user_credits doesn't have pro subscription
         if (isActiveSubscription && subData.product_type === 'subscription' && 
             (subData.product_key === 'pro_monthly' || subData.product_key === 'pro_yearly')) {
-          const creditsDoc = await db.collection('user_credits').doc(userId).get();
+          const creditsDoc = await db.collection('user_credits_v3').doc(userId).get();
           if (creditsDoc.exists) {
             const credits = creditsDoc.data();
             const hasProInCredits = credits.subscription?.type === 'pro' && 
@@ -384,28 +384,28 @@ async function getUserAnalytics(userId) {
         exists: userDoc.exists,
         data: userData
       },
-      user_credits: null,
-      subscriptions: null
+      user_credits_v3: null,
+      subscriptions_v3: null
     };
 
     try {
-      const creditsDoc = await db.collection('user_credits').doc(userId).get();
-      rawData.user_credits = {
+      const creditsDoc = await db.collection('user_credits_v3').doc(userId).get();
+      rawData.user_credits_v3 = {
         exists: creditsDoc.exists,
         data: creditsDoc.exists ? creditsDoc.data() : null
       };
     } catch (error) {
-      rawData.user_credits = { error: error.message };
+      rawData.user_credits_v3 = { error: error.message };
     }
 
     try {
-      const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
-      rawData.subscriptions = {
+      const subscriptionDoc = await db.collection('subscriptions_v3').doc(userId).get();
+      rawData.subscriptions_v3 = {
         exists: subscriptionDoc.exists,
         data: subscriptionDoc.exists ? subscriptionDoc.data() : null
       };
     } catch (error) {
-      rawData.subscriptions = { error: error.message };
+      rawData.subscriptions_v3 = { error: error.message };
     }
 
     // Build comprehensive analytics object
