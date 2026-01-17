@@ -299,6 +299,12 @@ export class UsersView {
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       const isSelected = this.selectedUsers.has(user.id);
       
+      // Check if data is from V3 (userCredits exists means it's from V3 collection)
+      const isV3 = !!userCredits;
+      const dataSourceBadge = isV3 
+        ? '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>'
+        : '<span class="data-source-badge v2" title="Data from V2 system (fallback)">V2</span>';
+      
       return `
         <tr data-user-id="${user.id}">
           <td>
@@ -313,7 +319,12 @@ export class UsersView {
           <td>${helpers.formatDate(user.createdAt)}</td>
           <td><span class="plan-badge plan-${plan.toLowerCase()}">${plan}</span></td>
           <td>${specCount}</td>
-          <td>${creditsDisplay}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span>${creditsDisplay}</span>
+              ${dataSourceBadge}
+            </div>
+          </td>
           <td>${helpers.formatRelative(user.lastActive)}</td>
           <td>
             <div class="action-buttons">
@@ -333,6 +344,32 @@ export class UsersView {
     }).join('');
     
     this.table.innerHTML = html;
+    
+    // Inject styles for data source badge if not already added
+    if (!document.getElementById('data-source-badge-styles')) {
+      const style = document.createElement('style');
+      style.id = 'data-source-badge-styles';
+      style.textContent = `
+        .data-source-badge {
+          display: inline-block;
+          padding: 2px 6px;
+          border-radius: 3px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .data-source-badge.v3 {
+          background-color: #10b981;
+          color: white;
+        }
+        .data-source-badge.v2 {
+          background-color: #f59e0b;
+          color: white;
+        }
+      `;
+      document.head.appendChild(style);
+    }
     
     // Add checkbox listeners
     this.table.querySelectorAll('.user-checkbox').forEach(checkbox => {

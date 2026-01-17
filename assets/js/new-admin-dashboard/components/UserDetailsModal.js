@@ -140,7 +140,38 @@ export class UserDetailsModal {
   /**
    * Load user analytics data
    */
+  /**
+   * Inject styles for data source badge
+   */
+  injectDataSourceBadgeStyles() {
+    if (!document.getElementById('data-source-badge-styles')) {
+      const style = document.createElement('style');
+      style.id = 'data-source-badge-styles';
+      style.textContent = `
+        .data-source-badge {
+          display: inline-block;
+          padding: 2px 6px;
+          border-radius: 3px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .data-source-badge.v3 {
+          background-color: #10b981;
+          color: white;
+        }
+        .data-source-badge.v2 {
+          background-color: #f59e0b;
+          color: white;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
   async loadUserData(userId) {
+    this.injectDataSourceBadgeStyles();
     const body = this.modal.querySelector('#user-details-modal-body');
     
     try {
@@ -228,6 +259,10 @@ export class UserDetailsModal {
         <h3 class="user-details-section-title">
           <i class="fas fa-coins"></i>
           Credits & Usage
+          ${analytics.rawData?.user_credits_v3?.exists ? 
+            '<span class="data-source-badge v3" style="margin-left: 8px;" title="Data from V3 system (user_credits_v3)">V3</span>' : 
+            '<span class="data-source-badge v2" style="margin-left: 8px;" title="Data from V2 system (fallback)">V2</span>'
+          }
         </h3>
         <div class="user-details-grid">
           ${credits ? `
