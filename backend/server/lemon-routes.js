@@ -866,7 +866,20 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       const isActive = hasActiveStatus(subscriptionData.status);
       const isCancelled = hasCancelledStatus(subscriptionData.status);
 
-      if (isActive) {
+      // Check if user.plan is 'pro' (fallback for missing product_key)
+      let isProUser = false;
+      try {
+        const userDoc = await db.collection('users').doc(subscriptionUserId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          isProUser = userData.plan === 'pro' || userData.plan === 'Pro';
+        }
+      } catch (userCheckError) {
+        logger.warn({ webhookRequestId, userId: subscriptionUserId, error: userCheckError.message }, '[lemon-routes] Failed to check user.plan (non-critical)');
+      }
+
+      // Enable Pro subscription if: (explicit Pro product) OR (user.plan is Pro AND subscription is active)
+      if (isActive && (resolvedProductKey || isProUser)) {
         try {
           // Extract renewal/expiration date from subscription data
           // Prioritize renewsAt (for active subscriptions), then endsAt (for cancelled)

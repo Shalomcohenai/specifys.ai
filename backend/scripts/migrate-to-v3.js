@@ -78,15 +78,17 @@ async function migrateUser(userId) {
     const creditsV2 = creditsV2Doc.data();
     const subscriptionsV2 = subscriptionsV2Doc.exists ? subscriptionsV2Doc.data() : null;
     
-    // Check if already migrated
+    // Check if already migrated (but allow re-migration to update with improved logic)
     const creditsV3Ref = db.collection('user_credits_v3').doc(userId);
     const creditsV3Doc = await creditsV3Ref.get();
     
+    // Note: We allow re-migration to update users with improved logic
+    // (e.g., fixing Pro users with missing product_key)
     if (creditsV3Doc.exists) {
       const v3Data = creditsV3Doc.data();
       if (v3Data.metadata && v3Data.metadata.migratedFrom === 'v2') {
-        console.log(`✓ User ${userId} already migrated, skipping...`);
-        return { skipped: true, reason: 'already_migrated' };
+        console.log(`🔄 User ${userId} already migrated, re-migrating with improved logic...`);
+        // Continue with migration to update with improved logic
       }
     }
     
@@ -128,21 +130,31 @@ async function migrateUser(userId) {
     };
     
     // Migrate subscription data
-    // Priority: subscriptions collection > user_credits.subscription
+    // Priority: subscriptions collection > user_credits.subscription > users.plan
     let subscriptionSource = 'none';
+    
+    // First, check user.plan to know if user should be Pro
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.exists ? userDoc.data() : null;
+    const isProUser = userData && (userData.plan === 'pro' || userData.plan === 'Pro');
     
     if (subscriptionsV2 && subscriptionsV2.status) {
       // Use subscriptions collection as primary source
       const normalizedStatus = normalizeStatus(subscriptionsV2.status);
-      const isActive = normalizedStatus === 'active' || normalizedStatus === 'on_trial';
+      const isActive = normalizedStatus === 'active' || normalizedStatus === 'on_trial' || normalizedStatus === 'paid';
+      
+      // Check if it's a Pro product by:
+      // 1. Explicit product_key/product_type
+      // 2. OR if user.plan is 'pro' AND status is active (fallback for missing product_key)
       const isProProduct = subscriptionsV2.product_key === 'pro_monthly' || 
                           subscriptionsV2.product_key === 'pro_yearly' ||
-                          subscriptionsV2.product_type === 'subscription';
+                          subscriptionsV2.product_type === 'subscription' ||
+                          (isProUser && isActive); // Fallback: if user is Pro and subscription is active
       
       if (isActive && isProProduct) {
         v3Credits.subscription = {
           type: 'pro',
-          status: normalizedStatus,
+          status: normalizedStatus === 'paid' ? 'active' : normalizedStatus,
           expiresAt: subscriptionsV2.current_period_end ? toDate(subscriptionsV2.current_period_end) : 
                     (subscriptionsV2.renews_at ? toDate(subscriptionsV2.renews_at) : null),
           preservedCredits: creditsV2.subscription?.preservedCredits || 0,
@@ -173,14 +185,14 @@ async function migrateUser(userId) {
           status: subStatus === 'paid' ? 'active' : subStatus,
           expiresAt: sub.expiresAt ? toDate(sub.expiresAt) : null,
           preservedCredits: sub.preservedCredits || 0,
-          lemonSubscriptionId: null, // Not available in user_credits
+          lemonSubscriptionId: sub.lemonSubscriptionId || null,
           lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
-          productKey: null,
-          productName: null,
-          billingInterval: null,
-          renewsAt: null,
-          endsAt: null,
-          cancelAtPeriodEnd: false
+          productKey: sub.productKey || null,
+          productName: sub.productName || null,
+          billingInterval: sub.billingInterval || null,
+          renewsAt: sub.renewsAt ? toDate(sub.renewsAt) : null,
+          endsAt: sub.endsAt ? toDate(sub.endsAt) : null,
+          cancelAtPeriodEnd: sub.cancelAtPeriodEnd || false
         };
         v3Credits.permissions = {
           canEdit: true,
@@ -190,33 +202,48 @@ async function migrateUser(userId) {
       }
     }
     
-    // Check user.plan as final fallback
-    if (v3Credits.subscription.type === 'none') {
-      const userDoc = await db.collection('users').doc(userId).get();
-      if (userDoc.exists) {
-        const userData = userDoc.data();
-        if (userData.plan === 'pro' || userData.plan === 'Pro') {
-          v3Credits.subscription = {
-            type: 'pro',
-            status: 'active',
-            expiresAt: null,
-            preservedCredits: 0,
-            lemonSubscriptionId: null,
-            lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
-            productKey: null,
-            productName: null,
-            billingInterval: null,
-            renewsAt: null,
-            endsAt: null,
-            cancelAtPeriodEnd: false
-          };
-          v3Credits.permissions = {
-            canEdit: true,
-            canCreateUnlimited: true
-          };
-          subscriptionSource = 'users.plan';
-        }
+    // Check user.plan as final fallback (if no subscription data found)
+    if (v3Credits.subscription.type === 'none' && isProUser) {
+      // Try to get subscription data from subscriptions_v2 even if status was missing
+      if (subscriptionsV2) {
+        const normalizedStatus = normalizeStatus(subscriptionsV2.status || 'active');
+        v3Credits.subscription = {
+          type: 'pro',
+          status: normalizedStatus === 'paid' ? 'active' : normalizedStatus,
+          expiresAt: subscriptionsV2.current_period_end ? toDate(subscriptionsV2.current_period_end) : 
+                    (subscriptionsV2.renews_at ? toDate(subscriptionsV2.renews_at) : null),
+          preservedCredits: creditsV2.subscription?.preservedCredits || 0,
+          lemonSubscriptionId: subscriptionsV2.lemon_subscription_id || null,
+          lastSyncedAt: subscriptionsV2.last_synced_at || admin.firestore.FieldValue.serverTimestamp(),
+          productKey: subscriptionsV2.product_key || null,
+          productName: subscriptionsV2.product_name || null,
+          billingInterval: subscriptionsV2.billing_interval || null,
+          renewsAt: subscriptionsV2.renews_at ? toDate(subscriptionsV2.renews_at) : null,
+          endsAt: subscriptionsV2.ends_at ? toDate(subscriptionsV2.ends_at) : null,
+          cancelAtPeriodEnd: subscriptionsV2.cancel_at_period_end || false
+        };
+        subscriptionSource = 'users.plan+subscriptions';
+      } else {
+        v3Credits.subscription = {
+          type: 'pro',
+          status: 'active',
+          expiresAt: null,
+          preservedCredits: creditsV2.subscription?.preservedCredits || 0,
+          lemonSubscriptionId: null,
+          lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
+          productKey: null,
+          productName: null,
+          billingInterval: null,
+          renewsAt: null,
+          endsAt: null,
+          cancelAtPeriodEnd: false
+        };
+        subscriptionSource = 'users.plan';
       }
+      v3Credits.permissions = {
+        canEdit: true,
+        canCreateUnlimited: true
+      };
     }
     
     // Migrate subscription to subscriptions_v3 (archive)

@@ -691,12 +691,29 @@ async function upsertSubscriptionFromWebhook({
     });
     
     // Auto-sync to user_credits if subscription is active and product is Pro
+    // Check both explicit product_key AND users.plan as fallback
     const normalizedStatus = normalizeStatus(payload.status);
     const isActive = hasActiveStatus(normalizedStatus);
     const productKey = payload.update.product_key || existingData.product_key;
     const isProProduct = productKey === 'pro_monthly' || productKey === 'pro_yearly';
     
-    if (isActive && isProProduct) {
+    // Also check if user.plan is 'pro' (fallback for missing product_key)
+    let isProUser = false;
+    try {
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        isProUser = userData.plan === 'pro' || userData.plan === 'Pro';
+      }
+    } catch (userCheckError) {
+      log.warn('Failed to check user.plan (non-critical)', {
+        userId,
+        error: userCheckError?.message || userCheckError
+      });
+    }
+    
+    // Sync if: (explicit Pro product) OR (user.plan is Pro AND subscription is active)
+    if (isActive && (isProProduct || isProUser)) {
       // Check if user_credits needs syncing
       try {
         const creditsDoc = await db.collection('user_credits').doc(userId).get();
