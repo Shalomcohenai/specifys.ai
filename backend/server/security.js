@@ -28,9 +28,7 @@ const securityHeaders = helmet({
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
         "https://accounts.google.com",  // Google Sign-In
-        "https://apis.google.com",  // Google APIs (for Sign-In)
-        "https://client.crisp.chat",  // Crisp Chat widget
-        "https://unpkg.com"  // Web Vitals library
+        "https://apis.google.com"  // Google APIs (for Sign-In)
       ],
       scriptSrcAttr: ["'unsafe-inline'"],  // Allow inline event handlers (onclick, etc.)
       styleSrc: [
@@ -62,10 +60,9 @@ const securityHeaders = helmet({
         "https://apis.google.com",  // Google APIs
         "https://www.google-analytics.com",  // Google Analytics
         "https://analytics.google.com",  // Google Analytics v4
-        "https://www.google.com",  // Google services (includes /ccm/collect)
+        "https://www.google.com",  // Google services
         "https://stats.g.doubleclick.net",  // Google Ads tracking
-        "https://googleads.g.doubleclick.net",  // Google Ads
-        "https://specifys-ai-development.onrender.com"  // App Logger API
+        "https://googleads.g.doubleclick.net"  // Google Ads
       ],
       fontSrc: [
         "'self'",
