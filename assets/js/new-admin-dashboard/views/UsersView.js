@@ -5,7 +5,6 @@
 
 import { helpers } from '../utils/helpers.js';
 import { apiService } from '../services/ApiService.js';
-import { UserDetailsModal } from '../components/UserDetailsModal.js';
 
 export class UsersView {
   constructor(dataManager, stateManager) {
@@ -15,7 +14,6 @@ export class UsersView {
     this.currentPage = 1;
     this.perPage = 25;
     this.selectedUsers = new Set();
-    this.userDetailsModal = new UserDetailsModal();
     
     this.init();
   }
@@ -642,11 +640,268 @@ export class UsersView {
     // Viewing user details
     
     try {
+      // Fetch user analytics data
+      const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
+      const analytics = data.analytics;
+      
       // Show user details modal
-      await this.userDetailsModal.show(userId);
+      this.showUserDetailsModal(userId, analytics);
     } catch (error) {
       console.error('[UsersView] Error loading user data:', error);
       alert(`Error loading user details: ${error.message}`);
+    }
+  }
+  
+  /**
+   * Show user details modal (similar to Edit User modal)
+   */
+  showUserDetailsModal(userId, analytics) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('user-details-view-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    const user = analytics.user || {};
+    const credits = analytics.credits || null;
+    const specs = analytics.specs || { count: 0, specs: [] };
+    const subscription = analytics.subscription || null;
+    
+    // Format dates
+    const formatDateTime = (dateString) => {
+      if (!dateString) return '—';
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+    
+    const formatDate = (dateString) => {
+      if (!dateString) return '—';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    };
+    
+    // Build subscription info HTML
+    let subscriptionHTML = '<div class="user-details-value">No subscription data available</div>';
+    if (subscription) {
+      subscriptionHTML = `
+        <div class="user-details-item">
+          <label>Status</label>
+          <div class="user-details-value">
+            ${subscription.status ? `<span class="subscription-status-${subscription.status === 'active' ? 'active' : 'cancelled'}">${this.escapeHtml(subscription.status)}</span>` : '—'}
+          </div>
+        </div>
+        ${subscription.renewsAt ? `
+          <div class="user-details-item">
+            <label>Renews At</label>
+            <div class="user-details-value">${formatDateTime(subscription.renewsAt)}</div>
+          </div>
+        ` : ''}
+        ${subscription.endsAt ? `
+          <div class="user-details-item">
+            <label>Ends At</label>
+            <div class="user-details-value">${formatDateTime(subscription.endsAt)}</div>
+          </div>
+        ` : ''}
+        <div class="user-details-item">
+          <label>Cancelled at Period End</label>
+          <div class="user-details-value">
+            ${subscription.cancelAtPeriodEnd ? '<span class="subscription-status-cancelled">Yes</span>' : 'No'}
+          </div>
+        </div>
+        ${subscription.subscriptionId ? `
+          <div class="user-details-item">
+            <label>Subscription ID</label>
+            <div class="user-details-value user-details-value-monospace">${this.escapeHtml(subscription.subscriptionId)}</div>
+          </div>
+        ` : ''}
+      `;
+    }
+    
+    // Create modal HTML
+    const modalHTML = `
+      <div class="modal-overlay" id="user-details-view-modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+          <div class="modal-header">
+            <h2>User Details</h2>
+            <button class="modal-close" id="user-details-view-modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body" style="padding: 24px;">
+            <!-- Basic Information -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user"></i>
+                Basic Information
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Email</label>
+                  <div style="color: #333;">${this.escapeHtml(user.email || '—')}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Display Name</label>
+                  <div style="color: #333;">${this.escapeHtml(user.displayName || '—')}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Plan</label>
+                  <div style="color: #333;">
+                    <span class="plan-badge plan-${(user.plan || 'free').toLowerCase()}">${(user.plan || 'free').charAt(0).toUpperCase() + (user.plan || 'free').slice(1)}</span>
+                  </div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Account Created</label>
+                  <div style="color: #333;">${user.createdAt ? formatDateTime(user.createdAt) : '—'}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Last Active</label>
+                  <div style="color: #333;">${user.lastActive ? formatDateTime(user.lastActive) : '—'}</div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Status</label>
+                  <div style="color: #333;">
+                    <span class="status-badge ${user.disabled ? 'status-disabled' : 'status-active'}">
+                      ${user.disabled ? 'Disabled' : 'Active'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Credits & Usage -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-coins"></i>
+                Credits & Usage
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                ${credits ? `
+                  <div>
+                    <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Total Credits</label>
+                    <div style="color: #333; font-size: 1.2rem; font-weight: 600;">
+                      ${credits.unlimited ? '∞' : (credits.total || 0)}
+                    </div>
+                  </div>
+                  ${!credits.unlimited ? `
+                    <div>
+                      <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Free Credits</label>
+                      <div style="color: #333;">${credits.free || 0}</div>
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Paid Credits</label>
+                      <div style="color: #333;">${credits.paid || 0}</div>
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Bonus Credits</label>
+                      <div style="color: #333;">${credits.bonus || 0}</div>
+                    </div>
+                  ` : ''}
+                ` : `
+                  <div>
+                    <div style="color: #999;">No credits data available</div>
+                  </div>
+                `}
+                <div>
+                  <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #666;">Specs Created</label>
+                  <div style="color: #333; font-size: 1.2rem; font-weight: 600;">${specs.count || 0}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Subscription Information -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="margin-bottom: 16px; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-credit-card"></i>
+                  Subscription Information
+                </span>
+                ${subscription?.subscriptionId ? `
+                  <button class="refresh-subscription-btn-inline" id="refresh-subscription-btn-inline" title="Refresh subscription data from Lemon Squeezy API" style="padding: 6px 12px; background: var(--admin-accent, #4f46e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                  </button>
+                ` : ''}
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                ${subscriptionHTML}
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-modern" id="user-details-view-close-btn">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = document.getElementById('user-details-view-modal');
+    
+    // Setup event listeners
+    const closeBtn = document.getElementById('user-details-view-modal-close');
+    const closeFooterBtn = document.getElementById('user-details-view-close-btn');
+    
+    const closeModal = () => {
+      modal.remove();
+    };
+    
+    closeBtn.addEventListener('click', closeModal);
+    closeFooterBtn.addEventListener('click', closeModal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Setup refresh button if exists
+    const refreshBtn = document.getElementById('refresh-subscription-btn-inline');
+    if (refreshBtn && subscription?.subscriptionId) {
+      refreshBtn.addEventListener('click', async () => {
+        if (refreshBtn.disabled) return;
+        
+        const originalHTML = refreshBtn.innerHTML;
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        
+        try {
+          const response = await apiService.post(`/api/admin/users/${userId}/refresh-subscription`);
+          
+          if (response.success) {
+            refreshBtn.innerHTML = '<i class="fas fa-check"></i> Refreshed!';
+            refreshBtn.style.background = '#10b981';
+            
+            // Reload user data after 1 second
+            setTimeout(async () => {
+              const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
+              this.showUserDetailsModal(userId, data.analytics);
+            }, 1000);
+          } else {
+            throw new Error(response.message || 'Failed to refresh subscription data');
+          }
+        } catch (error) {
+          console.error('[UsersView] Error refreshing subscription:', error);
+          refreshBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error';
+          refreshBtn.style.background = '#ef4444';
+          setTimeout(() => {
+            refreshBtn.innerHTML = originalHTML;
+            refreshBtn.style.background = 'var(--admin-accent, #4f46e5)';
+            refreshBtn.disabled = false;
+          }, 2000);
+        }
+      });
     }
   }
   
