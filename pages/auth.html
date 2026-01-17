@@ -440,11 +440,21 @@
         // Handle redirect result when user comes back from Google Sign-In
         (async function checkRedirectResult() {
             console.log('[AUTH] checkRedirectResult - Starting to check for redirect result');
+            console.log('[AUTH] checkRedirectResult - Current URL:', window.location.href);
+            console.log('[AUTH] checkRedirectResult - URL params:', window.location.search);
+            console.log('[AUTH] checkRedirectResult - SessionStorage attemptingGoogleSignIn:', sessionStorage.getItem('attemptingGoogleSignIn'));
+            console.log('[AUTH] checkRedirectResult - SessionStorage googleSignInTimestamp:', sessionStorage.getItem('googleSignInTimestamp'));
+            
             if (window.appLogger) {
-                window.appLogger.logAuthEvent('CheckingRedirectResult');
+                window.appLogger.logAuthEvent('CheckingRedirectResult', null, {
+                    url: window.location.href,
+                    hasAttemptingFlag: !!sessionStorage.getItem('attemptingGoogleSignIn'),
+                    timestamp: sessionStorage.getItem('googleSignInTimestamp')
+                });
             }
             
             try {
+                console.log('[AUTH] checkRedirectResult - Importing Firebase auth module...');
                 const { getRedirectResult, getAdditionalUserInfo } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
                 console.log('[AUTH] checkRedirectResult - Firebase auth module imported successfully');
 
@@ -1192,92 +1202,62 @@
             // Removed popup test - was opening extra window
         }
         
-        // Google login - SYNCHRONOUS to avoid popup blocker
+        // Google login - Try redirect method first (more reliable than popup)
         window.loginWithGoogle = function() {
             console.log('[AUTH] window.loginWithGoogle - Button clicked, starting Google login');
+            console.log('[AUTH] window.loginWithGoogle - User agent:', navigator.userAgent);
+            console.log('[AUTH] window.loginWithGoogle - Window focus state:', document.hasFocus());
+            
             if (window.appLogger) {
                 window.appLogger.logAuthEvent('GoogleSignIn_ButtonClicked');
-                window.appLogger.logUserAction('GoogleSignIn_ButtonClick');
+                window.appLogger.logUserAction('GoogleSignIn_ButtonClick', {
+                    userAgent: navigator.userAgent,
+                    hasFocus: document.hasFocus()
+                });
             }
             
-            // Check compatibility first
-            checkBrowserCompatibility();
+            // Use redirect method instead of popup for better reliability
+            // This avoids popup blockers and works more consistently across browsers
+            console.log('[AUTH] window.loginWithGoogle - Using REDIRECT method (more reliable than popup)');
+            console.log('[AUTH] window.loginWithGoogle - Setting sessionStorage flag for redirect...');
             
-            // Call signInWithPopup IMMEDIATELY (synchronously) from user click
-            // This prevents popup blockers
-            console.log('[AUTH] window.loginWithGoogle - Calling signInWithPopup synchronously...');
-            const popupPromise = signInWithPopup(auth, googleProvider);
-            console.log('[AUTH] window.loginWithGoogle - signInWithPopup called, waiting for result...');
-
-            popupPromise
-                .then(async (result) => {
-                    console.log('[AUTH] window.loginWithGoogle - signInWithPopup promise resolved', {
-                        hasResult: !!result,
-                        hasUser: !!(result?.user),
-                        userId: result?.user?.uid,
-                        email: result?.user?.email
-                    });
+            sessionStorage.setItem('attemptingGoogleSignIn', 'true');
+            sessionStorage.setItem('googleSignInTimestamp', Date.now().toString());
+            
+            // Use redirect - this is more reliable than popup
+            (async () => {
+                try {
+                    const { signInWithRedirect } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                    console.log('[AUTH] window.loginWithGoogle - Imported signInWithRedirect');
+                    console.log('[AUTH] window.loginWithGoogle - Calling signInWithRedirect now...');
                     
-                    // Check if this is a new user using Firebase Auth's additionalUserInfo
-                    const additionalUserInfo = getAdditionalUserInfo(result);
-                    const isNewUser = additionalUserInfo?.isNewUser === true;
-                    
-                    console.log('[AUTH] window.loginWithGoogle - User info:', {
-                        isNewUser,
-                        userId: result.user.uid,
-                        email: result.user.email
-                    });
-                    
-                    console.log('[AUTH] window.loginWithGoogle - Creating user document...');
-                    const createResult = await createUserDocument(result.user, isNewUser);
-                    console.log('[AUTH] window.loginWithGoogle - User document created');
-                    
-                    // Set popup flag if this is a new user (from Firebase Auth or server response as fallback)
-                    if (isNewUser || (createResult && createResult.isNewUser)) {
-                        console.log('[AUTH] window.loginWithGoogle - Setting showCreditPopup flag for new user');
-                        sessionStorage.setItem('showCreditPopup', 'true');
-                        // נקה cache
-                        if (typeof window.clearCreditsCache === 'function') {
-                            window.clearCreditsCache();
-                        }
-                        // שמור flag לעדכון תצוגה ב-index.html
-                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
-                    }
-                    
-                    console.log('[AUTH] window.loginWithGoogle - Google popup sign-in completed successfully');
                     if (window.appLogger) {
-                        window.appLogger.logAuthEvent(isNewUser ? 'GoogleSignIn_PopupSuccess_NewUser' : 'GoogleSignIn_PopupSuccess_ExistingUser', result.user.uid);
+                        window.appLogger.logAuthEvent('GoogleSignIn_RedirectInitiated');
                     }
                     
-                    showSuccess('Login successful! Redirecting to homepage...');
-                    setTimeout(() => {
-                        window.location.href = '../index.html';
-                    }, 1500);
-                })
-                .catch((error) => {
-                    console.error('[AUTH] window.loginWithGoogle - Error:', {
+                    await signInWithRedirect(auth, googleProvider);
+                    console.log('[AUTH] window.loginWithGoogle - signInWithRedirect called successfully, redirecting...');
+                    // This will redirect away, so no code after this will run
+                } catch (error) {
+                    console.error('[AUTH] window.loginWithGoogle - Error initiating redirect:', {
                         code: error.code,
                         message: error.message,
                         stack: error.stack
                     });
+                    
+                    sessionStorage.removeItem('attemptingGoogleSignIn');
+                    sessionStorage.removeItem('googleSignInTimestamp');
+                    
                     if (window.appLogger) {
                         window.appLogger.logError(error, { 
-                            context: 'window.loginWithGoogle',
+                            context: 'window.loginWithGoogle_redirect_init',
                             errorCode: error.code
                         });
                     }
                     
-                    if (error.code === 'auth/popup-blocked') {
-                        console.log('[AUTH] window.loginWithGoogle - Popup blocked by browser');
-                        showError('Popup was blocked. Please allow popups for this site and try again.');
-                    } else if (error.code === 'auth/popup-closed-by-user') {
-                        console.log('[AUTH] window.loginWithGoogle - Popup closed by user');
-                        showError('Sign-in cancelled.');
-                    } else {
-                        console.log('[AUTH] window.loginWithGoogle - Other authentication error');
-                        showError(getAuthErrorMessage(error.code) || 'Authentication failed. Please try again.');
-                    }
-                });
+                    showError('Failed to start Google sign-in: ' + (error.message || 'Unknown error'));
+                }
+            })();
         };
 
         // Privacy Modal Functions
