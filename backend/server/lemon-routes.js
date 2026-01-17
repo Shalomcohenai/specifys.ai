@@ -937,12 +937,22 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
           const disableProOptions = {
             subscriptionId: subscriptionData.subscriptionId,
             cancelReason: 'webhook',
-            cancelMode: subscriptionData.cancelAtPeriodEnd ? 'period_end' : 'immediate',
-            metadata: {
-              lemonCustomerId: subscriptionData.customerId || null,
-              webhookRequestId
+            restoreCredits: null
+          };
+          
+          // Update V2 (always)
+          await creditsV2Service.disableProSubscription(subscriptionUserId, disableProOptions);
+          
+          // Update V3 if enabled
+          if (config.creditsV3.enabled) {
+            try {
+              const creditsV3Service = require('./credits-v3-service');
+              await creditsV3Service.disableProSubscription(subscriptionUserId, disableProOptions);
+              logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription disabled from webhook');
+            } catch (v3Error) {
+              logger.warn({ webhookRequestId, userId: subscriptionUserId, error: v3Error.message }, '[lemon-routes] Failed to disable V3 subscription (non-critical)');
             }
-          });
+          }
           
           // Record activity (already done in disableProSubscription, but adding here for webhook context)
           try {
