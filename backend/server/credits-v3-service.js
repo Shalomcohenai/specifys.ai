@@ -53,8 +53,11 @@ function getDefaultCredits(userId) {
     metadata: {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      migratedFrom: null,
+      migrationTimestamp: null,
       lastCreditGrant: null,
-      lastCreditConsume: null
+      lastCreditConsume: null,
+      welcomeCreditGranted: false
     }
   };
   
@@ -98,6 +101,8 @@ function getInitialCreditsForNewUser(userId) {
     metadata: {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      migratedFrom: null,
+      migrationTimestamp: null,
       lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
       lastCreditConsume: null,
       welcomeCreditGranted: true  // Flag to prevent duplicate grants

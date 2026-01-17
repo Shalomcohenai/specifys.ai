@@ -7,6 +7,17 @@
 (function() {
   'use strict';
 
+  // Allow local override to use V3 credits endpoint (safe default stays on V2)
+  // Note: V3 endpoint is only available if CREDITS_V3_ENABLED=true on server
+  let apiBasePath = '/api/v2/credits';
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('credits_use_v3') === 'true') {
+      apiBasePath = '/api/v3/credits';
+    }
+  } catch (e) {
+    // Ignore storage access errors (e.g., blocked in some privacy modes)
+  }
+
   // Credits configuration object
   window.CREDITS_CONFIG = window.CREDITS_CONFIG || {
     // Default credit values
@@ -18,7 +29,7 @@
     cacheTTL: 5 * 60 * 1000, // 5 minutes
     
     // API settings
-    apiBasePath: '/api/v2/credits',
+    apiBasePath: apiBasePath,
     
     // Feature flags
     features: {

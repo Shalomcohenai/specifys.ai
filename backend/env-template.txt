@@ -73,6 +73,21 @@ LEMON_SQUEEZY_STORE_ID=your_store_id_here
 LEMON_WEBHOOK_SECRET=your_webhook_secret_here
 
 # ============================================
+# Credits System V3 (Optional / Feature Flag)
+# ============================================
+# Enable the Credits V3 system (mounts /api/v3/credits and enables V3 sync in webhooks)
+# Options: true, false
+# Default: false
+CREDITS_V3_ENABLED=false
+
+# Migration mode:
+# - parallel: V2 + V3 run together (recommended during rollout)
+# - v3_only:  only V3 should be considered authoritative (advanced)
+# - v2_only:  force V2 only (advanced)
+# Default: parallel
+CREDITS_V3_MIGRATION_MODE=parallel
+
+# ============================================
 # OpenAI Configuration
 # ============================================
 # OpenAI API Key

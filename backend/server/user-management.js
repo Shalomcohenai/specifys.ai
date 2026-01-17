@@ -1,6 +1,7 @@
 const { db, auth } = require('./firebase-admin');
 const admin = require('firebase-admin');
 const { recordUserRegistration } = require('./admin-activity-service');
+const config = require('./config');
 const MAX_REPORT_SAMPLE = 50;
 let lastUserSyncReport = null;
 
@@ -128,6 +129,13 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         console.log(`[user-management] User ${uid}: Step 2 - Loading credits service...`);
         const creditsV2Service = require('./credits-v2-service');
         console.log(`[user-management] User ${uid}: Credits service loaded successfully`);
+
+        // Optionally load Credits V3 service (feature-flagged)
+        const creditsV3Enabled = config?.creditsV3?.enabled === true;
+        const creditsV3Service = creditsV3Enabled ? require('./credits-v3-service') : null;
+        if (creditsV3Enabled) {
+            console.log(`[user-management] User ${uid}: Credits V3 enabled - will initialize user_credits_v3 in parallel`);
+        }
         
         // Store authUser.creationTime for use inside transaction
         const authCreationTime = authUser.creationTime ? (authUser.creationTime instanceof Date ? authUser.creationTime : new Date(authUser.creationTime)) : null;
@@ -137,18 +145,27 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             console.log(`[user-management] User ${uid}: Inside transaction - Getting document references...`);
             const userRef = db.collection('users').doc(uid);
             const creditsRef = db.collection('user_credits').doc(uid);
+            const creditsV3Ref = creditsV3Enabled ? db.collection('user_credits_v3').doc(uid) : null;
             
             // Get user and credits documents in parallel
-            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, user_credits)...`);
-            const [userDoc, creditsDoc] = await Promise.all([
+            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, user_credits${creditsV3Enabled ? ', user_credits_v3' : ''})...`);
+            const docPromises = [
                 transaction.get(userRef),
                 transaction.get(creditsRef)
-            ]);
+            ];
+            if (creditsV3Enabled && creditsV3Ref) {
+                docPromises.push(transaction.get(creditsV3Ref));
+            }
+            const docs = await Promise.all(docPromises);
+            const userDoc = docs[0];
+            const creditsDoc = docs[1];
+            const creditsV3Doc = creditsV3Enabled ? docs[2] : null;
             
             const userExists = userDoc.exists;
             const creditsExist = creditsDoc.exists;
+            const creditsV3Exist = creditsV3Enabled ? (creditsV3Doc && creditsV3Doc.exists) : false;
             
-            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, creditsExist=${creditsExist}`);
+            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, creditsExist=${creditsExist}${creditsV3Enabled ? `, creditsV3Exist=${creditsV3Exist}` : ''}`);
             
             // Determine if this is a new user - prioritize isNewUserFromClient flag
             // If both documents exist, user is definitely not new (unless client explicitly says otherwise)
@@ -157,7 +174,9 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             
             // If all documents exist AND user is NOT new (client didn't say it's new), check if welcome credit was granted
             // This optimization prevents unnecessary processing for existing users, but still checks for welcome credit
-            if (userExists && creditsExist && isNewUserFromClient !== true) {
+            // Optimization: return early only if user is fully initialized for all enabled systems
+            // If Credits V3 is enabled, ensure user_credits_v3 exists before returning early.
+            if (userExists && creditsExist && isNewUserFromClient !== true && (!creditsV3Enabled || creditsV3Exist)) {
                 const existingCredits = creditsDoc.data();
                 const existingTotal = (existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0);
                 const welcomeCreditGranted = existingCredits.metadata?.welcomeCreditGranted || false;
@@ -382,6 +401,93 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 } else {
                     console.log(`[user-management] User ${uid}: Credits already properly initialized, no update needed`);
                 }
+            }
+
+            // Initialize user_credits_v3 atomically in the SAME transaction (feature-flagged)
+            // This ensures new users receive the welcome credit in V3 as well, and existing users can be backfilled safely.
+            if (creditsV3Enabled && creditsV3Ref && creditsV3Service) {
+                console.log(`[user-management] User ${uid}: Step 5b - Handling user_credits_v3 document (V3 enabled)...`);
+                
+                let finalCreditsV3 = null;
+                
+                if (!creditsV3Exist) {
+                    console.log(`[user-management] User ${uid}: user_credits_v3 document does NOT exist, creating...`);
+                    
+                    if (isNewUser) {
+                        const initialCreditsV3 = creditsV3Service.getInitialCreditsForNewUser(uid);
+                        transaction.set(creditsV3Ref, initialCreditsV3);
+                        finalCreditsV3 = initialCreditsV3;
+                        console.log(`[user-management] User ${uid}: ✅ NEW USER - user_credits_v3 SET in transaction with 1 free welcome credit`);
+                    } else {
+                        // Best-effort backfill for existing users: migrate balances from V2 credits if available.
+                        // This does NOT replace the dedicated migration script, but prevents V3 from defaulting to 0 credits.
+                        const migratedCreditsV3 = creditsV3Service.getDefaultCredits(uid);
+                        
+                        if (finalCredits && finalCredits.balances) {
+                            migratedCreditsV3.balances = {
+                                paid: finalCredits.balances.paid || 0,
+                                free: finalCredits.balances.free || 0,
+                                bonus: finalCredits.balances.bonus || 0
+                            };
+                        }
+                        
+                        // Copy minimal subscription/permissions if present (safe defaults otherwise)
+                        if (finalCredits && finalCredits.subscription) {
+                            migratedCreditsV3.subscription = {
+                                ...migratedCreditsV3.subscription,
+                                ...(finalCredits.subscription || {})
+                            };
+                        }
+                        if (finalCredits && finalCredits.permissions) {
+                            migratedCreditsV3.permissions = {
+                                ...migratedCreditsV3.permissions,
+                                ...(finalCredits.permissions || {})
+                            };
+                        }
+                        
+                        // Mark as migrated/backfilled from V2 for audit/debug
+                        migratedCreditsV3.metadata = {
+                            ...(migratedCreditsV3.metadata || {}),
+                            migratedFrom: 'v2',
+                            migrationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                            welcomeCreditGranted: finalCredits?.metadata?.welcomeCreditGranted === true
+                        };
+                        
+                        transaction.set(creditsV3Ref, migratedCreditsV3);
+                        finalCreditsV3 = migratedCreditsV3;
+                        console.log(`[user-management] User ${uid}: ⚠️ EXISTING USER - user_credits_v3 SET via best-effort backfill from V2`);
+                    }
+                } else {
+                    finalCreditsV3 = creditsV3Doc.data();
+                    const existingTotalV3 = (finalCreditsV3.balances?.paid || 0) + (finalCreditsV3.balances?.free || 0) + (finalCreditsV3.balances?.bonus || 0);
+                    const welcomeCreditGrantedV3 = finalCreditsV3.metadata?.welcomeCreditGranted || false;
+                    
+                    // If new user is detected but V3 welcome credit wasn't granted, grant it.
+                    if (isNewUser && !welcomeCreditGrantedV3) {
+                        console.log(`[user-management] User ${uid}: ⚠️ NEW USER DETECTED - V3 credits exist but welcome credit not granted, granting now`);
+                        transaction.update(creditsV3Ref, {
+                            'balances.free': admin.firestore.FieldValue.increment(1),
+                            'metadata.welcomeCreditGranted': true,
+                            'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
+                            'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+                        });
+                        finalCreditsV3.balances = {
+                            ...(finalCreditsV3.balances || {}),
+                            free: (finalCreditsV3.balances?.free || 0) + 1
+                        };
+                        finalCreditsV3.metadata = {
+                            ...(finalCreditsV3.metadata || {}),
+                            welcomeCreditGranted: true,
+                            lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        };
+                        console.log(`[user-management] User ${uid}: ✅ WELCOME CREDIT GRANTED (V3) - total=${existingTotalV3 + 1}`);
+                    }
+                }
+                
+                // We intentionally do not change the external response shape to keep backward compatibility.
+                // finalCreditsV3 is computed for transactional correctness only.
             }
             
             console.log(`[user-management] User ${uid}: Step 6 - Building result object...`);

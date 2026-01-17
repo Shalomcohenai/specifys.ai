@@ -51,6 +51,40 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ============================
+    // Credits V3 collections
+    // ============================
+
+    // V3: Single source of truth for credits + subscription state
+    match /user_credits_v3/{userId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
+      // Only backend (via Admin SDK) can write
+      allow write: if false;
+    }
+
+    // V3: Subscription archive/logs (not used for runtime decisions)
+    match /subscriptions_v3/{userId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
+      // Only backend (via Admin SDK) can write
+      allow write: if false;
+    }
+
+    // V3: Credit ledger (transaction history)
+    match /credit_ledger_v3/{transactionId} {
+      // Allow read if user owns it (resource.data.userId) or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+      // Only backend (via Admin SDK) can write
+      allow write: if false;
+    }
+
     // UserTools subcollections
     match /userTools/{userId}/{document=**} {
       allow read, write: if request.auth != null && userId == request.auth.uid || isAdmin();
