@@ -259,7 +259,7 @@ export class UserDetailsModal {
         <h3 class="user-details-section-title">
           <i class="fas fa-coins"></i>
           Credits & Usage
-          ${analytics.rawData?.user_credits_v3?.exists ? 
+          ${analytics.rawData?.user_credits_v3?.exists !== false ? 
             '<span class="data-source-badge v3" style="margin-left: 8px;" title="Data from V3 system (user_credits_v3)">V3</span>' : 
             '<span class="data-source-badge v2" style="margin-left: 8px;" title="Data from V2 system (fallback)">V2</span>'
           }

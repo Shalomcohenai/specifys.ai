@@ -344,7 +344,9 @@ export class DataManager {
           
           this.loadingStates.userCredits = false;
           this.errors.delete('userCredits');
-          this.emit('data', { source: 'userCredits', data: Array.from(this.data.userCredits.values()) });
+          const userCreditsArray = Array.from(this.data.userCredits.values());
+          console.log('[DataManager] userCredits loaded from V3 (user_credits_v3):', userCreditsArray.length, 'users');
+          this.emit('data', { source: 'userCredits', data: userCreditsArray });
           this.emit('loading', { source: 'userCredits', loading: false });
         },
         {},
@@ -363,8 +365,10 @@ export class DataManager {
       );
     } catch (error) {
       this.loadingStates.userCredits = false;
+      console.error('[DataManager] Exception loading userCredits from V3 (user_credits_v3):', error);
       if (error?.code === 'permission-denied') {
         // Permission denied for userCredits
+        console.warn('[DataManager] Permission denied for user_credits_v3 collection');
         this.emit('restricted', { source: 'userCredits', error });
       } else {
         this.errors.set('userCredits', error);

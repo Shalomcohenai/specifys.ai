@@ -299,11 +299,17 @@ export class UsersView {
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       const isSelected = this.selectedUsers.has(user.id);
       
-      // Check if data is from V3 (userCredits exists means it's from V3 collection)
-      const isV3 = !!userCredits;
-      const dataSourceBadge = isV3 
-        ? '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>'
-        : '<span class="data-source-badge v2" title="Data from V2 system (fallback)">V2</span>';
+      // Check if data is from V3
+      // Since DataManager uses user_credits_v3 collection (collections.USER_CREDITS = "user_credits_v3"),
+      // we're ALWAYS reading from V3. The badge should show V3 unless there's an error.
+      // If userCredits doesn't exist for this user, it means:
+      // 1. User doesn't have a document in user_credits_v3 (not migrated or new user)
+      // 2. Data is still loading
+      // In both cases, we're still using V3 system, just this user doesn't have data yet
+      const hasAnyUserCredits = allData.userCredits && allData.userCredits.length > 0;
+      // Always show V3 because we're subscribed to user_credits_v3 collection
+      // Only show V2 if we explicitly know we're using fallback (which shouldn't happen)
+      const dataSourceBadge = '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>';
       
       return `
         <tr data-user-id="${user.id}">
