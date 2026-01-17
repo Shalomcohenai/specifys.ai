@@ -320,7 +320,7 @@ export class UserDetailsModal {
           <i class="fas fa-credit-card"></i>
           Subscription Information
           ${analytics.subscription?.subscriptionId ? `
-            <button class="refresh-subscription-btn" id="refresh-subscription-btn" title="Refresh subscription data from Lemon Squeezy API" style="margin-left: auto; padding: 6px 12px; background: var(--admin-accent, #4f46e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+            <button class="refresh-subscription-btn" id="refresh-subscription-btn" title="Refresh subscription data from Lemon Squeezy API">
               <i class="fas fa-sync-alt"></i>
               Refresh
             </button>

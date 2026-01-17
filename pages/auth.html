@@ -71,9 +71,6 @@
     <!-- CSS Monitoring Script - Deferred -->
     <script defer src="/assets/js/css-monitor.js"></script>
     
-    <!-- App Logger - Must load before auth scripts for logging -->
-    <script src="/assets/js/app-logger.js"></script>
-    
     <!-- Credits Configuration - Must load before auth scripts -->
     <script src="/assets/js/credits-config.js"></script>
     
@@ -340,16 +337,10 @@
         };
 
         // Initialize Firebase
-        console.log('[AUTH] Initializing Firebase...');
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
-        console.log('[AUTH] Firebase initialized successfully');
-        if (window.appLogger) {
-            window.appLogger.logAuthEvent('FirebaseInitialized');
-        }
-        
         const privacyPolicyCheckbox = document.getElementById('privacy-policy-agreement');
         const privacyPolicyGroup = document.getElementById('privacy-policy-group');
         const privacyPolicyError = document.getElementById('privacy-policy-error');
@@ -359,48 +350,28 @@
         
         // Listen for auth state changes (this catches redirect results)
         onAuthStateChanged(auth, async (user) => {
-            console.log('[AUTH] onAuthStateChanged fired', { 
-                hasUser: !!user, 
-                userId: user?.uid, 
-                email: user?.email,
-                isProcessingRedirect 
-            });
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent(user ? 'AuthStateChanged_SignedIn' : 'AuthStateChanged_SignedOut', user?.uid);
-            }
-            
             if (user && !isProcessingRedirect) {
                 // User is signed in - check if this is from a redirect
                 const urlParams = new URLSearchParams(window.location.search);
                 const fromAuth = sessionStorage.getItem('attemptingGoogleSignIn');
                 
-                console.log('[AUTH] onAuthStateChanged - User signed in', {
-                    userId: user.uid,
-                    email: user.email,
-                    fromAuth,
-                    urlParams: window.location.search
-                });
-                
                 // If we were attempting sign in, process it
                 if (fromAuth === 'true') {
-                    console.log('[AUTH] onAuthStateChanged - Processing Google redirect sign-in');
                     isProcessingRedirect = true;
                     sessionStorage.removeItem('attemptingGoogleSignIn');
                     
 
                     
                     try {
-                        console.log('[AUTH] onAuthStateChanged - Starting user document creation (redirect fallback)');
                         // Don't rely on server response for isNewUser here
                         // This is a fallback for redirects, but getRedirectResult should handle it
                         // Only set flag if not already set (to avoid overwriting flags set elsewhere)
                         const existingFlag = sessionStorage.getItem('showCreditPopup');
                         if (!existingFlag) {
                             const result = await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
-                            console.log('[AUTH] onAuthStateChanged - createUserDocument result (fallback):', result);
                             // Only set flag if server says it's a new user AND no flag exists
                             if (result && (result.isNewUser || result.created)) {
-                                console.log('[AUTH] onAuthStateChanged - Setting showCreditPopup flag (fallback)');
+                                console.log('[auth.html] onAuthStateChanged - Setting showCreditPopup flag (fallback)');
                                 sessionStorage.setItem('showCreditPopup', 'true');
                                 // נקה cache
                                 if (typeof window.clearCreditsCache === 'function') {
@@ -410,13 +381,8 @@
                                 sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                             }
                         } else {
-                            console.log('[AUTH] onAuthStateChanged - showCreditPopup flag already exists, not overwriting');
+                            console.log('[auth.html] onAuthStateChanged - showCreditPopup flag already exists, not overwriting');
                             await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
-                        }
-                        
-                        console.log('[AUTH] onAuthStateChanged - Google redirect sign-in completed successfully');
-                        if (window.appLogger) {
-                            window.appLogger.logAuthEvent('GoogleSignIn_RedirectSuccess', user.uid);
                         }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
@@ -424,13 +390,7 @@
                             window.location.href = '../index.html';
                         }, 1500);
                     } catch (error) {
-                        console.error('[AUTH] onAuthStateChanged - Error completing sign-in:', error);
-                        if (window.appLogger) {
-                            window.appLogger.logError(error, { 
-                                context: 'onAuthStateChanged_redirect_fallback',
-                                userId: user?.uid 
-                            });
-                        }
+
                         showError('Error completing sign-in: ' + error.message);
                     }
                 }
@@ -439,24 +399,12 @@
         
         // Handle redirect result when user comes back from Google Sign-In
         (async function checkRedirectResult() {
-            console.log('[AUTH] checkRedirectResult - Starting to check for redirect result');
-            console.log('[AUTH] checkRedirectResult - Current URL:', window.location.href);
-            console.log('[AUTH] checkRedirectResult - URL params:', window.location.search);
-            console.log('[AUTH] checkRedirectResult - SessionStorage attemptingGoogleSignIn:', sessionStorage.getItem('attemptingGoogleSignIn'));
-            console.log('[AUTH] checkRedirectResult - SessionStorage googleSignInTimestamp:', sessionStorage.getItem('googleSignInTimestamp'));
-            
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent('CheckingRedirectResult', null, {
-                    url: window.location.href,
-                    hasAttemptingFlag: !!sessionStorage.getItem('attemptingGoogleSignIn'),
-                    timestamp: sessionStorage.getItem('googleSignInTimestamp')
-                });
-            }
+
+
+
             
             try {
-                console.log('[AUTH] checkRedirectResult - Importing Firebase auth module...');
                 const { getRedirectResult, getAdditionalUserInfo } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-                console.log('[AUTH] checkRedirectResult - Firebase auth module imported successfully');
 
 
                 
@@ -470,14 +418,7 @@
                     document.body.appendChild(loadingDiv);
                     
 
-                    console.log('[AUTH] checkRedirectResult - Calling getRedirectResult...');
                     const result = await getRedirectResult(auth);
-                    console.log('[AUTH] checkRedirectResult - getRedirectResult returned:', {
-                        hasResult: !!result,
-                        hasUser: !!(result?.user),
-                        userId: result?.user?.uid,
-                        email: result?.user?.email
-                    });
                     
                     // Remove loading
                     loadingDiv.remove();
@@ -487,21 +428,14 @@
                         const additionalUserInfo = getAdditionalUserInfo(result);
                         const isNewUser = additionalUserInfo?.isNewUser === true;
                         
-                        console.log('[AUTH] checkRedirectResult (with loading) - User info:', {
-                            isNewUser,
-                            userId: result.user.uid,
-                            email: result.user.email,
-                            additionalUserInfo
-                        });
+                        console.log('[auth.html] getRedirectResult (with loading) - isNewUser from Firebase Auth:', isNewUser);
                         
-                        console.log('[AUTH] checkRedirectResult (with loading) - Creating user document...');
                         // Create user document (but don't rely on its response for isNewUser)
                         await createUserDocument(result.user, isNewUser);
-                        console.log('[AUTH] checkRedirectResult (with loading) - User document created');
                         
                         // Set popup flag based on Firebase Auth's isNewUser
                         if (isNewUser) {
-                            console.log('[AUTH] checkRedirectResult (with loading) - Setting showCreditPopup flag for new user');
+                            console.log('[auth.html] getRedirectResult (with loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
                             // נקה cache
                             if (typeof window.clearCreditsCache === 'function') {
@@ -511,47 +445,29 @@
                             sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                         }
                         
-                        console.log('[AUTH] checkRedirectResult (with loading) - Google redirect sign-in completed successfully');
-                        if (window.appLogger) {
-                            window.appLogger.logAuthEvent(isNewUser ? 'GoogleSignIn_RedirectSuccess_NewUser' : 'GoogleSignIn_RedirectSuccess_ExistingUser', result.user.uid);
-                        }
-                        
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
                             window.location.href = '../index.html';
                         }, 1500);
                     } else {
-                        console.log('[AUTH] checkRedirectResult (with loading) - No redirect result found (user might not have come from redirect)');
+
                     }
                 } else {
-                    console.log('[AUTH] checkRedirectResult - Calling getRedirectResult (without loading)...');
                     const result = await getRedirectResult(auth);
-                    console.log('[AUTH] checkRedirectResult (without loading) - getRedirectResult returned:', {
-                        hasResult: !!result,
-                        hasUser: !!(result?.user),
-                        userId: result?.user?.uid
-                    });
                     
                     if (result && result.user) {
                         // Check if this is a new user using Firebase Auth's additionalUserInfo
                         const additionalUserInfo = getAdditionalUserInfo(result);
                         const isNewUser = additionalUserInfo?.isNewUser === true;
                         
-                        console.log('[AUTH] checkRedirectResult (without loading) - User info:', {
-                            isNewUser,
-                            userId: result.user.uid,
-                            email: result.user.email,
-                            additionalUserInfo
-                        });
+                        console.log('[auth.html] getRedirectResult (without loading) - isNewUser from Firebase Auth:', isNewUser);
                         
-                        console.log('[AUTH] checkRedirectResult (without loading) - Creating user document...');
                         // Create user document (but don't rely on its response for isNewUser)
                         await createUserDocument(result.user, isNewUser);
-                        console.log('[AUTH] checkRedirectResult (without loading) - User document created');
                         
                         // Set popup flag based on Firebase Auth's isNewUser
                         if (isNewUser) {
-                            console.log('[AUTH] checkRedirectResult (without loading) - Setting showCreditPopup flag for new user');
+                            console.log('[auth.html] getRedirectResult (without loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
                             // נקה cache
                             if (typeof window.clearCreditsCache === 'function') {
@@ -561,28 +477,15 @@
                             sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                         }
                         
-                        console.log('[AUTH] checkRedirectResult (without loading) - Google redirect sign-in completed successfully');
-                        if (window.appLogger) {
-                            window.appLogger.logAuthEvent(isNewUser ? 'GoogleSignIn_RedirectSuccess_NewUser' : 'GoogleSignIn_RedirectSuccess_ExistingUser', result.user.uid);
-                        }
-                        
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
                             window.location.href = '../index.html';
                         }, 1500);
                     } else {
-                        console.log('[AUTH] checkRedirectResult (without loading) - No redirect result found (user might not have come from redirect)');
+
                     }
                 }
             } catch (error) {
-                console.error('[AUTH] checkRedirectResult - Error checking redirect result:', error);
-                if (window.appLogger) {
-                    window.appLogger.logError(error, { 
-                        context: 'checkRedirectResult',
-                        errorCode: error.code,
-                        errorMessage: error.message
-                    });
-                }
                 showError('Authentication error: ' + error.message);
             }
             
@@ -595,38 +498,19 @@
             const MAX_RETRIES = 3;
             const RETRY_DELAYS = [500, 1000, 2000]; // ms
             
-            console.log('[AUTH] createUserDocument - Starting', {
-                userId: user?.uid,
-                email: user?.email,
-                isNewUser,
-                retryCount
-            });
-            
             try {
                 // Verify user is still authenticated
                 if (!user) {
-                    console.log('[AUTH] createUserDocument - No user provided, skipping');
                     return; // User logged out, skip initialization
                 }
                 
-                console.log('[AUTH] createUserDocument - Getting ID token...');
                 const token = await user.getIdToken();
-                console.log('[AUTH] createUserDocument - ID token obtained');
-                
                 const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-                console.log('[AUTH] createUserDocument - API base URL:', apiBaseUrl);
                 
                 const requestBody = {};
                 if (isNewUser !== null) {
                     requestBody.isNewUser = isNewUser;
                 }
-                
-                console.log('[AUTH] createUserDocument - Sending request to API', {
-                    url: `${apiBaseUrl}/api/users/initialize`,
-                    method: 'POST',
-                    hasToken: !!token,
-                    requestBody
-                });
                 
                 const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
                     method: 'POST',
@@ -636,50 +520,27 @@
                     },
                     body: JSON.stringify(requestBody)
                 });
-                
-                console.log('[AUTH] createUserDocument - API response received', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok
-                });
 
                 if (response.status === 404) {
-                    console.log('[AUTH] createUserDocument - API endpoint not found (404), skipping');
                     // Endpoint doesn't exist - silently return (might be development or endpoint not deployed)
                     // Don't retry on 404 - it won't help
                     return null;
                 }
 
                 if (!response.ok) {
-                    console.error('[AUTH] createUserDocument - API request failed', {
-                        status: response.status,
-                        statusText: response.statusText
-                    });
                     const errorData = await response.json().catch(() => ({}));
-                    const errorMessage = errorData.error || `HTTP ${response.status}`;
-                    console.error('[AUTH] createUserDocument - Error data:', errorData);
-                    throw new Error(errorMessage);
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
 
                 const result = await response.json();
-                console.log('[AUTH] createUserDocument - API request successful', {
-                    result: result,
-                    isNewUser: result.isNewUser,
-                    created: result.created,
-                    success: result.success
-                });
+                console.log('[auth.html] createUserDocument - Full response:', JSON.stringify(result, null, 2));
+                console.log('[auth.html] createUserDocument - result.isNewUser:', result.isNewUser, 'type:', typeof result.isNewUser);
+                console.log('[auth.html] createUserDocument - result.created:', result.created, 'type:', typeof result.created);
+                console.log('[auth.html] createUserDocument - result.success:', result.success);
                 return result;
             } catch (error) {
-                console.error('[AUTH] createUserDocument - Error:', {
-                    message: error.message,
-                    stack: error.stack,
-                    retryCount,
-                    maxRetries: MAX_RETRIES
-                });
-                
                 // Don't retry on network errors that suggest the endpoint doesn't exist
                 if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
-                    console.log('[AUTH] createUserDocument - Network/404 error, not retrying');
                     // Silently return - endpoint might not be available
                     return null;
                 }
@@ -687,12 +548,9 @@
                 // Retry on other failures
                 if (retryCount < MAX_RETRIES) {
                     const delay = RETRY_DELAYS[retryCount] || 2000;
-                    console.log(`[AUTH] createUserDocument - Retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return createUserDocument(user, isNewUser, retryCount + 1);
                 }
-                
-                console.error('[AUTH] createUserDocument - Max retries reached, throwing error');
                 // Re-throw after max retries (only for non-404 errors)
                 throw error;
             }
@@ -766,18 +624,10 @@
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', function() {
-                    console.log('[AUTH] Google login button clicked');
                     if (window.loginWithGoogle) {
                         window.loginWithGoogle();
-                    } else {
-                        console.error('[AUTH] window.loginWithGoogle function not available!');
-                        if (window.appLogger) {
-                            window.appLogger.logError(new Error('window.loginWithGoogle not available'), { context: 'googleLoginButton_click' });
-                        }
                     }
                 });
-            } else {
-                console.error('[AUTH] Google login button not found in DOM!');
             }
         });
 
@@ -894,30 +744,19 @@
 
         // Auth functions
         async function registerWithEmail(email, password) {
-            console.log('[AUTH] registerWithEmail - Starting registration', { email: email?.substring(0, 3) + '***' });
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent('EmailRegistration_Initiated');
-            }
-            
             try {
-                console.log('[AUTH] registerWithEmail - Calling createUserWithEmailAndPassword...');
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                console.log('[AUTH] registerWithEmail - User created successfully', {
-                    userId: userCredential.user.uid,
-                    email: userCredential.user.email
-                });
+                console.log('[auth.html] registerWithEmail - user created, calling createUserDocument for user:', userCredential.user.uid);
                 
                 // createUserWithEmailAndPassword always creates a new user, so this is always a new user
                 const isNewUser = true;
                 console.log('[auth.html] registerWithEmail - isNewUser (always true for registration):', isNewUser);
                 
-                console.log('[AUTH] registerWithEmail - Creating user document...');
                 // Create user document (but don't rely on its response for isNewUser)
                 await createUserDocument(userCredential.user, true); // תמיד true ל-registration
-                console.log('[AUTH] registerWithEmail - User document created');
                 
                 // Set popup flag - registration always means new user
-                console.log('[AUTH] registerWithEmail - Setting showCreditPopup flag to true');
+                console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag to true');
                 sessionStorage.setItem('showCreditPopup', 'true');
                 // נקה cache
                 if (typeof window.clearCreditsCache === 'function') {
@@ -925,125 +764,62 @@
                 }
                 // שמור flag לעדכון תצוגה ב-index.html
                 sessionStorage.setItem('refreshCreditsOnLoad', 'true');
-                console.log('[AUTH] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
-                
-                console.log('[AUTH] registerWithEmail - Registration completed successfully');
-                if (window.appLogger) {
-                    window.appLogger.logAuthEvent('EmailRegistration_Success', userCredential.user.uid);
-                }
+                console.log('[auth.html] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
                 
                 return userCredential.user;
             } catch (error) {
-                console.error('[AUTH] registerWithEmail - Error:', {
-                    code: error.code,
-                    message: error.message,
-                    stack: error.stack
-                });
-                if (window.appLogger) {
-                    window.appLogger.logError(error, { 
-                        context: 'registerWithEmail',
-                        errorCode: error.code
-                    });
-                }
+                console.error('[auth.html] registerWithEmail error:', error);
                 throw new Error(getAuthErrorMessage(error.code));
             }
         }
 
         async function loginWithEmail(email, password) {
-            console.log('[AUTH] loginWithEmail - Starting email login', { email: email?.substring(0, 3) + '***' });
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent('EmailLogin_Initiated');
-            }
-            
             try {
-                console.log('[AUTH] loginWithEmail - Calling signInWithEmailAndPassword...');
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                console.log('[AUTH] loginWithEmail - Sign-in successful', {
-                    userId: userCredential.user.uid,
-                    email: userCredential.user.email
-                });
-                
-                console.log('[AUTH] loginWithEmail - Creating user document...');
                 await createUserDocument(userCredential.user, null); // null כי אין לנו isNewUser כאן
-                console.log('[AUTH] loginWithEmail - User document created');
-                
-                console.log('[AUTH] loginWithEmail - Email login completed successfully');
-                if (window.appLogger) {
-                    window.appLogger.logAuthEvent('EmailLogin_Success', userCredential.user.uid);
-                }
-                
                 return userCredential.user;
             } catch (error) {
-                console.error('[AUTH] loginWithEmail - Error:', {
-                    code: error.code,
-                    message: error.message,
-                    stack: error.stack
-                });
-                if (window.appLogger) {
-                    window.appLogger.logError(error, { 
-                        context: 'loginWithEmail',
-                        errorCode: error.code
-                    });
-                }
                 throw new Error(getAuthErrorMessage(error.code));
             }
         }
 
         async function loginWithGoogle(useRedirect = false) {
-            console.log('[AUTH] loginWithGoogle - Starting', { useRedirect });
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent('GoogleSignIn_Initiated', null, { method: useRedirect ? 'redirect' : 'popup' });
-            }
 
             try {
                 if (useRedirect) {
-                    console.log('[AUTH] loginWithGoogle - Using redirect method');
-                    sessionStorage.setItem('attemptingGoogleSignIn', 'true');
-                    
+
                     const { signInWithRedirect } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-                    console.log('[AUTH] loginWithGoogle - Calling signInWithRedirect...');
                     await signInWithRedirect(auth, googleProvider);
-                    console.log('[AUTH] loginWithGoogle - signInWithRedirect called, redirecting...');
                     // This will redirect away, so no code after this will run
                     return;
                 }
                 
-                console.log('[AUTH] loginWithGoogle - Using popup method');
+                
                 // Add a small delay to ensure popup is not blocked
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                console.log('[AUTH] loginWithGoogle - Calling signInWithPopup...');
+
+                
                 // Monitor the popup
                 const popupPromise = signInWithPopup(auth, googleProvider);
-                console.log('[AUTH] loginWithGoogle - signInWithPopup called, waiting for result...');
+                
+                // Check if popup opened
+
                 
                 const result = await popupPromise;
-                console.log('[AUTH] loginWithGoogle - signInWithPopup completed', {
-                    hasResult: !!result,
-                    hasUser: !!(result?.user),
-                    userId: result?.user?.uid,
-                    email: result?.user?.email
-                });
                 
                 // Check if this is a new user using Firebase Auth's additionalUserInfo
                 const additionalUserInfo = getAdditionalUserInfo(result);
                 const isNewUser = additionalUserInfo?.isNewUser === true;
                 
-                console.log('[AUTH] loginWithGoogle - User info:', {
-                    isNewUser,
-                    userId: result.user.uid,
-                    email: result.user.email,
-                    additionalUserInfo
-                });
+                console.log('[auth.html] signInWithGoogle - isNewUser from Firebase Auth:', isNewUser);
                 
-                console.log('[AUTH] loginWithGoogle - Creating user document...');
                 // Create user document (but don't rely on its response for isNewUser)
                 await createUserDocument(result.user, isNewUser);
-                console.log('[AUTH] loginWithGoogle - User document created');
                 
                 // Set popup flag based on Firebase Auth's isNewUser
                 if (isNewUser) {
-                    console.log('[AUTH] loginWithGoogle - Setting showCreditPopup flag for new user');
+                    console.log('[auth.html] signInWithGoogle - Setting showCreditPopup flag for new user');
                     sessionStorage.setItem('showCreditPopup', 'true');
                     // נקה cache
                     if (typeof window.clearCreditsCache === 'function') {
@@ -1053,29 +829,12 @@
                     sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                 }
 
-                console.log('[AUTH] loginWithGoogle - Google popup sign-in completed successfully');
-                if (window.appLogger) {
-                    window.appLogger.logAuthEvent(isNewUser ? 'GoogleSignIn_PopupSuccess_NewUser' : 'GoogleSignIn_PopupSuccess_ExistingUser', result.user.uid);
-                }
                 
                 return result.user;
             } catch (error) {
-                console.error('[AUTH] loginWithGoogle - Error:', {
-                    code: error.code,
-                    message: error.message,
-                    stack: error.stack
-                });
-                if (window.appLogger) {
-                    window.appLogger.logError(error, { 
-                        context: 'loginWithGoogle',
-                        method: useRedirect ? 'redirect' : 'popup',
-                        errorCode: error.code
-                    });
-                }
-                
                 // If popup was closed, suggest redirect method
                 if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/popup-blocked') {
-                    console.log('[AUTH] loginWithGoogle - Popup blocked/closed, user might want to try redirect method');
+
                 }
                 
                 throw new Error(getAuthErrorMessage(error.code));
@@ -1126,7 +885,6 @@
                     window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {
-                console.error('[AUTH] Login form submit error:', error);
                 showError(error.message);
             } finally {
                 btn.disabled = false;
@@ -1163,20 +921,19 @@
             
             try {
                 const user = await registerWithEmail(email, password);
-                console.log('[AUTH] Registration form - registerWithEmail completed for user:', user.uid);
+                console.log('[auth.html] Registration form - registerWithEmail completed for user:', user.uid);
                 
                 // Double-check that showCreditPopup is set before redirect
                 const popupFlag = sessionStorage.getItem('showCreditPopup');
-                console.log('[AUTH] Registration form - Before redirect, showCreditPopup:', popupFlag);
+                console.log('[auth.html] Registration form - Before redirect, showCreditPopup:', popupFlag);
                 
                 showSuccess('Registration successful! Redirecting to homepage...');
                 setTimeout(() => {
-                    console.log('[AUTH] Registration form - Redirecting to index.html...');
-                    console.log('[AUTH] Registration form - Final check, showCreditPopup:', sessionStorage.getItem('showCreditPopup'));
+                    console.log('[auth.html] Registration form - Redirecting to index.html...');
+                    console.log('[auth.html] Registration form - Final check, showCreditPopup:', sessionStorage.getItem('showCreditPopup'));
                     window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {
-                console.error('[AUTH] Registration form submit error:', error);
                 showError(error.message);
             } finally {
                 btn.disabled = false;
@@ -1202,62 +959,54 @@
             // Removed popup test - was opening extra window
         }
         
-        // Google login - Try redirect method first (more reliable than popup)
+        // Google login - SYNCHRONOUS to avoid popup blocker
         window.loginWithGoogle = function() {
-            console.log('[AUTH] window.loginWithGoogle - Button clicked, starting Google login');
-            console.log('[AUTH] window.loginWithGoogle - User agent:', navigator.userAgent);
-            console.log('[AUTH] window.loginWithGoogle - Window focus state:', document.hasFocus());
+
             
-            if (window.appLogger) {
-                window.appLogger.logAuthEvent('GoogleSignIn_ButtonClicked');
-                window.appLogger.logUserAction('GoogleSignIn_ButtonClick', {
-                    userAgent: navigator.userAgent,
-                    hasFocus: document.hasFocus()
+            // Check compatibility first
+            checkBrowserCompatibility();
+            
+            // Call signInWithPopup IMMEDIATELY (synchronously) from user click
+            // This prevents popup blockers
+
+
+
+            
+
+            const popupPromise = signInWithPopup(auth, googleProvider);
+
+            
+            popupPromise
+                .then(async (result) => {
+                    // Check if this is a new user using Firebase Auth's additionalUserInfo
+                    const additionalUserInfo = getAdditionalUserInfo(result);
+                    const isNewUser = additionalUserInfo?.isNewUser === true;
+                    const createResult = await createUserDocument(result.user, isNewUser);
+                    // Set popup flag if this is a new user (from Firebase Auth or server response as fallback)
+                    if (isNewUser || (createResult && createResult.isNewUser)) {
+                        sessionStorage.setItem('showCreditPopup', 'true');
+                        // נקה cache
+                        if (typeof window.clearCreditsCache === 'function') {
+                            window.clearCreditsCache();
+                        }
+                        // שמור flag לעדכון תצוגה ב-index.html
+                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                    }
+                    
+                    showSuccess('Login successful! Redirecting to homepage...');
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/popup-blocked') {
+                        showError('Popup was blocked. Please allow popups for this site and try again.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        showError('Sign-in cancelled.');
+                    } else {
+                        showError(getAuthErrorMessage(error.code) || 'Authentication failed. Please try again.');
+                    }
                 });
-            }
-            
-            // Use redirect method instead of popup for better reliability
-            // This avoids popup blockers and works more consistently across browsers
-            console.log('[AUTH] window.loginWithGoogle - Using REDIRECT method (more reliable than popup)');
-            console.log('[AUTH] window.loginWithGoogle - Setting sessionStorage flag for redirect...');
-            
-            sessionStorage.setItem('attemptingGoogleSignIn', 'true');
-            sessionStorage.setItem('googleSignInTimestamp', Date.now().toString());
-            
-            // Use redirect - this is more reliable than popup
-            (async () => {
-                try {
-                    const { signInWithRedirect } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-                    console.log('[AUTH] window.loginWithGoogle - Imported signInWithRedirect');
-                    console.log('[AUTH] window.loginWithGoogle - Calling signInWithRedirect now...');
-                    
-                    if (window.appLogger) {
-                        window.appLogger.logAuthEvent('GoogleSignIn_RedirectInitiated');
-                    }
-                    
-                    await signInWithRedirect(auth, googleProvider);
-                    console.log('[AUTH] window.loginWithGoogle - signInWithRedirect called successfully, redirecting...');
-                    // This will redirect away, so no code after this will run
-                } catch (error) {
-                    console.error('[AUTH] window.loginWithGoogle - Error initiating redirect:', {
-                        code: error.code,
-                        message: error.message,
-                        stack: error.stack
-                    });
-                    
-                    sessionStorage.removeItem('attemptingGoogleSignIn');
-                    sessionStorage.removeItem('googleSignInTimestamp');
-                    
-                    if (window.appLogger) {
-                        window.appLogger.logError(error, { 
-                            context: 'window.loginWithGoogle_redirect_init',
-                            errorCode: error.code
-                        });
-                    }
-                    
-                    showError('Failed to start Google sign-in: ' + (error.message || 'Unknown error'));
-                }
-            })();
         };
 
         // Privacy Modal Functions
