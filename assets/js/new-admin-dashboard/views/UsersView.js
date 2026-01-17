@@ -5,6 +5,7 @@
 
 import { helpers } from '../utils/helpers.js';
 import { apiService } from '../services/ApiService.js';
+import { UserDetailsModal } from '../components/UserDetailsModal.js';
 
 export class UsersView {
   constructor(dataManager, stateManager) {
@@ -14,6 +15,7 @@ export class UsersView {
     this.currentPage = 1;
     this.perPage = 25;
     this.selectedUsers = new Set();
+    this.userDetailsModal = new UserDetailsModal();
     
     this.init();
   }
@@ -634,18 +636,14 @@ export class UsersView {
   }
   
   /**
-   * View user details - opens in new window
+   * View user details - opens in modal
    */
   async viewUser(userId) {
     // Viewing user details
     
     try {
-      // Fetch user analytics data
-      const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
-      const analytics = data.analytics;
-      
-      // Open new window with user details
-      this.openUserDetailsWindow(userId, analytics);
+      // Show user details modal
+      await this.userDetailsModal.show(userId);
     } catch (error) {
       console.error('[UsersView] Error loading user data:', error);
       alert(`Error loading user details: ${error.message}`);
