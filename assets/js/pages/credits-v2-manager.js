@@ -44,7 +44,7 @@
     /**
      * Make API request with fallback to old API
      */
-    async apiRequest(method, path, body = null) {
+    async apiRequest(method, path, body = null, retries = 2) {
       const token = await this.getAuthToken();
       const apiBaseUrl = this.getApiBaseUrl();
       
@@ -63,14 +63,38 @@
         options.body = JSON.stringify(body);
       }
 
-      const response = await fetch(url, options);
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-        throw new Error(error.message || `API error: ${response.status}`);
-      }
+      // Retry logic for network errors or rate limiting
+      let lastError;
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const response = await fetch(url, options);
+          
+          // Handle rate limiting (429) - wait and retry
+          if (response.status === 429 && attempt < retries) {
+            const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue; // Retry
+          }
+          
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+            throw new Error(error.message || `API error: ${response.status}`);
+          }
 
-      return await response.json();
+          return await response.json();
+        } catch (error) {
+          lastError = error;
+          // Only retry on network errors or rate limiting
+          if (attempt < retries && (error.message.includes('fetch') || error.message.includes('429'))) {
+            const waitTime = Math.pow(2, attempt) * 1000;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
+          }
+          throw error;
+        }
+      }
+      
+      throw lastError || new Error('API request failed after retries');
     }
 
     /**

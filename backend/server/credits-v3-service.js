@@ -405,47 +405,8 @@ async function consumeCredit(userId, specId, options = {}) {
     // Ensure user_credits exists
     await getUserCredits(userId);
     
-    // Check if user already has a spec BEFORE transaction (can't use queries in transaction)
-    let existingSpecId = null;
-    let creditAlreadyConsumed = false;
-    
-    if (specId.startsWith('temp-')) {
-      // Check if user already has a spec
-      const specsQuery = db.collection('specs').where('userId', '==', userId).limit(1);
-      const existingSpecsSnapshot = await specsQuery.get();
-      
-      if (!existingSpecsSnapshot.empty) {
-        existingSpecId = existingSpecsSnapshot.docs[0].id;
-        logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V3] User already has a spec, checking if credit was consumed...');
-        
-        // Check if credit was already consumed recently (within last 10 minutes)
-        const tenMinutesAgo = admin.firestore.Timestamp.fromMillis(Date.now() - 10 * 60 * 1000);
-        const ledgerQuery = db.collection(LEDGER_COLLECTION_V3)
-          .where('userId', '==', userId)
-          .where('type', '==', 'consume')
-          .where('timestamp', '>=', tenMinutesAgo)
-          .orderBy('timestamp', 'desc')
-          .limit(1);
-        const ledgerSnapshot = await ledgerQuery.get();
-        
-        if (!ledgerSnapshot.empty) {
-          creditAlreadyConsumed = true;
-          logger.info({ requestId, userId, existingSpecId }, '[CREDITS-V3] Credit already consumed recently for this user, returning success (idempotency)');
-          const ledgerEntry = ledgerSnapshot.docs[0].data();
-          const credits = await getUserCredits(userId);
-          const remaining = calculateTotal(credits.balances);
-          
-          return {
-            success: true,
-            alreadyProcessed: true,
-            transactionId: ledgerEntry.id,
-            remaining: remaining,
-            creditType: ledgerEntry.creditType || 'free',
-            unlimited: false
-          };
-        }
-      }
-    }
+    // Note: Idempotency is handled in the transaction below using transactionId
+    // No need to check ledger before transaction - transaction itself checks idempotency
     
     // Use Firestore transaction for atomic credit consumption
     logger.debug({ requestId, userId, specId, transactionId }, '[CREDITS-V3] Before runTransaction');
@@ -460,12 +421,25 @@ async function consumeCredit(userId, specId, options = {}) {
       if (existingLedgerDoc.exists) {
         const existing = existingLedgerDoc.data();
         logger.info({ requestId, transactionId }, '[CREDITS-V3] Transaction already processed (consume)');
+        // Calculate remaining from balanceAfter in ledger, or get current credits
+        let remaining = null;
+        if (existing.balanceAfter) {
+          remaining = calculateTotal(existing.balanceAfter);
+        } else {
+          // Fallback: get current credits total
+          const creditsRef = db.collection(CREDITS_COLLECTION_V3).doc(userId);
+          const creditsDoc = await transaction.get(creditsRef);
+          if (creditsDoc.exists) {
+            const credits = creditsDoc.data();
+            remaining = credits.total !== undefined ? credits.total : calculateTotal(credits.balances || {});
+          }
+        }
         return {
           success: true,
           alreadyProcessed: true,
           transactionId: transactionId,
-          remaining: existing.balanceAfter ? calculateTotal(existing.balanceAfter) : null,
-          creditType: existing.creditType,
+          remaining: remaining,
+          creditType: existing.creditType || 'free',
           unlimited: false
         };
       }
