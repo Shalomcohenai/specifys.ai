@@ -212,9 +212,8 @@ async function listSubscriptions({ fetch, apiKey, storeId, status, mode, filters
 async function fetchSubscriptionById({ fetch, apiKey, subscriptionId, storeId, logger, requestId }) {
   const log = buildLogger(logger, requestId);
   const searchParams = new URLSearchParams();
-  if (storeId) {
-    searchParams.append('filter[store_id]', storeId.toString());
-  }
+  // Note: filter[store_id] is not valid for GET by ID endpoints - only for list queries
+  // Only include parameter is needed for getting related order data
   searchParams.append('include', 'order');
 
   const url = `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}?${searchParams.toString()}`;
