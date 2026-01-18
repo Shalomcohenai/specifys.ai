@@ -100,33 +100,74 @@ function buildSubscriptionUpdateFromRecord(record, existingData, admin) {
   const relationships = record.relationships || {};
   const normalizedStatus = normalizeStatus(attributes.status);
   const cancelAtPeriodEnd = attributes.cancel_at_period_end ?? attributes.cancelled ?? false;
-  const endsAt =
-    attributes.ends_at ||
-    attributes.ends_at_formatted ||
-    attributes.cancelled_at ||
-    null;
+  
+  // Extract all fields as per Lemon Squeezy API documentation
+  // https://docs.lemonsqueezy.com/api/subscriptions/retrieve-subscription
+  const endsAt = attributes.ends_at || attributes.ends_at_formatted || null;
   const renewsAt = attributes.renews_at || null;
   const orderId = extractOrderIdFromRecord(record);
   const variantId = extractVariantId(record);
   const productId = extractProductId(record);
   const storeId = attributes.store_id || relationships?.store?.data?.id || null;
   const customerId = attributes.customer_id || null;
+  
+  // Extract order_item_id (from attributes as per documentation)
+  const orderItemId = attributes.order_item_id || null;
 
   const existingMetadata = existingData?.metadata || {};
   const mergedMetadata = mergeMetadata(existingMetadata, {
     lemonCustomerId: customerId || existingMetadata.lemonCustomerId || null,
-    lastOrderId: orderId || existingMetadata.lastOrderId || null
+    lastOrderId: orderId || existingMetadata.lastOrderId || null,
+    orderItemId: orderItemId || existingMetadata.orderItemId || null
   });
 
+  // Build complete update payload with ALL fields from API documentation
   const updatePayload = {
     lemon_subscription_id: record.id.toString(),
+    
+    // Basic IDs (from documentation)
     status: normalizedStatus || existingData?.status || null,
     variant_id: variantId ? variantId.toString() : existingData?.variant_id || null,
     product_id: productId ? productId.toString() : existingData?.product_id || null,
     store_id: storeId ? storeId.toString() : existingData?.store_id || null,
-    cancel_at_period_end: !!cancelAtPeriodEnd,
-    ends_at: endsAt || null,
+    order_item_id: orderItemId ? orderItemId.toString() : existingData?.order_item_id || null,
+    
+    // Product/Variant names (from documentation)
+    product_name: attributes.product_name || existingData?.product_name || null,
+    variant_name: attributes.variant_name || existingData?.variant_name || null,
+    
+    // User info (from documentation)
+    user_name: attributes.user_name || existingData?.user_name || null,
+    user_email: attributes.user_email || existingData?.user_email || null,
+    
+    // Status info (from documentation)
+    status_formatted: attributes.status_formatted || null,
+    
+    // Dates (from documentation)
     renews_at: renewsAt || null,
+    ends_at: endsAt || null,
+    trial_ends_at: attributes.trial_ends_at || null,
+    lemon_created_at: attributes.created_at || null,
+    lemon_updated_at: attributes.updated_at || null,
+    
+    // Subscription settings (from documentation)
+    cancel_at_period_end: !!cancelAtPeriodEnd,
+    pause: attributes.pause || null,
+    billing_anchor: attributes.billing_anchor || null,
+    test_mode: attributes.test_mode || false,
+    
+    // Payment info (from documentation)
+    card_brand: attributes.card_brand || null,
+    card_last_four: attributes.card_last_four || null,
+    payment_processor: attributes.payment_processor || null,
+    
+    // Subscription item (from documentation)
+    first_subscription_item: attributes.first_subscription_item || null,
+    
+    // URLs (from documentation)
+    customer_portal_url: attributes.urls?.customer_portal || null,
+    update_payment_method_url: attributes.urls?.update_payment_method || null,
+    
     last_synced_at: admin.firestore.FieldValue.serverTimestamp()
   };
 
@@ -148,7 +189,8 @@ function buildSubscriptionUpdateFromRecord(record, existingData, admin) {
     relationships,
     status: normalizedStatus,
     customerId: customerId ? customerId.toString() : null,
-    orderId: orderId ? orderId.toString() : null
+    orderId: orderId ? orderId.toString() : null,
+    orderItemId: orderItemId ? orderItemId.toString() : null
   };
 }
 
@@ -211,19 +253,34 @@ async function listSubscriptions({ fetch, apiKey, storeId, status, mode, filters
 
 async function fetchSubscriptionById({ fetch, apiKey, subscriptionId, storeId, logger, requestId }) {
   const log = buildLogger(logger, requestId);
+  
+  // Build URL exactly as per Lemon Squeezy API documentation
+  // https://docs.lemonsqueezy.com/api/subscriptions/retrieve-subscription
+  const baseUrl = `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}`;
+  
+  // Add include parameter for related resources (as per documentation)
+  // Include multiple related resources for complete data
   const searchParams = new URLSearchParams();
-  // Note: filter[store_id] is not valid for GET by ID endpoints - only for list queries
-  // Only include parameter is needed for getting related order data
-  searchParams.append('include', 'order');
+  searchParams.append('include', 'order,product,variant,customer');
+  
+  const url = `${baseUrl}?${searchParams.toString()}`;
 
-  const url = `https://api.lemonsqueezy.com/v1/subscriptions/${encodeURIComponent(subscriptionId)}?${searchParams.toString()}`;
+  log.info('Fetching subscription from Lemon API', {
+    subscriptionId,
+    url,
+    hasApiKey: !!apiKey,
+    apiKeyLength: apiKey ? apiKey.length : 0,
+    storeId
+  });
 
   try {
+    // Make request exactly as per Lemon Squeezy documentation
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        Accept: 'application/vnd.api+json'
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': `Bearer ${apiKey}`
       }
     });
 
@@ -232,27 +289,58 @@ async function fetchSubscriptionById({ fetch, apiKey, subscriptionId, storeId, l
       try {
         errorBody = await response.json();
       } catch (parseErr) {
-        errorBody = await response.text();
+        try {
+          errorBody = await response.text();
+        } catch (textErr) {
+          errorBody = null;
+        }
       }
-      log.warn('Lemon fetch subscription by ID returned non-OK status', {
+      
+      log.error('Lemon API fetchSubscriptionById failed', {
         subscriptionId,
+        url,
         status: response.status,
         statusText: response.statusText,
-        body: errorBody
+        headers: Object.fromEntries(response.headers.entries()),
+        errorBody
       });
-      // Return error object instead of null so we can see what went wrong
-      return { error: { status: response.status, body: errorBody } };
+      
+      return { error: { status: response.status, body: errorBody, url } };
     }
 
     const payload = await response.json();
+    
+    // Log full response for debugging
+    log.debug('Lemon API subscription response', {
+      subscriptionId,
+      hasData: !!payload?.data,
+      hasAttributes: !!payload?.data?.attributes,
+      attributesKeys: payload?.data?.attributes ? Object.keys(payload?.data?.attributes) : [],
+      hasRelationships: !!payload?.data?.relationships,
+      relationshipsKeys: payload?.data?.relationships ? Object.keys(payload?.data?.relationships) : []
+    });
+    
     if (!payload || !payload.data) {
-      log.warn('Lemon fetch subscription by ID returned empty payload', { subscriptionId });
-      return null;
+      log.warn('Lemon fetch subscription by ID returned empty payload', { 
+        subscriptionId,
+        payload: payload 
+      });
+      return { error: { message: 'Empty payload from Lemon API', payload } };
     }
+    
     return payload.data;
   } catch (err) {
-    log.warn('Failed to fetch subscription by ID', { subscriptionId, error: err?.message || err });
-    return { error: { message: err?.message || 'Network error' } };
+    log.error('Failed to fetch subscription by ID - network error', { 
+      subscriptionId, 
+      url,
+      error: {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+        code: err?.code
+      }
+    });
+    return { error: { message: err?.message || 'Network error', originalError: err } };
   }
 }
 

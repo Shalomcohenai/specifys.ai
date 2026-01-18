@@ -1259,7 +1259,16 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     // Get product key from variant ID
     const productKey = variantId ? getProductKeyByVariantId(variantId.toString()) : null;
     const productConfig = productKey ? getProductByKey(productKey) : null;
-    const productName = productConfig?.name || existingSubscriptionData?.product_name || null;
+    
+    // Use product_name from API if available, otherwise from config
+    const productName = builtData.update.product_name || 
+                        productConfig?.name || 
+                        existingSubscriptionData?.product_name || null;
+    
+    // Use variant_name from API if available
+    const variantName = builtData.update.variant_name || null;
+    
+    // Use billing_interval from config or existing data
     const billingInterval = productConfig?.billing_interval || existingSubscriptionData?.billing_interval || null;
     
     // Extract currency from order if available (via relationships)
@@ -1271,7 +1280,8 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     const subscriptionUpdate = {
       ...builtData.update,
       product_key: productKey || existingSubscriptionData?.product_key || null,
-      product_name: productName || existingSubscriptionData?.product_name || null,
+      product_name: productName || builtData.update.product_name || existingSubscriptionData?.product_name || null,
+      variant_name: variantName || builtData.update.variant_name || existingSubscriptionData?.variant_name || null,
       billing_interval: billingInterval || existingSubscriptionData?.billing_interval || null,
       currency: currency, // Preserve existing or use default
       last_synced_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -1303,8 +1313,10 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
       if (!currentSubscription.productKey && productKey) {
         creditsSubscriptionUpdate['subscription.productKey'] = productKey;
       }
-      if (!currentSubscription.productName && productName) {
-        creditsSubscriptionUpdate['subscription.productName'] = productName;
+      // Use product_name from API if available
+      const finalProductName = productName || builtData.update.product_name || currentSubscription.productName;
+      if (!currentSubscription.productName && finalProductName) {
+        creditsSubscriptionUpdate['subscription.productName'] = finalProductName;
       }
       if (!currentSubscription.billingInterval && billingInterval) {
         creditsSubscriptionUpdate['subscription.billingInterval'] = billingInterval;
