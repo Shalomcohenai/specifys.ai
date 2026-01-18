@@ -752,21 +752,71 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                 }
               } else if (productConfig.type === 'subscription') {
                 try {
-                  // For subscription orders, calculate currentPeriodEnd from billing interval
-                  // This will be calculated in enableProSubscription from purchase_date if not provided
-                  // But we can also try to get it from subscription data if available
-                  let currentPeriodEnd = null;
+                  // CRITICAL FIX: In order_created webhook, subscription ID may not exist yet
+                  // Try to fetch it from Lemon API using the order ID
+                  let resolvedSubscriptionId = orderData.subscriptionId;
                   
-                  // If subscription already exists, try to get renewsAt from it
-                  if (orderData.subscriptionId) {
+                  if (!resolvedSubscriptionId || resolvedSubscriptionId === 'null') {
+                    logger.info({ 
+                      webhookRequestId, 
+                      orderId: orderData.orderId, 
+                      userId: orderData.userId 
+                    }, '[lemon-routes] Subscription ID missing in order_created - attempting to fetch from Lemon API');
+                    
                     try {
-                      // Note: renewsAt is typically not in order_created, but might be in subscription
-                      // For now, we'll let enableProSubscription calculate it from purchase_date + interval
-                      // This is safer and more reliable
-                    } catch (err) {
-                      // Ignore - will calculate from purchase_date
+                      const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+                      const fetch = globalThis.fetch || require('node-fetch');
+                      
+                      if (apiKey && orderData.orderId) {
+                        // Fetch order from Lemon API to get subscription ID
+                        const orderUrl = `https://api.lemonsqueezy.com/v1/orders/${encodeURIComponent(orderData.orderId)}`;
+                        const orderResponse = await fetch(orderUrl, {
+                          method: 'GET',
+                          headers: {
+                            'Accept': 'application/vnd.api+json',
+                            'Content-Type': 'application/vnd.api+json',
+                            'Authorization': `Bearer ${apiKey}`
+                          }
+                        });
+                        
+                        if (orderResponse.ok) {
+                          const orderApiData = await orderResponse.json();
+                          const orderAttrs = orderApiData?.data?.attributes || {};
+                          const orderRels = orderApiData?.data?.relationships || {};
+                          
+                          // Try to get subscription ID from order
+                          resolvedSubscriptionId = 
+                            orderAttrs.subscription_id ||
+                            orderRels?.subscription?.data?.id ||
+                            null;
+                          
+                          if (resolvedSubscriptionId) {
+                            logger.info({ 
+                              webhookRequestId, 
+                              orderId: orderData.orderId,
+                              subscriptionId: resolvedSubscriptionId 
+                            }, '[lemon-routes] Found subscription ID from Lemon API order lookup');
+                            orderData.subscriptionId = resolvedSubscriptionId.toString();
+                          } else {
+                            logger.warn({ 
+                              webhookRequestId, 
+                              orderId: orderData.orderId 
+                            }, '[lemon-routes] No subscription ID in order - will be set by subscription_created webhook');
+                          }
+                        }
+                      }
+                    } catch (fetchErr) {
+                      logger.warn({ 
+                        webhookRequestId, 
+                        error: fetchErr.message,
+                        orderId: orderData.orderId 
+                      }, '[lemon-routes] Failed to fetch subscription ID from order API - subscription_created webhook will handle it');
                     }
                   }
+                  
+                  // For subscription orders, calculate currentPeriodEnd from billing interval
+                  // This will be calculated in enableProSubscription from purchase_date if not provided
+                  let currentPeriodEnd = null;
                   
                   const enableProOptions = {
                     plan: 'pro',
@@ -776,21 +826,36 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                     productName: productConfig.name,
                     productType: productConfig.type,
                     variantId: orderData.variantId,
-                    subscriptionId: orderData.subscriptionId || null,
+                    // CRITICAL: Only use subscriptionId if we actually have one
+                    // If null, subscription_created webhook will update it later
+                    subscriptionId: resolvedSubscriptionId || null,
                     subscriptionStatus: orderData.subscriptionStatus || 'active',
                     subscriptionInterval: productConfig.billing_interval || null,
-                    currentPeriodEnd: currentPeriodEnd, // Will be null, calculated from purchase_date + interval
+                    currentPeriodEnd: currentPeriodEnd,
                     total: orderData.total,
                     currency: orderData.currency,
                     metadata: {
-                      lemonCustomerId: orderData.customerId || null
+                      lemonCustomerId: orderData.customerId || null,
+                      orderCreatedWebhook: true,
+                      subscriptionIdResolved: !!resolvedSubscriptionId
                     }
                   };
                   
                   // Update V3 subscription
+                  // Note: If subscriptionId is null, subscription_created webhook will update it
                   await creditsV3Service.enableProSubscription(orderData.userId, enableProOptions);
-                  logger.info({ userId: orderData.userId }, '[lemon-routes] V3 subscription enabled from order webhook');
+                  logger.info({ 
+                    webhookRequestId,
+                    userId: orderData.userId,
+                    subscriptionId: resolvedSubscriptionId || 'null - waiting for subscription_created',
+                    orderId: orderData.orderId
+                  }, '[lemon-routes] V3 subscription enabled from order webhook');
                 } catch (subscriptionError) {
+                  logger.error({ 
+                    webhookRequestId,
+                    userId: orderData.userId,
+                    error: subscriptionError.message 
+                  }, '[lemon-routes] Error enabling subscription from order webhook');
                   throw subscriptionError;
                 }
               }

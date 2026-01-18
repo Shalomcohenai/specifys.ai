@@ -193,6 +193,26 @@ function parseWebhookPayload(event) {
         }
       }
 
+      // CRITICAL FIX: In order_created webhook, subscription may not exist yet
+      // Try to get subscription ID from relationships if available
+      if (!orderData.subscriptionId || orderData.subscriptionId === 'null') {
+        // Check relationships for subscription
+        const subscriptionFromRel = 
+          relationships?.subscription?.data?.id ||
+          relationships?.subscriptions?.data?.[0]?.id ||
+          null;
+        
+        if (subscriptionFromRel) {
+          orderData.subscriptionId = subscriptionFromRel.toString();
+          console.log('Found subscription ID from order relationships:', orderData.subscriptionId);
+        } else {
+          // In order_created, subscription_id might be in attributes but sometimes it's null
+          // This is OK - subscription_created webhook will update it later
+          console.log('⚠️ No subscription ID in order_created webhook - will be set by subscription_created webhook');
+          orderData.subscriptionId = null; // Explicitly set to null
+        }
+      }
+
     return {
       eventName,
       orderData,
