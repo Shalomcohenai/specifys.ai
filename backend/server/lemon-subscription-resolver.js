@@ -240,7 +240,8 @@ async function fetchSubscriptionById({ fetch, apiKey, subscriptionId, storeId, l
         statusText: response.statusText,
         body: errorBody
       });
-      return null;
+      // Return error object instead of null so we can see what went wrong
+      return { error: { status: response.status, body: errorBody } };
     }
 
     const payload = await response.json();
@@ -251,7 +252,7 @@ async function fetchSubscriptionById({ fetch, apiKey, subscriptionId, storeId, l
     return payload.data;
   } catch (err) {
     log.warn('Failed to fetch subscription by ID', { subscriptionId, error: err?.message || err });
-    return null;
+    return { error: { message: err?.message || 'Network error' } };
   }
 }
 

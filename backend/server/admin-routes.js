@@ -1188,7 +1188,7 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     // Step 2: Fetch full subscription data from Lemon API with include=order
     logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId }, '[admin-routes] Fetching subscription data from Lemon Squeezy API');
     
-    const subscriptionRecord = await fetchSubscriptionById({
+    const subscriptionResult = await fetchSubscriptionById({
       fetch,
       apiKey,
       subscriptionId: lemonSubscriptionId,
@@ -1197,13 +1197,38 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
       requestId
     });
     
-    if (!subscriptionRecord) {
+    // Check if result is an error object
+    if (subscriptionResult && subscriptionResult.error) {
+      const errorDetails = subscriptionResult.error;
+      logger.error({ 
+        requestId, 
+        userId, 
+        subscriptionId: lemonSubscriptionId,
+        lemonError: errorDetails 
+      }, '[admin-routes] Lemon API returned error');
+      
+      const errorMessage = errorDetails.body?.errors?.[0]?.detail || 
+                           errorDetails.body?.errors?.[0]?.title || 
+                           errorDetails.message ||
+                           `Lemon Squeezy API returned ${errorDetails.status || 'error'}`;
+      
       return next(createError(
-        `Subscription ${lemonSubscriptionId} not found in Lemon Squeezy. It may have been deleted.`,
+        `Failed to fetch subscription from Lemon Squeezy: ${errorMessage}`,
+        ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+        errorDetails.status || 500,
+        { lemonApiError: errorDetails }
+      ));
+    }
+    
+    if (!subscriptionResult) {
+      return next(createError(
+        `Subscription ${lemonSubscriptionId} not found in Lemon Squeezy. It may have been deleted or the subscription ID is incorrect.`,
         ERROR_CODES.RESOURCE_NOT_FOUND,
         404
       ));
     }
+    
+    const subscriptionRecord = subscriptionResult;
     
     // Step 3: Extract all data from subscription record using buildSubscriptionUpdateFromRecord
     const existingSubscriptionData = subscriptionsV3Doc.exists ? subscriptionsV3Doc.data() : {};
