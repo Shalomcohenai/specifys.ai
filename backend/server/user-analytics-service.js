@@ -263,12 +263,27 @@ async function getUserAnalytics(userId) {
         const normalizedStatus = subData.status === 'paid' ? 'active' : (subData.status || null);
         const isActiveSubscription = normalizedStatus === 'active' || normalizedStatus === 'on_trial';
         
+        // Extract subscription ID from webhookRequestId if available (format: "webhook_1728411")
+        let subscriptionId = null;
+        if (subData?.webhookRequestId && typeof subData.webhookRequestId === 'string') {
+          if (subData.webhookRequestId.startsWith('webhook_')) {
+            const extractedId = subData.webhookRequestId.replace(/^webhook_/, '');
+            if (/^\d+$/.test(extractedId)) {
+              subscriptionId = extractedId;
+            }
+          }
+        }
+        // Fallback to lemon_subscription_id
+        if (!subscriptionId) {
+          subscriptionId = subData.lemon_subscription_id || null;
+        }
+        
         subscriptionData = {
           status: normalizedStatus,
           renewsAt: subData.renews_at ? toDate(subData.renews_at)?.toISOString() : null,
           endsAt: subData.ends_at ? toDate(subData.ends_at)?.toISOString() : null,
           cancelAtPeriodEnd: subData.cancel_at_period_end || false,
-          subscriptionId: subData.lemon_subscription_id || null
+          subscriptionId: subscriptionId
         };
         
         // Check if user_credits needs syncing: if subscription exists but user_credits doesn't have pro subscription

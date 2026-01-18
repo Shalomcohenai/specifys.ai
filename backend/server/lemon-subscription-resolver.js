@@ -398,10 +398,23 @@ async function resolveSubscription(options) {
   }
 
   async function resolveFromSubscriptionDoc() {
-    if (!subscriptionData?.lemon_subscription_id) {
+    // Get subscription ID from subscriptions_v3 - use webhookRequestId (format: "webhook_1728411")
+    let id = null;
+    if (subscriptionData?.webhookRequestId && typeof subscriptionData.webhookRequestId === 'string') {
+      if (subscriptionData.webhookRequestId.startsWith('webhook_')) {
+        const extractedId = subscriptionData.webhookRequestId.replace(/^webhook_/, '');
+        if (/^\d+$/.test(extractedId)) {
+          id = extractedId;
+        }
+      }
+    }
+    // Fallback to lemon_subscription_id if webhookRequestId not available
+    if (!id) {
+      id = subscriptionData?.lemon_subscription_id || null;
+    }
+    if (!id) {
       return null;
     }
-    const id = subscriptionData.lemon_subscription_id.toString();
     const record = await fetchSubscriptionById({
       fetch,
       apiKey,

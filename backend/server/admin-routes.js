@@ -1157,13 +1157,29 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     const fetch = globalThis.fetch || require('node-fetch');
     
     // Step 1: Get existing subscription ID from Firebase (prioritize subscriptions_v3 over user_credits_v3)
+    // CRITICAL: Get subscription ID from webhookRequestId (format: "webhook_1728411")
     let lemonSubscriptionId = null;
     const subscriptionsV3Doc = await db.collection('subscriptions_v3').doc(userId).get();
     
     if (subscriptionsV3Doc.exists) {
       const subscriptionsV3Data = subscriptionsV3Doc.data();
-      lemonSubscriptionId = subscriptionsV3Data?.lemon_subscription_id || null;
-      logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId, source: 'subscriptions_v3' }, '[admin-routes] Found subscription ID in subscriptions_v3');
+      
+      // Get subscription ID from webhookRequestId (format: "webhook_1728411")
+      if (subscriptionsV3Data?.webhookRequestId && typeof subscriptionsV3Data.webhookRequestId === 'string') {
+        if (subscriptionsV3Data.webhookRequestId.startsWith('webhook_')) {
+          const extractedId = subscriptionsV3Data.webhookRequestId.replace(/^webhook_/, '');
+          if (/^\d+$/.test(extractedId)) {
+            lemonSubscriptionId = extractedId;
+            logger.info({ 
+              requestId, 
+              userId, 
+              subscriptionId: lemonSubscriptionId, 
+              source: 'subscriptions_v3.webhookRequestId',
+              webhookRequestId: subscriptionsV3Data.webhookRequestId
+            }, '[admin-routes] Found subscription ID from webhookRequestId in subscriptions_v3');
+          }
+        }
+      }
     }
     
     // Fallback to user_credits_v3 if not found
