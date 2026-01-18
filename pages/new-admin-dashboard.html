@@ -48,17 +48,9 @@ custom_js_modules:
         <i class="fas fa-stream"></i>
         <span>Logs</span>
       </button>
-      <button class="nav-tab" data-section="articles" aria-label="Articles">
+      <button class="nav-tab" data-section="content" aria-label="Content">
         <i class="fas fa-file-alt"></i>
-        <span>Articles</span>
-      </button>
-      <button class="nav-tab" data-section="academy" aria-label="Academy">
-        <i class="fas fa-graduation-cap"></i>
-        <span>Academy</span>
-      </button>
-      <button class="nav-tab" data-section="contact" aria-label="Contact">
-        <i class="fas fa-envelope"></i>
-        <span>Contact</span>
+        <span>Content</span>
       </button>
     </div>
     
@@ -320,6 +312,59 @@ custom_js_modules:
                 </div>
                 <textarea id="api-response-text" readonly placeholder="Health check results will appear here..."></textarea>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Submissions -->
+        <div class="overview-card">
+          <div class="card-header">
+            <h2>Contact Submissions</h2>
+          </div>
+          <div class="card-body">
+            <!-- Contact Stats -->
+            <div class="quick-stats-grid" style="margin-bottom: 1.5rem;">
+              <div class="quick-stat-card">
+                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Total</div>
+                  <div class="stat-value" id="overview-stat-total-contact">0</div>
+                </div>
+              </div>
+              <div class="quick-stat-card">
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                  <i class="fas fa-circle"></i>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">New</div>
+                  <div class="stat-value" id="overview-stat-new-contact">0</div>
+                </div>
+              </div>
+              <div class="quick-stat-card">
+                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                  <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Read</div>
+                  <div class="stat-value" id="overview-stat-read-contact">0</div>
+                </div>
+              </div>
+              <div class="quick-stat-card">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                  <i class="fas fa-reply"></i>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Replied</div>
+                  <div class="stat-value" id="overview-stat-replied-contact">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Contact Submissions -->
+            <div class="contact-list-overview" id="contact-list-overview">
+              <div class="activity-empty">Loading submissions...</div>
             </div>
           </div>
         </div>
@@ -960,206 +1005,228 @@ custom_js_modules:
             </div>
           </section>
 
-    <!-- Articles Section -->
-    <section class="dashboard-content-section" id="articles-section">
+    <!-- Content Section -->
+    <section class="dashboard-content-section" id="content-section">
       <div class="section-header-modern">
         <div>
-          <h1>Articles Management</h1>
-          <p>Generate and manage SEO-optimized articles</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-modern" id="refresh-articles-btn">
-            <i class="fas fa-sync-alt"></i>
-            <span>Refresh Articles</span>
-          </button>
+          <h1>Content Management</h1>
+          <p>Manage articles and academy guides</p>
         </div>
       </div>
 
-      <div class="articles-grid">
-        <!-- Article Stats -->
-        <div class="quick-stats-grid">
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-              <i class="fas fa-newspaper"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Total Articles</div>
-              <div class="stat-value" id="stat-total-articles">0</div>
-            </div>
+      <!-- Tabs for Articles and Academy -->
+      <div class="payments-tabs">
+        <button class="payments-tab active" data-tab="articles">
+          <i class="fas fa-file-alt"></i>
+          <span>Articles</span>
+        </button>
+        <button class="payments-tab" data-tab="academy">
+          <i class="fas fa-graduation-cap"></i>
+          <span>Academy</span>
+        </button>
+      </div>
+
+      <!-- Articles Tab -->
+      <div class="payments-tab-content active" id="content-tab-articles">
+        <div class="section-header-modern">
+          <div>
+            <h2>Articles Management</h2>
+            <p>Generate and manage SEO-optimized articles</p>
           </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Published</div>
-              <div class="stat-value" id="stat-published-articles">0</div>
-            </div>
-          </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-              <i class="fas fa-eye"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Total Views</div>
-              <div class="stat-value" id="stat-article-views">0</div>
-            </div>
-          </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(156, 163, 175, 0.1); color: #9ca3af;">
-              <i class="fas fa-pencil-alt"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Drafts</div>
-              <div class="stat-value" id="stat-draft-articles">0</div>
-            </div>
+          <div class="header-actions">
+            <button class="btn-modern" id="refresh-articles-btn">
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh Articles</span>
+            </button>
           </div>
         </div>
 
-        <!-- Generate Article Form -->
-        <div class="form-card">
-          <div class="card-header">
-            <h3>Generate New Article</h3>
-          </div>
-          <div class="card-body">
-            <form id="articles-form">
-              <div class="form-group">
-                <label for="article-topic">Article Topic</label>
-                <input type="text" id="article-topic" placeholder="e.g., 'How to use AI for market research'" required>
-                <small class="field-hint">Enter a short topic sentence. The AI will generate a complete article based on this topic.</small>
+        <div class="articles-grid">
+          <!-- Article Stats -->
+          <div class="quick-stats-grid">
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                <i class="fas fa-newspaper"></i>
               </div>
-              <div class="form-actions">
-                <button class="btn-modern primary" type="submit" id="generate-article-btn">
-                  <i class="fas fa-magic"></i>
-                  Generate Article
-                </button>
+              <div class="stat-content">
+                <div class="stat-label">Total Articles</div>
+                <div class="stat-value" id="stat-total-articles">0</div>
               </div>
-              <div class="form-feedback" id="articles-feedback" role="status" aria-live="polite"></div>
-            </form>
-          </div>
-        </div>
-
-        <!-- Articles Table -->
-        <div class="table-card full-width">
-          <div class="card-header">
-            <h3>All Articles</h3>
-            <div class="articles-controls">
-              <input type="search" id="articles-search-input" placeholder="Search articles..." aria-label="Search articles">
-              <select id="articles-status-filter-select" aria-label="Filter by status">
-                <option value="all">All statuses</option>
-                <option value="published">Published</option>
-                <option value="generating">Generating</option>
-                <option value="draft">Draft</option>
-              </select>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Published</div>
+                <div class="stat-value" id="stat-published-articles">0</div>
+              </div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                <i class="fas fa-eye"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Total Views</div>
+                <div class="stat-value" id="stat-article-views">0</div>
+              </div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(156, 163, 175, 0.1); color: #9ca3af;">
+                <i class="fas fa-pencil-alt"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Drafts</div>
+                <div class="stat-value" id="stat-draft-articles">0</div>
+              </div>
             </div>
           </div>
-          <div class="card-body">
-            <table class="modern-table" id="articles-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Views</th>
-                  <th style="width: 120px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5" class="table-empty-state">Loading articles...</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Generate Article Form -->
+          <div class="form-card">
+            <div class="card-header">
+              <h3>Generate New Article</h3>
+            </div>
+            <div class="card-body">
+              <form id="articles-form">
+                <div class="form-group">
+                  <label for="article-topic">Article Topic</label>
+                  <input type="text" id="article-topic" placeholder="e.g., 'How to use AI for market research'" required>
+                  <small class="field-hint">Enter a short topic sentence. The AI will generate a complete article based on this topic.</small>
+                </div>
+                <div class="form-actions">
+                  <button class="btn-modern primary" type="submit" id="generate-article-btn">
+                    <i class="fas fa-magic"></i>
+                    Generate Article
+                  </button>
+                </div>
+                <div class="form-feedback" id="articles-feedback" role="status" aria-live="polite"></div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Articles Table -->
+          <div class="table-card full-width">
+            <div class="card-header">
+              <h3>All Articles</h3>
+              <div class="articles-controls">
+                <input type="search" id="articles-search-input" placeholder="Search articles..." aria-label="Search articles">
+                <select id="articles-status-filter-select" aria-label="Filter by status">
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="generating">Generating</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="modern-table" id="articles-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Views</th>
+                    <th style="width: 120px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="5" class="table-empty-state">Loading articles...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Academy Section -->
-    <section class="dashboard-content-section" id="academy-section">
-      <div class="section-header-modern">
-        <div>
-          <h1>Academy Management</h1>
-          <p>Manage learning guides and track engagement</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-modern" id="refresh-academy-btn">
-            <i class="fas fa-sync-alt"></i>
-            <span>Refresh Guides</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="academy-grid">
-        <!-- Academy Stats -->
-        <div class="quick-stats-grid">
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-              <i class="fas fa-book-open"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Total Guides</div>
-              <div class="stat-value" id="stat-total-guides">0</div>
-            </div>
+      <!-- Academy Tab -->
+      <div class="payments-tab-content" id="content-tab-academy">
+        <div class="section-header-modern">
+          <div>
+            <h2>Academy Management</h2>
+            <p>Manage learning guides and track engagement</p>
           </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-              <i class="fas fa-eye"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Total Views</div>
-              <div class="stat-value" id="stat-academy-views">0</div>
-            </div>
-          </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-              <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Views (7d)</div>
-              <div class="stat-value" id="stat-academy-views-7d">0</div>
-            </div>
-          </div>
-          <div class="quick-stat-card">
-            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-              <i class="fas fa-star"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-label">Top Guide</div>
-              <div class="stat-value" id="stat-top-guide">N/A</div>
-            </div>
+          <div class="header-actions">
+            <button class="btn-modern" id="refresh-academy-btn">
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh Guides</span>
+            </button>
           </div>
         </div>
 
-        <!-- Guides Table -->
-        <div class="table-card full-width">
-          <div class="card-header">
-            <h3>All Guides</h3>
-            <div class="academy-controls">
-              <input type="search" id="academy-search-input" placeholder="Search guides..." aria-label="Search guides">
-              <select id="academy-category-filter-select" aria-label="Filter by category">
-                <option value="all">All Categories</option>
-                <!-- Categories will be loaded dynamically -->
-              </select>
+        <div class="academy-grid">
+          <!-- Academy Stats -->
+          <div class="quick-stats-grid">
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Total Guides</div>
+                <div class="stat-value" id="stat-total-guides">0</div>
+              </div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                <i class="fas fa-eye"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Total Views</div>
+                <div class="stat-value" id="stat-academy-views">0</div>
+              </div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Views (7d)</div>
+                <div class="stat-value" id="stat-academy-views-7d">0</div>
+              </div>
+            </div>
+            <div class="quick-stat-card">
+              <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Top Guide</div>
+                <div class="stat-value" id="stat-top-guide">N/A</div>
+              </div>
             </div>
           </div>
-          <div class="card-body">
-            <table class="modern-table" id="academy-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Views</th>
-                  <th>Created</th>
-                  <th style="width: 80px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5" class="table-empty-state">Loading guides...</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Guides Table -->
+          <div class="table-card full-width">
+            <div class="card-header">
+              <h3>All Guides</h3>
+              <div class="academy-controls">
+                <input type="search" id="academy-search-input" placeholder="Search guides..." aria-label="Search guides">
+                <select id="academy-category-filter-select" aria-label="Filter by category">
+                  <option value="all">All Categories</option>
+                  <!-- Categories will be loaded dynamically -->
+                </select>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="modern-table" id="academy-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Views</th>
+                    <th>Created</th>
+                    <th style="width: 80px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="5" class="table-empty-state">Loading guides...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

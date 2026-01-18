@@ -288,6 +288,11 @@ class NewAdminDashboard {
       if (isActive) {
         section.classList.add('active');
         section.style.display = 'block';
+        
+        // Setup internal tabs for content section
+        if (sectionId === 'content') {
+          this.setupContentTabs();
+        }
       } else {
         section.classList.remove('active');
         section.style.display = 'none';
@@ -301,12 +306,73 @@ class NewAdminDashboard {
     const view = this.views.get(sectionId);
     if (view && typeof view.show === 'function') {
       view.show();
+    } else if (sectionId === 'content') {
+      // Handle content view with internal tabs
+      const contentView = this.views.get('content');
+      if (contentView) {
+        const activeTab = this.stateManager.getState('contentTab') || 'articles';
+        this.switchContentTab(activeTab);
+      }
     } else {
       // No view found for section
     }
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  /**
+   * Setup content tabs (Articles and Academy)
+   */
+  setupContentTabs() {
+    const tabs = helpers.domAll('#content-section .payments-tab');
+    if (tabs.length === 0) return;
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        const tabName = e.currentTarget.dataset.tab;
+        this.switchContentTab(tabName);
+      });
+    });
+    
+    // Initialize first tab
+    const activeTab = this.stateManager.getState('contentTab') || 'articles';
+    this.switchContentTab(activeTab);
+  }
+  
+  /**
+   * Switch content tab
+   */
+  switchContentTab(tabName) {
+    // Update tab buttons
+    helpers.domAll('#content-section .payments-tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    const activeTab = helpers.dom(`#content-section .payments-tab[data-tab="${tabName}"]`);
+    if (activeTab) {
+      activeTab.classList.add('active');
+    }
+    
+    // Update tab content
+    helpers.domAll('#content-section .payments-tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    const activeContent = helpers.dom(`#content-tab-${tabName}`);
+    if (activeContent) {
+      activeContent.classList.add('active');
+    }
+    
+    // Update state
+    this.stateManager.setState('contentTab', tabName);
+    
+    // Show view
+    const contentView = this.views.get('content');
+    if (contentView) {
+      const view = contentView[tabName];
+      if (view && typeof view.show === 'function') {
+        view.show();
+      }
+    }
   }
   
   /**
@@ -332,11 +398,13 @@ class NewAdminDashboard {
       // Logs view
       this.views.set('logs', new LogsView(this.dataManager, this.stateManager));
       
-      // Articles view
-      this.views.set('articles', new ArticlesView(this.dataManager, this.stateManager));
-      
-      // Academy view
-      this.views.set('academy', new AcademyView(this.dataManager, this.stateManager));
+      // Content view - unified Articles and Academy
+      const articlesView = new ArticlesView(this.dataManager, this.stateManager);
+      const academyView = new AcademyView(this.dataManager, this.stateManager);
+      this.views.set('content', { articles: articlesView, academy: academyView });
+      // Keep separate views for backward compatibility
+      this.views.set('articles', articlesView);
+      this.views.set('academy', academyView);
       
       // Contact view
       const contactView = new ContactView(this.dataManager, this.stateManager);

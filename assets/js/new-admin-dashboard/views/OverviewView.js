@@ -5,12 +5,14 @@
  */
 
 import { helpers } from '../utils/helpers.js';
+import { apiService } from '../services/ApiService.js';
 
 export class OverviewView {
   constructor(dataManager, stateManager) {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
     this.charts = new Map();
+    this.contactSubmissions = [];
     
     this.init();
   }
@@ -34,6 +36,9 @@ export class OverviewView {
     
     // Initialize connection status
     this.updateActivityConnectionStatus('connecting');
+    
+    // Load contact submissions
+    this.loadContactSubmissions();
   }
   
   /**
@@ -931,6 +936,127 @@ export class OverviewView {
   }
   
   /**
+   * Load contact submissions for overview
+   */
+  async loadContactSubmissions() {
+    try {
+      const response = await apiService.get('/api/admin/contact-submissions?limit=1000');
+      
+      if (response.success && response.submissions) {
+        this.contactSubmissions = response.submissions.map(sub => {
+          let createdAt = null;
+          if (sub.createdAt) {
+            if (sub.createdAt.toDate && typeof sub.createdAt.toDate === 'function') {
+              createdAt = sub.createdAt.toDate();
+            } else if (sub.createdAt instanceof Date) {
+              createdAt = sub.createdAt;
+            } else if (typeof sub.createdAt === 'string' || typeof sub.createdAt === 'number') {
+              createdAt = new Date(sub.createdAt);
+            }
+          }
+          if (!createdAt && sub.timestamp) {
+            createdAt = new Date(sub.timestamp);
+          }
+          if (!createdAt) {
+            createdAt = new Date();
+          }
+          
+          return {
+            ...sub,
+            createdAt
+          };
+        });
+        
+        // Sort by date (newest first)
+        this.contactSubmissions.sort((a, b) => b.createdAt - a.createdAt);
+        
+        this.updateContactStats();
+        this.renderContactList();
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error loading contact submissions:', error);
+    }
+  }
+  
+  /**
+   * Update contact statistics in overview
+   */
+  updateContactStats() {
+    const total = this.contactSubmissions.length;
+    const newCount = this.contactSubmissions.filter(s => s.status === 'new' || !s.status).length;
+    const readCount = this.contactSubmissions.filter(s => s.status === 'read').length;
+    const repliedCount = this.contactSubmissions.filter(s => s.status === 'replied').length;
+    
+    const totalEl = helpers.dom('#overview-stat-total-contact');
+    const newEl = helpers.dom('#overview-stat-new-contact');
+    const readEl = helpers.dom('#overview-stat-read-contact');
+    const repliedEl = helpers.dom('#overview-stat-replied-contact');
+    
+    if (totalEl) totalEl.textContent = total;
+    if (newEl) newEl.textContent = newCount;
+    if (readEl) readEl.textContent = readCount;
+    if (repliedEl) repliedEl.textContent = repliedCount;
+  }
+  
+  /**
+   * Render contact submissions list in overview
+   */
+  renderContactList() {
+    const container = helpers.dom('#contact-list-overview');
+    if (!container) return;
+    
+    // Show recent 5 submissions
+    const recentSubmissions = this.contactSubmissions.slice(0, 5);
+    
+    if (recentSubmissions.length === 0) {
+      container.innerHTML = '<div class="activity-empty">No submissions yet</div>';
+      return;
+    }
+    
+    const html = recentSubmissions.map(sub => {
+      const statusClass = sub.status === 'new' || !sub.status ? 'new' : sub.status;
+      const statusLabel = sub.status === 'new' || !sub.status ? 'New' : 
+                          sub.status === 'read' ? 'Read' : 
+                          sub.status === 'replied' ? 'Replied' : 
+                          sub.status === 'archived' ? 'Archived' : 'New';
+      
+      const date = sub.createdAt ? new Date(sub.createdAt) : new Date();
+      const dateStr = date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      const email = sub.email || sub.userEmail || 'No email';
+      const message = sub.message || sub.feedback || '';
+      const messagePreview = message.length > 100 ? message.substring(0, 100) + '...' : message;
+      
+      const bgColor = statusClass === 'new' ? 'rgba(239, 68, 68, 0.1)' : statusClass === 'read' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+      const iconColor = statusClass === 'new' ? '#ef4444' : statusClass === 'read' ? '#3b82f6' : '#10b981';
+      
+      return `
+        <div class="activity-item">
+          <div class="activity-icon" style="background: ${bgColor};">
+            <i class="fas fa-envelope" style="color: ${iconColor};"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <span class="activity-title">${this.escapeHtml(email)}</span>
+              <span class="activity-badge ${statusClass}">${statusLabel}</span>
+            </div>
+            <p class="activity-description">${this.escapeHtml(messagePreview)}</p>
+            <span class="activity-time">${dateStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    container.innerHTML = html;
+  }
+  
+  /**
    * Show view
    */
   show() {
@@ -938,6 +1064,9 @@ export class OverviewView {
     this.updateMetrics();
     this.renderActivityFeed();
     this.renderSystemStatus(); // Render status on show
+    
+    // Update contact submissions
+    this.loadContactSubmissions();
     
     // Force update after a short delay
     setTimeout(() => {
