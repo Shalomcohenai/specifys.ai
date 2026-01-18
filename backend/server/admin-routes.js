@@ -1212,6 +1212,20 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
                            errorDetails.message ||
                            `Lemon Squeezy API returned ${errorDetails.status || 'error'}`;
       
+      // If 404, provide more helpful message
+      if (errorDetails.status === 404) {
+        return next(createError(
+          `Subscription ID ${lemonSubscriptionId} not found in Lemon Squeezy. The subscription may have been deleted, or the ID may be incorrect. Please verify the subscription ID in your Lemon Squeezy dashboard.`,
+          ERROR_CODES.RESOURCE_NOT_FOUND,
+          404,
+          { 
+            lemonApiError: errorDetails,
+            subscriptionId: lemonSubscriptionId,
+            hint: 'The subscription ID exists in your database but not in Lemon Squeezy. This could mean the subscription was deleted or the ID is incorrect.'
+          }
+        ));
+      }
+      
       return next(createError(
         `Failed to fetch subscription from Lemon Squeezy: ${errorMessage}`,
         ERROR_CODES.EXTERNAL_SERVICE_ERROR,
