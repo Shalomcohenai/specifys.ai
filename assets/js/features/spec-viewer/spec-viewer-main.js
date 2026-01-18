@@ -4422,9 +4422,9 @@ async function checkProAccess() {
             return false;
         }
         
-        // Use new credits API to check for unlimited access
+        // Use V3 credits API to check for unlimited access
         try {
-            const data = await window.api.get('/api/v2/credits');
+            const data = await window.api.get('/api/v3/credits');
             if (data && data.unlimited === true) {
                 return true;
             }

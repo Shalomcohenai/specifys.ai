@@ -274,8 +274,8 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Get credits from user_credits collection (same source as users see)
-      // This matches what users see in their profile via /api/v2/credits
+      // Get credits from user_credits_v3 collection (same source as users see)
+      // This matches what users see in their profile via /api/v3/credits
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
       let creditsDisplay = '0';

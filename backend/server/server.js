@@ -19,7 +19,7 @@ const academyRoutes = require('./academy-routes');
 const adminRoutes = require('./admin-routes');
 const analyticsRoutes = require('./analytics-routes');
 const lemonRoutes = require('./lemon-routes');
-// const creditsRoutes = require('./credits-routes'); // OLD - removed, using credits-v2-routes now
+// Old credits routes removed - V3 is now the only active system
 const healthRoutes = require('./health-routes');
 const { requireAdmin, securityHeaders, rateLimiters } = require('./security');
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
@@ -348,20 +348,14 @@ app.use('/api/specs', specsRoutes);
 logger.info({ type: 'route_mounted', path: '/api/specs' }, '[UNIFIED SERVER] ✅ Specs routes mounted');
 
 // Credits routes for credit management (OLD - REMOVED)
-// Old routes have been removed. Use /api/v2/credits instead.
+// Old routes have been removed. V2 routes have been removed. V3 is now the only active system.
 
-// Credits V2 routes for new unified credit system
-logger.info({ type: 'route_mount', path: '/api/v2/credits', route: 'creditsV2Routes' }, '[UNIFIED SERVER] 📌 Mounting credits V2 routes');
-const creditsV2Routes = require('./credits-v2-routes');
-app.use('/api/v2/credits', creditsV2Routes);
-logger.info({ type: 'route_mounted', path: '/api/v2/credits' }, '[UNIFIED SERVER] ✅ Credits V2 routes mounted');
-
-// Credits V3 routes for improved credit system (parallel system)
+// Credits V3 routes - primary credit system
 if (config.creditsV3.enabled) {
-  logger.info({ type: 'route_mount', path: '/api/v3/credits', route: 'creditsV3Routes', mode: config.creditsV3.migrationMode }, '[UNIFIED SERVER] 📌 Mounting credits V3 routes');
+  logger.info({ type: 'route_mount', path: '/api/v3/credits', route: 'creditsV3Routes' }, '[UNIFIED SERVER] 📌 Mounting credits V3 routes');
   const creditsV3Routes = require('./credits-v3-routes');
   app.use('/api/v3/credits', creditsV3Routes);
-  logger.info({ type: 'route_mounted', path: '/api/v3/credits', mode: config.creditsV3.migrationMode }, '[UNIFIED SERVER] ✅ Credits V3 routes mounted');
+  logger.info({ type: 'route_mounted', path: '/api/v3/credits' }, '[UNIFIED SERVER] ✅ Credits V3 routes mounted');
 } else {
   logger.info({ type: 'route_skipped', path: '/api/v3/credits', reason: 'CREDITS_V3_ENABLED=false' }, '[UNIFIED SERVER] ⏭️  Credits V3 routes disabled (feature flag)');
 }

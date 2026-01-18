@@ -25,11 +25,9 @@ module.exports = {
     'https://specifys-ai-development.onrender.com'
   ],
   
-  // Credits V3 Migration Configuration
+  // Credits V3 Configuration
   creditsV3: {
     // Enable V3 system (default: false - disabled)
-    enabled: process.env.CREDITS_V3_ENABLED === 'true',
-    // Migration mode: 'parallel' (both systems), 'v3_only' (V3 only), 'v2_only' (V2 only)
-    migrationMode: process.env.CREDITS_V3_MIGRATION_MODE || 'parallel'
+    enabled: process.env.CREDITS_V3_ENABLED === 'true'
   }
 };

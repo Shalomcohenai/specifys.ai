@@ -125,17 +125,10 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         
         const nowIso = new Date().toISOString();
         
-        // Load credits service outside transaction for better performance
-        console.log(`[user-management] User ${uid}: Step 2 - Loading credits service...`);
-        const creditsV2Service = require('./credits-v2-service');
-        console.log(`[user-management] User ${uid}: Credits service loaded successfully`);
-
-        // Optionally load Credits V3 service (feature-flagged)
-        const creditsV3Enabled = config?.creditsV3?.enabled === true;
-        const creditsV3Service = creditsV3Enabled ? require('./credits-v3-service') : null;
-        if (creditsV3Enabled) {
-            console.log(`[user-management] User ${uid}: Credits V3 enabled - will initialize user_credits_v3 in parallel`);
-        }
+        // Load credits V3 service outside transaction for better performance
+        console.log(`[user-management] User ${uid}: Step 2 - Loading credits V3 service...`);
+        const creditsV3Service = require('./credits-v3-service');
+        console.log(`[user-management] User ${uid}: Credits V3 service loaded successfully`);
         
         // Store authUser.creationTime for use inside transaction
         const authCreationTime = authUser.creationTime ? (authUser.creationTime instanceof Date ? authUser.creationTime : new Date(authUser.creationTime)) : null;
@@ -144,28 +137,22 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         const result = await db.runTransaction(async (transaction) => {
             console.log(`[user-management] User ${uid}: Inside transaction - Getting document references...`);
             const userRef = db.collection('users').doc(uid);
-            const creditsRef = db.collection('user_credits').doc(uid);
-            const creditsV3Ref = creditsV3Enabled ? db.collection('user_credits_v3').doc(uid) : null;
+            const creditsRef = db.collection('user_credits_v3').doc(uid);
             
             // Get user and credits documents in parallel
-            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, user_credits${creditsV3Enabled ? ', user_credits_v3' : ''})...`);
+            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, user_credits_v3)...`);
             const docPromises = [
                 transaction.get(userRef),
                 transaction.get(creditsRef)
             ];
-            if (creditsV3Enabled && creditsV3Ref) {
-                docPromises.push(transaction.get(creditsV3Ref));
-            }
             const docs = await Promise.all(docPromises);
             const userDoc = docs[0];
             const creditsDoc = docs[1];
-            const creditsV3Doc = creditsV3Enabled ? docs[2] : null;
             
             const userExists = userDoc.exists;
             const creditsExist = creditsDoc.exists;
-            const creditsV3Exist = creditsV3Enabled ? (creditsV3Doc && creditsV3Doc.exists) : false;
             
-            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, creditsExist=${creditsExist}${creditsV3Enabled ? `, creditsV3Exist=${creditsV3Exist}` : ''}`);
+            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, creditsExist=${creditsExist}`);
             
             // Determine if this is a new user - prioritize isNewUserFromClient flag
             // If both documents exist, user is definitely not new (unless client explicitly says otherwise)
@@ -174,11 +161,13 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             
             // If all documents exist AND user is NOT new (client didn't say it's new), check if welcome credit was granted
             // This optimization prevents unnecessary processing for existing users, but still checks for welcome credit
-            // Optimization: return early only if user is fully initialized for all enabled systems
-            // If Credits V3 is enabled, ensure user_credits_v3 exists before returning early.
-            if (userExists && creditsExist && isNewUserFromClient !== true && (!creditsV3Enabled || creditsV3Exist)) {
+            // Optimization: return early only if user is fully initialized
+            if (userExists && creditsExist && isNewUserFromClient !== true) {
                 const existingCredits = creditsDoc.data();
-                const existingTotal = (existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0);
+                // Use total from document (single source of truth), fallback to calculation for backward compatibility
+                const existingTotal = existingCredits.total !== undefined 
+                    ? existingCredits.total 
+                    : ((existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0));
                 const welcomeCreditGranted = existingCredits.metadata?.welcomeCreditGranted || false;
                 
                 // Check if user was created recently (within last 10 minutes) and doesn't have welcome credit
@@ -321,7 +310,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 // If this is a new user (explicitly marked or missing documents), give welcome credit
                 if (isNewUser) {
                     console.log(`[user-management] User ${uid}: Calling getInitialCreditsForNewUser() to create credits with 1 free credit...`);
-                    const initialCredits = creditsV2Service.getInitialCreditsForNewUser(uid);
+                    const initialCredits = creditsV3Service.getInitialCreditsForNewUser(uid);
                     console.log(`[user-management] User ${uid}: Initial credits structure created - free=${initialCredits.balances.free}, paid=${initialCredits.balances.paid}, bonus=${initialCredits.balances.bonus}`);
                     transaction.set(creditsRef, initialCredits);
                     finalCredits = initialCredits;
@@ -329,7 +318,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 } else {
                     console.log(`[user-management] User ${uid}: NOT a new user, calling getDefaultCredits() to create credits with 0 credits...`);
                     // Fallback: create default credits (0 credits) for existing users
-                    const defaultCredits = creditsV2Service.getDefaultCredits(uid);
+                    const defaultCredits = creditsV3Service.getDefaultCredits(uid);
                     console.log(`[user-management] User ${uid}: Default credits structure created - free=${defaultCredits.balances.free}, paid=${defaultCredits.balances.paid}, bonus=${defaultCredits.balances.bonus}`);
                     transaction.set(creditsRef, defaultCredits);
                     finalCredits = defaultCredits;
@@ -460,7 +449,10 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     }
                 } else {
                     finalCreditsV3 = creditsV3Doc.data();
-                    const existingTotalV3 = (finalCreditsV3.balances?.paid || 0) + (finalCreditsV3.balances?.free || 0) + (finalCreditsV3.balances?.bonus || 0);
+                    // Use total from document (single source of truth), fallback to calculation for backward compatibility
+                    const existingTotalV3 = finalCreditsV3.total !== undefined 
+                        ? finalCreditsV3.total 
+                        : ((finalCreditsV3.balances?.paid || 0) + (finalCreditsV3.balances?.free || 0) + (finalCreditsV3.balances?.bonus || 0));
                     const welcomeCreditGrantedV3 = finalCreditsV3.metadata?.welcomeCreditGranted || false;
                     
                     // If new user is detected but V3 welcome credit wasn't granted, grant it.
@@ -501,8 +493,12 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 _isNewUser: isNewUser
             };
             
-            const totalCreditsInResult = result.credits ? 
-                ((result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0)) : 0;
+            // Use total from document (single source of truth), fallback to calculation for backward compatibility
+            const totalCreditsInResult = result.credits 
+                ? (result.credits.total !== undefined 
+                    ? result.credits.total 
+                    : ((result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0)))
+                : 0;
             
             console.log(`[user-management] User ${uid}: Result object built - created=${result.created}, updated=${result.updated}, unchanged=${result.unchanged}, isNewUser=${result._isNewUser}, totalCredits=${totalCreditsInResult}`);
             console.log(`[user-management] User ${uid}: Transaction complete, isNewUser=${isNewUser}, creditsCreated=${!creditsExist}`);

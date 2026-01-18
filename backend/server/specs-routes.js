@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { db, admin, auth } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
-const creditsV2Service = require('./credits-v2-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
@@ -181,35 +180,8 @@ router.get('/', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
-// /entitlements endpoint removed - use /api/v2/credits instead
-
-/**
- * Consume a credit when creating a spec
- * POST /api/specs/consume-credit
- * Body: { specId: string }
- * DEPRECATED: This endpoint is deprecated. Use /api/v2/credits/consume instead.
- * Kept for backward compatibility during migration.
- * Rate limited to prevent abuse
- */
-router.post('/consume-credit', rateLimiters.creditConsumption, verifyFirebaseToken, async (req, res, next) => {
-    try {
-        const userId = req.user.uid;
-        const { specId } = req.body;
-
-        if (!specId) {
-            return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
-        }
-
-        // Use new credits V2 service
-        const result = await creditsV2Service.consumeCredit(userId, specId);
-
-        res.json(result);
-    } catch (error) {
-        logger.error({ error: error.message, userId }, 'Error consuming credit');
-        
-        if (error.message === 'Insufficient credits') {
-            return next(createError('Insufficient credits', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
-                message: 'You do not have enough credits to create a spec'
+// /entitlements endpoint removed - use /api/v3/credits instead
+// DEPRECATED /consume-credit endpoint removed - frontend uses /api/v3/credits/consume directly
             }));
         }
         

@@ -32,6 +32,7 @@ function getDefaultCredits(userId) {
       free: 0,
       bonus: 0
     },
+    total: 0,  // Single source of truth - computed field
     subscription: {
       type: 'none',
       status: 'none',
@@ -80,6 +81,7 @@ function getInitialCreditsForNewUser(userId) {
       free: 1,  // Welcome credit for new users
       bonus: 0
     },
+    total: 1,  // Single source of truth - computed field (1 free credit)
     subscription: {
       type: 'none',
       status: 'none',
@@ -246,9 +248,11 @@ async function getAvailableCredits(userId) {
       if (!isNaN(expiresAt.getTime()) && expiresAt < new Date()) {
         // Subscription expired, disable unlimited
         await updateSubscriptionStatus(userId, 'expired');
+        // Use total from document if available, otherwise calculate
+        const total = credits.total !== undefined ? credits.total : calculateTotal(credits.balances);
         return {
           unlimited: false,
-          total: calculateTotal(credits.balances),
+          total: total,
           breakdown: credits.balances
         };
       } else if (isNaN(expiresAt.getTime())) {
@@ -265,7 +269,8 @@ async function getAvailableCredits(userId) {
     };
   }
   
-  const total = calculateTotal(credits.balances);
+  // Use total from document if available, otherwise calculate (for backward compatibility)
+  const total = credits.total !== undefined ? credits.total : calculateTotal(credits.balances);
   
   return {
     unlimited: false,
@@ -631,8 +636,13 @@ async function consumeCredit(userId, specId, options = {}) {
       const newBalance = Math.max(0, currentBalance - 1);
       
       // Update credits - use increment for atomic update to ensure consistency
+      // Calculate new total after consumption
+      const currentTotal = credits.total || calculateTotal(credits.balances);
+      const newTotal = Math.max(0, currentTotal - 1);
+      
       const updateData = {
         [`balances.${creditType}`]: admin.firestore.FieldValue.increment(-1),
+        total: newTotal,  // Update total field - single source of truth
         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
         'metadata.lastCreditConsume': admin.firestore.FieldValue.serverTimestamp()
       };
@@ -640,6 +650,7 @@ async function consumeCredit(userId, specId, options = {}) {
       
       // Update local credits object for return value
       credits.balances[creditType] = newBalance;
+      credits.total = newTotal;
       
       // Record in ledger
       recordLedgerEntry(transaction, {
@@ -660,7 +671,7 @@ async function consumeCredit(userId, specId, options = {}) {
         }
       });
       
-      const total = calculateTotal(credits.balances);
+      const total = newTotal;
       
       logger.debug({ requestId }, '[CREDITS-V3] After recordLedgerEntry');
       
@@ -806,9 +817,14 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       const currentBalance = credits.balances[creditType] || 0;
       const newBalance = currentBalance + amount;
       
+      // Calculate new total after grant
+      const currentTotal = credits.total || calculateTotal(credits.balances);
+      const newTotal = currentTotal + amount;
+      
       // Update credits - use increment for atomic update to ensure consistency
       const updateData = {
         [`balances.${creditType}`]: admin.firestore.FieldValue.increment(amount),
+        total: newTotal,  // Update total field - single source of truth
         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
         'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
       };
@@ -816,6 +832,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       
       // Update local credits object for return value
       credits.balances[creditType] = newBalance;
+      credits.total = newTotal;
       
       // Record in ledger
       recordLedgerEntry(transaction, {
@@ -837,7 +854,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
         }
       });
       
-      const total = calculateTotal(credits.balances);
+      const total = newTotal;
       
       return {
         success: true,
@@ -972,15 +989,21 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
       const currentBalance = credits.balances[creditType] || 0;
       const newBalance = currentBalance + amount;
       
+      // Calculate new total after refund
+      const currentTotal = credits.total || calculateTotal(credits.balances);
+      const newTotal = currentTotal + amount;
+      
       // Update credits
       const updateData = {
         [`balances.${creditType}`]: admin.firestore.FieldValue.increment(amount),
+        total: newTotal,  // Update total field - single source of truth
         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
       };
       transaction.update(creditsRef, updateData);
       
       // Update local credits object for return value
       credits.balances[creditType] = newBalance;
+      credits.total = newTotal;
       
       // Record in ledger
       recordLedgerEntry(transaction, {
@@ -1002,7 +1025,7 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
         }
       });
       
-      const total = calculateTotal(credits.balances);
+      const total = newTotal;
       
       return {
         success: true,
@@ -1139,6 +1162,7 @@ async function enableProSubscription(userId, options = {}) {
     // Normalize subscriptionStatus: "paid" means active
     const normalizedSubscriptionStatus = subscriptionStatus === 'paid' ? 'active' : subscriptionStatus;
     
+    // When enabling Pro, set total to 0 (unlimited access) but preserve credits for restoration
     const creditsUpdate = {
       subscription: {
         type: 'pro',
@@ -1158,6 +1182,7 @@ async function enableProSubscription(userId, options = {}) {
         canEdit: true,
         canCreateUnlimited: true
       },
+      total: 0,  // Set to 0 for unlimited subscription - single source of truth
       'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
     };
     
@@ -1270,6 +1295,9 @@ async function disableProSubscription(userId, options = {}) {
       credits.balances.paid = (credits.balances.paid || 0) + creditsToRestore;
     }
     
+    // Calculate new total after restoring credits
+    const newTotal = calculateTotal(credits.balances);
+    
     // Update credits - use nested objects properly (not flat paths)
     transaction.set(creditsRef, {
       subscription: {
@@ -1291,6 +1319,7 @@ async function disableProSubscription(userId, options = {}) {
         canCreateUnlimited: false
       },
       balances: credits.balances,
+      total: newTotal,  // Update total field - single source of truth (restored credits)
       'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
     

@@ -277,10 +277,9 @@
     try {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-      // Use credits API - check if V3 is enabled (via localStorage or default to V2)
+      // Use V3 credits API (default system)
       // Note: V3 endpoint is only available if CREDITS_V3_ENABLED=true on server
-      const useV3 = localStorage.getItem('credits_use_v3') === 'true';
-      const creditsEndpoint = useV3 ? '/api/v3/credits' : '/api/v2/credits';
+      const creditsEndpoint = '/api/v3/credits';
       const data = await window.api.get(creditsEndpoint);
       
       // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }

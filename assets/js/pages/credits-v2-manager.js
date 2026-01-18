@@ -1,5 +1,5 @@
 /**
- * Credits V2 Manager - Unified Credit Management
+ * Credits Manager - Unified Credit Management (V3)
  * Handles all credit operations with a single source of truth
  */
 
@@ -7,7 +7,7 @@
   'use strict';
 
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-  const API_BASE_PATH = '/api/v2/credits';
+  const API_BASE_PATH = '/api/v3/credits';
 
   class CreditManager {
     constructor() {

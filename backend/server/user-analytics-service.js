@@ -464,16 +464,17 @@ async function getUserAnalytics(userId) {
     // Auto-sync if needed (fire and forget - don't block response)
     if (needsSync && subscriptionData && subscriptionData.status === 'active') {
       try {
-        const creditsV2Service = require('./credits-v2-service');
-        const productConfig = subscriptionData.subscriptionId ? {
-          billing_interval: subscriptionData.renewsAt ? 'month' : null // Default to month if renewsAt exists
-        } : null;
+        const creditsV3Service = require('./credits-v3-service');
+        const billingInterval = subscriptionData.renewsAt ? 'month' : null;
+        const productName = 'Pro Monthly'; // Default product name
         
-        creditsV2Service.enableProSubscription(userId, {
-          plan: 'pro',
+        creditsV3Service.enableProSubscription(userId, {
+          productKey: 'pro_monthly',
+          productName: productName,
           subscriptionId: subscriptionData.subscriptionId || null,
           subscriptionStatus: 'active',
-          subscriptionInterval: productConfig?.billing_interval || null,
+          subscriptionInterval: billingInterval,
+          billingInterval: billingInterval,
           currentPeriodEnd: subscriptionData.renewsAt || subscriptionData.endsAt || null,
           cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
           metadata: {

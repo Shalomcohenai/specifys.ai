@@ -1314,8 +1314,8 @@ async function generateSpecification() {
       // We'll update it with the real spec ID after saving
       const tempSpecId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
-      // Use new credits API
-      const consumeResult = await window.api.post('/api/v2/credits/consume', {
+      // Use V3 credits API
+      const consumeResult = await window.api.post('/api/v3/credits/consume', {
         specId: tempSpecId
       });
       

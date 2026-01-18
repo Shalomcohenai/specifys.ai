@@ -251,9 +251,12 @@ router.post('/users/:userId/credits', requireAdmin, async (req, res, next) => {
       return next(createError('Invalid amount', ERROR_CODES.INVALID_INPUT, 400));
     }
 
-    const creditsV2Service = require('./credits-v2-service');
+    const creditsV3Service = require('./credits-v3-service');
     logger.debug({ requestId, userId, amount, reason }, '[admin-routes] Granting credits');
-    const result = await creditsV2Service.grantCredits(userId, amount, 'admin', { reason: reason || 'Admin manual grant' });
+    const result = await creditsV3Service.grantCredits(userId, amount, 'admin', { 
+      creditType: 'paid',
+      reason: reason || 'Admin manual grant' 
+    });
 
     logger.info({ 
       requestId, 
@@ -300,12 +303,13 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
     const userRef = db.collection('users').doc(userId);
     await userRef.update({ plan, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
 
-    // Update credits using new system if switching to pro
+    // Update credits using V3 system if switching to pro
     if (plan === 'pro') {
       logger.debug({ requestId, userId }, '[admin-routes] Updating credits for pro plan');
-      const creditsV2Service = require('./credits-v2-service');
-      await creditsV2Service.enableProSubscription(userId, {
-        plan: 'pro',
+      const creditsV3Service = require('./credits-v3-service');
+      await creditsV3Service.enableProSubscription(userId, {
+        productKey: 'pro_monthly',
+        productName: 'Pro Monthly',
         subscriptionStatus: 'active',
         metadata: {
           source: 'admin',
@@ -335,14 +339,10 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
       }
     } else if (plan === 'free') {
       logger.debug({ requestId, userId }, '[admin-routes] Disabling pro plan');
-      const creditsV2Service = require('./credits-v2-service');
-      await creditsV2Service.disableProSubscription(userId, {
-        plan: 'free',
+      const creditsV3Service = require('./credits-v3-service');
+      await creditsV3Service.disableProSubscription(userId, {
         cancelReason: 'admin_requested',
-        metadata: {
-          source: 'admin',
-          adminUserId: req.adminUser?.uid
-        }
+        restoreCredits: null
       });
       
       // Record activity for admin-disabled subscription (already done in disableProSubscription, but adding here for admin context)
@@ -881,7 +881,7 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
   }, '[admin-routes] POST /credits/sync-all - Starting credits sync for all users');
   
   try {
-    const creditsV2Service = require('./credits-v2-service');
+    const creditsV3Service = require('./credits-v3-service');
     const { batchSize = 10, startAfter = null, dryRun = false } = req.body || {};
     
     // Validate batch size
@@ -932,19 +932,19 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
       try {
         results.processed++;
         
-        // Check if user already has credits in new system
-        const creditsRef = db.collection('user_credits').doc(user.id);
+        // Check if user already has credits in V3 system
+        const creditsRef = db.collection('user_credits_v3').doc(user.id);
         const creditsDoc = await creditsRef.get();
         
         if (creditsDoc.exists) {
           // Already synced
           results.alreadySynced++;
-          logger.debug({ requestId, userId: user.id }, '[admin-routes] User already has credits in new system');
+          logger.debug({ requestId, userId: user.id }, '[admin-routes] User already has credits in V3 system');
         } else {
           // Need to migrate
           if (!dryRun) {
-            // Call getUserCredits which will automatically migrate if needed
-            await creditsV2Service.getUserCredits(user.id);
+            // Call getUserCredits which will automatically create if needed
+            await creditsV3Service.getUserCredits(user.id);
             results.migrated++;
             logger.info({ requestId, userId: user.id }, '[admin-routes] Migrated user credits');
           } else {

@@ -333,7 +333,7 @@ export class DataManager {
                   paid: data.balances?.paid || 0,
                   bonus: data.balances?.bonus || 0
                 },
-                total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                total: data.total !== undefined ? data.total : ((data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0)),  // Use total from Firestore (single source of truth), fallback to calculation for backward compatibility
                 // "paid" status also means active subscription
                 unlimited: subscriptionType === 'pro' && (subscriptionStatus === 'active' || subscriptionStatus === 'paid'),
                 updatedAt: this.toDate(data.metadata?.updatedAt),

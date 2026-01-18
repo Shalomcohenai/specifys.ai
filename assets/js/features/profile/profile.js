@@ -828,8 +828,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             }
 
             try {
-                // Use new credits API instead of direct Firestore access
-                const creditsData = await window.api.get('/api/v2/credits');
+                // Use V3 credits API instead of direct Firestore access
+                const creditsData = await window.api.get('/api/v3/credits');
                 
                 // Use new format directly
                 // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
@@ -918,17 +918,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const unlimited = !!ent.unlimited;
             let credits = 0;
 
-            // New logic: use total from new credits system
+            // New logic: use total from new credits system (single source of truth)
             // If unlimited, credits = 0 (displayed as ∞)
-            // Otherwise, calculate total from breakdown (paid + free + bonus)
+            // Otherwise, use total from API response
             if (!unlimited) {
-                // Try to get total from new format first
+                // Use total from API response (single source of truth)
                 if (typeof ent.total === 'number') {
                     credits = ent.total;
-                } else if (ent.breakdown) {
-                    // Calculate total from breakdown
-                    credits = (ent.breakdown.paid || 0) + (ent.breakdown.free || 0) + (ent.breakdown.bonus || 0);
                 } else {
+                    // Fallback for backward compatibility (should not happen with V3)
                     // Use free_specs_remaining with fallback to 0 (not 1)
                     const freeSpecs = typeof user?.free_specs_remaining === 'number'
                         ? Math.max(0, user.free_specs_remaining)

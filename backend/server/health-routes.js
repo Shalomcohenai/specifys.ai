@@ -53,9 +53,9 @@ router.get('/credits', async (req, res) => {
     logger.debug({ requestId }, '[health-routes] GET /credits - Credits health check');
     
     try {
-        // Count users by type using user_credits collection
-        // Get all user_credits documents to count Pro users and credit users
-        const allCreditsSnapshot = await db.collection('user_credits').get();
+        // Count users by type using user_credits_v3 collection
+        // Get all user_credits_v3 documents to count Pro users and credit users
+        const allCreditsSnapshot = await db.collection('user_credits_v3').get();
         
         let proUsers = 0;
         let creditUsers = 0;
@@ -67,8 +67,8 @@ router.get('/credits', async (req, res) => {
                 (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
                 proUsers++;
             }
-            // Check if user has any credits
-            const total = (credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0);
+            // Check if user has any credits - use total from document (single source of truth)
+            const total = credits.total !== undefined ? credits.total : ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0));
             if (total > 0) {
                 creditUsers++;
             }
@@ -77,8 +77,9 @@ router.get('/credits', async (req, res) => {
         // Get total users
         const totalUsersSnapshot = await db.collection('users').count().get();
         
-        // Get active subscriptions (check both 'active' and 'paid' statuses)
-        const activeSubsSnapshot = await db.collection('subscriptions')
+        // Get active subscriptions from subscriptions_v3 archive (for reference only)
+        // Note: subscriptions_v3 is archive/logs only - actual subscription data is in user_credits_v3
+        const activeSubsSnapshot = await db.collection('subscriptions_v3')
             .where('status', 'in', ['active', 'paid'])
             .count()
             .get();

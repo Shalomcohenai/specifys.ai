@@ -147,9 +147,11 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
         logger.info({ requestId, userId }, '[user-routes] Step 5 - Processing credits information...');
         let creditsInfo = null;
         if (result.credits) {
-            logger.debug({ requestId, userId, credits: result.credits }, '[user-routes] Credits data available, calculating totals...');
-            const creditsV2Service = require('./credits-v2-service');
-            const totalCredits = creditsV2Service.calculateTotal(result.credits.balances);
+            logger.debug({ requestId, userId, credits: result.credits }, '[user-routes] Credits data available, using total from document...');
+            // Use total from document (single source of truth), fallback to calculation for backward compatibility
+            const totalCredits = result.credits.total !== undefined 
+                ? result.credits.total 
+                : (result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0);
             creditsInfo = {
                 total: totalCredits,
                 breakdown: result.credits.balances,
@@ -245,8 +247,8 @@ router.get('/me', verifyFirebaseToken, async (req, res, next) => {
         const userData = userDoc.data();
         
         // Get credits
-        const creditsV2Service = require('./credits-v2-service');
-        const credits = await creditsV2Service.getUserCredits(userId);
+        const creditsV3Service = require('./credits-v3-service');
+        const credits = await creditsV3Service.getUserCredits(userId);
         
         res.json({
             success: true,
