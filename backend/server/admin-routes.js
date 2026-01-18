@@ -11,6 +11,7 @@ const { getUserAnalytics } = require('./user-analytics-service');
 const { fetchSubscriptionById, listSubscriptions, buildSubscriptionUpdateFromRecord } = require('./lemon-subscription-resolver');
 const { getProductKeyByVariantId, getProductByKey } = require('./lemon-products-config');
 const creditsV3Service = require('./credits-v3-service');
+const { syncPaymentsData, getCachedPaymentsData, getPaymentsSummary } = require('./lemon-payments-cache');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -1397,6 +1398,422 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     }, '[admin-routes] POST /users/:userId/refresh-subscription - Error');
     
     next(createError('Failed to refresh subscription data', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/payments/summary
+ * Get payments summary statistics
+ */
+router.get('/payments/summary', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /payments/summary');
+  logger.info({ requestId, adminEmail: req.adminUser?.email }, '[admin-routes] GET /payments/summary');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const summary = await getPaymentsSummary({ apiKey, storeId, logger, requestId });
+
+    if (!summary) {
+      return next(createError('Failed to get payments summary', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    res.json({
+      success: true,
+      data: summary
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/summary - Error');
+    next(createError('Failed to get payments summary', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/payments/orders
+ * Get cached orders data
+ */
+router.get('/payments/orders', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /payments/orders');
+  const { status, refunded, dateFrom, dateTo, limit = 100 } = req.query;
+
+  logger.info({ requestId, status, refunded, dateFrom, dateTo, limit }, '[admin-routes] GET /payments/orders');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
+
+    if (!cacheData || !cacheData.orders) {
+      return res.json({
+        success: true,
+        data: {
+          orders: [],
+          total: 0
+        }
+      });
+    }
+
+    let orders = [...cacheData.orders];
+
+    // Apply filters
+    if (status) {
+      orders = orders.filter(order => order.status === status);
+    }
+
+    if (refunded === 'true') {
+      orders = orders.filter(order => order.refunded);
+    } else if (refunded === 'false') {
+      orders = orders.filter(order => !order.refunded);
+    }
+
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      orders = orders.filter(order => {
+        if (!order.createdAt) return false;
+        return new Date(order.createdAt) >= fromDate;
+      });
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      orders = orders.filter(order => {
+        if (!order.createdAt) return false;
+        return new Date(order.createdAt) <= toDate;
+      });
+    }
+
+    // Sort by date (newest first)
+    orders.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return dateB - dateA;
+    });
+
+    // Limit
+    const limitedOrders = orders.slice(0, parseInt(limit, 10));
+
+    res.json({
+      success: true,
+      data: {
+        orders: limitedOrders,
+        total: orders.length,
+        filtered: limitedOrders.length
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/orders - Error');
+    next(createError('Failed to get orders', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/payments/customers
+ * Get cached customers data
+ */
+router.get('/payments/customers', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /payments/customers');
+  const { search, limit = 100 } = req.query;
+
+  logger.info({ requestId, search, limit }, '[admin-routes] GET /payments/customers');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
+
+    if (!cacheData || !cacheData.customers) {
+      return res.json({
+        success: true,
+        data: {
+          customers: [],
+          total: 0
+        }
+      });
+    }
+
+    let customers = [...cacheData.customers];
+
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      customers = customers.filter(customer => 
+        customer.email?.toLowerCase().includes(searchLower) ||
+        customer.name?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Sort by total spent (highest first)
+    customers.sort((a, b) => (b.totalSpent || 0) - (a.totalSpent || 0));
+
+    // Limit
+    const limitedCustomers = customers.slice(0, parseInt(limit, 10));
+
+    res.json({
+      success: true,
+      data: {
+        customers: limitedCustomers,
+        total: customers.length,
+        filtered: limitedCustomers.length
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/customers - Error');
+    next(createError('Failed to get customers', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/payments/errors
+ * Get errors: cancelled subscriptions, refunded orders, past_due, etc.
+ */
+router.get('/payments/errors', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /payments/errors');
+  const { type } = req.query; // cancelled, refunded, past_due, expired
+
+  logger.info({ requestId, type }, '[admin-routes] GET /payments/errors');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
+
+    if (!cacheData) {
+      return res.json({
+        success: true,
+        data: {
+          errors: {
+            cancelled: [],
+            refunded: [],
+            pastDue: [],
+            expired: []
+          },
+          total: 0
+        }
+      });
+    }
+
+    const errors = {
+      cancelled: (cacheData.subscriptions || []).filter(sub => 
+        sub.status === 'cancelled' || sub.cancelled
+      ),
+      refunded: (cacheData.orders || []).filter(order => order.refunded),
+      pastDue: (cacheData.subscriptions || []).filter(sub => 
+        sub.status === 'past_due'
+      ),
+      expired: (cacheData.subscriptions || []).filter(sub => 
+        sub.status === 'expired'
+      )
+    };
+
+    // Filter by type if specified
+    let filteredErrors = [];
+    if (type === 'cancelled') {
+      filteredErrors = errors.cancelled;
+    } else if (type === 'refunded') {
+      filteredErrors = errors.refunded;
+    } else if (type === 'past_due') {
+      filteredErrors = errors.pastDue;
+    } else if (type === 'expired') {
+      filteredErrors = errors.expired;
+    } else {
+      // Return all errors combined
+      filteredErrors = [
+        ...errors.cancelled.map(sub => ({ ...sub, errorType: 'cancelled' })),
+        ...errors.refunded.map(order => ({ ...order, errorType: 'refunded' })),
+        ...errors.pastDue.map(sub => ({ ...sub, errorType: 'past_due' })),
+        ...errors.expired.map(sub => ({ ...sub, errorType: 'expired' }))
+      ];
+    }
+
+    // Sort by date (newest first)
+    filteredErrors.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.endsAt || 0);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.endsAt || 0);
+      return dateB - dateA;
+    });
+
+    res.json({
+      success: true,
+      data: {
+        errors: type ? filteredErrors : {
+          cancelled: errors.cancelled,
+          refunded: errors.refunded,
+          pastDue: errors.pastDue,
+          expired: errors.expired
+        },
+        total: filteredErrors.length,
+        counts: {
+          cancelled: errors.cancelled.length,
+          refunded: errors.refunded.length,
+          pastDue: errors.pastDue.length,
+          expired: errors.expired.length
+        }
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/errors - Error');
+    next(createError('Failed to get errors', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/payments/new-subscribers
+ * Get new subscribers (users who purchased subscription in last 30 days)
+ */
+router.get('/payments/new-subscribers', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /payments/new-subscribers');
+  const { days = 30, limit = 100 } = req.query;
+
+  logger.info({ requestId, days, limit }, '[admin-routes] GET /payments/new-subscribers');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
+
+    if (!cacheData || !cacheData.subscriptions) {
+      return res.json({
+        success: true,
+        data: {
+          subscribers: [],
+          total: 0
+        }
+      });
+    }
+
+    const now = new Date();
+    const daysAgo = new Date(now.getTime() - parseInt(days, 10) * 24 * 60 * 60 * 1000);
+
+    // Filter subscriptions created in last N days
+    const newSubscribers = (cacheData.subscriptions || []).filter(sub => {
+      if (!sub.createdAt) return false;
+      const subDate = new Date(sub.createdAt);
+      return subDate >= daysAgo;
+    });
+
+    // Sort by date (newest first)
+    newSubscribers.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return dateB - dateA;
+    });
+
+    // Limit
+    const limitedSubscribers = newSubscribers.slice(0, parseInt(limit, 10));
+
+    // Match with customers and orders for full details
+    const subscribersWithDetails = limitedSubscribers.map(sub => {
+      const customer = (cacheData.customers || []).find(c => c.id === sub.customerId);
+      const order = (cacheData.orders || []).find(o => o.id === sub.orderId);
+
+      return {
+        ...sub,
+        customer: customer ? {
+          email: customer.email,
+          name: customer.name,
+          totalSpent: customer.totalSpent,
+          totalOrders: customer.totalOrders
+        } : null,
+        order: order ? {
+          total: order.total,
+          currency: order.currency,
+          orderNumber: order.orderNumber
+        } : null
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        subscribers: subscribersWithDetails,
+        total: newSubscribers.length,
+        filtered: limitedSubscribers.length
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/new-subscribers - Error');
+    next(createError('Failed to get new subscribers', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/payments/sync
+ * Manually trigger payments data sync
+ */
+router.post('/payments/sync', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /payments/sync');
+  logger.info({ requestId, adminEmail: req.adminUser?.email }, '[admin-routes] POST /payments/sync - Manual sync triggered');
+
+  try {
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+
+    if (!apiKey || !storeId) {
+      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    // Trigger sync
+    const cacheData = await syncPaymentsData({ apiKey, storeId, logger, requestId });
+
+    logger.info({ 
+      requestId,
+      orders: cacheData?.orders?.length || 0,
+      customers: cacheData?.customers?.length || 0,
+      subscriptions: cacheData?.subscriptions?.length || 0
+    }, '[admin-routes] POST /payments/sync - Sync completed');
+
+    res.json({
+      success: true,
+      message: 'Payments data synced successfully',
+      data: {
+        orders: cacheData?.orders?.length || 0,
+        customers: cacheData?.customers?.length || 0,
+        subscriptions: cacheData?.subscriptions?.length || 0,
+        invoices: cacheData?.invoices?.length || 0,
+        lastSynced: cacheData?.last_synced_at,
+        stats: cacheData?.stats
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /payments/sync - Error');
+    next(createError('Failed to sync payments data', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: error.message
     }));
   }

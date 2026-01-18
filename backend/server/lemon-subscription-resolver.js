@@ -880,12 +880,270 @@ async function upsertSubscriptionFromWebhook({
   }
 }
 
+/**
+ * List all orders from Lemon Squeezy API
+ */
+async function listOrders({ fetch, apiKey, storeId, filters = {}, logger, requestId }) {
+  const log = buildLogger(logger, requestId);
+  const searchParams = new URLSearchParams();
+
+  if (storeId) {
+    searchParams.append('filter[store_id]', storeId.toString());
+  }
+
+  // Add filters
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(`filter[${key}]`, value.toString());
+    }
+  });
+
+  // Set page size (max is 100)
+  searchParams.append('page[size]', '100');
+
+  const url = `https://api.lemonsqueezy.com/v1/orders?${searchParams.toString()}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'application/vnd.api+json'
+      }
+    });
+
+    if (!response.ok) {
+      let errorBody = null;
+      try {
+        errorBody = await response.json();
+      } catch (parseErr) {
+        errorBody = await response.text();
+      }
+
+      log.warn('Lemon list orders returned non-OK status', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      return { records: [], error: { status: response.status, body: errorBody } };
+    }
+
+    const data = await response.json();
+    const records = Array.isArray(data?.data) ? data.data : [];
+    
+    // Handle pagination
+    let allRecords = [...records];
+    let nextPageUrl = data?.links?.next;
+    
+    // Fetch all pages (max 10 pages to avoid infinite loops)
+    let pageCount = 0;
+    while (nextPageUrl && pageCount < 10) {
+      const nextResponse = await fetch(nextPageUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/vnd.api+json'
+        }
+      });
+
+      if (!nextResponse.ok) {
+        break;
+      }
+
+      const nextData = await nextResponse.json();
+      const nextRecords = Array.isArray(nextData?.data) ? nextData.data : [];
+      allRecords = [...allRecords, ...nextRecords];
+      nextPageUrl = nextData?.links?.next;
+      pageCount++;
+    }
+
+    return { records: allRecords };
+  } catch (err) {
+    log.warn('Lemon list orders request failed', { url, error: err?.message || err });
+    return { records: [], error: err };
+  }
+}
+
+/**
+ * List all customers from Lemon Squeezy API
+ */
+async function listCustomers({ fetch, apiKey, storeId, filters = {}, logger, requestId }) {
+  const log = buildLogger(logger, requestId);
+  const searchParams = new URLSearchParams();
+
+  if (storeId) {
+    searchParams.append('filter[store_id]', storeId.toString());
+  }
+
+  // Add filters
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(`filter[${key}]`, value.toString());
+    }
+  });
+
+  searchParams.append('page[size]', '100');
+
+  const url = `https://api.lemonsqueezy.com/v1/customers?${searchParams.toString()}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'application/vnd.api+json'
+      }
+    });
+
+    if (!response.ok) {
+      let errorBody = null;
+      try {
+        errorBody = await response.json();
+      } catch (parseErr) {
+        errorBody = await response.text();
+      }
+
+      log.warn('Lemon list customers returned non-OK status', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      return { records: [], error: { status: response.status, body: errorBody } };
+    }
+
+    const data = await response.json();
+    const records = Array.isArray(data?.data) ? data.data : [];
+    
+    // Handle pagination
+    let allRecords = [...records];
+    let nextPageUrl = data?.links?.next;
+    let pageCount = 0;
+    
+    while (nextPageUrl && pageCount < 10) {
+      const nextResponse = await fetch(nextPageUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/vnd.api+json'
+        }
+      });
+
+      if (!nextResponse.ok) {
+        break;
+      }
+
+      const nextData = await nextResponse.json();
+      const nextRecords = Array.isArray(nextData?.data) ? nextData.data : [];
+      allRecords = [...allRecords, ...nextRecords];
+      nextPageUrl = nextData?.links?.next;
+      pageCount++;
+    }
+
+    return { records: allRecords };
+  } catch (err) {
+    log.warn('Lemon list customers request failed', { url, error: err?.message || err });
+    return { records: [], error: err };
+  }
+}
+
+/**
+ * List subscription invoices from Lemon Squeezy API
+ */
+async function listSubscriptionInvoices({ fetch, apiKey, storeId, subscriptionId, filters = {}, logger, requestId }) {
+  const log = buildLogger(logger, requestId);
+  const searchParams = new URLSearchParams();
+
+  if (storeId) {
+    searchParams.append('filter[store_id]', storeId.toString());
+  }
+
+  if (subscriptionId) {
+    searchParams.append('filter[subscription_id]', subscriptionId.toString());
+  }
+
+  // Add filters
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(`filter[${key}]`, value.toString());
+    }
+  });
+
+  searchParams.append('page[size]', '100');
+
+  const url = `https://api.lemonsqueezy.com/v1/subscription-invoices?${searchParams.toString()}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'application/vnd.api+json'
+      }
+    });
+
+    if (!response.ok) {
+      let errorBody = null;
+      try {
+        errorBody = await response.json();
+      } catch (parseErr) {
+        errorBody = await response.text();
+      }
+
+      log.warn('Lemon list subscription invoices returned non-OK status', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody
+      });
+      return { records: [], error: { status: response.status, body: errorBody } };
+    }
+
+    const data = await response.json();
+    const records = Array.isArray(data?.data) ? data.data : [];
+    
+    // Handle pagination
+    let allRecords = [...records];
+    let nextPageUrl = data?.links?.next;
+    let pageCount = 0;
+    
+    while (nextPageUrl && pageCount < 10) {
+      const nextResponse = await fetch(nextPageUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/vnd.api+json'
+        }
+      });
+
+      if (!nextResponse.ok) {
+        break;
+      }
+
+      const nextData = await nextResponse.json();
+      const nextRecords = Array.isArray(nextData?.data) ? nextData.data : [];
+      allRecords = [...allRecords, ...nextRecords];
+      nextPageUrl = nextData?.links?.next;
+      pageCount++;
+    }
+
+    return { records: allRecords };
+  } catch (err) {
+    log.warn('Lemon list subscription invoices request failed', { url, error: err?.message || err });
+    return { records: [], error: err };
+  }
+}
+
 module.exports = {
   resolveSubscription,
   upsertSubscriptionFromWebhook,
   buildSubscriptionUpdateFromRecord,
   fetchSubscriptionById,
   listSubscriptions,
+  listOrders,
+  listCustomers,
+  listSubscriptionInvoices,
   ACTIVE_STATUSES,
   CANCELLED_STATUSES,
   hasActiveStatus,

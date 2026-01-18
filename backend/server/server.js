@@ -27,6 +27,7 @@ const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-cras
 const { errorHandler, notFoundHandler, createError, ERROR_CODES } = require('./error-handler');
 const { logger, logRequest, logResponse } = require('./logger');
 const { syncAllUsers } = require('./user-management');
+const { startScheduledJobs } = require('./scheduled-jobs');
 
 // Load environment variables BEFORE importing route modules
 // Try backend/.env first (preferred), then project root .env, then server/.env
@@ -1252,15 +1253,41 @@ const server = app.listen(port, () => {
   const keepAliveInterval = setInterval(keepAlive, KEEP_ALIVE_INTERVAL);
   logger.info({ type: 'keep_alive_active' }, '[UNIFIED SERVER] ✅ Keep-alive mechanism active');
 
+  // Start scheduled jobs (payments sync every 24 hours)
+  try {
+    startScheduledJobs();
+    logger.info({ type: 'scheduled_jobs_started' }, '[UNIFIED SERVER] ✅ Scheduled jobs started');
+  } catch (jobError) {
+    logger.error({ 
+      type: 'scheduled_jobs_error',
+      error: {
+        message: jobError.message,
+        stack: jobError.stack
+      }
+    }, '[UNIFIED SERVER] ⚠️ Failed to start scheduled jobs');
+  }
+
   // Cleanup on server shutdown
+  const { stopScheduledJobs } = require('./scheduled-jobs');
+  
   process.on('SIGTERM', () => {
-    logger.info({ type: 'keep_alive_stop' }, '🛑 Stopping keep-alive mechanism');
+    logger.info({ type: 'server_shutdown' }, '🛑 Server shutting down...');
     clearInterval(keepAliveInterval);
+    stopScheduledJobs();
+    server.close(() => {
+      logger.info({ type: 'server_closed' }, '✅ Server closed gracefully');
+      process.exit(0);
+    });
   });
 
   process.on('SIGINT', () => {
-    logger.info({ type: 'keep_alive_stop' }, '🛑 Stopping keep-alive mechanism');
+    logger.info({ type: 'server_shutdown' }, '🛑 Server shutting down...');
     clearInterval(keepAliveInterval);
+    stopScheduledJobs();
+    server.close(() => {
+      logger.info({ type: 'server_closed' }, '✅ Server closed gracefully');
+      process.exit(0);
+    });
   });
 }).on('error', (err) => {
   logger.error({
