@@ -163,36 +163,26 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       successParams.set('product', productKey);
     }
     if (successQuery && typeof successQuery === 'object') {
+      try {
       Object.entries(successQuery).forEach(([key, value]) => {
         if (typeof value === 'undefined' || value === null) return;
         successParams.set(key, String(value));
       });
+      } catch (entriesError) {
+        logger.warn({ 
+          requestId, 
+          successQuery, 
+          error: entriesError.message 
+        }, '[lemon-routes] Error processing successQuery entries');
+      }
     }
     const successUrl = `${frontendUrl}${normalizedSuccessPath}?${successParams.toString()}`;
 
     const useTestMode = process.env.LEMON_TEST_MODE !== 'false';
     logger.debug({ requestId, useTestMode, testModeEnv: process.env.LEMON_TEST_MODE }, '[lemon-routes] Test mode configuration');
 
-    logger.info({ 
-      requestId, 
-      userId, 
-      storeId, 
-      variantId: variantIdToUse, 
-      successUrl, 
-      useTestMode
-    }, '[lemon-routes] Calling Lemon Squeezy API to create checkout using official SDK');
-
-    // Setup Lemon Squeezy SDK
-    lemonSqueezySetup({ apiKey });
-
-    const fetchStartTime = Date.now();
-    let checkoutResult;
-    try {
-      // Use official Lemon Squeezy SDK - handles Cloudflare challenges automatically
-      checkoutResult = await createCheckout(
-        storeId.toString(),
-        variantIdToUse.toString(),
-        {
+    // Prepare checkout parameters
+    const checkoutParams = {
           checkoutData: {
             email: userEmail,
             custom: {
@@ -208,28 +198,86 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
             embed: true // Enable overlay mode
           },
           testMode: useTestMode
-        }
+    };
+
+    logger.info({ 
+      requestId, 
+      userId, 
+      userEmail,
+      storeId: storeId.toString(), 
+      variantId: variantIdToUse.toString(), 
+      successUrl, 
+      useTestMode,
+      checkoutParams: {
+        checkoutData: {
+          email: checkoutParams.checkoutData.email,
+          custom: checkoutParams.checkoutData.custom
+        },
+        productOptions: checkoutParams.productOptions,
+        checkoutOptions: checkoutParams.checkoutOptions,
+        testMode: checkoutParams.testMode
+      },
+      apiKeyExists: !!apiKey,
+      apiKeyLength: apiKey ? apiKey.length : 0,
+      apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'missing'
+    }, '[lemon-routes] 🔵 [CRITICAL] Calling Lemon Squeezy API - ALL PARAMETERS LOGGED');
+
+    // Setup Lemon Squeezy SDK
+    lemonSqueezySetup({ apiKey });
+
+    const fetchStartTime = Date.now();
+    let checkoutResult;
+    try {
+      // Use official Lemon Squeezy SDK - handles Cloudflare challenges automatically
+      checkoutResult = await createCheckout(
+        storeId.toString(),
+        variantIdToUse.toString(),
+        checkoutParams
       );
       
       const fetchDuration = Date.now() - fetchStartTime;
-      logger.debug({ 
+      logger.info({ 
         requestId, 
         fetchDuration,
         hasData: !!checkoutResult?.data,
-        hasError: !!checkoutResult?.error
-      }, '[lemon-routes] Lemon Squeezy SDK response received');
+        hasError: !!checkoutResult?.error,
+        statusCode: checkoutResult?.statusCode,
+        responseStructure: {
+          hasCheckoutResult: !!checkoutResult,
+          hasData: !!checkoutResult?.data,
+          hasError: !!checkoutResult?.error,
+          keys: checkoutResult ? Object.keys(checkoutResult) : []
+        }
+      }, '[lemon-routes] 🔵 Lemon Squeezy SDK response received - FULL STRUCTURE LOGGED');
     } catch (sdkError) {
       const fetchDuration = Date.now() - fetchStartTime;
       logger.error({ 
         requestId, 
         userId, 
+        userEmail,
+        storeId: storeId.toString(),
+        variantId: variantIdToUse.toString(),
         error: { 
           message: sdkError.message, 
           stack: sdkError.stack,
-          name: sdkError.name 
+          name: sdkError.name,
+          code: sdkError.code,
+          statusCode: sdkError.statusCode,
+          response: sdkError.response
         },
+        checkoutParams: {
+          checkoutData: {
+            email: checkoutParams.checkoutData.email,
+            custom: checkoutParams.checkoutData.custom
+          },
+          productOptions: checkoutParams.productOptions,
+          checkoutOptions: checkoutParams.checkoutOptions,
+          testMode: checkoutParams.testMode
+        },
+        apiKeyExists: !!apiKey,
+        apiKeyLength: apiKey ? apiKey.length : 0,
         fetchDuration
-      }, '[lemon-routes] SDK error calling Lemon Squeezy API');
+      }, '[lemon-routes] ❌ [CRITICAL] SDK error calling Lemon Squeezy API - FULL ERROR DETAILS LOGGED');
       throw sdkError;
     }
 
@@ -238,12 +286,27 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       logger.error({ 
         requestId, 
         userId, 
-        error: checkoutResult.error,
+        userEmail,
         variantId: variantIdToUse, 
-        storeId,
+        storeId: storeId.toString(),
+        error: checkoutResult.error,
+        errorType: typeof checkoutResult.error,
+        errorKeys: typeof checkoutResult.error === 'object' && checkoutResult.error ? Object.keys(checkoutResult.error) : [],
+        statusCode: checkoutResult?.statusCode,
+        hasErrorsArray: Array.isArray(checkoutResult.error?.errors),
+        errorsCount: Array.isArray(checkoutResult.error?.errors) ? checkoutResult.error.errors.length : 0,
         apiKeyLength: apiKey ? apiKey.length : 0,
-        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'missing'
-      }, '[lemon-routes] Lemon Squeezy SDK returned error');
+        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'missing',
+        checkoutParams: {
+          checkoutData: {
+            email: checkoutParams.checkoutData.email,
+            custom: checkoutParams.checkoutData.custom
+          },
+          productOptions: checkoutParams.productOptions,
+          checkoutOptions: checkoutParams.checkoutOptions,
+          testMode: checkoutParams.testMode
+        }
+      }, '[lemon-routes] ❌ [CRITICAL] Lemon Squeezy SDK returned error - FULL ERROR STRUCTURE LOGGED');
       
       // Parse error details
       let errorMessage = 'Failed to create checkout';
@@ -750,7 +813,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               orderId: orderData.orderId,
               userId: orderData.userId
             }, '[lemon-routes] 🔵 Calling recordPurchase...');
-            
+
             await recordPurchase({
               orderId: orderData.orderId,
               orderNumber: orderData.orderNumber,
