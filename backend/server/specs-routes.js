@@ -182,25 +182,6 @@ router.get('/', verifyFirebaseToken, async (req, res, next) => {
 
 // /entitlements endpoint removed - use /api/v3/credits instead
 // DEPRECATED /consume-credit endpoint removed - frontend uses /api/v3/credits/consume directly
-            }));
-        }
-        
-        if (error.message === 'User already has a spec. Only one spec per user is allowed.') {
-            return next(createError('User already has a spec', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
-                message: 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.'
-            }));
-        }
-        
-        // Handle spec validation errors
-        if (error.message.includes('does not exist') || error.message.includes('does not belong')) {
-            return next(createError('Invalid spec', ERROR_CODES.INVALID_INPUT, 400, {
-                message: error.message
-            }));
-        }
-
-        next(createError('Failed to consume credit', ERROR_CODES.DATABASE_ERROR, 500, { details: error.message }));
-    }
-});
 
 /**
  * Upload spec to OpenAI Storage
