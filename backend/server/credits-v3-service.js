@@ -192,8 +192,14 @@ async function getUserCredits(userId, autoCreate = true) {
       const userDoc = await userRef.get();
       
       if (!userDoc.exists) {
-        logger.warn({ userId }, '[CREDITS-V3] getUserCredits - ⚠️ User not initialized yet, throwing error to force initialization');
-        throw new Error(`User credits not found for user ${userId}. User must be initialized first via /api/users/initialize`);
+        // User doesn't exist in Firestore - still create default credits
+        // This handles cases where user was created in Auth but initialize failed
+        logger.warn({ userId }, '[CREDITS-V3] getUserCredits - ⚠️ User not initialized in Firestore, but autoCreate=true - creating default credits anyway');
+        const defaultCredits = getDefaultCredits(userId);
+        logger.info({ userId }, '[CREDITS-V3] getUserCredits - Saving default credits to Firestore...');
+        await creditsRef.set(defaultCredits);
+        logger.info({ userId }, '[CREDITS-V3] getUserCredits - ✅ Default credits saved to Firestore (user not in Firestore yet)');
+        return defaultCredits;
       }
       
       // User exists - create default credits
