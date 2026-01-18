@@ -188,6 +188,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     console.log(`[user-management] User ${uid}: ⚠️ RECENTLY CREATED USER - Credits exist but welcome credit not granted, granting now`);
                     transaction.update(creditsRef, {
                         'balances.free': admin.firestore.FieldValue.increment(1),
+                        'total': admin.firestore.FieldValue.increment(1),
                         'metadata.welcomeCreditGranted': true,
                         'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
                         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
@@ -199,6 +200,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                             ...existingCredits.balances,
                             free: (existingCredits.balances?.free || 0) + 1
                         },
+                        total: existingTotal + 1,
                         metadata: {
                             ...existingCredits.metadata,
                             welcomeCreditGranted: true,
@@ -341,6 +343,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     // Update existing credits to grant welcome credit
                     transaction.update(creditsRef, {
                         'balances.free': admin.firestore.FieldValue.increment(1),
+                        'total': admin.firestore.FieldValue.increment(1),
                         'metadata.welcomeCreditGranted': true,
                         'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
                         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
@@ -353,6 +356,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                             ...finalCredits.balances,
                             free: (finalCredits.balances?.free || 0) + 1
                         },
+                        total: existingTotal + 1,
                         metadata: {
                             ...finalCredits.metadata,
                             welcomeCreditGranted: true,
@@ -369,6 +373,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     console.log(`[user-management] User ${uid}: ⚠️ EDGE CASE - New user with welcomeCreditGranted=true but total=0, granting credit anyway`);
                     transaction.update(creditsRef, {
                         'balances.free': admin.firestore.FieldValue.increment(1),
+                        'total': admin.firestore.FieldValue.increment(1),
                         'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
                         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
                     });
@@ -379,6 +384,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                             ...finalCredits.balances,
                             free: (finalCredits.balances?.free || 0) + 1
                         },
+                        total: existingTotal + 1,
                         metadata: {
                             ...finalCredits.metadata,
                             lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
