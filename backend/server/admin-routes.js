@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
 const { getActivityEvents } = require('./admin-activity-service');
 const { getUserAnalytics } = require('./user-analytics-service');
-const { fetchSubscriptionById, listSubscriptions } = require('./lemon-subscription-resolver');
+const { fetchSubscriptionById, listSubscriptions, buildSubscriptionUpdateFromRecord } = require('./lemon-subscription-resolver');
 const { getProductKeyByVariantId, getProductByKey } = require('./lemon-products-config');
 const creditsV3Service = require('./credits-v3-service');
 
@@ -1146,24 +1146,6 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
   }, '[admin-routes] POST /users/:userId/refresh-subscription - Refreshing subscription data from Lemon Squeezy');
   
   try {
-    // Get user email from Firebase Auth
-    let userEmail = null;
-    try {
-      const userRecord = await admin.auth().getUser(userId);
-      userEmail = userRecord.email;
-    } catch (error) {
-      logger.warn({ requestId, userId, error: error.message }, '[admin-routes] Could not fetch user from Auth, trying Firestore');
-      // Fallback to Firestore
-      const userDoc = await db.collection('users').doc(userId).get();
-      if (userDoc.exists) {
-        userEmail = userDoc.data().email;
-      }
-    }
-    
-    if (!userEmail) {
-      return next(createError('User email not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
-    }
-    
     // Get Lemon Squeezy API credentials
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
@@ -1172,140 +1154,87 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
       return next(createError('Lemon Squeezy API key not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
     
-    // First, try to find subscription by email in Lemon Squeezy API
     const fetch = globalThis.fetch || require('node-fetch');
-    let subscriptionRecord = null;
+    
+    // Step 1: Get existing subscription ID from Firebase (prioritize subscriptions_v3 over user_credits_v3)
     let lemonSubscriptionId = null;
+    const subscriptionsV3Doc = await db.collection('subscriptions_v3').doc(userId).get();
     
-    // Try to find subscription by email
-    logger.info({ requestId, userId, userEmail }, '[admin-routes] Searching for subscription by email in Lemon Squeezy');
-    
-    // First try with active status
-    let { records, error: listError } = await listSubscriptions({
-      fetch,
-      apiKey,
-      storeId: storeId ? storeId.toString() : null,
-      status: 'active',
-      mode: 'live',
-      filters: { customer_email: userEmail },
-      logger,
-      requestId
-    });
-    
-    // If no active subscriptions found or error, try without status filter
-    if (listError || !records || records.length === 0) {
-      logger.info({ requestId, userId, error: listError, activeCount: records?.length || 0 }, '[admin-routes] No active subscriptions found, trying all statuses');
-      const allStatusResult = await listSubscriptions({
-        fetch,
-        apiKey,
-        storeId: storeId ? storeId.toString() : null,
-        // Don't pass status to get all subscriptions
-        mode: 'live',
-        filters: { customer_email: userEmail },
-        logger,
-        requestId
-      });
-      
-      if (allStatusResult.records && allStatusResult.records.length > 0) {
-        records = allStatusResult.records;
-        listError = allStatusResult.error;
-      }
+    if (subscriptionsV3Doc.exists) {
+      const subscriptionsV3Data = subscriptionsV3Doc.data();
+      lemonSubscriptionId = subscriptionsV3Data?.lemon_subscription_id || null;
+      logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId, source: 'subscriptions_v3' }, '[admin-routes] Found subscription ID in subscriptions_v3');
     }
     
-    if (records && records.length > 0) {
-      // Find the most recent active subscription, or take the first one
-      subscriptionRecord = records.find((rec) => {
-        const status = rec?.attributes?.status;
-        return status === 'active' || status === 'on_trial' || status === 'past_due';
-      }) || records[0];
-      lemonSubscriptionId = subscriptionRecord.id.toString();
-      logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId, status: subscriptionRecord?.attributes?.status }, '[admin-routes] Found subscription by email');
-    }
-    
-    // If not found by email, try to get from Firebase as fallback
-    if (!subscriptionRecord) {
-      logger.info({ requestId, userId }, '[admin-routes] Subscription not found by email, checking Firebase for existing subscription ID');
-      
-      const creditsV3Ref = db.collection('user_credits_v3').doc(userId);
-      const creditsV3Doc = await creditsV3Ref.get();
-      
+    // Fallback to user_credits_v3 if not found
+    if (!lemonSubscriptionId) {
+      const creditsV3Doc = await db.collection('user_credits_v3').doc(userId).get();
       if (creditsV3Doc.exists) {
-        const creditsData = creditsV3Doc.data();
-        lemonSubscriptionId = creditsData.subscription?.lemonSubscriptionId;
-        
-        if (lemonSubscriptionId) {
-          subscriptionRecord = await fetchSubscriptionById({
-            fetch,
-            apiKey,
-            subscriptionId: lemonSubscriptionId,
-            storeId: storeId ? storeId.toString() : null,
-            logger,
-            requestId
-          });
-        }
+        const creditsV3Data = creditsV3Doc.data();
+        lemonSubscriptionId = creditsV3Data?.subscription?.lemonSubscriptionId || null;
+        logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId, source: 'user_credits_v3' }, '[admin-routes] Found subscription ID in user_credits_v3');
       }
     }
     
-    if (!subscriptionRecord) {
+    // If no subscription ID found, user doesn't have a Lemon subscription
+    if (!lemonSubscriptionId) {
       return next(createError(
-        `No subscription found in Lemon Squeezy for user email: ${userEmail}. Please ensure the user has an active subscription.`,
+        'No subscription ID found for this user. This endpoint only works for users with existing Lemon Squeezy subscriptions.',
         ERROR_CODES.RESOURCE_NOT_FOUND,
         404
       ));
     }
     
-    lemonSubscriptionId = lemonSubscriptionId || subscriptionRecord.id.toString();
+    // Step 2: Fetch full subscription data from Lemon API with include=order
+    logger.info({ requestId, userId, subscriptionId: lemonSubscriptionId }, '[admin-routes] Fetching subscription data from Lemon Squeezy API');
     
-    // Extract data from subscription record
-    const attributes = subscriptionRecord.attributes || {};
-    const relationships = subscriptionRecord.relationships || {};
-    const variantId = attributes.variant_id || relationships?.variant?.data?.id || null;
-    const productId = attributes.product_id || relationships?.product?.data?.id || null;
-    const status = attributes.status || 'active';
-    const renewsAt = attributes.renews_at || null;
-    const endsAt = attributes.ends_at || null;
-    const cancelAtPeriodEnd = attributes.cancel_at_period_end || false;
+    const subscriptionRecord = await fetchSubscriptionById({
+      fetch,
+      apiKey,
+      subscriptionId: lemonSubscriptionId,
+      storeId: storeId ? storeId.toString() : null,
+      logger,
+      requestId
+    });
+    
+    if (!subscriptionRecord) {
+      return next(createError(
+        `Subscription ${lemonSubscriptionId} not found in Lemon Squeezy. It may have been deleted.`,
+        ERROR_CODES.RESOURCE_NOT_FOUND,
+        404
+      ));
+    }
+    
+    // Step 3: Extract all data from subscription record using buildSubscriptionUpdateFromRecord
+    const existingSubscriptionData = subscriptionsV3Doc.exists ? subscriptionsV3Doc.data() : {};
+    const builtData = buildSubscriptionUpdateFromRecord(subscriptionRecord, existingSubscriptionData, admin);
+    
+    if (!builtData || !builtData.update) {
+      return next(createError('Failed to parse subscription data from Lemon Squeezy', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+    
+    const attributes = builtData.attributes || {};
+    const variantId = builtData.update.variant_id || existingSubscriptionData?.variant_id || null;
+    const productId = builtData.update.product_id || existingSubscriptionData?.product_id || null;
     
     // Get product key from variant ID
     const productKey = variantId ? getProductKeyByVariantId(variantId.toString()) : null;
     const productConfig = productKey ? getProductByKey(productKey) : null;
-    const productName = productConfig?.name || null;
-    const billingInterval = productConfig?.billing_interval || null;
+    const productName = productConfig?.name || existingSubscriptionData?.product_name || null;
+    const billingInterval = productConfig?.billing_interval || existingSubscriptionData?.billing_interval || null;
     
-    // Update user_credits_v3
-    const enableProOptions = {
-      plan: 'pro',
-      productId: productId ? productId.toString() : null,
-      productKey: productKey,
-      productName: productName,
-      variantId: variantId ? variantId.toString() : null,
-      subscriptionId: lemonSubscriptionId,
-      subscriptionStatus: status,
-      subscriptionInterval: billingInterval,
-      currentPeriodEnd: renewsAt || endsAt,
-      cancelAtPeriodEnd: cancelAtPeriodEnd,
-      metadata: {
-        source: 'admin_refresh',
-        adminUserId: req.adminUser?.uid,
-        requestId
-      }
-    };
+    // Extract currency from order if available (via relationships)
+    let currency = existingSubscriptionData?.currency || 'USD';
+    const orderId = builtData.orderId || builtData.update.last_order_id || null;
     
-    await creditsV3Service.enableProSubscription(userId, enableProOptions);
-    
-    // Also update subscriptions_v3 archive
+    // Step 4: Update subscriptions_v3 with ALL missing fields
     const subscriptionsV3Ref = db.collection('subscriptions_v3').doc(userId);
     const subscriptionUpdate = {
-      lemon_subscription_id: lemonSubscriptionId,
-      status: status === 'paid' ? 'active' : status,
-      variant_id: variantId ? variantId.toString() : null,
-      product_id: productId ? productId.toString() : null,
-      product_key: productKey,
-      product_name: productName,
-      billing_interval: billingInterval,
-      renews_at: renewsAt,
-      ends_at: endsAt,
-      cancel_at_period_end: cancelAtPeriodEnd,
+      ...builtData.update,
+      product_key: productKey || existingSubscriptionData?.product_key || null,
+      product_name: productName || existingSubscriptionData?.product_name || null,
+      billing_interval: billingInterval || existingSubscriptionData?.billing_interval || null,
+      currency: currency, // Preserve existing or use default
       last_synced_at: admin.firestore.FieldValue.serverTimestamp(),
       last_synced_source: 'admin_refresh',
       last_synced_mode: 'live',
@@ -1314,14 +1243,65 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
     
     await subscriptionsV3Ref.set(subscriptionUpdate, { merge: true });
     
+    // Step 5: Update user_credits_v3.subscription with renewsAt, endsAt, cancelAtPeriodEnd
+    const creditsV3Ref = db.collection('user_credits_v3').doc(userId);
+    const creditsV3Doc = await creditsV3Ref.get();
+    
+    if (creditsV3Doc.exists) {
+      const currentCreditsData = creditsV3Doc.data();
+      const currentSubscription = currentCreditsData?.subscription || {};
+      
+      const creditsSubscriptionUpdate = {
+        'subscription.renewsAt': builtData.update.renews_at || null,
+        'subscription.endsAt': builtData.update.ends_at || null,
+        'subscription.cancelAtPeriodEnd': builtData.update.cancel_at_period_end || false,
+        'subscription.status': builtData.status || currentSubscription.status || 'active',
+        'subscription.lemonSubscriptionId': lemonSubscriptionId,
+        'subscription.lastSyncedAt': admin.firestore.FieldValue.serverTimestamp()
+      };
+      
+      // Preserve product info if missing
+      if (!currentSubscription.productKey && productKey) {
+        creditsSubscriptionUpdate['subscription.productKey'] = productKey;
+      }
+      if (!currentSubscription.productName && productName) {
+        creditsSubscriptionUpdate['subscription.productName'] = productName;
+      }
+      if (!currentSubscription.billingInterval && billingInterval) {
+        creditsSubscriptionUpdate['subscription.billingInterval'] = billingInterval;
+      }
+      
+      await creditsV3Ref.update(creditsSubscriptionUpdate);
+    }
+    
+    // Step 6: Update users collection with lemon_customer_id if missing
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      const customerId = builtData.customerId || null;
+      
+      if (customerId && !userData.lemon_customer_id) {
+        await userRef.update({
+          lemon_customer_id: customerId
+        });
+        logger.info({ requestId, userId, customerId }, '[admin-routes] Updated users.lemon_customer_id');
+      }
+    }
+    
     logger.info({ 
       requestId, 
       userId,
-      userEmail,
       lemonSubscriptionId,
       productKey,
       productName,
-      billingInterval
+      billingInterval,
+      renewsAt: builtData.update.renews_at,
+      endsAt: builtData.update.ends_at,
+      cancelAtPeriodEnd: builtData.update.cancel_at_period_end,
+      customerId: builtData.customerId,
+      orderId: orderId
     }, '[admin-routes] POST /users/:userId/refresh-subscription - Success');
     
     res.json({
@@ -1332,9 +1312,14 @@ router.post('/users/:userId/refresh-subscription', requireAdmin, async (req, res
         productKey,
         productName,
         billingInterval,
-        status,
-        renewsAt,
-        endsAt
+        status: builtData.status,
+        renewsAt: builtData.update.renews_at,
+        endsAt: builtData.update.ends_at,
+        cancelAtPeriodEnd: builtData.update.cancel_at_period_end,
+        customerId: builtData.customerId,
+        orderId: orderId,
+        storeId: builtData.update.store_id,
+        currency: currency
       }
     });
   } catch (error) {
