@@ -853,7 +853,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                         currency: creditsData.subscription.currency || 'USD',
                         billingInterval: creditsData.subscription.billingInterval || null
                     };
-                    console.log('[Profile] Subscription data from API:', currentSubscription);
                 } else {
                     // Fallback: Load subscription from Firestore if not in API response
                     const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
@@ -963,8 +962,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const costRowEl = document.getElementById('cost-row');
             const renewalDateEl = document.getElementById('info-renewal-date');
             const renewalCostEl = document.getElementById('info-renewal-cost');
-
-            console.log('[Profile] updateEntitlementUI - unlimited:', unlimited, 'sub:', sub);
 
             if (unlimited && sub) {
                 // Determine renewal date

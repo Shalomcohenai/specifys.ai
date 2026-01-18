@@ -31,10 +31,5 @@
       enableFallback: true
     }
   };
-
-  // Log that config is loaded (only in development)
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    console.log('[Credits Config] Configuration loaded:', window.CREDITS_CONFIG);
-  }
 })();
 

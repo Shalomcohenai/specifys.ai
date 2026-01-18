@@ -53,7 +53,6 @@ class ArticlePage {
             // Error loading article
             // Check if it's a 404 error - redirect to 404 page
             if (error.status === 404 || error.message.includes('not found') || error.message.includes('Article not found')) {
-                console.warn('[ArticlePage] Article not found, redirecting to 404', { slug: this.slug, error: error.message });
                 window.location.href = '/pages/404.html';
                 return;
             }

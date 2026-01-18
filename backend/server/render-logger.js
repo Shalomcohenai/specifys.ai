@@ -1,4 +1,5 @@
 const { db } = require('./firebase-admin');
+const { logError } = require('./error-logger');
 
 /**
  * Save a server log to Firestore
@@ -74,6 +75,46 @@ async function saveRenderLog(level, logData, message) {
 
     // Save to Firestore with ignoreUndefinedProperties
     await db.collection('renderLogs').add(logDoc);
+
+    // If this is an error, also save it to errorLogs for the admin dashboard
+    if (level === 'error') {
+      // Map error code - use existing errorCode or determine from status code or error type
+      const mappedErrorCode = errorCode || 
+        (statusCode >= 500 ? 'INTERNAL_ERROR' : 
+         statusCode >= 400 ? 'VALIDATION_ERROR' : 
+         'INTERNAL_ERROR');
+      
+      // Determine error type based on logData.type or error name
+      const errorType = logData.type || 
+        errorName || 
+        (logData.method && logData.path ? 'api' : 'server') ||
+        'server';
+
+      // Prepare additional data
+      const additionalData = {
+        requestId,
+        method,
+        path,
+        statusCode,
+        errorStack,
+        logType: logData.type || 'server',
+        ip: logData.ip || null,
+        origin: logData.origin || null
+      };
+
+      // Log to errorLogs (async, don't wait)
+      logError(
+        errorType,
+        errorMessage,
+        mappedErrorCode,
+        userId,
+        logData.userAgent || null,
+        additionalData
+      ).catch((err) => {
+        // Silently fail - don't break render logging if error logging fails
+        console.error('[render-logger] Failed to log error to errorLogs:', err.message);
+      });
+    }
   } catch (error) {
     // Don't throw - we don't want logging failures to break the app
     // Just log to console as fallback

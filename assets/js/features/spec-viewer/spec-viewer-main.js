@@ -556,7 +556,9 @@ function displaySpec(data) {
     displayTechnical(data.technical);
     displayMarket(data.market);
     displayDesign(data.design);
-    displayMockup(data.mockups).catch(err => console.error('Error displaying mockup:', err));
+    displayMockup(data.mockups).catch(err => {
+        // Error displaying mockup
+    });
     displayDiagramsFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -1624,7 +1626,7 @@ function openVisualizer(type) {
     
     // Check if elements exist before accessing them
     if (!modal || !title || !mobileTemplate || !webTemplate) {
-        console.warn('Color visualizer modal elements not found. The visualizer feature may not be available.');
+        // Color visualizer modal elements not found
         return;
     }
     
@@ -1658,7 +1660,7 @@ function applyColorsToTemplate(type) {
     
     // Check if template exists before accessing it
     if (!template) {
-        console.warn(`Template element for ${type} not found.`);
+        // Template element not found
         return;
     }
     

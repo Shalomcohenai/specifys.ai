@@ -18,7 +18,7 @@ async function logError(errorType, errorMessage, errorCode, userId = null, userA
     // Check if this error already exists today with the same code
     const existingErrors = await db.collection('errorLogs')
       .where('errorCode', '==', errorCode)
-      .where('timestamp', '>=', today)
+      .where('firstOccurrence', '>=', today)
       .limit(1)
       .get();
     
