@@ -384,9 +384,21 @@ export class OverviewView {
       return lastActive >= previousStartDate.getTime() && lastActive <= previousEndDate.getTime();
     }).length;
     
-    const activeChange = activeInPreviousRange > 0 
-      ? Math.round(((activeInRange - activeInPreviousRange) / activeInPreviousRange) * 100)
-      : (activeInRange > 0 ? 100 : 0);
+    // Calculate change percentage properly
+    let activeChange = 0;
+    if (activeInPreviousRange > 0) {
+      // Normal case: calculate percentage change
+      activeChange = Math.round(((activeInRange - activeInPreviousRange) / activeInPreviousRange) * 100);
+    } else if (activeInPreviousRange === 0 && activeInRange > 0) {
+      // Previous period had 0, current has data -> 100% increase
+      activeChange = 100;
+    } else if (activeInPreviousRange === 0 && activeInRange === 0) {
+      // Both periods have 0 -> no change
+      activeChange = 0;
+    } else if (activeInPreviousRange > 0 && activeInRange === 0) {
+      // Previous had data, current has 0 -> 100% decrease
+      activeChange = -100;
+    }
     
     this.updateMetricCard('metric-active-users', activeInRange, activeChange, 'chart-active-users', allData.users, 'lastActive', null, startDate, today);
     
@@ -403,9 +415,21 @@ export class OverviewView {
       return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const newChange = newInPreviousRange > 0
-      ? Math.round(((newInRange - newInPreviousRange) / newInPreviousRange) * 100)
-      : (newInRange > 0 ? 100 : 0);
+    // Calculate change percentage properly
+    let newChange = 0;
+    if (newInPreviousRange > 0) {
+      // Normal case: calculate percentage change
+      newChange = Math.round(((newInRange - newInPreviousRange) / newInPreviousRange) * 100);
+    } else if (newInPreviousRange === 0 && newInRange > 0) {
+      // Previous period had 0, current has data -> 100% increase
+      newChange = 100;
+    } else if (newInPreviousRange === 0 && newInRange === 0) {
+      // Both periods have 0 -> no change
+      newChange = 0;
+    } else if (newInPreviousRange > 0 && newInRange === 0) {
+      // Previous had data, current has 0 -> 100% decrease
+      newChange = -100;
+    }
     
     this.updateMetricCard('metric-new-users', newInRange, newChange, 'chart-new-users', allData.users, 'createdAt', null, startDate, today);
     
@@ -422,9 +446,21 @@ export class OverviewView {
       return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const specsChange = specsInPreviousRange > 0
-      ? Math.round(((specsInRange - specsInPreviousRange) / specsInPreviousRange) * 100)
-      : (specsInRange > 0 ? 100 : 0);
+    // Calculate change percentage properly
+    let specsChange = 0;
+    if (specsInPreviousRange > 0) {
+      // Normal case: calculate percentage change
+      specsChange = Math.round(((specsInRange - specsInPreviousRange) / specsInPreviousRange) * 100);
+    } else if (specsInPreviousRange === 0 && specsInRange > 0) {
+      // Previous period had 0, current has data -> 100% increase
+      specsChange = 100;
+    } else if (specsInPreviousRange === 0 && specsInRange === 0) {
+      // Both periods have 0 -> no change
+      specsChange = 0;
+    } else if (specsInPreviousRange > 0 && specsInRange === 0) {
+      // Previous had data, current has 0 -> 100% decrease
+      specsChange = -100;
+    }
     
     this.updateMetricCard('metric-specs', specsInRange, specsChange, 'chart-specs', allData.specs, 'createdAt', null, startDate, today);
     
@@ -444,9 +480,21 @@ export class OverviewView {
       return created >= previousStartDate.getTime() && created <= previousEndDate.getTime();
     }).length;
     
-    const purchasesChange = purchasesInPreviousRange > 0
-      ? Math.round(((purchasesCount - purchasesInPreviousRange) / purchasesInPreviousRange) * 100)
-      : (purchasesCount > 0 ? 100 : 0);
+    // Calculate change percentage properly
+    let purchasesChange = 0;
+    if (purchasesInPreviousRange > 0) {
+      // Normal case: calculate percentage change
+      purchasesChange = Math.round(((purchasesCount - purchasesInPreviousRange) / purchasesInPreviousRange) * 100);
+    } else if (purchasesInPreviousRange === 0 && purchasesCount > 0) {
+      // Previous period had 0, current has data -> 100% increase
+      purchasesChange = 100;
+    } else if (purchasesInPreviousRange === 0 && purchasesCount === 0) {
+      // Both periods have 0 -> no change
+      purchasesChange = 0;
+    } else if (purchasesInPreviousRange > 0 && purchasesCount === 0) {
+      // Previous had data, current has 0 -> 100% decrease
+      purchasesChange = -100;
+    }
     
     this.updateMetricCard('metric-purchases', purchasesCount, purchasesChange, 'chart-purchases', allData.purchases, 'createdAt', 'total', startDate, today);
     
@@ -454,6 +502,35 @@ export class OverviewView {
     const revenueEl = helpers.dom('#metric-revenue-value');
     if (revenueEl) {
       revenueEl.textContent = helpers.formatCurrency(revenueInRange);
+    }
+  }
+  
+  /**
+   * Update change indicator
+   */
+  updateChangeIndicator(changeEl, icon, span, change) {
+    // Ensure change is a number
+    const changeValue = typeof change === 'number' ? change : parseFloat(change) || 0;
+    
+    // Update icon and text based on change value
+    if (changeValue > 0) {
+      // Positive change - arrow up, green
+      icon.className = 'fas fa-arrow-up';
+      changeEl.classList.remove('negative', 'neutral');
+      changeEl.classList.add('positive');
+      span.textContent = `+${Math.abs(changeValue)}%`;
+    } else if (changeValue < 0) {
+      // Negative change - arrow down, red
+      icon.className = 'fas fa-arrow-down';
+      changeEl.classList.remove('positive', 'neutral');
+      changeEl.classList.add('negative');
+      span.textContent = `${changeValue}%`; // Already includes minus sign
+    } else {
+      // No change - minus sign, neutral
+      icon.className = 'fas fa-minus';
+      changeEl.classList.remove('negative', 'positive');
+      changeEl.classList.add('neutral');
+      span.textContent = '0%';
     }
   }
   
@@ -482,39 +559,16 @@ export class OverviewView {
       'metric-purchases': 'metric-purchases-change'
     };
     
+    // Update change indicator
     const changeEl = helpers.dom(`#${changeIdMap[metricId] || metricId + '-change'}`);
     if (changeEl) {
       const icon = changeEl.querySelector('i');
       const span = changeEl.querySelector('span');
       
       // Ensure we have valid elements
-      if (!icon || !span) {
-        // Missing icon or span
-        return;
+      if (icon && span) {
+        this.updateChangeIndicator(changeEl, icon, span, change);
       }
-      
-      // Update icon and text based on change value
-      if (change > 0) {
-        // Positive change - arrow up
-        icon.className = 'fas fa-arrow-up';
-        changeEl.classList.remove('negative', 'neutral');
-        changeEl.classList.add('positive');
-        span.textContent = `+${change}%`;
-      } else if (change < 0) {
-        // Negative change - arrow down
-        icon.className = 'fas fa-arrow-down';
-        changeEl.classList.remove('positive', 'neutral');
-        changeEl.classList.add('negative');
-        span.textContent = `${change}%`; // Already includes minus sign
-      } else {
-        // No change - minus sign
-        icon.className = 'fas fa-minus';
-        changeEl.classList.remove('negative', 'positive');
-        changeEl.classList.add('neutral');
-        span.textContent = '0%';
-      }
-    } else {
-      // Could not find change element
     }
     
     // Update chart
