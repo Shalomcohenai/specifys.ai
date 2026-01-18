@@ -655,12 +655,36 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     if (parsed.eventName === 'order_created') {
       const { orderData, customData } = parsed;
 
+      logger.info({ 
+        webhookRequestId,
+        orderId: orderData.orderId,
+        userId: orderData.userId,
+        email: orderData.email,
+        variantId: orderData.variantId,
+        customDataProductKey: customData?.product_key,
+        orderDataProductKey: orderData.productKey
+      }, '[lemon-routes] 🔵 order_created webhook - Starting processing');
 
       const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
 
       // Determine product details
       const resolvedProductKey = customData?.product_key || orderData.productKey || getProductKeyByVariantId(orderData.variantId);
+      logger.info({ 
+        webhookRequestId,
+        orderId: orderData.orderId,
+        resolvedProductKey,
+        source: customData?.product_key ? 'customData' : (orderData.productKey ? 'orderData' : 'variantId_lookup')
+      }, '[lemon-routes] 🔵 Product key resolution');
+
       const productConfig = resolvedProductKey ? getProductByKey(resolvedProductKey) : getProductByVariantId(orderData.variantId);
+      logger.info({ 
+        webhookRequestId,
+        orderId: orderData.orderId,
+        hasProductConfig: !!productConfig,
+        productConfigType: productConfig?.type,
+        productConfigCredits: productConfig?.credits,
+        productConfigName: productConfig?.name
+      }, '[lemon-routes] 🔵 Product config lookup result');
 
       if (orderData.testMode) {
         if (!allowTestPurchases) {
@@ -694,6 +718,13 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             );
 
           } else {
+            logger.info({ 
+              webhookRequestId,
+              orderId: orderData.orderId,
+              userId: orderData.userId,
+              testMode: orderData.testMode
+            }, '[lemon-routes] 🔵 Processing LIVE purchase (not test)');
+
             const quantityOrdered = Number.isFinite(Number(orderData.quantity))
               ? Math.max(1, Number(orderData.quantity))
               : 1;
@@ -702,6 +733,24 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               : (typeof productConfig?.credits === 'string' ? Number(productConfig.credits) : null);
             const creditsToGrant = Number.isFinite(baseCredits) ? baseCredits * quantityOrdered : null;
 
+            logger.info({ 
+              webhookRequestId,
+              orderId: orderData.orderId,
+              userId: orderData.userId,
+              quantityOrdered,
+              baseCredits,
+              creditsToGrant,
+              productConfigExists: !!productConfig,
+              productConfigCreditsType: typeof productConfig?.credits,
+              productConfigCreditsValue: productConfig?.credits
+            }, '[lemon-routes] 🔵 Credits calculation for grant');
+
+            logger.info({ 
+              webhookRequestId,
+              orderId: orderData.orderId,
+              userId: orderData.userId
+            }, '[lemon-routes] 🔵 Calling recordPurchase...');
+            
             await recordPurchase({
               orderId: orderData.orderId,
               orderNumber: orderData.orderNumber,
@@ -727,11 +776,87 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               }
             });
 
+            logger.info({ 
+              webhookRequestId,
+              orderId: orderData.orderId,
+              userId: orderData.userId
+            }, '[lemon-routes] ✅ recordPurchase completed successfully - Purchase saved to Firestore');
+
+            // CRITICAL: Log all values before checking conditions for credit grant
+            logger.info({ 
+              webhookRequestId,
+              orderId: orderData.orderId,
+              userId: orderData.userId,
+              hasProductConfig: !!productConfig,
+              productConfigType: productConfig?.type,
+              productConfigCredits: productConfig?.credits,
+              productConfigName: productConfig?.name,
+              creditsToGrant,
+              creditsToGrantType: typeof creditsToGrant,
+              creditsToGrantValue: creditsToGrant,
+              isCreditsToGrantNumber: typeof creditsToGrant === 'number',
+              isCreditsToGrantPositive: creditsToGrant && creditsToGrant > 0,
+              condition1_productConfigExists: !!productConfig,
+              condition2_productTypeIsOneTime: productConfig?.type === 'one_time',
+              condition3_creditsToGrantExists: !!creditsToGrant,
+              condition4_creditsToGrantPositive: creditsToGrant && creditsToGrant > 0,
+              allConditionsMet: !!(productConfig && productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0)
+            }, '[lemon-routes] 🔵 [CRITICAL] Checking if credits should be granted - ALL CONDITIONS LOGGED');
 
             if (productConfig) {
+              logger.info({ 
+                webhookRequestId,
+                orderId: orderData.orderId,
+                userId: orderData.userId,
+                productConfigType: productConfig.type,
+                creditsToGrant
+              }, '[lemon-routes] 🔵 ✅ productConfig EXISTS - proceeding to check product type');
+
+              logger.info({ 
+                webhookRequestId,
+                orderId: orderData.orderId,
+                userId: orderData.userId,
+                productConfigType: productConfig.type,
+                isOneTime: productConfig.type === 'one_time',
+                creditsToGrant,
+                creditsToGrantExists: !!creditsToGrant,
+                creditsToGrantPositive: creditsToGrant && creditsToGrant > 0,
+                willEnterOneTimeBlock: !!(productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0)
+              }, '[lemon-routes] 🔵 [CRITICAL] Checking one_time conditions - BREAKDOWN');
+
               if (productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0) {
+                logger.info({ 
+                  webhookRequestId,
+                  orderId: orderData.orderId,
+                  userId: orderData.userId,
+                  creditsToGrant,
+                  productType: productConfig.type,
+                  conditionCheck: 'ALL CONDITIONS MET - ENTERING grantCredits BLOCK'
+                }, '[lemon-routes] 🟢 [SUCCESS] Conditions met for granting credits - CALLING grantCredits NOW...');
+                logger.info({ 
+                  webhookRequestId,
+                  orderId: orderData.orderId,
+                  userId: orderData.userId,
+                  creditsToGrant,
+                  productType: productConfig.type
+                }, '[lemon-routes] 🟢 Conditions met for granting credits - calling grantCredits...');
+
                 try {
-                  await creditsV3Service.grantCredits(
+                  logger.info({ 
+                    webhookRequestId,
+                    orderId: orderData.orderId,
+                    userId: orderData.userId,
+                    creditsToGrant,
+                    transactionId: orderData.orderId ? `lemon_${orderData.orderId}` : undefined,
+                    metadata: {
+                      orderId: orderData.orderId,
+                      variantId: orderData.variantId,
+                      productId: orderData.productId,
+                      productKey: resolvedProductKey
+                    }
+                  }, '[lemon-routes] 🔵 [CRITICAL] CALLING grantCredits NOW - parameters logged');
+
+                  const grantResult = await creditsV3Service.grantCredits(
                     orderData.userId,
                     creditsToGrant,
                     'purchase',
@@ -747,10 +872,38 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                       transactionId: orderData.orderId ? `lemon_${orderData.orderId}` : undefined
                     }
                   );
+                  
+                  logger.info({ 
+                    webhookRequestId,
+                    orderId: orderData.orderId,
+                    userId: orderData.userId,
+                    creditsToGrant,
+                    grantResult: {
+                      success: grantResult.success,
+                      creditsAdded: grantResult.creditsAdded,
+                      remaining: grantResult.remaining,
+                      alreadyProcessed: grantResult.alreadyProcessed,
+                      transactionId: grantResult.transactionId
+                    }
+                  }, '[lemon-routes] ✅ [SUCCESS] grantCredits completed successfully - CREDITS GRANTED');
                 } catch (creditError) {
+                  logger.error({ 
+                    webhookRequestId,
+                    orderId: orderData.orderId,
+                    userId: orderData.userId,
+                    creditsToGrant,
+                    error: creditError.message,
+                    stack: creditError.stack
+                  }, '[lemon-routes] ❌ grantCredits FAILED - throwing error');
                   throw creditError;
                 }
               } else if (productConfig.type === 'subscription') {
+                logger.info({ 
+                  webhookRequestId,
+                  orderId: orderData.orderId,
+                  userId: orderData.userId,
+                  productType: productConfig.type
+                }, '[lemon-routes] 🔵 Processing subscription product');
                 try {
                   // CRITICAL FIX: In order_created webhook, subscription ID may not exist yet
                   // Try to fetch it from Lemon API using the order ID
@@ -858,11 +1011,41 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                   }, '[lemon-routes] Error enabling subscription from order webhook');
                   throw subscriptionError;
                 }
+              } else {
+                // productConfig.type is NOT 'one_time' OR creditsToGrant is null/0
+                logger.warn({ 
+                  webhookRequestId,
+                  orderId: orderData.orderId,
+                  userId: orderData.userId,
+                  productConfigType: productConfig.type,
+                  creditsToGrant,
+                  creditsToGrantType: typeof creditsToGrant,
+                  condition1_productTypeIsOneTime: productConfig.type === 'one_time',
+                  condition2_creditsToGrantExists: !!creditsToGrant,
+                  condition3_creditsToGrantPositive: creditsToGrant && creditsToGrant > 0,
+                  failureReason: !(productConfig.type === 'one_time') ? 'productType is not one_time' : (!creditsToGrant ? 'creditsToGrant is null/0' : 'unknown')
+                }, '[lemon-routes] ⚠️ [FAILED] productConfig exists but conditions NOT met for granting credits - DETAILED BREAKDOWN');
               }
+            } else {
+              logger.warn({ 
+                webhookRequestId,
+                orderId: orderData.orderId,
+                userId: orderData.userId,
+                resolvedProductKey,
+                productConfigIsNull: true,
+                resolvedProductKeyValue: resolvedProductKey
+              }, '[lemon-routes] ⚠️ [FAILED] productConfig is NULL - skipping credit grant - PRODUCT CONFIG LOOKUP FAILED');
             }
           }
 
         } catch (error) {
+          logger.error({ 
+            webhookRequestId,
+            orderId: orderData?.orderId,
+            userId: orderData?.userId,
+            error: error.message,
+            stack: error.stack
+          }, '[lemon-routes] ❌ Error in order_created webhook processing - rethrowing');
           throw error;
         }
       } else {

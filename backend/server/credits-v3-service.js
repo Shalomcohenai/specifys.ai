@@ -715,46 +715,81 @@ async function grantCredits(userId, amount, source, metadata = {}) {
   const requestId = `grant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
-  logger.info({ requestId, userId, amount, source }, '[CREDITS-V3] Grant credits');
+  logger.info({ 
+    requestId, 
+    userId, 
+    amount, 
+    source,
+    amountType: typeof amount,
+    amountIsNumber: typeof amount === 'number',
+    amountIsInteger: Number.isInteger(amount),
+    amountPositive: amount > 0,
+    metadata: {
+      orderId: metadata.orderId,
+      productKey: metadata.productKey,
+      productName: metadata.productName,
+      transactionId: metadata.transactionId
+    },
+    fullMetadata: metadata
+  }, '[CREDITS-V3] 🔵 [CRITICAL] grantCredits - Starting - ALL PARAMETERS LOGGED');
   
   try {
     // Validate inputs
     if (!userId || typeof userId !== 'string') {
+      logger.error({ requestId, userId }, '[CREDITS-V3] ❌ Invalid userId');
       throw new Error('Invalid userId');
     }
     
     if (!amount || amount <= 0 || !Number.isInteger(amount)) {
+      logger.error({ requestId, userId, amount }, '[CREDITS-V3] ❌ Invalid amount');
       throw new Error('Amount must be a positive integer');
     }
     
     // Prevent overflow
     const MAX_CREDITS_PER_GRANT = 1000;
     if (amount > MAX_CREDITS_PER_GRANT) {
+      logger.error({ requestId, userId, amount, maxAllowed: MAX_CREDITS_PER_GRANT }, '[CREDITS-V3] ❌ Amount exceeds maximum');
       throw new Error(`Amount exceeds maximum allowed (${MAX_CREDITS_PER_GRANT})`);
     }
     
     // Generate transaction ID
     const transactionId = metadata.transactionId || generateTransactionId('grant', metadata.orderId, userId);
+    logger.info({ 
+      requestId, 
+      userId, 
+      transactionId,
+      metadataTransactionId: metadata.transactionId
+    }, '[CREDITS-V3] 🔵 Transaction ID generated');
     
     // Ensure user_credits exists
+    logger.info({ requestId, userId }, '[CREDITS-V3] 🔵 Ensuring user_credits exists...');
     await getUserCredits(userId);
+    logger.info({ requestId, userId }, '[CREDITS-V3] ✅ user_credits exists');
     
     // Use Firestore transaction for atomic credit grant
+    logger.info({ requestId, userId, transactionId }, '[CREDITS-V3] 🔵 Starting Firestore transaction...');
     const result = await db.runTransaction(async (transaction) => {
+      logger.info({ requestId, transactionId }, '[CREDITS-V3] 🔵 Inside transaction - checking idempotency...');
+      
       // Check idempotency
       const ledgerDocRef = db.collection(LEDGER_COLLECTION_V3).doc(transactionId);
       const existingLedgerDoc = await transaction.get(ledgerDocRef);
       
       if (existingLedgerDoc.exists) {
         const existing = existingLedgerDoc.data();
-        logger.info({ requestId, transactionId }, '[CREDITS-V3] Transaction already processed (grant)');
+        logger.info({ 
+          requestId, 
+          transactionId,
+          existingAmount: existing.amount,
+          existingType: existing.type
+        }, '[CREDITS-V3] ⚠️ Transaction already processed (grant) - idempotency check');
         
         // Get current credits to return actual state
         const creditsRef = db.collection(CREDITS_COLLECTION_V3).doc(userId);
         const creditsDoc = await transaction.get(creditsRef);
         const currentCredits = creditsDoc.exists ? creditsDoc.data() : getDefaultCredits(userId);
         
-        return {
+        const idempotentResult = {
           success: true,
           alreadyProcessed: true,
           transactionId: transactionId,
@@ -762,17 +797,23 @@ async function grantCredits(userId, amount, source, metadata = {}) {
           remaining: calculateTotal(currentCredits.balances),
           breakdown: currentCredits.balances
         };
+        
+        logger.info({ requestId, transactionId, result: idempotentResult }, '[CREDITS-V3] ✅ Returning idempotent result');
+        return idempotentResult;
       }
+      
+      logger.info({ requestId, transactionId }, '[CREDITS-V3] 🔵 Transaction not found - proceeding with grant...');
       
       // Get user credits
       const creditsRef = db.collection(CREDITS_COLLECTION_V3).doc(userId);
       const creditsDoc = await transaction.get(creditsRef);
       
       if (!creditsDoc.exists) {
-        logger.warn({ requestId, userId }, '[CREDITS-V3] user_credits document missing, creating default');
+        logger.warn({ requestId, userId }, '[CREDITS-V3] ⚠️ user_credits document missing in transaction, creating default');
         const defaultCredits = getDefaultCredits(userId);
         transaction.set(creditsRef, defaultCredits);
-        return {
+        
+        const newUserResult = {
           success: true,
           creditsAdded: amount,
           creditType: determineCreditType(source, metadata),
@@ -780,12 +821,28 @@ async function grantCredits(userId, amount, source, metadata = {}) {
           breakdown: defaultCredits.balances,
           transactionId: transactionId
         };
+        
+        logger.info({ requestId, userId, result: newUserResult }, '[CREDITS-V3] ✅ Created default credits for new user');
+        return newUserResult;
       }
       
       const credits = creditsDoc.data();
+      logger.info({ 
+        requestId, 
+        userId,
+        currentTotal: credits.total,
+        currentBalances: credits.balances
+      }, '[CREDITS-V3] 🔵 Current credits retrieved');
       
       // Determine credit type
       const creditType = determineCreditType(source, metadata);
+      logger.info({ 
+        requestId, 
+        userId,
+        creditType,
+        source,
+        metadataCreditType: metadata.creditType
+      }, '[CREDITS-V3] 🔵 Credit type determined');
       
       // Grant credits - use increment for atomic update
       const currentBalance = credits.balances[creditType] || 0;
@@ -795,6 +852,17 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       const currentTotal = credits.total || calculateTotal(credits.balances);
       const newTotal = currentTotal + amount;
       
+      logger.info({ 
+        requestId, 
+        userId,
+        creditType,
+        currentBalance,
+        amount,
+        newBalance,
+        currentTotal,
+        newTotal
+      }, '[CREDITS-V3] 🔵 Credit calculation complete');
+      
       // Update credits - use increment for atomic update to ensure consistency
       const updateData = {
         [`balances.${creditType}`]: admin.firestore.FieldValue.increment(amount),
@@ -802,11 +870,26 @@ async function grantCredits(userId, amount, source, metadata = {}) {
         'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp(),
         'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp()
       };
+      
+      logger.info({ 
+        requestId, 
+        userId,
+        updateData,
+        creditType
+      }, '[CREDITS-V3] 🔵 Updating credits in Firestore...');
+      
       transaction.update(creditsRef, updateData);
       
       // Update local credits object for return value
       credits.balances[creditType] = newBalance;
       credits.total = newTotal;
+      
+      logger.info({ 
+        requestId, 
+        userId,
+        balanceAfter: credits.balances,
+        newTotal
+      }, '[CREDITS-V3] 🔵 Recording ledger entry...');
       
       // Record in ledger
       recordLedgerEntry(transaction, {
@@ -828,9 +911,11 @@ async function grantCredits(userId, amount, source, metadata = {}) {
         }
       });
       
+      logger.info({ requestId, userId, transactionId }, '[CREDITS-V3] ✅ Ledger entry recorded');
+      
       const total = newTotal;
       
-      return {
+      const successResult = {
         success: true,
         creditsAdded: amount,
         creditType: creditType,
@@ -838,15 +923,45 @@ async function grantCredits(userId, amount, source, metadata = {}) {
         breakdown: credits.balances,
         transactionId: transactionId
       };
+      
+      logger.info({ requestId, userId, result: successResult }, '[CREDITS-V3] ✅ Transaction completed successfully');
+      return successResult;
     });
     
     const totalTime = Date.now() - startTime;
-    logger.info({ requestId, totalTime, result }, '[CREDITS-V3] Credits granted successfully');
+    logger.info({ 
+      requestId, 
+      totalTime, 
+      userId,
+      amount,
+      result: {
+        success: result.success,
+        creditsAdded: result.creditsAdded,
+        creditType: result.creditType,
+        total: result.total,
+        remaining: result.remaining,
+        breakdown: result.breakdown,
+        alreadyProcessed: result.alreadyProcessed,
+        transactionId: result.transactionId
+      },
+      creditsAdded: result.creditsAdded,
+      remaining: result.remaining,
+      alreadyProcessed: result.alreadyProcessed,
+      transactionId: result.transactionId
+    }, '[CREDITS-V3] ✅ [SUCCESS] Credits granted successfully - transaction complete - USER CREDITS UPDATED');
     
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    logger.error({ requestId, totalTime, error: error.message, stack: error.stack }, '[CREDITS-V3] Error granting credits');
+    logger.error({ 
+      requestId, 
+      totalTime, 
+      userId,
+      amount,
+      error: error.message, 
+      stack: error.stack,
+      errorName: error.name
+    }, '[CREDITS-V3] ❌ Error granting credits - throwing error');
     throw error;
   }
 }
