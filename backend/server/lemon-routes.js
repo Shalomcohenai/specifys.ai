@@ -723,6 +723,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
         orderId: orderData.orderId,
         userId: orderData.userId,
         email: orderData.email,
+        paymentEmail: orderData.email,
         variantId: orderData.variantId,
         customDataProductKey: customData?.product_key,
         orderDataProductKey: orderData.productKey
@@ -758,6 +759,27 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       // Check if userId exists
       if (!orderData.userId) {
         return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
+      }
+
+      // Get user email from Firebase Auth for additional context
+      let userEmail = null;
+      try {
+        const userRecord = await auth.getUser(orderData.userId);
+        userEmail = userRecord.email || null;
+        logger.info({ 
+          webhookRequestId,
+          orderId: orderData.orderId,
+          userId: orderData.userId,
+          userEmail,
+          paymentEmail: orderData.email
+        }, '[lemon-routes] 🔵 User email retrieved from Firebase Auth');
+      } catch (authError) {
+        logger.warn({ 
+          webhookRequestId,
+          orderId: orderData.orderId,
+          userId: orderData.userId,
+          error: authError.message
+        }, '[lemon-routes] ⚠️ Failed to retrieve user email from Firebase Auth');
       }
 
       // Record purchase in Firebase
@@ -819,6 +841,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               orderNumber: orderData.orderNumber,
               userId: orderData.userId,
               email: orderData.email,
+              userEmail: userEmail,
               variantId: orderData.variantId,
               productId: orderData.productId,
               productKey: resolvedProductKey,
@@ -842,7 +865,9 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             logger.info({ 
               webhookRequestId,
               orderId: orderData.orderId,
-              userId: orderData.userId
+              userId: orderData.userId,
+              userEmail,
+              paymentEmail: orderData.email
             }, '[lemon-routes] ✅ recordPurchase completed successfully - Purchase saved to Firestore');
 
             // CRITICAL: Log all values before checking conditions for credit grant
