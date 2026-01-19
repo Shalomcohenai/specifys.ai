@@ -120,7 +120,7 @@ async function checkInactiveUsers() {
   try {
     logger.info({ requestId }, '[scheduled-jobs] Starting inactive users check');
     
-    const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys.ai';
+    const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     

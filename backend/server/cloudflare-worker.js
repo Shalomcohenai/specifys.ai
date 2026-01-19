@@ -110,7 +110,7 @@ async function sendEmail(userEmail, feedback, type, timestamp) {
   // For now, we'll just log it
   
   const emailData = {
-    from: 'noreply@specifys.ai',
+    from: 'noreply@specifys-ai.com',
     to: FEEDBACK_EMAIL,
     subject: 'New Feedback from Specifys.ai',
     html: `
@@ -172,5 +172,5 @@ async function forwardToGoogleSheets(userEmail, feedback, type, timestamp) {
 }
 
 // Environment variables (set these in Cloudflare Workers dashboard)
-const FEEDBACK_EMAIL = 'feedback@specifys.ai' // Set this in your worker environment
+const FEEDBACK_EMAIL = 'feedback@specifys-ai.com' // Set this in your worker environment
 const GOOGLE_SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec' // Set this in your worker environment

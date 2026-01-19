@@ -44,8 +44,8 @@ const COLLECTIONS = Object.freeze({
 
 const ADMIN_EMAILS = new Set([
   "specifysai@gmail.com",
-  "admin@specifys.ai",
-  "shalom@specifys.ai"
+  "admin@specifys-ai.com",
+  "shalom@specifys-ai.com"
 ]);
 
 const DATE_RANGES = Object.freeze({

@@ -98,8 +98,8 @@ npm start
 ## 📞 Security Contact
 
 For security issues, contact:
-- Email: security@specifys.ai
-- Admin: shalom@specifys.ai
+- Email: security@specifys-ai.com
+- Admin: shalom@specifys-ai.com
 
 ---
 

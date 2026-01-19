@@ -32,8 +32,8 @@ const firebaseConfig = {
 
 const ADMIN_EMAILS = new Set([
   "specifysai@gmail.com",
-  "admin@specifys.ai",
-  "shalom@specifys.ai"
+  "admin@specifys-ai.com",
+  "shalom@specifys-ai.com"
 ]);
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
