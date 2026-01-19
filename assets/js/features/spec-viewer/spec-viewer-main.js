@@ -45,7 +45,7 @@ async function sendSpecReadyNotification(specId) {
         }
         
         const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
         
         const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/send-ready-notification`, {
             method: 'POST',

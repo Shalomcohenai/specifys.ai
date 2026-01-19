@@ -143,8 +143,8 @@ BASE_URL=https://specifys-ai.com
 SITE_URL=https://specifys-ai.com
 
 # Production Server URL (for API calls)
-# Default: https://specifys-ai-development.onrender.com
-PRODUCTION_SERVER_URL=https://specifys-ai-development.onrender.com
+# Default: https://specifys-ai-development2.onrender.com
+PRODUCTION_SERVER_URL=https://specifys-ai-development2.onrender.com
 
 # ============================================
 # Notes

@@ -74,7 +74,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 }
                 
                 const token = await user.getIdToken();
-                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
                 
                 const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
                     method: 'POST',
@@ -1191,7 +1191,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 setSubscriptionMessage('Processing cancellation…', 'info');
 
                 const token = await currentUser.getIdToken();
-                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
                 const response = await fetch(`${apiBaseUrl}/api/lemon/subscription/cancel`, {
                     method: 'POST',
                     headers: {
@@ -2490,7 +2490,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             
             try {
                 const token = await currentUser.getIdToken();
-                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
                 
                 const response = await fetch(`${apiBaseUrl}/api/users/preferences/email`, {
                     method: 'GET',
@@ -2550,7 +2550,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             
             try {
                 const token = await currentUser.getIdToken();
-                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
                 
                 const response = await fetch(`${apiBaseUrl}/api/users/preferences/email`, {
                     method: 'PUT',

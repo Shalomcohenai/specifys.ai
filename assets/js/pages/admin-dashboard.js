@@ -4251,7 +4251,7 @@ class AdminDashboardApp {
       return window.getApiBaseUrl();
     }
     // Fallback to Render URL (same as config.js)
-    return "https://specifys-ai-development.onrender.com";
+    return "https://specifys-ai-development2.onrender.com";
   }
 
   /**
@@ -4815,7 +4815,7 @@ class AdminDashboardApp {
       
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
       const requestUrl = isEditing
         ? `${apiBaseUrl}/api/blog/update-post`
         : `${apiBaseUrl}/api/blog/create-post`;
@@ -4933,7 +4933,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
       const requestUrl = `${apiBaseUrl}/api/blog/list-posts`;
       try {
         const result = await window.api.get('/api/blog/list-posts');
@@ -5384,7 +5384,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       let result = null;
       try {
@@ -5484,7 +5484,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       let result = null;
       try {
@@ -5618,7 +5618,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       let totalProcessed = 0;
       let totalMigrated = 0;
@@ -5725,7 +5725,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       // Call the test-spec health check endpoint (uses same flow as real spec generation)
       const responseData = await window.api.get('/api/health/test-spec');
@@ -6032,7 +6032,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       let response;
       const userId = form.querySelector("input[type='text']")?.value;
@@ -6129,7 +6129,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       // Load errors from errorLogs collection
       const data = await window.api.get('/api/admin/errors');
@@ -6406,7 +6406,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       const range = this.dom.performanceRange?.value || "day";
       const data = await window.api.get(`/api/admin/performance?range=${range}`);
@@ -6464,7 +6464,7 @@ class AdminDashboardApp {
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
-        : "https://specifys-ai-development.onrender.com";
+        : "https://specifys-ai-development2.onrender.com";
 
       const status = this.dom.contactStatusFilter?.value || "all";
       const url = `${apiBaseUrl}/api/admin/contact-submissions?status=${status}&limit=100`;
@@ -6577,7 +6577,7 @@ class AdminDashboardApp {
 
     const apiBaseUrl = typeof window.getApiBaseUrl === "function"
       ? window.getApiBaseUrl()
-      : "https://specifys-ai-development.onrender.com";
+      : "https://specifys-ai-development2.onrender.com";
 
     const result = await window.api.put(`/api/admin/contact-submissions/${id}/status`, { status });
     

@@ -20,7 +20,7 @@
     if (typeof window !== 'undefined' && window.API_BASE_URL) {
       return window.API_BASE_URL;
     }
-    return 'https://specifys-ai-development.onrender.com';
+    return 'https://specifys-ai-development2.onrender.com';
   }
 
   /**
