@@ -2038,8 +2038,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             // Define admin emails - add your specific admin email here
             const adminEmails = [
                 'specifysai@gmail.com',
-                'admin@specifys-ai.com',
-                'shalom@specifys-ai.com'
+                // Only specifysai@gmail.com has admin access
                 // Add more admin emails as needed
             ];
             

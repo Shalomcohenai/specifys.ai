@@ -32,8 +32,7 @@ const firebaseConfig = {
 
 const ADMIN_EMAILS = new Set([
   "specifysai@gmail.com",
-  "admin@specifys-ai.com",
-  "shalom@specifys-ai.com"
+  // Only specifysai@gmail.com has admin access
 ]);
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);

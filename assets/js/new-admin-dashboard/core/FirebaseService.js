@@ -51,8 +51,7 @@ const COLLECTIONS = Object.freeze({
 
 const ADMIN_EMAILS = new Set([
   "specifysai@gmail.com",
-  "admin@specifys-ai.com",
-  "shalom@specifys-ai.com"
+  // Only specifysai@gmail.com has admin access
 ]);
 
 export class FirebaseService {

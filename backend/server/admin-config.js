@@ -4,9 +4,8 @@
  */
 
 const ADMIN_EMAILS = [
-  'specifysai@gmail.com',
-  'admin@specifys-ai.com',
-  'shalom@specifys-ai.com'
+  'specifysai@gmail.com'
+  // Add more admin emails here if needed
 ];
 
 function isAdminEmail(email) {

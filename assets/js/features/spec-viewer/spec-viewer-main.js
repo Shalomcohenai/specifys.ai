@@ -445,7 +445,7 @@ async function loadSpec(specId) {
         
         // Check if user has permission to view this spec
         // spec-viewer.html only shows specs to their owner or admin (not public specs)
-        const adminEmails = ['specifysai@gmail.com', 'admin@specifys-ai.com', 'shalom@specifys-ai.com'];
+        const adminEmails = ['specifysai@gmail.com'];
         const isOwner = specData.userId === user.uid;
         const isAdmin = adminEmails.includes(user.email);
         

@@ -19,7 +19,7 @@ async function verifyAdminToken(req, res, next) {
     const decodedToken = await auth.verifyIdToken(idToken);
     
     // Check if user is admin
-    const adminEmails = ['specifysai@gmail.com', 'admin@specifys-ai.com', 'shalom@specifys-ai.com'];
+    const adminEmails = ['specifysai@gmail.com'];
     if (!adminEmails.includes(decodedToken.email)) {
       logger.warn({ path: req.path, email: decodedToken.email }, '[stats-routes] Admin access required');
       return next(createError('Admin access required', ERROR_CODES.FORBIDDEN, 403));
