@@ -1125,15 +1125,6 @@ router.get('/activity', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Debug: Log all registered routes
-logger.info('[admin-routes] Admin routes initialized. Registered routes:');
-router.stack.forEach((layer) => {
-  if (layer.route) {
-    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-    logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
-  }
-});
-
 /**
  * Refresh user subscription data from Lemon Squeezy API
  * POST /api/admin/users/:userId/refresh-subscription
@@ -1931,6 +1922,15 @@ router.get('/users/:userId/emails', requireAdmin, async (req, res, next) => {
     next(createError('Failed to get user email history', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
+  }
+});
+
+// Debug: Log all registered routes (must be after all route definitions)
+logger.info('[admin-routes] Admin routes initialized. Registered routes:');
+router.stack.forEach((layer) => {
+  if (layer.route) {
+    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+    logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
   }
 });
 
