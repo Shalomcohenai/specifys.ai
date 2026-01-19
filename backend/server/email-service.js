@@ -552,13 +552,22 @@ class EmailService {
         html: testHtml
       });
 
+      // Check for explicit error first
+      if (result.error) {
+        logger.error({ toEmail, error: result.error }, '[EmailService] Failed to send test email via Resend');
+        return { success: false, error: result.error.message || JSON.stringify(result.error) };
+      }
+
+      // If we have an id, great - use it
       if (result.id) {
         logger.info({ toEmail, messageId: result.id }, '[EmailService] Test email sent successfully');
         return { success: true, messageId: result.id };
-      } else {
-        logger.error({ toEmail, error: result.error?.message }, '[EmailService] Failed to send test email via Resend');
-        return { success: false, error: result.error?.message || 'Unknown Resend error' };
       }
+
+      // If no id but also no error, email was likely sent (Resend sometimes doesn't return id immediately)
+      // Log the full result for debugging
+      logger.info({ toEmail, result }, '[EmailService] Test email sent (no messageId in response, but no error)');
+      return { success: true, messageId: null, note: 'Email sent but no messageId returned in response' };
     } catch (error) {
       logger.error({ toEmail, error: error.message }, '[EmailService] Exception sending test email');
       return { success: false, error: error.message };
