@@ -70,6 +70,13 @@ class EmailService {
         html: html
       });
 
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, 'Welcome to Specifys.ai', 'welcome', 'user_registered', { messageId: result.id }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record welcome email sent');
+        });
+      }
+
       logger.info({ userEmail, messageId: result.id }, '[EmailService] Welcome email sent successfully');
       return { success: true, messageId: result.id };
     } catch (error) {
@@ -118,6 +125,13 @@ class EmailService {
         subject: `Your specification "${specTitle}" is ready!`,
         html: html
       });
+
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, `Your specification "${specTitle}" is ready!`, 'spec-ready', 'spec_created', { messageId: result.id, specId }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record spec ready email sent');
+        });
+      }
 
       logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Spec ready email sent successfully');
       return { success: true, messageId: result.id };
@@ -169,6 +183,13 @@ class EmailService {
         subject: subject,
         html: html
       });
+
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'newsletter', eventName || 'newsletter_sent', { messageId: result.id, emailType }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record newsletter email sent');
+        });
+      }
 
       logger.info({ userEmail, messageId: result.id, emailType }, '[EmailService] Newsletter email sent successfully');
       return { success: true, messageId: result.id };
@@ -251,6 +272,13 @@ class EmailService {
         html: html
       });
 
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, 'We Miss You at Specifys.ai', 'inactive-user', 'inactive_user_30_days', { messageId: result.id }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record inactive user email sent');
+        });
+      }
+
       logger.info({ userEmail, messageId: result.id }, '[EmailService] Inactive user email sent successfully');
       return { success: true, messageId: result.id };
     } catch (error) {
@@ -308,6 +336,13 @@ class EmailService {
         html: html
       });
 
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, 'Thank You for Your Purchase', 'purchase-confirmation', 'purchase_confirmed', { messageId: result.id, orderId, productName, amount, currency }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record purchase confirmation email sent');
+        });
+      }
+
       logger.info({ userEmail, orderId, messageId: result.id }, '[EmailService] Purchase confirmation email sent successfully');
       return { success: true, messageId: result.id };
     } catch (error) {
@@ -356,6 +391,13 @@ class EmailService {
         subject: `Your advanced specification "${specTitle}" is ready!`,
         html: html
       });
+
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, `Your advanced specification "${specTitle}" is ready!`, 'advanced-spec-ready', 'advanced_spec_created', { messageId: result.id, specId }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record advanced spec ready email sent');
+        });
+      }
 
       logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Advanced spec ready email sent successfully');
       return { success: true, messageId: result.id };
@@ -408,6 +450,13 @@ class EmailService {
         subject: 'Tools Found for You',
         html: html
       });
+
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, 'Tools Found for You', 'tool-finder', 'tool_finder_used', { messageId: result.id }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record tool finder email sent');
+        });
+      }
 
       logger.info({ userEmail, messageId: result.id }, '[EmailService] Tool Finder usage email sent successfully');
       return { success: true, messageId: result.id };

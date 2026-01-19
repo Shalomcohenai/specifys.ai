@@ -1845,20 +1845,30 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
       if (endDate) filters.endDate = endDate;
     }
     
-    const stats = await emailTracking.getEmailClickStats(filters);
+    const [clickStats, sentStats] = await Promise.all([
+      emailTracking.getEmailClickStats(filters),
+      emailTracking.getEmailSentStats(filters)
+    ]);
     
-    // Also get total emails sent (from users collection or separate tracking)
-    // For now, we'll calculate based on email_clicks and estimated sent count
-    // In the future, we can track emails sent separately
+    logger.info({ requestId, filters, clicksTotal: clickStats.total, sentTotal: sentStats.total }, '[admin-routes] Email analytics retrieved');
     
-    logger.info({ requestId, filters, statsTotal: stats.total }, '[admin-routes] Email analytics retrieved');
+    // Calculate click rate based on emails sent (not clicks)
+    const clickRate = sentStats.total > 0 ? ((clickStats.total / sentStats.total) * 100).toFixed(2) : 0;
     
     res.json({
       success: true,
       filters,
       stats: {
-        ...stats,
-        clickRate: stats.total > 0 ? ((stats.uniqueClicks / stats.total) * 100).toFixed(2) : 0
+        clicks: {
+          ...clickStats,
+          clickRate: parseFloat(clickRate)
+        },
+        sent: {
+          ...sentStats
+        },
+        totalEmailsSent: sentStats.total,
+        totalClicks: clickStats.total,
+        clickRate: parseFloat(clickRate)
       }
     });
   } catch (error) {

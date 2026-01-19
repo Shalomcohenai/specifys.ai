@@ -198,10 +198,120 @@ async function getUserEmailJourney(userId) {
   }
 }
 
+/**
+ * Record that an email was sent
+ * @param {string} userId - User ID
+ * @param {string} recipientEmail - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} category - Email category (welcome, spec-ready, etc.)
+ * @param {string} eventName - Event name (user_registered, spec_created, etc.)
+ * @param {Object} metadata - Additional metadata
+ * @returns {Promise<string>} - Tracking ID
+ */
+async function recordEmailSent(userId, recipientEmail, subject, category, eventName, metadata = {}) {
+  try {
+    const trackingData = {
+      userId: userId || null,
+      recipientEmail: recipientEmail || null,
+      subject: subject || null,
+      category: category || 'unknown',
+      eventName: eventName || 'unknown',
+      metadata: metadata || {},
+      sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      timestamp: new Date().toISOString()
+    };
+    
+    const docRef = await db.collection('email_sent').add(trackingData);
+    
+    logger.info({ 
+      trackingId: docRef.id,
+      userId, 
+      recipientEmail, 
+      category,
+      eventName
+    }, '[EmailTracking] Email sent recorded');
+    
+    return docRef.id;
+  } catch (error) {
+    logger.error({ 
+      error: error.message, 
+      userId, 
+      category 
+    }, '[EmailTracking] Failed to record email sent');
+    throw error;
+  }
+}
+
+/**
+ * Get total emails sent statistics
+ * @param {Object} filters - Filters (category, eventName, startDate, endDate)
+ * @returns {Promise<Object>} - Statistics
+ */
+async function getEmailSentStats(filters = {}) {
+  try {
+    let query = db.collection('email_sent');
+    
+    if (filters.category) {
+      query = query.where('category', '==', filters.category);
+    }
+    
+    if (filters.eventName) {
+      query = query.where('eventName', '==', filters.eventName);
+    }
+    
+    if (filters.startDate) {
+      query = query.where('timestamp', '>=', filters.startDate);
+    }
+    
+    if (filters.endDate) {
+      query = query.where('timestamp', '<=', filters.endDate);
+    }
+    
+    const snapshot = await query.get();
+    
+    const stats = {
+      total: snapshot.size,
+      byCategory: {},
+      byEventName: {},
+      uniqueRecipients: new Set()
+    };
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const category = data.category || 'unknown';
+      const eventName = data.eventName || 'unknown';
+      const recipientEmail = data.recipientEmail;
+      
+      // Count by category
+      stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
+      
+      // Count by event name
+      stats.byEventName[eventName] = (stats.byEventName[eventName] || 0) + 1;
+      
+      // Track unique recipients
+      if (recipientEmail) {
+        stats.uniqueRecipients.add(recipientEmail);
+      }
+    });
+    
+    return {
+      total: stats.total,
+      uniqueRecipients: stats.uniqueRecipients.size,
+      byCategory: stats.byCategory,
+      byEventName: stats.byEventName
+    };
+  } catch (error) {
+    logger.error({ error: error.message }, '[EmailTracking] Failed to get email sent stats');
+    throw error;
+  }
+}
+
 module.exports = {
   generateTrackingUrl,
   trackEmailClick,
   getEmailClickStats,
-  getUserEmailJourney
+  getUserEmailJourney,
+  recordEmailSent,
+  getEmailSentStats
 };
 

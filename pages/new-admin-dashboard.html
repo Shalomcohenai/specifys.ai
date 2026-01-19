@@ -635,6 +635,11 @@ custom_js_modules:
         <!-- Email Metrics Cards -->
         <div class="analytics-metrics-grid" style="margin-top: 24px;">
           <div class="metric-card-small">
+            <div class="metric-label">Total Emails Sent</div>
+            <div class="metric-value-large" id="email-total-sent">0</div>
+            <div class="metric-description">All emails sent via Resend</div>
+          </div>
+          <div class="metric-card-small">
             <div class="metric-label">Total Email Clicks</div>
             <div class="metric-value-large" id="email-total-clicks">0</div>
             <div class="metric-description">All email clicks tracked</div>
@@ -648,11 +653,6 @@ custom_js_modules:
             <div class="metric-label">Click Rate</div>
             <div class="metric-value-large" id="email-click-rate">0%</div>
             <div class="metric-description">Clicks per email sent</div>
-          </div>
-          <div class="metric-card-small">
-            <div class="metric-label">Unique Clicks</div>
-            <div class="metric-value-large" id="email-unique-clicks">0</div>
-            <div class="metric-description">Unique click events</div>
           </div>
         </div>
 
@@ -688,8 +688,9 @@ custom_js_modules:
             <thead>
               <tr>
                 <th>Email Type</th>
+                <th>Emails Sent</th>
                 <th>Total Clicks</th>
-                <th>Unique Users</th>
+                <th>Click Rate</th>
                 <th>Top Link Type</th>
               </tr>
             </thead>

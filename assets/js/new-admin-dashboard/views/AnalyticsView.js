@@ -171,23 +171,28 @@ export class AnalyticsView {
         const uniqueUsersEl = helpers.dom('#email-unique-users');
         const uniqueClicksEl = helpers.dom('#email-unique-clicks');
         const clickRateEl = helpers.dom('#email-click-rate');
+        const totalSentEl = helpers.dom('#email-total-sent');
         
-        if (totalClicksEl) totalClicksEl.textContent = stats.total || 0;
-        if (uniqueUsersEl) uniqueUsersEl.textContent = stats.uniqueUsers || 0;
-        if (uniqueClicksEl) uniqueClicksEl.textContent = stats.uniqueClicks || 0;
+        const clicks = stats.clicks || {};
+        const sent = stats.sent || {};
+        
+        if (totalClicksEl) totalClicksEl.textContent = clicks.total || 0;
+        if (uniqueUsersEl) uniqueUsersEl.textContent = clicks.uniqueUsers || 0;
+        if (uniqueClicksEl) uniqueClicksEl.textContent = clicks.uniqueClicks || 0;
         if (clickRateEl) clickRateEl.textContent = (parseFloat(stats.clickRate) || 0).toFixed(1) + '%';
+        if (totalSentEl) totalSentEl.textContent = stats.totalEmailsSent || sent.total || 0;
         
-        // Update charts
-        this.updateEmailCharts(stats);
+        // Update charts (use clicks stats)
+        this.updateEmailCharts(clicks);
         
-        // Update table
-        this.updateEmailTable(stats);
+        // Update table (pass both clicks and sent stats)
+        this.updateEmailTable(clicks, sent);
       }
     } catch (error) {
       console.error('[AnalyticsView] Error loading email analytics:', error);
       const tbody = helpers.dom('#email-performance-table tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="4" class="table-empty-state">Error loading data</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state">Error loading data</td></tr>';
       }
     }
   }
@@ -222,33 +227,48 @@ export class AnalyticsView {
   /**
    * Update email performance table
    */
-  updateEmailTable(stats) {
+  updateEmailTable(clicksStats, sentStats) {
     const tbody = helpers.dom('#email-performance-table tbody');
-    if (!tbody || !stats.byEmailType) return;
+    if (!tbody) return;
     
-    const rows = Object.entries(stats.byEmailType)
-      .map(([type, count]) => {
-        const uniqueCount = stats.byUser ? Object.keys(stats.byUser).filter(uid => {
-          // This is simplified - in real implementation, we'd need to track which users clicked which email types
-          return true;
-        }).length : 0;
+    // Combine click and sent stats by category
+    const clicksByType = clicksStats.byEmailType || {};
+    const sentByCategory = sentStats.byCategory || {};
+    
+    // Get all unique categories
+    const allCategories = new Set([
+      ...Object.keys(clicksByType),
+      ...Object.keys(sentByCategory)
+    ]);
+    
+    if (allCategories.size === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state">No data available</td></tr>';
+      return;
+    }
+    
+    const rows = Array.from(allCategories)
+      .map((category) => {
+        const clicks = clicksByType[category] || 0;
+        const sent = sentByCategory[category] || 0;
+        const clickRate = sent > 0 ? ((clicks / sent) * 100).toFixed(1) : '0.0';
         
-        const topLinkType = stats.byLinkType ? 
-          Object.entries(stats.byLinkType)
+        const topLinkType = clicksStats.byLinkType ? 
+          Object.entries(clicksStats.byLinkType)
             .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A' : 'N/A';
         
         return `
           <tr>
-            <td>${this.formatEmailTypeLabel(type)}</td>
-            <td>${count}</td>
-            <td>${uniqueCount}</td>
+            <td>${this.formatEmailTypeLabel(category)}</td>
+            <td>${sent}</td>
+            <td>${clicks}</td>
+            <td>${clickRate}%</td>
             <td>${this.formatLinkTypeLabel(topLinkType)}</td>
           </tr>
         `;
       })
       .join('');
     
-    tbody.innerHTML = rows || '<tr><td colspan="4" class="table-empty-state">No data available</td></tr>';
+    tbody.innerHTML = rows;
   }
   
   /**
