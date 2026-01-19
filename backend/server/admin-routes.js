@@ -1925,6 +1925,66 @@ router.get('/users/:userId/emails', requireAdmin, async (req, res, next) => {
   }
 });
 
+/**
+ * GET /api/admin/email/status
+ * Get Resend email service health status
+ */
+router.get('/email/status', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /email/status');
+  
+  try {
+    const healthStatus = await emailService.checkHealth();
+    
+    logger.info({ requestId, healthStatus }, '[admin-routes] Email service status retrieved');
+    
+    res.json({
+      success: true,
+      status: healthStatus
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] Failed to get email service status');
+    next(createError('Failed to get email service status', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/email/test
+ * Send a test email to verify Resend integration
+ */
+router.post('/email/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /email/test');
+  
+  try {
+    const { email } = req.body;
+    
+    if (!email || !email.includes('@')) {
+      return next(createError('Valid email address is required', ERROR_CODES.INVALID_INPUT, 400));
+    }
+    
+    const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+    const result = await emailService.sendTestEmail(email, baseUrl);
+    
+    if (result.success) {
+      logger.info({ requestId, email, messageId: result.messageId }, '[admin-routes] Test email sent successfully');
+      res.json({
+        success: true,
+        message: 'Test email sent successfully',
+        messageId: result.messageId
+      });
+    } else {
+      logger.error({ requestId, email, error: result.error }, '[admin-routes] Failed to send test email');
+      next(createError(result.error || 'Failed to send test email', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] Failed to send test email');
+    next(createError('Failed to send test email', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
 // Debug: Log all registered routes (must be after all route definitions)
 logger.info('[admin-routes] Admin routes initialized. Registered routes:');
 router.stack.forEach((layer) => {

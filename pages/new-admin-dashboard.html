@@ -288,10 +288,23 @@ custom_js_modules:
                 </div>
                 <span class="status-badge pending" data-source="activityLogs">Pending</span>
               </div>
+              <div class="status-item">
+                <div class="status-info">
+                  <i class="fas fa-envelope status-icon"></i>
+                  <span class="status-label">Resend Email Service</span>
+                </div>
+                <span class="status-badge pending" id="resend-status-badge" data-source="resend">Checking...</span>
+              </div>
             </div>
             <div class="status-footer">
-              <i class="fas fa-clock"></i>
-              <span>Last sync: <span id="last-sync-time">Never</span></span>
+              <div>
+                <i class="fas fa-clock"></i>
+                <span>Last sync: <span id="last-sync-time">Never</span></span>
+              </div>
+              <button class="btn-modern btn-small" id="send-test-email-btn" style="margin-top: 10px;" title="Send test email">
+                <i class="fas fa-paper-plane"></i>
+                <span>Send Test Email</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1498,6 +1511,33 @@ custom_js_modules:
     </section>
 
   </main>
+</div>
+
+<!-- Test Email Modal -->
+<div id="test-email-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Send Test Email</h3>
+      <button class="modal-close" id="close-test-email-modal" type="button" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="test-email-input">Recipient Email Address</label>
+        <input type="email" id="test-email-input" placeholder="test@example.com" required>
+        <small class="form-help-text">Enter the email address where you want to receive the test email</small>
+      </div>
+      <div id="test-email-message" class="alert-message hidden" role="alert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modern btn-secondary" id="cancel-test-email-btn" type="button">Cancel</button>
+      <button class="btn-modern btn-primary" id="confirm-test-email-btn" type="button">
+        <span class="btn-text">Send Test Email</span>
+        <span class="btn-loading" style="display: none;">
+          <i class="fas fa-spinner fa-spin"></i> Sending...
+        </span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Firebase SDK - Loaded by FirebaseService module -->

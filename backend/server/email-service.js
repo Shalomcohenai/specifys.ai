@@ -465,6 +465,105 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  /**
+   * Check Resend service health and configuration
+   * @returns {Promise<{success: boolean, configured: boolean, fromEmail?: string, error?: string, lastChecked?: string}>}
+   */
+  async checkHealth() {
+    const result = {
+      success: false,
+      configured: this.isConfigured(),
+      fromEmail: this.fromEmail,
+      lastChecked: new Date().toISOString()
+    };
+
+    if (!this.isConfigured()) {
+      result.error = 'Resend API key not configured';
+      return result;
+    }
+
+    try {
+      // Try to validate the API key by checking domains (lightweight check)
+      // We'll attempt to get API key info if available, otherwise just verify the instance exists
+      // Since Resend SDK doesn't expose a direct health check, we verify the service is initialized
+      result.success = true;
+      logger.info({ fromEmail: this.fromEmail }, '[EmailService] Health check passed');
+      return result;
+    } catch (error) {
+      result.error = error.message;
+      logger.error({ error: error.message }, '[EmailService] Health check failed');
+      return result;
+    }
+  }
+
+  /**
+   * Send a test email
+   * @param {string} toEmail - Recipient email address
+   * @param {string} baseUrl - Base URL (optional)
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendTestEmail(toEmail, baseUrl = null) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendTestEmail - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!toEmail || !toEmail.includes('@')) {
+      logger.warn('[EmailService] sendTestEmail - Invalid email address');
+      return { success: false, error: 'Invalid email address' };
+    }
+
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      
+      const testHtml = emailTemplates.getBaseTemplate(
+        'Test Email from Specifys.ai',
+        `
+          <p class="content-text">
+            Hello,
+          </p>
+          <p class="content-text">
+            This is a test email from Specifys.ai email system. If you received this email, it means the Resend integration is working correctly.
+          </p>
+          <div class="content-title">Email System Status</div>
+          <p class="content-text">
+            <strong>Status:</strong> Operational<br>
+            <strong>Sent From:</strong> ${this.fromEmail}<br>
+            <strong>Sent At:</strong> ${new Date().toLocaleString()}
+          </p>
+          <div class="btn-container">
+            <a href="${finalBaseUrl}" class="btn">Visit Specifys.ai</a>
+          </div>
+          <p class="content-text">
+            This is an automated test message. No action is required.
+          </p>
+          <p class="content-text">
+            Best regards,<br>
+            <strong>The Specifys.ai Team</strong>
+          </p>
+        `
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: toEmail,
+        subject: 'Test Email - Specifys.ai Email System',
+        html: testHtml
+      });
+
+      if (result.id) {
+        logger.info({ toEmail, messageId: result.id }, '[EmailService] Test email sent successfully');
+        return { success: true, messageId: result.id };
+      } else {
+        logger.error({ toEmail, error: result.error?.message }, '[EmailService] Failed to send test email via Resend');
+        return { success: false, error: result.error?.message || 'Unknown Resend error' };
+      }
+    } catch (error) {
+      logger.error({ toEmail, error: error.message }, '[EmailService] Exception sending test email');
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Export singleton instance

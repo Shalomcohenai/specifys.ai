@@ -39,6 +39,9 @@ export class OverviewView {
     
     // Load contact submissions
     this.loadContactSubmissions();
+    
+    // Load Resend status
+    this.checkResendStatus();
   }
   
   /**
@@ -53,6 +56,35 @@ export class OverviewView {
         this.stateManager.setState('overviewRange', range);
         this.updateMetricDescriptions(range);
         this.updateMetrics();
+      });
+    }
+    
+    // Test email button
+    const sendTestEmailBtn = helpers.dom('#send-test-email-btn');
+    if (sendTestEmailBtn) {
+      sendTestEmailBtn.addEventListener('click', () => this.openTestEmailModal());
+    }
+    
+    // Test email modal handlers
+    const closeTestEmailModal = helpers.dom('#close-test-email-modal');
+    const cancelTestEmailBtn = helpers.dom('#cancel-test-email-btn');
+    const confirmTestEmailBtn = helpers.dom('#confirm-test-email-btn');
+    const testEmailModal = helpers.dom('#test-email-modal');
+    
+    if (closeTestEmailModal) {
+      closeTestEmailModal.addEventListener('click', () => this.closeTestEmailModal());
+    }
+    if (cancelTestEmailBtn) {
+      cancelTestEmailBtn.addEventListener('click', () => this.closeTestEmailModal());
+    }
+    if (confirmTestEmailBtn) {
+      confirmTestEmailBtn.addEventListener('click', () => this.sendTestEmail());
+    }
+    if (testEmailModal) {
+      testEmailModal.addEventListener('click', (e) => {
+        if (e.target === testEmailModal) {
+          this.closeTestEmailModal();
+        }
       });
     }
     
@@ -1127,6 +1159,7 @@ export class OverviewView {
       this.updateMetrics();
       this.renderActivityFeed();
       this.renderSystemStatus(); // Update status again
+      this.checkResendStatus(); // Check Resend status
     }, 500);
   }
   
@@ -1143,5 +1176,142 @@ export class OverviewView {
   update() {
     this.updateMetrics();
     this.renderActivityFeed();
+  }
+  
+  /**
+   * Check Resend email service status
+   */
+  async checkResendStatus() {
+    try {
+      const response = await apiService.get('/api/admin/email/status');
+      
+      if (response.success && response.status) {
+        const status = response.status;
+        const badge = helpers.dom('#resend-status-badge');
+        
+        if (badge) {
+          if (status.configured && status.success) {
+            badge.textContent = 'Operational';
+            badge.className = 'status-badge success';
+            badge.title = `From: ${status.fromEmail || 'N/A'}\nLast checked: ${new Date(status.lastChecked).toLocaleString()}`;
+          } else if (status.configured && !status.success) {
+            badge.textContent = 'Error';
+            badge.className = 'status-badge error';
+            badge.title = status.error || 'Unknown error';
+          } else {
+            badge.textContent = 'Not Configured';
+            badge.className = 'status-badge error';
+            badge.title = 'Resend API key not configured';
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error checking Resend status:', error);
+      const badge = helpers.dom('#resend-status-badge');
+      if (badge) {
+        badge.textContent = 'Error';
+        badge.className = 'status-badge error';
+        badge.title = 'Failed to check status';
+      }
+    }
+  }
+  
+  /**
+   * Open test email modal
+   */
+  openTestEmailModal() {
+    const modal = helpers.dom('#test-email-modal');
+    const input = helpers.dom('#test-email-input');
+    const message = helpers.dom('#test-email-message');
+    
+    if (modal) {
+      modal.classList.remove('hidden');
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 100);
+      }
+      if (message) {
+        message.classList.add('hidden');
+        message.textContent = '';
+      }
+    }
+  }
+  
+  /**
+   * Close test email modal
+   */
+  closeTestEmailModal() {
+    const modal = helpers.dom('#test-email-modal');
+    const message = helpers.dom('#test-email-message');
+    
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+    if (message) {
+      message.classList.add('hidden');
+      message.textContent = '';
+    }
+  }
+  
+  /**
+   * Send test email
+   */
+  async sendTestEmail() {
+    const input = helpers.dom('#test-email-input');
+    const message = helpers.dom('#test-email-message');
+    const confirmBtn = helpers.dom('#confirm-test-email-btn');
+    const btnText = confirmBtn?.querySelector('.btn-text');
+    const btnLoading = confirmBtn?.querySelector('.btn-loading');
+    
+    if (!input || !input.value || !input.value.includes('@')) {
+      if (message) {
+        message.textContent = 'Please enter a valid email address';
+        message.className = 'alert-message error';
+        message.classList.remove('hidden');
+      }
+      return;
+    }
+    
+    const email = input.value.trim();
+    
+    // Show loading state
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoading) btnLoading.style.display = 'inline-block';
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (message) {
+      message.classList.add('hidden');
+      message.textContent = '';
+    }
+    
+    try {
+      const response = await apiService.post('/api/admin/email/test', { email });
+      
+      if (response.success) {
+        if (message) {
+          message.textContent = `Test email sent successfully! Message ID: ${response.messageId || 'N/A'}`;
+          message.className = 'alert-message success';
+          message.classList.remove('hidden');
+        }
+        // Clear input and close modal after 2 seconds
+        setTimeout(() => {
+          input.value = '';
+          this.closeTestEmailModal();
+        }, 2000);
+      } else {
+        throw new Error(response.error || 'Failed to send test email');
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error sending test email:', error);
+      if (message) {
+        message.textContent = error.message || 'Failed to send test email. Please check the console for details.';
+        message.className = 'alert-message error';
+        message.classList.remove('hidden');
+      }
+    } finally {
+      // Hide loading state
+      if (btnText) btnText.style.display = 'inline-block';
+      if (btnLoading) btnLoading.style.display = 'none';
+      if (confirmBtn) confirmBtn.disabled = false;
+    }
   }
 }
