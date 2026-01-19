@@ -111,8 +111,8 @@ ENABLE_OPENAI_STORAGE=false
 RESEND_API_KEY=re_your_resend_api_key_here
 
 # From Email Address (חייב להיות דומיין מאומת ב-Resend)
-# לדוגמה: noreply@specifys-ai.com או hello@specifys-ai.com
-RESEND_FROM_EMAIL=noreply@specifys-ai.com
+# לדוגמה: Specifys-Ai-Team@specifys-ai.com או hello@specifys-ai.com
+RESEND_FROM_EMAIL=Specifys-Ai-Team@specifys-ai.com
 
 # Gmail User (לשימוש עם Nodemailer - legacy, לא בשימוש אם משתמשים ב-Resend)
 EMAIL_USER=your_gmail@gmail.com

@@ -10,7 +10,7 @@ const emailTracking = require('./email-tracking-service');
 class EmailService {
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@specifys-ai.com';
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Specifys-Ai-Team@specifys-ai.com';
     
     if (!apiKey) {
       logger.warn('[EmailService] RESEND_API_KEY not configured - email service disabled');
