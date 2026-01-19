@@ -348,6 +348,7 @@ function toolFinderUsageEmail(userName, toolFinderUrl, createSpecUrl) {
 }
 
 module.exports = {
+  getBaseTemplate,
   welcomeEmail,
   specReadyEmail,
   advancedSpecReadyEmail,
