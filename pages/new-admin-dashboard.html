@@ -52,6 +52,10 @@ custom_js_modules:
         <i class="fas fa-file-alt"></i>
         <span>Content</span>
       </button>
+      <button class="nav-tab" data-section="newsletter" aria-label="Newsletter">
+        <i class="fas fa-paper-plane"></i>
+        <span>Newsletter</span>
+      </button>
     </div>
     
     <div class="admin-nav-actions">
@@ -609,6 +613,92 @@ custom_js_modules:
           <div class="metric-label">Avg Time to Purchase</div>
           <div class="metric-value-large" id="metric-time-to-purchase-value">0d</div>
           <div class="metric-description">Average days to first purchase</div>
+        </div>
+      </div>
+
+      <!-- Email Analytics Section -->
+      <div class="analytics-email-section" style="margin-top: 40px;">
+        <div class="section-header-modern">
+          <div>
+            <h2 style="margin: 0; font-size: 1.5rem;">Email Analytics</h2>
+            <p style="margin: 4px 0 0 0; color: #666;">Email click tracking and engagement metrics</p>
+          </div>
+          <div class="header-actions">
+            <select class="select-modern" id="email-analytics-range-select">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Email Metrics Cards -->
+        <div class="analytics-metrics-grid" style="margin-top: 24px;">
+          <div class="metric-card-small">
+            <div class="metric-label">Total Email Clicks</div>
+            <div class="metric-value-large" id="email-total-clicks">0</div>
+            <div class="metric-description">All email clicks tracked</div>
+          </div>
+          <div class="metric-card-small">
+            <div class="metric-label">Unique Users</div>
+            <div class="metric-value-large" id="email-unique-users">0</div>
+            <div class="metric-description">Users who clicked emails</div>
+          </div>
+          <div class="metric-card-small">
+            <div class="metric-label">Click Rate</div>
+            <div class="metric-value-large" id="email-click-rate">0%</div>
+            <div class="metric-description">Clicks per email sent</div>
+          </div>
+          <div class="metric-card-small">
+            <div class="metric-label">Unique Clicks</div>
+            <div class="metric-value-large" id="email-unique-clicks">0</div>
+            <div class="metric-description">Unique click events</div>
+          </div>
+        </div>
+
+        <!-- Email Charts -->
+        <div class="analytics-charts-grid" style="margin-top: 24px;">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Email Clicks by Type</h3>
+              <p>Clicks broken down by email type</p>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="email-clicks-by-type-chart" height="250"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Email Clicks by Link Type</h3>
+              <p>Clicks broken down by link type (CTA, footer, etc.)</p>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="email-clicks-by-link-chart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Clicks Table -->
+        <div class="table-card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h3>Email Performance by Type</h3>
+          </div>
+          <table class="modern-table" id="email-performance-table">
+            <thead>
+              <tr>
+                <th>Email Type</th>
+                <th>Total Clicks</th>
+                <th>Unique Users</th>
+                <th>Top Link Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4" class="table-empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1324,6 +1414,86 @@ custom_js_modules:
 
       <!-- Pagination -->
       <div class="pagination-modern" id="contact-pagination"></div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="dashboard-content-section" id="newsletter-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Newsletter Management</h1>
+          <p>Create and send newsletters to subscribed users</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-modern" id="create-newsletter-btn">
+            <i class="fas fa-plus"></i>
+            <span>Create Newsletter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Newsletter Editor (hidden by default) -->
+      <div id="newsletter-editor-card" class="card-modern" style="display: none; margin-bottom: 24px;">
+        <div class="card-header">
+          <h3 id="newsletter-editor-title">Create New Newsletter</h3>
+          <button class="btn-icon" id="close-newsletter-editor-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Subject</label>
+            <input type="text" id="newsletter-subject-input" class="input-modern" placeholder="Newsletter subject..." style="width: 100%;">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Content (HTML)</label>
+            <textarea id="newsletter-content-textarea" class="input-modern" placeholder="Enter newsletter content in HTML format..." rows="15" style="width: 100%; font-family: monospace; resize: vertical;"></textarea>
+            <small style="color: #666; margin-top: 4px; display: block;">You can use HTML tags. Variables: {{userName}} will be replaced with the user's display name.</small>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn-modern" id="save-newsletter-draft-btn">
+              <i class="fas fa-save"></i>
+              <span>Save as Draft</span>
+            </button>
+            <button class="btn-modern btn-primary" id="send-newsletter-btn">
+              <i class="fas fa-paper-plane"></i>
+              <span>Send Now</span>
+            </button>
+            <button class="btn-modern" id="preview-newsletter-btn" style="margin-left: auto;">
+              <i class="fas fa-eye"></i>
+              <span>Preview</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter History -->
+      <div class="card-modern">
+        <div class="card-header">
+          <h3>Newsletter History</h3>
+          <button class="btn-icon" id="refresh-newsletters-btn">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="modern-table" id="newsletters-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Sent To</th>
+                <th>Clicks</th>
+                <th>Created</th>
+                <th style="width: 150px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" class="table-empty-state">Loading newsletters...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
   </main>

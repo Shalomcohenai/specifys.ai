@@ -5,6 +5,7 @@
 
 import { ChartComponent } from '../components/ChartComponent.js';
 import { helpers } from '../utils/helpers.js';
+import { apiService } from '../services/ApiService.js';
 
 export class AnalyticsView {
   constructor(dataManager, stateManager) {
@@ -129,6 +130,159 @@ export class AnalyticsView {
       backgroundColor: 'rgba(139, 92, 246, 0.8)',
       borderColor: 'rgb(139, 92, 246)'
     });
+    
+    // Email Analytics Charts
+    this.initChart('email-clicks-by-type-chart', 'bar', {
+      label: 'Clicks by Email Type',
+      backgroundColor: 'rgba(255, 107, 53, 0.8)',
+      borderColor: 'rgb(255, 107, 53)'
+    });
+    
+    this.initChart('email-clicks-by-link-chart', 'bar', {
+      label: 'Clicks by Link Type',
+      backgroundColor: 'rgba(59, 130, 246, 0.8)',
+      borderColor: 'rgb(59, 130, 246)'
+    });
+    
+    // Setup email analytics range select
+    const emailRangeSelect = helpers.dom('#email-analytics-range-select');
+    if (emailRangeSelect) {
+      emailRangeSelect.addEventListener('change', (e) => {
+        this.loadEmailAnalytics(parseInt(e.target.value));
+      });
+    }
+    
+    // Load email analytics on init
+    this.loadEmailAnalytics(30);
+  }
+  
+  /**
+   * Load email analytics data
+   */
+  async loadEmailAnalytics(days = 30) {
+    try {
+      const response = await apiService.get(`/api/admin/analytics/email?days=${days}`);
+      
+      if (response.success && response.stats) {
+        const stats = response.stats;
+        
+        // Update metrics
+        const totalClicksEl = helpers.dom('#email-total-clicks');
+        const uniqueUsersEl = helpers.dom('#email-unique-users');
+        const uniqueClicksEl = helpers.dom('#email-unique-clicks');
+        const clickRateEl = helpers.dom('#email-click-rate');
+        
+        if (totalClicksEl) totalClicksEl.textContent = stats.total || 0;
+        if (uniqueUsersEl) uniqueUsersEl.textContent = stats.uniqueUsers || 0;
+        if (uniqueClicksEl) uniqueClicksEl.textContent = stats.uniqueClicks || 0;
+        if (clickRateEl) clickRateEl.textContent = (parseFloat(stats.clickRate) || 0).toFixed(1) + '%';
+        
+        // Update charts
+        this.updateEmailCharts(stats);
+        
+        // Update table
+        this.updateEmailTable(stats);
+      }
+    } catch (error) {
+      console.error('[AnalyticsView] Error loading email analytics:', error);
+      const tbody = helpers.dom('#email-performance-table tbody');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" class="table-empty-state">Error loading data</td></tr>';
+      }
+    }
+  }
+  
+  /**
+   * Update email charts
+   */
+  updateEmailCharts(stats) {
+    // Email clicks by type chart
+    const byTypeChart = this.charts.get('email-clicks-by-type-chart');
+    if (byTypeChart && stats.byEmailType) {
+      const labels = Object.keys(stats.byEmailType);
+      const data = Object.values(stats.byEmailType);
+      
+      byTypeChart.data.labels = labels.map(label => this.formatEmailTypeLabel(label));
+      byTypeChart.data.datasets[0].data = data;
+      byTypeChart.update();
+    }
+    
+    // Email clicks by link type chart
+    const byLinkChart = this.charts.get('email-clicks-by-link-chart');
+    if (byLinkChart && stats.byLinkType) {
+      const labels = Object.keys(stats.byLinkType);
+      const data = Object.values(stats.byLinkType);
+      
+      byLinkChart.data.labels = labels.map(label => this.formatLinkTypeLabel(label));
+      byLinkChart.data.datasets[0].data = data;
+      byLinkChart.update();
+    }
+  }
+  
+  /**
+   * Update email performance table
+   */
+  updateEmailTable(stats) {
+    const tbody = helpers.dom('#email-performance-table tbody');
+    if (!tbody || !stats.byEmailType) return;
+    
+    const rows = Object.entries(stats.byEmailType)
+      .map(([type, count]) => {
+        const uniqueCount = stats.byUser ? Object.keys(stats.byUser).filter(uid => {
+          // This is simplified - in real implementation, we'd need to track which users clicked which email types
+          return true;
+        }).length : 0;
+        
+        const topLinkType = stats.byLinkType ? 
+          Object.entries(stats.byLinkType)
+            .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A' : 'N/A';
+        
+        return `
+          <tr>
+            <td>${this.formatEmailTypeLabel(type)}</td>
+            <td>${count}</td>
+            <td>${uniqueCount}</td>
+            <td>${this.formatLinkTypeLabel(topLinkType)}</td>
+          </tr>
+        `;
+      })
+      .join('');
+    
+    tbody.innerHTML = rows || '<tr><td colspan="4" class="table-empty-state">No data available</td></tr>';
+  }
+  
+  /**
+   * Format email type label for display
+   */
+  formatEmailTypeLabel(type) {
+    const labels = {
+      'welcome': 'Welcome',
+      'spec-ready': 'Spec Ready',
+      'advanced-spec-ready': 'Advanced Spec Ready',
+      'purchase-confirmation': 'Purchase Confirmation',
+      'inactive-user': 'Inactive User',
+      'tool-finder': 'Tool Finder',
+      'newsletter': 'Newsletter'
+    };
+    return labels[type] || type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+  
+  /**
+   * Format link type label for display
+   */
+  formatLinkTypeLabel(type) {
+    const labels = {
+      'cta': 'CTA Button',
+      'get-started': 'Get Started',
+      'spec-view': 'View Spec',
+      'return': 'Return',
+      'account-view': 'View Account',
+      'tool-finder-again': 'Tool Finder',
+      'create-spec': 'Create Spec',
+      'unsubscribe': 'Unsubscribe',
+      'footer': 'Footer Link'
+    };
+    return labels[type] || type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
   
   /**

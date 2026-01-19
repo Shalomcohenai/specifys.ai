@@ -870,6 +870,79 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               paymentEmail: orderData.email
             }, '[lemon-routes] ✅ recordPurchase completed successfully - Purchase saved to Firestore');
 
+            // Send purchase confirmation email (non-blocking)
+            if (userEmail && productConfig) {
+              const emailService = require('./email-service');
+              const { db } = require('./firebase-admin');
+              const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+              const productName = productConfig.name || 'Product';
+              const amount = orderData.total || 0;
+              const currency = orderData.currency || 'USD';
+              
+              // Get user display name and check email preferences
+              let displayName = userEmail.split('@')[0];
+              let shouldSendEmail = true;
+              
+              if (orderData.userId) {
+                try {
+                  const userDoc = await db.collection('users').doc(orderData.userId).get();
+                  if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // Get display name
+                    if (userRecord && userRecord.displayName) {
+                      displayName = userRecord.displayName;
+                    } else {
+                      displayName = userData.displayName || displayName;
+                    }
+                    
+                    // Check email preferences for operational emails (purchase confirmations)
+                    const emailPrefs = userData.emailPreferences || {
+                      newsletter: true,
+                      operational: true,
+                      marketing: true,
+                      specNotifications: true,
+                      updates: true
+                    };
+                    
+                    shouldSendEmail = emailPrefs.operational !== false;
+                  }
+                } catch (displayNameError) {
+                  logger.warn({ 
+                    webhookRequestId, 
+                    orderId: orderData.orderId, 
+                    error: displayNameError.message 
+                  }, '[lemon-routes] Failed to get user data for purchase email');
+                }
+              }
+              
+              // Only send email if user hasn't disabled operational emails
+              if (shouldSendEmail) {
+                emailService.sendPurchaseConfirmationEmail(
+                  userEmail,
+                  displayName,
+                  orderData.userId || null,
+                  productName,
+                  amount,
+                  currency,
+                  orderData.orderId,
+                  baseUrl
+                ).catch(err => {
+                  logger.warn({ 
+                    webhookRequestId, 
+                    orderId: orderData.orderId, 
+                    error: err.message 
+                  }, '[lemon-routes] Failed to send purchase confirmation email (non-fatal)');
+                });
+              } else {
+                logger.info({ 
+                  webhookRequestId, 
+                  orderId: orderData.orderId,
+                  userId: orderData.userId 
+                }, '[lemon-routes] Skipped purchase confirmation email - user disabled operational emails');
+              }
+            }
+
             // CRITICAL: Log all values before checking conditions for credit grant
             logger.info({ 
               webhookRequestId,

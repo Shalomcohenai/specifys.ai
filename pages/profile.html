@@ -224,6 +224,49 @@ custom_js_modules:
             </div>
 
             <div class="info-section">
+                <h3>Email Preferences</h3>
+                <div class="info-card">
+                    <div class="info-row">
+                        <div class="info-label-group">
+                            <label>Newsletter Emails</label>
+                            <p class="info-description">Weekly updates and news from Specifys.ai</p>
+                        </div>
+                        <div class="info-value">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email-pref-newsletter" onchange="updateEmailPreference('newsletter', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label-group">
+                            <label>Operational Emails</label>
+                            <p class="info-description">Spec notifications, purchase confirmations, and account updates</p>
+                        </div>
+                        <div class="info-value">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email-pref-operational" onchange="updateEmailPreference('operational', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label-group">
+                            <label>Marketing Emails</label>
+                            <p class="info-description">Tool recommendations and product updates</p>
+                        </div>
+                        <div class="info-value">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email-pref-marketing" onchange="updateEmailPreference('marketing', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="email-pref-message" class="info-message" style="display: none; margin-top: 15px; padding: 10px; border-radius: 6px; background: #f0f0f0; color: #333;"></div>
+                </div>
+            </div>
+
+            <div class="info-section">
                 <h3>Manage Subscription</h3>
                 <div class="info-card">
                     <button class="panel-action-btn cancel-btn hidden" id="cancelSubBtn" onclick="startCancelSubscription()">

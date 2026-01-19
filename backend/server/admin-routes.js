@@ -12,6 +12,8 @@ const { fetchSubscriptionById, listSubscriptions, buildSubscriptionUpdateFromRec
 const { getProductKeyByVariantId, getProductByKey } = require('./lemon-products-config');
 const creditsV3Service = require('./credits-v3-service');
 const { syncPaymentsData, getCachedPaymentsData, getPaymentsSummary } = require('./lemon-payments-cache');
+const emailTracking = require('./email-tracking-service');
+const emailService = require('./email-service');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -1814,6 +1816,109 @@ router.post('/payments/sync', requireAdmin, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /payments/sync - Error');
     next(createError('Failed to sync payments data', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/analytics/email
+ * Get email analytics statistics
+ */
+router.get('/analytics/email', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /analytics/email');
+  
+  try {
+    const { emailType, linkType, startDate, endDate, days } = req.query;
+    
+    const filters = {};
+    if (emailType) filters.emailType = emailType;
+    if (linkType) filters.linkType = linkType;
+    
+    // Date range handling
+    if (days) {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - parseInt(days, 10));
+      filters.startDate = daysAgo.toISOString();
+    } else {
+      if (startDate) filters.startDate = startDate;
+      if (endDate) filters.endDate = endDate;
+    }
+    
+    const stats = await emailTracking.getEmailClickStats(filters);
+    
+    // Also get total emails sent (from users collection or separate tracking)
+    // For now, we'll calculate based on email_clicks and estimated sent count
+    // In the future, we can track emails sent separately
+    
+    logger.info({ requestId, filters, statsTotal: stats.total }, '[admin-routes] Email analytics retrieved');
+    
+    res.json({
+      success: true,
+      filters,
+      stats: {
+        ...stats,
+        clickRate: stats.total > 0 ? ((stats.uniqueClicks / stats.total) * 100).toFixed(2) : 0
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] Failed to get email analytics');
+    next(createError('Failed to get email analytics', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * GET /api/admin/users/:userId/emails
+ * Get email history and clicks for a specific user
+ */
+router.get('/users/:userId/emails', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /users/:userId/emails');
+  const { userId } = req.params;
+  
+  try {
+    // Get email click journey
+    const journey = await emailTracking.getUserEmailJourney(userId);
+    
+    // Get user email preferences
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    
+    // Calculate stats
+    const totalClicks = journey.length;
+    const uniqueEmailTypes = new Set(journey.map(e => e.emailType));
+    const lastClick = journey.length > 0 ? journey[0].clickedAt : null;
+    
+    // Get clicks by email type
+    const clicksByType = {};
+    journey.forEach(click => {
+      const type = click.emailType || 'unknown';
+      clicksByType[type] = (clicksByType[type] || 0) + 1;
+    });
+    
+    logger.info({ requestId, userId, totalClicks }, '[admin-routes] User email history retrieved');
+    
+    res.json({
+      success: true,
+      userId,
+      emailPreferences: userData.emailPreferences || {
+        newsletter: true,
+        updates: true,
+        specNotifications: true,
+        marketing: true
+      },
+      stats: {
+        totalClicks,
+        uniqueEmailTypes: uniqueEmailTypes.size,
+        lastClick,
+        clicksByType
+      },
+      journey: journey
+    });
+  } catch (error) {
+    logger.error({ requestId, userId, error: error.message }, '[admin-routes] Failed to get user email history');
+    next(createError('Failed to get user email history', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

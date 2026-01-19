@@ -9,111 +9,7 @@ const specGenerationService = require('./spec-generation-service');
 const specQueue = require('./spec-queue');
 const specEvents = require('./spec-events');
 const { recordSpecCreation } = require('./admin-activity-service');
-
-/**
- * Function to send spec ready notification email
- */
-async function sendSpecReadyEmail(userEmail, specTitle, specId, baseUrl) {
-  try {
-    // Check if email configuration is available
-    const emailUser = process.env.EMAIL_USER;
-    const emailPassword = process.env.EMAIL_APP_PASSWORD;
-    
-    if (!emailUser || !emailPassword) {
-      console.log('⚠️  Email configuration not found - skipping spec ready notification');
-      return { success: false, reason: 'Email not configured' };
-    }
-    
-    if (!userEmail) {
-      console.log('⚠️  User email not provided - skipping spec ready notification');
-      return { success: false, reason: 'User email missing' };
-    }
-    
-    // Use Nodemailer to send email
-    const nodemailer = require('nodemailer');
-    
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: emailUser,
-        pass: emailPassword
-      },
-      // Add timeout and connection settings
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 5000, // 5 seconds
-      socketTimeout: 10000, // 10 seconds
-      // Retry settings
-      pool: true,
-      maxConnections: 1,
-      maxMessages: 3
-    });
-    
-    // Generate spec link
-    const specLink = `${baseUrl}/pages/spec-viewer.html?id=${specId}`;
-    
-    const mailOptions = {
-      from: `"Specifys.ai" <${emailUser}>`,
-      to: userEmail,
-      subject: `Your specification "${specTitle}" is ready!`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Your Specification is Ready!</h1>
-          </div>
-          
-          <div style="background: #ffffff; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              Hello! 👋
-            </p>
-            
-            <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              Your specification <strong>"${specTitle}"</strong> is ready! You can always access it to view and upgrade it.
-            </p>
-            
-            <div style="text-align: center; margin: 40px 0;">
-              <a href="${specLink}" 
-                 style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                View Your Specification
-              </a>
-            </div>
-            
-            <p style="color: #888; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #eee;">
-              If the button doesn't work, copy and paste this link into your browser:<br>
-              <a href="${specLink}" style="color: #667eea; word-break: break-all;">${specLink}</a>
-            </p>
-          </div>
-          
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>This email was sent by Specifys.ai</p>
-          </div>
-        </div>
-      `
-    };
-    
-    // Send email with timeout
-    const sendEmailPromise = transporter.sendMail(mailOptions);
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Email send timeout after 15 seconds')), 15000);
-    });
-    
-    const info = await Promise.race([sendEmailPromise, timeoutPromise]);
-    console.log('✅ Spec ready notification email sent successfully to:', userEmail);
-    return { success: true, messageId: info.messageId };
-    
-  } catch (error) {
-    const errorMessage = error.message || 'Unknown error';
-    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT');
-    
-    if (isTimeout) {
-      console.error('❌ Error sending spec ready notification email: Connection timeout');
-    } else {
-      console.error('❌ Error sending spec ready notification email:', error);
-    }
-    
-    // Don't fail the entire request if email fails
-    return { success: false, error: errorMessage, isTimeout };
-  }
-}
+const emailService = require('./email-service');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
@@ -342,13 +238,33 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
         }
         
         // Get base URL from request or use default
-        const baseUrl = req.headers.origin || process.env.BASE_URL || 'https://specifys.ai';
+        const baseUrl = req.headers.origin || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
         
-        // Send email
-        const emailResult = await sendSpecReadyEmail(
+        // Get user display name
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userData = userDoc.data() || {};
+        const displayName = userRecord.displayName || userData.displayName || userEmail.split('@')[0];
+        
+        // Check user email preferences for spec notifications
+        const emailPrefs = userData.emailPreferences || {
+            newsletter: true,
+            operational: true,
+            marketing: true,
+            specNotifications: true,
+            updates: true
+        };
+        
+        if (emailPrefs.specNotifications === false || emailPrefs.operational === false) {
+            return next(createError('User has disabled spec notification emails', ERROR_CODES.INVALID_REQUEST, 400));
+        }
+        
+        // Send email using Resend service
+        const emailResult = await emailService.sendSpecReadyEmail(
             userEmail,
+            displayName,
             specData.title || 'App Specification',
             specId,
+            userId,
             baseUrl
         );
         
@@ -609,6 +525,65 @@ router.post('/:id/record-activity', verifyFirebaseToken, async (req, res, next) 
         ).catch(err => {
             logger.warn({ requestId, specId, error: err.message }, '[specs-routes] Failed to record spec creation activity');
         });
+        
+        // Send spec creation email notification (non-blocking)
+        if (userEmail) {
+            const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+            const specMode = specData.mode || 'unified';
+            const isAdvanced = specMode === 'advanced' || specData.status?.technical === 'ready' || 
+                               specData.status?.market === 'ready' || specData.status?.design === 'ready';
+            
+            // Get user display name
+            const userDoc = await db.collection('users').doc(userId).get();
+            const userData = userDoc.data() || {};
+            const displayName = userRecord.displayName || userData.displayName || userEmail.split('@')[0];
+            
+            // Check user email preferences for spec notifications
+            const emailPrefs = userData.emailPreferences || {
+                newsletter: true,
+                operational: true,
+                marketing: true,
+                specNotifications: true,
+                updates: true
+            };
+            
+            // Check if email was already sent for this spec
+            if (!specData.specCreationEmailSent && emailPrefs.specNotifications !== false && emailPrefs.operational !== false) {
+                if (isAdvanced) {
+                    // Send advanced spec email
+                    emailService.sendAdvancedSpecReadyEmail(
+                        userEmail,
+                        displayName,
+                        specData.title || 'App Specification',
+                        specId,
+                        userId,
+                        baseUrl
+                    ).catch(err => {
+                        logger.warn({ requestId, specId, error: err.message }, '[specs-routes] Failed to send advanced spec creation email');
+                    });
+                } else {
+                    // Send regular spec email
+                    emailService.sendSpecReadyEmail(
+                        userEmail,
+                        displayName,
+                        specData.title || 'App Specification',
+                        specId,
+                        userId,
+                        baseUrl
+                    ).catch(err => {
+                        logger.warn({ requestId, specId, error: err.message }, '[specs-routes] Failed to send spec creation email');
+                    });
+                }
+                
+                // Mark email as sent
+                db.collection('specs').doc(specId).update({
+                    specCreationEmailSent: true,
+                    specCreationEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+                }).catch(err => {
+                    logger.warn({ requestId, specId, error: err.message }, '[specs-routes] Failed to mark spec creation email as sent');
+                });
+            }
+        }
         
         res.json({ success: true });
     } catch (error) {

@@ -882,7 +882,24 @@ logger.info({ type: 'route_mounted', path: '/api/stats' }, '[UNIFIED SERVER] ✅
 logger.info({ type: 'route_mount', path: '/api/live-brief', route: 'liveBriefRoutes' }, '[UNIFIED SERVER] 📌 Mounting live brief routes');
 const liveBriefRoutes = require('./live-brief-routes');
 app.use('/api/live-brief', liveBriefRoutes);
+
+const toolFinderRoutes = require('./tool-finder-routes');
+app.use('/api/tool-finder', toolFinderRoutes);
 logger.info({ type: 'route_mounted', path: '/api/live-brief' }, '[UNIFIED SERVER] ✅ Live brief routes mounted');
+
+// Email preview routes (for viewing templates)
+logger.info({ type: 'route_mount', path: '/api/email', route: 'emailPreviewRoutes' }, '[UNIFIED SERVER] 📌 Mounting email preview routes');
+const emailPreviewRoutes = require('./email-preview-routes');
+const emailTrackingRoutes = require('./email-tracking-routes');
+app.use('/api/email', emailPreviewRoutes);
+app.use('/api/email', emailTrackingRoutes);
+logger.info({ type: 'route_mounted', path: '/api/email' }, '[UNIFIED SERVER] ✅ Email preview and tracking routes mounted');
+
+// Newsletter routes (admin only)
+logger.info({ type: 'route_mount', path: '/api/admin/newsletters', route: 'newsletterRoutes' }, '[UNIFIED SERVER] 📌 Mounting newsletter routes');
+const newsletterRoutes = require('./newsletter-routes');
+app.use('/api/admin/newsletters', newsletterRoutes);
+logger.info({ type: 'route_mounted', path: '/api/admin/newsletters' }, '[UNIFIED SERVER] ✅ Newsletter routes mounted');
 
 // Serve static files from the parent directory (main site)
 // Must be after API routes to avoid conflicts
@@ -1129,7 +1146,7 @@ const server = app.listen(port, () => {
     nodeVersion: process.version,
     environment: process.env.NODE_ENV || 'development',
     openaiConfigured: !!process.env.OPENAI_API_KEY,
-    emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD),
+    emailConfigured: !!(process.env.RESEND_API_KEY || (process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD)),
     googleSheetsConfigured: !!process.env.GOOGLE_SHEETS_WEBHOOK_URL,
     renderUrl: process.env.RENDER_URL || 'N/A',
     unifiedServer: true,
@@ -1162,11 +1179,13 @@ const server = app.listen(port, () => {
   
   
   
-  // Check configuration
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-    logger.warn({ type: 'config_check' }, '⚠️  Email configuration not found (EMAIL_USER, EMAIL_APP_PASSWORD)');
+  // Check email configuration (Resend preferred, Gmail as fallback)
+  if (process.env.RESEND_API_KEY) {
+    logger.info({ type: 'config_check' }, '✅ Resend email service configured (RESEND_API_KEY)');
+  } else if (process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD) {
+    logger.info({ type: 'config_check' }, '✅ Legacy Gmail email configuration found');
   } else {
-    logger.info({ type: 'config_check' }, '✅ Email configuration found');
+    logger.warn({ type: 'config_check' }, '⚠️  Email configuration not found (RESEND_API_KEY or EMAIL_USER/EMAIL_APP_PASSWORD)');
   }
   
   if (!process.env.GOOGLE_SHEETS_WEBHOOK_URL) {

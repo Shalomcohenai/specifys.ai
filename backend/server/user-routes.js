@@ -273,4 +273,143 @@ router.get('/me', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
+/**
+ * Update user email preferences
+ * PUT /api/users/preferences/email
+ */
+router.put('/preferences/email', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `user-email-prefs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+        const userId = req.user.uid;
+        const { newsletter, operational, marketing } = req.body;
+        
+        // Validate input
+        const updateData = {};
+        
+        if (newsletter !== undefined) {
+            if (typeof newsletter !== 'boolean') {
+                return next(createError('newsletter must be a boolean', ERROR_CODES.INVALID_INPUT, 400));
+            }
+            updateData['emailPreferences.newsletter'] = newsletter;
+            updateData.newsletterSubscribed = newsletter; // Keep in sync
+        }
+        
+        if (operational !== undefined) {
+            if (typeof operational !== 'boolean') {
+                return next(createError('operational must be a boolean', ERROR_CODES.INVALID_INPUT, 400));
+            }
+            // Operational emails include: spec notifications, purchase confirmations
+            updateData['emailPreferences.operational'] = operational;
+            updateData['emailPreferences.specNotifications'] = operational;
+            updateData['emailPreferences.updates'] = operational;
+        }
+        
+        if (marketing !== undefined) {
+            if (typeof marketing !== 'boolean') {
+                return next(createError('marketing must be a boolean', ERROR_CODES.INVALID_INPUT, 400));
+            }
+            // Marketing emails include: tool finder, inactive user emails
+            updateData['emailPreferences.marketing'] = marketing;
+        }
+        
+        if (Object.keys(updateData).length === 0) {
+            return next(createError('At least one preference must be provided', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+        }
+        
+        updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+        
+        // Get current preferences first
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            return next(createError('User not found', ERROR_CODES.NOT_FOUND, 404));
+        }
+        
+        const currentData = userDoc.data();
+        const currentPreferences = currentData.emailPreferences || {
+            newsletter: true,
+            operational: true,
+            marketing: true,
+            specNotifications: true,
+            updates: true
+        };
+        
+        // Build final preferences object
+        const finalPreferences = {
+            ...currentPreferences,
+            newsletter: newsletter !== undefined ? newsletter : currentPreferences.newsletter,
+            operational: operational !== undefined ? operational : currentPreferences.operational,
+            marketing: marketing !== undefined ? marketing : currentPreferences.marketing,
+            specNotifications: operational !== undefined ? operational : (currentPreferences.specNotifications ?? true),
+            updates: operational !== undefined ? operational : (currentPreferences.updates ?? true)
+        };
+        
+        // Update with nested object
+        await db.collection('users').doc(userId).update({
+            emailPreferences: finalPreferences,
+            newsletterSubscribed: finalPreferences.newsletter,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
+        logger.info({ requestId, userId, preferences: finalPreferences }, '[user-routes] Email preferences updated');
+        
+        res.json({
+            success: true,
+            message: 'Email preferences updated',
+            preferences: finalPreferences
+        });
+        
+    } catch (error) {
+        logger.error({ 
+            requestId,
+            userId: req.user?.uid,
+            error: {
+                name: error.name,
+                message: error.message
+            }
+        }, '[user-routes] Error updating email preferences');
+        next(createError('Failed to update email preferences', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
+/**
+ * Get user email preferences
+ * GET /api/users/preferences/email
+ */
+router.get('/preferences/email', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `user-email-prefs-get-${Date.now()}`;
+    
+    try {
+        const userId = req.user.uid;
+        
+        const userDoc = await db.collection('users').doc(userId).get();
+        
+        if (!userDoc.exists) {
+            return next(createError('User not found', ERROR_CODES.NOT_FOUND, 404));
+        }
+        
+        const userData = userDoc.data();
+        const preferences = userData.emailPreferences || {
+            newsletter: true,
+            operational: true,
+            marketing: true,
+            specNotifications: true,
+            updates: true
+        };
+        
+        res.json({
+            success: true,
+            preferences
+        });
+        
+    } catch (error) {
+        logger.error({ 
+            requestId,
+            userId: req.user?.uid,
+            error: error.message
+        }, '[user-routes] Error getting email preferences');
+        next(createError('Failed to get email preferences', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
 module.exports = router;

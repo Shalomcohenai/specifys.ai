@@ -214,9 +214,22 @@ export class UserDetailsModal {
     const body = this.modal.querySelector('#user-details-modal-body');
     
     try {
-      // Use ApiService to make the request
-      const data = await apiService.get(`/api/admin/users/${userId}/analytics`);
-      const analytics = data.analytics;
+      // Load user analytics and email data in parallel
+      const [analyticsData, emailData] = await Promise.all([
+        apiService.get(`/api/admin/users/${userId}/analytics`).catch(() => ({ analytics: {} })),
+        apiService.get(`/api/admin/users/${userId}/emails`).catch(() => ({ success: false, journey: [], stats: {} }))
+      ]);
+      
+      const analytics = analyticsData.analytics || {};
+      
+      // Add email data to analytics
+      if (emailData.success) {
+        analytics.emailActivity = {
+          journey: emailData.journey || [],
+          stats: emailData.stats || {},
+          preferences: emailData.emailPreferences || {}
+        };
+      }
       
       // Store analytics for copy button
       this.currentAnalytics = analytics;
@@ -543,6 +556,86 @@ export class UserDetailsModal {
         </div>
       ` : ''}
 
+      <!-- Email Activity -->
+      <div class="user-details-section">
+        <h3 class="user-details-section-title">
+          <i class="fas fa-envelope"></i>
+          Email Activity
+        </h3>
+        ${analytics.emailActivity ? `
+          <div class="user-details-grid">
+            <div class="user-details-item">
+              <label>Total Email Clicks</label>
+              <div class="user-details-value user-details-value-large">${analytics.emailActivity.stats.totalClicks || 0}</div>
+            </div>
+            <div class="user-details-item">
+              <label>Unique Email Types</label>
+              <div class="user-details-value">${analytics.emailActivity.stats.uniqueEmailTypes || 0}</div>
+            </div>
+            ${analytics.emailActivity.stats.lastClick ? `
+              <div class="user-details-item">
+                <label>Last Email Click</label>
+                <div class="user-details-value">${this.formatDateTime(analytics.emailActivity.stats.lastClick)}</div>
+              </div>
+            ` : ''}
+          </div>
+          
+          ${analytics.emailActivity.stats.clicksByType ? `
+            <div style="margin-top: 20px;">
+              <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: #666;">Clicks by Email Type</h4>
+              <div class="user-details-grid">
+                ${Object.entries(analytics.emailActivity.stats.clicksByType).map(([type, count]) => `
+                  <div class="user-details-item">
+                    <label>${this.formatEmailTypeLabel(type)}</label>
+                    <div class="user-details-value">${count} clicks</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          ${analytics.emailActivity.journey && analytics.emailActivity.journey.length > 0 ? `
+            <div style="margin-top: 24px;">
+              <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: #666;">Email Click History</h4>
+              <div class="user-details-email-journey" style="max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Email Type</th>
+                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Link Type</th>
+                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Clicked At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${analytics.emailActivity.journey.slice(0, 20).map(click => `
+                      <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 8px; font-size: 0.9rem;">${this.formatEmailTypeLabel(click.emailType)}</td>
+                        <td style="padding: 8px; font-size: 0.9rem; color: #666;">${this.formatLinkTypeLabel(click.linkType)}</td>
+                        <td style="padding: 8px; font-size: 0.85rem; color: #999;">${this.formatDateTime(click.clickedAt)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+                ${analytics.emailActivity.journey.length > 20 ? `
+                  <p style="padding: 12px; text-align: center; color: #666; font-size: 0.85rem;">
+                    Showing first 20 of ${analytics.emailActivity.journey.length} clicks
+                  </p>
+                ` : ''}
+              </div>
+            </div>
+          ` : `
+            <div style="padding: 20px; text-align: center; color: #999;">
+              <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 8px; opacity: 0.5;"></i>
+              <p>No email clicks tracked for this user</p>
+            </div>
+          `}
+        ` : `
+          <div style="padding: 20px; text-align: center; color: #999;">
+            <p>Email activity data not available</p>
+          </div>
+        `}
+      </div>
+
       <!-- Raw Data / Debug Information -->
       <div class="user-details-section">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -801,6 +894,42 @@ export class UserDetailsModal {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+  
+  /**
+   * Format email type label for display
+   */
+  formatEmailTypeLabel(type) {
+    if (!type) return 'Unknown';
+    const labels = {
+      'welcome': 'Welcome',
+      'spec-ready': 'Spec Ready',
+      'advanced-spec-ready': 'Advanced Spec Ready',
+      'purchase-confirmation': 'Purchase Confirmation',
+      'inactive-user': 'Inactive User',
+      'tool-finder': 'Tool Finder',
+      'newsletter': 'Newsletter'
+    };
+    return labels[type] || type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
+  
+  /**
+   * Format link type label for display
+   */
+  formatLinkTypeLabel(type) {
+    if (!type) return 'Unknown';
+    const labels = {
+      'cta': 'CTA Button',
+      'get-started': 'Get Started',
+      'spec-view': 'View Spec',
+      'return': 'Return',
+      'account-view': 'View Account',
+      'tool-finder-again': 'Tool Finder',
+      'create-spec': 'Create Spec',
+      'unsubscribe': 'Unsubscribe',
+      'footer': 'Footer Link'
+    };
+    return labels[type] || type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 }
 

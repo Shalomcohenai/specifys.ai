@@ -2464,9 +2464,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
                 currentUserProfileDoc = userDoc.exists() ? userDoc.data() : {};
 
+                // Load email preferences
+                await loadEmailPreferences();
+
                 document.getElementById('renewal-row').style.display = 'none';
                 document.getElementById('cost-row').style.display = 'none';
                 document.getElementById('cancelSubBtn').style.display = 'none';
+
+                // Load email preferences
+                await loadEmailPreferences();
 
                 await loadEntitlements(true);
                 // Ensure workspace is loaded so specs-count is available
@@ -2477,6 +2483,115 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
             }
         }
+
+        // Load email preferences
+        async function loadEmailPreferences() {
+            if (!currentUser) return;
+            
+            try {
+                const token = await currentUser.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                
+                const response = await fetch(`${apiBaseUrl}/api/users/preferences/email`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const prefs = data.preferences || {
+                        newsletter: true,
+                        operational: true,
+                        marketing: true
+                    };
+                    
+                    // Update toggles
+                    const newsletterToggle = document.getElementById('email-pref-newsletter');
+                    const operationalToggle = document.getElementById('email-pref-operational');
+                    const marketingToggle = document.getElementById('email-pref-marketing');
+                    
+                    if (newsletterToggle) newsletterToggle.checked = prefs.newsletter !== false;
+                    if (operationalToggle) operationalToggle.checked = prefs.operational !== false;
+                    if (marketingToggle) marketingToggle.checked = prefs.marketing !== false;
+                } else {
+                    // Default to all enabled if API fails
+                    const newsletterToggle = document.getElementById('email-pref-newsletter');
+                    const operationalToggle = document.getElementById('email-pref-operational');
+                    const marketingToggle = document.getElementById('email-pref-marketing');
+                    
+                    if (newsletterToggle) newsletterToggle.checked = true;
+                    if (operationalToggle) operationalToggle.checked = true;
+                    if (marketingToggle) marketingToggle.checked = true;
+                }
+            } catch (error) {
+                console.error('Error loading email preferences:', error);
+                // Default to all enabled on error
+                const newsletterToggle = document.getElementById('email-pref-newsletter');
+                const operationalToggle = document.getElementById('email-pref-operational');
+                const marketingToggle = document.getElementById('email-pref-marketing');
+                
+                if (newsletterToggle) newsletterToggle.checked = true;
+                if (operationalToggle) operationalToggle.checked = true;
+                if (marketingToggle) marketingToggle.checked = true;
+            }
+        }
+
+        // Update email preference
+        window.updateEmailPreference = async function(type, value) {
+            if (!currentUser) return;
+            
+            const messageEl = document.getElementById('email-pref-message');
+            if (messageEl) {
+                messageEl.style.display = 'none';
+            }
+            
+            try {
+                const token = await currentUser.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                
+                const response = await fetch(`${apiBaseUrl}/api/users/preferences/email`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ [type]: value })
+                });
+                
+                if (response.ok) {
+                    if (messageEl) {
+                        messageEl.textContent = 'Email preferences updated successfully';
+                        messageEl.style.backgroundColor = '#d4edda';
+                        messageEl.style.color = '#155724';
+                        messageEl.style.display = 'block';
+                        setTimeout(() => {
+                            if (messageEl) messageEl.style.display = 'none';
+                        }, 3000);
+                    }
+                    showSuccess('Email preferences updated');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || 'Failed to update preferences');
+                }
+            } catch (error) {
+                console.error('Error updating email preference:', error);
+                
+                // Revert toggle
+                const toggle = document.getElementById(`email-pref-${type}`);
+                if (toggle) toggle.checked = !value;
+                
+                if (messageEl) {
+                    messageEl.textContent = 'Failed to update email preferences. Please try again.';
+                    messageEl.style.backgroundColor = '#f8d7da';
+                    messageEl.style.color = '#721c24';
+                    messageEl.style.display = 'block';
+                }
+                showError('Failed to update email preferences');
+            }
+        };
 
 
 
