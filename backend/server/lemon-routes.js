@@ -873,7 +873,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             // Send purchase confirmation email (non-blocking)
             if (userEmail && productConfig) {
               const emailService = require('./email-service');
-              const { db } = require('./firebase-admin');
               const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
               const productName = productConfig.name || 'Product';
               const amount = orderData.total || 0;
@@ -917,23 +916,62 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               }
               
               // Only send email if user hasn't disabled operational emails
+              // Check if purchase email was already sent for this order (webhook might be called multiple times)
               if (shouldSendEmail) {
-                emailService.sendPurchaseConfirmationEmail(
-                  userEmail,
-                  displayName,
-                  orderData.userId || null,
-                  productName,
-                  amount,
-                  currency,
-                  orderData.orderId,
-                  baseUrl
-                ).catch(err => {
+                // Check if email was already sent for this order
+                let orderEmailSent = false;
+                try {
+                  const orderDoc = await db.collection('orders').doc(orderData.orderId).get();
+                  if (orderDoc.exists) {
+                    const orderDataFromDb = orderDoc.data();
+                    orderEmailSent = orderDataFromDb.purchaseEmailSent === true;
+                  }
+                } catch (checkError) {
                   logger.warn({ 
                     webhookRequestId, 
                     orderId: orderData.orderId, 
-                    error: err.message 
-                  }, '[lemon-routes] Failed to send purchase confirmation email (non-fatal)');
-                });
+                    error: checkError.message 
+                  }, '[lemon-routes] Failed to check if purchase email was already sent');
+                }
+                
+                if (!orderEmailSent) {
+                  emailService.sendPurchaseConfirmationEmail(
+                    userEmail,
+                    displayName,
+                    orderData.userId || null,
+                    productName,
+                    amount,
+                    currency,
+                    orderData.orderId,
+                    baseUrl
+                  )
+                    .then(() => {
+                      // Mark email as sent for this order
+                      db.collection('orders').doc(orderData.orderId).update({
+                        purchaseEmailSent: true,
+                        purchaseEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+                      }).catch(updateErr => {
+                        logger.warn({ 
+                          webhookRequestId, 
+                          orderId: orderData.orderId, 
+                          error: updateErr.message 
+                        }, '[lemon-routes] Failed to mark purchase email as sent');
+                      });
+                    })
+                    .catch(err => {
+                      logger.warn({ 
+                        webhookRequestId, 
+                        orderId: orderData.orderId, 
+                        error: err.message 
+                      }, '[lemon-routes] Failed to send purchase confirmation email (non-fatal)');
+                    });
+                } else {
+                  logger.info({ 
+                    webhookRequestId, 
+                    orderId: orderData.orderId,
+                    userId: orderData.userId 
+                  }, '[lemon-routes] Skipped purchase confirmation email - already sent for this order');
+                }
               } else {
                 logger.info({ 
                   webhookRequestId, 

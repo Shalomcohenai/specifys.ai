@@ -566,13 +566,8 @@ function displaySpec(data) {
     // Update export checkboxes based on available sections
     updateExportCheckboxes();
     
-    // Send email notification if overview is ready and email hasn't been sent yet
-    if (data.status?.overview === 'ready' && !data.emailNotificationSent) {
-        sendSpecReadyNotification(data.id).catch(err => {
-            // Silently fail - don't interrupt user experience
-            // Failed to send spec ready notification
-        });
-    }
+    // Email notifications are now sent automatically when spec is created via /api/specs/:id/record-activity
+    // No need to send email here - it would trigger every time user visits the spec page
     
     // Handle approval state
     if (data.overviewApproved) {
@@ -4903,6 +4898,11 @@ async function approveOverview() {
         
         // Start parallel generation directly via Cloudflare Worker (like retry functions)
         showNotification('Starting parallel generation of Technical, Market, and Design specifications...', 'info');
+        
+        // Show email notification for advanced spec
+        setTimeout(() => {
+            showNotification('⚠️ Advanced specifications take longer to generate... 💌 Don\'t worry! We\'ll send it to your email once it\'s ready!', 'info');
+        }, 1500);
         
         // Generate all three specifications in parallel
         const generationPromises = [

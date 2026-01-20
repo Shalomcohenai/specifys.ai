@@ -64,24 +64,49 @@ router.post('/usage', verifyFirebaseTokenOptional, async (req, res, next) => {
                         
                         // Tool Finder email is considered marketing
                         if (emailPrefs.marketing !== false) {
-                            const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+                            // Check if email was already sent today (prevent spam)
+                            const toolFinderEmailSent = userData.toolFinderEmailSent;
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
                             
-                            // Send Tool Finder usage email (non-blocking)
-                            emailService.sendToolFinderUsageEmail(userEmail, userName, userId, baseUrl).catch(err => {
-                                logger.warn({ requestId, userId, error: err.message }, '[tool-finder-routes] Failed to send Tool Finder usage email');
-                            });
+                            let shouldSendEmail = true;
+                            if (toolFinderEmailSent) {
+                                const lastSentDate = toolFinderEmailSent instanceof Date 
+                                    ? toolFinderEmailSent 
+                                    : new Date(toolFinderEmailSent);
+                                lastSentDate.setHours(0, 0, 0, 0);
+                                
+                                // Only send once per day
+                                if (lastSentDate.getTime() === today.getTime()) {
+                                    shouldSendEmail = false;
+                                    logger.info({ requestId, userId, userEmail }, '[tool-finder-routes] Skipped Tool Finder usage email - already sent today');
+                                }
+                            }
                             
-                            logger.info({ requestId, userId, userEmail }, '[tool-finder-routes] Tool Finder usage email sent');
+                            if (shouldSendEmail) {
+                                const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+                                
+                                // Send Tool Finder usage email (non-blocking)
+                                emailService.sendToolFinderUsageEmail(userEmail, userName, userId, baseUrl)
+                                    .then(() => {
+                                        // Mark email as sent for today
+                                        db.collection('users').doc(userId).update({
+                                            toolFinderEmailSent: today
+                                        }).catch(updateErr => {
+                                            logger.warn({ requestId, userId, error: updateErr.message }, '[tool-finder-routes] Failed to mark tool finder email as sent');
+                                        });
+                                    })
+                                    .catch(err => {
+                                        logger.warn({ requestId, userId, error: err.message }, '[tool-finder-routes] Failed to send Tool Finder usage email');
+                                    });
+                                
+                                logger.info({ requestId, userId, userEmail }, '[tool-finder-routes] Tool Finder usage email sent');
+                            }
                         } else {
                             logger.info({ requestId, userId, userEmail }, '[tool-finder-routes] Skipped Tool Finder usage email - user disabled marketing emails');
                         }
                     } catch (prefError) {
-                        // If we can't check preferences, default to sending (graceful fallback)
-                        const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
-                        emailService.sendToolFinderUsageEmail(userEmail, userName, userId, baseUrl).catch(err => {
-                            logger.warn({ requestId, userId, error: err.message }, '[tool-finder-routes] Failed to send Tool Finder usage email');
-                        });
-                        logger.info({ requestId, userId, userEmail }, '[tool-finder-routes] Tool Finder usage email sent (preferences check failed)');
+                        logger.warn({ requestId, userId, error: prefError.message }, '[tool-finder-routes] Error checking user preferences, skipping email');
                     }
                 }
             } catch (authError) {
