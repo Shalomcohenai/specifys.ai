@@ -71,7 +71,7 @@ function getPreviewData(template) {
             <a href="${baseUrl}" class="btn">Explore New Features</a>
           </div>
         `,
-        `${baseUrl}/pages/profile.html?action=unsubscribe`
+        `${baseUrl}/pages/unsubscribe.html`
       );
     
     default:

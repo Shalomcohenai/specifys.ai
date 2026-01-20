@@ -345,7 +345,7 @@ async function sendNewsletterToUsers(newsletterId, subject, content, requestId) 
           if (userData.emailPreferences?.newsletter !== false) {
             // Generate unsubscribe URL with tracking
             const unsubscribeUrl = emailTracking.generateTrackingUrl(
-              `${baseUrl}/pages/profile.html?action=unsubscribe`,
+              `${baseUrl}/pages/unsubscribe.html`,
               `newsletter-${newsletterId}`,
               userId,
               'unsubscribe'
@@ -401,6 +401,67 @@ async function sendNewsletterToUsers(newsletterId, subject, content, requestId) 
     throw error;
   }
 }
+
+/**
+ * POST /api/newsletter/unsubscribe
+ * Unsubscribe a user from newsletter by email
+ * Public endpoint - no authentication required
+ */
+router.post('/unsubscribe', async (req, res, next) => {
+  const requestId = req.requestId || `newsletter-unsubscribe-${Date.now()}`;
+  
+  try {
+    const { email } = req.body;
+    
+    if (!email || !email.includes('@')) {
+      return next(createError('Valid email address is required', ERROR_CODES.INVALID_INPUT, 400));
+    }
+    
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    logger.info({ requestId, email: normalizedEmail }, '[newsletter-routes] Processing unsubscribe request');
+    
+    // Find user by email
+    const usersSnapshot = await db.collection('users')
+      .where('email', '==', normalizedEmail)
+      .limit(1)
+      .get();
+    
+    if (usersSnapshot.empty) {
+      // User not found, but return success anyway (security best practice - don't reveal if email exists)
+      logger.info({ requestId, email: normalizedEmail }, '[newsletter-routes] Email not found in system, but returning success');
+      return res.json({
+        success: true,
+        message: 'You have been unsubscribed from our newsletter.'
+      });
+    }
+    
+    const userDoc = usersSnapshot.docs[0];
+    const userId = userDoc.id;
+    const userData = userDoc.data();
+    
+    // Update user email preferences
+    const updateData = {
+      newsletterSubscribed: false,
+      'emailPreferences.newsletter': false,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    
+    await db.collection('users').doc(userId).update(updateData);
+    
+    logger.info({ requestId, userId, email: normalizedEmail }, '[newsletter-routes] User unsubscribed from newsletter');
+    
+    res.json({
+      success: true,
+      message: 'You have been unsubscribed from our newsletter.'
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[newsletter-routes] Failed to unsubscribe user');
+    next(createError('Failed to unsubscribe', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
 
 module.exports = router;
 

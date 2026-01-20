@@ -1,0 +1,157 @@
+---
+layout: default
+title: "Unsubscribe from Newsletter"
+description: "Unsubscribe from Specifys.ai newsletter"
+permalink: /pages/unsubscribe.html
+robots: noindex, follow
+extra_css:
+  - /assets/css/pages/unsubscribe.css
+extra_js:
+  - /assets/js/script.js
+---
+
+<main class="unsubscribe-container" id="main-content" role="main">
+    <div class="unsubscribe-content">
+        <div class="unsubscribe-card">
+            <div class="unsubscribe-header">
+                <h1>Unsubscribe from Newsletter</h1>
+                <p class="unsubscribe-subtitle">We're sorry to see you go. Enter your email address to unsubscribe from our newsletter.</p>
+            </div>
+            
+            <form id="unsubscribe-form" class="unsubscribe-form">
+                <div class="form-group">
+                    <label for="unsubscribe-email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="unsubscribe-email" 
+                        name="email" 
+                        placeholder="your.email@example.com"
+                        required
+                        autocomplete="email"
+                        aria-required="true"
+                        aria-describedby="unsubscribe-email-error"
+                    >
+                    <span id="unsubscribe-email-error" class="form-error" role="alert" aria-live="polite"></span>
+                </div>
+                
+                <div id="unsubscribe-message" class="form-message" style="display: none;" role="alert" aria-live="assertive"></div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="unsubscribe-submit-btn">
+                        <span id="unsubscribe-btn-text">Unsubscribe</span>
+                        <span id="unsubscribe-btn-loader" class="btn-loader" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="unsubscribe-footer">
+                <p>Changed your mind? <a href="/">Return to Specifys.ai</a></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+(function() {
+    'use strict';
+    
+    const form = document.getElementById('unsubscribe-form');
+    const emailInput = document.getElementById('unsubscribe-email');
+    const submitBtn = document.getElementById('unsubscribe-submit-btn');
+    const btnText = document.getElementById('unsubscribe-btn-text');
+    const btnLoader = document.getElementById('unsubscribe-btn-loader');
+    const messageDiv = document.getElementById('unsubscribe-message');
+    const emailError = document.getElementById('unsubscribe-email-error');
+    
+    function showError(message) {
+        messageDiv.textContent = message;
+        messageDiv.className = 'form-message error';
+        messageDiv.style.display = 'block';
+        emailError.textContent = message;
+        emailInput.setAttribute('aria-invalid', 'true');
+    }
+    
+    function showSuccess(message) {
+        messageDiv.textContent = message;
+        messageDiv.className = 'form-message success';
+        messageDiv.style.display = 'block';
+        emailError.textContent = '';
+        emailInput.setAttribute('aria-invalid', 'false');
+    }
+    
+    function clearMessages() {
+        messageDiv.style.display = 'none';
+        messageDiv.textContent = '';
+        emailError.textContent = '';
+        emailInput.setAttribute('aria-invalid', 'false');
+    }
+    
+    function setLoading(loading) {
+        if (loading) {
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline-block';
+        } else {
+            submitBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+        }
+    }
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        clearMessages();
+        
+        const email = emailInput.value.trim();
+        
+        if (!email || !email.includes('@')) {
+            showError('Please enter a valid email address.');
+            emailInput.focus();
+            return;
+        }
+        
+        setLoading(true);
+        
+        try {
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+            
+            const response = await fetch(`${apiBaseUrl}/api/newsletter/unsubscribe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                showSuccess('You have been successfully unsubscribed from our newsletter. We\'re sorry to see you go!');
+                form.reset();
+                emailInput.blur();
+                
+                // Redirect to home page after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+            } else {
+                showError(data.error || 'An error occurred. Please try again later.');
+            }
+        } catch (error) {
+            console.error('Unsubscribe error:', error);
+            showError('An error occurred. Please check your connection and try again.');
+        } finally {
+            setLoading(false);
+        }
+    });
+    
+    // Clear errors when user starts typing
+    emailInput.addEventListener('input', function() {
+        if (messageDiv.classList.contains('error')) {
+            clearMessages();
+        }
+    });
+})();
+</script>
