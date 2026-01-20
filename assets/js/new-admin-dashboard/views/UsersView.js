@@ -99,6 +99,14 @@ export class UsersView {
       });
     }
     
+    // Export CSV button in header
+    const exportCsvBtn = helpers.dom('#export-users-csv-btn');
+    if (exportCsvBtn) {
+      exportCsvBtn.addEventListener('click', () => {
+        this.exportCSVFromServer();
+      });
+    }
+    
     const exportPdfBtn = helpers.dom('#export-users-pdf-btn');
     if (exportPdfBtn) {
       exportPdfBtn.addEventListener('click', () => {
@@ -817,7 +825,98 @@ export class UsersView {
   }
   
   /**
-   * Export to CSV
+   * Export to CSV from server (all users)
+   */
+  async exportCSVFromServer() {
+    try {
+      const exportBtn = helpers.dom('#export-users-csv-btn');
+      if (exportBtn) {
+        exportBtn.disabled = true;
+        const originalContent = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        
+        try {
+          // Get auth token and make request directly (ApiService returns JSON, we need blob)
+          const token = await this.getAuthToken();
+          const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+          const response = await fetch(`${apiBaseUrl}/api/admin/users/export-csv`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `HTTP error! status: ${response.status}`);
+          }
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          // Get filename from Content-Disposition header or use default
+          const contentDisposition = response.headers.get('Content-Disposition');
+          let filename = 'users-export.csv';
+          if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch) {
+              filename = filenameMatch[1];
+            }
+          }
+          
+          // Download the file
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          
+          // Show success feedback
+          exportBtn.innerHTML = '<i class="fas fa-check"></i> Exported!';
+          exportBtn.classList.add('success');
+          
+          setTimeout(() => {
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = originalContent;
+            exportBtn.classList.remove('success');
+          }, 2000);
+        } catch (error) {
+          console.error('[UsersView] Error exporting CSV:', error);
+          alert(`Error exporting users: ${error.message}`);
+          exportBtn.disabled = false;
+          exportBtn.innerHTML = originalContent;
+        }
+      }
+    } catch (error) {
+      console.error('[UsersView] Error in exportCSVFromServer:', error);
+      alert(`Error exporting users: ${error.message}`);
+    }
+  }
+  
+  /**
+   * Get auth token for API requests
+   */
+  async getAuthToken() {
+    try {
+      const { firebaseService } = await import('../core/FirebaseService.js');
+      const user = firebaseService.getCurrentUser();
+      if (user) {
+        return await user.getIdToken();
+      }
+      throw new Error('User not authenticated');
+    } catch (error) {
+      console.error('[UsersView] Error getting auth token:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Export to CSV (local - filtered users)
    */
   exportCSV() {
     const allData = this.dataManager.getAllData();

@@ -101,6 +101,116 @@ router.get('/users', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Export users to CSV (admin only)
+ * GET /api/admin/users/export-csv
+ */
+router.get('/users/export-csv', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /users/export-csv');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /users/export-csv - Exporting users to CSV');
+  
+  try {
+    // Get all users from Firestore
+    const usersSnapshot = await db.collection('users').get();
+    
+    if (usersSnapshot.empty) {
+      return res.json({ 
+        success: false, 
+        message: 'No users found' 
+      });
+    }
+    
+    // Helper function to escape CSV field
+    const escapeCsvField = (field) => {
+      if (field === null || field === undefined) {
+        return '';
+      }
+      const str = String(field);
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+    
+    // Helper function to format date
+    const formatDate = (timestamp) => {
+      if (!timestamp) return '';
+      if (timestamp && typeof timestamp.toDate === 'function') {
+        return timestamp.toDate().toISOString();
+      }
+      if (timestamp instanceof Date) {
+        return timestamp.toISOString();
+      }
+      if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+        return new Date(timestamp).toISOString();
+      }
+      return '';
+    };
+    
+    // Define CSV columns
+    const headers = [
+      'User ID',
+      'Email',
+      'Display Name',
+      'Plan',
+      'Newsletter Subscribed',
+      'Email Preferences (Newsletter)',
+      'Email Preferences (Operational)',
+      'Email Preferences (Marketing)',
+      'Created At',
+      'Updated At',
+      'Last Login'
+    ];
+    
+    // Create CSV rows
+    const rows = [headers.map(escapeCsvField).join(',')];
+    
+    for (const doc of usersSnapshot.docs) {
+      const userData = doc.data();
+      
+      const row = [
+        doc.id,
+        escapeCsvField(userData.email || ''),
+        escapeCsvField(userData.displayName || ''),
+        escapeCsvField(userData.plan || 'free'),
+        escapeCsvField(userData.newsletterSubscribed !== false ? 'Yes' : 'No'),
+        escapeCsvField(userData.emailPreferences?.newsletter !== false ? 'Yes' : 'No'),
+        escapeCsvField(userData.emailPreferences?.operational !== false ? 'Yes' : 'No'),
+        escapeCsvField(userData.emailPreferences?.marketing !== false ? 'Yes' : 'No'),
+        formatDate(userData.createdAt),
+        formatDate(userData.updatedAt),
+        formatDate(userData.lastLoginAt)
+      ];
+      
+      rows.push(row.join(','));
+    }
+    
+    const csvContent = rows.join('\n');
+    
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `users-export-${timestamp}.csv`;
+    
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', Buffer.byteLength(csvContent, 'utf8'));
+    
+    logger.info({ requestId, count: usersSnapshot.size }, '[admin-routes] GET /users/export-csv - Success');
+    
+    res.send(csvContent);
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /users/export-csv - Error');
+    next(createError('Failed to export users to CSV', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * Trigger a full user sync (admin only)
  * POST /api/admin/users/sync
  */
