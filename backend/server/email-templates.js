@@ -15,11 +15,12 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Specifys.ai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background-color: #f5f5f5;
       color: #333;
       line-height: 1.6;
@@ -36,7 +37,7 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
       border-radius: 10px 10px 0 0;
     }
     .logo {
-      font-family: 'Montserrat', 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       font-size: 24px;
       font-weight: 700;
       color: #ffffff;
@@ -54,7 +55,7 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
       margin: 0;
       font-size: 28px;
       font-weight: 600;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
     }
     .email-body {
       padding: 40px;
@@ -87,7 +88,7 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
       font-weight: 600;
       box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
       margin: 20px 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       transition: background 0.3s ease;
     }
     .btn:hover {
@@ -102,14 +103,14 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
       font-size: 16px;
       line-height: 1.6;
       margin: 20px 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
     }
     .content-title {
       color: #333;
       font-size: 18px;
       font-weight: 600;
       margin: 20px 0 10px 0;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
     }
     @media only screen and (max-width: 600px) {
       .email-body {
@@ -199,13 +200,13 @@ function welcomeEmail(userName, getStartedUrl, creditsCount = 1) {
  * Spec ready email template
  */
 function specReadyEmail(userName, specTitle, specLink) {
-  const headerTitle = 'Your Specification is Ready';
+  const headerTitle = 'You did it! Your first specification is ready!';
   const bodyContent = `
       <p class="content-text">
         Hello ${userName},
       </p>
       <p class="content-text">
-        Your specification <strong>"${specTitle}"</strong> is ready! You can always access it to view and upgrade it.
+        Your specification is ready! You can always access it to view and upgrade it.
       </p>
       <div class="btn-container">
         <a href="${specLink}" class="btn">View Your Specification</a>

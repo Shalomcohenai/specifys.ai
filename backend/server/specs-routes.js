@@ -237,8 +237,13 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
             return next(createError('User email not found', ERROR_CODES.RESOURCE_NOT_FOUND, 400));
         }
         
-        // Get base URL from request or use default
-        const baseUrl = req.headers.origin || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+        // Get base URL from request or use default (never use localhost)
+        let baseUrl = req.headers.origin || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+        // Fix localhost URLs - replace with production URL
+        if (baseUrl && (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1'))) {
+            baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+            logger.info({ requestId, originalOrigin: req.headers.origin, fixedBaseUrl: baseUrl }, '[specs-routes] Fixed localhost baseUrl');
+        }
         
         // Get user display name
         const userDoc = await db.collection('users').doc(userId).get();

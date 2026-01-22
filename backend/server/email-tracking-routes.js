@@ -59,9 +59,23 @@ router.get('/track', async (req, res) => {
       targetUrl 
     }, '[email-tracking] Email click tracked');
     
+    // Fix target URL if it contains localhost (replace with production URL)
+    let finalTargetUrl = targetUrl;
+    if (finalTargetUrl && (finalTargetUrl.includes('localhost') || finalTargetUrl.includes('127.0.0.1'))) {
+      const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      try {
+        const url = new URL(finalTargetUrl);
+        const pathAndQuery = url.pathname + url.search;
+        finalTargetUrl = baseUrl + pathAndQuery;
+        logger.info({ requestId, originalUrl: targetUrl, fixedUrl: finalTargetUrl }, '[email-tracking] Fixed localhost URL');
+      } catch (err) {
+        logger.warn({ requestId, error: err.message }, '[email-tracking] Failed to fix localhost URL');
+      }
+    }
+    
     // Redirect to target URL if provided, otherwise redirect to homepage
-    if (targetUrl) {
-      res.redirect(targetUrl);
+    if (finalTargetUrl) {
+      res.redirect(finalTargetUrl);
     } else {
       // Extract base URL from query params if available
       const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';

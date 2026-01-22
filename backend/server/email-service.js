@@ -123,13 +123,13 @@ class EmailService {
       const result = await this.resend.emails.send({
         from: this.fromEmail,
         to: userEmail,
-        subject: `Your specification "${specTitle}" is ready!`,
+        subject: 'You did it! Your first specification is ready!',
         html: html
       });
 
       // Record email sent for analytics
       if (result.id) {
-        emailTracking.recordEmailSent(userId, userEmail, `Your specification "${specTitle}" is ready!`, 'spec-ready', 'spec_created', { messageId: result.id, specId }).catch(err => {
+        emailTracking.recordEmailSent(userId, userEmail, 'You did it! Your first specification is ready!', 'spec-ready', 'spec_created', { messageId: result.id, specId }).catch(err => {
           logger.warn({ error: err.message }, '[EmailService] Failed to record spec ready email sent');
         });
       }
