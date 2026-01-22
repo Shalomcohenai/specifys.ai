@@ -37,9 +37,10 @@ class EmailService {
    * @param {string} userName - User's display name
    * @param {string} userId - User ID (for tracking)
    * @param {string} baseUrl - Base URL (optional, defaults to env)
+   * @param {number} creditsCount - Number of credits granted (default: 1)
    * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
    */
-  async sendWelcomeEmail(userEmail, userName, userId = null, baseUrl = null) {
+  async sendWelcomeEmail(userEmail, userName, userId = null, baseUrl = null, creditsCount = 1) {
     if (!this.isConfigured()) {
       logger.warn('[EmailService] sendWelcomeEmail - Email service not configured');
       return { success: false, error: 'Email service not configured' };
@@ -61,23 +62,23 @@ class EmailService {
         'get-started'
       );
       
-      const html = emailTemplates.welcomeEmail(userName || userEmail.split('@')[0], getStartedUrl);
+      const html = emailTemplates.welcomeEmail(userName || userEmail.split('@')[0], getStartedUrl, creditsCount);
       
       const result = await this.resend.emails.send({
         from: this.fromEmail,
         to: userEmail,
-        subject: 'Welcome to Specifys.ai',
+        subject: 'Welcome to Specifys.ai - You\'ve Received 1 Free Credit!',
         html: html
       });
 
       // Record email sent for analytics
       if (result.id) {
-        emailTracking.recordEmailSent(userId, userEmail, 'Welcome to Specifys.ai', 'welcome', 'user_registered', { messageId: result.id }).catch(err => {
+        emailTracking.recordEmailSent(userId, userEmail, 'Welcome to Specifys.ai - You\'ve Received 1 Free Credit!', 'welcome', 'user_registered', { messageId: result.id, creditsCount }).catch(err => {
           logger.warn({ error: err.message }, '[EmailService] Failed to record welcome email sent');
         });
       }
 
-      logger.info({ userEmail, messageId: result.id }, '[EmailService] Welcome email sent successfully');
+      logger.info({ userEmail, messageId: result.id, creditsCount }, '[EmailService] Welcome email sent successfully');
       return { success: true, messageId: result.id };
     } catch (error) {
       logger.error({ userEmail, error: error.message }, '[EmailService] Failed to send welcome email');

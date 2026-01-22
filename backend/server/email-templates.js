@@ -159,7 +159,7 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
 /**
  * Welcome email template for new users
  */
-function welcomeEmail(userName, getStartedUrl) {
+function welcomeEmail(userName, getStartedUrl, creditsCount = 1) {
   const headerTitle = 'Welcome to Specifys.ai';
   const bodyContent = `
       <p class="content-text">
@@ -168,6 +168,15 @@ function welcomeEmail(userName, getStartedUrl) {
       <p class="content-text">
         We're thrilled to have you join Specifys.ai! You're now part of a community that's building the future of app development with AI-powered specifications.
       </p>
+      <div style="background: #FFF4E6; border-left: 4px solid #F59E0B; padding: 20px; margin: 25px 0; border-radius: 8px;">
+        <div class="content-title" style="color: #F59E0B; margin-top: 0;">🎉 You've Received ${creditsCount} Free Credit${creditsCount !== 1 ? 's' : ''}!</div>
+        <p class="content-text" style="margin: 10px 0;">
+          As a welcome gift, we've added <strong>${creditsCount} specification credit${creditsCount !== 1 ? 's' : ''}</strong> to your account. You can use ${creditsCount === 1 ? 'it' : 'them'} to create your first comprehensive app specification right away!
+        </p>
+        <p class="content-text" style="margin: 10px 0;">
+          Our AI will help you build detailed specifications including technical requirements, market research, and design guidelines.
+        </p>
+      </div>
       <div class="content-title">What's Next?</div>
       <p class="content-text">
         You can start creating your first specification right away. Our AI will help you build comprehensive app specifications including technical requirements, market research, and design guidelines.

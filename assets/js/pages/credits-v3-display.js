@@ -1,5 +1,5 @@
 /**
- * Credits V2 Display Module - Specifys.ai
+ * Credits V3 Display Module - Specifys.ai
  * Handles updating the credits display in the header using the new unified system
  */
 
@@ -11,9 +11,9 @@
   // Wait for dependencies
   function waitForDependencies() {
     return new Promise((resolve) => {
-      // Check if CreditsV2Manager is available
+      // Check if CreditsV3Manager is available
       const checkManager = () => {
-        if (typeof window.CreditsV2Manager !== 'undefined') {
+        if (typeof window.CreditsV3Manager !== 'undefined' || typeof window.CreditsV2Manager !== 'undefined') {
           return true;
         }
         return false;
@@ -22,10 +22,11 @@
       if (checkManager()) {
         resolve();
       } else {
-        // Wait for credits-v2-manager.js to load
+        // Wait for credits-v3-manager.js to load
         const checkInterval = setInterval(() => {
           if (checkManager()) {
             clearInterval(checkInterval);
+            window.removeEventListener('credits-v3-manager-ready', readyHandler);
             window.removeEventListener('credits-v2-manager-ready', readyHandler);
             resolve();
           }
@@ -33,9 +34,11 @@
 
         const readyHandler = () => {
           clearInterval(checkInterval);
+          window.removeEventListener('credits-v3-manager-ready', readyHandler);
           window.removeEventListener('credits-v2-manager-ready', readyHandler);
           resolve();
         };
+        window.addEventListener('credits-v3-manager-ready', readyHandler);
         window.addEventListener('credits-v2-manager-ready', readyHandler);
 
         // Timeout after 10 seconds
@@ -127,10 +130,10 @@
   async function updateCreditsDisplay(options = {}) {
     await waitForDependencies();
     
-    const manager = window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
     if (!manager) {
       if (window.appLogger) {
-        window.appLogger.log('Error', 'CreditsV2Manager not available', { context: 'CreditsV2Display.updateCreditsDisplay' });
+        window.appLogger.log('Error', 'CreditsV3Manager not available', { context: 'CreditsV3Display.updateCreditsDisplay' });
       }
       return;
     }
@@ -178,7 +181,7 @@
       applyCreditsState(displayState);
     } catch (error) {
       if (window.appLogger) {
-        window.appLogger.logError(error, { context: 'CreditsV2Display.updateCreditsDisplay' });
+        window.appLogger.logError(error, { context: 'CreditsV3Display.updateCreditsDisplay' });
       }
       
       // Show error state
@@ -201,7 +204,7 @@
   async function updateCreditsDisplayWithRetry(options = {}, maxRetries = 5, attempt = 0) {
     await waitForDependencies();
     
-    const manager = window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
     if (!manager) {
       return;
     }
@@ -230,7 +233,7 @@
       }
       // Last attempt failed - log error but don't throw (user already sees optimistic UI)
       if (window.appLogger) {
-        window.appLogger.logError(error, { context: 'CreditsV2Display.updateCreditsDisplayWithRetry' });
+        window.appLogger.logError(error, { context: 'CreditsV3Display.updateCreditsDisplayWithRetry' });
       }
     }
   }
@@ -302,10 +305,10 @@
   async function init() {
     await waitForDependencies();
     
-    const manager = window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
     if (!manager) {
       if (window.appLogger) {
-        window.appLogger.log('Error', 'CreditsV2Manager not available', { context: 'CreditsV2Display.init' });
+        window.appLogger.log('Error', 'CreditsV3Manager not available', { context: 'CreditsV3Display.init' });
       }
       return;
     }
@@ -333,10 +336,10 @@
     }
 
     // Track if we've already initialized to prevent duplicate subscriptions
-    if (window.__creditsV2DisplayInitialized) {
+    if (window.__creditsV3DisplayInitialized || window.__creditsV2DisplayInitialized) {
       return;
     }
-    window.__creditsV2DisplayInitialized = true;
+    window.__creditsV3DisplayInitialized = true;
 
     // Subscribe to auth state changes (only once)
     auth.onAuthStateChanged((user) => {
@@ -400,8 +403,9 @@
   // Expose functions to window
   window.updateCreditsDisplay = updateCreditsDisplay;
   window.clearCreditsCache = function() {
-    if (window.CreditsV2Manager) {
-      window.CreditsV2Manager.clearCache();
+    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
+    if (manager) {
+      manager.clearCache();
     }
   };
 

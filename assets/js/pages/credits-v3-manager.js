@@ -286,9 +286,14 @@
   // Create singleton instance
   const creditManager = new CreditManager();
 
-  // Expose to window
-  window.CreditsV2Manager = creditManager;
-  window.creditsV2Manager = creditManager;
+  // Expose to window (V3 as primary, V2 for backward compatibility)
+  window.CreditsV3Manager = creditManager;
+  window.creditsV3Manager = creditManager;
+  window.CreditsV2Manager = creditManager; // Backward compatibility
+  window.creditsV2Manager = creditManager; // Backward compatibility
+  
+  // Dispatch ready event
+  window.dispatchEvent(new Event('credits-v3-manager-ready'));
 
   // Export for module systems
   if (typeof module !== 'undefined' && module.exports) {

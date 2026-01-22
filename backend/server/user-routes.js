@@ -5,6 +5,7 @@ const { initializeUser } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { recordEvent } = require('./analytics-service');
+const emailService = require('./email-service');
 
 /**
  * Middleware to verify Firebase ID token
@@ -166,6 +167,35 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
             }, '[user-routes] ✅ Credits info calculated successfully');
         } else {
             logger.warn({ requestId, userId }, '[user-routes] ⚠️ WARNING - result.credits is missing!');
+        }
+
+        // Send welcome email to new user (after credits info is calculated)
+        if (result.created) {
+            logger.info({ requestId, userId }, '[user-routes] Step 5.5 - Sending welcome email to new user...');
+            try {
+                const userEmail = result.user?.email || req.user?.email;
+                const userName = result.user?.displayName || result.user?.name || userEmail?.split('@')[0] || 'there';
+                const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+                const creditsCount = creditsInfo?.total || 1;
+
+                if (userEmail) {
+                    // Send email asynchronously (don't wait for it to complete)
+                    emailService.sendWelcomeEmail(userEmail, userName, userId, baseUrl, creditsCount).then(emailResult => {
+                        if (emailResult.success) {
+                            logger.info({ requestId, userId, userEmail, messageId: emailResult.messageId, creditsCount }, '[user-routes] ✅ Welcome email sent successfully');
+                        } else {
+                            logger.warn({ requestId, userId, userEmail, error: emailResult.error }, '[user-routes] ⚠️ Failed to send welcome email (non-fatal)');
+                        }
+                    }).catch(emailError => {
+                        logger.warn({ requestId, userId, userEmail, error: emailError.message }, '[user-routes] ⚠️ Exception sending welcome email (non-fatal)');
+                    });
+                } else {
+                    logger.warn({ requestId, userId }, '[user-routes] ⚠️ Skipping welcome email - user email not available');
+                }
+            } catch (emailError) {
+                // Don't fail the request if email sending fails
+                logger.warn({ requestId, userId, error: emailError.message }, '[user-routes] ⚠️ Failed to send welcome email (non-fatal)');
+            }
         }
         
         logger.info({ requestId, userId }, '[user-routes] Step 6 - Building response data...');
