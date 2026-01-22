@@ -438,7 +438,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             console.log(`[user-management] User ${uid}: Fallback applied - result._isNewUser set to ${result._isNewUser}`);
         }
         
-        // Record activity for new user registration and send welcome email
+        // Record activity for new user registration (welcome email is sent from user-routes.js to avoid duplicates)
         if (result && result._isNewUser === true) {
             const userEmail = authUser.email || result.user?.email || null;
             const displayName = authUser.displayName || result.user?.displayName || userEmail?.split('@')[0] || uid;
@@ -450,30 +450,8 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 console.error(`[user-management] Failed to record user registration activity:`, err);
             });
             
-            // Send welcome email (non-blocking) - check user preferences
-            if (userEmail) {
-                const emailService = require('./email-service');
-                const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
-                
-                // Welcome email is considered operational/newsletter - check preferences
-                // For new users, preferences are set during initialization, so check them
-                // Use the user data from result if available, otherwise fetch from DB
-                const userData = result?.user || {};
-                const emailPrefs = userData.emailPreferences || {
-                    newsletter: true,
-                    operational: true,
-                    marketing: true,
-                    specNotifications: true,
-                    updates: true
-                };
-                
-                // Send welcome email if user wants newsletter or operational emails (default true for new users)
-                if (emailPrefs.newsletter !== false || emailPrefs.operational !== false) {
-                    emailService.sendWelcomeEmail(userEmail, displayName, uid, baseUrl).catch(err => {
-                        console.error(`[user-management] Failed to send welcome email:`, err);
-                    });
-                }
-            }
+            // NOTE: Welcome email is now sent from user-routes.js (/api/users/initialize)
+            // to avoid duplicate emails. This ensures only one welcome email is sent per new user.
         }
         
         // Log credits info for debugging
