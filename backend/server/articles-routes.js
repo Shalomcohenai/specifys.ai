@@ -691,6 +691,7 @@ async function generateSitemap(req, res, next) {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
         
         // Static URLs that should always be in sitemap
+        // Note: Pages with noindex, follow (auth, profile, demo-spec, spec-viewer, planning) are excluded
         const staticUrls = [
             { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'weekly' },
             { loc: `${baseUrl}/blog/`, priority: '0.9', changefreq: 'weekly' },
@@ -701,10 +702,6 @@ async function generateSitemap(req, res, next) {
             { loc: `${baseUrl}/pages/ToolPicker.html`, priority: '0.8', changefreq: 'monthly' },
             { loc: `${baseUrl}/pages/pricing.html`, priority: '0.8', changefreq: 'monthly' },
             { loc: `${baseUrl}/pages/why.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/auth.html`, priority: '0.7', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/profile.html`, priority: '0.7', changefreq: 'weekly' },
-            { loc: `${baseUrl}/pages/demo-spec.html`, priority: '0.6', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/spec-viewer.html`, priority: '0.85', changefreq: 'weekly' },
             { loc: `${baseUrl}/tools/map/vibe-coding-tools-map.html`, priority: '0.95', changefreq: 'weekly' }
         ];
         
