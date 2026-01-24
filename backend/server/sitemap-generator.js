@@ -90,38 +90,12 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
         };
     });
 
-    // Get academy categories
-    const categoriesSnapshot = await db.collection('academy_categories').get();
-    const categoryUrls = categoriesSnapshot.docs.map(doc => {
-        const data = doc.data();
-        const createdAt = convertTimestamp(data.createdAt);
-        const lastmod = createdAt ? createdAt.toISOString().split('T')[0] : today;
-        
-        return {
-            loc: `${baseUrl}/academy/category.html?category=${doc.id}`,
-            lastmod: lastmod,
-            changefreq: 'weekly',
-            priority: '0.85'
-        };
-    });
-
-    // Get academy guides
-    const guidesSnapshot = await db.collection('academy_guides').get();
-    const guideUrls = guidesSnapshot.docs.map(doc => {
-        const data = doc.data();
-        const createdAt = convertTimestamp(data.createdAt);
-        const lastmod = createdAt ? createdAt.toISOString().split('T')[0] : today;
-        
-        return {
-            loc: `${baseUrl}/academy/guide.html?guide=${doc.id}`,
-            lastmod: lastmod,
-            changefreq: 'monthly',
-            priority: '0.8'
-        };
-    });
+    // Academy categories and guides are excluded from sitemap
+    // They have noindex, follow meta tags to prevent indexing while allowing link following
+    // Only the main academy.html page is included in staticUrls
 
     // Combine all URLs
-    const allUrls = [...staticUrls, ...articleUrls, ...categoryUrls, ...guideUrls];
+    const allUrls = [...staticUrls, ...articleUrls];
 
     // Generate XML
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
