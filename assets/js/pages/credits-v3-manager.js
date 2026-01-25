@@ -20,10 +20,30 @@
      * Get API base URL
      */
     getApiBaseUrl() {
+      let baseUrl;
       if (typeof window.getApiBaseUrl === 'function') {
-        return window.getApiBaseUrl();
+        baseUrl = window.getApiBaseUrl();
+      } else if (typeof window.API_BASE_URL !== 'undefined') {
+        baseUrl = window.API_BASE_URL;
+      } else {
+        baseUrl = 'https://specifys-ai-development2.onrender.com';
       }
-      return 'https://specifys-ai-development2.onrender.com';
+      
+      // Validate URL format
+      if (!baseUrl || typeof baseUrl !== 'string') {
+        const fallback = 'https://specifys-ai-development2.onrender.com';
+        if (window.appLogger) {
+          window.appLogger.log('Error', 'Invalid API base URL, using fallback', { 
+            context: 'CreditsV3Manager.getApiBaseUrl',
+            received: baseUrl,
+            fallback: fallback
+          });
+        }
+        return fallback;
+      }
+      
+      // Ensure URL doesn't end with slash
+      return baseUrl.replace(/\/$/, '');
     }
 
     /**
@@ -42,14 +62,80 @@
     }
 
     /**
+     * Check if error is a network error that should be retried
+     */
+    isNetworkError(error) {
+      if (!error) return false;
+      
+      const errorMessage = error.message || error.toString() || '';
+      const errorName = error.name || '';
+      
+      // Common network error patterns
+      const networkErrorPatterns = [
+        'fetch',
+        'Load failed',
+        'Failed to fetch',
+        'NetworkError',
+        'Network request failed',
+        'network',
+        'timeout',
+        'ECONNREFUSED',
+        'ENOTFOUND',
+        'ETIMEDOUT',
+        'ERR_INTERNET_DISCONNECTED',
+        'ERR_NETWORK_CHANGED',
+        'TypeError' // "Load failed" is a TypeError in Safari iOS
+      ];
+      
+      // Check if error message or name matches network error patterns
+      const lowerMessage = errorMessage.toLowerCase();
+      const lowerName = errorName.toLowerCase();
+      
+      return networkErrorPatterns.some(pattern => 
+        lowerMessage.includes(pattern.toLowerCase()) || 
+        lowerName.includes(pattern.toLowerCase())
+      );
+    }
+
+    /**
      * Make API request with fallback to old API
      */
     async apiRequest(method, path, body = null, retries = 2) {
       const token = await this.getAuthToken();
       const apiBaseUrl = this.getApiBaseUrl();
       
+      // Validate URL construction
+      if (!apiBaseUrl || !path) {
+        const error = new Error('Invalid API URL configuration');
+        if (window.appLogger) {
+          window.appLogger.logError(error, { 
+            context: 'CreditsV3Manager.apiRequest',
+            apiBaseUrl,
+            path,
+            method
+          });
+        }
+        throw error;
+      }
+      
       // Try new API first
       let url = `${apiBaseUrl}${API_BASE_PATH}${path}`;
+      
+      // Validate final URL
+      try {
+        new URL(url); // This will throw if URL is invalid
+      } catch (urlError) {
+        const error = new Error(`Invalid URL: ${url}`);
+        if (window.appLogger) {
+          window.appLogger.logError(error, { 
+            context: 'CreditsV3Manager.apiRequest',
+            constructedUrl: url,
+            apiBaseUrl,
+            path
+          });
+        }
+        throw error;
+      }
       
       const options = {
         method: method,
@@ -67,33 +153,90 @@
       let lastError;
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
+          if (window.appLogger && attempt > 0) {
+            window.appLogger.log('Info', `Retrying API request (attempt ${attempt + 1}/${retries + 1})`, {
+              context: 'CreditsV3Manager.apiRequest',
+              url,
+              method,
+              attempt
+            });
+          }
+          
           const response = await fetch(url, options);
           
           // Handle rate limiting (429) - wait and retry
           if (response.status === 429 && attempt < retries) {
             const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
+            if (window.appLogger) {
+              window.appLogger.log('Info', `Rate limited, waiting ${waitTime}ms before retry`, {
+                context: 'CreditsV3Manager.apiRequest',
+                url,
+                attempt
+              });
+            }
             await new Promise(resolve => setTimeout(resolve, waitTime));
             continue; // Retry
           }
           
           if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-            throw new Error(error.message || `API error: ${response.status}`);
+            const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+            const error = new Error(errorData.message || `API error: ${response.status}`);
+            if (window.appLogger) {
+              window.appLogger.logError(error, {
+                context: 'CreditsV3Manager.apiRequest',
+                url,
+                method,
+                status: response.status,
+                statusText: response.statusText,
+                errorData
+              });
+            }
+            throw error;
           }
 
-          return await response.json();
+          const data = await response.json();
+          
+          if (window.appLogger && attempt > 0) {
+            window.appLogger.log('Info', 'API request succeeded after retry', {
+              context: 'CreditsV3Manager.apiRequest',
+              url,
+              method,
+              attempt
+            });
+          }
+          
+          return data;
         } catch (error) {
           lastError = error;
-          // Only retry on network errors or rate limiting
-          if (attempt < retries && (error.message.includes('fetch') || error.message.includes('429'))) {
-            const waitTime = Math.pow(2, attempt) * 1000;
+          
+          // Check if this is a network error that should be retried
+          const isNetwork = this.isNetworkError(error);
+          const shouldRetry = attempt < retries && (isNetwork || error.message.includes('429'));
+          
+          if (window.appLogger) {
+            window.appLogger.logError(error, {
+              context: 'CreditsV3Manager.apiRequest',
+              url,
+              method,
+              attempt: attempt + 1,
+              maxRetries: retries + 1,
+              isNetworkError: isNetwork,
+              willRetry: shouldRetry
+            });
+          }
+          
+          if (shouldRetry) {
+            const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
             await new Promise(resolve => setTimeout(resolve, waitTime));
             continue;
           }
+          
+          // Don't retry - throw the error
           throw error;
         }
       }
       
+      // This should never be reached, but just in case
       throw lastError || new Error('API request failed after retries');
     }
 
@@ -106,6 +249,12 @@
       // Check cache
       if (!forceRefresh && this.cache && 
           Date.now() - this.cacheTimestamp < CACHE_TTL) {
+        if (window.appLogger) {
+          window.appLogger.log('Debug', 'Returning cached credits', {
+            context: 'CreditsV3Manager.getCredits',
+            cacheAge: Date.now() - this.cacheTimestamp
+          });
+        }
         return this.cache;
       }
 
@@ -120,14 +269,40 @@
         // Notify listeners
         this.notifyListeners(data);
 
+        if (window.appLogger) {
+          window.appLogger.log('Debug', 'Credits fetched successfully', {
+            context: 'CreditsV3Manager.getCredits',
+            unlimited: data.unlimited,
+            total: data.total,
+            forceRefresh
+          });
+        }
+
         return data;
       } catch (error) {
+        // Enhanced error logging
         if (window.appLogger) {
-          window.appLogger.logError(error, { context: 'CreditsV2Manager.fetchCredits' });
+          const errorContext = {
+            context: 'CreditsV3Manager.getCredits',
+            forceRefresh,
+            hasCache: !!this.cache,
+            cacheAge: this.cache ? Date.now() - this.cacheTimestamp : null,
+            errorName: error?.name,
+            errorMessage: error?.message,
+            isNetworkError: this.isNetworkError(error)
+          };
+          window.appLogger.logError(error, errorContext);
         }
         
         // Return cached data if available, even if stale
         if (this.cache) {
+          if (window.appLogger) {
+            window.appLogger.log('Info', 'Returning stale cached credits due to error', {
+              context: 'CreditsV3Manager.getCredits',
+              cacheAge: Date.now() - this.cacheTimestamp,
+              errorName: error?.name
+            });
+          }
           return this.cache;
         }
         

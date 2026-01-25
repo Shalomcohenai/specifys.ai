@@ -180,16 +180,41 @@
       // Apply to UI
       applyCreditsState(displayState);
     } catch (error) {
+      // Enhanced error logging with more context
       if (window.appLogger) {
-        window.appLogger.logError(error, { context: 'CreditsV3Display.updateCreditsDisplay' });
+        const errorContext = {
+          context: 'CreditsV3Display.updateCreditsDisplay',
+          errorName: error?.name,
+          errorMessage: error?.message,
+          forceRefresh: options.forceRefresh,
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        };
+        window.appLogger.logError(error, errorContext);
       }
       
-      // Show error state
-      applyCreditsState({
-        text: 'Credits unavailable',
-        title: 'Unable to load credits at the moment',
-        variant: 'loading'
-      });
+      // Check if this is a network error
+      const isNetworkError = error?.message?.includes('Load failed') || 
+                            error?.message?.includes('Failed to fetch') ||
+                            error?.message?.includes('Network') ||
+                            error?.name === 'TypeError';
+      
+      // Show appropriate error state
+      if (isNetworkError) {
+        // For network errors, show a more helpful message
+        applyCreditsState({
+          text: 'Credits unavailable',
+          title: 'Network error - please check your connection and try again',
+          variant: 'loading'
+        });
+      } else {
+        // For other errors, show generic message
+        applyCreditsState({
+          text: 'Credits unavailable',
+          title: 'Unable to load credits at the moment',
+          variant: 'loading'
+        });
+      }
     } finally {
       isUpdating = false;
     }
@@ -206,6 +231,12 @@
     
     const manager = window.CreditsV3Manager || window.CreditsV2Manager;
     if (!manager) {
+      if (window.appLogger) {
+        window.appLogger.log('Error', 'Manager not available for retry', { 
+          context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
+          attempt
+        });
+      }
       return;
     }
 
@@ -217,23 +248,63 @@
       
       // If we got credits (even 0) or unlimited, we're done
       if (credits && (credits.total !== undefined || credits.unlimited)) {
+        if (window.appLogger && attempt > 0) {
+          window.appLogger.log('Info', 'Credits loaded successfully after retry', {
+            context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
+            attempt: attempt + 1,
+            credits: credits.unlimited ? 'unlimited' : credits.total
+          });
+        }
         return; // Success!
       }
       
       // If no credits yet and we have retries left, try again
       if (attempt < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, retryDelays[attempt] || 2000));
+        const delay = retryDelays[attempt] || 2000;
+        if (window.appLogger) {
+          window.appLogger.log('Info', `Retrying credits fetch (attempt ${attempt + 2}/${maxRetries})`, {
+            context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
+            attempt: attempt + 1,
+            delay
+          });
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
         return updateCreditsDisplayWithRetry(options, maxRetries, attempt + 1);
       }
     } catch (error) {
-      // If error and we have retries left, try again
+      // Check if this is a network error
+      const isNetworkError = error?.message?.includes('Load failed') || 
+                            error?.message?.includes('Failed to fetch') ||
+                            error?.message?.includes('Network') ||
+                            error?.name === 'TypeError';
+      
+      // If error and we have retries left, try again (especially for network errors)
       if (attempt < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, retryDelays[attempt] || 2000));
+        const delay = retryDelays[attempt] || 2000;
+        if (window.appLogger) {
+          window.appLogger.log('Info', `Retrying after error (attempt ${attempt + 2}/${maxRetries})`, {
+            context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
+            attempt: attempt + 1,
+            delay,
+            isNetworkError,
+            errorName: error?.name,
+            errorMessage: error?.message
+          });
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
         return updateCreditsDisplayWithRetry(options, maxRetries, attempt + 1);
       }
+      
       // Last attempt failed - log error but don't throw (user already sees optimistic UI)
       if (window.appLogger) {
-        window.appLogger.logError(error, { context: 'CreditsV3Display.updateCreditsDisplayWithRetry' });
+        window.appLogger.logError(error, { 
+          context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
+          finalAttempt: true,
+          maxRetries,
+          isNetworkError,
+          errorName: error?.name,
+          errorMessage: error?.message
+        });
       }
     }
   }
