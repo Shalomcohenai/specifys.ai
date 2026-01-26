@@ -286,26 +286,47 @@ export class UsersView {
       // This matches what users see in their profile via /api/v3/credits
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
+      // Debug: Log if userCredits not found for specific user
+      if (!userCredits && user.id === 'Xrj0xL0j56WkjnVZOAaMAc13Rxr1') {
+        console.warn('[UsersView] userCredits not found for user:', user.id, {
+          userCreditsCount: allData.userCredits.length,
+          userCreditsUserIds: allData.userCredits.map(uc => uc.userId),
+          searchingFor: user.id
+        });
+      }
+      
       const specCount = allData.specsByUser[user.id]?.length || 0;
       
+      // Display the same value the user sees in header (from /api/v3/credits)
+      // This matches what users see: credits.total from user_credits_v3
       let creditsDisplay = '0';
       if (userCredits) {
         if (userCredits.unlimited) {
           // Pro users with unlimited access
           creditsDisplay = '∞';
         } else if (typeof userCredits.total === 'number') {
-          // Calculate remaining credits (total - consumed specs)
-          const remainingCredits = Math.max(0, userCredits.total - specCount);
-          creditsDisplay = remainingCredits.toString();
+          // Display total credits (same as user sees in header)
+          creditsDisplay = userCredits.total.toString();
+        } else {
+          // Fallback: calculate from balances if total is not available
+          const calculatedTotal = (userCredits.balances?.paid || 0) + 
+                                  (userCredits.balances?.free || 0) + 
+                                  (userCredits.balances?.bonus || 0);
+          creditsDisplay = calculatedTotal.toString();
         }
       } else {
-        // Fallback: if user_credits not loaded yet, try to use user.freeSpecsRemaining
-        // This is a temporary fallback until userCredits loads
-        const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
-          ? user.freeSpecsRemaining 
-          : 0;
-        const remainingCredits = Math.max(0, fallbackCredits - specCount);
-        creditsDisplay = remainingCredits.toString();
+        // Debug: Log if userCredits not found (only for specific problematic user)
+        if (user.id === 'Xrj0xL0j56WkjnVZOAaMAc13Rxr1') {
+          console.warn('[UsersView] userCredits not found for user:', user.id, {
+            userCreditsCount: allData.userCredits?.length || 0,
+            userCreditsUserIds: allData.userCredits?.map(uc => uc.userId) || [],
+            searchingFor: user.id,
+            allDataKeys: Object.keys(allData)
+          });
+        }
+        // Fallback: if user_credits not loaded yet, show 0
+        // This should not happen if userCredits loaded properly
+        creditsDisplay = '0';
       }
       // Check plan from user document
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
@@ -508,8 +529,14 @@ export class UsersView {
       existingModal.remove();
     }
     
-    // Get current values
-    const currentCredits = typeof user.freeSpecsRemaining === 'number' ? user.freeSpecsRemaining : 1;
+    // Get current values from user_credits_v3 (same source as users see)
+    const allData = this.dataManager.getAllData();
+    const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+    const currentCredits = userCredits && typeof userCredits.total === 'number' 
+      ? userCredits.total 
+      : (userCredits?.balances ? 
+          ((userCredits.balances.paid || 0) + (userCredits.balances.free || 0) + (userCredits.balances.bonus || 0)) 
+          : 0);
     const currentPlan = (user.plan || 'free').toLowerCase();
     
     // Create modal HTML
@@ -931,22 +958,26 @@ export class UsersView {
       
       const specCount = allData.specsByUser[user.id]?.length || 0;
       
+      // Display the same value the user sees in header (from /api/v3/credits)
+      // This matches what users see: credits.total from user_credits_v3
       let creditsDisplay = '0';
       if (userCredits) {
         if (userCredits.unlimited) {
           creditsDisplay = 'unlimited';
         } else if (typeof userCredits.total === 'number') {
-          // Calculate remaining credits (total - consumed specs)
-          const remainingCredits = Math.max(0, userCredits.total - specCount);
-          creditsDisplay = remainingCredits.toString();
+          // Display total credits (same as user sees in header)
+          creditsDisplay = userCredits.total.toString();
+        } else {
+          // Fallback: calculate from balances if total is not available
+          const calculatedTotal = (userCredits.balances?.paid || 0) + 
+                                  (userCredits.balances?.free || 0) + 
+                                  (userCredits.balances?.bonus || 0);
+          creditsDisplay = calculatedTotal.toString();
         }
       } else {
-        // Fallback: if user_credits not loaded yet, use user.freeSpecsRemaining
-        const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
-          ? user.freeSpecsRemaining 
-          : 0;
-        const remainingCredits = Math.max(0, fallbackCredits - specCount);
-        creditsDisplay = remainingCredits.toString();
+        // Fallback: if user_credits not loaded yet, show 0
+        // This should not happen if userCredits loaded properly
+        creditsDisplay = '0';
       }
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       
