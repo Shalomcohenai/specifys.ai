@@ -174,6 +174,7 @@ async function getEmailClickStats(filters = {}) {
  */
 async function getUserEmailJourney(userId) {
   try {
+    // Try with orderBy first (requires composite index)
     const snapshot = await db.collection('email_clicks')
       .where('userId', '==', userId)
       .orderBy('timestamp', 'desc')
@@ -193,6 +194,40 @@ async function getUserEmailJourney(userId) {
     
     return journey;
   } catch (error) {
+    // If orderBy fails (likely missing index), try without orderBy
+    if (error.code === 9 || error.message?.includes('index') || error.message?.includes('Index')) {
+      logger.warn({ userId, error: error.message }, '[EmailTracking] Index missing, fetching without orderBy');
+      try {
+        const snapshot = await db.collection('email_clicks')
+          .where('userId', '==', userId)
+          .get();
+        
+        const journey = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            emailType: data.emailType,
+            linkType: data.linkType,
+            targetUrl: data.targetUrl,
+            clickedAt: data.clickedAt?.toDate?.()?.toISOString() || data.timestamp,
+            metadata: data.metadata || {}
+          };
+        });
+        
+        // Sort manually by timestamp (descending)
+        journey.sort((a, b) => {
+          const dateA = new Date(a.clickedAt || 0);
+          const dateB = new Date(b.clickedAt || 0);
+          return dateB - dateA;
+        });
+        
+        return journey;
+      } catch (fallbackError) {
+        logger.error({ error: fallbackError.message, userId }, '[EmailTracking] Failed to get user email journey (fallback)');
+        throw fallbackError;
+      }
+    }
+    
     logger.error({ error: error.message, userId }, '[EmailTracking] Failed to get user email journey');
     throw error;
   }

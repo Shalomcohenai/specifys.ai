@@ -215,19 +215,35 @@ export class UserDetailsModal {
     
     try {
       // Load user analytics and email data in parallel
-      const [analyticsData, emailData] = await Promise.all([
-        apiService.get(`/api/admin/users/${userId}/analytics`).catch(() => ({ analytics: {} })),
-        apiService.get(`/api/admin/users/${userId}/emails`).catch(() => ({ success: false, journey: [], stats: {} }))
+      // Use Promise.allSettled to handle errors gracefully - don't let one fail the other
+      const [analyticsResult, emailResult] = await Promise.allSettled([
+        apiService.get(`/api/admin/users/${userId}/analytics`),
+        apiService.get(`/api/admin/users/${userId}/emails`)
       ]);
       
-      const analytics = analyticsData.analytics || {};
+      // Handle analytics data
+      let analytics = {};
+      if (analyticsResult.status === 'fulfilled') {
+        analytics = analyticsResult.value.analytics || {};
+      } else {
+        console.warn('[UserDetailsModal] Failed to load analytics:', analyticsResult.reason?.message || 'Unknown error');
+        analytics = { error: analyticsResult.reason?.message || 'Failed to load analytics' };
+      }
       
-      // Add email data to analytics
-      if (emailData.success) {
+      // Handle email data
+      if (emailResult.status === 'fulfilled' && emailResult.value.success) {
         analytics.emailActivity = {
-          journey: emailData.journey || [],
-          stats: emailData.stats || {},
-          preferences: emailData.emailPreferences || {}
+          journey: emailResult.value.journey || [],
+          stats: emailResult.value.stats || {},
+          preferences: emailResult.value.emailPreferences || {}
+        };
+      } else {
+        // Log error but don't fail the entire modal
+        console.warn('[UserDetailsModal] Failed to load email data:', emailResult.reason?.message || 'Unknown error');
+        analytics.emailActivity = {
+          journey: [],
+          stats: {},
+          preferences: {}
         };
       }
       
