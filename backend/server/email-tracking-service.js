@@ -195,8 +195,15 @@ async function getUserEmailJourney(userId) {
     return journey;
   } catch (error) {
     // If orderBy fails (likely missing index), try without orderBy
-    if (error.code === 9 || error.message?.includes('index') || error.message?.includes('Index')) {
-      logger.warn({ userId, error: error.message }, '[EmailTracking] Index missing, fetching without orderBy');
+    // Firestore error code 9 = FAILED_PRECONDITION (usually means missing index)
+    // Also check for error messages containing "index" or "Index"
+    const isIndexError = error.code === 9 || 
+                        error.code === 'failed-precondition' ||
+                        error.message?.toLowerCase().includes('index') ||
+                        error.message?.toLowerCase().includes('requires an index');
+    
+    if (isIndexError) {
+      logger.warn({ userId, error: error.message, errorCode: error.code }, '[EmailTracking] Index missing, fetching without orderBy');
       try {
         const snapshot = await db.collection('email_clicks')
           .where('userId', '==', userId)
@@ -221,15 +228,18 @@ async function getUserEmailJourney(userId) {
           return dateB - dateA;
         });
         
+        logger.info({ userId, journeyLength: journey.length }, '[EmailTracking] User email journey retrieved (without orderBy)');
         return journey;
       } catch (fallbackError) {
-        logger.error({ error: fallbackError.message, userId }, '[EmailTracking] Failed to get user email journey (fallback)');
-        throw fallbackError;
+        logger.error({ error: fallbackError.message, errorCode: fallbackError.code, userId }, '[EmailTracking] Failed to get user email journey (fallback)');
+        // Return empty array instead of throwing - allows modal to still load
+        return [];
       }
     }
     
-    logger.error({ error: error.message, userId }, '[EmailTracking] Failed to get user email journey');
-    throw error;
+    logger.error({ error: error.message, errorCode: error.code, userId }, '[EmailTracking] Failed to get user email journey');
+    // Return empty array instead of throwing - allows modal to still load
+    return [];
   }
 }
 
