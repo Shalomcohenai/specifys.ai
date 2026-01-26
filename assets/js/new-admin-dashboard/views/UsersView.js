@@ -286,14 +286,17 @@ export class UsersView {
       // This matches what users see in their profile via /api/v3/credits
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
+      const specCount = allData.specsByUser[user.id]?.length || 0;
+      
       let creditsDisplay = '0';
       if (userCredits) {
         if (userCredits.unlimited) {
           // Pro users with unlimited access
           creditsDisplay = '∞';
         } else if (typeof userCredits.total === 'number') {
-          // Regular users with specific credit count
-          creditsDisplay = userCredits.total.toString();
+          // Calculate remaining credits (total - consumed specs)
+          const remainingCredits = Math.max(0, userCredits.total - specCount);
+          creditsDisplay = remainingCredits.toString();
         }
       } else {
         // Fallback: if user_credits not loaded yet, try to use user.freeSpecsRemaining
@@ -301,10 +304,9 @@ export class UsersView {
         const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
           ? user.freeSpecsRemaining 
           : 0;
-        creditsDisplay = fallbackCredits.toString();
+        const remainingCredits = Math.max(0, fallbackCredits - specCount);
+        creditsDisplay = remainingCredits.toString();
       }
-      
-      const specCount = allData.specsByUser[user.id]?.length || 0;
       // Check plan from user document
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       const isSelected = this.selectedUsers.has(user.id);
@@ -927,22 +929,25 @@ export class UsersView {
       // Get credits from user_credits collection (same source as users see)
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
+      const specCount = allData.specsByUser[user.id]?.length || 0;
+      
       let creditsDisplay = '0';
       if (userCredits) {
         if (userCredits.unlimited) {
           creditsDisplay = 'unlimited';
         } else if (typeof userCredits.total === 'number') {
-          creditsDisplay = userCredits.total.toString();
+          // Calculate remaining credits (total - consumed specs)
+          const remainingCredits = Math.max(0, userCredits.total - specCount);
+          creditsDisplay = remainingCredits.toString();
         }
       } else {
         // Fallback: if user_credits not loaded yet, use user.freeSpecsRemaining
         const fallbackCredits = typeof user.freeSpecsRemaining === 'number' 
           ? user.freeSpecsRemaining 
           : 0;
-        creditsDisplay = fallbackCredits.toString();
+        const remainingCredits = Math.max(0, fallbackCredits - specCount);
+        creditsDisplay = remainingCredits.toString();
       }
-      
-      const specCount = allData.specsByUser[user.id]?.length || 0;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       
       return [
