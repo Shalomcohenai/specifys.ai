@@ -179,13 +179,11 @@ async function migrateUserCredits(backupData) {
       const userId = entitlementsDoc.id;
       const entitlements = entitlementsDoc.data();
       
-      // Get user data
-      const userDoc = await db.collection(OLD_USERS_COLLECTION).doc(userId).get();
-      const userData = userDoc.exists ? userDoc.data() : {};
-      
-      // Calculate balances
+      // Calculate balances from old system
+      // Note: free_specs_remaining is no longer used - migrated to user_credits_v3
+      // Only migrate paid credits from entitlements
       const paid = typeof entitlements.spec_credits === 'number' ? entitlements.spec_credits : 0;
-      const free = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 0;
+      const free = 0; // Free credits are now managed in user_credits_v3, not migrated from old system
       const bonus = 0; // Start with 0 bonus credits
       
       // Determine subscription

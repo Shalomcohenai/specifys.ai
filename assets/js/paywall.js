@@ -302,7 +302,7 @@
           entitlements: { 
             unlimited: false,
             spec_credits: breakdown.paid || 0,
-            free_specs_remaining: breakdown.free || 0
+            total: total
           },
           paywallData: null
         };
@@ -310,12 +310,13 @@
 
       return {
         hasAccess: false,
-        entitlements: { unlimited: false, spec_credits: 0, free_specs_remaining: 0 },
+        entitlements: { unlimited: false, spec_credits: 0, total: 0 },
         paywallData: {
           reason: 'insufficient_credits',
           message: 'You have no remaining spec credits',
           freeSpecs: breakdown.free || 0,
           specCredits: breakdown.paid || 0,
+          total: total,
           unlimited: false
         }
       };

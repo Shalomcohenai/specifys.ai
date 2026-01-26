@@ -46,7 +46,8 @@ This document provides a complete reference for all Firestore collections and th
   
   // Payment & Credits
   plan: string,                            // 'free' | 'pro'
-  free_specs_remaining: number,            // Remaining free specs (default: 1)
+  // Note: Credits are now managed in user_credits_v3 collection (single source of truth)
+  // free_specs_remaining is deprecated - use user_credits_v3 instead
   lemon_customer_id: string|null,          // Lemon Squeezy customer ID
   last_entitlement_sync_at: timestamp      // Last sync with entitlements
 }
@@ -63,7 +64,7 @@ This document provides a complete reference for all Firestore collections and th
   createdAt: "2025-01-01T00:00:00Z",
   lastActive: "2025-11-02T12:00:00Z",
   plan: "free",
-  free_specs_remaining: 1,
+  // Credits are stored in user_credits_v3 collection, not here
   lemon_customer_id: "cus_12345",
   last_entitlement_sync_at: Timestamp(2025, 11, 2, 12, 0, 0)
 }
@@ -72,7 +73,8 @@ This document provides a complete reference for all Firestore collections and th
 ### Key Points
 
 - **Document ID = UID** from Firebase Authentication
-- `free_specs_remaining` defaults to 1 for new users
+- **Credits are managed in `user_credits_v3` collection** (single source of truth)
+- `free_specs_remaining` is deprecated - use `user_credits_v3` instead
 - `plan` can be 'free' or 'pro'
 - `lemon_customer_id` links to Lemon Squeezy for payment tracking
 
@@ -121,11 +123,16 @@ This document provides a complete reference for all Firestore collections and th
 }
 ```
 
-### Credit Priority Order
+### Credit Priority Order (Deprecated - See user_credits_v3)
 
+**Note:** The `entitlements` collection is deprecated. Credits are now managed in `user_credits_v3` collection.
+
+Old priority order (for reference):
 1. **`unlimited: true`** → Pro subscription → Can create unlimited specs
 2. **`spec_credits > 0`** → Purchased credits → Can create purchased specs
 3. **`free_specs_remaining > 0`** → Free trial → Can create 1 free spec
+
+See `user_credits_v3` collection documentation below for current credit system.
 
 ### Key Points
 

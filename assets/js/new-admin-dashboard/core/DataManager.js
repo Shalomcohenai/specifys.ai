@@ -82,26 +82,8 @@ export class DataManager {
    * Normalize user data
    */
   normalizeUser(id, data) {
-    // Get free_specs_remaining - check both direct field and ensure it's a number
-    // Default to 1 if not set (as per DATABASE_SCHEMA.md)
-    let freeSpecsRemaining = 1; // Default value for new users
-    
-    if (typeof data.free_specs_remaining === 'number' && isFinite(data.free_specs_remaining)) {
-      // Use the number directly if it's valid
-      freeSpecsRemaining = data.free_specs_remaining;
-    } else if (data.free_specs_remaining !== null && data.free_specs_remaining !== undefined) {
-      // Try to parse if it's a string or other type
-      const parsed = parseInt(data.free_specs_remaining, 10);
-      if (!isNaN(parsed) && isFinite(parsed)) {
-        freeSpecsRemaining = parsed;
-      }
-    }
-    // If free_specs_remaining is null/undefined/invalid, keep default of 1
-    
-    // Ensure we always return a valid number (never null/undefined)
-    freeSpecsRemaining = typeof freeSpecsRemaining === 'number' && isFinite(freeSpecsRemaining) 
-      ? freeSpecsRemaining 
-      : 1;
+    // Credits are now managed in user_credits_v3 collection, not in users collection
+    // Use API /api/v3/credits to get user credits instead of reading from users collection
     
     return {
       id,
@@ -113,7 +95,7 @@ export class DataManager {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
-      freeSpecsRemaining: freeSpecsRemaining, // Always a valid number
+      // Credits are now managed in user_credits_v3, not in users collection
       metadata: data
     };
   }

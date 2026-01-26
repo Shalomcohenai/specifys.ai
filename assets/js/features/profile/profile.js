@@ -865,10 +865,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     const userRef = doc(db, 'users', currentUser.uid);
                     const userSnap = await getDoc(userRef);
                     currentUserProfileDoc = userSnap.exists() ? userSnap.data() : {};
-                    // Map free_specs_remaining from new system
-                    if (creditsData?.breakdown) {
-                        currentUserProfileDoc.free_specs_remaining = creditsData.breakdown.free || 0;
-                    }
+                    // Credits are now managed in user_credits_v3, not in users collection
                 }
             } catch (error) {
                 // Failed to load entitlements
@@ -925,12 +922,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 if (typeof ent.total === 'number') {
                     credits = ent.total;
                 } else {
-                    // Fallback for backward compatibility (should not happen with V3)
-                    // Use free_specs_remaining with fallback to 0 (not 1)
-                    const freeSpecs = typeof user?.free_specs_remaining === 'number'
-                        ? Math.max(0, user.free_specs_remaining)
-                        : 0; // Return 0 if not set, not 1
-                    credits = freeSpecs;
+                    // Fallback: if total is not available, use breakdown from API
+                    // This should not happen with V3 API, but handle gracefully
+                    const breakdown = ent.breakdown || {};
+                    credits = (breakdown.paid || 0) + (breakdown.free || 0) + (breakdown.bonus || 0);
                 }
 
                 // Ensure credits is a valid number

@@ -428,12 +428,60 @@ export class FirebaseService {
   }
   
   /**
-   * Update user credits (free_specs_remaining)
+   * Update user credits using V3 API
+   * @deprecated Use updateUserCreditsV3 instead
    */
   async updateUserCredits(userId, credits) {
-    return this.updateUser(userId, {
-      free_specs_remaining: credits
-    });
+    console.warn('[FirebaseService] updateUserCredits is deprecated. Use updateUserCreditsV3 instead.');
+    return this.updateUserCreditsV3(userId, credits, 'free');
+  }
+  
+  /**
+   * Update user credits using V3 API (/api/v3/credits/grant)
+   * @param {string} userId - User ID
+   * @param {number} amount - Number of credits to grant
+   * @param {string} creditType - Type of credit: 'paid', 'free', or 'bonus' (default: 'free')
+   */
+  async updateUserCreditsV3(userId, amount, creditType = 'free') {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+      
+      const token = await user.getIdToken();
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+      
+      const response = await fetch(`${apiBaseUrl}/api/v3/credits/grant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: userId,
+          amount: amount,
+          source: 'admin',
+          metadata: {
+            creditType: creditType,
+            reason: 'Admin credit update'
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to grant credits: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('[FirebaseService] Error updating user credits:', error);
+      throw error;
+    }
   }
   
   /**

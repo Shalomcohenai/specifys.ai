@@ -609,10 +609,10 @@ export class UsersView {
           updates.plan = newPlan;
         }
         
-        // Update credits if changed
+        // Update credits if changed - use V3 API
         if (newCredits !== currentCredits) {
-          await firebaseService.updateUserCredits(user.id, newCredits);
-          updates.free_specs_remaining = newCredits;
+          await firebaseService.updateUserCreditsV3(user.id, newCredits, 'free');
+          // Credits are now managed in user_credits_v3, not in users collection
         }
         
         // Update display name if changed
@@ -735,8 +735,8 @@ export class UsersView {
       const { firebaseService } = await import('../core/FirebaseService.js');
       
       // Delete user document
-      // Note: Credits are stored in users/{userId}/free_specs_remaining
-      // No need to delete separate credits document
+      // Note: Credits are stored in user_credits_v3 collection (separate document)
+      // User credits document will remain but user document will be deleted
       await firebaseService.deleteDocument('users', userId);
       
       // Show success message

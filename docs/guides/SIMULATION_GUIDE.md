@@ -121,7 +121,7 @@ The simulator walks through **12 detailed steps**:
   email: "test@specifys-ai.com",
   displayName: "Test User",
   plan: "free",
-  free_specs_remaining: 1,
+  // Credits are managed in user_credits_v3 collection, not here
   lemon_customer_id: "12345",
   last_entitlement_sync_at: Timestamp
 }

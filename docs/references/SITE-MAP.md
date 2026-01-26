@@ -52,7 +52,7 @@ Related configuration and data:
 - `assets/data/lemon-products.json` – Frontend-accessible product definitions
 
 ## Data Model (Firestore - high level)
-- `users/{userId}` – profile, `free_specs_remaining`, flags
+- `users/{userId}` – profile, flags (credits managed in `user_credits_v3`)
 - `entitlements/{userId}` – purchased credits, pro status, pending entitlements
 - `specs/{specId}` – spec documents (owner, content, metadata)
 - `purchases/*`, `subscriptions/*` – stored from webhooks (as applicable)

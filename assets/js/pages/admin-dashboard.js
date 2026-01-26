@@ -416,7 +416,7 @@ class DataAggregator {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
-      freeSpecsRemaining: typeof data.free_specs_remaining === "number" ? data.free_specs_remaining : null,
+      // Credits are now managed in user_credits_v3, not in users collection
       metadata: data
     };
   }
@@ -1420,7 +1420,7 @@ class DashboardDataStore {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
-      freeSpecsRemaining: typeof data.free_specs_remaining === "number" ? data.free_specs_remaining : null,
+      // Credits are now managed in user_credits_v3, not in users collection
       metadata: data
     };
     this.users.set(id, normalized);

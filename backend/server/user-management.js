@@ -268,9 +268,8 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 if (userDocToWrite.plan === undefined) {
                     userDocToWrite.plan = 'free';
                 }
-                // Note: free_specs_remaining is now managed by user_credits collection
-                // Keep it for backward compatibility but don't set it here
-                // It will be migrated to user_credits.balances.free
+                // Note: free_specs_remaining is deprecated - credits are now managed in user_credits_v3 collection
+                // Do not set free_specs_remaining here - use user_credits_v3 as single source of truth
             } else {
                 console.log(`[user-management] User ${uid}: Updating EXISTING user document`);
                 userDocToWrite.createdAt = existingUserData?.createdAt || authUser.creationTime || nowIso;

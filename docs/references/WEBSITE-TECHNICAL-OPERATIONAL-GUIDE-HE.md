@@ -199,7 +199,7 @@
 - `email`, `displayName`, `emailVerified`, `createdAt`, `lastActive`, `plan`, `newsletterSubscription`
 - `disabled` (boolean) - משתמש מושבת
 - `admin` (boolean) - הרשאות אדמין
-- `free_specs_remaining` (number) - יתרת ספקס חינמיים
+- `free_specs_remaining` (number) - **DEPRECATED** - קרדיטים מנוהלים כעת ב-`user_credits_v3` collection
 
 **`entitlements/{uid}`**:
 - `userId`, `spec_credits` (number), `unlimited` (boolean - Pro), `can_edit` (boolean)
@@ -395,7 +395,7 @@ Client (Approve Overview)
 ## 13) UX עיקרי (לפי תוכנית מנוי)
 
 ### 13.1 Free Plan
-- יצירה אחת לפחות (free_specs_remaining)
+- יצירה אחת לפחות (קרדיטים מנוהלים ב-`user_credits_v3`)
 - צפייה מלאה ב־Viewer אחרי אישור Overview
 - אין עריכה של Overview
 - Chat מוגבל (אם בכלל)
