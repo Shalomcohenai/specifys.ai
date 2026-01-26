@@ -118,17 +118,17 @@ export class UserDetailsModal {
     }
 
     const modalHTML = `
-      <div class="user-details-modal-overlay" id="user-details-modal" style="display: none; visibility: hidden; opacity: 0; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
-        <div class="user-details-modal-content" style="background: #ffffff; border-radius: 12px; width: min(900px, 95%); max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden;">
-          <div class="user-details-modal-header" style="padding: 24px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
-            <h2 style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #1f2937;">User Details</h2>
-            <button class="user-details-modal-close" aria-label="Close" style="background: transparent; border: none; color: #6b7280; font-size: 1.5rem; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 8px; width: 36px; height: 36px;">
+      <div class="user-details-modal-overlay" id="user-details-modal" style="display: none; visibility: hidden; opacity: 0;">
+        <div class="user-details-modal-content">
+          <div class="user-details-modal-header">
+            <h2>User Details</h2>
+            <button class="user-details-modal-close" aria-label="Close">
               <i class="fas fa-times"></i>
             </button>
           </div>
-          <div class="user-details-modal-body" id="user-details-modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
-            <div class="user-details-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; text-align: center; color: #6b7280;">
-              <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 16px;"></i>
+          <div class="user-details-modal-body" id="user-details-modal-body">
+            <div class="user-details-loading">
+              <i class="fas fa-spinner fa-spin"></i>
               <p>Loading user data...</p>
             </div>
           </div>
@@ -180,29 +180,674 @@ export class UserDetailsModal {
    * Load user analytics data
    */
   /**
-   * Inject styles for data source badge
+   * Inject styles for user details modal
    */
-  injectDataSourceBadgeStyles() {
-    if (!document.getElementById('data-source-badge-styles')) {
+  injectModalStyles() {
+    if (!document.getElementById('user-details-modal-styles')) {
       const style = document.createElement('style');
-      style.id = 'data-source-badge-styles';
+      style.id = 'user-details-modal-styles';
       style.textContent = `
-        .data-source-badge {
+        /* User Details Modal - Modern Design */
+        .user-details-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 99999;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .user-details-modal-content {
+          background: #ffffff;
+          border-radius: 20px;
+          width: min(1200px, 95%);
+          max-height: 95vh;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+          overflow: hidden;
+          animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        .user-details-modal-header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 28px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+          color: white;
+        }
+        
+        .user-details-modal-header h2 {
+          margin: 0;
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: white;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .user-details-modal-header h2::before {
+          content: '👤';
+          font-size: 1.5rem;
+        }
+        
+        .user-details-modal-close {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: white;
+          font-size: 1.25rem;
+          cursor: pointer;
+          padding: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+          width: 40px;
+          height: 40px;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-modal-close:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: rotate(90deg);
+        }
+        
+        .user-details-modal-body {
+          padding: 32px;
+          overflow-y: auto;
+          flex: 1;
+          background: #f8f9fa;
+        }
+        
+        .user-details-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 24px;
+          text-align: center;
+          color: #6b7280;
+        }
+        
+        .user-details-loading i {
+          font-size: 3.5rem;
+          margin-bottom: 20px;
+          color: #667eea;
+        }
+        
+        .user-details-loading p {
+          font-size: 1.1rem;
+          font-weight: 500;
+        }
+        
+        .user-details-error {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 24px;
+          text-align: center;
+          color: #ef4444;
+        }
+        
+        .user-details-error i {
+          font-size: 3rem;
+          margin-bottom: 16px;
+        }
+        
+        /* Section Styles */
+        .user-details-section {
+          background: white;
+          border-radius: 16px;
+          padding: 28px;
+          margin-bottom: 24px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e5e7eb;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-section:hover {
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+          transform: translateY(-2px);
+        }
+        
+        .user-details-section-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin: 0 0 24px 0;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .user-details-section-title i {
+          color: #667eea;
+          font-size: 1.1rem;
+        }
+        
+        /* Grid Layout */
+        .user-details-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+        }
+        
+        .user-details-item {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .user-details-item label {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .user-details-value {
+          font-size: 1rem;
+          color: #1f2937;
+          font-weight: 500;
+        }
+        
+        .user-details-value-large {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: #667eea;
+        }
+        
+        .user-details-value-monospace {
+          font-family: 'Courier New', monospace;
+          font-size: 0.9rem;
+          background: #f3f4f6;
+          padding: 6px 10px;
+          border-radius: 6px;
+        }
+        
+        /* Badges */
+        .plan-badge {
           display: inline-block;
-          padding: 2px 6px;
-          border-radius: 3px;
-          font-size: 0.7rem;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-size: 0.85rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        .data-source-badge.v3 {
-          background-color: #10b981;
+        
+        .plan-badge.plan-pro {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
         }
-        .data-source-badge.v2 {
-          background-color: #f59e0b;
+        
+        .plan-badge.plan-free {
+          background: #e5e7eb;
+          color: #4b5563;
+        }
+        
+        .status-badge {
+          display: inline-block;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+        
+        .status-badge.status-active {
+          background: #d1fae5;
+          color: #065f46;
+        }
+        
+        .status-badge.status-disabled {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+        
+        .data-source-badge {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-left: 10px;
+        }
+        
+        .data-source-badge.v3 {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           color: white;
+        }
+        
+        .data-source-badge.v2 {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+        }
+        
+        .subscription-status-active {
+          color: #059669;
+          font-weight: 600;
+        }
+        
+        .subscription-status-cancelled {
+          color: #dc2626;
+          font-weight: 600;
+        }
+        
+        .subscription-status-expired {
+          color: #6b7280;
+          font-weight: 600;
+        }
+        
+        .subscription-status-renewing {
+          color: #667eea;
+          font-weight: 600;
+        }
+        
+        /* Specs List */
+        .user-details-specs-list {
+          margin-top: 24px;
+          padding-top: 24px;
+          border-top: 1px solid #e5e7eb;
+        }
+        
+        .user-details-specs-list h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #374151;
+          margin: 0 0 16px 0;
+        }
+        
+        .user-details-specs-list ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .user-details-specs-list li {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: #f9fafb;
+          border-radius: 10px;
+          border-left: 3px solid #667eea;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-specs-list li:hover {
+          background: #f3f4f6;
+          transform: translateX(4px);
+        }
+        
+        .spec-title {
+          font-weight: 500;
+          color: #1f2937;
+        }
+        
+        .spec-date {
+          font-size: 0.85rem;
+          color: #6b7280;
+        }
+        
+        /* Sessions */
+        .user-details-sessions {
+          margin-top: 24px;
+          padding-top: 24px;
+          border-top: 1px solid #e5e7eb;
+        }
+        
+        .user-details-sessions h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #374151;
+          margin: 0 0 16px 0;
+        }
+        
+        .user-details-sessions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        
+        .user-details-session-card {
+          background: #f9fafb;
+          border-radius: 12px;
+          padding: 20px;
+          border-left: 4px solid #667eea;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-session-card:hover {
+          background: #f3f4f6;
+          transform: translateX(4px);
+        }
+        
+        .session-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .session-number {
+          font-weight: 700;
+          color: #667eea;
+          font-size: 1rem;
+        }
+        
+        .session-duration {
+          font-weight: 600;
+          color: #374151;
+          font-size: 0.95rem;
+        }
+        
+        .session-details {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+        }
+        
+        .session-time,
+        .session-pages,
+        .session-entry,
+        .session-exit {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.9rem;
+          color: #4b5563;
+        }
+        
+        .session-time i,
+        .session-pages i,
+        .session-entry i,
+        .session-exit i {
+          color: #667eea;
+        }
+        
+        /* Page Journey */
+        .user-details-page-journey {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          max-height: 400px;
+          overflow-y: auto;
+          padding-right: 8px;
+        }
+        
+        .user-details-page-journey::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .user-details-page-journey::-webkit-scrollbar-track {
+          background: #f3f4f6;
+          border-radius: 10px;
+        }
+        
+        .user-details-page-journey::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+        }
+        
+        .user-details-page-journey::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        
+        .page-journey-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 14px 16px;
+          background: #f9fafb;
+          border-radius: 10px;
+          border-left: 3px solid #667eea;
+          transition: all 0.2s ease;
+        }
+        
+        .page-journey-item:hover {
+          background: #f3f4f6;
+          transform: translateX(4px);
+        }
+        
+        .page-journey-number {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 0.85rem;
+          flex-shrink: 0;
+        }
+        
+        .page-journey-content {
+          flex: 1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .page-journey-page {
+          font-weight: 500;
+          color: #1f2937;
+        }
+        
+        .page-journey-time {
+          font-size: 0.85rem;
+          color: #6b7280;
+        }
+        
+        .page-journey-more {
+          text-align: center;
+          padding: 16px;
+          color: #6b7280;
+          font-size: 0.9rem;
+        }
+        
+        /* Email Journey */
+        .user-details-email-journey {
+          max-height: 400px;
+          overflow-y: auto;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+        }
+        
+        .user-details-email-journey table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        
+        .user-details-email-journey thead {
+          background: #f9fafb;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        
+        .user-details-email-journey th {
+          padding: 14px 16px;
+          text-align: left;
+          font-size: 0.85rem;
+          color: #374151;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .user-details-email-journey tbody tr {
+          border-bottom: 1px solid #f3f4f6;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-email-journey tbody tr:hover {
+          background: #f9fafb;
+        }
+        
+        .user-details-email-journey td {
+          padding: 14px 16px;
+          font-size: 0.9rem;
+          color: #1f2937;
+        }
+        
+        /* Raw Data */
+        .user-details-raw-data {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        
+        .user-details-raw-data details {
+          background: #f9fafb;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+        }
+        
+        .user-details-raw-data summary {
+          cursor: pointer;
+          font-weight: 600;
+          padding: 14px 18px;
+          background: #f3f4f6;
+          user-select: none;
+          transition: all 0.2s ease;
+        }
+        
+        .user-details-raw-data summary:hover {
+          background: #e5e7eb;
+        }
+        
+        .user-details-raw-data pre {
+          background: #ffffff;
+          padding: 18px;
+          border-radius: 0;
+          overflow-x: auto;
+          font-size: 0.85rem;
+          margin: 0;
+          border-top: 1px solid #e5e7eb;
+          line-height: 1.6;
+        }
+        
+        /* Buttons */
+        .refresh-subscription-btn {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-left: auto;
+          transition: all 0.2s ease;
+        }
+        
+        .refresh-subscription-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-subscription-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .btn-modern {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-modern:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-modern.small {
+          padding: 6px 14px;
+          font-size: 0.85rem;
+        }
+        
+        /* Empty States */
+        .user-details-section > div[style*="padding: 20px"] {
+          padding: 40px 20px !important;
+          text-align: center;
+          color: #9ca3af;
+        }
+        
+        .user-details-section > div[style*="padding: 20px"] i {
+          font-size: 3rem;
+          margin-bottom: 16px;
+          opacity: 0.3;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+          .user-details-modal-content {
+            width: 100%;
+            max-height: 100vh;
+            border-radius: 0;
+          }
+          
+          .user-details-modal-body {
+            padding: 20px;
+          }
+          
+          .user-details-grid {
+            grid-template-columns: 1fr;
+          }
         }
       `;
       document.head.appendChild(style);
@@ -210,7 +855,7 @@ export class UserDetailsModal {
   }
 
   async loadUserData(userId) {
-    this.injectDataSourceBadgeStyles();
+    this.injectModalStyles();
     const body = this.modal.querySelector('#user-details-modal-body');
     
     try {
@@ -336,8 +981,8 @@ export class UserDetailsModal {
           <i class="fas fa-coins"></i>
           Credits & Usage
           ${analytics.rawData?.user_credits_v3?.exists !== false ? 
-            '<span class="data-source-badge v3" style="margin-left: 8px;" title="Data from V3 system (user_credits_v3)">V3</span>' : 
-            '<span class="data-source-badge v2" style="margin-left: 8px;" title="Data from V2 system (fallback)">V2</span>'
+            '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>' : 
+            '<span class="data-source-badge v2" title="Data from V2 system (fallback)">V2</span>'
           }
         </h3>
         <div class="user-details-grid">
@@ -597,8 +1242,8 @@ export class UserDetailsModal {
           </div>
           
           ${analytics.emailActivity.stats.clicksByType ? `
-            <div style="margin-top: 20px;">
-              <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: #666;">Clicks by Email Type</h4>
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+              <h4 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 600; color: #374151;">Clicks by Email Type</h4>
               <div class="user-details-grid">
                 ${Object.entries(analytics.emailActivity.stats.clicksByType).map(([type, count]) => `
                   <div class="user-details-item">
@@ -611,77 +1256,71 @@ export class UserDetailsModal {
           ` : ''}
           
           ${analytics.emailActivity.journey && analytics.emailActivity.journey.length > 0 ? `
-            <div style="margin-top: 24px;">
-              <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: #666;">Email Click History</h4>
-              <div class="user-details-email-journey" style="max-height: 400px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+              <h4 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 600; color: #374151;">Email Click History</h4>
+              <div class="user-details-email-journey">
+                <table>
                   <thead>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Email Type</th>
-                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Link Type</th>
-                      <th style="padding: 8px; text-align: left; font-size: 0.85rem; color: #666; font-weight: 600;">Clicked At</th>
+                    <tr>
+                      <th>Email Type</th>
+                      <th>Link Type</th>
+                      <th>Clicked At</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${analytics.emailActivity.journey.slice(0, 20).map(click => `
-                      <tr style="border-bottom: 1px solid #f3f4f6;">
-                        <td style="padding: 8px; font-size: 0.9rem;">${this.formatEmailTypeLabel(click.emailType)}</td>
-                        <td style="padding: 8px; font-size: 0.9rem; color: #666;">${this.formatLinkTypeLabel(click.linkType)}</td>
-                        <td style="padding: 8px; font-size: 0.85rem; color: #999;">${this.formatDateTime(click.clickedAt)}</td>
+                      <tr>
+                        <td>${this.formatEmailTypeLabel(click.emailType)}</td>
+                        <td>${this.formatLinkTypeLabel(click.linkType)}</td>
+                        <td>${this.formatDateTime(click.clickedAt)}</td>
                       </tr>
                     `).join('')}
                   </tbody>
                 </table>
                 ${analytics.emailActivity.journey.length > 20 ? `
-                  <p style="padding: 12px; text-align: center; color: #666; font-size: 0.85rem;">
+                  <p style="padding: 16px; text-align: center; color: #6b7280; font-size: 0.9rem; margin: 0;">
                     Showing first 20 of ${analytics.emailActivity.journey.length} clicks
                   </p>
                 ` : ''}
               </div>
             </div>
           ` : `
-            <div style="padding: 20px; text-align: center; color: #999;">
-              <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 8px; opacity: 0.5;"></i>
-              <p>No email clicks tracked for this user</p>
+            <div style="padding: 40px 20px; text-align: center; color: #9ca3af;">
+              <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
+              <p style="margin: 0; font-size: 1rem;">No email clicks tracked for this user</p>
             </div>
           `}
         ` : `
-          <div style="padding: 20px; text-align: center; color: #999;">
-            <p>Email activity data not available</p>
+          <div style="padding: 40px 20px; text-align: center; color: #9ca3af;">
+            <p style="margin: 0; font-size: 1rem;">Email activity data not available</p>
           </div>
         `}
       </div>
 
       <!-- Raw Data / Debug Information -->
       <div class="user-details-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <h3 class="user-details-section-title" style="margin: 0;">
             <i class="fas fa-code"></i>
             Raw Data (Debug)
           </h3>
-          <button class="btn-modern small" id="copy-raw-data-btn" style="margin-left: auto;">
+          <button class="btn-modern small" id="copy-raw-data-btn">
             <i class="fas fa-copy"></i>
             Copy All Data
           </button>
         </div>
         <div class="user-details-raw-data" id="raw-data-container">
-          <details style="margin-bottom: 16px;">
-            <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
-              users Collection
-            </summary>
-            <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.users || {}, null, 2))}</pre>
+          <details>
+            <summary>users Collection</summary>
+            <pre>${this.escapeHtml(JSON.stringify(analytics.rawData?.users || {}, null, 2))}</pre>
           </details>
-          <details style="margin-bottom: 16px;">
-            <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
-              user_credits_v3 Collection
-            </summary>
-            <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.user_credits_v3 || {}, null, 2))}</pre>
+          <details>
+            <summary>user_credits_v3 Collection</summary>
+            <pre>${this.escapeHtml(JSON.stringify(analytics.rawData?.user_credits_v3 || {}, null, 2))}</pre>
           </details>
-          <details style="margin-bottom: 16px;">
-            <summary style="cursor: pointer; font-weight: 600; padding: 8px; background: #f5f5f5; border-radius: 4px; user-select: none;">
-              subscriptions_v3 Collection
-            </summary>
-            <pre style="background: #f9f9f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px; border: 1px solid #e5e7eb;">${this.escapeHtml(JSON.stringify(analytics.rawData?.subscriptions_v3 || {}, null, 2))}</pre>
+          <details>
+            <summary>subscriptions_v3 Collection</summary>
+            <pre>${this.escapeHtml(JSON.stringify(analytics.rawData?.subscriptions_v3 || {}, null, 2))}</pre>
           </details>
         </div>
       </div>
