@@ -197,7 +197,43 @@ cd backend/server
 node server.js
 ```
 
-The backend runs on: http://localhost:3001
+The backend runs on: http://localhost:10000
+
+---
+
+## 🚀 Localhost Development Setup
+
+For full localhost development (frontend + backend together):
+
+### Quick Start
+
+```bash
+cd scripts/localhost
+./start-localhost.sh
+```
+
+This will:
+- ✅ Check all prerequisites
+- ✅ Install dependencies if needed
+- ✅ Start backend server (port 10000)
+- ✅ Start Jekyll server (port 4000)
+
+**Access:**
+- Frontend: http://localhost:4000
+- Backend: http://localhost:10000
+
+### Testing
+
+Run the test script to verify everything works:
+
+```bash
+cd scripts/localhost
+./test-localhost.sh
+```
+
+### Full Documentation
+
+See `scripts/localhost/LOCALHOST-SETUP.md` for complete setup instructions (in Hebrew).
 
 ### Backend API Endpoints
 
