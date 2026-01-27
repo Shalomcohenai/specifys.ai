@@ -374,6 +374,13 @@ router.put('/preferences/email', verifyFirebaseToken, async (req, res, next) => 
             updates: operational !== undefined ? operational : (currentPreferences.updates ?? true)
         };
         
+        // Remove undefined values from finalPreferences
+        Object.keys(finalPreferences).forEach(key => {
+            if (finalPreferences[key] === undefined) {
+                delete finalPreferences[key];
+            }
+        });
+        
         // Update with nested object
         await db.collection('users').doc(userId).update({
             emailPreferences: finalPreferences,

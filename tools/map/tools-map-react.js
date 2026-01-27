@@ -117,14 +117,14 @@
       }
     }
 
-    function closeNewsletter() {
+    window.closeNewsletter = function() {
       const newsletterContainer = document.getElementById('newsletter-container');
       if (newsletterContainer) {
         newsletterContainer.classList.add('hidden');
       }
-    }
+    };
 
-    function submitNewsletterForm(event) {
+    window.submitNewsletterForm = function(event) {
       event.preventDefault();
       const form = event.target;
       const email = form.querySelector('input[name="email"]').value;
