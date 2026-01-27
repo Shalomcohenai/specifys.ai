@@ -98,30 +98,71 @@ async function trackEmailClick(userId, userEmail, emailType, linkType, targetUrl
  */
 async function getEmailClickStats(filters = {}) {
   try {
-    let query = db.collection('email_clicks');
-    
-    if (filters.emailType) {
-      query = query.where('emailType', '==', filters.emailType);
-    }
-    
-    if (filters.linkType) {
-      query = query.where('linkType', '==', filters.linkType);
-    }
+    // Calculate date range for filtering
+    let startTimestamp = null;
+    let endTimestamp = null;
     
     if (filters.startDate) {
       const startDate = filters.startDate instanceof Date ? filters.startDate : new Date(filters.startDate);
-      query = query.where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate));
+      startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
     }
     
     if (filters.endDate) {
       const endDate = filters.endDate instanceof Date ? filters.endDate : new Date(filters.endDate);
-      query = query.where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate));
+      endTimestamp = admin.firestore.Timestamp.fromDate(endDate);
     }
     
-    const snapshot = await query.get();
+    // Try with orderBy first (requires index on clickedAt)
+    let snapshot;
+    try {
+      let query = db.collection('email_clicks')
+        .orderBy('clickedAt', 'desc')
+        .limit(10000); // Get enough records to filter
+      snapshot = await query.get();
+    } catch (orderByError) {
+      // If orderBy fails (missing index), fetch all and sort in memory
+      const isIndexError = orderByError.code === 9 || 
+                          orderByError.code === 'failed-precondition' ||
+                          orderByError.message?.toLowerCase().includes('index') ||
+                          orderByError.message?.toLowerCase().includes('requires an index');
+      
+      if (isIndexError) {
+        logger.warn({ error: orderByError.message }, '[EmailTracking] Index missing for clickedAt, fetching without orderBy');
+        snapshot = await db.collection('email_clicks').limit(10000).get();
+      } else {
+        throw orderByError;
+      }
+    }
+    
+    // Filter in memory
+    let filteredDocs = snapshot.docs;
+    
+    if (filters.emailType) {
+      filteredDocs = filteredDocs.filter(doc => doc.data().emailType === filters.emailType);
+    }
+    
+    if (filters.linkType) {
+      filteredDocs = filteredDocs.filter(doc => doc.data().linkType === filters.linkType);
+    }
+    
+    if (startTimestamp) {
+      filteredDocs = filteredDocs.filter(doc => {
+        const clickedAt = doc.data().clickedAt;
+        if (!clickedAt) return false;
+        return clickedAt >= startTimestamp;
+      });
+    }
+    
+    if (endTimestamp) {
+      filteredDocs = filteredDocs.filter(doc => {
+        const clickedAt = doc.data().clickedAt;
+        if (!clickedAt) return false;
+        return clickedAt <= endTimestamp;
+      });
+    }
     
     const stats = {
-      total: snapshot.size,
+      total: filteredDocs.length,
       byEmailType: {},
       byLinkType: {},
       byUser: {},
@@ -129,7 +170,7 @@ async function getEmailClickStats(filters = {}) {
       uniqueClicks: new Set()
     };
     
-    snapshot.forEach(doc => {
+    filteredDocs.forEach(doc => {
       const data = doc.data();
       const emailType = data.emailType || 'unknown';
       const linkType = data.linkType || 'unknown';
@@ -164,7 +205,7 @@ async function getEmailClickStats(filters = {}) {
         .map(([userId, count]) => ({ userId, count }))
     };
   } catch (error) {
-    logger.error({ error: error.message }, '[EmailTracking] Failed to get email click stats');
+    logger.error({ error: error.message, stack: error.stack }, '[EmailTracking] Failed to get email click stats');
     throw error;
   }
 }
@@ -296,36 +337,77 @@ async function recordEmailSent(userId, recipientEmail, subject, category, eventN
  */
 async function getEmailSentStats(filters = {}) {
   try {
-    let query = db.collection('email_sent');
-    
-    if (filters.category) {
-      query = query.where('category', '==', filters.category);
-    }
-    
-    if (filters.eventName) {
-      query = query.where('eventName', '==', filters.eventName);
-    }
+    // Calculate date range for filtering
+    let startTimestamp = null;
+    let endTimestamp = null;
     
     if (filters.startDate) {
       const startDate = filters.startDate instanceof Date ? filters.startDate : new Date(filters.startDate);
-      query = query.where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate));
+      startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
     }
     
     if (filters.endDate) {
       const endDate = filters.endDate instanceof Date ? filters.endDate : new Date(filters.endDate);
-      query = query.where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate));
+      endTimestamp = admin.firestore.Timestamp.fromDate(endDate);
     }
     
-    const snapshot = await query.get();
+    // Try with orderBy first (requires index on sentAt)
+    let snapshot;
+    try {
+      let query = db.collection('email_sent')
+        .orderBy('sentAt', 'desc')
+        .limit(10000); // Get enough records to filter
+      snapshot = await query.get();
+    } catch (orderByError) {
+      // If orderBy fails (missing index), fetch all and sort in memory
+      const isIndexError = orderByError.code === 9 || 
+                          orderByError.code === 'failed-precondition' ||
+                          orderByError.message?.toLowerCase().includes('index') ||
+                          orderByError.message?.toLowerCase().includes('requires an index');
+      
+      if (isIndexError) {
+        logger.warn({ error: orderByError.message }, '[EmailTracking] Index missing for sentAt, fetching without orderBy');
+        snapshot = await db.collection('email_sent').limit(10000).get();
+      } else {
+        throw orderByError;
+      }
+    }
+    
+    // Filter in memory
+    let filteredDocs = snapshot.docs;
+    
+    if (filters.category) {
+      filteredDocs = filteredDocs.filter(doc => doc.data().category === filters.category);
+    }
+    
+    if (filters.eventName) {
+      filteredDocs = filteredDocs.filter(doc => doc.data().eventName === filters.eventName);
+    }
+    
+    if (startTimestamp) {
+      filteredDocs = filteredDocs.filter(doc => {
+        const sentAt = doc.data().sentAt;
+        if (!sentAt) return false;
+        return sentAt >= startTimestamp;
+      });
+    }
+    
+    if (endTimestamp) {
+      filteredDocs = filteredDocs.filter(doc => {
+        const sentAt = doc.data().sentAt;
+        if (!sentAt) return false;
+        return sentAt <= endTimestamp;
+      });
+    }
     
     const stats = {
-      total: snapshot.size,
+      total: filteredDocs.length,
       byCategory: {},
       byEventName: {},
       uniqueRecipients: new Set()
     };
     
-    snapshot.forEach(doc => {
+    filteredDocs.forEach(doc => {
       const data = doc.data();
       const category = data.category || 'unknown';
       const eventName = data.eventName || 'unknown';
@@ -350,7 +432,7 @@ async function getEmailSentStats(filters = {}) {
       byEventName: stats.byEventName
     };
   } catch (error) {
-    logger.error({ error: error.message }, '[EmailTracking] Failed to get email sent stats');
+    logger.error({ error: error.message, stack: error.stack }, '[EmailTracking] Failed to get email sent stats');
     throw error;
   }
 }
