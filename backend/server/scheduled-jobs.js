@@ -7,9 +7,14 @@ const { logger } = require('./logger');
 const { syncPaymentsData } = require('./lemon-payments-cache');
 const { db } = require('./firebase-admin');
 const emailService = require('./email-service');
+const { jobRegistry } = require('./automation-service');
+const { ToolsFinderJob } = require('./tools-automation');
+const { ArticleWriterJob } = require('./articles-automation');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
+let toolsFinderInterval = null;
+let articleWriterInterval = null;
 
 /**
  * Start all scheduled jobs
@@ -22,6 +27,12 @@ function startScheduledJobs() {
   
   // Check for inactive users daily (to send 30-day reminder)
   startInactiveUsersCheckJob();
+
+  // Tools finder automation (weekly)
+  startToolsFinderJob();
+
+  // Article writer automation (daily)
+  startArticleWriterJob();
 
   logger.info('[scheduled-jobs] All scheduled jobs started');
 }
@@ -40,6 +51,16 @@ function stopScheduledJobs() {
   if (inactiveUsersCheckInterval) {
     clearInterval(inactiveUsersCheckInterval);
     inactiveUsersCheckInterval = null;
+  }
+
+  if (toolsFinderInterval) {
+    clearInterval(toolsFinderInterval);
+    toolsFinderInterval = null;
+  }
+
+  if (articleWriterInterval) {
+    clearInterval(articleWriterInterval);
+    articleWriterInterval = null;
   }
 
   logger.info('[scheduled-jobs] All scheduled jobs stopped');
@@ -235,10 +256,132 @@ async function checkInactiveUsers() {
   }
 }
 
+/**
+ * Start tools finder job (runs weekly - every 7 days)
+ */
+function startToolsFinderJob() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const enabled = process.env.TOOLS_AUTOMATION_ENABLED !== 'false';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Tools finder job disabled via TOOLS_AUTOMATION_ENABLED');
+    return;
+  }
+
+  if (!apiKey) {
+    logger.warn('[scheduled-jobs] Tools finder job not started - OPENAI_API_KEY not configured');
+    return;
+  }
+
+  // Register job if not already registered
+  try {
+    jobRegistry.getJob('tools-finder');
+  } catch (error) {
+    const job = new ToolsFinderJob({ openaiApiKey: apiKey });
+    jobRegistry.registerJob('tools-finder', job);
+    logger.info('[scheduled-jobs] Tools finder job registered');
+  }
+
+  // Calculate milliseconds in 7 days
+  const days7 = 7 * 24 * 60 * 60 * 1000;
+
+  // Run job every 7 days
+  toolsFinderInterval = setInterval(() => {
+    runToolsFinderJob();
+  }, days7);
+
+  logger.info('[scheduled-jobs] Tools finder job started - will run every 7 days');
+}
+
+/**
+ * Run tools finder job once
+ */
+async function runToolsFinderJob() {
+  const requestId = `scheduled-tools-finder-${Date.now()}`;
+  
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled tools finder job');
+    
+    await jobRegistry.executeJob('tools-finder', { dryRun: false });
+    
+    logger.info({ requestId }, '[scheduled-jobs] Scheduled tools finder job completed successfully');
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { 
+        message: error.message, 
+        stack: error.stack 
+      } 
+    }, '[scheduled-jobs] Scheduled tools finder job failed');
+  }
+}
+
+/**
+ * Start article writer job (runs daily - every 24 hours)
+ */
+function startArticleWriterJob() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const enabled = process.env.ARTICLES_AUTOMATION_ENABLED !== 'false';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Article writer job disabled via ARTICLES_AUTOMATION_ENABLED');
+    return;
+  }
+
+  if (!apiKey) {
+    logger.warn('[scheduled-jobs] Article writer job not started - OPENAI_API_KEY not configured');
+    return;
+  }
+
+  // Register job if not already registered
+  try {
+    jobRegistry.getJob('article-writer');
+  } catch (error) {
+    const job = new ArticleWriterJob({ openaiApiKey: apiKey });
+    jobRegistry.registerJob('article-writer', job);
+    logger.info('[scheduled-jobs] Article writer job registered');
+  }
+
+  // Calculate milliseconds in 24 hours
+  const hours24 = 24 * 60 * 60 * 1000;
+
+  // Run job every 24 hours
+  articleWriterInterval = setInterval(() => {
+    runArticleWriterJob();
+  }, hours24);
+
+  logger.info('[scheduled-jobs] Article writer job started - will run every 24 hours');
+}
+
+/**
+ * Run article writer job once
+ */
+async function runArticleWriterJob() {
+  const requestId = `scheduled-article-writer-${Date.now()}`;
+  
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled article writer job');
+    
+    await jobRegistry.executeJob('article-writer', { dryRun: false });
+    
+    logger.info({ requestId }, '[scheduled-jobs] Scheduled article writer job completed successfully');
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { 
+        message: error.message, 
+        stack: error.stack 
+      } 
+    }, '[scheduled-jobs] Scheduled article writer job failed');
+  }
+}
+
 module.exports = {
   startScheduledJobs,
   stopScheduledJobs,
   syncPaymentsDataOnce,
-  checkInactiveUsers
+  checkInactiveUsers,
+  runToolsFinderJob,
+  runArticleWriterJob
 };
 

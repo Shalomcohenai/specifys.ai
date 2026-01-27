@@ -60,9 +60,24 @@
     function initializeReactApp() {
     async function fetchTools() {
       try {
-        const response = await fetch(TOOLS_JSON_URL);
+        // Use API endpoint instead of JSON file
+        const apiUrl = TOOLS_JSON_URL.includes('/api/') ? TOOLS_JSON_URL : '/api/tools';
+        const response = await fetch(apiUrl);
         if (!response.ok) throw new Error('Network response was not ok ' + response.status);
-        let data = await response.json();
+        const result = await response.json();
+        
+        // Extract tools array from API response
+        let data = result.tools || result.data || [];
+        
+        // Fallback to JSON if API fails or returns empty
+        if (!data || data.length === 0) {
+          console.warn('API returned no tools, falling back to JSON');
+          const jsonResponse = await fetch(TOOLS_JSON_URL);
+          if (jsonResponse.ok) {
+            data = await jsonResponse.json();
+          }
+        }
+        
         data = data.filter(tool => tool && tool.category && typeof tool.category === 'string' && tool.category.trim() !== '');
         data = data.map(tool => {
           if (tool.category === "UI/UX Design & Prototyping Tools") {
@@ -80,6 +95,24 @@
         }));
       } catch (error) {
         console.error('Failed to fetch tools:', error);
+        // Fallback to JSON on error
+        try {
+          const jsonResponse = await fetch(TOOLS_JSON_URL);
+          if (jsonResponse.ok) {
+            const data = await jsonResponse.json();
+            return data.filter(tool => tool && tool.category && typeof tool.category === 'string' && tool.category.trim() !== '')
+              .map(tool => ({
+                ...tool,
+                rating: tool.rating || Math.floor(Math.random() * 5) + 1,
+                pros: tool.pros && tool.pros.length > 0 ? tool.pros : ["No additional pros available"],
+                cons: tool.cons && tool.cons.length > 0 ? tool.cons : [],
+                special: tool.special || "",
+                stats: tool.stats || { users: "N/A", globalRating: tool.rating || 4, monthlyUsage: "N/A", ARR: "N/A" }
+              }));
+          }
+        } catch (fallbackError) {
+          console.error('Fallback to JSON also failed:', fallbackError);
+        }
         return [];
       }
     }

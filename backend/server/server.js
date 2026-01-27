@@ -901,6 +901,18 @@ const newsletterRoutes = require('./newsletter-routes');
 app.use('/api/admin/newsletters', newsletterRoutes);
 logger.info({ type: 'route_mounted', path: '/api/admin/newsletters' }, '[UNIFIED SERVER] ✅ Newsletter routes mounted');
 
+// Tools routes
+logger.info({ type: 'route_mount', path: '/api/tools', route: 'toolsRoutes' }, '[UNIFIED SERVER] 📌 Mounting tools routes');
+const toolsRoutes = require('./tools-routes');
+app.use('/api/tools', toolsRoutes);
+logger.info({ type: 'route_mounted', path: '/api/tools' }, '[UNIFIED SERVER] ✅ Tools routes mounted');
+
+// Automation routes
+logger.info({ type: 'route_mount', path: '/api/automation', route: 'automationRoutes' }, '[UNIFIED SERVER] 📌 Mounting automation routes');
+const automationRoutes = require('./automation-routes');
+app.use('/api/automation', automationRoutes);
+logger.info({ type: 'route_mounted', path: '/api/automation' }, '[UNIFIED SERVER] ✅ Automation routes mounted');
+
 // Serve static files from the parent directory (main site)
 // Must be after API routes to avoid conflicts
 const staticRootPath = path.join(__dirname, '..', '..');

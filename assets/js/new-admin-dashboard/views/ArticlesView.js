@@ -66,6 +66,22 @@ export class ArticlesView {
         this.loadArticles();
       });
     }
+    
+    // Run automation button
+    const runBtn = helpers.dom('#run-article-automation-btn');
+    if (runBtn) {
+      runBtn.addEventListener('click', () => {
+        this.runAutomation();
+      });
+    }
+    
+    // View logs button
+    const logsBtn = helpers.dom('#view-article-automation-logs-btn');
+    if (logsBtn) {
+      logsBtn.addEventListener('click', () => {
+        this.viewAutomationLogs();
+      });
+    }
   }
   
   /**
@@ -360,12 +376,115 @@ export class ArticlesView {
   /**
    * Show view
    */
-  show() {
+  async show() {
     // Showing articles view
     if (!this.table) {
       this.table = helpers.dom('#articles-table tbody');
     }
-    this.loadArticles();
+    await this.loadArticles();
+    await this.loadAutomationStatus();
+  }
+  
+  /**
+   * Load automation status
+   */
+  async loadAutomationStatus() {
+    try {
+      const status = await window.api.get('/api/automation/jobs/article-writer/status');
+      
+      if (status.success && status.status) {
+        const lastStatus = status.status;
+        const statusEl = helpers.dom('#article-automation-status');
+        const lastRunEl = helpers.dom('#article-automation-last-run');
+        
+        if (statusEl) {
+          statusEl.textContent = lastStatus.status === 'success' ? 'Active' : 
+                                 lastStatus.status === 'error' ? 'Error' : 'Unknown';
+          statusEl.className = `info-value ${lastStatus.status === 'success' ? 'text-success' : 
+                                                      lastStatus.status === 'error' ? 'text-error' : 'text-muted'}`;
+        }
+        
+        if (lastRunEl && lastStatus.completedAt) {
+          const date = new Date(lastStatus.completedAt);
+          lastRunEl.textContent = date.toLocaleString();
+        }
+        
+        // Calculate next run (24 hours from last run)
+        if (lastStatus.completedAt) {
+          const nextRunEl = helpers.dom('#article-automation-next-run');
+          if (nextRunEl) {
+            const lastRun = new Date(lastStatus.completedAt);
+            const nextRun = new Date(lastRun.getTime() + 24 * 60 * 60 * 1000);
+            nextRunEl.textContent = nextRun.toLocaleString();
+          }
+        }
+      } else {
+        const statusEl = helpers.dom('#article-automation-status');
+        if (statusEl) {
+          statusEl.textContent = 'Not run yet';
+          statusEl.className = 'info-value text-muted';
+        }
+      }
+    } catch (error) {
+      console.error('[ArticlesView] Error loading automation status:', error);
+      const statusEl = helpers.dom('#article-automation-status');
+      if (statusEl) {
+        statusEl.textContent = 'Error';
+        statusEl.className = 'info-value text-error';
+      }
+    }
+  }
+  
+  /**
+   * Run automation manually
+   */
+  async runAutomation() {
+    const btn = helpers.dom('#run-article-automation-btn');
+    if (!btn) return;
+    
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+    
+    try {
+      const result = await window.api.post('/api/automation/jobs/article-writer/run', {});
+      
+      if (result.success) {
+        alert('Article automation completed successfully!');
+        await this.loadAutomationStatus();
+        await this.loadArticles();
+      } else {
+        throw new Error(result.error || 'Automation failed');
+      }
+    } catch (error) {
+      console.error('[ArticlesView] Error running automation:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+  
+  /**
+   * View automation logs
+   */
+  async viewAutomationLogs() {
+    try {
+      const logs = await window.api.get('/api/automation/jobs/article-writer/history?limit=10');
+      
+      if (logs.success) {
+        const logsText = logs.history.map(log => {
+          const date = new Date(log.completedAt || log.startedAt).toLocaleString();
+          const status = log.status === 'success' ? '✅' : log.status === 'error' ? '❌' : '⏳';
+          return `${status} ${date} - ${log.status}`;
+        }).join('\n');
+        
+        alert(`Automation Logs:\n\n${logsText || 'No logs found'}`);
+      }
+    } catch (error) {
+      console.error('[ArticlesView] Error loading logs:', error);
+      alert(`Error loading logs: ${error.message}`);
+    }
   }
   
   /**

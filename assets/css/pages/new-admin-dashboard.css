@@ -2633,6 +2633,95 @@
   color: var(--info);
 }
 
+/* Automation Status */
+.automation-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.automation-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.info-value {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.info-value.text-success {
+  color: var(--success);
+}
+
+.info-value.text-error {
+  color: var(--error);
+}
+
+.info-value.text-muted {
+  color: var(--text-muted);
+}
+
+.automation-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.tool-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.tool-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.75rem;
+}
+
+.tool-link:hover {
+  color: var(--primary-hover);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
 /* Utilities */
 .hidden {
   display: none !important;

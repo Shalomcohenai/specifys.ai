@@ -1056,7 +1056,9 @@ permalink: /tools/map/vibe-coding-tools-map.html
 
 <script>
   // Pre-process Jekyll variables
+  // Fallback to JSON if API is not available
   const TOOLS_JSON_URL = '{{ "/tools/map/tools.json" | relative_url }}';
+  // API endpoint will be used first, with JSON as fallback
 </script>
 
 <script type="text/babel" src="{{ "/tools/map/tools-map-react.js" | relative_url }}"></script>

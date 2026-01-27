@@ -16,6 +16,7 @@ import { AnalyticsView } from './views/AnalyticsView.js';
 import { SpecUsageView } from './views/SpecUsageView.js';
 import { ArticlesView } from './views/ArticlesView.js';
 import { AcademyView } from './views/AcademyView.js';
+import { ToolsView } from './views/ToolsView.js';
 import { ContactView } from './views/ContactView.js';
 
 class NewAdminDashboard {
@@ -398,13 +399,17 @@ class NewAdminDashboard {
       // Logs view
       this.views.set('logs', new LogsView(this.dataManager, this.stateManager));
       
-      // Content view - unified Articles and Academy
+      // Content view - unified Articles, Tools, and Academy
       const articlesView = new ArticlesView(this.dataManager, this.stateManager);
+      const toolsView = new ToolsView(this.dataManager, this.stateManager);
       const academyView = new AcademyView(this.dataManager, this.stateManager);
-      this.views.set('content', { articles: articlesView, academy: academyView });
+      this.views.set('content', { articles: articlesView, tools: toolsView, academy: academyView });
       // Keep separate views for backward compatibility
       this.views.set('articles', articlesView);
+      this.views.set('tools', toolsView);
       this.views.set('academy', academyView);
+      // Expose toolsView globally for onclick handlers
+      window.toolsView = toolsView;
       
       // Contact view
       const contactView = new ContactView(this.dataManager, this.stateManager);
