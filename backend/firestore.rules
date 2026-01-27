@@ -208,6 +208,40 @@ service cloud.firestore {
       allow read: if true; // Anyone can read guides
       allow create, update, delete: if isAdmin(); // Only admins can write
     }
+
+    // Email clicks collection - for email tracking
+    match /email_clicks/{clickId} {
+      // Only backend can write (via Admin SDK)
+      allow write: if false;
+      // Users can read their own email clicks, admins can read all
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+    }
+
+    // Error logs collection - admin only
+    match /errorLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only backend can write
+    }
+
+    // Analytics events collection - backend writes, admin reads
+    match /analytics_events/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only backend can write
+    }
+
+    // Article views collection - backend writes, admin reads
+    match /article_views/{viewId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only backend can write
+    }
+
+    // Guide views collection - backend writes, admin reads
+    match /guide_views/{viewId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only backend can write
+    }
   }
 }
 
