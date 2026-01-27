@@ -784,14 +784,16 @@ class EmailService {
                 <strong style="font-size: 24px; color: ${stats.errors?.totalErrors > 0 ? '#d32f2f' : '#0078d4'};">${stats.errors?.totalErrors || 0}</strong><br>
                 <span style="color: #666;">Errors</span>
               </div>
+              ${stats.purchases && stats.purchases.count > 0 ? `
               <div>
-                <strong style="font-size: 24px; color: #0078d4;">${stats.purchases?.count || 0}</strong><br>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.purchases.count}</strong><br>
                 <span style="color: #666;">Purchases</span>
               </div>
               <div>
-                <strong style="font-size: 24px; color: #28a745;">$${(stats.purchases?.totalRevenue || 0).toFixed(2)}</strong><br>
+                <strong style="font-size: 24px; color: #28a745;">${stats.purchases.currency === 'USD' ? '$' : ''}${(stats.purchases.totalRevenue || 0).toFixed(2)}</strong><br>
                 <span style="color: #666;">Revenue</span>
               </div>
+              ` : ''}
             </div>
           </div>
           
@@ -799,19 +801,19 @@ class EmailService {
             <div class="content-title">💰 Purchases Summary</div>
             <p class="content-text">
               <strong>Total Purchases:</strong> ${stats.purchases.count}<br>
-              <strong>Total Revenue:</strong> $${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
+              <strong>Total Revenue:</strong> ${stats.purchases.currency === 'USD' ? '$' : ''}${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
             </p>
             ${stats.purchases.topProducts && stats.purchases.topProducts.length > 0 ? `
               <div class="content-title">Top Products</div>
               <ul style="list-style: none; padding: 0;">
                 ${stats.purchases.topProducts.map((product, index) => `
                   <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, $${product.revenue.toFixed(2)}
+                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, ${stats.purchases.currency === 'USD' ? '$' : ''}${product.revenue.toFixed(2)}
                   </li>
                 `).join('')}
               </ul>
             ` : ''}
-          ` : '<p class="content-text">No purchases today.</p>'}
+          ` : ''}
           
           ${topGuidesHtml}
           ${topArticlesHtml}
@@ -967,14 +969,16 @@ class EmailService {
                 <strong style="font-size: 28px; color: ${stats.errors?.totalErrors > 0 ? '#d32f2f' : '#0078d4'};">${stats.errors?.totalErrors || 0}</strong><br>
                 <span style="color: #666;">Total Errors</span>
               </div>
+              ${stats.purchases && stats.purchases.count > 0 ? `
               <div>
-                <strong style="font-size: 28px; color: #0078d4;">${stats.purchases?.count || 0}</strong><br>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.purchases.count}</strong><br>
                 <span style="color: #666;">Purchases</span>
               </div>
               <div>
-                <strong style="font-size: 28px; color: #28a745;">$${(stats.purchases?.totalRevenue || 0).toFixed(2)}</strong><br>
+                <strong style="font-size: 28px; color: #28a745;">${stats.purchases.currency === 'USD' ? '$' : ''}${(stats.purchases.totalRevenue || 0).toFixed(2)}</strong><br>
                 <span style="color: #666;">Revenue</span>
               </div>
+              ` : ''}
             </div>
           </div>
           
@@ -982,19 +986,19 @@ class EmailService {
             <div class="content-title">💰 Purchases Summary (This Week)</div>
             <p class="content-text">
               <strong>Total Purchases:</strong> ${stats.purchases.count}<br>
-              <strong>Total Revenue:</strong> $${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
+              <strong>Total Revenue:</strong> ${stats.purchases.currency === 'USD' ? '$' : ''}${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
             </p>
             ${stats.purchases.topProducts && stats.purchases.topProducts.length > 0 ? `
               <div class="content-title">Top Products</div>
               <ul style="list-style: none; padding: 0;">
                 ${stats.purchases.topProducts.map((product, index) => `
                   <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, $${product.revenue.toFixed(2)}
+                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, ${stats.purchases.currency === 'USD' ? '$' : ''}${product.revenue.toFixed(2)}
                   </li>
                 `).join('')}
               </ul>
             ` : ''}
-          ` : '<p class="content-text">No purchases this week.</p>'}
+          ` : ''}
           
           ${topGuidesHtml}
           ${topArticlesHtml}

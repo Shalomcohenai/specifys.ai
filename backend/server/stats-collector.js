@@ -149,15 +149,21 @@ async function collectDailyStats(startDate, endDate) {
     const purchasesInPeriod = purchasesSnapshot.docs.filter(doc => {
       const data = doc.data();
       const createdAt = convertTimestamp(data.createdAt);
-      return createdAt && createdAt >= start && createdAt <= end && data.status === 'paid' && !data.testMode;
+      return createdAt && createdAt >= start && createdAt <= end && 
+             data.status === 'paid' && !data.testMode;
     });
     
     const purchasesCount = purchasesInPeriod.length;
     const totalRevenue = purchasesInPeriod.reduce((sum, doc) => {
       const data = doc.data();
       const total = data.total || 0;
-      return sum + total;
+      return sum + (typeof total === 'number' ? total : 0);
     }, 0);
+    
+    // Get currency (use first purchase's currency or default to USD)
+    const currency = purchasesInPeriod.length > 0 
+      ? (purchasesInPeriod[0].data().currency || 'USD')
+      : 'USD';
     
     // Group purchases by product
     const purchasesByProduct = {};
@@ -215,7 +221,7 @@ async function collectDailyStats(startDate, endDate) {
       purchases: {
         count: purchasesCount,
         totalRevenue,
-        currency: 'USD', // Default currency
+        currency,
         topProducts
       }
     };
