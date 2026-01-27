@@ -7,6 +7,8 @@ import { firebaseService } from '../core/FirebaseService.js';
 export class ApiService {
   constructor() {
     this.baseUrl = this.getApiBaseUrl();
+    // Request deduplication - prevent duplicate concurrent requests
+    this.pendingRequests = new Map();
   }
   
   /**
@@ -36,9 +38,19 @@ export class ApiService {
   }
   
   /**
-   * Make API request
+   * Make API request with deduplication
    */
   async request(endpoint, options = {}) {
+    // Create request key for deduplication (only for GET requests)
+    const isGet = !options.method || options.method === 'GET';
+    const requestKey = isGet ? `${endpoint}:${JSON.stringify(options)}` : null;
+    
+    // Check if same request is already pending
+    if (requestKey && this.pendingRequests.has(requestKey)) {
+      // Return the existing promise
+      return this.pendingRequests.get(requestKey);
+    }
+    
     const token = await this.getAuthToken();
     
     const headers = {
@@ -55,22 +67,37 @@ export class ApiService {
     const cleanBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
     const url = `${cleanBaseUrl}${cleanEndpoint}`;
     
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers
-      });
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(error.message || `HTTP ${response.status}`);
+    // Create request promise
+    const requestPromise = (async () => {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers
+        });
+        
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ message: response.statusText }));
+          throw new Error(error.message || `HTTP ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error(`[ApiService] Error in request to ${endpoint}:`, error);
+        throw error;
+      } finally {
+        // Remove from pending requests after completion
+        if (requestKey) {
+          this.pendingRequests.delete(requestKey);
+        }
       }
-      
-      return await response.json();
-    } catch (error) {
-      console.error(`[ApiService] Error in request to ${endpoint}:`, error);
-      throw error;
+    })();
+    
+    // Store pending request if it's a GET request
+    if (requestKey) {
+      this.pendingRequests.set(requestKey, requestPromise);
     }
+    
+    return requestPromise;
   }
   
   /**

@@ -11,12 +11,15 @@ const { jobRegistry } = require('./automation-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { ArticleWriterJob } = require('./articles-automation');
 const { CreditsSyncJob } = require('./credits-sync-job');
+const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
 let toolsFinderInterval = null;
 let articleWriterInterval = null;
 let creditsSyncInterval = null;
+let dailyReportInterval = null;
+let weeklyReportInterval = null;
 
 /**
  * Start all scheduled jobs
@@ -38,6 +41,12 @@ function startScheduledJobs() {
 
   // Credits sync automation (daily)
   startCreditsSyncJob();
+
+  // Daily report (runs every day at 9:00 AM)
+  startDailyReportJob();
+
+  // Weekly report (runs every Sunday at 9:00 AM)
+  startWeeklyReportJob();
 
   logger.info('[scheduled-jobs] All scheduled jobs started');
 }
@@ -71,6 +80,16 @@ function stopScheduledJobs() {
   if (creditsSyncInterval) {
     clearInterval(creditsSyncInterval);
     creditsSyncInterval = null;
+  }
+
+  if (dailyReportInterval) {
+    clearInterval(dailyReportInterval);
+    dailyReportInterval = null;
+  }
+
+  if (weeklyReportInterval) {
+    clearInterval(weeklyReportInterval);
+    weeklyReportInterval = null;
   }
 
   logger.info('[scheduled-jobs] All scheduled jobs stopped');
@@ -449,6 +468,210 @@ async function runCreditsSyncJob() {
   }
 }
 
+/**
+ * Start daily report job (runs every day at 9:00 AM)
+ * Sends a daily email report with comprehensive statistics
+ */
+function startDailyReportJob() {
+  const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
+  const enabled = process.env.DAILY_REPORT_ENABLED !== 'false';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Daily report job disabled via DAILY_REPORT_ENABLED');
+    return;
+  }
+
+  if (!adminEmail) {
+    logger.warn('[scheduled-jobs] Daily report job not started - ADMIN_EMAIL not configured');
+    return;
+  }
+
+  // Calculate milliseconds in 24 hours
+  const hours24 = 24 * 60 * 60 * 1000;
+
+  // Calculate time until next 9:00 AM
+  const now = new Date();
+  const next9AM = new Date(now);
+  next9AM.setHours(9, 0, 0, 0);
+  
+  // If it's already past 9 AM today, schedule for tomorrow
+  if (now.getHours() >= 9) {
+    next9AM.setDate(next9AM.getDate() + 1);
+  }
+  
+  const msUntilNext9AM = next9AM.getTime() - now.getTime();
+
+  // Run job every day (starting from next 9:00 AM)
+  setTimeout(() => {
+    // Run immediately on first 9 AM
+    runDailyReportJob(adminEmail);
+    
+    // Then schedule for every 24 hours
+    dailyReportInterval = setInterval(() => {
+      runDailyReportJob(adminEmail);
+    }, hours24);
+  }, msUntilNext9AM);
+
+  logger.info({ 
+    nextRun: next9AM.toISOString(),
+    adminEmail 
+  }, '[scheduled-jobs] Daily report job started - will run every day at 9:00 AM');
+}
+
+/**
+ * Run daily report job once
+ * Collects statistics from yesterday and sends email report
+ */
+async function runDailyReportJob(adminEmail) {
+  const requestId = `daily-report-${Date.now()}`;
+  
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting daily report job');
+    
+    // Calculate date range (yesterday)
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Collect statistics
+    const stats = await collectDailyStats(yesterday, today);
+    
+    // Send email report
+    const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+    const emailResult = await emailService.sendDailyReport(adminEmail, stats, baseUrl);
+    
+    if (emailResult.success) {
+      logger.info({ 
+        requestId, 
+        date: stats.period?.startFormatted,
+        newSpecs: stats.specs?.newSpecs || 0,
+        newUsers: stats.users?.newUsers || 0,
+        messageId: emailResult.messageId 
+      }, '[scheduled-jobs] Daily report email sent successfully');
+    } else {
+      logger.error({ 
+        requestId, 
+        error: emailResult.error 
+      }, '[scheduled-jobs] Failed to send daily report email');
+    }
+    
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { 
+        message: error.message, 
+        stack: error.stack 
+      } 
+    }, '[scheduled-jobs] Daily report job failed');
+  }
+}
+
+/**
+ * Start weekly report job (runs every Sunday at 9:00 AM)
+ * Sends a weekly email report with comprehensive statistics for the past week
+ */
+function startWeeklyReportJob() {
+  const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
+  const enabled = process.env.WEEKLY_REPORT_ENABLED !== 'false';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Weekly report job disabled via WEEKLY_REPORT_ENABLED');
+    return;
+  }
+
+  if (!adminEmail) {
+    logger.warn('[scheduled-jobs] Weekly report job not started - ADMIN_EMAIL not configured');
+    return;
+  }
+
+  // Calculate milliseconds in 7 days
+  const days7 = 7 * 24 * 60 * 60 * 1000;
+
+  // Calculate time until next Sunday at 9:00 AM
+  const now = new Date();
+  const nextSunday = new Date(now);
+  nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
+  nextSunday.setHours(9, 0, 0, 0);
+  
+  // If it's already past 9 AM on Sunday, schedule for next Sunday
+  if (now.getDay() === 0 && now.getHours() >= 9) {
+    nextSunday.setDate(nextSunday.getDate() + 7);
+  }
+  
+  const msUntilNextSunday = nextSunday.getTime() - now.getTime();
+
+  // Run job every 7 days (starting from next Sunday)
+  setTimeout(() => {
+    // Run immediately on first Sunday
+    runWeeklyReportJob(adminEmail);
+    
+    // Then schedule for every 7 days
+    weeklyReportInterval = setInterval(() => {
+      runWeeklyReportJob(adminEmail);
+    }, days7);
+  }, msUntilNextSunday);
+
+  logger.info({ 
+    nextRun: nextSunday.toISOString(),
+    adminEmail 
+  }, '[scheduled-jobs] Weekly report job started - will run every Sunday at 9:00 AM');
+}
+
+/**
+ * Run weekly report job once
+ * Collects statistics from the past week and sends email report
+ */
+async function runWeeklyReportJob(adminEmail) {
+  const requestId = `weekly-report-${Date.now()}`;
+  
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting weekly report job');
+    
+    // Calculate date range (last 7 days - Sunday to Saturday)
+    const weekEnd = new Date();
+    weekEnd.setHours(23, 59, 59, 999);
+    
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    weekStart.setHours(0, 0, 0, 0);
+    
+    // Collect statistics
+    const stats = await collectWeeklyStats(weekStart, weekEnd);
+    
+    // Send email report
+    const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+    const emailResult = await emailService.sendWeeklyReport(adminEmail, stats, baseUrl);
+    
+    if (emailResult.success) {
+      logger.info({ 
+        requestId, 
+        weekStart: stats.period?.weekStart,
+        weekEnd: stats.period?.weekEnd,
+        newSpecs: stats.specs?.newSpecs || 0,
+        newUsers: stats.users?.newUsers || 0,
+        messageId: emailResult.messageId 
+      }, '[scheduled-jobs] Weekly report email sent successfully');
+    } else {
+      logger.error({ 
+        requestId, 
+        error: emailResult.error 
+      }, '[scheduled-jobs] Failed to send weekly report email');
+    }
+    
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { 
+        message: error.message, 
+        stack: error.stack 
+      } 
+    }, '[scheduled-jobs] Weekly report job failed');
+  }
+}
+
 module.exports = {
   startScheduledJobs,
   stopScheduledJobs,
@@ -457,6 +680,10 @@ module.exports = {
   runToolsFinderJob,
   runArticleWriterJob,
   startCreditsSyncJob,
-  runCreditsSyncJob
+  runCreditsSyncJob,
+  startDailyReportJob,
+  runDailyReportJob,
+  startWeeklyReportJob,
+  runWeeklyReportJob
 };
 

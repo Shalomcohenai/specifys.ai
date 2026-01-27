@@ -52,9 +52,9 @@ custom_js_modules:
         <i class="fas fa-file-alt"></i>
         <span>Content</span>
       </button>
-      <button class="nav-tab" data-section="newsletter" aria-label="Newsletter">
-        <i class="fas fa-paper-plane"></i>
-        <span>Newsletter</span>
+      <button class="nav-tab" data-section="unsubscribe" aria-label="Unsubscribed Users">
+        <i class="fas fa-ban"></i>
+        <span>Unsubscribed</span>
       </button>
     </div>
     
@@ -253,53 +253,91 @@ custom_js_modules:
           </div>
         </div>
 
-        <!-- System Status -->
+        <!-- System Status & Migrations -->
         <div class="overview-card">
           <div class="card-header">
-            <h2>System Status</h2>
+            <h2>System Status & Migrations</h2>
           </div>
           <div class="card-body">
-            <div class="status-list" id="status-list">
-              <div class="status-item">
-                <div class="status-info">
-                  <i class="fas fa-users status-icon"></i>
-                  <span class="status-label">Users</span>
+            <!-- System Status Section -->
+            <div class="status-section">
+              <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: #666;">System Status</h3>
+              <div class="status-list" id="status-list">
+                <div class="status-item">
+                  <div class="status-info">
+                    <i class="fas fa-users status-icon"></i>
+                    <span class="status-label">Users</span>
+                  </div>
+                  <span class="status-badge pending" data-source="users">Pending</span>
                 </div>
-                <span class="status-badge pending" data-source="users">Pending</span>
-              </div>
-              <div class="status-item">
-                <div class="status-info">
-                  <i class="fas fa-file-alt status-icon"></i>
-                  <span class="status-label">Specs</span>
+                <div class="status-item">
+                  <div class="status-info">
+                    <i class="fas fa-file-alt status-icon"></i>
+                    <span class="status-label">Specs</span>
+                  </div>
+                  <span class="status-badge pending" data-source="specs">Pending</span>
                 </div>
-                <span class="status-badge pending" data-source="specs">Pending</span>
-              </div>
-              <div class="status-item">
-                <div class="status-info">
-                  <i class="fas fa-credit-card status-icon"></i>
-                  <span class="status-label">Purchases</span>
+                <div class="status-item">
+                  <div class="status-info">
+                    <i class="fas fa-credit-card status-icon"></i>
+                    <span class="status-label">Purchases</span>
+                  </div>
+                  <span class="status-badge pending" data-source="purchases">Pending</span>
                 </div>
-                <span class="status-badge pending" data-source="purchases">Pending</span>
-              </div>
-              <div class="status-item">
-                <div class="status-info">
-                  <i class="fas fa-stream status-icon"></i>
-                  <span class="status-label">Activity Logs</span>
+                <div class="status-item">
+                  <div class="status-info">
+                    <i class="fas fa-stream status-icon"></i>
+                    <span class="status-label">Activity Logs</span>
+                  </div>
+                  <span class="status-badge pending" data-source="activityLogs">Pending</span>
                 </div>
-                <span class="status-badge pending" data-source="activityLogs">Pending</span>
-              </div>
-              <div class="status-item">
-                <div class="status-info">
-                  <i class="fas fa-envelope status-icon"></i>
-                  <span class="status-label">Resend Email Service</span>
+                <div class="status-item">
+                  <div class="status-info">
+                    <i class="fas fa-envelope status-icon"></i>
+                    <span class="status-label">Resend Email Service</span>
+                  </div>
+                  <span class="status-badge pending" id="resend-status-badge" data-source="resend">Checking...</span>
                 </div>
-                <span class="status-badge pending" id="resend-status-badge" data-source="resend">Checking...</span>
               </div>
             </div>
+            
+            <!-- Migrations Section -->
+            <div class="status-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee;">
+              <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: #666;">Migrations Status</h3>
+              <div class="migrations-list" id="migrations-list">
+                <div class="migration-item">
+                  <div class="migration-info">
+                    <i class="fas fa-file-alt migration-icon"></i>
+                    <div class="migration-details">
+                      <span class="migration-label">Articles Migration</span>
+                      <span class="migration-status" id="articles-migration-status">Checking...</span>
+                    </div>
+                  </div>
+                  <button class="btn-modern btn-small" id="test-articles-migration-btn" title="Test articles migration">
+                    <i class="fas fa-vial"></i>
+                    <span>Test</span>
+                  </button>
+                </div>
+                <div class="migration-item">
+                  <div class="migration-info">
+                    <i class="fas fa-mobile-alt migration-icon"></i>
+                    <div class="migration-details">
+                      <span class="migration-label">Apps Migration</span>
+                      <span class="migration-status" id="apps-migration-status">Checking...</span>
+                    </div>
+                  </div>
+                  <button class="btn-modern btn-small" id="test-apps-migration-btn" title="Test apps migration">
+                    <i class="fas fa-vial"></i>
+                    <span>Test</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             <div class="status-footer">
               <div>
-              <i class="fas fa-clock"></i>
-              <span>Last sync: <span id="last-sync-time">Never</span></span>
+                <i class="fas fa-clock"></i>
+                <span>Last sync: <span id="last-sync-time">Never</span></span>
               </div>
               <button class="btn-modern btn-small" id="send-test-email-btn" style="margin-top: 10px;" title="Send test email">
                 <i class="fas fa-paper-plane"></i>
@@ -559,48 +597,78 @@ custom_js_modules:
         </div>
       </div>
 
-      <!-- Revenue Analytics -->
-      <div class="analytics-charts-grid">
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Revenue by Product</h3>
-            <p>Revenue breakdown by product type</p>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="analytics-chart-revenue-by-product" height="250"></canvas>
-          </div>
+      <!-- Revenue Analytics - Tabbed Interface -->
+      <div class="analytics-tabs-container">
+        <div class="analytics-tabs-header">
+          <button class="analytics-tab-btn active" data-tab="revenue-by-product">
+            <i class="fas fa-chart-pie"></i>
+            <span>Revenue by Product</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="arpu-trend">
+            <i class="fas fa-chart-line"></i>
+            <span>ARPU Trend</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="retention-rate">
+            <i class="fas fa-chart-area"></i>
+            <span>Retention Rate</span>
+          </button>
+          <button class="analytics-tab-btn" data-tab="time-to-purchase">
+            <i class="fas fa-clock"></i>
+            <span>Time to First Purchase</span>
+          </button>
         </div>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>ARPU Trend</h3>
-            <p>Average Revenue Per User over time</p>
+        
+        <div class="analytics-tabs-content">
+          <!-- Revenue by Product Tab -->
+          <div class="analytics-tab-panel active" id="tab-revenue-by-product">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Revenue by Product</h3>
+                <p>Revenue breakdown by product type</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="analytics-chart-revenue-by-product" height="250"></canvas>
+              </div>
+            </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="analytics-chart-arpu" height="250"></canvas>
+          
+          <!-- ARPU Trend Tab -->
+          <div class="analytics-tab-panel" id="tab-arpu-trend">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>ARPU Trend</h3>
+                <p>Average Revenue Per User over time</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="analytics-chart-arpu" height="250"></canvas>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Retention & Conversion Analytics -->
-      <div class="analytics-charts-grid">
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Retention Rate</h3>
-            <p>User retention by days</p>
+          
+          <!-- Retention Rate Tab -->
+          <div class="analytics-tab-panel" id="tab-retention-rate">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Retention Rate</h3>
+                <p>User retention by days</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="analytics-chart-retention" height="250"></canvas>
+              </div>
+            </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="analytics-chart-retention" height="250"></canvas>
-          </div>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Time to First Purchase</h3>
-            <p>Days from signup to first purchase</p>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="analytics-chart-time-to-purchase" height="250"></canvas>
+          
+          <!-- Time to First Purchase Tab -->
+          <div class="analytics-tab-panel" id="tab-time-to-purchase">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h3>Time to First Purchase</h3>
+                <p>Days from signup to first purchase</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="analytics-chart-time-to-purchase" height="250"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1680,84 +1748,87 @@ custom_js_modules:
       <div class="pagination-modern" id="contact-pagination"></div>
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="dashboard-content-section" id="newsletter-section">
+    <!-- Unsubscribe Users Section -->
+    <section class="dashboard-content-section" id="unsubscribe-section">
       <div class="section-header-modern">
         <div>
-          <h1>Newsletter Management</h1>
-          <p>Create and send newsletters to subscribed users</p>
+          <h1>Unsubscribed Users</h1>
+          <p>Users who have unsubscribed from emails</p>
         </div>
         <div class="header-actions">
-          <button class="btn-modern" id="create-newsletter-btn">
-            <i class="fas fa-plus"></i>
-            <span>Create Newsletter</span>
+          <button class="btn-modern" id="export-unsubscribed-csv-btn">
+            <i class="fas fa-file-export"></i>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      <!-- Newsletter Editor (hidden by default) -->
-      <div id="newsletter-editor-card" class="card-modern" style="display: none; margin-bottom: 24px;">
-        <div class="card-header">
-          <h3 id="newsletter-editor-title">Create New Newsletter</h3>
-          <button class="btn-icon" id="close-newsletter-editor-btn">
-            <i class="fas fa-times"></i>
-          </button>
+      <!-- Unsubscribe Stats -->
+      <div class="quick-stats-grid" style="margin-bottom: 24px;">
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+            <i class="fas fa-ban"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Total Unsubscribed</div>
+            <div class="stat-value" id="unsubscribed-total">0</div>
+          </div>
         </div>
-        <div class="card-body">
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Subject</label>
-            <input type="text" id="newsletter-subject-input" class="input-modern" placeholder="Newsletter subject..." style="width: 100%;">
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <i class="fas fa-envelope-open"></i>
           </div>
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Content (HTML)</label>
-            <textarea id="newsletter-content-textarea" class="input-modern" placeholder="Enter newsletter content in HTML format..." rows="15" style="width: 100%; font-family: monospace; resize: vertical;"></textarea>
-            <small style="color: #666; margin-top: 4px; display: block;">You can use HTML tags. Variables: {{userName}} will be replaced with the user's display name.</small>
+          <div class="stat-content">
+            <div class="stat-label">Newsletter Unsubscribed</div>
+            <div class="stat-value" id="unsubscribed-newsletter">0</div>
           </div>
-          <div style="display: flex; gap: 12px;">
-            <button class="btn-modern" id="save-newsletter-draft-btn">
-              <i class="fas fa-save"></i>
-              <span>Save as Draft</span>
-            </button>
-            <button class="btn-modern btn-primary" id="send-newsletter-btn">
-              <i class="fas fa-paper-plane"></i>
-              <span>Send Now</span>
-            </button>
-            <button class="btn-modern" id="preview-newsletter-btn" style="margin-left: auto;">
-              <i class="fas fa-eye"></i>
-              <span>Preview</span>
-            </button>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-bell-slash"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">All Emails Unsubscribed</div>
+            <div class="stat-value" id="unsubscribed-all">0</div>
           </div>
         </div>
       </div>
 
-      <!-- Newsletter History -->
-      <div class="card-modern">
-        <div class="card-header">
-          <h3>Newsletter History</h3>
-          <button class="btn-icon" id="refresh-newsletters-btn">
-            <i class="fas fa-sync-alt"></i>
-          </button>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="search" id="unsubscribe-search-input" placeholder="Search by email or user ID...">
         </div>
-        <div class="card-body">
-          <table class="modern-table" id="newsletters-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Status</th>
-                <th>Sent To</th>
-                <th>Clicks</th>
-                <th>Created</th>
-                <th style="width: 150px;">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="6" class="table-empty-state">Loading newsletters...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <select id="unsubscribe-type-filter-select">
+          <option value="all">All Types</option>
+          <option value="newsletter">Newsletter Only</option>
+          <option value="all_emails">All Emails</option>
+        </select>
       </div>
+
+      <!-- Unsubscribe Table -->
+      <div class="table-card">
+        <table class="modern-table" id="unsubscribe-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>User ID</th>
+              <th>Unsubscribed From</th>
+              <th>Date</th>
+              <th style="width: 120px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5" class="table-empty-state">Loading unsubscribed users...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-modern" id="unsubscribe-pagination"></div>
     </section>
 
   </main>

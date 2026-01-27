@@ -775,13 +775,24 @@ export class OverviewView {
         description = event.meta.email;
       }
       
+      // Check if this is an advanced spec creation
+      const isAdvancedSpec = event.type === 'advanced_spec_created' || 
+                             event.meta?.eventName === 'advanced_spec_created' ||
+                             (event.title && event.title.toLowerCase().includes('advanced'));
+      
+      // Add notification badge for advanced specs
+      const notificationBadge = isAdvancedSpec ? '<span class="activity-badge new" style="margin-left: 8px;">Advanced Spec</span>' : '';
+      
       return `
         <div class="activity-item" data-activity-id="${event.id}">
           <div class="activity-icon">
             <i class="${icon}"></i>
           </div>
           <div class="activity-content">
-            <div class="activity-title">${this.escapeHtml(event.title || 'Activity')}</div>
+            <div class="activity-title">
+              ${this.escapeHtml(event.title || 'Activity')}
+              ${notificationBadge}
+            </div>
             ${description ? `<div class="activity-description">${this.escapeHtml(description)}</div>` : ''}
           </div>
           <div class="activity-time">${time}</div>
@@ -1009,6 +1020,122 @@ export class OverviewView {
         minute: '2-digit' 
       });
     }
+    
+    // Load migrations status
+    this.loadMigrationsStatus();
+    
+    // Setup migration test buttons
+    this.setupMigrationButtons();
+  }
+  
+  /**
+   * Load migrations status
+   */
+  async loadMigrationsStatus() {
+    try {
+      const apiService = this.app.services.api;
+      const response = await apiService.get('/api/admin/migrations/status');
+      
+      if (response.success && response.migrations) {
+        // Update articles migration status
+        const articlesStatus = helpers.dom('#articles-migration-status');
+        if (articlesStatus) {
+          if (response.migrations.articles.working) {
+            articlesStatus.textContent = response.migrations.articles.lastCreated 
+              ? `Last: ${new Date(response.migrations.articles.lastCreated.createdAt).toLocaleDateString()}`
+              : 'Working';
+            articlesStatus.className = 'migration-status working';
+          } else {
+            articlesStatus.textContent = 'Not Working';
+            articlesStatus.className = 'migration-status error';
+          }
+        }
+        
+        // Update apps migration status
+        const appsStatus = helpers.dom('#apps-migration-status');
+        if (appsStatus) {
+          if (response.migrations.apps.working) {
+            appsStatus.textContent = response.migrations.apps.lastCreated 
+              ? `Last: ${new Date(response.migrations.apps.lastCreated.createdAt).toLocaleDateString()}`
+              : 'Working';
+            appsStatus.className = 'migration-status working';
+          } else {
+            appsStatus.textContent = 'Not Working';
+            appsStatus.className = 'migration-status error';
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error loading migrations status:', error);
+      const articlesStatus = helpers.dom('#articles-migration-status');
+      const appsStatus = helpers.dom('#apps-migration-status');
+      if (articlesStatus) {
+        articlesStatus.textContent = 'Error';
+        articlesStatus.className = 'migration-status error';
+      }
+      if (appsStatus) {
+        appsStatus.textContent = 'Error';
+        appsStatus.className = 'migration-status error';
+      }
+    }
+  }
+  
+  /**
+   * Setup migration test buttons
+   */
+  setupMigrationButtons() {
+    const testArticlesBtn = helpers.dom('#test-articles-migration-btn');
+    const testAppsBtn = helpers.dom('#test-apps-migration-btn');
+    
+    if (testArticlesBtn && !testArticlesBtn.dataset.listenerAdded) {
+      testArticlesBtn.dataset.listenerAdded = 'true';
+      testArticlesBtn.addEventListener('click', async () => {
+        testArticlesBtn.disabled = true;
+        testArticlesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
+        
+        try {
+          const apiService = this.app.services.api;
+          const response = await apiService.post('/api/admin/migrations/articles/test');
+          
+          if (response.success) {
+            alert('Article created successfully!');
+            this.loadMigrationsStatus();
+          } else {
+            alert('Failed to create article: ' + (response.error || 'Unknown error'));
+          }
+        } catch (error) {
+          alert('Error testing articles migration: ' + error.message);
+        } finally {
+          testArticlesBtn.disabled = false;
+          testArticlesBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
+        }
+      });
+    }
+    
+    if (testAppsBtn && !testAppsBtn.dataset.listenerAdded) {
+      testAppsBtn.dataset.listenerAdded = 'true';
+      testAppsBtn.addEventListener('click', async () => {
+        testAppsBtn.disabled = true;
+        testAppsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
+        
+        try {
+          const apiService = this.app.services.api;
+          const response = await apiService.post('/api/admin/migrations/apps/test');
+          
+          if (response.success) {
+            alert('Test app created successfully!');
+            this.loadMigrationsStatus();
+          } else {
+            alert('Failed to create app: ' + (response.error || 'Unknown error'));
+          }
+        } catch (error) {
+          alert('Error testing apps migration: ' + error.message);
+        } finally {
+          testAppsBtn.disabled = false;
+          testAppsBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
+        }
+      });
+    }
   }
   
   /**
@@ -1026,7 +1153,8 @@ export class OverviewView {
    */
   async loadContactSubmissions() {
     try {
-      const response = await apiService.get('/api/admin/contact-submissions?limit=1000');
+      // Reduce limit for overview - only show recent 50
+      const response = await apiService.get('/api/admin/contact-submissions?limit=50');
       
       if (response.success && response.submissions) {
         this.contactSubmissions = response.submissions.map(sub => {
@@ -1123,7 +1251,7 @@ export class OverviewView {
       const iconColor = statusClass === 'new' ? '#ef4444' : statusClass === 'read' ? '#3b82f6' : '#10b981';
       
       return `
-        <div class="activity-item">
+        <div class="activity-item" data-contact-id="${sub.id}">
           <div class="activity-icon" style="background: ${bgColor};">
             <i class="fas fa-envelope" style="color: ${iconColor};"></i>
           </div>
@@ -1131,6 +1259,9 @@ export class OverviewView {
             <div class="activity-header">
               <span class="activity-title">${this.escapeHtml(email)}</span>
               <span class="activity-badge ${statusClass}">${statusLabel}</span>
+              <button class="contact-dismiss-btn" data-contact-id="${sub.id}" title="Mark as read" aria-label="Mark as read">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
             <p class="activity-description">${this.escapeHtml(messagePreview)}</p>
             <span class="activity-time">${dateStr}</span>
@@ -1140,6 +1271,41 @@ export class OverviewView {
     }).join('');
     
     container.innerHTML = html;
+    
+    // Add event listeners for dismiss buttons
+    container.querySelectorAll('.contact-dismiss-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const contactId = btn.dataset.contactId;
+        if (contactId) {
+          await this.markContactAsRead(contactId);
+        }
+      });
+    });
+  }
+  
+  /**
+   * Mark contact submission as read
+   */
+  async markContactAsRead(contactId) {
+    try {
+      const apiService = this.app.services.api;
+      const response = await apiService.put(`/api/admin/contact-submissions/${contactId}/status`, {
+        status: 'read'
+      });
+      
+      if (response.success) {
+        // Update local data
+        const submission = this.contactSubmissions.find(s => s.id === contactId);
+        if (submission) {
+          submission.status = 'read';
+          this.updateContactStats();
+          this.renderContactList();
+        }
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error marking contact as read:', error);
+    }
   }
   
   /**

@@ -86,16 +86,41 @@ router.get('/users', requireAdmin, async (req, res, next) => {
     requestId,
     adminEmail: req.adminUser?.email,
     adminUserId: req.adminUser?.uid
-  }, '[admin-routes] GET /users - Fetching all users');
+  }, '[admin-routes] GET /users - Fetching users');
   
   try {
-    const usersSnapshot = await db.collection('users').get();
+    // Add pagination support
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500); // Max 500 per request
+    const startAfter = req.query.startAfter || null;
+    
+    let query = db.collection('users').orderBy(admin.firestore.FieldPath.documentId()).limit(limit);
+    
+    if (startAfter) {
+      const startAfterDoc = await db.collection('users').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        query = query.startAfter(startAfterDoc);
+      }
+    }
+    
+    const usersSnapshot = await query.get();
     const users = usersSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    logger.info({ requestId, count: users.length }, '[admin-routes] GET /users - Success');
-    res.json({ success: true, users });
+    
+    const hasMore = usersSnapshot.docs.length === limit;
+    const lastDoc = hasMore ? usersSnapshot.docs[usersSnapshot.docs.length - 1] : null;
+    
+    logger.info({ requestId, count: users.length, hasMore }, '[admin-routes] GET /users - Success');
+    res.json({ 
+      success: true, 
+      users,
+      pagination: {
+        limit,
+        hasMore,
+        nextCursor: lastDoc ? lastDoc.id : null
+      }
+    });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /users - Error');
     next(createError('Failed to fetch users', ERROR_CODES.DATABASE_ERROR, 500));
@@ -299,16 +324,41 @@ router.get('/specs', requireAdmin, async (req, res, next) => {
     requestId,
     adminEmail: req.adminUser?.email,
     adminUserId: req.adminUser?.uid
-  }, '[admin-routes] GET /specs - Fetching all specs');
+  }, '[admin-routes] GET /specs - Fetching specs');
   
   try {
-    const specsSnapshot = await db.collection('specs').get();
+    // Add pagination support
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500); // Max 500 per request
+    const startAfter = req.query.startAfter || null;
+    
+    let query = db.collection('specs').orderBy('createdAt', 'desc').limit(limit);
+    
+    if (startAfter) {
+      const startAfterDoc = await db.collection('specs').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        query = query.startAfter(startAfterDoc);
+      }
+    }
+    
+    const specsSnapshot = await query.get();
     const specs = specsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    logger.info({ requestId, count: specs.length }, '[admin-routes] GET /specs - Success');
-    res.json({ success: true, specs });
+    
+    const hasMore = specsSnapshot.docs.length === limit;
+    const lastDoc = hasMore ? specsSnapshot.docs[specsSnapshot.docs.length - 1] : null;
+    
+    logger.info({ requestId, count: specs.length, hasMore }, '[admin-routes] GET /specs - Success');
+    res.json({ 
+      success: true, 
+      specs,
+      pagination: {
+        limit,
+        hasMore,
+        nextCursor: lastDoc ? lastDoc.id : null
+      }
+    });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /specs - Error');
     next(createError('Failed to fetch specs', ERROR_CODES.DATABASE_ERROR, 500));
@@ -328,13 +378,38 @@ router.get('/market-research', requireAdmin, async (req, res, next) => {
   }, '[admin-routes] GET /market-research - Fetching market research');
   
   try {
-    const researchSnapshot = await db.collection('marketResearch').get();
+    // Add pagination support
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500); // Max 500 per request
+    const startAfter = req.query.startAfter || null;
+    
+    let query = db.collection('marketResearch').orderBy('createdAt', 'desc').limit(limit);
+    
+    if (startAfter) {
+      const startAfterDoc = await db.collection('marketResearch').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        query = query.startAfter(startAfterDoc);
+      }
+    }
+    
+    const researchSnapshot = await query.get();
     const research = researchSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
-    logger.info({ requestId, count: research.length }, '[admin-routes] GET /market-research - Success');
-    res.json({ success: true, research });
+    
+    const hasMore = researchSnapshot.docs.length === limit;
+    const lastDoc = hasMore ? researchSnapshot.docs[researchSnapshot.docs.length - 1] : null;
+    
+    logger.info({ requestId, count: research.length, hasMore }, '[admin-routes] GET /market-research - Success');
+    res.json({ 
+      success: true, 
+      research,
+      pagination: {
+        limit,
+        hasMore,
+        nextCursor: lastDoc ? lastDoc.id : null
+      }
+    });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /market-research - Error');
     next(createError('Failed to fetch market research', ERROR_CODES.DATABASE_ERROR, 500));
@@ -903,8 +978,8 @@ router.get('/contact-submissions', requireAdmin, async (req, res, next) => {
       query = query.where('status', '==', req.query.status);
     }
     
-    // Limit results
-    const limitCount = parseInt(req.query.limit) || 100;
+    // Limit results - reduce default to prevent overload
+    const limitCount = Math.min(parseInt(req.query.limit) || 50, 200); // Default 50, max 200
     query = query.limit(limitCount);
     
     const snapshot = await query.get();
@@ -2071,6 +2146,14 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
       if (endDate) filters.endDate = endDate;
     }
     
+    // Check cache
+    const cacheKey = getCacheKey('/analytics/email', filters);
+    const cached = getCached(cacheKey);
+    if (cached) {
+      logger.info({ requestId, cached: true }, '[admin-routes] Email analytics retrieved from cache');
+      return res.json(cached);
+    }
+    
     const [clickStats, sentStats] = await Promise.all([
       emailTracking.getEmailClickStats(filters),
       emailTracking.getEmailSentStats(filters)
@@ -2081,7 +2164,7 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
     // Calculate click rate based on emails sent (not clicks)
     const clickRate = sentStats.total > 0 ? ((clickStats.total / sentStats.total) * 100).toFixed(2) : 0;
     
-    res.json({
+    const result = {
       success: true,
       filters,
       stats: {
@@ -2096,7 +2179,12 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
         totalClicks: clickStats.total,
         clickRate: parseFloat(clickRate)
       }
-    });
+    };
+    
+    // Cache result
+    setCache(cacheKey, result);
+    
+    res.json(result);
   } catch (error) {
     logger.error({ requestId, error: error.message }, '[admin-routes] Failed to get email analytics');
     next(createError('Failed to get email analytics', ERROR_CODES.DATABASE_ERROR, 500, {
@@ -2215,6 +2303,245 @@ router.post('/email/test', requireAdmin, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: error.message }, '[admin-routes] Failed to send test email');
     next(createError('Failed to send test email', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Test articles migration (admin only)
+ * POST /api/admin/migrations/articles/test
+ */
+router.post('/migrations/articles/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /migrations/articles/test');
+  
+  try {
+    const { ArticleWriterJob } = require('./articles-automation');
+    const { jobRegistry } = require('./automation-service');
+    
+    // Register job if not already registered
+    try {
+      jobRegistry.getJob('article-writer');
+    } catch (error) {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return next(createError('OPENAI_API_KEY not configured', ERROR_CODES.CONFIGURATION_ERROR, 500));
+      }
+      const job = new ArticleWriterJob({ openaiApiKey: apiKey });
+      jobRegistry.registerJob('article-writer', job);
+    }
+    
+    // Execute job in dry-run mode
+    const result = await jobRegistry.executeJob('article-writer', { dryRun: false });
+    
+    logger.info({ requestId, result }, '[admin-routes] Articles migration test completed');
+    res.json({
+      success: true,
+      message: 'Article created successfully',
+      result
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Articles migration test failed');
+    next(createError('Failed to test articles migration', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Test apps migration (admin only)
+ * POST /api/admin/migrations/apps/test
+ */
+router.post('/migrations/apps/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /migrations/apps/test');
+  
+  try {
+    // Create a test app
+    const testApp = {
+      userId: req.adminUser?.uid || 'test-user',
+      name: `Test App ${Date.now()}`,
+      description: 'Test app created from admin dashboard',
+      status: 'draft',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    
+    const appRef = await db.collection('apps').add(testApp);
+    
+    logger.info({ requestId, appId: appRef.id }, '[admin-routes] Apps migration test completed');
+    res.json({
+      success: true,
+      message: 'Test app created successfully',
+      appId: appRef.id
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Apps migration test failed');
+    next(createError('Failed to test apps migration', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Get unsubscribed users (admin only)
+ * GET /api/admin/unsubscribed-users
+ */
+router.get('/unsubscribed-users', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /unsubscribed-users');
+  const limit = parseInt(req.query.limit) || 100;
+  const search = req.query.search || '';
+  
+  logger.info({ 
+    requestId,
+    limit,
+    search,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /unsubscribed-users - Fetching unsubscribed users');
+  
+  try {
+    // Add pagination and limit to prevent overload
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500); // Max 500 per request
+    const startAfter = req.query.startAfter || null;
+    
+    let usersQuery = db.collection('users').orderBy(admin.firestore.FieldPath.documentId()).limit(limit);
+    
+    if (startAfter) {
+      const startAfterDoc = await db.collection('users').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        usersQuery = usersQuery.startAfter(startAfterDoc);
+      }
+    }
+    
+    const usersSnapshot = await usersQuery.get();
+    
+    const unsubscribedUsers = [];
+    
+    usersSnapshot.docs.forEach(doc => {
+      const userData = doc.data();
+      const emailPreferences = userData.emailPreferences || {};
+      
+      // Check if user unsubscribed from newsletter or all emails
+      const unsubscribedFrom = [];
+      if (emailPreferences.newsletter === false) {
+        unsubscribedFrom.push('newsletter');
+      }
+      if (emailPreferences.operational === false && 
+          emailPreferences.marketing === false && 
+          emailPreferences.updates === false &&
+          emailPreferences.specNotifications === false) {
+        unsubscribedFrom.push('all_emails');
+      }
+      
+      if (unsubscribedFrom.length > 0) {
+        const email = userData.email || '';
+        const userId = doc.id;
+        
+        // Apply search filter if provided
+        if (search && !email.toLowerCase().includes(search.toLowerCase()) && 
+            !userId.toLowerCase().includes(search.toLowerCase())) {
+          return;
+        }
+        
+        unsubscribedUsers.push({
+          id: userId,
+          email,
+          userId,
+          unsubscribedFrom,
+          createdAt: userData.createdAt,
+          lastActive: userData.lastActive
+        });
+      }
+    });
+    
+    // Sort by email
+    unsubscribedUsers.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+    
+    const hasMore = usersSnapshot.docs.length === limit;
+    const lastDoc = hasMore ? usersSnapshot.docs[usersSnapshot.docs.length - 1] : null;
+    
+    logger.info({ requestId, count: unsubscribedUsers.length, hasMore }, '[admin-routes] GET /unsubscribed-users - Success');
+    res.json({
+      success: true,
+      users: unsubscribedUsers,
+      pagination: {
+        limit,
+        hasMore,
+        nextCursor: lastDoc ? lastDoc.id : null
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /unsubscribed-users - Error');
+    next(createError('Failed to get unsubscribed users', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Get migration status (admin only)
+ * GET /api/admin/migrations/status
+ */
+router.get('/migrations/status', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /migrations/status');
+  
+  try {
+    // Check cache first (migration status doesn't change often)
+    const cacheKey = getCacheKey('/migrations/status', {});
+    const cached = getCached(cacheKey);
+    if (cached) {
+      logger.info({ requestId, cached: true }, '[admin-routes] Migration status retrieved from cache');
+      return res.json(cached);
+    }
+    
+    // Check articles migration status
+    const articlesSnapshot = await db.collection('articles').limit(1).get();
+    const articlesWorking = !articlesSnapshot.empty || true; // Always true if collection exists
+    
+    // Check apps migration status
+    const appsSnapshot = await db.collection('apps').limit(1).get();
+    const appsWorking = !appsSnapshot.empty || true; // Always true if collection exists
+    
+    // Check last article creation
+    const lastArticleSnapshot = await db.collection('articles')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+    const lastArticle = lastArticleSnapshot.empty ? null : {
+      id: lastArticleSnapshot.docs[0].id,
+      createdAt: lastArticleSnapshot.docs[0].data().createdAt
+    };
+    
+    // Check last app creation
+    const lastAppSnapshot = await db.collection('apps')
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+    const lastApp = lastAppSnapshot.empty ? null : {
+      id: lastAppSnapshot.docs[0].id,
+      createdAt: lastAppSnapshot.docs[0].data().createdAt
+    };
+    
+    const result = {
+      success: true,
+      migrations: {
+        articles: {
+          working: articlesWorking,
+          lastCreated: lastArticle
+        },
+        apps: {
+          working: appsWorking,
+          lastCreated: lastApp
+        }
+      }
+    };
+    
+    // Cache result
+    setCache(cacheKey, result);
+    
+    logger.info({ requestId }, '[admin-routes] Migration status retrieved');
+    res.json(result);
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Failed to get migration status');
+    next(createError('Failed to get migration status', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

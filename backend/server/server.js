@@ -28,6 +28,7 @@ const { errorHandler, notFoundHandler, createError, ERROR_CODES } = require('./e
 const { logger, logRequest, logResponse } = require('./logger');
 const { syncAllUsers } = require('./user-management');
 const { startScheduledJobs } = require('./scheduled-jobs');
+const { initializeErrorCapture } = require('./render-error-capture');
 
 // Load environment variables BEFORE importing route modules
 // Try backend/.env first (preferred), then project root .env, then server/.env
@@ -59,6 +60,10 @@ if (dotenv.config({ path: backendEnvPath }).parsed) {
   dotenv.config();
   logger.warn({ type: 'env_fallback' }, '[UNIFIED SERVER] ⚠️ Using default environment variable lookup (CWD)');
 }
+
+// Initialize error capture for unhandled errors (must be early in startup)
+initializeErrorCapture();
+logger.info({ type: 'error_capture_initialized' }, '[UNIFIED SERVER] ✅ Error capture initialized');
 
 // Clear require cache for development
 delete require.cache[require.resolve('./chat-routes')];

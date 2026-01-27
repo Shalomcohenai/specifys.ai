@@ -52,6 +52,34 @@ export class AnalyticsView {
         this.updateAll();
       });
     }
+    
+    // Analytics tabs
+    this.setupAnalyticsTabs();
+  }
+  
+  /**
+   * Setup analytics tabs
+   */
+  setupAnalyticsTabs() {
+    const tabButtons = document.querySelectorAll('.analytics-tab-btn');
+    const tabPanels = document.querySelectorAll('.analytics-tab-panel');
+    
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        
+        // Remove active class from all buttons and panels
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding panel
+        btn.classList.add('active');
+        const panel = document.getElementById(`tab-${tabId}`);
+        if (panel) {
+          panel.classList.add('active');
+        }
+      });
+    });
   }
   
   /**
@@ -187,13 +215,44 @@ export class AnalyticsView {
         
         // Update table (pass both clicks and sent stats)
         this.updateEmailTable(clicks, sent);
+      } else {
+        // If no data, show empty state
+        const totalClicksEl = helpers.dom('#email-total-clicks');
+        const uniqueUsersEl = helpers.dom('#email-unique-users');
+        const uniqueClicksEl = helpers.dom('#email-unique-clicks');
+        const clickRateEl = helpers.dom('#email-click-rate');
+        const totalSentEl = helpers.dom('#email-total-sent');
+        
+        if (totalClicksEl) totalClicksEl.textContent = '0';
+        if (uniqueUsersEl) uniqueUsersEl.textContent = '0';
+        if (uniqueClicksEl) uniqueClicksEl.textContent = '0';
+        if (clickRateEl) clickRateEl.textContent = '0%';
+        if (totalSentEl) totalSentEl.textContent = '0';
+        
+        const tbody = helpers.dom('#email-performance-table tbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state">No email data available for this period</td></tr>';
+        }
       }
     } catch (error) {
       console.error('[AnalyticsView] Error loading email analytics:', error);
       const tbody = helpers.dom('#email-performance-table tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state">Error loading data</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty-state">Error loading data: ' + (error.message || 'Unknown error') + '</td></tr>';
       }
+      
+      // Reset metrics to 0 on error
+      const totalClicksEl = helpers.dom('#email-total-clicks');
+      const uniqueUsersEl = helpers.dom('#email-unique-users');
+      const uniqueClicksEl = helpers.dom('#email-unique-clicks');
+      const clickRateEl = helpers.dom('#email-click-rate');
+      const totalSentEl = helpers.dom('#email-total-sent');
+      
+      if (totalClicksEl) totalClicksEl.textContent = '0';
+      if (uniqueUsersEl) uniqueUsersEl.textContent = '0';
+      if (uniqueClicksEl) uniqueClicksEl.textContent = '0';
+      if (clickRateEl) clickRateEl.textContent = '0%';
+      if (totalSentEl) totalSentEl.textContent = '0';
     }
   }
   

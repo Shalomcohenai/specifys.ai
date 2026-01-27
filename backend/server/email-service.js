@@ -574,6 +574,467 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  /**
+   * Send weekly error summary email
+   * @param {string} adminEmail - Admin email address to send summary to
+   * @param {Object} errorSummary - Error summary data
+   * @param {string} baseUrl - Base URL (optional)
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendWeeklyErrorSummary(adminEmail, errorSummary, baseUrl = null) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendWeeklyErrorSummary - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!adminEmail) {
+      logger.warn('[EmailService] sendWeeklyErrorSummary - Admin email not provided');
+      return { success: false, error: 'Admin email missing' };
+    }
+
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      
+      // Build HTML content for error summary
+      const weekStart = errorSummary.weekStart || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+      const weekEnd = errorSummary.weekEnd || new Date().toLocaleDateString('en-US');
+      const totalErrors = errorSummary.totalErrors || 0;
+      const errorsByType = errorSummary.errorsByType || {};
+      const topErrors = errorSummary.topErrors || [];
+      
+      let errorsByTypeHtml = '';
+      if (Object.keys(errorsByType).length > 0) {
+        errorsByTypeHtml = '<div class="content-title">Errors by Type</div><ul style="list-style: none; padding: 0;">';
+        for (const [type, count] of Object.entries(errorsByType)) {
+          errorsByTypeHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>${type}:</strong> ${count}</li>`;
+        }
+        errorsByTypeHtml += '</ul>';
+      } else {
+        errorsByTypeHtml = '<p class="content-text">No errors by type data available.</p>';
+      }
+      
+      let topErrorsHtml = '';
+      if (topErrors.length > 0) {
+        topErrorsHtml = '<div class="content-title">Top Errors (Most Frequent)</div><ul style="list-style: none; padding: 0;">';
+        topErrors.slice(0, 10).forEach((error, index) => {
+          topErrorsHtml += `
+            <li style="padding: 12px 0; border-bottom: 1px solid #eee;">
+              <strong>#${index + 1}</strong><br>
+              <strong>Type:</strong> ${error.errorType || 'Unknown'}<br>
+              <strong>Message:</strong> ${error.errorMessage || 'N/A'}<br>
+              <strong>Code:</strong> ${error.errorCode || 'N/A'}<br>
+              <strong>Frequency:</strong> ${error.frequency || 0} times<br>
+              <strong>First Occurrence:</strong> ${error.firstOccurrence ? new Date(error.firstOccurrence.seconds * 1000).toLocaleString() : 'N/A'}<br>
+              <strong>Last Occurrence:</strong> ${error.lastOccurrence ? new Date(error.lastOccurrence.seconds * 1000).toLocaleString() : 'N/A'}
+            </li>
+          `;
+        });
+        topErrorsHtml += '</ul>';
+      } else {
+        topErrorsHtml = '<p class="content-text">🎉 No errors occurred this week!</p>';
+      }
+      
+      const html = emailTemplates.getBaseTemplate(
+        'Weekly Error Summary - Specifys.ai',
+        `
+          <p class="content-text">
+            Hello,
+          </p>
+          <p class="content-text">
+            This is your weekly error summary report from Specifys.ai.
+          </p>
+          <div class="content-title">Summary Period</div>
+          <p class="content-text">
+            <strong>Week Start:</strong> ${weekStart}<br>
+            <strong>Week End:</strong> ${weekEnd}<br>
+            <strong>Total Errors:</strong> ${totalErrors}
+          </p>
+          ${errorsByTypeHtml}
+          ${topErrorsHtml}
+          <div class="btn-container">
+            <a href="${finalBaseUrl}/pages/new-admin-dashboard.html" class="btn">View Full Error Logs</a>
+          </div>
+          <p class="content-text">
+            This is an automated weekly report. Errors are automatically captured and saved to Firebase.
+          </p>
+          <p class="content-text">
+            Best regards,<br>
+            <strong>The Specifys.ai Error Monitoring System</strong>
+          </p>
+        `
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: adminEmail,
+        subject: `Weekly Error Summary - ${totalErrors} Errors (${weekStart} to ${weekEnd})`,
+        html: html
+      });
+
+      logger.info({ adminEmail, totalErrors, messageId: result.id }, '[EmailService] Weekly error summary email sent successfully');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ adminEmail, error: error.message }, '[EmailService] Failed to send weekly error summary');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send daily report email with comprehensive statistics
+   * @param {string} adminEmail - Admin email address to send report to
+   * @param {Object} stats - Statistics data from stats-collector
+   * @param {string} baseUrl - Base URL (optional)
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendDailyReport(adminEmail, stats, baseUrl = null) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendDailyReport - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!adminEmail) {
+      logger.warn('[EmailService] sendDailyReport - Admin email not provided');
+      return { success: false, error: 'Admin email missing' };
+    }
+
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const date = stats.period?.startFormatted || new Date().toLocaleDateString('en-US');
+      
+      // Build HTML content
+      let topGuidesHtml = '';
+      if (stats.academy?.topGuides && stats.academy.topGuides.length > 0) {
+        topGuidesHtml = '<div class="content-title">Top 5 Academy Guides</div><ul style="list-style: none; padding: 0;">';
+        stats.academy.topGuides.forEach((guide, index) => {
+          topGuidesHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>#${index + 1}</strong> Guide ${guide.guideId}: ${guide.views} views</li>`;
+        });
+        topGuidesHtml += '</ul>';
+      }
+      
+      let topArticlesHtml = '';
+      if (stats.articles?.topArticles && stats.articles.topArticles.length > 0) {
+        topArticlesHtml = '<div class="content-title">Top 5 Articles</div><ul style="list-style: none; padding: 0;">';
+        stats.articles.topArticles.forEach((article, index) => {
+          topArticlesHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>#${index + 1}</strong> ${article.slug}: ${article.views} views</li>`;
+        });
+        topArticlesHtml += '</ul>';
+      }
+      
+      let errorsHtml = '';
+      if (stats.errors?.totalErrors > 0) {
+        errorsHtml = `
+          <div class="content-title">Errors Summary</div>
+          <p class="content-text">
+            <strong>Total Errors:</strong> ${stats.errors.totalErrors}<br>
+            <strong>Unique Errors:</strong> ${stats.errors.uniqueErrors || 0}
+          </p>
+        `;
+        if (stats.errors.topErrors && stats.errors.topErrors.length > 0) {
+          errorsHtml += '<div class="content-title">Top 5 Errors</div><ul style="list-style: none; padding: 0;">';
+          stats.errors.topErrors.slice(0, 5).forEach((error, index) => {
+            errorsHtml += `
+              <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                <strong>#${index + 1}</strong> ${error.errorType || 'Unknown'}: ${error.frequency || 0} times<br>
+                <small style="color: #666;">${(error.errorMessage || '').substring(0, 100)}</small>
+              </li>
+            `;
+          });
+          errorsHtml += '</ul>';
+        }
+      } else {
+        errorsHtml = '<p class="content-text">🎉 No errors today!</p>';
+      }
+      
+      const html = emailTemplates.getBaseTemplate(
+        `Daily Report - ${date} - Specifys.ai`,
+        `
+          <p class="content-text">
+            Hello,
+          </p>
+          <p class="content-text">
+            Here's your daily report for <strong>${date}</strong>.
+          </p>
+          
+          <div class="content-title">📊 Daily Statistics</div>
+          
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.specs?.newSpecs || 0}</strong><br>
+                <span style="color: #666;">New Specs Created</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.users?.newUsers || 0}</strong><br>
+                <span style="color: #666;">New Users Registered</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.users?.activeUsers || 0}</strong><br>
+                <span style="color: #666;">Active Users</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.academy?.guideViews || 0}</strong><br>
+                <span style="color: #666;">Academy Guide Views</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.articles?.articleViews || 0}</strong><br>
+                <span style="color: #666;">Article Views</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: ${stats.errors?.totalErrors > 0 ? '#d32f2f' : '#0078d4'};">${stats.errors?.totalErrors || 0}</strong><br>
+                <span style="color: #666;">Errors</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #0078d4;">${stats.purchases?.count || 0}</strong><br>
+                <span style="color: #666;">Purchases</span>
+              </div>
+              <div>
+                <strong style="font-size: 24px; color: #28a745;">$${(stats.purchases?.totalRevenue || 0).toFixed(2)}</strong><br>
+                <span style="color: #666;">Revenue</span>
+              </div>
+            </div>
+          </div>
+          
+          ${stats.purchases && stats.purchases.count > 0 ? `
+            <div class="content-title">💰 Purchases Summary</div>
+            <p class="content-text">
+              <strong>Total Purchases:</strong> ${stats.purchases.count}<br>
+              <strong>Total Revenue:</strong> $${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
+            </p>
+            ${stats.purchases.topProducts && stats.purchases.topProducts.length > 0 ? `
+              <div class="content-title">Top Products</div>
+              <ul style="list-style: none; padding: 0;">
+                ${stats.purchases.topProducts.map((product, index) => `
+                  <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, $${product.revenue.toFixed(2)}
+                  </li>
+                `).join('')}
+              </ul>
+            ` : ''}
+          ` : '<p class="content-text">No purchases today.</p>'}
+          
+          ${topGuidesHtml}
+          ${topArticlesHtml}
+          ${errorsHtml}
+          
+          <div class="btn-container">
+            <a href="${finalBaseUrl}/pages/new-admin-dashboard.html" class="btn">View Admin Dashboard</a>
+          </div>
+          
+          <p class="content-text">
+            This is an automated daily report. All data is collected from Firebase.
+          </p>
+          <p class="content-text">
+            Best regards,<br>
+            <strong>The Specifys.ai Monitoring System</strong>
+          </p>
+        `
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: adminEmail,
+        subject: `Daily Report - ${date} - Specifys.ai`,
+        html: html
+      });
+
+      logger.info({ 
+        adminEmail, 
+        date,
+        newSpecs: stats.specs?.newSpecs || 0,
+        newUsers: stats.users?.newUsers || 0,
+        messageId: result.id 
+      }, '[EmailService] Daily report email sent successfully');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ adminEmail, error: error.message }, '[EmailService] Failed to send daily report');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send weekly report email with comprehensive statistics
+   * @param {string} adminEmail - Admin email address to send report to
+   * @param {Object} stats - Statistics data from stats-collector
+   * @param {string} baseUrl - Base URL (optional)
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendWeeklyReport(adminEmail, stats, baseUrl = null) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendWeeklyReport - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!adminEmail) {
+      logger.warn('[EmailService] sendWeeklyReport - Admin email not provided');
+      return { success: false, error: 'Admin email missing' };
+    }
+
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const weekStart = stats.period?.weekStart || stats.period?.startFormatted || 'N/A';
+      const weekEnd = stats.period?.weekEnd || stats.period?.endFormatted || 'N/A';
+      
+      // Build HTML content
+      let topGuidesHtml = '';
+      if (stats.academy?.topGuides && stats.academy.topGuides.length > 0) {
+        topGuidesHtml = '<div class="content-title">Top 5 Academy Guides (This Week)</div><ul style="list-style: none; padding: 0;">';
+        stats.academy.topGuides.forEach((guide, index) => {
+          topGuidesHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>#${index + 1}</strong> Guide ${guide.guideId}: ${guide.views} views</li>`;
+        });
+        topGuidesHtml += '</ul>';
+      }
+      
+      let topArticlesHtml = '';
+      if (stats.articles?.topArticles && stats.articles.topArticles.length > 0) {
+        topArticlesHtml = '<div class="content-title">Top 5 Articles (This Week)</div><ul style="list-style: none; padding: 0;">';
+        stats.articles.topArticles.forEach((article, index) => {
+          topArticlesHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>#${index + 1}</strong> ${article.slug}: ${article.views} views</li>`;
+        });
+        topArticlesHtml += '</ul>';
+      }
+      
+      let errorsHtml = '';
+      if (stats.errors?.totalErrors > 0) {
+        errorsHtml = `
+          <div class="content-title">Errors Summary (This Week)</div>
+          <p class="content-text">
+            <strong>Total Errors:</strong> ${stats.errors.totalErrors}<br>
+            <strong>Unique Errors:</strong> ${stats.errors.uniqueErrors || 0}
+          </p>
+        `;
+        if (stats.errors.errorsByType && Object.keys(stats.errors.errorsByType).length > 0) {
+          errorsHtml += '<div class="content-title">Errors by Type</div><ul style="list-style: none; padding: 0;">';
+          Object.entries(stats.errors.errorsByType)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .forEach(([type, count]) => {
+              errorsHtml += `<li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>${type}:</strong> ${count}</li>`;
+            });
+          errorsHtml += '</ul>';
+        }
+        if (stats.errors.topErrors && stats.errors.topErrors.length > 0) {
+          errorsHtml += '<div class="content-title">Top 10 Errors</div><ul style="list-style: none; padding: 0;">';
+          stats.errors.topErrors.slice(0, 10).forEach((error, index) => {
+            errorsHtml += `
+              <li style="padding: 12px 0; border-bottom: 1px solid #eee;">
+                <strong>#${index + 1}</strong> ${error.errorType || 'Unknown'}: ${error.frequency || 0} times<br>
+                <small style="color: #666;">${(error.errorMessage || '').substring(0, 150)}</small>
+              </li>
+            `;
+          });
+          errorsHtml += '</ul>';
+        }
+      } else {
+        errorsHtml = '<p class="content-text">🎉 No errors this week!</p>';
+      }
+      
+      const html = emailTemplates.getBaseTemplate(
+        `Weekly Report - ${weekStart} to ${weekEnd} - Specifys.ai`,
+        `
+          <p class="content-text">
+            Hello,
+          </p>
+          <p class="content-text">
+            Here's your weekly report for <strong>${weekStart} to ${weekEnd}</strong>.
+          </p>
+          
+          <div class="content-title">📊 Weekly Statistics</div>
+          
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.specs?.newSpecs || 0}</strong><br>
+                <span style="color: #666;">New Specs Created</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.users?.newUsers || 0}</strong><br>
+                <span style="color: #666;">New Users Registered</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.users?.activeUsers || 0}</strong><br>
+                <span style="color: #666;">Active Users</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.academy?.guideViews || 0}</strong><br>
+                <span style="color: #666;">Academy Guide Views</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.articles?.articleViews || 0}</strong><br>
+                <span style="color: #666;">Article Views</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: ${stats.errors?.totalErrors > 0 ? '#d32f2f' : '#0078d4'};">${stats.errors?.totalErrors || 0}</strong><br>
+                <span style="color: #666;">Total Errors</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #0078d4;">${stats.purchases?.count || 0}</strong><br>
+                <span style="color: #666;">Purchases</span>
+              </div>
+              <div>
+                <strong style="font-size: 28px; color: #28a745;">$${(stats.purchases?.totalRevenue || 0).toFixed(2)}</strong><br>
+                <span style="color: #666;">Revenue</span>
+              </div>
+            </div>
+          </div>
+          
+          ${stats.purchases && stats.purchases.count > 0 ? `
+            <div class="content-title">💰 Purchases Summary (This Week)</div>
+            <p class="content-text">
+              <strong>Total Purchases:</strong> ${stats.purchases.count}<br>
+              <strong>Total Revenue:</strong> $${(stats.purchases.totalRevenue || 0).toFixed(2)} ${stats.purchases.currency || 'USD'}
+            </p>
+            ${stats.purchases.topProducts && stats.purchases.topProducts.length > 0 ? `
+              <div class="content-title">Top Products</div>
+              <ul style="list-style: none; padding: 0;">
+                ${stats.purchases.topProducts.map((product, index) => `
+                  <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <strong>#${index + 1}</strong> ${product.productName}: ${product.count} purchases, $${product.revenue.toFixed(2)}
+                  </li>
+                `).join('')}
+              </ul>
+            ` : ''}
+          ` : '<p class="content-text">No purchases this week.</p>'}
+          
+          ${topGuidesHtml}
+          ${topArticlesHtml}
+          ${errorsHtml}
+          
+          <div class="btn-container">
+            <a href="${finalBaseUrl}/pages/new-admin-dashboard.html" class="btn">View Admin Dashboard</a>
+          </div>
+          
+          <p class="content-text">
+            This is an automated weekly report. All data is collected from Firebase.
+          </p>
+          <p class="content-text">
+            Best regards,<br>
+            <strong>The Specifys.ai Monitoring System</strong>
+          </p>
+        `
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: adminEmail,
+        subject: `Weekly Report - ${weekStart} to ${weekEnd} - Specifys.ai`,
+        html: html
+      });
+
+      logger.info({ 
+        adminEmail, 
+        weekStart,
+        weekEnd,
+        newSpecs: stats.specs?.newSpecs || 0,
+        newUsers: stats.users?.newUsers || 0,
+        messageId: result.id 
+      }, '[EmailService] Weekly report email sent successfully');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ adminEmail, error: error.message }, '[EmailService] Failed to send weekly report');
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 // Export singleton instance

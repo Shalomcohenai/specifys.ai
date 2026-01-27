@@ -18,6 +18,7 @@ import { ArticlesView } from './views/ArticlesView.js';
 import { AcademyView } from './views/AcademyView.js';
 import { ToolsView } from './views/ToolsView.js';
 import { ContactView } from './views/ContactView.js';
+import { UnsubscribeView } from './views/UnsubscribeView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -307,6 +308,12 @@ class NewAdminDashboard {
     const view = this.views.get(sectionId);
     if (view && typeof view.show === 'function') {
       view.show();
+    } else if (sectionId === 'unsubscribe') {
+      // Unsubscribe section uses 'unsubscribe-section' as ID
+      const unsubscribeView = this.views.get('unsubscribe');
+      if (unsubscribeView && typeof unsubscribeView.show === 'function') {
+        unsubscribeView.show();
+      }
     } else if (sectionId === 'content') {
       // Handle content view with internal tabs
       const contentView = this.views.get('content');
@@ -416,6 +423,12 @@ class NewAdminDashboard {
       this.views.set('contact', contactView);
       // Expose to window for onclick handlers
       window.contactView = contactView;
+      
+      // Unsubscribe view
+      const unsubscribeView = new UnsubscribeView(this.dataManager, this.stateManager);
+      this.views.set('unsubscribe', unsubscribeView);
+      // Expose to window for onclick handlers
+      window.unsubscribeView = unsubscribeView;
       
     } catch (error) {
       console.error('[NewAdminDashboard] Error initializing views:', error);

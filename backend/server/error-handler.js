@@ -4,6 +4,7 @@
  */
 
 const { logger } = require('./logger');
+const { logError } = require('./error-logger');
 
 /**
  * Error codes for different error types
@@ -79,6 +80,36 @@ function errorHandler(err, req, res, next) {
     adminUserId: req.adminUser?.uid,
     timestamp: new Date().toISOString()
   }, `[error-handler] ❌ Error handling request: ${req.method} ${req.originalUrl} - ${err.message} (${err.statusCode || err.status || 500})`);
+
+  // Save error to Firebase (only for server errors - 500+)
+  // Skip saving 4xx errors as they're usually client-side issues
+  const statusCode = err.statusCode || err.status || 500;
+  if (statusCode >= 500) {
+    const errorCode = err.errorCode || err.code || ERROR_CODES.INTERNAL_ERROR;
+    const userId = req.adminUser?.uid || req.user?.uid || null;
+    const userAgent = req.get('user-agent') || 'unknown';
+    
+    logError(
+      err.name || 'Error',
+      err.message || 'Internal server error',
+      errorCode,
+      userId,
+      userAgent,
+      {
+        requestId,
+        method: req.method,
+        path: req.path,
+        originalUrl: req.originalUrl,
+        statusCode,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        ip: req.ip || req.connection.remoteAddress,
+        source: 'error_handler_middleware',
+        timestamp: new Date().toISOString()
+      }
+    ).catch(logErr => {
+      logger.error({ error: logErr.message }, '[error-handler] Failed to save error to Firebase');
+    });
+  }
 
   // Determine status code
   let statusCode = err.statusCode || err.status || 500;

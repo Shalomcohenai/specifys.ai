@@ -1,5 +1,6 @@
 const { db, admin } = require('./firebase-admin');
 const { logger } = require('./logger');
+const { logger } = require('./logger');
 
 /**
  * Email Tracking Service
@@ -109,11 +110,13 @@ async function getEmailClickStats(filters = {}) {
     }
     
     if (filters.startDate) {
-      query = query.where('timestamp', '>=', filters.startDate);
+      const startDate = filters.startDate instanceof Date ? filters.startDate : new Date(filters.startDate);
+      query = query.where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate));
     }
     
     if (filters.endDate) {
-      query = query.where('timestamp', '<=', filters.endDate);
+      const endDate = filters.endDate instanceof Date ? filters.endDate : new Date(filters.endDate);
+      query = query.where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate));
     }
     
     const snapshot = await query.get();
@@ -305,11 +308,13 @@ async function getEmailSentStats(filters = {}) {
     }
     
     if (filters.startDate) {
-      query = query.where('timestamp', '>=', filters.startDate);
+      const startDate = filters.startDate instanceof Date ? filters.startDate : new Date(filters.startDate);
+      query = query.where('timestamp', '>=', admin.firestore.Timestamp.fromDate(startDate));
     }
     
     if (filters.endDate) {
-      query = query.where('timestamp', '<=', filters.endDate);
+      const endDate = filters.endDate instanceof Date ? filters.endDate : new Date(filters.endDate);
+      query = query.where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate));
     }
     
     const snapshot = await query.get();
