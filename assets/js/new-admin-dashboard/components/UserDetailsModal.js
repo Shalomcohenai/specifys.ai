@@ -233,7 +233,7 @@ export class UserDetailsModal {
         }
         
         .user-details-modal-header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
           padding: 28px 32px;
           display: flex;
           align-items: center;
@@ -282,7 +282,7 @@ export class UserDetailsModal {
           padding: 32px;
           overflow-y: auto;
           flex: 1;
-          background: #f8f9fa;
+          background: #f5f5f5;
         }
         
         .user-details-loading {
@@ -298,7 +298,7 @@ export class UserDetailsModal {
         .user-details-loading i {
           font-size: 3.5rem;
           margin-bottom: 20px;
-          color: #667eea;
+          color: #FF6B35;
         }
         
         .user-details-loading p {
@@ -340,17 +340,17 @@ export class UserDetailsModal {
         .user-details-section-title {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #1f2937;
+          color: #2a2a2a;
           margin: 0 0 24px 0;
           display: flex;
           align-items: center;
           gap: 12px;
           padding-bottom: 16px;
-          border-bottom: 2px solid #f3f4f6;
+          border-bottom: 2px solid #e5e7eb;
         }
         
         .user-details-section-title i {
-          color: #667eea;
+          color: #FF6B35;
           font-size: 1.1rem;
         }
         
@@ -377,14 +377,14 @@ export class UserDetailsModal {
         
         .user-details-value {
           font-size: 1rem;
-          color: #1f2937;
+          color: #2a2a2a;
           font-weight: 500;
         }
         
         .user-details-value-large {
           font-size: 1.75rem;
           font-weight: 700;
-          color: #667eea;
+          color: #FF6B35;
         }
         
         .user-details-value-monospace {
@@ -407,13 +407,13 @@ export class UserDetailsModal {
         }
         
         .plan-badge.plan-pro {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
           color: white;
         }
         
         .plan-badge.plan-free {
           background: #e5e7eb;
-          color: #4b5563;
+          color: #2a2a2a;
         }
         
         .status-badge {
@@ -471,7 +471,7 @@ export class UserDetailsModal {
         }
         
         .subscription-status-renewing {
-          color: #667eea;
+          color: #FF6B35;
           font-weight: 600;
         }
         
@@ -485,7 +485,7 @@ export class UserDetailsModal {
         .user-details-specs-list h4 {
           font-size: 1rem;
           font-weight: 600;
-          color: #374151;
+          color: #2a2a2a;
           margin: 0 0 16px 0;
         }
         
@@ -505,7 +505,7 @@ export class UserDetailsModal {
           padding: 12px 16px;
           background: #f9fafb;
           border-radius: 10px;
-          border-left: 3px solid #667eea;
+          border-left: 3px solid #FF6B35;
           transition: all 0.2s ease;
         }
         
@@ -516,7 +516,7 @@ export class UserDetailsModal {
         
         .spec-title {
           font-weight: 500;
-          color: #1f2937;
+          color: #2a2a2a;
         }
         
         .spec-date {
@@ -534,7 +534,7 @@ export class UserDetailsModal {
         .user-details-sessions h4 {
           font-size: 1rem;
           font-weight: 600;
-          color: #374151;
+          color: #2a2a2a;
           margin: 0 0 16px 0;
         }
         
@@ -548,7 +548,7 @@ export class UserDetailsModal {
           background: #f9fafb;
           border-radius: 12px;
           padding: 20px;
-          border-left: 4px solid #667eea;
+          border-left: 4px solid #FF6B35;
           transition: all 0.2s ease;
         }
         
@@ -568,13 +568,13 @@ export class UserDetailsModal {
         
         .session-number {
           font-weight: 700;
-          color: #667eea;
+          color: #FF6B35;
           font-size: 1rem;
         }
         
         .session-duration {
           font-weight: 600;
-          color: #374151;
+          color: #2a2a2a;
           font-size: 0.95rem;
         }
         
@@ -592,14 +592,14 @@ export class UserDetailsModal {
           align-items: center;
           gap: 8px;
           font-size: 0.9rem;
-          color: #4b5563;
+          color: #2a2a2a;
         }
         
         .session-time i,
         .session-pages i,
         .session-entry i,
         .session-exit i {
-          color: #667eea;
+          color: #FF6B35;
         }
         
         /* Page Journey */
@@ -637,7 +637,7 @@ export class UserDetailsModal {
           padding: 14px 16px;
           background: #f9fafb;
           border-radius: 10px;
-          border-left: 3px solid #667eea;
+          border-left: 3px solid #FF6B35;
           transition: all 0.2s ease;
         }
         
@@ -650,7 +650,7 @@ export class UserDetailsModal {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
           color: white;
           display: flex;
           align-items: center;
@@ -669,7 +669,7 @@ export class UserDetailsModal {
         
         .page-journey-page {
           font-weight: 500;
-          color: #1f2937;
+          color: #2a2a2a;
         }
         
         .page-journey-time {
@@ -708,7 +708,7 @@ export class UserDetailsModal {
           padding: 14px 16px;
           text-align: left;
           font-size: 0.85rem;
-          color: #374151;
+          color: #2a2a2a;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -727,7 +727,7 @@ export class UserDetailsModal {
         .user-details-email-journey td {
           padding: 14px 16px;
           font-size: 0.9rem;
-          color: #1f2937;
+          color: #2a2a2a;
         }
         
         /* Raw Data */
@@ -770,7 +770,7 @@ export class UserDetailsModal {
         
         /* Buttons */
         .refresh-subscription-btn {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
           color: white;
           border: none;
           padding: 8px 16px;
@@ -787,7 +787,7 @@ export class UserDetailsModal {
         
         .refresh-subscription-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
         
         .refresh-subscription-btn:disabled {
@@ -796,7 +796,7 @@ export class UserDetailsModal {
         }
         
         .btn-modern {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
           color: white;
           border: none;
           padding: 10px 20px;
@@ -812,7 +812,7 @@ export class UserDetailsModal {
         
         .btn-modern:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
         }
         
         .btn-modern.small {
