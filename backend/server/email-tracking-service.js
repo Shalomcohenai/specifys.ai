@@ -1,6 +1,5 @@
 const { db, admin } = require('./firebase-admin');
 const { logger } = require('./logger');
-const { logger } = require('./logger');
 
 /**
  * Email Tracking Service
