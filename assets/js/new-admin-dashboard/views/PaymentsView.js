@@ -93,6 +93,21 @@ export class PaymentsView {
     if (newSubscribersDaysFilter) {
       newSubscribersDaysFilter.addEventListener('change', () => this.renderCurrentTab());
     }
+
+    // Credits sync buttons
+    const runCreditsSyncBtn = helpers.dom('#run-credits-sync-btn');
+    const refreshCreditsSyncBtn = helpers.dom('#refresh-credits-sync-btn');
+    const viewCreditsSyncLogsBtn = helpers.dom('#view-credits-sync-logs-btn');
+
+    if (runCreditsSyncBtn) {
+      runCreditsSyncBtn.addEventListener('click', () => this.runCreditsSync());
+    }
+    if (refreshCreditsSyncBtn) {
+      refreshCreditsSyncBtn.addEventListener('click', () => this.loadCreditsSyncStatus());
+    }
+    if (viewCreditsSyncLogsBtn) {
+      viewCreditsSyncLogsBtn.addEventListener('click', () => this.viewCreditsSyncLogs());
+    }
   }
 
   /**
@@ -239,6 +254,9 @@ export class PaymentsView {
         break;
       case 'customers':
         await this.renderCustomers();
+        break;
+      case 'credits-sync':
+        await this.loadCreditsSyncStatus();
         break;
       case 'errors':
         await this.renderErrors();
@@ -681,9 +699,189 @@ export class PaymentsView {
   }
 
   /**
+   * Load credits sync status
+   */
+  async loadCreditsSyncStatus() {
+    try {
+      const statusResponse = await apiService.get('/api/admin/credits-sync/status');
+      if (statusResponse.success && statusResponse.status) {
+        const status = statusResponse.status;
+        
+        // Update status display
+        const statusEl = helpers.dom('#credits-sync-status');
+        if (statusEl) {
+          statusEl.textContent = status.status || 'Unknown';
+          statusEl.className = `info-value automation-status-${(status.status || 'unknown').toLowerCase()}`;
+        }
+        
+        // Update last run
+        const lastRunEl = helpers.dom('#credits-sync-last-run');
+        if (lastRunEl && status.completedAt) {
+          const date = new Date(status.completedAt);
+          lastRunEl.textContent = helpers.formatDateTime(date);
+        }
+        
+        // Update next run (calculate from frequency)
+        const nextRunEl = helpers.dom('#credits-sync-next-run');
+        if (nextRunEl && status.completedAt) {
+          const lastRun = new Date(status.completedAt);
+          const nextRun = new Date(lastRun.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+          nextRunEl.textContent = helpers.formatDateTime(nextRun);
+        }
+        
+        // Update last result
+        const lastResultEl = helpers.dom('#credits-sync-last-result');
+        if (lastResultEl) {
+          if (status.error) {
+            lastResultEl.textContent = `Error: ${status.error.message || status.error}`;
+            lastResultEl.className = 'info-value text-error';
+          } else if (status.report) {
+            const report = status.report;
+            lastResultEl.textContent = `Fixed: ${report.fixed || 0} users | Credits: ${report.creditsFixed || 0} | Subscriptions: ${report.subscriptionsFixed || 0}`;
+            lastResultEl.className = 'info-value text-success';
+          } else {
+            lastResultEl.textContent = 'No result available';
+            lastResultEl.className = 'info-value';
+          }
+        }
+        
+        // Update report
+        if (status.report) {
+          this.renderCreditsSyncReport(status.report);
+        }
+      }
+    } catch (error) {
+      console.error('[PaymentsView] Error loading credits sync status:', error);
+      const statusEl = helpers.dom('#credits-sync-status');
+      if (statusEl) {
+        statusEl.textContent = 'Error loading status';
+        statusEl.className = 'info-value text-error';
+      }
+    }
+  }
+
+  /**
+   * Render credits sync report
+   */
+  renderCreditsSyncReport(report) {
+    const reportEl = helpers.dom('#credits-sync-report');
+    if (!reportEl) return;
+    
+    if (!report || report.totalUsers === 0) {
+      reportEl.innerHTML = '<p class="text-muted">No sync report available yet.</p>';
+      return;
+    }
+    
+    const html = `
+      <div class="sync-report">
+        <div class="report-stats">
+          <div class="stat-item">
+            <span class="stat-label">Total Users:</span>
+            <span class="stat-value">${report.totalUsers}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Processed:</span>
+            <span class="stat-value">${report.processed}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Fixed:</span>
+            <span class="stat-value">${report.fixed}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Credits Fixed:</span>
+            <span class="stat-value">${report.creditsFixed}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Subscriptions Fixed:</span>
+            <span class="stat-value">${report.subscriptionsFixed}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Errors:</span>
+            <span class="stat-value ${report.errors > 0 ? 'text-error' : ''}">${report.errors}</span>
+          </div>
+        </div>
+        ${report.usersWithIssues && report.usersWithIssues.length > 0 ? `
+          <div class="report-issues">
+            <h4>Users with Issues (${report.usersWithIssues.length})</h4>
+            <ul>
+              ${report.usersWithIssues.slice(0, 10).map(user => `
+                <li>${user.userId}: ${user.errors.join(', ')}</li>
+              `).join('')}
+              ${report.usersWithIssues.length > 10 ? `<li>... and ${report.usersWithIssues.length - 10} more</li>` : ''}
+            </ul>
+          </div>
+        ` : ''}
+        ${report.startedAt ? `
+          <div class="report-meta">
+            <small class="text-muted">
+              Started: ${helpers.formatDateTime(new Date(report.startedAt))}
+              ${report.completedAt ? ` | Completed: ${helpers.formatDateTime(new Date(report.completedAt))}` : ''}
+            </small>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    reportEl.innerHTML = html;
+  }
+
+  /**
+   * Run credits sync
+   */
+  async runCreditsSync() {
+    const btn = helpers.dom('#run-credits-sync-btn');
+    if (!btn) return;
+    
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+    
+    try {
+      const result = await apiService.post('/api/admin/credits-sync/run', { dryRun: false });
+      if (result.success) {
+        helpers.showFeedback('Credits sync started successfully!', 'success');
+        // Reload status after a short delay
+        setTimeout(() => this.loadCreditsSyncStatus(), 2000);
+      } else {
+        throw new Error(result.error || 'Failed to start credits sync');
+      }
+    } catch (error) {
+      helpers.showFeedback(`Error running credits sync: ${error.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+
+  /**
+   * View credits sync logs
+   */
+  async viewCreditsSyncLogs() {
+    try {
+      const logsResponse = await apiService.get('/api/automation/logs?jobName=CreditsSyncJob&limit=20');
+      if (logsResponse.success) {
+        // Open logs in a modal or new window
+        const logs = logsResponse.logs || [];
+        const logsText = logs.map(log => {
+          const date = log.completedAt ? new Date(log.completedAt) : new Date();
+          return `[${helpers.formatDateTime(date)}] ${log.status}: ${log.result ? JSON.stringify(log.result, null, 2) : log.error || 'N/A'}`;
+        }).join('\n\n');
+        
+        alert(`Credits Sync Logs:\n\n${logsText}`);
+      }
+    } catch (error) {
+      helpers.showFeedback(`Error loading logs: ${error.message}`, 'error');
+    }
+  }
+
+
+  /**
    * Update view
    */
   update() {
     this.loadData();
+    if (this.currentTab === 'credits-sync') {
+      this.loadCreditsSyncStatus();
+    }
   }
 }

@@ -14,6 +14,8 @@ const creditsV3Service = require('./credits-v3-service');
 const { syncPaymentsData, getCachedPaymentsData, getPaymentsSummary } = require('./lemon-payments-cache');
 const emailTracking = require('./email-tracking-service');
 const emailService = require('./email-service');
+const { syncAllUsersCredits, syncUserCredits } = require('./credits-sync-service');
+const { JobRegistry } = require('./automation-service');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -1106,6 +1108,129 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /credits/sync-all - Error');
     next(createError('Failed to sync credits', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Sync credits for all users (daily sync - admin only)
+ * POST /api/admin/credits-sync/run
+ * Runs the daily credits sync to ensure credits match purchases and subscriptions
+ */
+router.post('/credits-sync/run', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /credits-sync/run');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    options: req.body
+  }, '[admin-routes] POST /credits-sync/run - Starting credits sync');
+  
+  try {
+    const { dryRun = false, limit = null } = req.body || {};
+    
+    const report = await syncAllUsersCredits({
+      dryRun,
+      batchSize: parseInt(process.env.CREDITS_SYNC_BATCH_SIZE || '50', 10),
+      limit: limit ? parseInt(limit, 10) : null
+    });
+    
+    logger.info({ requestId, report }, '[admin-routes] POST /credits-sync/run - Success');
+    res.json({
+      success: true,
+      report
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /credits-sync/run - Error');
+    next(createError('Failed to run credits sync', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Get credits sync status (admin only)
+ * GET /api/admin/credits-sync/status
+ * Returns the status of the last credits sync job
+ */
+router.get('/credits-sync/status', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /credits-sync/status');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /credits-sync/status - Fetching credits sync status');
+  
+  try {
+    const job = JobRegistry.getJob('CreditsSyncJob');
+    if (!job) {
+      return res.json({
+        success: true,
+        status: {
+          registered: false,
+          enabled: false,
+          message: 'CreditsSyncJob not registered'
+        }
+      });
+    }
+    
+    const status = await job.getStatus();
+    
+    logger.info({ requestId, status }, '[admin-routes] GET /credits-sync/status - Success');
+    res.json({
+      success: true,
+      status: {
+        ...status,
+        registered: true,
+        enabled: job.enabled
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /credits-sync/status - Error');
+    next(createError('Failed to get credits sync status', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Sync credits for a single user (admin only)
+ * POST /api/admin/credits-sync/user/:userId
+ * Syncs credits for a specific user
+ */
+router.post('/credits-sync/user/:userId', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /credits-sync/user/:userId');
+  const { userId } = req.params;
+  logger.info({ 
+    requestId,
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    options: req.body
+  }, '[admin-routes] POST /credits-sync/user/:userId - Starting user credits sync');
+  
+  try {
+    const { dryRun = false } = req.body || {};
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    
+    if (!apiKey) {
+      return next(createError('LEMON_SQUEEZY_API_KEY is required', ERROR_CODES.CONFIGURATION_ERROR, 500));
+    }
+    
+    const result = await syncUserCredits(userId, {
+      dryRun,
+      apiKey
+    });
+    
+    logger.info({ requestId, userId, result }, '[admin-routes] POST /credits-sync/user/:userId - Success');
+    res.json({
+      success: true,
+      result
+    });
+  } catch (error) {
+    logger.error({ requestId, userId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /credits-sync/user/:userId - Error');
+    next(createError('Failed to sync user credits', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

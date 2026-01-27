@@ -941,6 +941,10 @@ custom_js_modules:
           <i class="fas fa-users"></i>
           <span>Customers</span>
         </button>
+        <button class="payments-tab" data-tab="credits-sync">
+          <i class="fas fa-sync-alt"></i>
+          <span>Credits Sync</span>
+        </button>
         <button class="payments-tab" data-tab="errors">
           <i class="fas fa-exclamation-triangle"></i>
           <span>Errors</span>
@@ -1023,6 +1027,77 @@ custom_js_modules:
       </div>
 
       <!-- Errors Tab -->
+      <!-- Credits Sync Tab -->
+      <div class="payments-tab-content" id="payments-tab-credits-sync">
+        <div class="section-header-modern">
+          <div>
+            <h2>Credits Sync</h2>
+            <p>Daily sync to ensure credits match purchases and subscriptions</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-modern" id="refresh-credits-sync-btn">
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh Status</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Automation Status -->
+        <div class="form-card">
+          <div class="card-header">
+            <h3>Credits Sync Automation</h3>
+          </div>
+          <div class="card-body">
+            <div class="automation-status">
+              <div class="automation-info">
+                <div class="info-row">
+                  <span class="info-label">Status:</span>
+                  <span class="info-value" id="credits-sync-status">Checking...</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Frequency:</span>
+                  <span class="info-value">Daily (24 hours)</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Last Run:</span>
+                  <span class="info-value" id="credits-sync-last-run">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Next Run:</span>
+                  <span class="info-value" id="credits-sync-next-run">-</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Last Result:</span>
+                  <span class="info-value" id="credits-sync-last-result">-</span>
+                </div>
+              </div>
+              <div class="automation-actions">
+                <button class="btn-modern primary" id="run-credits-sync-btn">
+                  <i class="fas fa-play"></i>
+                  Run Now
+                </button>
+                <button class="btn-modern" id="view-credits-sync-logs-btn">
+                  <i class="fas fa-history"></i>
+                  View Logs
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync Report -->
+        <div class="form-card">
+          <div class="card-header">
+            <h3>Last Sync Report</h3>
+          </div>
+          <div class="card-body">
+            <div id="credits-sync-report">
+              <p class="text-muted">No sync report available yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="payments-tab-content" id="payments-tab-errors">
         <div class="filters-bar">
           <select id="errors-type-filter">

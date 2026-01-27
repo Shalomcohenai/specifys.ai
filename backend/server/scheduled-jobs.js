@@ -10,11 +10,13 @@ const emailService = require('./email-service');
 const { jobRegistry } = require('./automation-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { ArticleWriterJob } = require('./articles-automation');
+const { CreditsSyncJob } = require('./credits-sync-job');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
 let toolsFinderInterval = null;
 let articleWriterInterval = null;
+let creditsSyncInterval = null;
 
 /**
  * Start all scheduled jobs
@@ -33,6 +35,9 @@ function startScheduledJobs() {
 
   // Article writer automation (daily)
   startArticleWriterJob();
+
+  // Credits sync automation (daily)
+  startCreditsSyncJob();
 
   logger.info('[scheduled-jobs] All scheduled jobs started');
 }
@@ -61,6 +66,11 @@ function stopScheduledJobs() {
   if (articleWriterInterval) {
     clearInterval(articleWriterInterval);
     articleWriterInterval = null;
+  }
+
+  if (creditsSyncInterval) {
+    clearInterval(creditsSyncInterval);
+    creditsSyncInterval = null;
   }
 
   logger.info('[scheduled-jobs] All scheduled jobs stopped');
@@ -376,12 +386,77 @@ async function runArticleWriterJob() {
   }
 }
 
+/**
+ * Start credits sync job (runs daily - every 24 hours)
+ */
+function startCreditsSyncJob() {
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+  const enabled = process.env.CREDITS_SYNC_ENABLED === 'true';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Credits sync job is disabled by environment variable');
+    return;
+  }
+
+  if (!apiKey) {
+    logger.warn('[scheduled-jobs] Credits sync job not started - LEMON_SQUEEZY_API_KEY not configured');
+    return;
+  }
+
+  // Register job if not already registered
+  try {
+    jobRegistry.getJob('CreditsSyncJob');
+  } catch (error) {
+    const job = new CreditsSyncJob();
+    jobRegistry.registerJob('CreditsSyncJob', job);
+    logger.info('[scheduled-jobs] Credits sync job registered');
+  }
+
+  // Calculate milliseconds in 24 hours
+  const hours24 = 24 * 60 * 60 * 1000;
+
+  // Run immediately on startup
+  runCreditsSyncJob().catch(error => logger.error({ error: error.message }, '[scheduled-jobs] Initial CreditsSyncJob run failed'));
+
+  // Run job every 24 hours
+  creditsSyncInterval = setInterval(() => {
+    runCreditsSyncJob().catch(error => logger.error({ error: error.message }, '[scheduled-jobs] Scheduled CreditsSyncJob run failed'));
+  }, hours24);
+
+  logger.info('[scheduled-jobs] Credits sync job started - will run daily');
+}
+
+/**
+ * Run credits sync job once
+ */
+async function runCreditsSyncJob() {
+  const requestId = `scheduled-credits-sync-${Date.now()}`;
+  
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled credits sync job');
+    
+    await jobRegistry.executeJob('CreditsSyncJob', { dryRun: false });
+    
+    logger.info({ requestId }, '[scheduled-jobs] Scheduled credits sync job completed successfully');
+  } catch (error) {
+    logger.error({ 
+      requestId, 
+      error: { 
+        message: error.message, 
+        stack: error.stack 
+      } 
+    }, '[scheduled-jobs] Scheduled credits sync job failed');
+  }
+}
+
 module.exports = {
   startScheduledJobs,
   stopScheduledJobs,
   syncPaymentsDataOnce,
   checkInactiveUsers,
   runToolsFinderJob,
-  runArticleWriterJob
+  runArticleWriterJob,
+  startCreditsSyncJob,
+  runCreditsSyncJob
 };
 
