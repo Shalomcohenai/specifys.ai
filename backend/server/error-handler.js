@@ -111,8 +111,8 @@ function errorHandler(err, req, res, next) {
     });
   }
 
-  // Determine status code
-  let statusCode = err.statusCode || err.status || 500;
+  // Determine status code (already defined above, reuse it)
+  // statusCode is already defined at line 86
   
   // Determine error code
   let errorCode = err.errorCode || err.code || ERROR_CODES.INTERNAL_ERROR;
