@@ -1033,6 +1033,12 @@ export class OverviewView {
    */
   async loadMigrationsStatus() {
     try {
+      // Check if services are available
+      if (!this.app || !this.app.services || !this.app.services.api) {
+        console.warn('[OverviewView] API service not available');
+        return;
+      }
+      
       const apiService = this.app.services.api;
       const response = await apiService.get('/api/admin/migrations/status');
       

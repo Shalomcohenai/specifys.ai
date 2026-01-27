@@ -2146,14 +2146,6 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
       if (endDate) filters.endDate = endDate;
     }
     
-    // Check cache
-    const cacheKey = getCacheKey('/analytics/email', filters);
-    const cached = getCached(cacheKey);
-    if (cached) {
-      logger.info({ requestId, cached: true }, '[admin-routes] Email analytics retrieved from cache');
-      return res.json(cached);
-    }
-    
     const [clickStats, sentStats] = await Promise.all([
       emailTracking.getEmailClickStats(filters),
       emailTracking.getEmailSentStats(filters)
@@ -2180,9 +2172,6 @@ router.get('/analytics/email', requireAdmin, async (req, res, next) => {
         clickRate: parseFloat(clickRate)
       }
     };
-    
-    // Cache result
-    setCache(cacheKey, result);
     
     res.json(result);
   } catch (error) {
@@ -2484,14 +2473,6 @@ router.get('/migrations/status', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /migrations/status');
   
   try {
-    // Check cache first (migration status doesn't change often)
-    const cacheKey = getCacheKey('/migrations/status', {});
-    const cached = getCached(cacheKey);
-    if (cached) {
-      logger.info({ requestId, cached: true }, '[admin-routes] Migration status retrieved from cache');
-      return res.json(cached);
-    }
-    
     // Check articles migration status
     const articlesSnapshot = await db.collection('articles').limit(1).get();
     const articlesWorking = !articlesSnapshot.empty || true; // Always true if collection exists
@@ -2533,9 +2514,6 @@ router.get('/migrations/status', requireAdmin, async (req, res, next) => {
         }
       }
     };
-    
-    // Cache result
-    setCache(cacheKey, result);
     
     logger.info({ requestId }, '[admin-routes] Migration status retrieved');
     res.json(result);
