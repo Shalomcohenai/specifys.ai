@@ -6983,7 +6983,7 @@ async function generatePrompts() {
             preview: responseText.substring(0, 200) + '...'
         });
         
-        const parseStartTime = Date.now();
+        const responseParseStartTime = Date.now();
         console.log(`[${requestId}] [generatePrompts] Parsing response JSON`);
         
         let data;
@@ -6998,7 +6998,7 @@ async function generatePrompts() {
             throw new Error(`Failed to parse response JSON: ${parseError.message}`);
         }
         
-        const parseDuration = Date.now() - parseStartTime;
+        const parseDuration = Date.now() - responseParseStartTime;
         console.log(`[${requestId}] [generatePrompts] Response JSON parsed successfully`, {
             parseDuration,
             hasPrompts: !!data.prompts,
