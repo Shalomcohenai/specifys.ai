@@ -6998,9 +6998,9 @@ async function generatePrompts() {
             throw new Error(`Failed to parse response JSON: ${parseError.message}`);
         }
         
-        const parseDuration = Date.now() - responseParseStartTime;
+        const responseParseDuration = Date.now() - responseParseStartTime;
         console.log(`[${requestId}] [generatePrompts] Response JSON parsed successfully`, {
-            parseDuration,
+            parseDuration: responseParseDuration,
             hasPrompts: !!data.prompts,
             hasFullPrompt: !!(data.prompts && data.prompts.fullPrompt),
             fullPromptLength: data.prompts?.fullPrompt ? data.prompts.fullPrompt.length : 0,
