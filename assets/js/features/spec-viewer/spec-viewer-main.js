@@ -6678,12 +6678,12 @@ ${stageNumber}.3 [Additional sub-steps as needed]
 Return ONLY the content for STAGE ${stageNumber} (without the stage header - just the content).`;
 
     const requestBody = {
-        stage: 'prompts',
+        stage: 'prompt-stage', // Use new stage type for single stage generation
         locale: 'en-US',
         temperature: 0,
         prompt: {
             system: 'You are an expert software development prompt engineer. Generate detailed, practical development stage content.',
-            developer: `Generate ONLY STAGE ${stageNumber} content. Be extremely detailed (2,500-5,000+ characters). Include all sub-steps with specific implementation instructions. Replace all placeholders with actual values from the specifications.`,
+            developer: `Generate ONLY STAGE ${stageNumber} content. Return ONLY valid JSON with structure: { "prompts": { "fullPrompt": "..." } }. The fullPrompt must contain ONLY the content for STAGE ${stageNumber} (without the stage header). Be extremely detailed (2,500-5,000+ characters). Include all sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with specific implementation instructions. Replace all placeholders with actual values from the specifications.`,
             user: `Application Overview:\n${overviewContent || 'Not provided'}\n\nTechnical Specification:\n${technicalContent || 'Not provided'}\n\nDesign Specification:\n${designContent || 'Not provided'}\n\n${stagePrompt}`
         }
     };
