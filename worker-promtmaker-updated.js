@@ -217,11 +217,15 @@ function validatePromptStagePayload(obj) {
   if (typeof p.fullPrompt !== "string" || p.fullPrompt.trim().length === 0) {
     issues.push("prompts.fullPrompt required and must be non-empty string");
   } else {
-    // For single stage, minimum length is 2,500 characters
-    const minLength = 2500;
+    // For single stage, minimum length is 1,000 characters (concise, no code)
+    const minLength = 1000;
+    const maxLength = 3000; // Maximum to keep it concise
     const currentLength = p.fullPrompt.length;
     if (currentLength < minLength) {
-      issues.push(`prompts.fullPrompt must be at least ${minLength} characters for a single stage (currently ${currentLength}). The stage content must be extremely detailed with sub-steps and implementation instructions.`);
+      issues.push(`prompts.fullPrompt must be at least ${minLength} characters for a single stage (currently ${currentLength}). The stage content should be concise and focused on structure and names, not full code.`);
+    }
+    if (currentLength > maxLength) {
+      issues.push(`prompts.fullPrompt is too long (${currentLength} characters, max ${maxLength}). Keep it concise - focus on structure and names, not full code implementation.`);
     }
   }
 
@@ -424,15 +428,16 @@ function buildRepairPromptStage(issues, originalJSON) {
     "",
     "You MUST expand the fullPrompt to include:",
     "",
-    "1. Extremely detailed implementation instructions for this stage",
-    "2. All sub-steps (X.1, X.2, X.3, etc.) with specific instructions",
+    "1. Concise, clear instructions for this stage (1,000-2,000 characters)",
+    "2. All sub-steps (X.1, X.2, X.3, etc.) with actionable instructions",
     "3. Replace ALL placeholders [LIKE_THIS] with actual values from the specifications",
-    "4. Minimum 2,500 characters - this is NOT optional",
-    "5. Focus on OPERATIONAL DETAILS, not high-level concepts",
-    "6. Include specific implementation details from the specifications provided",
+    "4. Focus on WHAT to build and structure, NOT on writing actual code",
+    "5. You can mention: file names, component names, variable names, API endpoints, database schemas",
+    "6. DO NOT include: full code blocks, complete function bodies, detailed code syntax",
+    "7. Keep it concise and focused - aim for 1,000-2,000 characters",
     "",
-    "The stage content must be so detailed that a developer can implement",
-    "this stage perfectly on the first try without asking questions.",
+    "The stage content should guide a developer on structure and names,",
+    "not provide full code implementation.",
     "",
     "Original JSON:",
     (originalJSON || "").slice(0, 10000)

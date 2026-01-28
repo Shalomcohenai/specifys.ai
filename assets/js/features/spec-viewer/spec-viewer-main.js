@@ -6635,7 +6635,7 @@ async function generateSingleStage(stageNumber, requestId, overviewContent, tech
         10: 'DEPLOYMENT & DEVOPS'
     };
     
-    const STAGE_TIMEOUT_MS = 60000; // 60 seconds per stage
+    const STAGE_TIMEOUT_MS = 120000; // 120 seconds per stage
     const stageName = STAGE_NAMES[stageNumber];
     const stageStartTime = Date.now();
     
@@ -6655,25 +6655,35 @@ async function generateSingleStage(stageNumber, requestId, overviewContent, tech
 
 CRITICAL REQUIREMENTS:
 1. Generate ONLY the content for STAGE ${stageNumber} - do NOT include other stages
-2. The stage content MUST be extremely detailed with specific implementation instructions
-3. Include all sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with detailed instructions
+2. Keep it CONCISE and FOCUSED - aim for 1,000-2,000 characters (not 2,500-5,000)
+3. Include sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with clear, actionable instructions
 4. Replace ALL placeholders [LIKE_THIS] with actual values from the specifications
-5. Focus on OPERATIONAL DETAILS, not high-level concepts
-6. Minimum length: 2,500-5,000 characters for this stage
-7. The stage must be self-contained but reference previous stages when needed
+5. Focus on WHAT to build and HOW to structure it, NOT on writing actual code
+6. You can mention:
+   - File/folder structure (e.g., "Create src/components/UserProfile.tsx")
+   - Variable/function names (e.g., "Create a function called handleUserLogin")
+   - Component structure (e.g., "Component should have props: userId, onSave")
+   - API endpoint structure (e.g., "POST /api/users/:id/profile")
+   - Database schema structure (e.g., "Table: users with columns: id, email, name")
+7. DO NOT include:
+   - Full code blocks with implementation
+   - Complete function bodies with logic
+   - Detailed code syntax
+   - Import statements or package.json content
+8. The stage must be self-contained but reference previous stages when needed
 
-${previousStages.length > 0 ? `PREVIOUS STAGES CONTEXT:\n${previousStages.map((s, i) => `Stage ${i + 1} (summary): ${s.substring(0, 500)}...`).join('\n\n')}\n\n` : ''}
+${previousStages.length > 0 ? `PREVIOUS STAGES CONTEXT:\n${previousStages.map((s, i) => `Stage ${i + 1} (summary): ${s.substring(0, 300)}...`).join('\n\n')}\n\n` : ''}
 
 STAGE ${stageNumber} TEMPLATE:
 ═══════════════════════════════════════════════════════════════
 STAGE ${stageNumber}: ${stageName}
 ═══════════════════════════════════════════════════════════════
 
-${stageNumber}.1 [First sub-step with detailed instructions]
-${stageNumber}.2 [Second sub-step with detailed instructions]
-${stageNumber}.3 [Additional sub-steps as needed]
+${stageNumber}.1 [First sub-step - describe what to create, file structure, component names]
+${stageNumber}.2 [Second sub-step - describe configuration, API endpoints, data models]
+${stageNumber}.3 [Additional sub-steps as needed - keep concise and focused]
 
-[Continue with detailed implementation instructions for this stage]
+[Continue with clear, actionable instructions - mention structure and names, not full code]
 
 Return ONLY the content for STAGE ${stageNumber} (without the stage header - just the content).`;
 
@@ -6682,8 +6692,8 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
         locale: 'en-US',
         temperature: 0,
         prompt: {
-            system: 'You are an expert software development prompt engineer. Generate detailed, practical development stage content.',
-            developer: `Generate ONLY STAGE ${stageNumber} content. Return ONLY valid JSON with structure: { "prompts": { "fullPrompt": "..." } }. The fullPrompt must contain ONLY the content for STAGE ${stageNumber} (without the stage header). Be extremely detailed (2,500-5,000+ characters). Include all sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with specific implementation instructions. Replace all placeholders with actual values from the specifications.`,
+            system: 'You are an expert software development prompt engineer. Generate concise, clear development stage content focused on structure and architecture, not full code implementation.',
+            developer: `Generate ONLY STAGE ${stageNumber} content. Return ONLY valid JSON with structure: { "prompts": { "fullPrompt": "..." } }. The fullPrompt must contain ONLY the content for STAGE ${stageNumber} (without the stage header). Keep it CONCISE (1,000-2,000 characters). Include sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with clear instructions. Focus on WHAT to build and structure, NOT on writing actual code. You can mention file names, component names, variable names, API endpoints, database schemas - but DO NOT include full code blocks or implementation details. Replace all placeholders with actual values from the specifications.`,
             user: `Application Overview:\n${overviewContent || 'Not provided'}\n\nTechnical Specification:\n${technicalContent || 'Not provided'}\n\nDesign Specification:\n${designContent || 'Not provided'}\n\n${stagePrompt}`
         }
     };
@@ -6763,10 +6773,7 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
             contentSizeKB: (stageContent.length / 1024).toFixed(2)
         });
         
-        if (updateProgress) {
-            updateProgress(stageNumber, 'completed', `Stage ${stageNumber} completed (${(stageDuration / 1000).toFixed(1)}s)`);
-        }
-        
+        // Don't update progress here - it will be updated in generatePrompts with content
         return stageContent;
         
     } catch (error) {
@@ -6809,7 +6816,7 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
 async function generatePrompts() {
     const startTime = Date.now();
     const requestId = `prompts-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const STAGE_TIMEOUT_MS = 60000; // 60 seconds per stage
+    const STAGE_TIMEOUT_MS = 120000; // 120 seconds per stage
     const TOTAL_STAGES = 10;
     
     console.log(`[${requestId}] [generatePrompts] Starting staged prompts generation`, {
@@ -6856,7 +6863,7 @@ async function generatePrompts() {
         // Create progress container
         const progressContainer = document.getElementById('prompts-data');
         let progressHTML = '<div class="prompts-progress-container" style="margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px;">';
-        progressHTML += '<h3 style="margin-bottom: 15px;"><i class="fa fa-cog fa-spin"></i> Generating Development Prompts (Staged Approach)</h3>';
+        progressHTML += '<h3 style="margin-bottom: 15px;"><span class="loading-spinner"></span> Generating Development Prompts (Staged Approach)</h3>';
         progressHTML += '<div class="progress-stages" id="progress-stages" style="display: flex; flex-direction: column; gap: 10px;">';
         for (let i = 1; i <= TOTAL_STAGES; i++) {
             progressHTML += `<div class="progress-stage" data-stage="${i}" style="padding: 10px; background: #fff; border-radius: 4px; border-left: 4px solid #ddd;">
@@ -6865,6 +6872,7 @@ async function generatePrompts() {
                     <span class="stage-text">Stage ${i}: <span class="stage-name">-</span></span>
                     <span class="stage-status" style="margin-left: auto; color: #666; font-size: 12px;">Pending</span>
                 </div>
+                <div class="stage-content-container" data-stage-content="${i}" style="display: none; margin-top: 10px;"></div>
             </div>`;
         }
         progressHTML += '</div></div>';
@@ -6873,15 +6881,16 @@ async function generatePrompts() {
         }
         
         // Progress update function
-        const updateProgress = (stageNumber, status, message) => {
+        const updateProgress = (stageNumber, status, message, stageContent = null) => {
             const stageElement = document.querySelector(`.progress-stage[data-stage="${stageNumber}"]`);
             if (!stageElement) return;
             
             const icon = stageElement.querySelector('.stage-icon');
             const statusSpan = stageElement.querySelector('.stage-status');
+            const contentContainer = stageElement.querySelector(`.stage-content-container[data-stage-content="${stageNumber}"]`);
             
             if (status === 'generating') {
-                icon.textContent = '⏳';
+                icon.innerHTML = '<span class="loading-spinner"></span>';
                 icon.style.color = '#ff6b35';
                 statusSpan.textContent = message || 'Generating...';
                 statusSpan.style.color = '#ff6b35';
@@ -6892,6 +6901,24 @@ async function generatePrompts() {
                 statusSpan.textContent = message || 'Completed';
                 statusSpan.style.color = '#28a745';
                 stageElement.style.borderLeftColor = '#28a745';
+                
+                // Display stage content with copy button
+                if (stageContent && contentContainer) {
+                    const stageName = STAGE_NAMES[stageNumber];
+                    const uniqueId = `stage-${stageNumber}-${Date.now()}`;
+                    contentContainer.style.display = 'block';
+                    contentContainer.innerHTML = `
+                        <div style="margin-top: 10px; padding: 15px; background: #f9f9f9; border-radius: 4px; border: 1px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 style="margin: 0; color: #333;">STAGE ${stageNumber}: ${stageName}</h4>
+                                <button onclick="copyStageContent('${uniqueId}')" class="btn-copy-stage" style="padding: 6px 12px; font-size: 12px; background-color: #ff6b35; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#e55a2b'" onmouseout="this.style.backgroundColor='#ff6b35'">
+                                    <i class="fa fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <pre id="${uniqueId}" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; line-height: 1.5; color: #333; max-height: 300px; overflow-y: auto; padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 4px;">${escapeHtml(stageContent)}</pre>
+                        </div>
+                    `;
+                }
             } else if (status === 'error') {
                 icon.textContent = '✗';
                 icon.style.color = '#dc3545';
@@ -6899,6 +6926,38 @@ async function generatePrompts() {
                 statusSpan.style.color = '#dc3545';
                 stageElement.style.borderLeftColor = '#dc3545';
             }
+        };
+        
+        // Add copy function to window for onclick
+        window.copyStageContent = function(stageId) {
+            const stageElement = document.getElementById(stageId);
+            if (!stageElement) return;
+            
+            const text = stageElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const button = stageElement.closest('.stage-content-container').querySelector('.btn-copy-stage');
+                if (button) {
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                    button.style.backgroundColor = '#28a745';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.backgroundColor = '#ff6b35';
+                    }, 2000);
+                }
+                showNotification('Stage content copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('Failed to copy to clipboard', 'error');
+            });
+        };
+        
+        // Helper function to escape HTML
+        const escapeHtml = (text) => {
+            if (typeof text !== 'string') return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         };
         
         // Update stage names
@@ -7049,6 +7108,11 @@ async function generatePrompts() {
                     totalStagesCompleted: generatedStages.length,
                     totalStagesRemaining: TOTAL_STAGES - generatedStages.length
                 });
+                
+                // Update progress with stage content for immediate display
+                if (updateProgress) {
+                    updateProgress(stageNum, 'completed', `Stage ${stageNum} completed (${(stageDuration / 1000).toFixed(1)}s)`, stageContent);
+                }
                 
             } catch (stageError) {
                 const stageDuration = Date.now() - stageStartTime;
@@ -7254,13 +7318,40 @@ If no third-party integrations are needed, return an empty array.`;
         // Save to Firebase
         if (currentSpecData && currentSpecData.id) {
             const firebaseStartTime = Date.now();
+            const promptsDataSize = JSON.stringify(promptsData).length;
+            const promptsDataSizeKB = (promptsDataSize / 1024).toFixed(2);
+            const promptsDataSizeMB = (promptsDataSize / (1024 * 1024)).toFixed(2);
+            
             console.log(`[${requestId}] [generatePrompts] Saving to Firebase`, {
-                specId: currentSpecData.id
+                specId: currentSpecData.id,
+                promptsDataSize,
+                promptsDataSizeKB,
+                promptsDataSizeMB
             });
             
+            // Firebase Firestore has a 1MB limit per document
+            // If data is too large, we'll save a compressed version or split it
+            const MAX_FIREBASE_SIZE = 900 * 1024; // 900KB to be safe (leave room for other fields)
+            
             try {
+                let dataToSave = promptsData;
+                
+                // If data is too large, create a summary version for Firebase
+                if (promptsDataSize > MAX_FIREBASE_SIZE) {
+                    console.warn(`[${requestId}] [generatePrompts] Prompts data is too large (${promptsDataSizeMB}MB), creating summary version for Firebase`);
+                    
+                    // Save full data to a separate collection or compress
+                    // For now, we'll save a truncated version with a note
+                    dataToSave = {
+                        ...promptsData,
+                        fullPrompt: promptsData.fullPrompt.substring(0, MAX_FIREBASE_SIZE - 10000) + '\n\n[Note: Full prompt truncated due to size limit. Full content available in UI.]',
+                        _truncated: true,
+                        _originalSize: promptsDataSize
+                    };
+                }
+                
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                    prompts: promptsData,
+                    prompts: dataToSave,
                     'status.prompts': 'ready',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -7268,7 +7359,9 @@ If no third-party integrations are needed, return an empty array.`;
                 const firebaseDuration = Date.now() - firebaseStartTime;
                 console.log(`[${requestId}] [generatePrompts] Saved to Firebase successfully`, {
                     duration: firebaseDuration,
-                    specId: currentSpecData.id
+                    specId: currentSpecData.id,
+                    savedSize: JSON.stringify(dataToSave).length,
+                    wasTruncated: dataToSave._truncated || false
                 });
                 
                 // Upload updated spec to OpenAI API for chat purposes (non-blocking)
@@ -7276,7 +7369,7 @@ If no third-party integrations are needed, return an empty array.`;
                     console.warn(`[${requestId}] [generatePrompts] Failed to upload spec to OpenAI after prompts generation:`, err);
                 });
                 
-                // Update local spec data
+                // Update local spec data with FULL data (not truncated)
                 currentSpecData.prompts = promptsData;
                 currentSpecData.status = currentSpecData.status || {};
                 currentSpecData.status.prompts = 'ready';
@@ -7291,17 +7384,29 @@ If no third-party integrations are needed, return an empty array.`;
                 console.error(`[${requestId}] [generatePrompts] Failed to save prompts to Firebase`, {
                     duration: firebaseDuration,
                     error: error.message,
+                    errorCode: error.code,
                     errorStack: error.stack,
-                    specId: currentSpecData.id
+                    specId: currentSpecData.id,
+                    promptsDataSize,
+                    promptsDataSizeMB
                 });
                 
                 if (window.appLogger) {
                     window.appLogger.logError(error, {
                         requestId,
                         specId: currentSpecData.id,
-                        stage: 'firebase_save'
+                        stage: 'firebase_save',
+                        promptsDataSize,
+                        promptsDataSizeMB
                     });
                 }
+                
+                // Show user-friendly error if it's a size issue
+                if (error.message?.includes('size') || error.message?.includes('too large') || error.code === 'invalid-argument') {
+                    console.warn(`[${requestId}] [generatePrompts] Firebase size limit exceeded. Data size: ${promptsDataSizeMB}MB`);
+                    // Continue - we still have the data locally and can display it
+                }
+                
                 // Continue even if Firebase save fails - we still have the data
             }
         } else {
