@@ -6773,20 +6773,36 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
         clearTimeout(timeoutId);
         const stageDuration = Date.now() - stageStartTime;
         
+        // Provide more detailed error information
+        let errorMessage = error.message;
+        if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+            errorMessage = `Request timed out after ${STAGE_TIMEOUT_MS / 1000} seconds. The worker may be overloaded or unresponsive.`;
+        } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            errorMessage = `Network error: Unable to reach the prompts service. Please check your internet connection.`;
+        } else if (error.message?.includes('TypeError')) {
+            errorMessage = `Request failed: ${error.message}`;
+        }
+        
         console.error(`[${requestId}] [generateSingleStage] Stage ${stageNumber} error`, {
             stageNumber,
             stageName,
             duration: stageDuration,
             errorName: error.name,
             errorMessage: error.message,
-            errorStack: error.stack
+            errorStack: error.stack,
+            workerUrl,
+            requestBodySize: JSON.stringify(requestBody).length
         });
         
         if (updateProgress) {
-            updateProgress(stageNumber, 'error', `Stage ${stageNumber} failed: ${error.message.substring(0, 50)}`);
+            updateProgress(stageNumber, 'error', `Stage ${stageNumber} failed: ${errorMessage.substring(0, 50)}`);
         }
         
-        throw error;
+        // Create a more informative error
+        const detailedError = new Error(`Stage ${stageNumber} (${stageName}) failed: ${errorMessage}`);
+        detailedError.name = error.name;
+        detailedError.originalError = error;
+        throw detailedError;
     }
 }
 
@@ -6999,6 +7015,10 @@ async function generatePrompts() {
         const stagesGenerationStartTime = Date.now();
         console.log(`[${requestId}] [generatePrompts] Starting staged generation for ${TOTAL_STAGES} stages`);
         
+        // Test worker connectivity first
+        const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
+        console.log(`[${requestId}] [generatePrompts] Worker URL: ${workerUrl}`);
+        
         const generatedStages = [];
         const stageErrors = [];
         
@@ -7056,8 +7076,17 @@ async function generatePrompts() {
         });
         
         // Check if we have enough stages
+        if (generatedStages.length === 0) {
+            // All stages failed - show detailed error
+            const errorDetails = stageErrors.map(e => `Stage ${e.stage}: ${e.error.message || e.error.name || 'Unknown error'}`).join('\n');
+            throw new Error(`All stages failed to generate. This might indicate a problem with the prompts service. Please try again later.\n\nFailed stages:\n${errorDetails}`);
+        }
+        
         if (generatedStages.length < 7) {
-            throw new Error(`Failed to generate enough stages. Only ${generatedStages.length}/${TOTAL_STAGES} stages completed. Errors: ${stageErrors.map(e => `Stage ${e.stage}: ${e.error.message}`).join('; ')}`);
+            // Some stages failed but we have some - warn but continue
+            console.warn(`[${requestId}] [generatePrompts] Only ${generatedStages.length}/${TOTAL_STAGES} stages completed. Continuing with partial results.`);
+            const errorDetails = stageErrors.map(e => `Stage ${e.stage}: ${e.error.message || e.error.name || 'Unknown error'}`).join('; ');
+            console.warn(`[${requestId}] [generatePrompts] Failed stages: ${errorDetails}`);
         }
         
         // Merge all stages into final prompt
