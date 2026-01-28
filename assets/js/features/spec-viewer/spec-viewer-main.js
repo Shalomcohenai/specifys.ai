@@ -4831,7 +4831,7 @@ async function approveOverview() {
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = true;
-            approveBtn.innerHTML = '<span class="loading-spinner"></span> Generating specifications...';
+            approveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating specifications...';
         }
         
         showNotification('Starting specification generation...', 'info');
@@ -6466,7 +6466,7 @@ async function generateDiagrams() {
         const originalClasses = generateBtn.className;
         
         generateBtn.disabled = true;
-        generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Diagrams...';
+        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Diagrams...';
         generateBtn.style.cursor = 'wait';
         
         // Keep the original background color and prevent it from changing (important to override any CSS)
@@ -6857,13 +6857,13 @@ async function generatePrompts() {
         const originalClasses = generateBtn.className;
         
         generateBtn.disabled = true;
-        generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Prompts (Staged)...';
+        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Prompts (Staged)...';
         generateBtn.style.cursor = 'wait';
         
         // Create progress container
         const progressContainer = document.getElementById('prompts-data');
         let progressHTML = '<div class="prompts-progress-container" style="margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px;">';
-        progressHTML += '<h3 style="margin-bottom: 15px;"><span class="loading-spinner"></span> Generating Development Prompts (Staged Approach)</h3>';
+        progressHTML += '<h3 style="margin-bottom: 15px;"><i class="fa fa-spinner fa-spin" style="margin-right: 8px; color: #ff6b35;"></i> Generating Development Prompts (Staged Approach)</h3>';
         progressHTML += '<div class="progress-stages" id="progress-stages" style="display: flex; flex-direction: column; gap: 10px;">';
         for (let i = 1; i <= TOTAL_STAGES; i++) {
             progressHTML += `<div class="progress-stage" data-stage="${i}" style="padding: 10px; background: #fff; border-radius: 4px; border-left: 4px solid #ddd;">
@@ -6890,7 +6890,7 @@ async function generatePrompts() {
             const contentContainer = stageElement.querySelector(`.stage-content-container[data-stage-content="${stageNumber}"]`);
             
             if (status === 'generating') {
-                icon.innerHTML = '<span class="loading-spinner"></span>';
+                icon.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
                 icon.style.color = '#ff6b35';
                 statusSpan.textContent = message || 'Generating...';
                 statusSpan.style.color = '#ff6b35';
