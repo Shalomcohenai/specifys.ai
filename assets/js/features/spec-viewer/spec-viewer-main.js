@@ -6635,24 +6635,208 @@ async function generateDiagrams() {
     }
 }
 
+/**
+ * Generate a single development stage
+ * @param {number} stageNumber - Stage number (1-10)
+ * @param {string} requestId - Request ID for logging
+ * @param {string} overviewContent - Overview specification content
+ * @param {string} technicalContent - Technical specification content
+ * @param {string} designContent - Design specification content
+ * @param {Array<string>} previousStages - Array of previously generated stages
+ * @param {Function} updateProgress - Function to update progress UI
+ * @returns {Promise<string>} Generated stage content
+ */
+async function generateSingleStage(stageNumber, requestId, overviewContent, technicalContent, designContent, previousStages, updateProgress) {
+    const STAGE_NAMES = {
+        1: 'PROJECT SETUP & BASIC STRUCTURE',
+        2: 'FRONTEND CORE FUNCTIONALITY',
+        3: 'AUTHENTICATION & USER MANAGEMENT',
+        4: 'BACKEND API DEVELOPMENT',
+        5: 'AI INTEGRATION',
+        6: 'REAL-TIME COLLABORATION',
+        7: 'THIRD-PARTY INTEGRATIONS',
+        8: 'MOBILE APP DEVELOPMENT',
+        9: 'TESTING & QUALITY ASSURANCE',
+        10: 'DEPLOYMENT & DEVOPS'
+    };
+    
+    const STAGE_TIMEOUT_MS = 60000; // 60 seconds per stage
+    const stageName = STAGE_NAMES[stageNumber];
+    const stageName = STAGE_NAMES[stageNumber];
+    const stageStartTime = Date.now();
+    
+    console.log(`[${requestId}] [generateSingleStage] Starting stage ${stageNumber}: ${stageName}`, {
+        stageNumber,
+        stageName,
+        previousStagesCount: previousStages.length,
+        timestamp: new Date().toISOString()
+    });
+    
+    if (updateProgress) {
+        updateProgress(stageNumber, 'generating', `Generating Stage ${stageNumber}: ${stageName}...`);
+    }
+    
+    // Build stage-specific prompt
+    const stagePrompt = `You are generating STAGE ${stageNumber}: ${stageName} for a development prompt.
+
+CRITICAL REQUIREMENTS:
+1. Generate ONLY the content for STAGE ${stageNumber} - do NOT include other stages
+2. The stage content MUST be extremely detailed with specific implementation instructions
+3. Include all sub-steps (${stageNumber}.1, ${stageNumber}.2, etc.) with detailed instructions
+4. Replace ALL placeholders [LIKE_THIS] with actual values from the specifications
+5. Focus on OPERATIONAL DETAILS, not high-level concepts
+6. Minimum length: 2,500-5,000 characters for this stage
+7. The stage must be self-contained but reference previous stages when needed
+
+${previousStages.length > 0 ? `PREVIOUS STAGES CONTEXT:\n${previousStages.map((s, i) => `Stage ${i + 1} (summary): ${s.substring(0, 500)}...`).join('\n\n')}\n\n` : ''}
+
+STAGE ${stageNumber} TEMPLATE:
+═══════════════════════════════════════════════════════════════
+STAGE ${stageNumber}: ${stageName}
+═══════════════════════════════════════════════════════════════
+
+${stageNumber}.1 [First sub-step with detailed instructions]
+${stageNumber}.2 [Second sub-step with detailed instructions]
+${stageNumber}.3 [Additional sub-steps as needed]
+
+[Continue with detailed implementation instructions for this stage]
+
+Return ONLY the content for STAGE ${stageNumber} (without the stage header - just the content).`;
+
+    const requestBody = {
+        stage: 'prompts',
+        locale: 'en-US',
+        temperature: 0,
+        prompt: {
+            system: 'You are an expert software development prompt engineer. Generate detailed, practical development stage content.',
+            developer: `Generate ONLY STAGE ${stageNumber} content. Be extremely detailed (2,500-5,000+ characters). Include all sub-steps with specific implementation instructions. Replace all placeholders with actual values from the specifications.`,
+            user: `Application Overview:\n${overviewContent || 'Not provided'}\n\nTechnical Specification:\n${technicalContent || 'Not provided'}\n\nDesign Specification:\n${designContent || 'Not provided'}\n\n${stagePrompt}`
+        }
+    };
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        console.error(`[${requestId}] [generateSingleStage] Stage ${stageNumber} timeout after ${STAGE_TIMEOUT_MS}ms`);
+        controller.abort();
+    }, STAGE_TIMEOUT_MS);
+    
+    const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
+    const requestBodySize = JSON.stringify(requestBody).length;
+    
+    console.log(`[${requestId}] [generateSingleStage] Sending request for stage ${stageNumber}`, {
+        stageNumber,
+        stageName,
+        requestBodySize,
+        requestBodySizeKB: (requestBodySize / 1024).toFixed(2),
+        timeout: STAGE_TIMEOUT_MS
+    });
+    
+    try {
+        const fetchStartTime = Date.now();
+        const response = await fetch(workerUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+        
+        const fetchDuration = Date.now() - fetchStartTime;
+        clearTimeout(timeoutId);
+        
+        console.log(`[${requestId}] [generateSingleStage] Stage ${stageNumber} response received`, {
+            stageNumber,
+            stageName,
+            duration: fetchDuration,
+            durationSeconds: (fetchDuration / 1000).toFixed(2),
+            status: response.status,
+            ok: response.ok
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[${requestId}] [generateSingleStage] Stage ${stageNumber} failed`, {
+                stageNumber,
+                stageName,
+                status: response.status,
+                errorText: errorText.substring(0, 500)
+            });
+            throw new Error(`Stage ${stageNumber} failed: ${response.status} - ${errorText.substring(0, 200)}`);
+        }
+        
+        const responseText = await response.text();
+        const data = JSON.parse(responseText);
+        
+        if (!data.prompts || !data.prompts.fullPrompt) {
+            console.error(`[${requestId}] [generateSingleStage] Stage ${stageNumber} invalid response`, {
+                stageNumber,
+                stageName,
+                dataKeys: Object.keys(data)
+            });
+            throw new Error(`Stage ${stageNumber} invalid response: missing fullPrompt`);
+        }
+        
+        const stageContent = data.prompts.fullPrompt;
+        const stageDuration = Date.now() - stageStartTime;
+        
+        console.log(`[${requestId}] [generateSingleStage] Stage ${stageNumber} completed successfully`, {
+            stageNumber,
+            stageName,
+            duration: stageDuration,
+            durationSeconds: (stageDuration / 1000).toFixed(2),
+            contentLength: stageContent.length,
+            contentSizeKB: (stageContent.length / 1024).toFixed(2)
+        });
+        
+        if (updateProgress) {
+            updateProgress(stageNumber, 'completed', `Stage ${stageNumber} completed (${(stageDuration / 1000).toFixed(1)}s)`);
+        }
+        
+        return stageContent;
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        const stageDuration = Date.now() - stageStartTime;
+        
+        console.error(`[${requestId}] [generateSingleStage] Stage ${stageNumber} error`, {
+            stageNumber,
+            stageName,
+            duration: stageDuration,
+            errorName: error.name,
+            errorMessage: error.message,
+            errorStack: error.stack
+        });
+        
+        if (updateProgress) {
+            updateProgress(stageNumber, 'error', `Stage ${stageNumber} failed: ${error.message.substring(0, 50)}`);
+        }
+        
+        throw error;
+    }
+}
+
 async function generatePrompts() {
     const startTime = Date.now();
     const requestId = `prompts-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const TIMEOUT_MS = 300000; // 5 minutes timeout (increased from 3 minutes)
+    const STAGE_TIMEOUT_MS = 60000; // 60 seconds per stage
+    const TOTAL_STAGES = 10;
     
-    console.log(`[${requestId}] [generatePrompts] Starting prompts generation`, {
+    console.log(`[${requestId}] [generatePrompts] Starting staged prompts generation`, {
         timestamp: new Date().toISOString(),
         specId: currentSpecData?.id,
         isLoading,
-        timeout: TIMEOUT_MS
+        totalStages: TOTAL_STAGES,
+        stageTimeout: STAGE_TIMEOUT_MS
     });
     
     if (window.appLogger) {
-        window.appLogger.log('FeatureUsage', 'Starting prompts generation', {
+        window.appLogger.log('FeatureUsage', 'Starting staged prompts generation', {
             requestId,
             specId: currentSpecData?.id,
             feature: 'generatePrompts',
-            timeout: TIMEOUT_MS
+            totalStages: TOTAL_STAGES,
+            stageTimeout: STAGE_TIMEOUT_MS
         });
     }
     
@@ -6676,8 +6860,80 @@ async function generatePrompts() {
         const originalClasses = generateBtn.className;
         
         generateBtn.disabled = true;
-        generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Prompts...';
+        generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Prompts (Staged)...';
         generateBtn.style.cursor = 'wait';
+        
+        // Create progress container
+        const progressContainer = document.getElementById('prompts-data');
+        let progressHTML = '<div class="prompts-progress-container" style="margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px;">';
+        progressHTML += '<h3 style="margin-bottom: 15px;"><i class="fa fa-cog fa-spin"></i> Generating Development Prompts (Staged Approach)</h3>';
+        progressHTML += '<div class="progress-stages" id="progress-stages" style="display: flex; flex-direction: column; gap: 10px;">';
+        for (let i = 1; i <= TOTAL_STAGES; i++) {
+            progressHTML += `<div class="progress-stage" data-stage="${i}" style="padding: 10px; background: #fff; border-radius: 4px; border-left: 4px solid #ddd;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="stage-icon" style="width: 20px; text-align: center;">⏸</span>
+                    <span class="stage-text">Stage ${i}: <span class="stage-name">-</span></span>
+                    <span class="stage-status" style="margin-left: auto; color: #666; font-size: 12px;">Pending</span>
+                </div>
+            </div>`;
+        }
+        progressHTML += '</div></div>';
+        if (progressContainer) {
+            progressContainer.innerHTML = progressHTML;
+        }
+        
+        // Progress update function
+        const updateProgress = (stageNumber, status, message) => {
+            const stageElement = document.querySelector(`.progress-stage[data-stage="${stageNumber}"]`);
+            if (!stageElement) return;
+            
+            const icon = stageElement.querySelector('.stage-icon');
+            const statusSpan = stageElement.querySelector('.stage-status');
+            
+            if (status === 'generating') {
+                icon.textContent = '⏳';
+                icon.style.color = '#ff6b35';
+                statusSpan.textContent = message || 'Generating...';
+                statusSpan.style.color = '#ff6b35';
+                stageElement.style.borderLeftColor = '#ff6b35';
+            } else if (status === 'completed') {
+                icon.textContent = '✓';
+                icon.style.color = '#28a745';
+                statusSpan.textContent = message || 'Completed';
+                statusSpan.style.color = '#28a745';
+                stageElement.style.borderLeftColor = '#28a745';
+            } else if (status === 'error') {
+                icon.textContent = '✗';
+                icon.style.color = '#dc3545';
+                statusSpan.textContent = message || 'Error';
+                statusSpan.style.color = '#dc3545';
+                stageElement.style.borderLeftColor = '#dc3545';
+            }
+        };
+        
+        // Update stage names
+        const STAGE_NAMES = {
+            1: 'PROJECT SETUP & BASIC STRUCTURE',
+            2: 'FRONTEND CORE FUNCTIONALITY',
+            3: 'AUTHENTICATION & USER MANAGEMENT',
+            4: 'BACKEND API DEVELOPMENT',
+            5: 'AI INTEGRATION',
+            6: 'REAL-TIME COLLABORATION',
+            7: 'THIRD-PARTY INTEGRATIONS',
+            8: 'MOBILE APP DEVELOPMENT',
+            9: 'TESTING & QUALITY ASSURANCE',
+            10: 'DEPLOYMENT & DEVOPS'
+        };
+        
+        for (let i = 1; i <= TOTAL_STAGES; i++) {
+            const stageElement = document.querySelector(`.progress-stage[data-stage="${i}"]`);
+            if (stageElement) {
+                const nameSpan = stageElement.querySelector('.stage-name');
+                if (nameSpan) {
+                    nameSpan.textContent = STAGE_NAMES[i];
+                }
+            }
+        }
         
         // Keep the original background color and prevent it from changing
         generateBtn.style.backgroundColor = originalBgColor || '';
@@ -6765,270 +7021,223 @@ async function generatePrompts() {
             finalDesignLength: typeof designContent === 'string' ? designContent.length : 'N/A'
         });
         
-        // Build prompt using PROMPTS.prompts function
-        const promptBuildStartTime = Date.now();
-        console.log(`[${requestId}] [generatePrompts] Building prompt using PROMPTS.prompts function`);
+        // Generate all stages using staged approach
+        const stagesGenerationStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Starting staged generation for ${TOTAL_STAGES} stages`);
         
-        if (typeof PROMPTS === 'undefined' || typeof PROMPTS.prompts !== 'function') {
-            throw new Error('PROMPTS.prompts function is not available');
-        }
+        const generatedStages = [];
+        const stageErrors = [];
         
-        const prompt = PROMPTS.prompts(overviewContent, technicalContent, designContent);
-        const promptBuildDuration = Date.now() - promptBuildStartTime;
-        const promptLength = typeof prompt === 'string' ? prompt.length : 'N/A';
-        
-        console.log(`[${requestId}] [generatePrompts] Prompt built successfully in ${promptBuildDuration}ms`, {
-            promptLength,
-            promptPreview: typeof prompt === 'string' ? prompt.substring(0, 200) + '...' : 'N/A'
-        });
-        
-        const requestBody = {
-            stage: 'prompts',
-            locale: 'en-US',
-            temperature: 0,
-            prompt: {
-                system: 'You are an expert software development prompt engineer. Create EXTREMELY DETAILED, PRACTICAL development prompts that guide developers to build complete applications perfectly on the first try. Focus on operational implementation details, not high-level concepts. You MUST include ALL details from the provided specifications - do not summarize, shorten, or omit any information.',
-                developer: 'CRITICAL REQUIREMENTS - READ CAREFULLY:\n\n' +
-                '1. MINIMUM LENGTH: The fullPrompt MUST be at least 25,000 characters (ideally 30,000-50,000+). This is NOT optional - if your response is shorter, you have FAILED the task.\n\n' +
-                '2. ALL 10 STAGES REQUIRED: You MUST include ALL 10 development stages in this exact order:\n' +
-                '   - STAGE 1: PROJECT SETUP & BASIC STRUCTURE\n' +
-                '   - STAGE 2: FRONTEND CORE FUNCTIONALITY\n' +
-                '   - STAGE 3: AUTHENTICATION & USER MANAGEMENT\n' +
-                '   - STAGE 4: BACKEND API DEVELOPMENT\n' +
-                '   - STAGE 5: AI INTEGRATION (if applicable)\n' +
-                '   - STAGE 6: REAL-TIME COLLABORATION (if applicable)\n' +
-                '   - STAGE 7: THIRD-PARTY INTEGRATIONS\n' +
-                '   - STAGE 8: MOBILE APP DEVELOPMENT (if applicable)\n' +
-                '   - STAGE 9: TESTING & QUALITY ASSURANCE\n' +
-                '   - STAGE 10: DEPLOYMENT & DEVOPS\n\n' +
-                '3. Each stage MUST have detailed sub-steps (1.1, 1.2, 2.1, 2.2, etc.) with specific implementation instructions.\n\n' +
-                '4. INCLUDE ALL DETAILS FROM SPECIFICATIONS:\n' +
-                '   - ALL features from overview.coreFeaturesOverview (list each one with full description)\n' +
-                '   - ALL screens from overview.screenDescriptions.screens (describe each screen with purpose, key elements, user interactions)\n' +
-                '   - ALL database entities from technical.databaseSchema.tables (list EVERY table with ALL fields, data types, constraints, relationships)\n' +
-                '   - ALL API endpoints from technical.apiEndpoints (describe each with method, path, parameters, request body, response format)\n' +
-                '   - ALL UI components from overview.screenDescriptions.uiComponents (describe purpose, placement, behavior)\n' +
-                '   - ALL colors from design.visualStyleGuide.colors (list each color with hex code and usage)\n' +
-                '   - ALL typography from design.visualStyleGuide.typography (font families, sizes, weights, line heights)\n' +
-                '   - ALL spacing values and layout grid system\n' +
-                '   - ALL third-party integrations with detailed setup instructions\n\n' +
-                '5. REPLACE ALL PLACEHOLDERS: Replace [APPLICATION_NAME], [FRAMEWORK], [MAIN_FEATURE_1], [MAIN_ENTITY_1], etc. with ACTUAL values from the specifications.\n\n' +
-                '6. OPERATIONAL DETAILS ONLY: Focus on WHAT TO BUILD and HOW TO BUILD IT with:\n' +
-                '   - Exact function signatures with parameters\n' +
-                '   - Specific component props and structure\n' +
-                '   - Detailed API endpoint formats\n' +
-                '   - Complete database schemas with relationships\n' +
-                '   - Step-by-step implementation flows\n' +
-                '   - Do NOT include abstract concepts or high-level descriptions\n\n' +
-                '7. DO NOT SUMMARIZE: Include the COMPLETE ideaSummary, problemStatement, userJourneySummary, navigationStructure - do not shorten them.\n\n' +
-                'The prompt must be so detailed that a developer can build the complete application from scratch on the first attempt without asking any questions.',
-                user: prompt
-            }
-        };
-        
-        const requestBodySize = JSON.stringify(requestBody).length;
-        console.log(`[${requestId}] [generatePrompts] Request body prepared`, {
-            requestBodySize,
-            requestBodySizeKB: (requestBodySize / 1024).toFixed(2),
-            requestBodySizeMB: (requestBodySize / (1024 * 1024)).toFixed(2),
-            stage: requestBody.stage,
-            locale: requestBody.locale,
-            temperature: requestBody.temperature,
-            systemPromptLength: requestBody.prompt.system.length,
-            developerPromptLength: requestBody.prompt.developer.length,
-            userPromptLength: requestBody.prompt.user.length
-        });
-        
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            console.error(`[${requestId}] [generatePrompts] Timeout reached after ${TIMEOUT_MS}ms, aborting request`);
-            controller.abort();
-        }, TIMEOUT_MS);
-        
-        const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
-        console.log(`[${requestId}] [generatePrompts] Starting fetch request to worker`, {
-            url: workerUrl,
-            method: 'POST',
-            timeout: TIMEOUT_MS,
-            requestBodySize,
-            timestamp: new Date().toISOString()
-        });
-        
-        if (window.appLogger) {
-            window.appLogger.log('FeatureUsage', 'Sending request to prompts worker', {
-                requestId,
-                workerUrl,
-                requestBodySize,
-                timeout: TIMEOUT_MS
-            });
-        }
-        
-        let response;
-        const fetchStartTime = Date.now();
-        try {
-            response = await fetch(workerUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-                signal: controller.signal
-            });
+        // Generate each stage sequentially
+        for (let stageNum = 1; stageNum <= TOTAL_STAGES; stageNum++) {
+            const stageStartTime = Date.now();
+            console.log(`[${requestId}] [generatePrompts] Starting generation of stage ${stageNum}/${TOTAL_STAGES}`);
             
-            const fetchDuration = Date.now() - fetchStartTime;
-            clearTimeout(timeoutId);
-            
-            console.log(`[${requestId}] [generatePrompts] Fetch request completed`, {
-                duration: fetchDuration,
-                durationSeconds: (fetchDuration / 1000).toFixed(2),
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok,
-                headers: Object.fromEntries(response.headers.entries())
-            });
-            
-        } catch (fetchError) {
-            const fetchDuration = Date.now() - fetchStartTime;
-            clearTimeout(timeoutId);
-            
-            console.error(`[${requestId}] [generatePrompts] Fetch request failed`, {
-                duration: fetchDuration,
-                durationSeconds: (fetchDuration / 1000).toFixed(2),
-                errorName: fetchError.name,
-                errorMessage: fetchError.message,
-                errorStack: fetchError.stack,
-                isAbortError: fetchError.name === 'AbortError',
-                signalAborted: controller.signal?.aborted
-            });
-            
-            if (window.appLogger) {
-                window.appLogger.logError(fetchError, {
-                    requestId,
-                    workerUrl,
-                    fetchDuration,
-                    stage: 'fetch_request'
-                });
-            }
-            
-            // Handle AbortError specifically
-            if (fetchError.name === 'AbortError' || fetchError.message?.includes('aborted')) {
-                const timeoutError = new Error(`Request timed out after ${TIMEOUT_MS / 1000} seconds (${TIMEOUT_MS}ms). The prompts generation is taking longer than expected. Please try again.`);
-                console.error(`[${requestId}] [generatePrompts] Timeout error:`, timeoutError.message);
-                throw timeoutError;
-            }
-            
-            // Check for network errors
-            if (fetchError.message?.includes('Failed to fetch') || 
-                fetchError.message?.includes('NetworkError') ||
-                fetchError.message?.includes('Network request failed') ||
-                fetchError.message?.includes('Load failed')) {
-                const networkError = new Error(`Network error: Unable to reach the prompts service. Please check your internet connection and try again. Original error: ${fetchError.message}`);
-                console.error(`[${requestId}] [generatePrompts] Network error:`, networkError.message);
-                throw networkError;
-            }
-            
-            // Re-throw other fetch errors
-            const genericError = new Error(`Failed to connect to prompts API: ${fetchError.message}`);
-            console.error(`[${requestId}] [generatePrompts] Generic fetch error:`, genericError.message);
-            throw genericError;
-        }
-        
-        console.log(`[${requestId}] [generatePrompts] Processing response`, {
-            status: response.status,
-            statusText: response.statusText,
-            contentType: response.headers.get('content-type'),
-            contentLength: response.headers.get('content-length')
-        });
-        
-        if (!response.ok) {
-            const errorTextStartTime = Date.now();
-            let errorText = '';
             try {
-                errorText = await response.text();
-            } catch (e) {
-                errorText = `Failed to read error response: ${e.message}`;
+                const stageContent = await generateSingleStage(
+                    stageNum,
+                    requestId,
+                    overviewContent,
+                    technicalContent,
+                    designContent,
+                    generatedStages,
+                    updateProgress
+                );
+                
+                generatedStages.push(stageContent);
+                const stageDuration = Date.now() - stageStartTime;
+                
+                console.log(`[${requestId}] [generatePrompts] Stage ${stageNum} completed successfully`, {
+                    stageNumber: stageNum,
+                    duration: stageDuration,
+                    durationSeconds: (stageDuration / 1000).toFixed(2),
+                    contentLength: stageContent.length,
+                    totalStagesCompleted: generatedStages.length,
+                    totalStagesRemaining: TOTAL_STAGES - generatedStages.length
+                });
+                
+            } catch (stageError) {
+                const stageDuration = Date.now() - stageStartTime;
+                stageErrors.push({ stage: stageNum, error: stageError });
+                
+                console.error(`[${requestId}] [generatePrompts] Stage ${stageNum} failed`, {
+                    stageNumber: stageNum,
+                    duration: stageDuration,
+                    errorName: stageError.name,
+                    errorMessage: stageError.message
+                });
+                
+                // Continue with other stages even if one fails
+                // We'll handle errors at the end
             }
-            const errorTextDuration = Date.now() - errorTextStartTime;
-            
-            console.error(`[${requestId}] [generatePrompts] Response not OK`, {
-                status: response.status,
-                statusText: response.statusText,
-                errorTextLength: errorText.length,
-                errorTextPreview: errorText.substring(0, 500),
-                errorTextReadDuration: errorTextDuration
-            });
-            
-            const apiError = new Error(`API Error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
-            throw apiError;
         }
         
-        const responseReadStartTime = Date.now();
-        console.log(`[${requestId}] [generatePrompts] Reading response text`);
+        const stagesGenerationDuration = Date.now() - stagesGenerationStartTime;
+        console.log(`[${requestId}] [generatePrompts] All stages generation completed`, {
+            totalDuration: stagesGenerationDuration,
+            totalDurationSeconds: (stagesGenerationDuration / 1000).toFixed(2),
+            stagesCompleted: generatedStages.length,
+            stagesFailed: stageErrors.length,
+            totalStages: TOTAL_STAGES
+        });
         
-        let responseText = '';
+        // Check if we have enough stages
+        if (generatedStages.length < 7) {
+            throw new Error(`Failed to generate enough stages. Only ${generatedStages.length}/${TOTAL_STAGES} stages completed. Errors: ${stageErrors.map(e => `Stage ${e.stage}: ${e.error.message}`).join('; ')}`);
+        }
+        
+        // Merge all stages into final prompt
+        const mergeStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Merging ${generatedStages.length} stages into final prompt`);
+        
+        // Build the full prompt with all stages
+        let fullPrompt = `You are building [APPLICATION_NAME] - [APPLICATION_DESCRIPTION from overview].
+
+PROJECT OVERVIEW:
+[Use the ideaSummary and valueProposition from overview to describe what the application does and why it's important]
+
+TECHNICAL STACK:
+[Based on technical specification, list the exact technologies:
+- Frontend: [exact framework, version, libraries]
+- Backend: [exact runtime, framework, version]
+- Database: [exact database types and versions]
+- Authentication: [exact auth methods and libraries]
+- Other services: [storage, real-time, etc.]
+]
+
+SECURITY REQUIREMENTS:
+- End-to-end encryption for all sensitive data
+- HTTPS/WSS for all communications
+- JWT tokens with expiration and refresh mechanisms
+- Rate limiting on all API endpoints
+- CORS properly configured (no wildcards in production)
+- Input validation and sanitization on backend
+- Never store API keys or secrets in frontend code
+
+DEVELOPMENT STAGES - BUILD IN THIS EXACT ORDER:
+
+`;
+
+        // Add each stage with proper formatting
+        generatedStages.forEach((stageContent, index) => {
+            const stageNum = index + 1;
+            const stageName = STAGE_NAMES[stageNum];
+            fullPrompt += `═══════════════════════════════════════════════════════════════\n`;
+            fullPrompt += `STAGE ${stageNum}: ${stageName}\n`;
+            fullPrompt += `═══════════════════════════════════════════════════════════════\n\n`;
+            fullPrompt += stageContent;
+            fullPrompt += `\n\n`;
+        });
+        
+        fullPrompt += `═══════════════════════════════════════════════════════════════\n\n`;
+        fullPrompt += `IMPORTANT NOTES:
+- Follow this order strictly - each stage builds on the previous one
+- Test thoroughly after each stage before moving to the next
+- Commit code frequently with descriptive commit messages
+- Document API endpoints and component props
+- Follow TypeScript best practices and avoid 'any' types
+- Ensure all code is accessible (WCAG 2.1 AA compliant)
+- Optimize for performance from the start
+- Write clean, maintainable, and scalable code
+
+Please build this application following best practices, ensuring scalability, security, and excellent user experience.`;
+        
+        // Replace placeholders with actual values from specs
         try {
-            responseText = await response.text();
+            const overviewData = typeof overviewContent === 'string' ? JSON.parse(overviewContent) : overviewContent;
+            const technicalData = typeof technicalContent === 'string' ? JSON.parse(technicalContent) : technicalContent;
+            
+            if (overviewData?.overview?.ideaSummary) {
+                fullPrompt = fullPrompt.replace(/\[APPLICATION_DESCRIPTION from overview\]/g, overviewData.overview.ideaSummary);
+            }
+            if (technicalData?.technical?.techStack) {
+                const techStack = technicalData.technical.techStack;
+                if (techStack.frontend) {
+                    fullPrompt = fullPrompt.replace(/\[exact framework, version, libraries\]/g, techStack.frontend);
+                }
+                if (techStack.backend) {
+                    fullPrompt = fullPrompt.replace(/\[exact runtime, framework, version\]/g, techStack.backend);
+                }
+                if (techStack.database) {
+                    fullPrompt = fullPrompt.replace(/\[exact database types and versions\]/g, techStack.database);
+                }
+            }
         } catch (e) {
-            console.error(`[${requestId}] [generatePrompts] Failed to read response text:`, e);
-            throw new Error(`Failed to read response: ${e.message}`);
+            console.warn(`[${requestId}] [generatePrompts] Failed to replace placeholders:`, e.message);
         }
         
-        const responseReadDuration = Date.now() - responseReadStartTime;
-        console.log(`[${requestId}] [generatePrompts] Response text read successfully`, {
-            responseTextLength: responseText.length,
-            responseTextSizeKB: (responseText.length / 1024).toFixed(2),
-            responseTextSizeMB: (responseText.length / (1024 * 1024)).toFixed(2),
-            readDuration: responseReadDuration,
-            preview: responseText.substring(0, 200) + '...'
+        const mergeDuration = Date.now() - mergeStartTime;
+        console.log(`[${requestId}] [generatePrompts] Stages merged successfully`, {
+            mergeDuration,
+            finalPromptLength: fullPrompt.length,
+            finalPromptSizeKB: (fullPrompt.length / 1024).toFixed(2),
+            finalPromptSizeMB: (fullPrompt.length / (1024 * 1024)).toFixed(2),
+            stagesCount: generatedStages.length
         });
         
-        const responseParseStartTime = Date.now();
-        console.log(`[${requestId}] [generatePrompts] Parsing response JSON`);
+        // Generate third-party integrations (separate request)
+        let thirdPartyIntegrations = [];
+        const integrationsStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Generating third-party integrations`);
         
-        let data;
         try {
-            data = JSON.parse(responseText);
-        } catch (parseError) {
-            console.error(`[${requestId}] [generatePrompts] Failed to parse response JSON`, {
-                parseError: parseError.message,
-                responseTextLength: responseText.length,
-                responseTextPreview: responseText.substring(0, 500)
+            const integrationsPrompt = `Generate third-party integration instructions based on the technical specification.
+
+Application Overview:
+${overviewContent || 'Not provided'}
+
+Technical Specification:
+${technicalContent || 'Not provided'}
+
+Return ONLY a JSON array of integration objects, each with:
+- service: Service name
+- description: What this service does and why it's needed
+- instructions: Array of detailed setup steps (minimum 3-4 steps)
+
+If no third-party integrations are needed, return an empty array.`;
+
+            const integrationsRequestBody = {
+                stage: 'prompts',
+                locale: 'en-US',
+                temperature: 0,
+                prompt: {
+                    system: 'You are an expert software development prompt engineer. Generate detailed third-party integration instructions.',
+                    developer: 'Return ONLY valid JSON array. Each integration must have: service, description, and instructions array.',
+                    user: integrationsPrompt
+                }
+            };
+            
+            const integrationsResponse = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(integrationsRequestBody),
+                signal: AbortSignal.timeout(30000) // 30 seconds for integrations
             });
-            throw new Error(`Failed to parse response JSON: ${parseError.message}`);
-        }
-        
-        const responseParseDuration = Date.now() - responseParseStartTime;
-        console.log(`[${requestId}] [generatePrompts] Response JSON parsed successfully`, {
-            parseDuration: responseParseDuration,
-            hasPrompts: !!data.prompts,
-            hasFullPrompt: !!(data.prompts && data.prompts.fullPrompt),
-            fullPromptLength: data.prompts?.fullPrompt ? data.prompts.fullPrompt.length : 0,
-            hasThirdPartyIntegrations: !!(data.prompts && data.prompts.thirdPartyIntegrations),
-            thirdPartyIntegrationsCount: data.prompts?.thirdPartyIntegrations?.length || 0,
-            dataKeys: Object.keys(data)
-        });
-        
-        if (!data.prompts) {
-            console.error(`[${requestId}] [generatePrompts] Invalid response structure`, {
-                dataKeys: Object.keys(data),
-                dataPreview: JSON.stringify(data).substring(0, 500)
+            
+            if (integrationsResponse.ok) {
+                const integrationsData = JSON.parse(await integrationsResponse.text());
+                if (integrationsData.prompts?.thirdPartyIntegrations) {
+                    thirdPartyIntegrations = integrationsData.prompts.thirdPartyIntegrations;
+                }
+            }
+            
+            const integrationsDuration = Date.now() - integrationsStartTime;
+            console.log(`[${requestId}] [generatePrompts] Third-party integrations generated`, {
+                duration: integrationsDuration,
+                integrationsCount: thirdPartyIntegrations.length
             });
-            throw new Error('Invalid response from prompts API: missing prompts field');
-        }
-        
-        if (!data.prompts.fullPrompt) {
-            console.error(`[${requestId}] [generatePrompts] Missing fullPrompt in response`, {
-                promptsKeys: Object.keys(data.prompts || {})
-            });
-            throw new Error('Invalid response from prompts API: missing fullPrompt field');
+        } catch (integrationsError) {
+            console.warn(`[${requestId}] [generatePrompts] Failed to generate integrations, continuing without them:`, integrationsError.message);
+            // Continue without integrations - not critical
         }
         
         const promptsData = {
             generated: true,
-            fullPrompt: data.prompts.fullPrompt,
-            thirdPartyIntegrations: data.prompts.thirdPartyIntegrations || [],
-            generatedAt: new Date().toISOString()
+            fullPrompt: fullPrompt,
+            thirdPartyIntegrations: thirdPartyIntegrations,
+            generatedAt: new Date().toISOString(),
+            stagesGenerated: generatedStages.length,
+            stagesFailed: stageErrors.length
         };
         
         console.log(`[${requestId}] [generatePrompts] Prompts data prepared`, {
