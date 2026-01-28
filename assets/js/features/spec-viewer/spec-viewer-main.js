@@ -7659,21 +7659,67 @@ function displayPrompts(promptsData) {
     // Store full prompt globally for copy function
     window.fullPromptText = promptsData.fullPrompt;
     
-    // Create third-party integrations section
+    // Create third-party integrations section in a SEPARATE container
     if (promptsData.thirdPartyIntegrations && Array.isArray(promptsData.thirdPartyIntegrations) && promptsData.thirdPartyIntegrations.length > 0) {
+        // Get or create separate container for integrations
+        let integrationsDataContainer = document.getElementById('integrations-data');
+        if (!integrationsDataContainer) {
+            // Create new container if it doesn't exist
+            const promptsContent = document.getElementById('prompts-content');
+            if (promptsContent) {
+                integrationsDataContainer = document.createElement('div');
+                integrationsDataContainer.id = 'integrations-data';
+                integrationsDataContainer.className = 'content-body';
+                integrationsDataContainer.style.cssText = 'margin-top: 30px; padding-top: 30px; border-top: 3px solid #e0e0e0;';
+                promptsContent.appendChild(integrationsDataContainer);
+            } else {
+                // Fallback: add to prompts-data but with clear separation
+                integrationsDataContainer = container;
+            }
+        } else {
+            // Clear existing content
+            integrationsDataContainer.innerHTML = '';
+        }
+        
         const integrationsSection = document.createElement('div');
         integrationsSection.className = 'integrations-section';
-        integrationsSection.innerHTML = '<h3><i class="fa fa-plug"></i> Third-Party Integration Instructions</h3>';
+        integrationsSection.style.cssText = 'width: 100%;';
         
-        const integrationsContainer = document.createElement('div');
-        integrationsContainer.className = 'integrations-container';
+        const integrationsHeader = document.createElement('div');
+        integrationsHeader.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;';
+        integrationsHeader.innerHTML = `
+            <h2 style="margin: 0; font-size: 24px; font-weight: 600; color: #333;"><i class="fa fa-plug" style="color: #ff6b35; margin-right: 10px;"></i> Third-Party Integration Instructions</h2>
+            <button onclick="copyIntegrationsToClipboard()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px; background-color: #ff6b35; color: white; border: none; cursor: pointer; transition: background-color 0.2s; border-radius: 4px;" onmouseover="this.style.backgroundColor='#e55a2b'" onmouseout="this.style.backgroundColor='#ff6b35'">
+                <i class="fa fa-copy" style="color: white !important;"></i> Copy All
+            </button>
+        `;
+        integrationsSection.appendChild(integrationsHeader);
+        
+        const integrationsCardsContainer = document.createElement('div');
+        integrationsCardsContainer.className = 'integrations-container';
+        integrationsCardsContainer.style.cssText = 'display: flex; flex-direction: column; gap: 20px;';
+        
+        let allIntegrationsText = '';
         
         promptsData.thirdPartyIntegrations.forEach((integration, index) => {
             const integrationCard = document.createElement('div');
             integrationCard.className = 'integration-card';
+            integrationCard.style.cssText = 'background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;';
+            
+            const serviceName = escapeHtml(integration.service || 'Unknown Service');
+            const description = escapeHtml(integration.description || '');
+            const instructions = integration.instructions || [];
+            
+            // Build text version for copy
+            allIntegrationsText += `${serviceName}\n${description}\n\nImplementation Instructions:\n`;
+            instructions.forEach((inst, idx) => {
+                allIntegrationsText += `${inst}\n`;
+            });
+            allIntegrationsText += '\n';
             
             // Convert URLs in instructions to clickable links
-            const instructionsWithLinks = integration.instructions.map(instruction => {
+            const instructionsWithLinks = instructions.map(instruction => {
+                if (!instruction || typeof instruction !== 'string') return '';
                 // Match URLs (http://, https://, www.) BEFORE escaping HTML
                 const urlRegex = /(https?:\/\/[^\s<>]+|www\.[^\s<>]+)/gi;
                 let match;
@@ -7699,25 +7745,70 @@ function displayPrompts(promptsData) {
                 return result || escapeHtml(instruction);
             });
             
+            const uniqueId = `integration-${index}-${Date.now()}`;
+            
             integrationCard.innerHTML = `
-                <div class="integration-header">
-                    <h4><i class="fa fa-link"></i> ${escapeHtml(integration.service)}</h4>
+                <div style="margin-bottom: 15px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333; font-size: 18px; font-weight: 600;">
+                        ${serviceName}
+                    </h4>
+                    <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">
+                        ${description}
+                    </p>
                 </div>
-                <div class="integration-description">
-                    <p>${escapeHtml(integration.description)}</p>
+                <div style="margin-top: 15px;">
+                    <h5 style="margin: 0 0 10px 0; color: #333; font-size: 15px; font-weight: 600;">
+                        Implementation Instructions:
+                    </h5>
+                    <div id="${uniqueId}" style="background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; padding: 15px; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.8; color: #333;">
+                        ${instructionsWithLinks.map(instruction => `<div style="margin-bottom: 8px;">${instruction}</div>`).join('')}
                 </div>
-                <div class="integration-instructions">
-                    <h5>Setup Instructions:</h5>
-                    <ol>
-                        ${instructionsWithLinks.map(instruction => `<li>${instruction}</li>`).join('')}
-                    </ol>
+                    <button onclick="copyIntegrationText('${uniqueId}')" style="margin-top: 10px; padding: 6px 12px; font-size: 12px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">
+                        <i class="fa fa-copy"></i> Copy
+                    </button>
                 </div>
             `;
-            integrationsContainer.appendChild(integrationCard);
+            integrationsCardsContainer.appendChild(integrationCard);
         });
         
-        integrationsSection.appendChild(integrationsContainer);
-        container.appendChild(integrationsSection);
+        // Store integrations text globally for copy function
+        window.integrationsText = allIntegrationsText.trim();
+        
+        integrationsSection.appendChild(integrationsCardsContainer);
+        
+        // Append to separate container (not prompts-data)
+        if (integrationsDataContainer.id === 'integrations-data') {
+            integrationsDataContainer.appendChild(integrationsSection);
+        } else {
+            // Fallback: add to prompts-data but visually separated
+            integrationsSection.style.cssText = 'margin-top: 40px; padding-top: 30px; border-top: 3px solid #e0e0e0; width: 100%;';
+            container.appendChild(integrationsSection);
+        }
+        
+        // Add copy functions to window
+        window.copyIntegrationsToClipboard = function() {
+            if (!window.integrationsText) {
+                showNotification('No integrations text available', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(window.integrationsText).then(() => {
+                showNotification('All integrations copied to clipboard!', 'success');
+            }).catch(err => {
+                showNotification('Failed to copy integrations', 'error');
+            });
+        };
+        
+        window.copyIntegrationText = function(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const text = element.textContent || element.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Integration instructions copied!', 'success');
+            }).catch(err => {
+                showNotification('Failed to copy', 'error');
+            });
+        };
     }
 }
 
