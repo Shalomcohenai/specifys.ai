@@ -5050,31 +5050,6 @@ async function approveOverview() {
     }
 }
 
-async function triggerOpenAIUploadForSpec(specId) {
-    try {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            return;
-        }
-        
-        const token = await user.getIdToken();
-        const response = await fetch(`${getApiBaseUrl()}/api/specs/${specId}/upload-to-openai`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Upload failed');
-        }
-    } catch (error) {
-        // Silently fail - don't interrupt user experience
-    }
-}
-
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
     
     // Use reference if spec has ID, otherwise fallback to full content
@@ -6662,7 +6637,6 @@ async function generateSingleStage(stageNumber, requestId, overviewContent, tech
     
     const STAGE_TIMEOUT_MS = 60000; // 60 seconds per stage
     const stageName = STAGE_NAMES[stageNumber];
-    const stageName = STAGE_NAMES[stageNumber];
     const stageStartTime = Date.now();
     
     console.log(`[${requestId}] [generateSingleStage] Starting stage ${stageNumber}: ${stageName}`, {
@@ -7372,7 +7346,8 @@ If no third-party integrations are needed, return an empty array.`;
         
         // Handle specific error types
         if (error.name === 'AbortError' || error.message?.includes('aborted') || error.message?.includes('timed out')) {
-            errorMessage = `Request timed out after ${TIMEOUT_MS / 1000} seconds. The prompts generation is taking longer than expected. Please try again.`;
+            const totalTimeoutSeconds = (STAGE_TIMEOUT_MS * TOTAL_STAGES) / 1000;
+            errorMessage = `Request timed out after ${totalTimeoutSeconds} seconds. The prompts generation is taking longer than expected. Please try again.`;
         } else if (error.message?.includes('Failed to connect') || error.message?.includes('Network error')) {
             errorMessage = 'Failed to connect to the prompts service. Please check your internet connection and try again.';
         } else if (error.message?.includes('API Error')) {
