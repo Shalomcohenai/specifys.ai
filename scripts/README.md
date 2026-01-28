@@ -55,3 +55,10 @@ cd scripts/backend
 ./test-wakeup.sh
 ```
 
+To test prompts worker:
+```bash
+node scripts/test-prompts-worker.js
+# Or with minimal payload:
+node scripts/test-prompts-worker.js --minimal
+```
+

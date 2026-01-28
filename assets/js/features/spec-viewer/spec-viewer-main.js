@@ -6636,11 +6636,40 @@ async function generateDiagrams() {
 }
 
 async function generatePrompts() {
-    if (isLoading) return;
+    const startTime = Date.now();
+    const requestId = `prompts-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const TIMEOUT_MS = 300000; // 5 minutes timeout (increased from 3 minutes)
+    
+    console.log(`[${requestId}] [generatePrompts] Starting prompts generation`, {
+        timestamp: new Date().toISOString(),
+        specId: currentSpecData?.id,
+        isLoading,
+        timeout: TIMEOUT_MS
+    });
+    
+    if (window.appLogger) {
+        window.appLogger.log('FeatureUsage', 'Starting prompts generation', {
+            requestId,
+            specId: currentSpecData?.id,
+            feature: 'generatePrompts',
+            timeout: TIMEOUT_MS
+        });
+    }
+    
+    if (isLoading) {
+        console.warn(`[${requestId}] [generatePrompts] Already loading, skipping request`);
+        return;
+    }
     
     try {
         isLoading = true;
         const generateBtn = document.getElementById('generatePromptsBtn');
+        
+        if (!generateBtn) {
+            throw new Error('Generate prompts button not found in DOM');
+        }
+        
+        console.log(`[${requestId}] [generatePrompts] Button found, updating UI`);
         
         // Store original background color and styles
         const originalBgColor = window.getComputedStyle(generateBtn).backgroundColor;
@@ -6658,9 +6687,22 @@ async function generatePrompts() {
         if (currentSpecData && currentSpecData.status) {
             currentSpecData.status.prompts = 'generating';
             updateNotificationDot('prompts', 'generating');
+            console.log(`[${requestId}] [generatePrompts] Updated status to generating`);
         }
         
         // Check if technical and design specs exist
+        console.log(`[${requestId}] [generatePrompts] Validating prerequisites`, {
+            hasTechnical: !!currentSpecData?.technical,
+            technicalIsError: currentSpecData?.technical === 'error',
+            hasDesign: !!currentSpecData?.design,
+            designIsError: currentSpecData?.design === 'error',
+            hasOverview: !!currentSpecData?.overview
+        });
+        
+        if (!currentSpecData) {
+            throw new Error('No specification data available');
+        }
+        
         if (!currentSpecData.technical || currentSpecData.technical === 'error') {
             throw new Error('Technical specification must be generated first');
         }
@@ -6668,41 +6710,77 @@ async function generatePrompts() {
             throw new Error('Design specification must be generated first');
         }
         
+        console.log(`[${requestId}] [generatePrompts] Prerequisites validated successfully`);
+        
         // Parse overview, technical, and design content
         let overviewContent = currentSpecData.overview;
         let technicalContent = currentSpecData.technical;
         let designContent = currentSpecData.design;
+        
+        const parseStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Starting content parsing`, {
+            overviewType: typeof overviewContent,
+            overviewLength: typeof overviewContent === 'string' ? overviewContent.length : 'N/A',
+            technicalType: typeof technicalContent,
+            technicalLength: typeof technicalContent === 'string' ? technicalContent.length : 'N/A',
+            designType: typeof designContent,
+            designLength: typeof designContent === 'string' ? designContent.length : 'N/A'
+        });
         
         // If content is JSON string, parse it
         try {
             if (typeof overviewContent === 'string') {
                 const parsedOverview = JSON.parse(overviewContent);
                 overviewContent = JSON.stringify(parsedOverview, null, 2);
+                console.log(`[${requestId}] [generatePrompts] Parsed overview JSON successfully`);
             }
         } catch (e) {
-            // Keep as is if not JSON
+            console.log(`[${requestId}] [generatePrompts] Overview is not JSON, keeping as is:`, e.message);
         }
         
         try {
             if (typeof technicalContent === 'string') {
                 const parsedTechnical = JSON.parse(technicalContent);
                 technicalContent = JSON.stringify(parsedTechnical, null, 2);
+                console.log(`[${requestId}] [generatePrompts] Parsed technical JSON successfully`);
             }
         } catch (e) {
-            // Keep as is if not JSON
+            console.log(`[${requestId}] [generatePrompts] Technical is not JSON, keeping as is:`, e.message);
         }
         
         try {
             if (typeof designContent === 'string') {
                 const parsedDesign = JSON.parse(designContent);
                 designContent = JSON.stringify(parsedDesign, null, 2);
+                console.log(`[${requestId}] [generatePrompts] Parsed design JSON successfully`);
             }
         } catch (e) {
-            // Keep as is if not JSON
+            console.log(`[${requestId}] [generatePrompts] Design is not JSON, keeping as is:`, e.message);
         }
         
+        const parseDuration = Date.now() - parseStartTime;
+        console.log(`[${requestId}] [generatePrompts] Content parsing completed in ${parseDuration}ms`, {
+            finalOverviewLength: typeof overviewContent === 'string' ? overviewContent.length : 'N/A',
+            finalTechnicalLength: typeof technicalContent === 'string' ? technicalContent.length : 'N/A',
+            finalDesignLength: typeof designContent === 'string' ? designContent.length : 'N/A'
+        });
+        
         // Build prompt using PROMPTS.prompts function
+        const promptBuildStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Building prompt using PROMPTS.prompts function`);
+        
+        if (typeof PROMPTS === 'undefined' || typeof PROMPTS.prompts !== 'function') {
+            throw new Error('PROMPTS.prompts function is not available');
+        }
+        
         const prompt = PROMPTS.prompts(overviewContent, technicalContent, designContent);
+        const promptBuildDuration = Date.now() - promptBuildStartTime;
+        const promptLength = typeof prompt === 'string' ? prompt.length : 'N/A';
+        
+        console.log(`[${requestId}] [generatePrompts] Prompt built successfully in ${promptBuildDuration}ms`, {
+            promptLength,
+            promptPreview: typeof prompt === 'string' ? prompt.substring(0, 200) + '...' : 'N/A'
+        });
         
         const requestBody = {
             stage: 'prompts',
@@ -6748,13 +6826,48 @@ async function generatePrompts() {
             }
         };
         
+        const requestBodySize = JSON.stringify(requestBody).length;
+        console.log(`[${requestId}] [generatePrompts] Request body prepared`, {
+            requestBodySize,
+            requestBodySizeKB: (requestBodySize / 1024).toFixed(2),
+            requestBodySizeMB: (requestBodySize / (1024 * 1024)).toFixed(2),
+            stage: requestBody.stage,
+            locale: requestBody.locale,
+            temperature: requestBody.temperature,
+            systemPromptLength: requestBody.prompt.system.length,
+            developerPromptLength: requestBody.prompt.developer.length,
+            userPromptLength: requestBody.prompt.user.length
+        });
+        
         // Create AbortController for timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
+        const timeoutId = setTimeout(() => {
+            console.error(`[${requestId}] [generatePrompts] Timeout reached after ${TIMEOUT_MS}ms, aborting request`);
+            controller.abort();
+        }, TIMEOUT_MS);
+        
+        const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
+        console.log(`[${requestId}] [generatePrompts] Starting fetch request to worker`, {
+            url: workerUrl,
+            method: 'POST',
+            timeout: TIMEOUT_MS,
+            requestBodySize,
+            timestamp: new Date().toISOString()
+        });
+        
+        if (window.appLogger) {
+            window.appLogger.log('FeatureUsage', 'Sending request to prompts worker', {
+                requestId,
+                workerUrl,
+                requestBodySize,
+                timeout: TIMEOUT_MS
+            });
+        }
         
         let response;
+        const fetchStartTime = Date.now();
         try {
-            response = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
+            response = await fetch(workerUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -6763,29 +6876,152 @@ async function generatePrompts() {
                 signal: controller.signal
             });
             
+            const fetchDuration = Date.now() - fetchStartTime;
             clearTimeout(timeoutId);
+            
+            console.log(`[${requestId}] [generatePrompts] Fetch request completed`, {
+                duration: fetchDuration,
+                durationSeconds: (fetchDuration / 1000).toFixed(2),
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
         } catch (fetchError) {
+            const fetchDuration = Date.now() - fetchStartTime;
             clearTimeout(timeoutId);
+            
+            console.error(`[${requestId}] [generatePrompts] Fetch request failed`, {
+                duration: fetchDuration,
+                durationSeconds: (fetchDuration / 1000).toFixed(2),
+                errorName: fetchError.name,
+                errorMessage: fetchError.message,
+                errorStack: fetchError.stack,
+                isAbortError: fetchError.name === 'AbortError',
+                signalAborted: controller.signal?.aborted
+            });
+            
+            if (window.appLogger) {
+                window.appLogger.logError(fetchError, {
+                    requestId,
+                    workerUrl,
+                    fetchDuration,
+                    stage: 'fetch_request'
+                });
+            }
             
             // Handle AbortError specifically
             if (fetchError.name === 'AbortError' || fetchError.message?.includes('aborted')) {
-                throw new Error('Request timed out after 3 minutes. The prompts generation is taking longer than expected. Please try again.');
+                const timeoutError = new Error(`Request timed out after ${TIMEOUT_MS / 1000} seconds (${TIMEOUT_MS}ms). The prompts generation is taking longer than expected. Please try again.`);
+                console.error(`[${requestId}] [generatePrompts] Timeout error:`, timeoutError.message);
+                throw timeoutError;
+            }
+            
+            // Check for network errors
+            if (fetchError.message?.includes('Failed to fetch') || 
+                fetchError.message?.includes('NetworkError') ||
+                fetchError.message?.includes('Network request failed') ||
+                fetchError.message?.includes('Load failed')) {
+                const networkError = new Error(`Network error: Unable to reach the prompts service. Please check your internet connection and try again. Original error: ${fetchError.message}`);
+                console.error(`[${requestId}] [generatePrompts] Network error:`, networkError.message);
+                throw networkError;
             }
             
             // Re-throw other fetch errors
-            throw new Error(`Failed to connect to prompts API: ${fetchError.message}`);
+            const genericError = new Error(`Failed to connect to prompts API: ${fetchError.message}`);
+            console.error(`[${requestId}] [generatePrompts] Generic fetch error:`, genericError.message);
+            throw genericError;
         }
+        
+        console.log(`[${requestId}] [generatePrompts] Processing response`, {
+            status: response.status,
+            statusText: response.statusText,
+            contentType: response.headers.get('content-type'),
+            contentLength: response.headers.get('content-length')
+        });
         
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API Error: ${response.status} - ${errorText}`);
+            const errorTextStartTime = Date.now();
+            let errorText = '';
+            try {
+                errorText = await response.text();
+            } catch (e) {
+                errorText = `Failed to read error response: ${e.message}`;
+            }
+            const errorTextDuration = Date.now() - errorTextStartTime;
+            
+            console.error(`[${requestId}] [generatePrompts] Response not OK`, {
+                status: response.status,
+                statusText: response.statusText,
+                errorTextLength: errorText.length,
+                errorTextPreview: errorText.substring(0, 500),
+                errorTextReadDuration: errorTextDuration
+            });
+            
+            const apiError = new Error(`API Error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
+            throw apiError;
         }
         
-        const responseText = await response.text();
-        const data = JSON.parse(responseText);
+        const responseReadStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Reading response text`);
+        
+        let responseText = '';
+        try {
+            responseText = await response.text();
+        } catch (e) {
+            console.error(`[${requestId}] [generatePrompts] Failed to read response text:`, e);
+            throw new Error(`Failed to read response: ${e.message}`);
+        }
+        
+        const responseReadDuration = Date.now() - responseReadStartTime;
+        console.log(`[${requestId}] [generatePrompts] Response text read successfully`, {
+            responseTextLength: responseText.length,
+            responseTextSizeKB: (responseText.length / 1024).toFixed(2),
+            responseTextSizeMB: (responseText.length / (1024 * 1024)).toFixed(2),
+            readDuration: responseReadDuration,
+            preview: responseText.substring(0, 200) + '...'
+        });
+        
+        const parseStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Parsing response JSON`);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error(`[${requestId}] [generatePrompts] Failed to parse response JSON`, {
+                parseError: parseError.message,
+                responseTextLength: responseText.length,
+                responseTextPreview: responseText.substring(0, 500)
+            });
+            throw new Error(`Failed to parse response JSON: ${parseError.message}`);
+        }
+        
+        const parseDuration = Date.now() - parseStartTime;
+        console.log(`[${requestId}] [generatePrompts] Response JSON parsed successfully`, {
+            parseDuration,
+            hasPrompts: !!data.prompts,
+            hasFullPrompt: !!(data.prompts && data.prompts.fullPrompt),
+            fullPromptLength: data.prompts?.fullPrompt ? data.prompts.fullPrompt.length : 0,
+            hasThirdPartyIntegrations: !!(data.prompts && data.prompts.thirdPartyIntegrations),
+            thirdPartyIntegrationsCount: data.prompts?.thirdPartyIntegrations?.length || 0,
+            dataKeys: Object.keys(data)
+        });
         
         if (!data.prompts) {
-            throw new Error('Invalid response from prompts API');
+            console.error(`[${requestId}] [generatePrompts] Invalid response structure`, {
+                dataKeys: Object.keys(data),
+                dataPreview: JSON.stringify(data).substring(0, 500)
+            });
+            throw new Error('Invalid response from prompts API: missing prompts field');
+        }
+        
+        if (!data.prompts.fullPrompt) {
+            console.error(`[${requestId}] [generatePrompts] Missing fullPrompt in response`, {
+                promptsKeys: Object.keys(data.prompts || {})
+            });
+            throw new Error('Invalid response from prompts API: missing fullPrompt field');
         }
         
         const promptsData = {
@@ -6795,8 +7031,21 @@ async function generatePrompts() {
             generatedAt: new Date().toISOString()
         };
         
+        console.log(`[${requestId}] [generatePrompts] Prompts data prepared`, {
+            fullPromptLength: promptsData.fullPrompt.length,
+            fullPromptSizeKB: (promptsData.fullPrompt.length / 1024).toFixed(2),
+            fullPromptSizeMB: (promptsData.fullPrompt.length / (1024 * 1024)).toFixed(2),
+            thirdPartyIntegrationsCount: promptsData.thirdPartyIntegrations.length,
+            generatedAt: promptsData.generatedAt
+        });
+        
         // Save to Firebase
         if (currentSpecData && currentSpecData.id) {
+            const firebaseStartTime = Date.now();
+            console.log(`[${requestId}] [generatePrompts] Saving to Firebase`, {
+                specId: currentSpecData.id
+            });
+            
             try {
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                     prompts: promptsData,
@@ -6804,9 +7053,15 @@ async function generatePrompts() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
+                const firebaseDuration = Date.now() - firebaseStartTime;
+                console.log(`[${requestId}] [generatePrompts] Saved to Firebase successfully`, {
+                    duration: firebaseDuration,
+                    specId: currentSpecData.id
+                });
+                
                 // Upload updated spec to OpenAI API for chat purposes (non-blocking)
                 triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                    console.warn('Failed to upload spec to OpenAI after prompts generation:', err);
+                    console.warn(`[${requestId}] [generatePrompts] Failed to upload spec to OpenAI after prompts generation:`, err);
                 });
                 
                 // Update local spec data
@@ -6817,13 +7072,36 @@ async function generatePrompts() {
                 updateNotificationDot('prompts', 'ready');
                 // Update export checkboxes when prompts are ready
                 updateExportCheckboxes();
+                
+                console.log(`[${requestId}] [generatePrompts] Local spec data updated`);
             } catch (error) {
-                // Failed to save prompts to Firebase
+                const firebaseDuration = Date.now() - firebaseStartTime;
+                console.error(`[${requestId}] [generatePrompts] Failed to save prompts to Firebase`, {
+                    duration: firebaseDuration,
+                    error: error.message,
+                    errorStack: error.stack,
+                    specId: currentSpecData.id
+                });
+                
+                if (window.appLogger) {
+                    window.appLogger.logError(error, {
+                        requestId,
+                        specId: currentSpecData.id,
+                        stage: 'firebase_save'
+                    });
+                }
+                // Continue even if Firebase save fails - we still have the data
             }
+        } else {
+            console.warn(`[${requestId}] [generatePrompts] No spec ID available, skipping Firebase save`);
         }
         
         // Display prompts
+        const displayStartTime = Date.now();
+        console.log(`[${requestId}] [generatePrompts] Displaying prompts`);
         displayPrompts(promptsData);
+        const displayDuration = Date.now() - displayStartTime;
+        console.log(`[${requestId}] [generatePrompts] Prompts displayed in ${displayDuration}ms`);
         
         // Reset button before hiding (in case it's shown again)
         generateBtn.disabled = false;
@@ -6838,19 +7116,55 @@ async function generatePrompts() {
         const rawPrompts = document.getElementById('raw-prompts');
         if (rawPrompts) {
             rawPrompts.textContent = JSON.stringify(promptsData, null, 2);
+            console.log(`[${requestId}] [generatePrompts] Raw prompts data updated`);
+        }
+        
+        const totalDuration = Date.now() - startTime;
+        console.log(`[${requestId}] [generatePrompts] SUCCESS - Prompts generated successfully`, {
+            totalDuration,
+            totalDurationSeconds: (totalDuration / 1000).toFixed(2),
+            fullPromptLength: promptsData.fullPrompt.length,
+            thirdPartyIntegrationsCount: promptsData.thirdPartyIntegrations.length
+        });
+        
+        if (window.appLogger) {
+            window.appLogger.log('FeatureUsage', 'Prompts generated successfully', {
+                requestId,
+                specId: currentSpecData?.id,
+                totalDuration,
+                fullPromptLength: promptsData.fullPrompt.length
+            });
         }
         
         showNotification('Prompts generated successfully!', 'success');
         
     } catch (error) {
+        const totalDuration = Date.now() - startTime;
+        console.error(`[${requestId}] [generatePrompts] ERROR - Failed to generate prompts`, {
+            totalDuration,
+            totalDurationSeconds: (totalDuration / 1000).toFixed(2),
+            errorName: error.name,
+            errorMessage: error.message,
+            errorStack: error.stack
+        });
+        
+        if (window.appLogger) {
+            window.appLogger.logError(error, {
+                requestId,
+                specId: currentSpecData?.id,
+                totalDuration,
+                stage: 'generatePrompts'
+            });
+        }
+        
         // Error generating prompts
         // Provide user-friendly error message
         let errorMessage = error.message;
         
         // Handle specific error types
         if (error.name === 'AbortError' || error.message?.includes('aborted') || error.message?.includes('timed out')) {
-            errorMessage = 'Request timed out. The prompts generation is taking longer than expected. Please try again.';
-        } else if (error.message?.includes('Failed to connect')) {
+            errorMessage = `Request timed out after ${TIMEOUT_MS / 1000} seconds. The prompts generation is taking longer than expected. Please try again.`;
+        } else if (error.message?.includes('Failed to connect') || error.message?.includes('Network error')) {
             errorMessage = 'Failed to connect to the prompts service. Please check your internet connection and try again.';
         } else if (error.message?.includes('API Error')) {
             // Keep API error messages as they are (they're already descriptive)
@@ -6880,6 +7194,13 @@ async function generatePrompts() {
             generateBtn.style.backgroundColor = '';
             generateBtn.style.cursor = 'pointer';
         }
+        
+        const totalDuration = Date.now() - startTime;
+        console.log(`[${requestId}] [generatePrompts] Function completed`, {
+            totalDuration,
+            totalDurationSeconds: (totalDuration / 1000).toFixed(2),
+            isLoading: false
+        });
     }
 }
 
