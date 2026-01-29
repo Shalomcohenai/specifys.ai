@@ -553,7 +553,7 @@ function displaySpec(data) {
     // Initialize share prompt if overview is ready
     if (data.status?.overview === 'ready' && window.sharePrompt) {
         const specTitle = data.title || 'App Specification';
-        window.sharePrompt.init(specId, specTitle);
+        window.sharePrompt.init(data.id, specTitle);
     }
     
     // Display content for each tab
