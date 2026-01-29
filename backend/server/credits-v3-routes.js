@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { auth } = require('./firebase-admin');
+const { auth, db } = require('./firebase-admin');
 const { requireAdmin } = require('./security');
 const creditsV3Service = require('./credits-v3-service');
 const { createError, ERROR_CODES } = require('./error-handler');
@@ -367,91 +367,6 @@ router.get('/history', verifyFirebaseToken, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[credits-v3-routes] GET /history - Error');
     next(createError('Failed to fetch history', ERROR_CODES.DATABASE_ERROR, 500, {
-      details: error.message
-    }));
-  }
-});
-
-/**
- * POST /api/v3/credits/share-bonus
- * Grant bonus credit for sharing a spec
- * Requires: Firebase authentication
- * Body: { specId }
- * Returns: { success, creditsAdded, total }
- */
-router.post('/share-bonus', verifyFirebaseToken, async (req, res, next) => {
-  const requestId = req.requestId || `share-bonus-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
-  try {
-    const userId = req.user.uid;
-    const { specId } = req.body;
-
-    if (!specId) {
-      return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
-    }
-
-    // Verify spec exists and belongs to user
-    const { db } = require('./firebase-admin');
-    const specRef = db.collection('specs').doc(specId);
-    const specDoc = await specRef.get();
-    
-    if (!specDoc.exists) {
-      return next(createError('Spec not found', ERROR_CODES.NOT_FOUND, 404));
-    }
-
-    const specData = specDoc.data();
-    if (specData.userId !== userId) {
-      return next(createError('Spec does not belong to user', ERROR_CODES.FORBIDDEN, 403));
-    }
-
-    // Check if user already received credit for this spec
-    const userRef = db.collection('users').doc(userId);
-    const userDoc = await userRef.get();
-    const userData = userDoc.exists ? userDoc.data() : {};
-    const sharePrompts = userData.sharePrompts || {};
-    const sharedSpecs = sharePrompts.sharedSpecs || [];
-
-    if (sharedSpecs.includes(specId)) {
-      logger.info({ requestId, userId, specId }, '[credits-v3-routes] User already received credit for this spec');
-      // Return success but don't grant credit again
-      const credits = await creditsV3Service.getUserCredits(userId);
-      return res.json({
-        success: true,
-        creditsAdded: 0,
-        total: credits.total,
-        message: 'Credit already granted for this spec'
-      });
-    }
-
-    // Grant bonus credit
-    const result = await creditsV3Service.grantCredits(
-      userId,
-      1,
-      'share_bonus',
-      {
-        specId: specId,
-        specTitle: specData.title || 'App Specification'
-      }
-    );
-
-    // Mark spec as shared
-    const updatedSharedSpecs = [...sharedSpecs, specId];
-    await userRef.set({
-      'sharePrompts.sharedSpecs': updatedSharedSpecs,
-      'sharePrompts.lastShareAction': new Date()
-    }, { merge: true });
-
-    logger.info({ requestId, userId, specId, creditsAdded: result.creditsAdded }, '[credits-v3-routes] Share bonus credit granted');
-    
-    res.json({
-      success: true,
-      creditsAdded: result.creditsAdded,
-      total: result.total,
-      breakdown: result.breakdown
-    });
-  } catch (error) {
-    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[credits-v3-routes] POST /share-bonus - Error');
-    next(createError('Failed to grant share bonus credit', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

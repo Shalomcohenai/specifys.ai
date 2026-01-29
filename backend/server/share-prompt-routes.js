@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require('./firebase-admin');
 const { db } = require('./firebase-admin');
-const creditsV3Service = require('./credits-v3-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
