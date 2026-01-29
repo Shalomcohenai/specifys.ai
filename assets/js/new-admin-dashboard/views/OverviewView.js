@@ -535,6 +535,52 @@ export class OverviewView {
     if (revenueEl) {
       revenueEl.textContent = helpers.formatCurrency(revenueInRange);
     }
+    
+    // 5. Share Actions (in selected range) - count how many times share button was clicked
+    const sharesInRange = allData.users.filter(u => {
+      if (!u.sharePrompts?.lastShareAction) return false;
+      const lastShare = u.sharePrompts.lastShareAction instanceof Date 
+        ? u.sharePrompts.lastShareAction.getTime() 
+        : new Date(u.sharePrompts.lastShareAction).getTime();
+      return lastShare >= startDate.getTime() && lastShare <= today.getTime();
+    }).length;
+    
+    const sharesInPreviousRange = allData.users.filter(u => {
+      if (!u.sharePrompts?.lastShareAction) return false;
+      const lastShare = u.sharePrompts.lastShareAction instanceof Date 
+        ? u.sharePrompts.lastShareAction.getTime() 
+        : new Date(u.sharePrompts.lastShareAction).getTime();
+      return lastShare >= previousStartDate.getTime() && lastShare <= previousEndDate.getTime();
+    }).length;
+    
+    // Calculate change percentage
+    let sharesChange = 0;
+    if (sharesInPreviousRange > 0) {
+      sharesChange = Math.round(((sharesInRange - sharesInPreviousRange) / sharesInPreviousRange) * 100);
+    } else if (sharesInPreviousRange === 0 && sharesInRange > 0) {
+      sharesChange = 100;
+    } else if (sharesInPreviousRange === 0 && sharesInRange === 0) {
+      sharesChange = 0;
+    } else if (sharesInPreviousRange > 0 && sharesInRange === 0) {
+      sharesChange = -100;
+    }
+    
+    // Update share metric if element exists
+    const shareMetricEl = helpers.dom('#metric-shares');
+    if (shareMetricEl) {
+      const shareValueEl = shareMetricEl.querySelector('.metric-value');
+      const shareChangeEl = shareMetricEl.querySelector('.metric-change');
+      if (shareValueEl) {
+        shareValueEl.textContent = sharesInRange;
+      }
+      if (shareChangeEl) {
+        const changeIcon = shareChangeEl.querySelector('i');
+        const changeSpan = shareChangeEl.querySelector('span');
+        if (changeIcon && changeSpan) {
+          this.updateChangeIndicator(shareChangeEl, changeIcon, changeSpan, sharesChange);
+        }
+      }
+    }
   }
   
   /**

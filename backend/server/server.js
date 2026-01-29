@@ -362,6 +362,12 @@ if (config.creditsV3.enabled) {
   const creditsV3Routes = require('./credits-v3-routes');
   app.use('/api/v3/credits', creditsV3Routes);
   logger.info({ type: 'route_mounted', path: '/api/v3/credits' }, '[UNIFIED SERVER] ✅ Credits V3 routes mounted');
+  
+  // Share prompt routes
+  logger.info({ type: 'route_mount', path: '/api/share-prompt', route: 'sharePromptRoutes' }, '[UNIFIED SERVER] 📌 Mounting share prompt routes');
+  const sharePromptRoutes = require('./share-prompt-routes');
+  app.use('/api/share-prompt', sharePromptRoutes);
+  logger.info({ type: 'route_mounted', path: '/api/share-prompt' }, '[UNIFIED SERVER] ✅ Share prompt routes mounted');
 } else {
   logger.info({ type: 'route_skipped', path: '/api/v3/credits', reason: 'CREDITS_V3_ENABLED=false' }, '[UNIFIED SERVER] ⏭️  Credits V3 routes disabled (feature flag)');
 }

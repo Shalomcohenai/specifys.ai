@@ -1217,6 +1217,62 @@ export class UserDetailsModal {
         </div>
       ` : ''}
 
+      <!-- Share Prompts -->
+      <div class="user-details-section">
+        <h3 class="user-details-section-title">
+          <i class="fas fa-share-alt"></i>
+          Share Prompts
+        </h3>
+        ${analytics.sharePrompts ? `
+          <div class="user-details-grid">
+            <div class="user-details-item">
+              <label>Specs Shared</label>
+              <div class="user-details-value user-details-value-large">${analytics.sharePrompts.sharedSpecs?.length || 0}</div>
+            </div>
+            <div class="user-details-item">
+              <label>Times Dismissed</label>
+              <div class="user-details-value">${analytics.sharePrompts.timesDismissed || 0}</div>
+            </div>
+            <div class="user-details-item">
+              <label>Dismissed Permanently</label>
+              <div class="user-details-value">
+                ${analytics.sharePrompts.dismissedPermanently ? '<span class="status-badge status-disabled">Yes</span>' : '<span class="status-badge status-active">No</span>'}
+              </div>
+            </div>
+            ${analytics.sharePrompts.lastShown ? `
+              <div class="user-details-item">
+                <label>Last Shown</label>
+                <div class="user-details-value">${this.formatDateTime(analytics.sharePrompts.lastShown)}</div>
+              </div>
+            ` : ''}
+            ${analytics.sharePrompts.lastShareAction ? `
+              <div class="user-details-item">
+                <label>Last Share Action</label>
+                <div class="user-details-value">${this.formatDateTime(analytics.sharePrompts.lastShareAction)}</div>
+              </div>
+            ` : ''}
+          </div>
+          ${analytics.sharePrompts.sharedSpecs && analytics.sharePrompts.sharedSpecs.length > 0 ? `
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+              <h4 style="margin: 0 0 16px 0; font-size: 1rem; font-weight: 600; color: #374151;">Shared Specs</h4>
+              <div class="user-details-specs-list">
+                <ul>
+                  ${analytics.sharePrompts.sharedSpecs.map(specId => `
+                    <li>
+                      <span class="spec-title">${this.escapeHtml(specId)}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+            </div>
+          ` : ''}
+        ` : `
+          <div style="padding: 40px 20px; text-align: center; color: #9ca3af;">
+            <p style="margin: 0; font-size: 1rem;">No share prompt data available</p>
+          </div>
+        `}
+      </div>
+
       <!-- Email Activity -->
       <div class="user-details-section">
         <h3 class="user-details-section-title">

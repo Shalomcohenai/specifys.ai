@@ -423,6 +423,27 @@ async function getUserAnalytics(userId) {
       rawData.subscriptions_v3 = { error: error.message };
     }
 
+    // Get share prompt data
+    let shareData = {
+      sharedSpecs: [],
+      timesDismissed: 0,
+      dismissedPermanently: false,
+      lastShown: null,
+      lastShareAction: null
+    };
+    try {
+      const sharePrompts = userData.sharePrompts || {};
+      shareData = {
+        sharedSpecs: sharePrompts.sharedSpecs || [],
+        timesDismissed: sharePrompts.timesDismissed || 0,
+        dismissedPermanently: sharePrompts.dismissedPermanently || false,
+        lastShown: sharePrompts.lastShown ? toDate(sharePrompts.lastShown)?.toISOString() : null,
+        lastShareAction: sharePrompts.lastShareAction ? toDate(sharePrompts.lastShareAction)?.toISOString() : null
+      };
+    } catch (error) {
+      logger.warn({ requestId, userId, error: error.message }, '[user-analytics-service] Error getting share prompt data');
+    }
+
     // Build comprehensive analytics object
     const analytics = {
       // Basic user info
@@ -437,6 +458,8 @@ async function getUserAnalytics(userId) {
       },
       // Credits information
       credits: creditsData,
+      // Share prompt information
+      sharePrompts: shareData,
       // Subscription information
       subscription: subscriptionData,
       // Specs information
