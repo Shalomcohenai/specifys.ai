@@ -476,6 +476,12 @@ function startDailyReportJob() {
   const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
   const enabled = process.env.DAILY_REPORT_ENABLED !== 'false';
 
+  logger.info({ 
+    enabled, 
+    adminEmail: adminEmail ? 'configured' : 'missing',
+    dailyReportEnabled: process.env.DAILY_REPORT_ENABLED 
+  }, '[scheduled-jobs] Daily report job configuration check');
+
   if (!enabled) {
     logger.info('[scheduled-jobs] Daily report job disabled via DAILY_REPORT_ENABLED');
     return;
@@ -514,7 +520,9 @@ function startDailyReportJob() {
 
   logger.info({ 
     nextRun: next9AM.toISOString(),
-    adminEmail 
+    adminEmail,
+    msUntilNextRun: msUntilNext9AM,
+    currentTime: now.toISOString()
   }, '[scheduled-jobs] Daily report job started - will run every day at 9:00 AM');
 }
 

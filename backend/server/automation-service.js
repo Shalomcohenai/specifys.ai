@@ -296,11 +296,45 @@ class JobRegistry {
    */
   async getLastStatus(name) {
     try {
-      const snapshot = await db.collection('automation_logs')
-        .where('jobName', '==', name)
-        .orderBy('completedAt', 'desc')
-        .limit(1)
-        .get();
+      // Try with orderBy first (requires index)
+      let snapshot;
+      try {
+        snapshot = await db.collection('automation_logs')
+          .where('jobName', '==', name)
+          .orderBy('completedAt', 'desc')
+          .limit(1)
+          .get();
+      } catch (indexError) {
+        // If index error, fallback to query without orderBy and sort in memory
+        if (indexError.message && indexError.message.includes('index')) {
+          logger.warn({ jobName: name }, '[automation-service] Index missing, using fallback query');
+          const allDocs = await db.collection('automation_logs')
+            .where('jobName', '==', name)
+            .get();
+          
+          if (allDocs.empty) {
+            return null;
+          }
+          
+          // Sort by completedAt in memory
+          const sortedDocs = allDocs.docs.sort((a, b) => {
+            const aTime = a.data().completedAt?.toDate ? a.data().completedAt.toDate().getTime() : 0;
+            const bTime = b.data().completedAt?.toDate ? b.data().completedAt.toDate().getTime() : 0;
+            return bTime - aTime; // Descending order
+          });
+          
+          const doc = sortedDocs[0];
+          const data = doc.data();
+          
+          return {
+            id: doc.id,
+            ...data,
+            startedAt: data.startedAt?.toDate ? data.startedAt.toDate() : data.startedAt,
+            completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt
+          };
+        }
+        throw indexError;
+      }
 
       if (snapshot.empty) {
         return null;
@@ -329,11 +363,37 @@ class JobRegistry {
    */
   async getHistory(name, limit = 10) {
     try {
-      const snapshot = await db.collection('automation_logs')
-        .where('jobName', '==', name)
-        .orderBy('completedAt', 'desc')
-        .limit(limit)
-        .get();
+      // Try with orderBy first (requires index)
+      let snapshot;
+      try {
+        snapshot = await db.collection('automation_logs')
+          .where('jobName', '==', name)
+          .orderBy('completedAt', 'desc')
+          .limit(limit)
+          .get();
+      } catch (indexError) {
+        // If index error, fallback to query without orderBy and sort in memory
+        if (indexError.message && indexError.message.includes('index')) {
+          logger.warn({ jobName: name }, '[automation-service] Index missing, using fallback query');
+          const allDocs = await db.collection('automation_logs')
+            .where('jobName', '==', name)
+            .get();
+          
+          // Sort by completedAt in memory
+          const sortedDocs = allDocs.docs.sort((a, b) => {
+            const aTime = a.data().completedAt?.toDate ? a.data().completedAt.toDate().getTime() : 0;
+            const bTime = b.data().completedAt?.toDate ? b.data().completedAt.toDate().getTime() : 0;
+            return bTime - aTime; // Descending order
+          });
+          
+          // Take only the requested limit
+          snapshot = {
+            docs: sortedDocs.slice(0, limit)
+          };
+        } else {
+          throw indexError;
+        }
+      }
 
       return snapshot.docs.map(doc => {
         const data = doc.data();
