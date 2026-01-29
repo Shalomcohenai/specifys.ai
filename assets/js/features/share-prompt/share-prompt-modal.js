@@ -181,14 +181,42 @@ Built with @SpecifysAI`;
     const slackBtn = shareOptionsModal.querySelector('#share-slack');
     const discordBtn = shareOptionsModal.querySelector('#share-discord');
 
-    if (twitterBtn) twitterBtn.href = twitterLink;
-    if (linkedinBtn) linkedinBtn.href = linkedinLink;
-    if (slackBtn) slackBtn.href = slackLink;
+    // Helper function to handle share platform click
+    const handlePlatformShare = async (e) => {
+      // Don't prevent default - let the link open
+      // But trigger share complete after a short delay to allow window to open
+      setTimeout(() => {
+        handleShareComplete();
+      }, 500);
+    };
+
+    // Remove existing listeners to avoid duplicates
+    if (twitterBtn) {
+      const newTwitterBtn = twitterBtn.cloneNode(true);
+      twitterBtn.parentNode.replaceChild(newTwitterBtn, twitterBtn);
+      newTwitterBtn.href = twitterLink;
+      newTwitterBtn.addEventListener('click', handlePlatformShare);
+    }
+    if (linkedinBtn) {
+      const newLinkedinBtn = linkedinBtn.cloneNode(true);
+      linkedinBtn.parentNode.replaceChild(newLinkedinBtn, linkedinBtn);
+      newLinkedinBtn.href = linkedinLink;
+      newLinkedinBtn.addEventListener('click', handlePlatformShare);
+    }
+    if (slackBtn) {
+      const newSlackBtn = slackBtn.cloneNode(true);
+      slackBtn.parentNode.replaceChild(newSlackBtn, slackBtn);
+      newSlackBtn.href = slackLink;
+      newSlackBtn.addEventListener('click', handlePlatformShare);
+    }
     if (discordBtn) {
       // For Discord, we'll just copy the text when clicked
-      discordBtn.addEventListener('click', (e) => {
+      const newDiscordBtn = discordBtn.cloneNode(true);
+      discordBtn.parentNode.replaceChild(newDiscordBtn, discordBtn);
+      newDiscordBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        handleCopyText();
+        await handleCopyText();
+        await handleShareComplete();
       });
     }
   }
@@ -262,18 +290,26 @@ Built with @SpecifysAI`;
    */
   async function handleCopyAndClose() {
     await handleCopyText();
+    // handleShareComplete will be called, which records the action and grants credit
     await handleShareComplete();
     closeShareOptions();
   }
 
   /**
    * Handle share complete (user clicked a share platform or copied)
+   * This function calls the API endpoint which both grants credit AND records the share action
    */
   async function handleShareComplete() {
-    if (!currentSpecId) return;
+    if (!currentSpecId) {
+      console.warn('[SharePrompt] No spec ID available for share completion');
+      return;
+    }
 
     try {
-      // Record share action and grant credit
+      // Call API endpoint which will:
+      // 1. Check if credit was already granted for this spec
+      // 2. Grant bonus credit if not already granted
+      // 3. Mark spec as shared in Firestore
       const response = await window.api.post('/api/v3/credits/share-bonus', {
         specId: currentSpecId
       });
@@ -281,21 +317,36 @@ Built with @SpecifysAI`;
       if (response && response.success) {
         // Refresh credits display if available
         if (window.creditManager) {
-          window.creditManager.getCredits(true);
+          await window.creditManager.getCredits(true);
         }
         
-        // Show success message briefly
+        // Show success message
         const successMsg = document.createElement('div');
         successMsg.className = 'share-success-message';
-        successMsg.textContent = '+1 credit added to your account!';
+        if (response.creditsAdded > 0) {
+          successMsg.textContent = '+1 credit added to your account!';
+        } else {
+          successMsg.textContent = 'Credit already granted for this spec.';
+        }
         document.body.appendChild(successMsg);
         setTimeout(() => {
           successMsg.remove();
         }, 3000);
+      } else {
+        console.error('[SharePrompt] Share bonus API returned unsuccessful response:', response);
+        throw new Error(response?.message || 'Failed to grant credit');
       }
     } catch (error) {
       console.error('[SharePrompt] Error completing share:', error);
-      // Don't show error to user - they already shared
+      // Show error to user
+      const errorMsg = document.createElement('div');
+      errorMsg.className = 'share-success-message';
+      errorMsg.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+      errorMsg.textContent = error.message || 'Failed to add credit. Please contact support.';
+      document.body.appendChild(errorMsg);
+      setTimeout(() => {
+        errorMsg.remove();
+      }, 5000);
     }
   }
 
@@ -339,9 +390,11 @@ Built with @SpecifysAI`;
    * Open share options modal
    */
   function openShareOptions() {
-    const modal = createShareOptionsModal();
+    if (!shareOptionsModal) {
+      createShareOptionsModal();
+    }
     updateShareLinks();
-    modal.style.display = 'flex';
+    shareOptionsModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
 
