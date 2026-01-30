@@ -218,7 +218,7 @@ body .logo a:hover .logo-dot {
 }
 
 .hero-button-container {
-  margin: 0 0 3.5rem 0;
+  margin: 0 0 0.5rem 0;
   text-align: center;
   display: flex;
   justify-content: center;
@@ -226,6 +226,29 @@ body .logo a:hover .logo-dot {
   gap: 16px;
   order: 0;
   flex-wrap: wrap;
+}
+
+.start-now-subtext {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 3rem 0;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease-out 0.3s, transform 0.8s ease-out 0.3s;
+}
+
+.hero-button-container .hero-cta-button-new.fade-in ~ *,
+.hero-button-container .hero-cta-button-secondary.fade-in ~ * {
+  /* This will trigger when buttons fade in */
+}
+
+.start-now-subtext.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero-cta-button {
@@ -397,7 +420,7 @@ body .logo a:hover .logo-dot {
   color: #ffffff;
   line-height: 1.6;
   margin: 0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
@@ -1239,7 +1262,7 @@ body .logo a:hover .logo-dot {
   width: 100%;
   max-width: 1200px;
   padding: 4rem 1.5rem;
-  padding-top: 250px;
+  padding-top: 60px;
   text-align: center;
   margin: 0 auto;
   display: flex;
@@ -1250,7 +1273,7 @@ body .logo a:hover .logo-dot {
 }
 
 .why-section.prompt-section {
-  margin-top: 280px;
+  margin-top: 150px;
 }
 
 .section {
@@ -1261,6 +1284,16 @@ body .logo a:hover .logo-dot {
   animation-delay: calc(0.2s * var(--section-index));
   text-align: center;
   width: 100%;
+}
+
+/* Choose Your Plan section - darker gray background */
+.extra-sections .section[style*="--section-index: 0"] {
+  background-color: #e5e5e5;
+  padding: 80px 20px;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+  position: relative;
 }
 
 .section h2 {
@@ -1631,8 +1664,8 @@ body .logo a:hover .logo-dot {
 }
 
 .pricing-card-home {
-  background: white;
-  border: 2px solid #e9ecef;
+  background: #FFF4F0;
+  border: 2px solid #FF6B35;
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
@@ -1644,7 +1677,7 @@ body .logo a:hover .logo-dot {
 
 .pricing-card-home:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
 }
 
 .pricing-card-home.highlight {
@@ -1746,7 +1779,7 @@ body .logo a:hover .logo-dot {
   display: block;
   width: 100%;
   padding: 0.65rem 1.2rem;
-  background: #333;
+  background: #2a2a2a;
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -1757,19 +1790,19 @@ body .logo a:hover .logo-dot {
 }
 
 .pricing-btn:hover {
-  background: #FF6B35;
+  background: #3a3a3a;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .pricing-btn.highlight-btn {
-  background: #FF6B35;
+  background: #2a2a2a;
   color: white;
 }
 
 .pricing-btn.highlight-btn:hover {
-  background: #FF8551;
+  background: #3a3a3a;
   color: white;
 }
 
@@ -1924,13 +1957,14 @@ body .logo a:hover .logo-dot {
   overflow: hidden;
   font-size: 1rem;
   color: #333;
-  padding: 0 1rem;
+  padding: 0 2rem;
   transition: max-height 0.3s ease, padding 0.3s ease;
+  line-height: 1.8;
 }
 
 .faq-answer.open {
-  max-height: 200px;
-  padding: 1rem;
+  max-height: 500px;
+  padding: 2rem;
 }
 
 /* ===== TESTIMONIALS SECTION ===== */
@@ -2396,8 +2430,13 @@ body .logo a:hover .logo-dot {
   }
   .extra-sections {
     padding: 2rem 8px;
-    padding-top: 200px;
+    padding-top: 80px;
     margin-top: 0;
+  }
+  
+  
+  .why-section[data-section="2"] {
+    padding: 60px 20px;
   }
   .section {
     padding: 0 8px;
@@ -2516,8 +2555,20 @@ body .logo a:hover .logo-dot {
   }
   .extra-sections {
     padding: 1.5rem 6px;
-    padding-top: 170px;
+    padding-top: 40px;
     margin-top: 0;
+  }
+  
+  .extra-sections .section[style*="--section-index: 0"] {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+    position: relative;
+    padding: 40px 15px;
+  }
+  
+  .why-section[data-section="2"] {
+    padding: 40px 15px;
   }
   .section {
     padding: 0 6px;
@@ -3272,6 +3323,32 @@ body .logo a:hover .logo-dot {
   height: 1px;
   background: #1e1e1e;
   z-index: 3;
+}
+
+/* See More Tab - Orange style */
+.browser-window-tab.browser-window-tab-see-more {
+  background: #FF6B35;
+  color: white;
+  text-decoration: none;
+  flex: 0 0 auto;
+  min-width: 100px;
+}
+
+.browser-window-tab.browser-window-tab-see-more:hover {
+  background: #FF8551;
+  color: white;
+  text-decoration: none;
+}
+
+.browser-window-tab.browser-window-tab-see-more:active {
+  background: #FF6B35;
+  color: white;
+  text-decoration: none;
+}
+
+.browser-window-tab.browser-window-tab-see-more.active {
+  background: #FF6B35;
+  color: white;
 }
 
 
@@ -4198,6 +4275,7 @@ body .logo a:hover .logo-dot {
     margin-bottom: -150px;
   }
   
+  
   .browser-window-frame {
     border-radius: 10px;
   }
@@ -4367,6 +4445,7 @@ body .logo a:hover .logo-dot {
     padding: 0 15px;
     margin-bottom: -120px;
   }
+  
   
   .browser-window-frame {
     border-radius: 8px;

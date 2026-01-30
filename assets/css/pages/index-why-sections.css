@@ -30,7 +30,7 @@
   position: relative;
   min-height: 600px;
   overflow: hidden;
-  padding-top: 150px;
+  padding-top: 80px;
 }
 
 .prompt-animation-container {
@@ -280,6 +280,12 @@
 /* How It Works section - add margin-top */
 .why-section[data-section="4"] {
   margin-top: 80px;
+}
+
+/* The Right Way to Build section - darker gray background */
+.why-section[data-section="2"] {
+  background-color: #e5e5e5;
+  padding: 80px 20px;
 }
 
 /* Responsive */

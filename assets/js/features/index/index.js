@@ -2061,16 +2061,25 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 700 + (index * 100)); // Each icon appears 100ms after the previous one
     });
     
-    // Fade in Start button and secondary buttons (Why? and View Demo) last, before Vanta (~1.1s - after icons start appearing)
+    // Fade in Start button and secondary buttons (Why?) last, before Vanta (~1.1s - after icons start appearing)
     if (startButton) {
       setTimeout(() => {
         startButton.classList.add('fade-in');
         
-        // Fade in all secondary buttons (Why? and View Demo) at the same time
+        // Fade in all secondary buttons (Why?) at the same time
+        // Note: View Demo button is now inside browser window and appears on hover
         const secondaryButtons = document.querySelectorAll('.hero-cta-button-secondary');
         secondaryButtons.forEach((button) => {
           button.classList.add('fade-in');
         });
+        
+        // Fade in subtext after buttons appear
+        const subtext = document.querySelector('.start-now-subtext');
+        if (subtext) {
+          setTimeout(() => {
+            subtext.classList.add('visible');
+          }, 300); // Appears 300ms after buttons
+        }
         
         // Fade in browser window after Start button appears
         const browserWindow = document.querySelector('.browser-window-preview');
@@ -2088,6 +2097,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize scroll reveal for section titles
   initSectionTitlesFadeIn();
+  
 });
 
 // Scroll reveal for section titles and content
