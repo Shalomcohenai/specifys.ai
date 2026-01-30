@@ -2054,6 +2054,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 500);
     }
     
+    // Fade in tagline after 0.7s
+    const heroTagline = document.querySelector('.hero-tagline');
+    if (heroTagline) {
+      setTimeout(() => {
+        heroTagline.classList.add('fade-in');
+      }, 700);
+    }
+    
     // Fade in icons with staggered delay (starting after 0.7s)
     specIcons.forEach((icon, index) => {
       setTimeout(() => {
