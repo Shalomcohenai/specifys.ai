@@ -426,6 +426,103 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
 });
 
 /**
+ * Generate overview spec in background
+ * POST /api/specs/generate-overview
+ * Body: { userInput: string, specId?: string }
+ * Returns: 202 Accepted immediately, processes in background
+ */
+router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `generate-overview-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+
+    logger.info({ requestId }, '[specs-routes] POST /generate-overview - Starting overview generation');
+
+    try {
+        const userId = req.user.uid;
+        const { userInput, specId } = req.body;
+
+        if (!userInput) {
+            return next(createError('userInput is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+
+        // If specId provided, verify ownership
+        if (specId) {
+            const specDoc = await db.collection('specs').doc(specId).get();
+            if (!specDoc.exists) {
+                return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+            }
+            const specData = specDoc.data();
+            if (specData.userId !== userId) {
+                return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
+            }
+        }
+
+        // Generate overview in background
+        const generateOverview = async () => {
+            try {
+                const overviewContent = await specGenerationService.generateOverview(userInput);
+                
+                // If specId provided, update the spec
+                if (specId) {
+                    await db.collection('specs').doc(specId).update({
+                        overview: overviewContent,
+                        'status.overview': 'ready',
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Emit event
+                    specEvents.emitSpecUpdate(specId, 'overview', 'ready', overviewContent);
+                }
+                
+                return overviewContent;
+            } catch (error) {
+                logger.error({ requestId, error: error.message }, '[specs-routes] Overview generation failed');
+                if (specId) {
+                    await db.collection('specs').doc(specId).update({
+                        'status.overview': 'error',
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    specEvents.emitSpecError(specId, 'overview', error);
+                }
+                throw error;
+            }
+        };
+
+        // Start generation in background (fire and forget)
+        generateOverview().catch(err => {
+            logger.error({ requestId, error: err.message }, '[specs-routes] Background overview generation error');
+        });
+
+        const totalTime = Date.now() - startTime;
+        logger.info({ requestId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-overview - Job started');
+
+        // Return 202 Accepted - processing in background
+        res.status(202).json({
+            success: true,
+            message: 'Overview generation started in background',
+            specId: specId || null,
+            requestId
+        });
+
+    } catch (error) {
+        const totalTime = Date.now() - startTime;
+        logger.error({
+            requestId,
+            error: {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            },
+            duration: `${totalTime}ms`
+        }, '[specs-routes] POST /generate-overview - Error');
+        next(createError('Failed to start overview generation', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+            details: error.message,
+            requestId
+        }));
+    }
+});
+
+/**
  * Get generation job status
  * GET /api/specs/:id/generation-status
  */

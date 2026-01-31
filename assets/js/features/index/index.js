@@ -1249,12 +1249,74 @@ async function generateSpecification() {
       enhancedPrompt = prompt;
     }
     
-    // Generate specification using API Client
+    // Generate specification - try queue API first, fallback to direct API
     let data;
+    let useQueue = true; // Try queue first
+    let specIdForQueue = null;
+    
     try {
-      data = await window.api.post('/api/generate-spec', {
-        userInput: enhancedPrompt
-      });
+      // First, create spec document with pending status (needed for queue API)
+      const user = firebase.auth().currentUser;
+      if (useQueue && user) {
+        try {
+          // Create temporary spec document
+          const tempSpecDoc = {
+            title: "Generating...",
+            overview: null,
+            technical: null,
+            market: null,
+            status: {
+              overview: "generating",
+              technical: "pending",
+              market: "pending"
+            },
+            overviewApproved: false,
+            userId: user.uid,
+            userName: user.displayName || user.email || 'Unknown User',
+            mode: 'unified',
+            answers: answers,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          
+          const tempDocRef = await firebase.firestore().collection('specs').add(tempSpecDoc);
+          specIdForQueue = tempDocRef.id;
+          
+          // Try queue API
+          const queueResponse = await window.api.post('/api/specs/generate-overview', {
+            userInput: enhancedPrompt,
+            specId: specIdForQueue
+          });
+          
+          if (queueResponse.success) {
+            // Queue started successfully - use the specId and continue
+            showNotification('Overview generation started in background. Redirecting...', 'info');
+            data = { specification: null, pending: true, specId: specIdForQueue };
+          } else {
+            // Delete temp spec and fallback
+            await firebase.firestore().collection('specs').doc(specIdForQueue).delete();
+            specIdForQueue = null;
+            useQueue = false;
+          }
+        } catch (queueError) {
+          console.warn('Queue API failed, falling back to direct API:', queueError);
+          // Delete temp spec if created
+          if (specIdForQueue) {
+            try {
+              await firebase.firestore().collection('specs').doc(specIdForQueue).delete();
+            } catch (e) {}
+            specIdForQueue = null;
+          }
+          useQueue = false;
+        }
+      }
+      
+      // Fallback to direct API if queue failed or not used
+      if (!useQueue || !data || !data.pending) {
+        data = await window.api.post('/api/generate-spec', {
+          userInput: enhancedPrompt
+        });
+      }
     } catch (error) {
       // Handle 403 (paywall) errors
       if (error.status === 403) {
@@ -1297,7 +1359,66 @@ async function generateSpecification() {
     }
     
     // Extract overview content from the response
-    const overviewContent = data.specification || 'No overview generated';
+    let overviewContent;
+    let firebaseId = null;
+    
+    // If using queue, spec already exists and overview will be updated by queue
+    if (data && data.pending && specIdForQueue) {
+      firebaseId = specIdForQueue;
+      overviewContent = null; // Will be updated by queue
+      
+      // Consume credit for the spec
+      let creditConsumed = false;
+      let consumeTransactionId = null;
+      
+      try {
+        const consumeResult = await window.api.post('/api/v3/credits/consume', {
+          specId: firebaseId
+        });
+        
+        creditConsumed = true;
+        consumeTransactionId = consumeResult.transactionId || firebaseId;
+        
+        // Update credits display
+        if (typeof window.clearCreditsCache === 'function') {
+          window.clearCreditsCache();
+        }
+        if (typeof window.updateCreditsDisplay !== 'undefined') {
+          await window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {});
+        }
+      } catch (creditError) {
+        // Handle credit errors (similar to existing logic)
+        const errorMessage = creditError.message || 'Failed to consume credit';
+        if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
+          creditConsumed = true;
+          consumeTransactionId = `idempotent-${Date.now()}`;
+        } else {
+          // Delete spec and show error
+          if (firebaseId) {
+            try {
+              await firebase.firestore().collection('specs').doc(firebaseId).delete();
+            } catch (e) {}
+          }
+          hideLoadingOverlay();
+          throw creditError;
+        }
+      }
+      
+      // Update store
+      if (window.store) {
+        window.store.set('loading', false);
+        window.store.set('currentSpec', { id: firebaseId, overview: null });
+      }
+      
+      // Redirect to spec viewer - listener will update when ready
+      setTimeout(() => {
+        window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
+      }, 1000);
+      return; // Exit early - queue will handle the rest
+    }
+    
+    // Normal flow - direct API was used
+    overviewContent = data.specification || 'No overview generated';
     
     // Update store with loading state
     if (window.store) {

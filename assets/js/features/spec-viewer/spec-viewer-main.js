@@ -1,6 +1,8 @@
 let currentSpecData = null;
 let currentTab = 'overview';
 let isLoading = false;
+let specUnsubscribe = null; // Firestore listener unsubscribe function
+let specPollInterval = null; // Polling interval for spec status
 
 // Worker endpoints configuration
 const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
@@ -473,6 +475,119 @@ async function loadSpec(specId) {
 
         
 
+        // Clean up previous listener if exists
+        if (specUnsubscribe) {
+            specUnsubscribe();
+            specUnsubscribe = null;
+        }
+        
+        // Clean up previous polling if exists
+        if (specPollInterval) {
+            clearInterval(specPollInterval);
+            specPollInterval = null;
+        }
+        
+        // Set up Firestore real-time listener for spec updates
+        specUnsubscribe = firebase.firestore()
+            .collection('specs')
+            .doc(specId)
+            .onSnapshot((doc) => {
+                if (doc.exists) {
+                    const updatedData = { id: doc.id, ...doc.data() };
+                    const previousStatus = currentSpecData?.status || {};
+                    const newStatus = updatedData.status || {};
+                    
+                    // Update current spec data
+                    currentSpecData = updatedData;
+                    
+                    // Check for status changes and update UI accordingly
+                    const stages = ['technical', 'market', 'design'];
+                    stages.forEach(stage => {
+                        const prevStageStatus = previousStatus[stage];
+                        const newStageStatus = newStatus[stage];
+                        
+                        // If status changed to 'ready' and we have content, update UI
+                        if (newStageStatus === 'ready' && prevStageStatus !== 'ready' && updatedData[stage]) {
+                            // Update notification dot
+                            updateNotificationDot(stage, 'ready');
+                            updateTabLoadingState(stage, false);
+                            
+                            // Display the content
+                            if (stage === 'technical') {
+                                displayTechnical(updatedData.technical);
+                                const technicalTab = document.getElementById('technicalTab');
+                                const mindmapTab = document.getElementById('mindmapTab');
+                                if (technicalTab) technicalTab.disabled = false;
+                                if (mindmapTab) mindmapTab.disabled = false;
+                            } else if (stage === 'market') {
+                                displayMarket(updatedData.market);
+                                const marketTab = document.getElementById('marketTab');
+                                if (marketTab) marketTab.disabled = false;
+                            } else if (stage === 'design') {
+                                displayDesign(updatedData.design);
+                                const designTab = document.getElementById('designTab');
+                                if (designTab) designTab.disabled = false;
+                                refreshTabsAfterDesignReady();
+                            }
+                            
+                            // Update export checkboxes
+                            updateExportCheckboxes();
+                            
+                            // Check if all stages are ready
+                            const allReady = stages.every(s => newStatus[s] === 'ready');
+                            if (allReady) {
+                                showNotification('All specifications generated successfully!', 'success');
+                                hideApproveButton();
+                                
+                                // Stop polling if all done
+                                if (specPollInterval) {
+                                    clearInterval(specPollInterval);
+                                    specPollInterval = null;
+                                }
+                                
+                                // Upload to OpenAI (non-blocking)
+                                if (updatedData.id) {
+                                    triggerOpenAIUploadForSpec(updatedData.id).catch(err => {
+                                        console.warn('Failed to upload spec to OpenAI:', err);
+                                    });
+                                }
+                            }
+                            
+                            // Enable diagrams tab if technical and market are ready
+                            if (newStatus.technical === 'ready' && newStatus.market === 'ready') {
+                                const diagramsTab = document.getElementById('diagramsTab');
+                                if (diagramsTab) {
+                                    diagramsTab.disabled = false;
+                                }
+                            }
+                        } else if (newStageStatus === 'error' && prevStageStatus !== 'error') {
+                            updateNotificationDot(stage, 'error');
+                            updateTabLoadingState(stage, false);
+                            showNotification(`Failed to generate ${stage} specification. You can retry using the retry buttons.`, 'error');
+                        } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
+                            updateNotificationDot(stage, 'generating');
+                            updateTabLoadingState(stage, true);
+                        }
+                    });
+                    
+                    // Update all notification dots
+                    updateAllNotificationDots();
+                }
+            }, (error) => {
+                console.error('Firestore listener error:', error);
+                // Fallback to polling if listener fails
+                if (!specPollInterval) {
+                    startSpecStatusPolling(specId);
+                }
+            });
+        
+        // Start polling as backup (especially if generation is in progress)
+        if (specData.status?.technical === 'generating' || 
+            specData.status?.market === 'generating' || 
+            specData.status?.design === 'generating') {
+            startSpecStatusPolling(specId);
+        }
+        
         displaySpec(currentSpecData);
         
     } catch (error) {
@@ -4902,7 +5017,7 @@ async function approveOverview() {
         updateNotificationDot('market', 'generating');
         updateNotificationDot('design', 'generating');
         
-        // Start parallel generation directly via Cloudflare Worker (like retry functions)
+        // Start generation via server queue (runs in background, continues even if user closes window)
         showNotification('Starting parallel generation of Technical, Market, and Design specifications...', 'info');
         
         // Show email notification for advanced spec
@@ -4910,121 +5025,141 @@ async function approveOverview() {
             showNotification('⚠️ Advanced specifications take longer to generate... 💌 Don\'t worry! We\'ll send it to your email once it\'s ready!', 'info');
         }, 1500);
         
-        // Generate all three specifications in parallel
-        const generationPromises = [
-            generateTechnicalSpec().then(content => ({ type: 'technical', content })),
-            generateMarketSpec().then(content => ({ type: 'market', content })),
-            generateDesignSpec().then(content => ({ type: 'design', content }))
-        ];
-        
-        // Wait for all to complete (or fail)
-        const results = await Promise.allSettled(generationPromises);
-        
-        // Process results and update Firebase
-        // user is already defined above (line 4551), don't redeclare
-        const updates = {
-            status: {
-                ...currentSpecData.status,
-                overview: "ready"
-            },
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        results.forEach((result, index) => {
-            const type = ['technical', 'market', 'design'][index];
-            if (result.status === 'fulfilled') {
-                const { content } = result.value;
-                updates[type] = content;
-                updates.status[type] = 'ready';
+        // Use server queue API - generation continues in background even if user closes window
+        try {
+            const response = await window.api.post(`/api/specs/${currentSpecData.id}/generate-all`, {
+                overview: currentSpecData.overview,
+                answers: currentSpecData.answers || []
+            });
+            
+            if (response.success) {
+                showNotification('Specification generation started in background. You can close this window - we\'ll notify you when it\'s ready!', 'info');
                 
-                // Update local data
-                currentSpecData[type] = content;
-                currentSpecData.status[type] = 'ready';
-                
-                // Update notification dot to show ready state
-                updateNotificationDot(type, 'ready');
-                
-                // Display the content
-                if (type === 'technical') {
-                    displayTechnical(content);
-                    const technicalTab = document.getElementById('technicalTab');
-                    const mindmapTab = document.getElementById('mindmapTab');
-                    if (technicalTab) technicalTab.disabled = false;
-                    if (mindmapTab) mindmapTab.disabled = false;
-                } else if (type === 'market') {
-                    displayMarket(content);
-                    const marketTab = document.getElementById('marketTab');
-                    if (marketTab) marketTab.disabled = false;
-                } else if (type === 'design') {
-                    displayDesign(content);
-                    const designTab = document.getElementById('designTab');
-                    if (designTab) designTab.disabled = false;
-                    refreshTabsAfterDesignReady();
-                }
-                
-                updateTabLoadingState(type, false);
-                showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} specification generated successfully!`, 'success');
+                // Start polling as backup (in case Firestore listener doesn't work)
+                startSpecStatusPolling(currentSpecData.id);
             } else {
-                updates.status[type] = 'error';
-                currentSpecData.status[type] = 'error';
-                updateTabLoadingState(type, false);
-                showNotification(`Failed to generate ${type} specification: ${result.reason?.message || 'Unknown error'}`, 'error');
+                throw new Error('Failed to start generation');
             }
-        });
-        
-        // Update Firebase with all results
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                await firebase.firestore().collection('specs').doc(currentSpecData.id).update(updates);
-                
-                // Update localStorage backup
-                localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-                
-                // Update export checkboxes
-                updateExportCheckboxes();
-                
-                // Enable diagrams tab if technical and market are ready
-                if (updates.status.technical === 'ready' && updates.status.market === 'ready') {
-                    const diagramsTab = document.getElementById('diagramsTab');
-                    if (diagramsTab) {
-                        diagramsTab.disabled = false;
+        } catch (error) {
+            // Fallback to client-side generation if queue API fails
+            console.warn('Queue API failed, falling back to client-side generation:', error);
+            showNotification('Using client-side generation (window must stay open)...', 'warning');
+            
+            // Generate all three specifications in parallel (fallback)
+            const generationPromises = [
+                generateTechnicalSpec().then(content => ({ type: 'technical', content })),
+                generateMarketSpec().then(content => ({ type: 'market', content })),
+                generateDesignSpec().then(content => ({ type: 'design', content }))
+            ];
+            
+            // Wait for all to complete (or fail)
+            const results = await Promise.allSettled(generationPromises);
+            
+            // Process results and update Firebase
+            const updates = {
+                status: {
+                    ...currentSpecData.status,
+                    overview: "ready"
+                },
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            results.forEach((result, index) => {
+                const type = ['technical', 'market', 'design'][index];
+                if (result.status === 'fulfilled') {
+                    const { content } = result.value;
+                    updates[type] = content;
+                    updates.status[type] = 'ready';
+                    
+                    // Update local data
+                    currentSpecData[type] = content;
+                    currentSpecData.status[type] = 'ready';
+                    
+                    // Update notification dot to show ready state
+                    updateNotificationDot(type, 'ready');
+                    
+                    // Display the content
+                    if (type === 'technical') {
+                        displayTechnical(content);
+                        const technicalTab = document.getElementById('technicalTab');
+                        const mindmapTab = document.getElementById('mindmapTab');
+                        if (technicalTab) technicalTab.disabled = false;
+                        if (mindmapTab) mindmapTab.disabled = false;
+                    } else if (type === 'market') {
+                        displayMarket(content);
+                        const marketTab = document.getElementById('marketTab');
+                        if (marketTab) marketTab.disabled = false;
+                    } else if (type === 'design') {
+                        displayDesign(content);
+                        const designTab = document.getElementById('designTab');
+                        if (designTab) designTab.disabled = false;
+                        refreshTabsAfterDesignReady();
                     }
-                    const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-                    const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
-                    if (generateDiagramsBtn) {
-                        generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
-                    }
+                    
+                    updateTabLoadingState(type, false);
+                    showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} specification generated successfully!`, 'success');
+                } else {
+                    updates.status[type] = 'error';
+                    currentSpecData.status[type] = 'error';
+                    updateTabLoadingState(type, false);
+                    showNotification(`Failed to generate ${type} specification: ${result.reason?.message || 'Unknown error'}`, 'error');
                 }
-                
-                // Check if all are ready or errored to show final notification
-                const allDone = ['technical', 'market', 'design'].every(stage =>
-                    updates.status[stage] === 'ready' || updates.status[stage] === 'error'
-                );
-
-                if (allDone) {
-                    const allSuccessful = ['technical', 'market', 'design'].every(stage =>
-                        updates.status[stage] === 'ready'
-                    );
-                    if (allSuccessful) {
-                        showNotification('All specifications generated successfully!', 'success');
-                        
-                        // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-                        if (currentSpecData && currentSpecData.id) {
-                            triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                                // Non-blocking - don't interrupt user experience
-                                console.warn('Failed to upload spec to OpenAI after generation:', err);
-                            });
+            });
+            
+            // Update Firebase with all results
+            if (user && currentSpecData && currentSpecData.id) {
+                try {
+                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update(updates);
+                    
+                    // Update localStorage backup
+                    localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+                    
+                    // Update export checkboxes
+                    updateExportCheckboxes();
+                    
+                    // Enable diagrams tab if technical and market are ready
+                    if (updates.status.technical === 'ready' && updates.status.market === 'ready') {
+                        const diagramsTab = document.getElementById('diagramsTab');
+                        if (diagramsTab) {
+                            diagramsTab.disabled = false;
                         }
-                    } else {
-                        showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
+                        const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
+                        const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
+                        if (generateDiagramsBtn) {
+                            generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+                        }
                     }
-                    hideApproveButton();
+                    
+                    // Check if all are ready or errored to show final notification
+                    const allDone = ['technical', 'market', 'design'].every(stage =>
+                        updates.status[stage] === 'ready' || updates.status[stage] === 'error'
+                    );
+
+                    if (allDone) {
+                        const allSuccessful = ['technical', 'market', 'design'].every(stage =>
+                            updates.status[stage] === 'ready'
+                        );
+                        if (allSuccessful) {
+                            showNotification('All specifications generated successfully!', 'success');
+                            
+                            // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                            if (currentSpecData && currentSpecData.id) {
+                                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                                    // Non-blocking - don't interrupt user experience
+                                    console.warn('Failed to upload spec to OpenAI after generation:', err);
+                                });
+                            }
+                        } else {
+                            showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
+                        }
+                        hideApproveButton();
+                    }
+                } catch (error) {
+                    if (window.appLogger) {
+                        window.appLogger.logError(error, { context: 'SpecViewer.updateFirebase' });
+                    }
+                    showNotification('Failed to update database, but specifications were generated locally.', 'error');
                 }
-            } catch (error) {
-                if (window.appLogger) {
-                    window.appLogger.logError(error, { context: 'SpecViewer.updateFirebase' });
-                }
-                showNotification('Failed to update database, but specifications were generated locally.', 'error');
             }
         }
         
@@ -5054,6 +5189,79 @@ async function approveOverview() {
             approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
         }
     }
+}
+
+/**
+ * Start polling for spec generation status (backup mechanism)
+ * Used when Firestore listener fails or when user closes and reopens window
+ */
+function startSpecStatusPolling(specId) {
+    // Clear existing polling if any
+    if (specPollInterval) {
+        clearInterval(specPollInterval);
+    }
+    
+    let pollCount = 0;
+    const maxPolls = 120; // Poll for up to 10 minutes (120 * 5 seconds)
+    
+    specPollInterval = setInterval(async () => {
+        pollCount++;
+        
+        try {
+            // Check generation status from API
+            const statusResponse = await window.api.get(`/api/specs/${specId}/generation-status`);
+            
+            if (statusResponse.job) {
+                const jobStatus = statusResponse.job.status;
+                
+                // If job is completed or failed, reload spec data
+                if (jobStatus === 'completed' || jobStatus === 'failed') {
+                    clearInterval(specPollInterval);
+                    specPollInterval = null;
+                    
+                    // Reload spec to get latest data
+                    if (currentSpecData && currentSpecData.id === specId) {
+                        const doc = await firebase.firestore().collection('specs').doc(specId).get();
+                        if (doc.exists) {
+                            const updatedData = { id: doc.id, ...doc.data() };
+                            currentSpecData = updatedData;
+                            displaySpec(updatedData);
+                        }
+                    }
+                }
+            }
+            
+            // Also check Firestore directly as backup
+            if (currentSpecData && currentSpecData.id === specId) {
+                const doc = await firebase.firestore().collection('specs').doc(specId).get();
+                if (doc.exists) {
+                    const specData = doc.data();
+                    const status = specData.status || {};
+                    
+                    // If all stages are done (ready or error), stop polling
+                    const allDone = ['technical', 'market', 'design'].every(stage => 
+                        status[stage] === 'ready' || status[stage] === 'error'
+                    );
+                    
+                    if (allDone) {
+                        clearInterval(specPollInterval);
+                        specPollInterval = null;
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.warn('Polling error:', error);
+            // Continue polling unless we've exceeded max attempts
+        }
+        
+        // Stop polling after max attempts
+        if (pollCount >= maxPolls) {
+            clearInterval(specPollInterval);
+            specPollInterval = null;
+            console.log('Stopped polling after max attempts');
+        }
+    }, 5000); // Poll every 5 seconds
 }
 
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
@@ -8295,3 +8503,22 @@ function updateDiagramsStatus(status) {
         statusElement.className = `status-value ${status}`;
     }
 }
+
+/**
+ * Cleanup function to remove listeners and intervals
+ * Called when leaving the page or switching specs
+ */
+function cleanupSpecListeners() {
+    if (specUnsubscribe) {
+        specUnsubscribe();
+        specUnsubscribe = null;
+    }
+    
+    if (specPollInterval) {
+        clearInterval(specPollInterval);
+        specPollInterval = null;
+    }
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', cleanupSpecListeners);

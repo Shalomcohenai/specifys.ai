@@ -103,6 +103,88 @@ class SpecGenerationService {
   }
 
   /**
+   * Generate overview spec
+   * @param {string} userInput - User input/prompt
+   * @returns {Promise<string>} Generated overview content
+   */
+  async generateOverview(userInput) {
+    const requestId = `generate-overview-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+
+    logger.info({ requestId }, '[SpecGeneration] Starting overview generation');
+
+    try {
+      const requestBody = {
+        stage: 'overview',
+        locale: 'en-US',
+        prompt: {
+          system: 'You are an expert application specification generator. Generate detailed, comprehensive specifications based on user requirements.',
+          developer: 'Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. Follow the exact structure specified in the user prompt.',
+          user: userInput
+        }
+      };
+
+      // Call Cloudflare Worker
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+      try {
+        const response = await fetch(this.workerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+
+        const responseText = await response.text();
+        const data = JSON.parse(responseText);
+
+        // Cloudflare Worker returns { overview: {...}, meta: {...} } format
+        let specification;
+        if (data.overview) {
+          specification = JSON.stringify(data.overview);
+        } else if (data.specification) {
+          specification = data.specification;
+        } else {
+          specification = JSON.stringify(data);
+        }
+
+        const duration = Date.now() - startTime;
+        logger.info({ requestId, duration: `${duration}ms` }, '[SpecGeneration] Overview generation completed');
+
+        return specification;
+
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      logger.error({ 
+        requestId, 
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        },
+        duration: `${duration}ms`
+      }, '[SpecGeneration] Overview generation failed');
+
+      throw error;
+    }
+  }
+
+  /**
    * Generate all specs in parallel
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
