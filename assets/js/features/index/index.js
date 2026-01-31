@@ -1541,7 +1541,6 @@ async function generateSpecification() {
     }
     
     // Save to Firebase and redirect
-    let firebaseId = null;
     try {
       firebaseId = await saveSpecToFirebase(overviewContent, answers);
     } catch (saveError) {
