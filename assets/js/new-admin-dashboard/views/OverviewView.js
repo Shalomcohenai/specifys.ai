@@ -1072,6 +1072,9 @@ export class OverviewView {
     
     // Setup migration test buttons
     this.setupMigrationButtons();
+    
+    // Setup scheduled jobs test buttons
+    this.setupScheduledJobsButtons();
   }
   
   /**
@@ -1185,6 +1188,132 @@ export class OverviewView {
         } finally {
           testAppsBtn.disabled = false;
           testAppsBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
+        }
+      });
+    }
+  }
+  
+  /**
+   * Setup scheduled jobs test buttons
+   */
+  setupScheduledJobsButtons() {
+    const testDailyReportBtn = helpers.dom('#test-daily-report-btn');
+    const testArticleWriterBtn = helpers.dom('#test-article-writer-btn');
+    const testToolsFinderBtn = helpers.dom('#test-tools-finder-btn');
+    
+    if (testDailyReportBtn && !testDailyReportBtn.dataset.listenerAdded) {
+      testDailyReportBtn.dataset.listenerAdded = 'true';
+      testDailyReportBtn.addEventListener('click', async () => {
+        testDailyReportBtn.disabled = true;
+        testDailyReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
+        
+        try {
+          const apiService = this.app.services.api;
+          const response = await apiService.post('/api/admin/scheduled-jobs/daily-report/test');
+          
+          if (response.success) {
+            alert('Daily report job executed successfully! Check Render logs for details.');
+            const statusEl = helpers.dom('#daily-report-status');
+            if (statusEl) {
+              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
+              statusEl.className = 'migration-status working';
+            }
+          } else {
+            alert('Failed to run daily report job: ' + (response.error || 'Unknown error'));
+            const statusEl = helpers.dom('#daily-report-status');
+            if (statusEl) {
+              statusEl.textContent = 'Error';
+              statusEl.className = 'migration-status error';
+            }
+          }
+        } catch (error) {
+          alert('Error testing daily report job: ' + error.message);
+          const statusEl = helpers.dom('#daily-report-status');
+          if (statusEl) {
+            statusEl.textContent = 'Error';
+            statusEl.className = 'migration-status error';
+          }
+        } finally {
+          testDailyReportBtn.disabled = false;
+          testDailyReportBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
+        }
+      });
+    }
+    
+    if (testArticleWriterBtn && !testArticleWriterBtn.dataset.listenerAdded) {
+      testArticleWriterBtn.dataset.listenerAdded = 'true';
+      testArticleWriterBtn.addEventListener('click', async () => {
+        testArticleWriterBtn.disabled = true;
+        testArticleWriterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
+        
+        try {
+          const apiService = this.app.services.api;
+          const response = await apiService.post('/api/admin/scheduled-jobs/article-writer/test');
+          
+          if (response.success) {
+            alert('Article writer job executed successfully! Check Render logs for details.');
+            const statusEl = helpers.dom('#article-writer-status');
+            if (statusEl) {
+              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
+              statusEl.className = 'migration-status working';
+            }
+          } else {
+            alert('Failed to run article writer job: ' + (response.error || 'Unknown error'));
+            const statusEl = helpers.dom('#article-writer-status');
+            if (statusEl) {
+              statusEl.textContent = 'Error';
+              statusEl.className = 'migration-status error';
+            }
+          }
+        } catch (error) {
+          alert('Error testing article writer job: ' + error.message);
+          const statusEl = helpers.dom('#article-writer-status');
+          if (statusEl) {
+            statusEl.textContent = 'Error';
+            statusEl.className = 'migration-status error';
+          }
+        } finally {
+          testArticleWriterBtn.disabled = false;
+          testArticleWriterBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
+        }
+      });
+    }
+    
+    if (testToolsFinderBtn && !testToolsFinderBtn.dataset.listenerAdded) {
+      testToolsFinderBtn.dataset.listenerAdded = 'true';
+      testToolsFinderBtn.addEventListener('click', async () => {
+        testToolsFinderBtn.disabled = true;
+        testToolsFinderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
+        
+        try {
+          const apiService = this.app.services.api;
+          const response = await apiService.post('/api/admin/scheduled-jobs/tools-finder/test');
+          
+          if (response.success) {
+            alert('Tools finder job executed successfully! Check Render logs for details.');
+            const statusEl = helpers.dom('#tools-finder-status');
+            if (statusEl) {
+              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
+              statusEl.className = 'migration-status working';
+            }
+          } else {
+            alert('Failed to run tools finder job: ' + (response.error || 'Unknown error'));
+            const statusEl = helpers.dom('#tools-finder-status');
+            if (statusEl) {
+              statusEl.textContent = 'Error';
+              statusEl.className = 'migration-status error';
+            }
+          }
+        } catch (error) {
+          alert('Error testing tools finder job: ' + error.message);
+          const statusEl = helpers.dom('#tools-finder-status');
+          if (statusEl) {
+            statusEl.textContent = 'Error';
+            statusEl.className = 'migration-status error';
+          }
+        } finally {
+          testToolsFinderBtn.disabled = false;
+          testToolsFinderBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
         }
       });
     }

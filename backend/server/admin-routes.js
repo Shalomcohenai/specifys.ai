@@ -2525,6 +2525,98 @@ router.get('/migrations/status', requireAdmin, async (req, res, next) => {
   }
 });
 
+/**
+ * Test daily report job (admin only)
+ * POST /api/admin/scheduled-jobs/daily-report/test
+ */
+router.post('/scheduled-jobs/daily-report/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /scheduled-jobs/daily-report/test');
+  
+  try {
+    const { runDailyReportJob } = require('./scheduled-jobs');
+    const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
+    
+    if (!adminEmail) {
+      return next(createError('ADMIN_EMAIL not configured', ERROR_CODES.CONFIGURATION_ERROR, 500));
+    }
+    
+    logger.info({ requestId, adminEmail }, '[admin-routes] Testing daily report job');
+    
+    // Run the job
+    await runDailyReportJob(adminEmail);
+    
+    logger.info({ requestId }, '[admin-routes] Daily report job test completed');
+    res.json({
+      success: true,
+      message: 'Daily report job executed successfully. Check Render logs for details.',
+      requestId
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Daily report job test failed');
+    next(createError('Failed to test daily report job', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Test article writer job (admin only)
+ * POST /api/admin/scheduled-jobs/article-writer/test
+ */
+router.post('/scheduled-jobs/article-writer/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /scheduled-jobs/article-writer/test');
+  
+  try {
+    const { runArticleWriterJob } = require('./scheduled-jobs');
+    
+    logger.info({ requestId }, '[admin-routes] Testing article writer job');
+    
+    // Run the job
+    await runArticleWriterJob();
+    
+    logger.info({ requestId }, '[admin-routes] Article writer job test completed');
+    res.json({
+      success: true,
+      message: 'Article writer job executed successfully. Check Render logs for details.',
+      requestId
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Article writer job test failed');
+    next(createError('Failed to test article writer job', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Test tools finder job (admin only)
+ * POST /api/admin/scheduled-jobs/tools-finder/test
+ */
+router.post('/scheduled-jobs/tools-finder/test', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /scheduled-jobs/tools-finder/test');
+  
+  try {
+    const { runToolsFinderJob } = require('./scheduled-jobs');
+    
+    logger.info({ requestId }, '[admin-routes] Testing tools finder job');
+    
+    // Run the job
+    await runToolsFinderJob();
+    
+    logger.info({ requestId }, '[admin-routes] Tools finder job test completed');
+    res.json({
+      success: true,
+      message: 'Tools finder job executed successfully. Check Render logs for details.',
+      requestId
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Tools finder job test failed');
+    next(createError('Failed to test tools finder job', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
 // Debug: Log all registered routes (must be after all route definitions)
 logger.info('[admin-routes] Admin routes initialized. Registered routes:');
 router.stack.forEach((layer) => {
