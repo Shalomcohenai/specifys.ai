@@ -1321,10 +1321,73 @@ async function generateSpecification() {
       }
       
       // Fallback to direct API if queue failed or not used
+      // But still create specId immediately and use queue API for background generation
       if (!useQueue || !data || !data.pending) {
-        data = await window.api.post('/api/generate-spec', {
-          userInput: enhancedPrompt
-        });
+        const user = firebase.auth().currentUser;
+        if (user) {
+          try {
+            // Create specId immediately (like queue flow)
+            const tempSpecDoc = {
+              title: "Generating...",
+              overview: null,
+              technical: null,
+              market: null,
+              status: {
+                overview: "generating",
+                technical: "pending",
+                market: "pending"
+              },
+              overviewApproved: false,
+              userId: user.uid,
+              userName: user.displayName || user.email || 'Unknown User',
+              mode: 'unified',
+              answers: answers,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const tempDocRef = await firebase.firestore().collection('specs').add(tempSpecDoc);
+            const directSpecId = tempDocRef.id;
+            
+            // Try to use queue API for background generation
+            try {
+              const queueResponse = await window.api.post('/api/specs/generate-overview', {
+                userInput: enhancedPrompt,
+                specId: directSpecId
+              });
+              
+              if (queueResponse.success) {
+                // Queue started successfully - use the specId and continue
+                data = { specification: null, pending: true, specId: directSpecId };
+                specIdForQueue = directSpecId;
+                useQueue = true;
+              } else {
+                // Queue API failed, but we have specId - use direct API in background
+                // We'll update the spec after redirect
+                data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: enhancedPrompt };
+                specIdForQueue = directSpecId;
+                useQueue = true;
+              }
+            } catch (queueError) {
+              console.warn('Queue API failed for direct flow, will use direct API in background:', queueError);
+              // Queue API failed, but we have specId - use direct API in background
+              data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: enhancedPrompt };
+              specIdForQueue = directSpecId;
+              useQueue = true;
+            }
+          } catch (specCreationError) {
+            console.error('Failed to create spec document:', specCreationError);
+            // Fallback to old direct API flow if spec creation fails
+            data = await window.api.post('/api/generate-spec', {
+              userInput: enhancedPrompt
+            });
+          }
+        } else {
+          // User not authenticated - fallback to old direct API
+          data = await window.api.post('/api/generate-spec', {
+            userInput: enhancedPrompt
+          });
+        }
       }
     } catch (error) {
       // Handle 403 (paywall) errors
