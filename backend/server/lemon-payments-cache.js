@@ -182,7 +182,8 @@ async function syncPaymentsData({ apiKey, storeId, logger: logService, requestId
         totalCustomers: customersData.length,
         totalSubscriptions: subscriptionsData.length,
         totalInvoices: invoicesData.length,
-        totalRevenue: ordersData.reduce((sum, order) => sum + (order.total || 0), 0),
+        // Convert from cents to dollars (Lemon Squeezy stores amounts in cents)
+        totalRevenue: ordersData.reduce((sum, order) => sum + ((order.total || 0) / 100), 0),
         activeSubscriptions: subscriptionsData.filter(sub => 
           sub.status === 'active' || sub.status === 'on_trial'
         ).length,
@@ -347,8 +348,9 @@ async function getPaymentsSummary({ apiKey, storeId, logger: logService, request
       totalOrders: data.stats?.totalOrders || 0,
       totalCustomers: data.stats?.totalCustomers || 0,
       activeSubscriptions: data.stats?.activeSubscriptions || 0,
-      revenueLast30Days: recentOrders.reduce((sum, order) => sum + (order.total || 0), 0),
-      revenueLast7Days: last7DaysOrders.reduce((sum, order) => sum + (order.total || 0), 0),
+      // Convert from cents to dollars (Lemon Squeezy stores amounts in cents)
+      revenueLast30Days: recentOrders.reduce((sum, order) => sum + ((order.total || 0) / 100), 0),
+      revenueLast7Days: last7DaysOrders.reduce((sum, order) => sum + ((order.total || 0) / 100), 0),
       ordersLast30Days: recentOrders.length,
       ordersLast7Days: last7DaysOrders.length,
       newSubscribers30Days: newSubscribers.length

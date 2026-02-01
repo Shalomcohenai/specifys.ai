@@ -157,7 +157,9 @@ async function collectDailyStats(startDate, endDate) {
     const totalRevenue = purchasesInPeriod.reduce((sum, doc) => {
       const data = doc.data();
       const total = data.total || 0;
-      return sum + (typeof total === 'number' ? total : 0);
+      // Convert from cents to dollars (Lemon Squeezy stores amounts in cents)
+      const totalInDollars = typeof total === 'number' ? total / 100 : 0;
+      return sum + totalInDollars;
     }, 0);
     
     // Get currency (use first purchase's currency or default to USD)
@@ -172,7 +174,8 @@ async function collectDailyStats(startDate, endDate) {
       const productName = data.productName || data.productKey || 'Unknown';
       const count = purchasesByProduct[productName] || { count: 0, revenue: 0 };
       count.count += 1;
-      count.revenue += (data.total || 0);
+      // Convert from cents to dollars (Lemon Squeezy stores amounts in cents)
+      count.revenue += (data.total || 0) / 100;
       purchasesByProduct[productName] = count;
     });
     
