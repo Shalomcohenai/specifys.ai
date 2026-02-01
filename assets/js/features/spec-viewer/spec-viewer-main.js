@@ -723,8 +723,19 @@ function displaySpec(data) {
                         status.market === 'generating' || 
                         status.design === 'generating';
     
+    console.log('displaySpec - isGenerating:', isGenerating, 'status:', status);
+    
+    // Make sure content is visible before showing progress bar
+    if (content) {
+        content.style.display = 'block';
+    }
+    
     if (isGenerating) {
-        startProgressBar();
+        // Start progress bar after a small delay to ensure DOM is ready
+        setTimeout(() => {
+            console.log('Starting progress bar');
+            startProgressBar();
+        }, 100);
         // Show chat bubbles during generation
         const bubblesContainer = document.getElementById('chat-bubbles-container');
         if (bubblesContainer) {
@@ -860,7 +871,8 @@ function displayOverview(overview) {
     // Debug logging
 
     
-    if (!overview) {
+    // Check if overview is null, undefined, or empty string
+    if (!overview || (typeof overview === 'string' && overview.trim() === '')) {
         // Show skeleton if overview is not available
         displaySkeleton('overview-data', 'overview');
         displaySectionLoading(headerElement, true);
@@ -8723,12 +8735,24 @@ const progressMessages = [
  */
 function startProgressBar() {
     const progressContainer = document.getElementById('spec-generation-progress');
-    if (!progressContainer) return;
+    if (!progressContainer) {
+        console.warn('Progress bar container not found');
+        return;
+    }
+    
+    // Clear any existing interval
+    if (progressMessageInterval) {
+        clearInterval(progressMessageInterval);
+        progressMessageInterval = null;
+    }
     
     progressContainer.classList.remove('hidden');
     
     const messageElement = document.getElementById('progress-message');
-    if (!messageElement) return;
+    if (!messageElement) {
+        console.warn('Progress message element not found');
+        return;
+    }
     
     // Set initial message
     messageElement.textContent = progressMessages[0];
