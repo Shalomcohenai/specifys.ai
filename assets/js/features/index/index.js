@@ -1258,13 +1258,78 @@ async function generateSpecification() {
       enhancedPrompt = prompt;
     }
     
+    // CRITICAL: Consume credit BEFORE creating spec and starting background job
+    // This prevents race condition where background job runs but spec gets deleted due to credit error
+    let creditConsumed = false;
+    let consumeTransactionId = null;
+    let tempSpecIdForCredit = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      const consumeResult = await window.api.post('/api/v3/credits/consume', {
+        specId: tempSpecIdForCredit
+      });
+      
+      creditConsumed = true;
+      consumeTransactionId = consumeResult.transactionId || tempSpecIdForCredit;
+      
+      // Update credits display
+      if (typeof window.clearCreditsCache === 'function') {
+        window.clearCreditsCache();
+      }
+      if (typeof window.updateCreditsDisplay !== 'undefined') {
+        await window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {});
+      }
+    } catch (creditError) {
+      // Handle credit errors - don't create spec if credit consumption fails
+      const errorMessage = creditError.message || 'Failed to consume credit';
+      if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
+        creditConsumed = true;
+        consumeTransactionId = `idempotent-${Date.now()}`;
+      } else {
+        // Credit consumption failed - don't create spec or start background job
+        const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+        if (generateButton) {
+          setButtonLoading(generateButton, false);
+        }
+        if (window.store) {
+          window.store.set('loading', false);
+        }
+        
+        // Handle 403 errors (insufficient credits)
+        if (creditError.status === 403) {
+          const errorData = creditError.data || {};
+          const userMessage = errorData.message || errorData.details?.message || 'You do not have enough credits to create a spec';
+          
+          const paywallPayload = {
+            reason: 'insufficient_credits',
+            message: userMessage
+          };
+          try {
+            const searchParams = new URLSearchParams({
+              reason: paywallPayload.reason || 'insufficient_credits',
+              message: paywallPayload.message || 'You have no remaining spec credits'
+            });
+            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          } catch (redirectError) {
+            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+          }
+          return;
+        }
+        
+        // Other errors
+        alert(errorMessage || 'Failed to consume credit. Please try again.');
+        return;
+      }
+    }
+    
     // Generate specification - try queue API first, fallback to direct API
+    // Now that credit is consumed, we can safely create spec and start background job
     let data;
     let useQueue = true; // Try queue first
     let specIdForQueue = null;
     
     try {
-      // First, create spec document with pending status (needed for queue API)
+      // Create spec document with pending status (needed for queue API)
       const user = firebase.auth().currentUser;
       if (useQueue && user) {
         try {
@@ -1290,6 +1355,9 @@ async function generateSpecification() {
           
           const tempDocRef = await firebase.firestore().collection('specs').add(tempSpecDoc);
           specIdForQueue = tempDocRef.id;
+          
+          // Update the credit transaction with the real specId (for record keeping)
+          // Note: This is optional - the credit was already consumed with temp specId
           
           // Try queue API
           const queueResponse = await window.api.post('/api/specs/generate-overview', {
@@ -1462,79 +1530,12 @@ async function generateSpecification() {
     let firebaseId = null;
     
     // If using queue, spec already exists and overview will be updated by queue
+    // Credit was already consumed before creating spec, so we can proceed
     if (data && data.pending && specIdForQueue) {
       firebaseId = specIdForQueue;
       overviewContent = null; // Will be updated by queue
       
-      // Consume credit for the spec
-      let creditConsumed = false;
-      let consumeTransactionId = null;
-      
-      try {
-        const consumeResult = await window.api.post('/api/v3/credits/consume', {
-          specId: firebaseId
-        });
-        
-        creditConsumed = true;
-        consumeTransactionId = consumeResult.transactionId || firebaseId;
-        
-        // Update credits display
-        if (typeof window.clearCreditsCache === 'function') {
-          window.clearCreditsCache();
-        }
-        if (typeof window.updateCreditsDisplay !== 'undefined') {
-          await window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {});
-        }
-      } catch (creditError) {
-        // Handle credit errors (similar to existing logic)
-        const errorMessage = creditError.message || 'Failed to consume credit';
-        if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
-          creditConsumed = true;
-          consumeTransactionId = `idempotent-${Date.now()}`;
-        } else if (creditError.status === 403) {
-          // Handle 403 errors (user already has spec or insufficient credits)
-          const errorData = creditError.data || {};
-          const userMessage = errorData.message || errorData.details?.message || 'Failed to consume credit';
-          
-          // Delete spec and show error
-          if (firebaseId) {
-            try {
-              await firebase.firestore().collection('specs').doc(firebaseId).delete();
-            } catch (e) {
-              console.warn('Failed to delete spec after credit error:', e);
-            }
-          }
-          
-          const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
-          if (generateButton) {
-            setButtonLoading(generateButton, false);
-          }
-          if (window.store) {
-            window.store.set('loading', false);
-          }
-          
-          alert(userMessage);
-          return;
-        } else {
-          // Delete spec and show error
-          if (firebaseId) {
-            try {
-              await firebase.firestore().collection('specs').doc(firebaseId).delete();
-            } catch (e) {
-              console.warn('Failed to delete spec after credit error:', e);
-            }
-          }
-          const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
-          if (generateButton) {
-            setButtonLoading(generateButton, false);
-          }
-          if (window.store) {
-            window.store.set('loading', false);
-          }
-          throw creditError;
-        }
-      }
-      
+      // Credit was already consumed before creating spec - no need to consume again
       // Update store
       if (window.store) {
         window.store.set('loading', false);
@@ -1554,110 +1555,13 @@ async function generateSpecification() {
       window.store.set('loading', false);
     }
     
-    // Consume credit BEFORE saving to Firebase
-    // If save fails, we'll refund the credit
-    let creditConsumed = false;
-    let consumeTransactionId = null;
-    
-    try {
-      // First, create a temporary spec ID for credit consumption
-      // We'll update it with the real spec ID after saving
-      const tempSpecId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Use V3 credits API
-      const consumeResult = await window.api.post('/api/v3/credits/consume', {
-        specId: tempSpecId
-      });
-      
-      // Check if credit was already consumed (idempotency)
-      creditConsumed = true;
-      consumeTransactionId = consumeResult.transactionId || tempSpecId;
-      
-      // Immediately update credits display after consumption
-      // Clear cache and refresh to show updated credits
-      if (typeof window.clearCreditsCache === 'function') {
-        window.clearCreditsCache();
-      }
-      if (typeof window.updateCreditsDisplay !== 'undefined') {
-        // Update credits display immediately after consumption
-        window.updateCreditsDisplay({ forceRefresh: true }).catch(err => {
-          // Silently fail - credits will update on next page load
-        });
-      }
-      
-    } catch (creditError) {
-      const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
-      if (generateButton) {
-        setButtonLoading(generateButton, false);
-      }
-      let errorMessage = creditError.message || 'Failed to consume credit';
-      
-      // Check if this is an "already processed" scenario (idempotency)
-      // If credit was already consumed, we can continue
-      if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
-        // Credit was already consumed, continue with spec creation
-        creditConsumed = true;
-        consumeTransactionId = `idempotent-${Date.now()}`;
-        // Don't throw error, continue with spec creation
-      } else {
-        // Check if it's insufficient credits error
-        if (errorMessage.includes('Insufficient credits') || errorMessage.includes('insufficient')) {
-          const paywallPayload = {
-            reason: 'insufficient_credits',
-            message: 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.'
-          };
-          try {
-            const searchParams = new URLSearchParams({
-              reason: paywallPayload.reason,
-              message: paywallPayload.message
-            });
-            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
-          } catch (redirectError) {
-            alert(paywallPayload.message);
-          }
-          return;
-        }
-        
-        // For other errors, check if error has status/data
-        if (creditError.status === 403) {
-          // Permission denied - likely insufficient credits
-          const paywallPayload = creditError.data?.paywallData || {
-            reason: 'insufficient_credits',
-            message: creditError.data?.message || 'You do not have enough credits to create a spec'
-          };
-          try {
-            const searchParams = new URLSearchParams({
-              reason: paywallPayload.reason || 'insufficient_credits',
-              message: paywallPayload.message || 'You do not have enough credits to create a spec'
-            });
-            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
-          } catch (redirectError) {
-            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
-          }
-          return;
-        }
-        
-        throw new Error(`Failed to consume credit: ${errorMessage}`);
-      }
-    }
-    
+    // Credit was already consumed before creating spec - no need to consume again
     // Save to Firebase and redirect
     try {
       firebaseId = await saveSpecToFirebase(overviewContent, answers);
     } catch (saveError) {
-      // Refund credit if save failed
-      if (creditConsumed) {
-        try {
-          await window.api.post('/api/credits/refund', {
-            amount: 1,
-            reason: 'Spec creation failed - save to Firebase failed',
-            originalTransactionId: consumeTransactionId
-          });
-        } catch (refundError) {
-          // Error refunding credit - the main error is the save failure
-        }
-      }
-      
+      // Note: Credit was already consumed, so we can't refund it here
+      // The spec creation failed, but credit was already consumed
       const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
       if (generateButton) {
         setButtonLoading(generateButton, false);

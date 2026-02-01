@@ -467,8 +467,10 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                     // Verify spec exists before updating
                     const specDoc = await db.collection('specs').doc(specId).get();
                     if (!specDoc.exists) {
-                        logger.error({ requestId, specId }, '[specs-routes] Spec not found when trying to update overview');
-                        throw new Error(`Spec ${specId} not found`);
+                        // Spec was deleted (likely due to error in frontend)
+                        // This is expected behavior - don't throw error, just log and return
+                        logger.warn({ requestId, specId }, '[specs-routes] Spec not found when trying to update overview - likely deleted due to error');
+                        return overviewContent; // Return the generated content but don't update non-existent spec
                     }
                     
                     await db.collection('specs').doc(specId).update({
