@@ -1719,13 +1719,69 @@ router.get('/payments/summary', requireAdmin, async (req, res, next) => {
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
 
     if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+      logger.warn({ requestId }, '[admin-routes] Lemon Squeezy API key or store ID not configured');
+      return res.json({
+        success: false,
+        error: 'Lemon Squeezy API key or store ID not configured',
+        message: 'Please configure LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID in environment variables',
+        data: {
+          summary: {
+            totalRevenue: 0,
+            totalOrders: 0,
+            totalCustomers: 0,
+            activeSubscriptions: 0,
+            revenueLast30Days: 0,
+            revenueLast7Days: 0,
+            ordersLast30Days: 0,
+            ordersLast7Days: 0,
+            newSubscribers30Days: 0
+          },
+          errors: {
+            cancelled: 0,
+            refunded: 0,
+            pastDue: 0,
+            expired: 0,
+            total: 0
+          },
+          customers: [],
+          subscriptions: [],
+          lastSynced: null,
+          syncStatus: 'not_configured'
+        }
+      });
     }
 
     const summary = await getPaymentsSummary({ apiKey, storeId, logger, requestId });
 
     if (!summary) {
-      return next(createError('Failed to get payments summary', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+      logger.warn({ requestId }, '[admin-routes] Failed to get payments summary - returning empty data');
+      return res.json({
+        success: true,
+        data: {
+          summary: {
+            totalRevenue: 0,
+            totalOrders: 0,
+            totalCustomers: 0,
+            activeSubscriptions: 0,
+            revenueLast30Days: 0,
+            revenueLast7Days: 0,
+            ordersLast30Days: 0,
+            ordersLast7Days: 0,
+            newSubscribers30Days: 0
+          },
+          errors: {
+            cancelled: 0,
+            refunded: 0,
+            pastDue: 0,
+            expired: 0,
+            total: 0
+          },
+          customers: [],
+          subscriptions: [],
+          lastSynced: null,
+          syncStatus: 'no_data'
+        }
+      });
     }
 
     res.json({
@@ -1734,9 +1790,34 @@ router.get('/payments/summary', requireAdmin, async (req, res, next) => {
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/summary - Error');
-    next(createError('Failed to get payments summary', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    res.json({
+      success: false,
+      error: error.message,
+      data: {
+        summary: {
+          totalRevenue: 0,
+          totalOrders: 0,
+          totalCustomers: 0,
+          activeSubscriptions: 0,
+          revenueLast30Days: 0,
+          revenueLast7Days: 0,
+          ordersLast30Days: 0,
+          ordersLast7Days: 0,
+          newSubscribers30Days: 0
+        },
+        errors: {
+          cancelled: 0,
+          refunded: 0,
+          pastDue: 0,
+          expired: 0,
+          total: 0
+        },
+        customers: [],
+        subscriptions: [],
+        lastSynced: null,
+        syncStatus: 'error'
+      }
+    });
   }
 });
 
@@ -2255,9 +2336,14 @@ router.get('/email/status', requireAdmin, async (req, res, next) => {
     });
   } catch (error) {
     logger.error({ requestId, error: error.message }, '[admin-routes] Failed to get email service status');
-    next(createError('Failed to get email service status', ERROR_CODES.DATABASE_ERROR, 500, {
-      details: error.message
-    }));
+    res.json({
+      success: false,
+      error: error.message,
+      status: {
+        healthy: false,
+        message: 'Failed to check email service status'
+      }
+    });
   }
 });
 
@@ -2461,7 +2547,16 @@ router.get('/unsubscribed-users', requireAdmin, async (req, res, next) => {
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /unsubscribed-users - Error');
-    next(createError('Failed to get unsubscribed users', ERROR_CODES.DATABASE_ERROR, 500));
+    res.json({
+      success: false,
+      error: error.message,
+      users: [],
+      pagination: {
+        limit,
+        hasMore: false,
+        nextCursor: null
+      }
+    });
   }
 });
 

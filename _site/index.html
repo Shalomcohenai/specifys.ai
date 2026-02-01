@@ -516,9 +516,20 @@ function trackPreference(preferenceName, preferenceValue) {
 
 
     
-    <!-- Crisp Chat Widget -->
-    <!-- Crisp Chat Widget -->
-<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9eccc067-a19a-4e2c-8ed6-c7cc34d482d8";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+    <!-- Tawk.to Chat Widget -->
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/697c575550348c1c373777d5/1jg6ra9ms';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 
     
@@ -609,8 +620,8 @@ function trackPreference(preferenceName, preferenceValue) {
 </header>
 
 <!-- Credits Display Scripts (V3) -->
-<script src="/assets/js/pages/credits-v2-manager.js"></script>
-<script src="/assets/js/pages/credits-v2-display.js"></script>
+<script src="/assets/js/pages/credits-v3-manager.js"></script>
+<script src="/assets/js/pages/credits-v3-display.js"></script>
 
 
     
@@ -644,29 +655,26 @@ function trackPreference(preferenceName, preferenceValue) {
     
     <!-- Hero Content -->
     <div class="hero-content" id="heroContent">
-        <h1 class="hero-main-title">Plan before you build</h1>
-        
             <div class="hero-description">
-                <p class="hero-description-text">Generate structured PRDs, system diagrams, market insights and prompts - so builders, founders and teams know exactly what to build.</p>
+                <h1 class="hero-description-text"><span class="hero-title-line1">The best place to plan</span><br><span class="hero-title-orange">vibe-coded apps</span></h1>
+                <p class="hero-tagline">Save time. Save tokens. Build stable apps.</p>
             </div>
         
         <div class="hero-button-container">
             <a href="/pages/why.html" class="hero-cta-button-secondary" aria-label="Why">
                 Why?
             </a>
-            <button class="hero-cta-button-new" id="startButton" aria-label="Generate a specification">
+            <button class="hero-cta-button-new" id="startButton" aria-label="Start now">
                 <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
                 </svg>
-                Generate a Spec
+                Start now
             </button>
-            <a href="/pages/demo-spec.html" class="hero-cta-button-secondary" aria-label="View demo">
-                View Demo
-            </a>
         </div>
+        <p class="start-now-subtext">your first app is on us!</p>
         
         <!-- Browser Window Preview -->
-        <div class="browser-window-preview">
+        <div class="browser-window-preview" id="browserWindowPreview">
             <div class="browser-window-frame">
                 <div class="browser-window-header">
                     <div class="browser-window-controls">
@@ -681,6 +689,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <button class="browser-window-tab" data-tab="design" role="tab" aria-selected="false" aria-controls="browser-design">Design</button>
                         <button class="browser-window-tab active" data-tab="diagrams" role="tab" aria-selected="true" aria-controls="browser-diagrams">Diagrams</button>
                         <button class="browser-window-tab" data-tab="prompts" role="tab" aria-selected="false" aria-controls="browser-prompts">Prompts</button>
+                        <a href="/pages/demo-spec.html" class="browser-window-tab browser-window-tab-see-more" aria-label="See more">See more</a>
                 </div>
             </div>
                 <div class="browser-window-content">
@@ -1058,6 +1067,10 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating Your Specification</div>
             <div class="loading-subtext">This may take a few moments...</div>
+            <div class="loading-email-notice">
+                <span class="email-notice-icon">💌</span>
+                <span class="email-notice-text">Don't worry! We'll also send it to your email once it's ready!</span>
+            </div>
         </div>
     </div>
     
@@ -1436,7 +1449,7 @@ graph TD
           What's Specifys.ai all about? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Specifys.ai is a complete AI-powered app planning ecosystem. Create specifications, discover tools, manage projects, and more.
+          Specifys.ai is a complete AI-powered app planning ecosystem designed to revolutionize how you build applications. Our platform helps you create comprehensive specifications, discover the perfect development tools, manage your projects efficiently, and collaborate with your team seamlessly. Whether you're a solo developer, a startup founder, or part of a larger team, Specifys.ai provides everything you need to plan, organize, and execute your app development journey from concept to completion.
         </div>
       </div>
       <div class="faq-item">
@@ -1444,7 +1457,7 @@ graph TD
           Is there a free plan? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Yes! Get one specification free to try our platform. Additional specifications start at $4.90.
+          Absolutely! We believe everyone should have the opportunity to experience the power of proper app planning. That's why we offer one complete specification completely free - no credit card required, no hidden fees, no strings attached. This gives you full access to test our platform and see how it can transform your development workflow. Once you've tried it and love it, additional specifications start at just $4.90, making professional-grade planning accessible to everyone.
         </div>
       </div>
       <div class="faq-item">
@@ -1452,7 +1465,7 @@ graph TD
           Can I edit my specifications? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Pro subscribers can edit all specifications. With purchased credits, you can edit saved specifications.
+          Yes, editing capabilities depend on your plan. Pro subscribers enjoy unlimited editing access to all their specifications, allowing them to refine, update, and perfect their plans as their projects evolve. If you're using purchased credits, you can edit any specifications you've saved, giving you flexibility to iterate and improve your plans. This ensures your specifications stay current and accurate throughout your entire development process.
         </div>
       </div>
       <div class="faq-item">
@@ -1460,7 +1473,7 @@ graph TD
           What is the Vibe Coding Tools Map? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Our curated collection of AI-driven development tools, organized by category.
+          The Vibe Coding Tools Map is our carefully curated and comprehensive collection of AI-driven development tools, meticulously organized by category to help you find exactly what you need. Whether you're looking for code generators, design assistants, testing frameworks, or deployment tools, our map provides detailed information, comparisons, and recommendations. It's constantly updated with the latest tools and technologies, ensuring you always have access to the most current and effective solutions for your development needs.
         </div>
       </div>
       <div class="faq-item">
@@ -1468,7 +1481,7 @@ graph TD
           How does the Tool Finder work? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Our AI analyzes your project needs and suggests the most suitable tools.
+          Our intelligent Tool Finder uses advanced AI algorithms to analyze your specific project requirements, technology stack, team size, and development goals. Based on this comprehensive analysis, it suggests the most suitable tools from our extensive database, ranked by relevance and compatibility with your needs. The system learns from your preferences and project history, continuously improving its recommendations to help you discover tools that will truly enhance your development workflow and productivity.
         </div>
       </div>
     </div>

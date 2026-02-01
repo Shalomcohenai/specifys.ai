@@ -147,7 +147,12 @@ router.get('/automation/status', async (req, res, next) => {
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[tools-routes] GET /api/tools/automation/status - Error');
-    next(createError(error.message || 'Failed to get automation status', ERROR_CODES.DATABASE_ERROR, 500));
+    res.json({
+      success: false,
+      error: error.message || 'Failed to get automation status',
+      status: null,
+      message: 'Error loading automation status'
+    });
   }
 });
 

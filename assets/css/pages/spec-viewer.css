@@ -1594,3 +1594,157 @@ button[onclick*="openVisualizer"]:active {
     gap: 20px;
   }
 }
+
+/* ============================================
+   User Flow Diagram Styles
+   ============================================ */
+
+.user-flow-diagram {
+  display: flex;
+  flex-direction: column; /* אנכי במקום אופקי */
+  align-items: center; /* מרכז את הריבועים */
+  gap: 15px;
+  margin: 20px 0;
+  padding: 20px 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.flow-item {
+  display: flex;
+  flex-direction: column; /* אנכי */
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  gap: 10px;
+}
+
+.flow-box {
+  background: #fff; /* לבן במקום כחול */
+  color: #333; /* טקסט כהה */
+  border: 1px solid #e0e0e0; /* גבול אפור */
+  padding: 15px 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.flow-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: #ccc; /* גבול כהה יותר ב-hover */
+}
+
+.flow-step-number {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #666; /* אפור */
+}
+
+.flow-step-text {
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: #333;
+}
+
+.flow-arrow {
+  color: #666; /* אפור במקום כחול */
+  font-size: 28px;
+  margin: 5px 0;
+  font-weight: bold;
+}
+
+/* Responsive adjustments for flow diagram */
+@media (max-width: 768px) {
+  .user-flow-diagram {
+    gap: 15px;
+  }
+  
+  .flow-box {
+    padding: 12px 16px;
+  }
+  
+  .flow-arrow {
+    font-size: 24px;
+  }
+}
+
+/* ============================================
+   Screen Descriptions Grid Styles
+   ============================================ */
+
+.screens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.screen-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.screen-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.screen-card h5 {
+  margin: 0 0 12px 0;
+  color: var(--primary-color, #0078d4);
+  font-size: 1.1em;
+  border-bottom: 2px solid var(--primary-color, #0078d4);
+  padding-bottom: 8px;
+}
+
+.screen-card p {
+  margin: 0 0 15px 0;
+  color: #333;
+  line-height: 1.6;
+}
+
+.screen-card ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.screen-card li {
+  margin-bottom: 6px;
+  color: #666;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments for screens grid */
+@media (max-width: 768px) {
+  .screens-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .screen-card {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .screens-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .screens-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

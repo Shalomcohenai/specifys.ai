@@ -472,9 +472,20 @@ function trackPreference(preferenceName, preferenceValue) {
 
 
     
-    <!-- Crisp Chat Widget -->
-    <!-- Crisp Chat Widget -->
-<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9eccc067-a19a-4e2c-8ed6-c7cc34d482d8";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+    <!-- Tawk.to Chat Widget -->
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/697c575550348c1c373777d5/1jg6ra9ms';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 
     
@@ -565,8 +576,8 @@ function trackPreference(preferenceName, preferenceValue) {
 </header>
 
 <!-- Credits Display Scripts (V3) -->
-<script src="/assets/js/pages/credits-v2-manager.js"></script>
-<script src="/assets/js/pages/credits-v2-display.js"></script>
+<script src="/assets/js/pages/credits-v3-manager.js"></script>
+<script src="/assets/js/pages/credits-v3-display.js"></script>
 
 
     
@@ -1625,7 +1636,9 @@ function trackPreference(preferenceName, preferenceValue) {
 
 <script>
   // Pre-process Jekyll variables
+  // Fallback to JSON if API is not available
   const TOOLS_JSON_URL = '/tools/map/tools.json';
+  // API endpoint will be used first, with JSON as fallback
 </script>
 
 <script type="text/babel" src="/tools/map/tools-map-react.js"></script>

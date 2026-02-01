@@ -665,9 +665,11 @@ function displaySpec(data) {
     // Update all notification dots
     updateAllNotificationDots();
     
-    // Initialize share prompt if overview is ready
-    if (data.status?.overview === 'ready' && window.sharePrompt) {
+    // Initialize share prompt and button only when spec is ready
+    // The share button is part of the frame and always visible once spec is ready
+    if (data.status?.overview === 'ready' && window.sharePrompt && data.id) {
         const specTitle = data.title || 'App Specification';
+        // Initialize share prompt (which also initializes the share button)
         window.sharePrompt.init(data.id, specTitle);
     }
     
@@ -2040,6 +2042,37 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new Detailed User Flow (moved to position 2, after Idea Summary)
+    if (jsonData.detailedUserFlow) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-sitemap"></i> Detailed User Flow</h3>';
+        
+        if (jsonData.detailedUserFlow.steps && Array.isArray(jsonData.detailedUserFlow.steps)) {
+            html += '<div class="user-flow-diagram">';
+            jsonData.detailedUserFlow.steps.forEach((step, index) => {
+                // Remove "Step X:" prefix if it already exists in the step text
+                const cleanedStep = step.replace(/^Step\s+\d+:\s*/i, '').trim();
+                
+                // Create flow box
+                html += '<div class="flow-item">';
+                html += `<div class="flow-box">`;
+                html += `<div class="flow-step-number">Step ${index + 1}</div>`;
+                html += `<div class="flow-step-text">${escapeHtml(cleanedStep)}</div>`;
+                html += '</div>';
+                
+                // Add arrow between steps (not after last step) - DOWN arrow
+                if (index < jsonData.detailedUserFlow.steps.length - 1) {
+                    html += '<div class="flow-arrow">↓</div>';
+                }
+                
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle new Target Audience structure
     if (jsonData.targetAudience) {
         html += '<div class="content-section">';
@@ -2110,88 +2143,67 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle new Detailed User Flow
-    if (jsonData.detailedUserFlow) {
-        html += '<div class="content-section">';
-        html += '<h3><i class="fa fa-list-ol"></i> Detailed User Flow</h3>';
-        
-        if (jsonData.detailedUserFlow.steps && Array.isArray(jsonData.detailedUserFlow.steps)) {
-            html += '<h4>Steps:</h4>';
-            html += '<ol>';
-            jsonData.detailedUserFlow.steps.forEach((step, index) => {
-                // Remove "Step X:" prefix if it already exists in the step text
-                const cleanedStep = step.replace(/^Step\s+\d+:\s*/i, '').trim();
-                html += `<li><strong>Step ${index + 1}:</strong> ${cleanedStep}</li>`;
-            });
-            html += '</ol>';
-        }
-        
-        if (jsonData.detailedUserFlow.decisionPoints) {
-            html += '<h4>Decision Points:</h4>';
-            html += `<p>${jsonData.detailedUserFlow.decisionPoints}</p>`;
-        }
-        
-        if (jsonData.detailedUserFlow.errorHandling) {
-            html += '<h4>Error Handling:</h4>';
-            html += `<p>${jsonData.detailedUserFlow.errorHandling}</p>`;
-        }
-        
-        if (jsonData.detailedUserFlow.confirmations) {
-            html += '<h4>Confirmations:</h4>';
-            html += `<p>${jsonData.detailedUserFlow.confirmations}</p>`;
-        }
-        
-        if (jsonData.detailedUserFlow.feedbackLoops) {
-            html += '<h4>Feedback Loops:</h4>';
-            html += `<p>${jsonData.detailedUserFlow.feedbackLoops}</p>`;
-        }
-        
-        html += '</div>';
-    }
-    
-    // Handle new Screen Descriptions
+    // Handle new Screen Descriptions (unified with UI Components)
     if (jsonData.screenDescriptions) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-desktop"></i> Screen Descriptions</h3>';
         
         if (jsonData.screenDescriptions.screens && Array.isArray(jsonData.screenDescriptions.screens)) {
             html += '<h4>Screens (' + jsonData.screenDescriptions.screens.length + ' total):</h4>';
+            
+            // Create responsive grid for screen cards
+            html += '<div class="screens-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">';
+            
             jsonData.screenDescriptions.screens.forEach((screen, index) => {
+                // Handle both old format (string) and new format (object)
                 if (typeof screen === 'string') {
-                    html += `<div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid var(--primary-color);">`;
-                    html += `<p style="margin: 0;"><strong>Screen ${index + 1}:</strong> ${screen}</p>`;
+                    // Legacy format - convert to new format
+                    html += '<div class="screen-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.15)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 4px rgba(0,0,0,0.1)\';">';
+                    html += `<h5 style="margin: 0 0 12px 0; color: var(--primary-color, #0078d4); font-size: 1.1em; border-bottom: 2px solid var(--primary-color, #0078d4); padding-bottom: 8px;">Screen ${index + 1}</h5>`;
+                    html += `<p style="margin: 0 0 15px 0; color: #333; line-height: 1.6;">${escapeHtml(screen)}</p>`;
+                    html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">';
+                    html += '<p style="margin: 0; font-size: 0.85em; color: #666; font-style: italic;">UI Components: Not specified</p>';
+                    html += '</div>';
                     html += '</div>';
                 } else {
-                    html += `<div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid var(--primary-color);">`;
-                    html += `<p style="margin: 0;"><strong>Screen ${index + 1} - ${screen.name || 'Unnamed Screen'}:</strong> ${screen.purpose || 'No purpose specified'}</p>`;
-                    if (screen.elements) {
-                        html += `<p style="margin-top: 8px; margin-bottom: 0; font-size: 0.9em; color: #666;"><strong>Key Elements:</strong> ${screen.elements}</p>`;
+                    // New format - object with name, description, uiComponents
+                    const screenName = screen.name || `Screen ${index + 1}`;
+                    const screenDescription = screen.description || screen.purpose || 'No description provided';
+                    const uiComponents = screen.uiComponents || [];
+                    
+                    html += '<div class="screen-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.15)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 4px rgba(0,0,0,0.1)\';">';
+                    html += `<h5 style="margin: 0 0 12px 0; color: var(--primary-color, #0078d4); font-size: 1.1em; border-bottom: 2px solid var(--primary-color, #0078d4); padding-bottom: 8px;">${escapeHtml(screenName)}</h5>`;
+                    html += `<p style="margin: 0 0 15px 0; color: #333; line-height: 1.6;">${escapeHtml(screenDescription)}</p>`;
+                    
+                    // UI Components section
+                    if (uiComponents.length > 0) {
+                        html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">';
+                        html += '<div style="font-size: 0.9em; font-weight: bold; color: #555; margin-bottom: 10px;">UI Components:</div>';
+                        html += '<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">';
+                        uiComponents.forEach(component => {
+                            const componentText = typeof component === 'string' ? component : component.name || component;
+                            html += `<li style="margin-bottom: 6px; color: #666; font-size: 0.9em; line-height: 1.5;">${escapeHtml(componentText)}</li>`;
+                        });
+                        html += '</ul>';
+                        html += '</div>';
+                    } else {
+                        html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">';
+                        html += '<p style="margin: 0; font-size: 0.85em; color: #666; font-style: italic;">UI Components: Not specified</p>';
+                        html += '</div>';
                     }
-                    if (screen.interactions) {
-                        html += `<p style="margin-top: 8px; margin-bottom: 0; font-size: 0.9em; color: #666;"><strong>Interactions:</strong> ${screen.interactions}</p>`;
-                    }
+                    
                     html += '</div>';
                 }
             });
-        }
-        
-        if (jsonData.screenDescriptions.uiComponents) {
-            html += '<h4>UI Components:</h4>';
-            // Check if uiComponents is an array or string
-            if (Array.isArray(jsonData.screenDescriptions.uiComponents)) {
-                html += '<ul style="margin-left: 20px;">';
-                jsonData.screenDescriptions.uiComponents.forEach(component => {
-                    html += `<li style="margin-bottom: 8px;">${component}</li>`;
-                });
-                html += '</ul>';
-            } else {
-                html += `<p>${jsonData.screenDescriptions.uiComponents}</p>`;
-            }
+            
+            html += '</div>'; // Close screens-grid
         }
         
         if (jsonData.screenDescriptions.navigationStructure) {
+            html += '<div style="margin-top: 30px;">';
             html += '<h4>Navigation Structure:</h4>';
-            html += `<p>${jsonData.screenDescriptions.navigationStructure}</p>`;
+            html += `<p style="line-height: 1.6;">${escapeHtml(jsonData.screenDescriptions.navigationStructure)}</p>`;
+            html += '</div>';
         }
         
         html += '</div>';

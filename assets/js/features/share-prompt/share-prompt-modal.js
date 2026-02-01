@@ -404,13 +404,62 @@ Built with @SpecifysAI`;
   }
 
   /**
+   * Initialize share button in overview header
+   * Button is part of the frame and always visible once spec is ready
+   */
+  function initOverviewShareButton() {
+    const shareBtn = document.getElementById('overview-share-btn');
+    if (!shareBtn) return;
+
+    // Show the button (it's part of the frame, always visible once spec is ready)
+    shareBtn.style.display = 'flex';
+    shareBtn.classList.remove('hidden');
+
+    // Remove existing listeners by cloning
+    const newShareBtn = shareBtn.cloneNode(true);
+    shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
+    
+    // Show the new button
+    newShareBtn.style.display = 'flex';
+    newShareBtn.classList.remove('hidden');
+
+    // Add click handler
+    newShareBtn.addEventListener('click', async () => {
+      // Try to get specId from URL if not set
+      let specId = currentSpecId;
+      if (!specId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        specId = urlParams.get('id');
+      }
+      
+      // Also try to get from global currentSpecData if available
+      // Note: currentSpecData is defined in spec-viewer-main.js
+      if (!specId && typeof currentSpecData !== 'undefined' && currentSpecData && currentSpecData.id) {
+        specId = currentSpecData.id;
+      }
+
+      if (specId) {
+        // Set current specId for share functionality
+        currentSpecId = specId;
+        // Open share options directly (as if clicked "Share & get +1 free credit")
+        handleShareClick();
+      } else {
+        console.warn('[SharePrompt] No specId available for sharing');
+      }
+    });
+  }
+
+  /**
    * Initialize share prompt for a spec
    */
   async function initSharePrompt(specId, specTitle) {
     currentSpecId = specId;
     currentSpecTitle = specTitle;
 
-    // Check if should show
+    // Always initialize the share button in overview (button is always visible as part of the frame)
+    initOverviewShareButton();
+
+    // Check if should show modal (independent of button visibility)
     const shouldShow = await shouldShowSharePrompt(specId);
     if (!shouldShow) {
       return;
@@ -426,7 +475,8 @@ Built with @SpecifysAI`;
   window.sharePrompt = {
     init: initSharePrompt,
     open: openSharePrompt,
-    close: closeSharePrompt
+    close: closeSharePrompt,
+    initButton: initOverviewShareButton
   };
 
   // Inject styles
@@ -745,6 +795,38 @@ Built with @SpecifysAI`;
         .share-platforms {
           grid-template-columns: 1fr;
         }
+      }
+
+      /* Overview Share Button Styles */
+      .overview-share-button {
+        background: transparent;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+
+      .overview-share-button:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+      }
+
+      .overview-share-button i {
+        font-size: 0.875rem;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     `;
     document.head.appendChild(style);

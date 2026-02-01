@@ -63,10 +63,10 @@ router.get('/check', verifyFirebaseToken, async (req, res, next) => {
       return res.json({ shouldShow: false });
     }
 
-    // Check if user dismissed "maybe later" too many times
+    // Check if user dismissed "maybe later" - even once prevents showing again
     const timesDismissed = sharePrompts.timesDismissed || 0;
-    if (timesDismissed >= 3) {
-      logger.debug({ requestId, userId, specId, timesDismissed }, '[share-prompt-routes] User dismissed too many times');
+    if (timesDismissed >= 1) {
+      logger.debug({ requestId, userId, specId, timesDismissed }, '[share-prompt-routes] User dismissed maybe later');
       return res.json({ shouldShow: false });
     }
 

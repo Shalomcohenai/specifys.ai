@@ -46,14 +46,13 @@ For each section that EXISTS in the user input:
 - If user provided integrations → they MUST be included in complexityScore and relevant sections
 - If user provided target audience details → those EXACT values must appear in targetAudience
 
-STEP 3: COMPLETE AND EXPAND (ONLY WHERE USER DATA EXISTS)
-After including all user-provided data:
-- You may expand on user-provided pages with additional details (but keep the core page names/descriptions)
-- You may expand on user-provided workflows with decision points, error handling, etc. (but keep the core workflow steps)
-- You may add descriptions to user-provided features (but keep the exact feature names)
-- You may enhance design descriptions based on the design style (but keep the style reference)
-- You may add context around integrations (but keep the exact integration names)
-- You may expand on target audience (but keep the exact values provided)
+STEP 3: COMPLETE TO MINIMUM REQUIREMENTS (CRITICAL)
+After including all user-provided data, you MUST complete to minimum requirements:
+- If user provided 2 screens → Complete to minimum 5 screens (keep user's screens + add 3 more)
+- If user provided 3 features → Complete to minimum 6-8 features (keep user's features + add more)
+- If user provided 1 workflow with 2 steps → Complete to minimum 3-5 steps (keep user's steps + add more)
+- IMPORTANT: User-provided data is the foundation, but you MUST reach minimum requirements by adding complementary content
+- The user's data shows what's important to them, but don't ignore other essential elements
 
 STEP 4: FILL GAPS (ONLY WHERE USER DATA DOES NOT EXIST)
 For sections that DO NOT exist in the user input:
@@ -69,7 +68,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
 
 {
   "overview": {
-    "ideaSummary": "A detailed, comprehensive description (500-1500 characters) of what the application does, what problem it solves for users, why it's important, core functionality, main benefits, how it addresses user pain points, and its value to the target audience. This should be substantial and provide complete context.",
+    "ideaSummary": "A concise, clear description (250-750 characters) of what the application does, what problem it solves for users, why it's important, core functionality, and main benefits. Keep it focused and impactful.",
     "problemStatement": "A detailed problem statement (2-3 paragraphs, 400-800 characters) describing: the core problem this app solves, why this problem matters, specific user pain points (both practical and emotional), current workarounds users employ, and the gap that exists in current solutions.",
     "targetAudience": {
       "ageRange": "Specific age range with reasoning (e.g., '25-45 years old, representing working professionals')",
@@ -81,15 +80,16 @@ Create a comprehensive and detailed overview based on the user input. Follow the
     "coreFeaturesOverview": ["List of 6-8 main features with brief descriptions of what each feature does and how it benefits users"],
     "userJourneySummary": "A detailed, step-by-step description (4-5 sentences) of how a user would use the app from start to finish, including onboarding, main workflows, and key interactions",
     "detailedUserFlow": {
-      "steps": ["Step 1: User action and system response description", "Step 2: User action and system response description", "Step 3: User action and system response description"],
-      "decisionPoints": "Key user decisions and their implications",
-      "errorHandling": "What happens when errors occur at each step",
-      "confirmations": "What confirmations users receive",
-      "feedbackLoops": "How the system provides feedback to users"
+      "steps": ["Step 1: User action and system response description", "Step 2: User action and system response description", "Step 3: User action and system response description"]
     },
     "screenDescriptions": {
-      "screens": ["Screen 1: Name, purpose, key elements, user interactions", "Screen 2: Name, purpose, key elements, user interactions", "Screen 3: Name, purpose, key elements, user interactions", "Screen 4: Name, purpose, key elements, user interactions", "Screen 5: Name, purpose, key elements, user interactions"],
-      "uiComponents": ["Component 1: Purpose, placement, behavior", "Component 2: Purpose, placement, behavior", "Component 3: Purpose, placement, behavior"],
+      "screens": [
+        {
+          "name": "Screen Name (e.g., Home Screen, Dashboard)",
+          "description": "Detailed description of the screen's purpose, key elements, and user interactions",
+          "uiComponents": ["Component 1: Purpose, placement, behavior", "Component 2: Purpose, placement, behavior"]
+        }
+      ],
       "navigationStructure": "Detailed navigation flow including: main navigation paths, side navigation, bottom navigation, modal flows, deep linking structure, and key transition points between screens"
     },
     "complexityScore": {
@@ -102,7 +102,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
 }
 
 IMPORTANT DETAILED REQUIREMENTS: 
-- ideaSummary should be 500-1500 characters with comprehensive explanation of purpose, functionality, benefits, and value
+- ideaSummary should be 250-750 characters with concise explanation of purpose, functionality, benefits, and value
 - problemStatement should be 2-3 paragraphs (400-800 characters) covering: the problem, why it matters, pain points (practical and emotional), current workarounds, and solution gap
 - targetAudience.ageRange should include reasoning for the age group
 - targetAudience.sector should be specific with industry context
@@ -111,11 +111,10 @@ IMPORTANT DETAILED REQUIREMENTS:
 - valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
 - coreFeaturesOverview should be 6-8 features with brief descriptions of functionality and benefits
 - userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
-- detailedUserFlow.steps should include specific user actions and system responses
-- detailedUserFlow.decisionPoints should describe key decision moments
-- detailedUserFlow.errorHandling should explain error scenarios
-- screenDescriptions.screens MUST include 5-7 detailed screen descriptions (not just 2)
-- screenDescriptions.uiComponents MUST include at least 3 detailed UI component descriptions
+- detailedUserFlow.steps should include specific user actions and system responses. These steps will be displayed as a visual flow diagram with boxes and arrows, so keep each step concise and clear (1-2 sentences max per step)
+- screenDescriptions.screens MUST be an array of objects, each with: name, description, and uiComponents array
+- Each screen object MUST include at least 2-3 uiComponents specific to that screen
+- screenDescriptions.screens MUST include minimum 5 screens (if user provides fewer, complete to 5 minimum)
 - screenDescriptions.navigationStructure MUST be comprehensive with detailed navigation paths
 - complexityScore MUST be an object with four numeric values (0-100) representing:
   * architecture: Frontend only = 20, Frontend+Backend = 60, Full stack with database = 90
@@ -128,23 +127,26 @@ IMPORTANT DETAILED REQUIREMENTS:
 DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
 
 1. screenDescriptions.screens:
+   - CRITICAL: screens MUST be an array of objects, NOT strings. Each object must have: name, description, uiComponents (array)
    - IF "Pages:" section EXISTS in user input:
-     * EVERY page from "Pages:" MUST appear in screenDescriptions.screens
-     * Use the exact page names and descriptions provided
-     * You may expand with additional UI details, but the core page structure MUST match
-     * Minimum: Include ALL user-provided pages
+     * EVERY page from "Pages:" MUST appear in screenDescriptions.screens as an object with name, description, and uiComponents
+     * Use the exact page names provided
+     * For each user-provided page, create a screen object with: name (page name), description (detailed screen description), uiComponents (array of 2-3 components for that screen)
+     * MINIMUM REQUIREMENT: If user provided 2 pages, you MUST complete to 5 screens total (keep user's 2 + add 3 more)
    - IF "Pages:" section DOES NOT EXIST:
-     * You may create 5-7 screens based on App Description analysis
-     * Infer pages from the application description
+     * Create 5-7 screens based on App Description analysis
+     * Each screen must be an object with: name, description, uiComponents (array)
 
 2. detailedUserFlow.steps:
+   - CRITICAL: Only include "steps" array. Do NOT include decisionPoints, errorHandling, confirmations, or feedbackLoops
+   - Each step should be concise (1-2 sentences) as it will be displayed in a visual flow diagram
    - IF "Workflows:" section EXISTS in user input:
      * EVERY workflow from "Workflows:" MUST appear in detailedUserFlow.steps
      * Include ALL steps from each workflow exactly as provided
-     * You may add decision points, error handling, confirmations, but the core workflow steps MUST match
+     * MINIMUM REQUIREMENT: If user provided 1 workflow with 2 steps, complete to minimum 3-5 steps total
      * The userJourneySummary MUST incorporate these specific workflows
    - IF "Workflows:" section DOES NOT EXIST:
-     * You may create workflows based on App Description analysis
+     * Create 3-5 workflow steps based on App Description analysis
      * Infer user flows from the application description
 
 3. coreFeaturesOverview:
@@ -152,9 +154,9 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
      * EVERY feature from "Features:" MUST appear in coreFeaturesOverview
      * Use the exact feature names provided
      * You may add brief descriptions, but feature names MUST match exactly
-     * Minimum: Include ALL user-provided features (both selected and custom)
+     * MINIMUM REQUIREMENT: If user provided 3 features, complete to minimum 6-8 features total (keep user's + add more)
    - IF "Features:" section DOES NOT EXIST:
-     * You may create 6-8 features based on App Description analysis
+     * Create 6-8 features based on App Description analysis
      * Infer features from the application description
 
 4. Design Style (in screenDescriptions and valueProposition):
@@ -190,16 +192,21 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - You may expand and enhance, but core content MUST align with user's description
 
 VALIDATION CHECKLIST (Before generating output):
-✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens?
+✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens as objects with name, description, uiComponents?
+✓ Did I complete screenDescriptions.screens to minimum 5 screens (even if user provided fewer)?
 ✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps in detailedUserFlow.steps?
+✓ Did I complete detailedUserFlow.steps to minimum 3-5 steps (even if user provided fewer)?
 ✓ Did I check if "Features:" section exists? If yes, did I include ALL features in coreFeaturesOverview?
+✓ Did I complete coreFeaturesOverview to minimum 6-8 features (even if user provided fewer)?
 ✓ Did I check if "Design Style:" section exists? If yes, did I incorporate it in design descriptions?
 ✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?
 ✓ Did I check if "Target Audience:" section exists? If yes, did I use EXACT values (platform, interests, age range)?
 ✓ Did I base ideaSummary, problemStatement, and valueProposition on "App Description:" section?
+✓ Did I keep ideaSummary to 250-750 characters (concise, not too long)?
+✓ Did I include ONLY steps in detailedUserFlow (no decisionPoints, errorHandling, confirmations, feedbackLoops)?
 ✓ For sections that DON'T exist, did I infer appropriately based on App Description?
 
-REMEMBER: User-provided data is MANDATORY if it exists. Only fill gaps where user data is missing.
+REMEMBER: User-provided data is MANDATORY if it exists, but you MUST complete to minimum requirements. User data shows what's important, but don't ignore other essential elements.
 
 User Input:
 ${userInput}

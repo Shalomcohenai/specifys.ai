@@ -1082,13 +1082,6 @@ export class OverviewView {
    */
   async loadMigrationsStatus() {
     try {
-      // Check if services are available
-      if (!this.app || !this.app.services || !this.app.services.api) {
-        console.warn('[OverviewView] API service not available');
-        return;
-      }
-      
-      const apiService = this.app.services.api;
       const response = await apiService.get('/api/admin/migrations/status');
       
       if (response.success && response.migrations) {
@@ -1149,7 +1142,6 @@ export class OverviewView {
         testArticlesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
         
         try {
-          const apiService = this.app.services.api;
           const response = await apiService.post('/api/admin/migrations/articles/test');
           
           if (response.success) {
@@ -1174,7 +1166,6 @@ export class OverviewView {
         testAppsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
         
         try {
-          const apiService = this.app.services.api;
           const response = await apiService.post('/api/admin/migrations/apps/test');
           
           if (response.success) {
@@ -1208,7 +1199,6 @@ export class OverviewView {
         testDailyReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
         
         try {
-          const apiService = this.app.services.api;
           const response = await apiService.post('/api/admin/scheduled-jobs/daily-report/test');
           
           if (response.success) {
@@ -1247,7 +1237,6 @@ export class OverviewView {
         testArticleWriterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
         
         try {
-          const apiService = this.app.services.api;
           const response = await apiService.post('/api/admin/scheduled-jobs/article-writer/test');
           
           if (response.success) {
@@ -1286,7 +1275,6 @@ export class OverviewView {
         testToolsFinderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
         
         try {
-          const apiService = this.app.services.api;
           const response = await apiService.post('/api/admin/scheduled-jobs/tools-finder/test');
           
           if (response.success) {
@@ -1470,7 +1458,6 @@ export class OverviewView {
    */
   async markContactAsRead(contactId) {
     try {
-      const apiService = this.app.services.api;
       const response = await apiService.put(`/api/admin/contact-submissions/${contactId}/status`, {
         status: 'read'
       });
