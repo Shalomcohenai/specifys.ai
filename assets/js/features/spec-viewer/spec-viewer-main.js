@@ -676,6 +676,7 @@ function displaySpec(data) {
     const content = document.getElementById('content');
     if (content) {
         content.style.display = 'block';
+        content.classList.remove('hidden');
     }
     
     // Extract app name from title (first word)
