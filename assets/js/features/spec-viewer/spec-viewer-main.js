@@ -685,8 +685,29 @@ function displaySpec(data) {
         hasOverview: !!data.overview,
         hasTechnical: !!data.technical,
         hasMarket: !!data.market,
-        hasDesign: !!data.design
+        hasDesign: !!data.design,
+        createdAt: data.createdAt
     });
+    
+    // Check if spec was just created (within last 15 seconds)
+    let isRecentlyCreated = false;
+    if (data.createdAt) {
+        try {
+            const createdAtTime = data.createdAt.toMillis ? data.createdAt.toMillis() : 
+                                 data.createdAt._seconds ? data.createdAt._seconds * 1000 :
+                                 new Date(data.createdAt).getTime();
+            const now = Date.now();
+            isRecentlyCreated = (now - createdAtTime) < 15000; // 15 seconds
+            console.log('[displaySpec] Spec creation time check:', {
+                createdAtTime,
+                now,
+                diff: now - createdAtTime,
+                isRecentlyCreated
+            });
+        } catch (e) {
+            console.warn('[displaySpec] Error checking creation time:', e);
+        }
+    }
     
     const technicalPreview = data.technical ? data.technical.substring(0, 200) + (data.technical.length > 200 ? '...' : '') : 'null';
     const marketPreview = data.market ? data.market.substring(0, 200) + (data.market.length > 200 ? '...' : '') : 'null';
@@ -764,30 +785,51 @@ function displaySpec(data) {
         window.sharePrompt.init(data.id, specTitle);
     }
     
-    // Check if any section is still generating - start progress bar if so
+    // Check if any section is still generating OR spec was just created
     const status = data.status || {};
     const isGenerating = status.overview === 'generating' || 
                         status.technical === 'generating' || 
                         status.market === 'generating' || 
                         status.design === 'generating';
     
-    console.log('displaySpec - isGenerating:', isGenerating, 'status:', status);
+    // Show progress bar if generating OR if spec was just created (to show new UX)
+    const shouldShowProgress = isGenerating || isRecentlyCreated;
+    
+    console.log('[displaySpec] Generation check:', {
+        isGenerating,
+        isRecentlyCreated,
+        shouldShowProgress,
+        status: status
+    });
     
     // Make sure content is visible before showing progress bar
     if (content) {
         content.style.display = 'block';
     }
     
-    if (isGenerating) {
+    if (shouldShowProgress) {
         // Start progress bar after a small delay to ensure DOM is ready
         setTimeout(() => {
-            console.log('Starting progress bar');
+            console.log('[displaySpec] Starting progress bar');
             startProgressBar();
         }, 100);
         // Show chat bubbles during generation
         const bubblesContainer = document.getElementById('chat-bubbles-container');
         if (bubblesContainer) {
             bubblesContainer.style.display = 'flex';
+        }
+        
+        // If spec was just created but overview exists, show it after a delay
+        if (isRecentlyCreated && !isGenerating && data.overview) {
+            console.log('[displaySpec] Spec recently created with overview, will show after delay');
+            setTimeout(() => {
+                console.log('[displaySpec] Stopping progress bar after delay');
+                stopProgressBar();
+                const bubblesContainer = document.getElementById('chat-bubbles-container');
+                if (bubblesContainer) {
+                    bubblesContainer.style.display = 'none';
+                }
+            }, 3000); // Show progress for 3 seconds even if content exists
         }
     } else {
         stopProgressBar();
@@ -928,16 +970,81 @@ function displayOverview(overview) {
         return;
     }
     
-    // Check if overview is null, undefined, or empty string
-    if (!overview || (typeof overview === 'string' && overview.trim() === '')) {
-        console.log('[displayOverview] Overview is empty, showing skeleton...');
-        // Show skeleton if overview is not available
+    // Check if spec was just created - show skeleton even if overview exists
+    const specData = currentSpecData;
+    let isRecentlyCreated = false;
+    if (specData?.createdAt) {
+        try {
+            const createdAtTime = specData.createdAt.toMillis ? specData.createdAt.toMillis() : 
+                                 specData.createdAt._seconds ? specData.createdAt._seconds * 1000 :
+                                 new Date(specData.createdAt).getTime();
+            const now = Date.now();
+            isRecentlyCreated = (now - createdAtTime) < 15000; // 15 seconds
+        } catch (e) {
+            console.warn('[displayOverview] Error checking creation time:', e);
+        }
+    }
+    
+    // Check if overview is null, undefined, or empty string OR if spec was just created
+    const isEmpty = !overview || (typeof overview === 'string' && overview.trim() === '');
+    const shouldShowSkeleton = isEmpty || (isRecentlyCreated && specData?.status?.overview !== 'ready');
+    
+    if (shouldShowSkeleton) {
+        console.log('[displayOverview] Showing skeleton (empty or recently created):', {
+            isEmpty,
+            isRecentlyCreated,
+            status: specData?.status?.overview
+        });
+        // Show skeleton if overview is not available or spec was just created
         displaySkeleton('overview-data', 'overview');
         displaySectionLoading(headerElement, true);
+        
+        // If overview exists but spec is recent, show it after a delay
+        if (!isEmpty && isRecentlyCreated) {
+            setTimeout(() => {
+                console.log('[displayOverview] Showing overview after delay');
+                displaySectionLoading(headerElement, false);
+                // Store original overview for editing
+                window.originalOverview = overview;
+                
+                // Format and display
+                const formattedContent = formatTextContent(overview);
+                container.innerHTML = formattedContent;
+                
+                // Update subsections after content is loaded
+                setTimeout(() => {
+                    if (currentTab === 'overview') {
+                        updateSubsections('overview');
+                    }
+                }, 100);
+                
+                // Calculate and display complexity score
+                const complexityScore = calculateComplexityScore(overview);
+                const complexityHTML = renderComplexityScore(complexityScore);
+                container.innerHTML += complexityHTML;
+                
+                // Update raw data
+                const rawOverview = document.getElementById('raw-overview');
+                if (rawOverview) {
+                    rawOverview.textContent = JSON.stringify(overview, null, 2);
+                }
+                
+                // Mark tab as generated with orange icon
+                const overviewTab = document.getElementById('overviewTab');
+                if (overviewTab) {
+                    overviewTab.classList.add('generated');
+                }
+                
+                // Update edit button based on PRO access
+                updateEditButton();
+                // Update mockup tab based on PRO access
+                updateMockupTab();
+            }, 2000); // Show skeleton for 2 seconds
+        }
         return;
     }
     
-    console.log('[displayOverview] Overview has content, displaying...');
+    console.log('[displayOverview] Overview has content, displaying immediately...');
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
