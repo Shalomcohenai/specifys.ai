@@ -532,10 +532,23 @@ async function loadSpec(specId) {
                     if (newOverviewStatus === 'ready' && prevOverviewStatus !== 'ready' && updatedData.overview) {
                         console.log('[Firestore Listener] Overview became ready, displaying...');
                         displayOverview(updatedData.overview);
+                        // Hide progress bar and chat bubbles when overview is ready
+                        stopProgressBar();
+                        const bubblesContainer = document.getElementById('chat-bubbles-container');
+                        if (bubblesContainer) {
+                            bubblesContainer.style.display = 'none';
+                            console.log('[Firestore Listener] Progress bar and chat bubbles hidden - overview ready');
+                        }
                     } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
                         console.log('[Firestore Listener] Overview started generating, showing skeleton...');
                         displayOverview(null);
                         startProgressBar();
+                        // Show chat bubbles during generation
+                        const bubblesContainer = document.getElementById('chat-bubbles-container');
+                        if (bubblesContainer) {
+                            bubblesContainer.style.display = 'flex';
+                            console.log('[Firestore Listener] Chat bubbles shown - overview generating');
+                        }
                     }
                     
                     // Check for status changes and update UI accordingly
@@ -602,18 +615,25 @@ async function loadSpec(specId) {
                             }
                             
                             // Update progress bar based on current status
-                            const isStillGenerating = newStatus.overview === 'generating' || 
-                                                     newStatus.technical === 'generating' || 
-                                                     newStatus.market === 'generating' || 
-                                                     newStatus.design === 'generating';
-                            if (isStillGenerating) {
-                                console.log('[Firestore Listener] Still generating, starting progress bar...');
+                            // Only show progress bar and bubbles if overview is still generating
+                            // Once overview is ready, hide them even if other stages are generating
+                            const isOverviewGenerating = newStatus.overview === 'generating';
+                            if (isOverviewGenerating) {
+                                console.log('[Firestore Listener] Overview still generating, starting progress bar...');
                                 startProgressBar();
                                 // Show chat bubbles during generation
                                 const bubblesContainer = document.getElementById('chat-bubbles-container');
                                 if (bubblesContainer) {
                                     bubblesContainer.style.display = 'flex';
                                     console.log('[Firestore Listener] Chat bubbles shown');
+                                }
+                            } else if (newStatus.overview === 'ready') {
+                                // Overview is ready - hide progress bar and bubbles
+                                stopProgressBar();
+                                const bubblesContainer = document.getElementById('chat-bubbles-container');
+                                if (bubblesContainer) {
+                                    bubblesContainer.style.display = 'none';
+                                    console.log('[Firestore Listener] Progress bar and chat bubbles hidden - overview ready');
                                 }
                             }
                             

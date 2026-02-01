@@ -1775,7 +1775,7 @@ button[onclick*="openVisualizer"]:active {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #0078d4, #00a4ef, #0078d4);
+  background: linear-gradient(90deg, #FF6B35, #FF8551, #FF6B35);
   background-size: 200% 100%;
   animation: progress-shimmer 2s infinite;
   border-radius: 3px;
@@ -1846,7 +1846,7 @@ button[onclick*="openVisualizer"]:active {
   width: 20px;
   height: 20px;
   border: 3px solid #f0f0f0;
-  border-top-color: #0078d4;
+  border-top-color: #FF6B35;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1891,7 +1891,7 @@ button[onclick*="openVisualizer"]:active {
   width: 16px;
   height: 16px;
   border: 2px solid #f0f0f0;
-  border-top-color: #0078d4;
+  border-top-color: #FF6B35;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1914,12 +1914,12 @@ button[onclick*="openVisualizer"]:active {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #0078d4;
+  background: #FF6B35;
   color: white;
   padding: 12px 16px;
   border-radius: 25px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
   transition: all 0.3s ease;
   pointer-events: auto;
   min-width: 120px;
@@ -1928,8 +1928,8 @@ button[onclick*="openVisualizer"]:active {
 
 .chat-bubble:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 120, 212, 0.4);
-  background: #0063b1;
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+  background: #FF8551;
 }
 
 .chat-bubble-icon {
