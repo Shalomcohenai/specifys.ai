@@ -423,27 +423,41 @@ function showNotification(message, type = 'info') {
 
 async function loadSpec(specId) {
     try {
+        console.log('[loadSpec] Starting to load spec:', specId);
         showLoading();
         
-
+        
 
         
         if (!specId) {
+            console.error('[loadSpec] No specId provided');
             throw new Error('No specification ID provided');
         }
         
         // Load from Firebase - user must be authenticated (checked in onAuthStateChanged)
         const user = firebase.auth().currentUser;
         if (!user) {
+            console.error('[loadSpec] User not authenticated');
             throw new Error('User must be authenticated to view specifications');
         }
         
+        console.log('[loadSpec] Fetching spec from Firestore...');
         const doc = await firebase.firestore().collection('specs').doc(specId).get();
         if (!doc.exists) {
+            console.error('[loadSpec] Spec document does not exist:', specId);
             throw new Error('Specification not found');
         }
         
         const specData = doc.data();
+        console.log('[loadSpec] Spec data loaded:', {
+            id: doc.id,
+            title: specData.title,
+            status: specData.status,
+            hasOverview: !!specData.overview,
+            hasTechnical: !!specData.technical,
+            hasMarket: !!specData.market,
+            hasDesign: !!specData.design
+        });
         
         // Check if user has permission to view this spec
         // spec-viewer.html only shows specs to their owner or admin (not public specs)
@@ -457,6 +471,7 @@ async function loadSpec(specId) {
         }
         
         currentSpecData = { id: doc.id, ...specData };
+        console.log('[loadSpec] Current spec data set, status:', currentSpecData.status);
         
         const technicalPreview = specData.technical ? specData.technical.substring(0, 200) + (specData.technical.length > 200 ? '...' : '') : 'null';
         const marketPreview = specData.market ? specData.market.substring(0, 200) + (specData.market.length > 200 ? '...' : '') : 'null';
@@ -488,6 +503,7 @@ async function loadSpec(specId) {
         }
         
         // Set up Firestore real-time listener for spec updates
+        console.log('[loadSpec] Setting up Firestore listener...');
         specUnsubscribe = firebase.firestore()
             .collection('specs')
             .doc(specId)
@@ -497,6 +513,16 @@ async function loadSpec(specId) {
                     const previousStatus = currentSpecData?.status || {};
                     const newStatus = updatedData.status || {};
                     
+                    console.log('[Firestore Listener] Spec updated:', {
+                        id: updatedData.id,
+                        previousStatus: previousStatus,
+                        newStatus: newStatus,
+                        hasOverview: !!updatedData.overview,
+                        hasTechnical: !!updatedData.technical,
+                        hasMarket: !!updatedData.market,
+                        hasDesign: !!updatedData.design
+                    });
+                    
                     // Update current spec data
                     currentSpecData = updatedData;
                     
@@ -504,8 +530,10 @@ async function loadSpec(specId) {
                     const prevOverviewStatus = previousStatus.overview;
                     const newOverviewStatus = newStatus.overview;
                     if (newOverviewStatus === 'ready' && prevOverviewStatus !== 'ready' && updatedData.overview) {
+                        console.log('[Firestore Listener] Overview became ready, displaying...');
                         displayOverview(updatedData.overview);
                     } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
+                        console.log('[Firestore Listener] Overview started generating, showing skeleton...');
                         displayOverview(null);
                         startProgressBar();
                     }
@@ -546,6 +574,7 @@ async function loadSpec(specId) {
                             // Check if all stages are ready
                             const allReady = stages.every(s => newStatus[s] === 'ready') && newStatus.overview === 'ready';
                             if (allReady) {
+                                console.log('[Firestore Listener] All stages are ready!');
                                 showNotification('All specifications generated successfully!', 'success');
                                 hideApproveButton();
                                 stopProgressBar();
@@ -554,12 +583,14 @@ async function loadSpec(specId) {
                                 const bubblesContainer = document.getElementById('chat-bubbles-container');
                                 if (bubblesContainer) {
                                     bubblesContainer.style.display = 'none';
+                                    console.log('[Firestore Listener] Chat bubbles hidden');
                                 }
                                 
                                 // Stop polling if all done
                                 if (specPollInterval) {
                                     clearInterval(specPollInterval);
                                     specPollInterval = null;
+                                    console.log('[Firestore Listener] Polling stopped');
                                 }
                                 
                                 // Upload to OpenAI (non-blocking)
@@ -576,11 +607,13 @@ async function loadSpec(specId) {
                                                      newStatus.market === 'generating' || 
                                                      newStatus.design === 'generating';
                             if (isStillGenerating) {
+                                console.log('[Firestore Listener] Still generating, starting progress bar...');
                                 startProgressBar();
                                 // Show chat bubbles during generation
                                 const bubblesContainer = document.getElementById('chat-bubbles-container');
                                 if (bubblesContainer) {
                                     bubblesContainer.style.display = 'flex';
+                                    console.log('[Firestore Listener] Chat bubbles shown');
                                 }
                             }
                             
@@ -596,6 +629,7 @@ async function loadSpec(specId) {
                             updateTabLoadingState(stage, false);
                             showNotification(`Failed to generate ${stage} specification. You can retry using the retry buttons.`, 'error');
                         } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
+                            console.log('[Firestore Listener] Stage started generating:', stage);
                             updateNotificationDot(stage, 'generating');
                             updateTabLoadingState(stage, true);
                             
@@ -609,6 +643,7 @@ async function loadSpec(specId) {
                             }
                             
                             // Start progress bar if not already started
+                            console.log('[Firestore Listener] Starting progress bar for stage:', stage);
                             startProgressBar();
                         }
                     });
@@ -631,19 +666,27 @@ async function loadSpec(specId) {
             startSpecStatusPolling(specId);
         }
         
+        console.log('[loadSpec] Calling displaySpec...');
         displaySpec(currentSpecData);
+        console.log('[loadSpec] Spec loaded successfully');
         
     } catch (error) {
-
+        console.error('[loadSpec] Error loading spec:', error);
         showError(`Error loading spec: ${error.message}`);
         showNotification('Failed to load specification. Please try again.', 'error');
     }
 }
 
 function displaySpec(data) {
-
-
-
+    console.log('[displaySpec] Starting to display spec:', {
+        id: data.id,
+        title: data.title,
+        status: data.status,
+        hasOverview: !!data.overview,
+        hasTechnical: !!data.technical,
+        hasMarket: !!data.market,
+        hasDesign: !!data.design
+    });
     
     const technicalPreview = data.technical ? data.technical.substring(0, 200) + (data.technical.length > 200 ? '...' : '') : 'null';
     const marketPreview = data.market ? data.market.substring(0, 200) + (data.market.length > 200 ? '...' : '') : 'null';
@@ -671,12 +714,16 @@ function displaySpec(data) {
         `;
     }
     
+    console.log('[displaySpec] Hiding loading, showing content...');
     hideLoading();
     hideError();
     const content = document.getElementById('content');
     if (content) {
         content.style.display = 'block';
         content.classList.remove('hidden');
+        console.log('[displaySpec] Content div is now visible');
+    } else {
+        console.error('[displaySpec] Content div not found!');
     }
     
     // Extract app name from title (first word)
@@ -752,11 +799,12 @@ function displaySpec(data) {
     }
     
     // Display content for each tab
-
+    console.log('[displaySpec] Displaying all sections...');
     displayOverview(data.overview);
     displayTechnical(data.technical);
     displayMarket(data.market);
     displayDesign(data.design);
+    console.log('[displaySpec] All sections displayed');
     displayMockup(data.mockups).catch(err => {
         // Error displaying mockup
     });
@@ -866,20 +914,30 @@ function displaySpec(data) {
 }
 
 function displayOverview(overview) {
+    console.log('[displayOverview] Called with:', {
+        hasOverview: !!overview,
+        overviewType: typeof overview,
+        overviewLength: overview ? (typeof overview === 'string' ? overview.length : 'object') : 0
+    });
+    
     const container = document.getElementById('overview-data');
     const headerElement = document.querySelector('#overview-content .content-header');
     
-    // Debug logging
-
+    if (!container) {
+        console.error('[displayOverview] Container not found!');
+        return;
+    }
     
     // Check if overview is null, undefined, or empty string
     if (!overview || (typeof overview === 'string' && overview.trim() === '')) {
+        console.log('[displayOverview] Overview is empty, showing skeleton...');
         // Show skeleton if overview is not available
         displaySkeleton('overview-data', 'overview');
         displaySectionLoading(headerElement, true);
         return;
     }
     
+    console.log('[displayOverview] Overview has content, displaying...');
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
@@ -1169,21 +1227,36 @@ function renderComplexityScore(score) {
 }
 
 function displayTechnical(technical) {
+    console.log('[displayTechnical] Called with:', {
+        hasTechnical: !!technical,
+        technicalType: typeof technical,
+        status: currentSpecData?.status?.technical
+    });
+    
     const container = document.getElementById('technical-data');
     const headerElement = document.querySelector('#technical-content .content-header');
+    
+    if (!container) {
+        console.error('[displayTechnical] Container not found!');
+        return;
+    }
     
     if (!technical) {
         // Check if technical is in generating state - show skeleton
         const specData = currentSpecData;
         if (specData && specData.status && specData.status.technical === 'generating') {
+            console.log('[displayTechnical] Technical is generating, showing skeleton...');
             displaySkeleton('technical-data', 'technical');
             displaySectionLoading(headerElement, true);
         } else {
+            console.log('[displayTechnical] Technical is locked, showing locked message...');
             container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
             displaySectionLoading(headerElement, false);
         }
         return;
     }
+    
+    console.log('[displayTechnical] Technical has content, displaying...');
     
     if (technical === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
@@ -1223,21 +1296,36 @@ function displayTechnical(technical) {
 }
 
 function displayMarket(market) {
+    console.log('[displayMarket] Called with:', {
+        hasMarket: !!market,
+        marketType: typeof market,
+        status: currentSpecData?.status?.market
+    });
+    
     const container = document.getElementById('market-data');
     const headerElement = document.querySelector('#market-content .content-header');
+    
+    if (!container) {
+        console.error('[displayMarket] Container not found!');
+        return;
+    }
     
     if (!market) {
         // Check if market is in generating state - show skeleton
         const specData = currentSpecData;
         if (specData && specData.status && specData.status.market === 'generating') {
+            console.log('[displayMarket] Market is generating, showing skeleton...');
             displaySkeleton('market-data', 'market');
             displaySectionLoading(headerElement, true);
         } else {
+            console.log('[displayMarket] Market is locked, showing locked message...');
             container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
             displaySectionLoading(headerElement, false);
         }
         return;
     }
+    
+    console.log('[displayMarket] Market has content, displaying...');
     
     if (market === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
@@ -1578,16 +1666,29 @@ function retryMindMap() {
 }
 
 function displayDesign(design) {
+    console.log('[displayDesign] Called with:', {
+        hasDesign: !!design,
+        designType: typeof design,
+        status: currentSpecData?.status?.design
+    });
+    
     const container = document.getElementById('design-data');
     const headerElement = document.querySelector('#design-content .content-header');
+    
+    if (!container) {
+        console.error('[displayDesign] Container not found!');
+        return;
+    }
     
     if (!design) {
         // Check if design is in generating state - show skeleton
         const specData = currentSpecData;
         if (specData && specData.status && specData.status.design === 'generating') {
+            console.log('[displayDesign] Design is generating, showing skeleton...');
             displaySkeleton('design-data', 'design');
             displaySectionLoading(headerElement, true);
         } else {
+            console.log('[displayDesign] Design is locked, showing locked message...');
             container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Design & Branding</h3><p>Please approve the Overview first to generate the design specification.</p></div>';
             displaySectionLoading(headerElement, false);
         }
@@ -1595,6 +1696,7 @@ function displayDesign(design) {
     }
     
     if (design === 'error') {
+        console.error('[displayDesign] Design generation error');
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Design Specification</h3><p>There was an error generating the design specification. Please try again.</p></div>';
         displaySectionLoading(headerElement, false);
         const retryDesignBtn = document.getElementById('retryDesignBtn');
@@ -1604,6 +1706,7 @@ function displayDesign(design) {
         return;
     }
     
+    console.log('[displayDesign] Design has content, displaying...');
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
@@ -8666,8 +8769,12 @@ window.addEventListener('beforeunload', cleanupSpecListeners);
  * Display skeleton loading state for a section
  */
 function displaySkeleton(containerId, sectionName) {
+    console.log('[displaySkeleton] Displaying skeleton for:', containerId, sectionName);
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!container) {
+        console.error('[displaySkeleton] Container not found:', containerId);
+        return;
+    }
     
     const skeletonHTML = `
         <div class="skeleton-container">
@@ -8686,6 +8793,7 @@ function displaySkeleton(containerId, sectionName) {
     `;
     
     container.innerHTML = skeletonHTML;
+    console.log('[displaySkeleton] Skeleton displayed successfully');
 }
 
 /**
@@ -8735,49 +8843,61 @@ const progressMessages = [
  * Start progress bar with rotating messages
  */
 function startProgressBar() {
+    console.log('[startProgressBar] Starting progress bar...');
     const progressContainer = document.getElementById('spec-generation-progress');
     if (!progressContainer) {
-        console.warn('Progress bar container not found');
+        console.error('[startProgressBar] Progress bar container not found!');
         return;
     }
     
     // Clear any existing interval
     if (progressMessageInterval) {
+        console.log('[startProgressBar] Clearing existing interval');
         clearInterval(progressMessageInterval);
         progressMessageInterval = null;
     }
     
     progressContainer.classList.remove('hidden');
+    console.log('[startProgressBar] Progress bar container is now visible');
     
     const messageElement = document.getElementById('progress-message');
     if (!messageElement) {
-        console.warn('Progress message element not found');
+        console.error('[startProgressBar] Progress message element not found!');
         return;
     }
     
     // Set initial message
     messageElement.textContent = progressMessages[0];
     currentProgressMessageIndex = 0;
+    console.log('[startProgressBar] Initial message set:', progressMessages[0]);
     
     // Rotate messages every 3.5 seconds
     progressMessageInterval = setInterval(() => {
         currentProgressMessageIndex = (currentProgressMessageIndex + 1) % progressMessages.length;
         messageElement.textContent = progressMessages[currentProgressMessageIndex];
+        console.log('[startProgressBar] Message rotated to:', progressMessages[currentProgressMessageIndex]);
     }, 3500);
+    
+    console.log('[startProgressBar] Progress bar started successfully');
 }
 
 /**
  * Stop progress bar
  */
 function stopProgressBar() {
+    console.log('[stopProgressBar] Stopping progress bar...');
     const progressContainer = document.getElementById('spec-generation-progress');
     if (progressContainer) {
         progressContainer.classList.add('hidden');
+        console.log('[stopProgressBar] Progress bar hidden');
+    } else {
+        console.warn('[stopProgressBar] Progress bar container not found');
     }
     
     if (progressMessageInterval) {
         clearInterval(progressMessageInterval);
         progressMessageInterval = null;
+        console.log('[stopProgressBar] Interval cleared');
     }
 }
 
@@ -8789,10 +8909,14 @@ function stopProgressBar() {
  * Toggle chat bubble card
  */
 function toggleChatBubble(type) {
+    console.log('[toggleChatBubble] Toggling chat bubble:', type);
     const card = document.getElementById(`${type}-card`);
     const bubble = document.getElementById(`${type}-bubble`);
     
-    if (!card || !bubble) return;
+    if (!card || !bubble) {
+        console.error('[toggleChatBubble] Card or bubble not found:', type);
+        return;
+    }
     
     // Close all other cards first
     const allCards = document.querySelectorAll('.chat-bubble-card');
@@ -8806,9 +8930,11 @@ function toggleChatBubble(type) {
     if (card.classList.contains('hidden')) {
         card.classList.remove('hidden');
         bubble.style.opacity = '0.8';
+        console.log('[toggleChatBubble] Card opened:', type);
     } else {
         card.classList.add('hidden');
         bubble.style.opacity = '1';
+        console.log('[toggleChatBubble] Card closed:', type);
     }
 }
 
