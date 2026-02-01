@@ -128,12 +128,6 @@ router.post('/consume', verifyFirebaseToken, async (req, res, next) => {
       }));
     }
     
-    if (error.message === 'User already has a spec. Only one spec per user is allowed.' || error.message.includes('already has a spec')) {
-      return next(createError('User already has a spec', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
-        message: 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.'
-      }));
-    }
-    
     next(createError('Failed to consume credit', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message,
       requestId

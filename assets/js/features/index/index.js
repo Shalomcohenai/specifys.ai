@@ -1194,39 +1194,6 @@ async function generateSpecification() {
       }
     }
     
-    // Check if user already has a spec BEFORE creating a new one
-    try {
-      const existingSpecsSnapshot = await firebase.firestore()
-        .collection('specs')
-        .where('userId', '==', user.uid)
-        .limit(1)
-        .get();
-      
-      if (!existingSpecsSnapshot.empty) {
-        const existingSpec = existingSpecsSnapshot.docs[0];
-        const existingSpecId = existingSpec.id;
-        const existingSpecData = existingSpec.data();
-        
-        const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
-        if (generateButton) {
-          setButtonLoading(generateButton, false);
-        }
-        if (window.store) {
-          window.store.set('loading', false);
-        }
-        
-        // Show user-friendly message and redirect to existing spec
-        const message = 'You already have a spec. Only one spec per user is allowed. Would you like to view your existing spec?';
-        if (confirm(message)) {
-          window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
-        }
-        return;
-      }
-    } catch (checkError) {
-      console.warn('Error checking for existing specs:', checkError);
-      // Continue with creation if check fails - don't block user
-    }
-    
     // Show loading state on button
     const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
     if (generateButton) {
@@ -1443,33 +1410,6 @@ async function generateSpecification() {
           window.store.set('loading', false);
         }
         
-        // Check if error is about existing spec
-        const errorMessage = error.data?.message || error.data?.details?.message || error.message || '';
-        if (errorMessage.includes('already have a spec') || errorMessage.includes('already has a spec')) {
-          // Try to find existing spec and redirect
-          try {
-            const existingSpecsSnapshot = await firebase.firestore()
-              .collection('specs')
-              .where('userId', '==', user.uid)
-              .limit(1)
-              .get();
-            
-            if (!existingSpecsSnapshot.empty) {
-              const existingSpecId = existingSpecsSnapshot.docs[0].id;
-              const redirectMessage = 'You already have a spec. Only one spec per user is allowed.\n\nWould you like to view your existing spec?';
-              if (confirm(redirectMessage)) {
-                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
-                return;
-              }
-            }
-          } catch (findError) {
-            console.warn('Error finding existing spec:', findError);
-          }
-          
-          alert(errorMessage || 'You already have a spec. Only one spec per user is allowed.');
-          return;
-        }
-        
         // Handle insufficient credits
         let paywallPayload;
         if (error.data) {
@@ -1554,7 +1494,7 @@ async function generateSpecification() {
         } else if (creditError.status === 403) {
           // Handle 403 errors (user already has spec or insufficient credits)
           const errorData = creditError.data || {};
-          const userMessage = errorData.message || errorData.details?.message || 'You already have a spec. Only one spec per user is allowed.';
+          const userMessage = errorData.message || errorData.details?.message || 'Failed to consume credit';
           
           // Delete spec and show error
           if (firebaseId) {
@@ -1571,26 +1511,6 @@ async function generateSpecification() {
           }
           if (window.store) {
             window.store.set('loading', false);
-          }
-          
-          // Try to find existing spec and redirect
-          try {
-            const existingSpecsSnapshot = await firebase.firestore()
-              .collection('specs')
-              .where('userId', '==', user.uid)
-              .limit(1)
-              .get();
-            
-            if (!existingSpecsSnapshot.empty) {
-              const existingSpecId = existingSpecsSnapshot.docs[0].id;
-              const redirectMessage = `${userMessage}\n\nWould you like to view your existing spec?`;
-              if (confirm(redirectMessage)) {
-                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
-                return;
-              }
-            }
-          } catch (findError) {
-            console.warn('Error finding existing spec:', findError);
           }
           
           alert(userMessage);
@@ -1680,37 +1600,6 @@ async function generateSpecification() {
         consumeTransactionId = `idempotent-${Date.now()}`;
         // Don't throw error, continue with spec creation
       } else {
-        // Check if user already has a spec
-        if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
-          // If spec already exists, try to get its ID and redirect to it
-          // But first check if credit was consumed - if spec exists but credit wasn't consumed, 
-          // it means the spec was created in a previous attempt, so we should redirect to it
-          try {
-            const user = firebase.auth().currentUser;
-            if (user) {
-              const specsSnapshot = await firebase.firestore()
-                .collection('specs')
-                .where('userId', '==', user.uid)
-                .limit(1)
-                .get();
-              
-              if (!specsSnapshot.empty) {
-                const existingSpecId = specsSnapshot.docs[0].id;
-                alert('You already have a spec. Redirecting to your existing spec...');
-                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
-                return;
-              }
-            }
-          } catch (fetchError) {
-            // Failed to fetch existing spec
-          }
-          
-          errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
-          alert(errorMessage);
-          window.location.href = '/pages/profile.html';
-          return;
-        }
-        
         // Check if it's insufficient credits error
         if (errorMessage.includes('Insufficient credits') || errorMessage.includes('insufficient')) {
           const paywallPayload = {

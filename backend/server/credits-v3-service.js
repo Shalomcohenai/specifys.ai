@@ -450,22 +450,6 @@ async function consumeCredit(userId, specId, options = {}) {
         };
       }
       
-      // Check if user already has a spec (only one spec per user allowed)
-      // IMPORTANT: Exclude the current specId from the check, as it's the one being created now
-      if (!specId.startsWith('temp-')) {
-        const specsQuery = db.collection('specs').where('userId', '==', userId);
-        const existingSpecsSnapshot = await transaction.get(specsQuery);
-        
-        // Filter out the current specId - we're checking for OTHER specs
-        const otherSpecs = existingSpecsSnapshot.docs.filter(doc => doc.id !== specId);
-        
-        if (otherSpecs.length > 0) {
-          const existingSpecId = otherSpecs[0].id;
-          logger.warn({ requestId, userId, existingSpecId, currentSpecId: specId }, '[CREDITS-V3] User already has a spec');
-          throw new Error('User already has a spec. Only one spec per user is allowed.');
-        }
-      }
-      
       // Get user credits
       const creditsRef = db.collection(CREDITS_COLLECTION_V3).doc(userId);
       const creditsDoc = await transaction.get(creditsRef);
@@ -700,10 +684,6 @@ async function consumeCredit(userId, specId, options = {}) {
     
     if (error.message === 'Insufficient credits') {
       throw new Error('Insufficient credits');
-    }
-    
-    if (error.message === 'User already has a spec. Only one spec per user is allowed.') {
-      throw new Error('User already has a spec. Only one spec per user is allowed.');
     }
     
     // For unknown errors, wrap with more context
