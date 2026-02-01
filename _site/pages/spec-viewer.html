@@ -771,6 +771,14 @@ s0.parentNode.insertBefore(s1,s0);
         </div>
         
         <div id="content" class="hidden">
+            <!-- Progress Bar with Rotating Messages -->
+            <div id="spec-generation-progress" class="spec-generation-progress hidden">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-message" id="progress-message">Understanding your idea...</div>
+            </div>
+            
             <!-- Approval Actions Container -->
             <div id="approval-container" class="approval-container">
                 <div class="approval-message">
@@ -1122,6 +1130,58 @@ s0.parentNode.insertBefore(s1,s0);
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Bubbles for Micro-Content (Left Bottom) -->
+<div class="chat-bubbles-container" id="chat-bubbles-container">
+    <!-- Common Mistakes Bubble -->
+    <div class="chat-bubble" id="mistakes-bubble" onclick="toggleChatBubble('mistakes')">
+        <div class="chat-bubble-icon">
+            <i class="fa fa-lightbulb-o"></i>
+        </div>
+        <div class="chat-bubble-text">Tips</div>
+    </div>
+    
+    <!-- Why Specs Bubble -->
+    <div class="chat-bubble" id="specs-bubble" onclick="toggleChatBubble('specs')">
+        <div class="chat-bubble-icon">
+            <i class="fa fa-bolt"></i>
+        </div>
+        <div class="chat-bubble-text">Why Specs</div>
+    </div>
+    
+    <!-- Expanded Cards -->
+    <div class="chat-bubble-card hidden" id="mistakes-card">
+        <div class="chat-bubble-card-header">
+            <h3>Common mistakes founders make before building</h3>
+            <button class="chat-bubble-close" onclick="closeChatBubble('mistakes')" aria-label="Close">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-bubble-card-content">
+            <ul>
+                <li>Starting development without clear requirements</li>
+                <li>Underestimating technical complexity and time</li>
+                <li>Building features users don't actually need</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="chat-bubble-card hidden" id="specs-card">
+        <div class="chat-bubble-card-header">
+            <h3>Why specs save tokens and time</h3>
+            <button class="chat-bubble-close" onclick="closeChatBubble('specs')" aria-label="Close">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-bubble-card-content">
+            <ul>
+                <li>Clear requirements reduce back-and-forth with AI</li>
+                <li>Detailed specs prevent costly mid-development changes</li>
+                <li>Well-documented plans speed up implementation</li>
+            </ul>
         </div>
     </div>
 </div>

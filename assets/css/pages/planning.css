@@ -1329,6 +1329,17 @@
   font-family: var(--font-family-primary, "Montserrat", sans-serif);
 }
 
+.export-btn.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.export-btn.loading .fa-spinner {
+  margin-right: 8px;
+  display: inline-block;
+}
+
 .export-btn:hover {
   background: var(--button-hover, #FF8551);
   transform: translateY(-2px);

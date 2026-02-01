@@ -1153,7 +1153,10 @@ async function generateSpecification() {
     // Check if user is authenticated
     const user = firebase.auth().currentUser;
     if (!user) {
-      hideLoadingOverlay();
+      const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+      if (generateButton) {
+        setButtonLoading(generateButton, false);
+      }
       showRegistrationModal();
       return;
     }
@@ -1167,7 +1170,10 @@ async function generateSpecification() {
     if (typeof checkEntitlement !== 'undefined') {
       const entitlementCheck = await checkEntitlement();
       if (!entitlementCheck.hasAccess) {
-        hideLoadingOverlay();
+        const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+        if (generateButton) {
+          setButtonLoading(generateButton, false);
+        }
         if (window.store) {
           window.store.set('loading', false);
         }
@@ -1188,8 +1194,11 @@ async function generateSpecification() {
       }
     }
     
-    // Show loading overlay
-    showLoadingOverlay();
+    // Show loading state on button
+    const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+    if (generateButton) {
+      setButtonLoading(generateButton, true);
+    }
     
     // Prepare the prompt for overview generation
     let prompt = '';
@@ -1320,7 +1329,10 @@ async function generateSpecification() {
     } catch (error) {
       // Handle 403 (paywall) errors
       if (error.status === 403) {
-        hideLoadingOverlay();
+        const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+        if (generateButton) {
+          setButtonLoading(generateButton, false);
+        }
         let paywallPayload;
         if (error.data) {
           paywallPayload = error.data?.paywallData || {
@@ -1399,7 +1411,10 @@ async function generateSpecification() {
               await firebase.firestore().collection('specs').doc(firebaseId).delete();
             } catch (e) {}
           }
-          hideLoadingOverlay();
+          const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+          if (generateButton) {
+            setButtonLoading(generateButton, false);
+          }
           throw creditError;
         }
       }
@@ -1410,10 +1425,8 @@ async function generateSpecification() {
         window.store.set('currentSpec', { id: firebaseId, overview: null });
       }
       
-      // Redirect to spec viewer - listener will update when ready
-      setTimeout(() => {
-        window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
-      }, 1000);
+      // Redirect to spec viewer immediately - listener will update when ready
+      window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
       return; // Exit early - queue will handle the rest
     }
     
@@ -1457,7 +1470,10 @@ async function generateSpecification() {
       }
       
     } catch (creditError) {
-      hideLoadingOverlay();
+      const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+      if (generateButton) {
+        setButtonLoading(generateButton, false);
+      }
       let errorMessage = creditError.message || 'Failed to consume credit';
       
       // Check if this is an "already processed" scenario (idempotency)
@@ -1557,7 +1573,10 @@ async function generateSpecification() {
         }
       }
       
-      hideLoadingOverlay();
+      const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+      if (generateButton) {
+        setButtonLoading(generateButton, false);
+      }
       throw new Error(`Failed to save specification: ${saveError.message}`);
     }
     
@@ -1600,14 +1619,15 @@ async function generateSpecification() {
     localStorage.setItem('generatedOverviewContent', overviewContent);
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
     
-    // Redirect to spec viewer with Firebase ID
-    setTimeout(() => {
-      window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
-    }, 1000);
+    // Redirect to spec viewer immediately with Firebase ID
+    window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
     
   } catch (error) {
-    // Hide loading overlay
-    hideLoadingOverlay();
+    // Reset button loading state
+    const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+    if (generateButton) {
+      setButtonLoading(generateButton, false);
+    }
     
     const errorMessage = error.message || 'Error generating specification. Please try again.';
     
@@ -1616,22 +1636,30 @@ async function generateSpecification() {
   }
 }
 
-// ===== LOADING OVERLAY FUNCTIONS =====
-function showLoadingOverlay() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (overlay) {
-    overlay.classList.remove('hidden');
-    overlay.style.display = 'flex';
+// ===== BUTTON LOADING STATE FUNCTIONS =====
+function setButtonLoading(buttonSelector, isLoading) {
+  const button = typeof buttonSelector === 'string' 
+    ? document.querySelector(buttonSelector) 
+    : buttonSelector;
+  
+  if (!button) return;
+  
+  if (isLoading) {
+    button.disabled = true;
+    const originalText = button.textContent || button.innerHTML;
+    button.dataset.originalText = originalText;
+    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+    button.classList.add('loading');
+  } else {
+    button.disabled = false;
+    const originalText = button.dataset.originalText || 'Generate Final Spec';
+    button.innerHTML = originalText;
+    button.classList.remove('loading');
   }
 }
 
-function hideLoadingOverlay() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (overlay) {
-    overlay.classList.add('hidden');
-    overlay.style.display = 'none';
-  }
-}
+// Make function globally accessible
+window.setButtonLoading = setButtonLoading;
 
 // ===== FIREBASE INTEGRATION =====
 async function saveSpecToFirebase(overviewContent, answers) {
@@ -1863,8 +1891,11 @@ document.addEventListener('DOMContentLoaded', function() {
   localStorage.removeItem('currentSpecId');
   localStorage.removeItem('generatedOverviewContent');
   
-  // Ensure loading overlay is hidden on page load
-  hideLoadingOverlay();
+  // Ensure button is not in loading state on page load
+  const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+  if (generateButton) {
+    setButtonLoading(generateButton, false);
+  }
   
   // Check if user is authenticated and initialize credits with loading
   // Wait for Firebase to be available
