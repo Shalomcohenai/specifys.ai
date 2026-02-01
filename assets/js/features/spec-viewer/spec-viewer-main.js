@@ -500,6 +500,16 @@ async function loadSpec(specId) {
                     // Update current spec data
                     currentSpecData = updatedData;
                     
+                    // Check if overview status changed
+                    const prevOverviewStatus = previousStatus.overview;
+                    const newOverviewStatus = newStatus.overview;
+                    if (newOverviewStatus === 'ready' && prevOverviewStatus !== 'ready' && updatedData.overview) {
+                        displayOverview(updatedData.overview);
+                    } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
+                        displayOverview(null);
+                        startProgressBar();
+                    }
+                    
                     // Check for status changes and update UI accordingly
                     const stages = ['technical', 'market', 'design'];
                     stages.forEach(stage => {
@@ -534,10 +544,17 @@ async function loadSpec(specId) {
                             updateExportCheckboxes();
                             
                             // Check if all stages are ready
-                            const allReady = stages.every(s => newStatus[s] === 'ready');
+                            const allReady = stages.every(s => newStatus[s] === 'ready') && newStatus.overview === 'ready';
                             if (allReady) {
                                 showNotification('All specifications generated successfully!', 'success');
                                 hideApproveButton();
+                                stopProgressBar();
+                                
+                                // Hide chat bubbles when generation is complete
+                                const bubblesContainer = document.getElementById('chat-bubbles-container');
+                                if (bubblesContainer) {
+                                    bubblesContainer.style.display = 'none';
+                                }
                                 
                                 // Stop polling if all done
                                 if (specPollInterval) {
@@ -550,6 +567,20 @@ async function loadSpec(specId) {
                                     triggerOpenAIUploadForSpec(updatedData.id).catch(err => {
                                         console.warn('Failed to upload spec to OpenAI:', err);
                                     });
+                                }
+                            }
+                            
+                            // Update progress bar based on current status
+                            const isStillGenerating = newStatus.overview === 'generating' || 
+                                                     newStatus.technical === 'generating' || 
+                                                     newStatus.market === 'generating' || 
+                                                     newStatus.design === 'generating';
+                            if (isStillGenerating) {
+                                startProgressBar();
+                                // Show chat bubbles during generation
+                                const bubblesContainer = document.getElementById('chat-bubbles-container');
+                                if (bubblesContainer) {
+                                    bubblesContainer.style.display = 'flex';
                                 }
                             }
                             
@@ -567,6 +598,18 @@ async function loadSpec(specId) {
                         } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
                             updateNotificationDot(stage, 'generating');
                             updateTabLoadingState(stage, true);
+                            
+                            // Show skeleton for generating stage
+                            if (stage === 'technical') {
+                                displayTechnical(null);
+                            } else if (stage === 'market') {
+                                displayMarket(null);
+                            } else if (stage === 'design') {
+                                displayDesign(null);
+                            }
+                            
+                            // Start progress bar if not already started
+                            startProgressBar();
                         }
                     });
                     
@@ -671,6 +714,29 @@ function displaySpec(data) {
         const specTitle = data.title || 'App Specification';
         // Initialize share prompt (which also initializes the share button)
         window.sharePrompt.init(data.id, specTitle);
+    }
+    
+    // Check if any section is still generating - start progress bar if so
+    const status = data.status || {};
+    const isGenerating = status.overview === 'generating' || 
+                        status.technical === 'generating' || 
+                        status.market === 'generating' || 
+                        status.design === 'generating';
+    
+    if (isGenerating) {
+        startProgressBar();
+        // Show chat bubbles during generation
+        const bubblesContainer = document.getElementById('chat-bubbles-container');
+        if (bubblesContainer) {
+            bubblesContainer.style.display = 'flex';
+        }
+    } else {
+        stopProgressBar();
+        // Hide chat bubbles when generation is complete
+        const bubblesContainer = document.getElementById('chat-bubbles-container');
+        if (bubblesContainer) {
+            bubblesContainer.style.display = 'none';
+        }
     }
     
     // Display content for each tab
@@ -789,14 +855,20 @@ function displaySpec(data) {
 
 function displayOverview(overview) {
     const container = document.getElementById('overview-data');
+    const headerElement = document.querySelector('#overview-content .content-header');
     
     // Debug logging
 
     
     if (!overview) {
-        container.innerHTML = '<p class="text-muted">Overview not available...</p>';
+        // Show skeleton if overview is not available
+        displaySkeleton('overview-data', 'overview');
+        displaySectionLoading(headerElement, true);
         return;
     }
+    
+    // Hide loading state
+    displaySectionLoading(headerElement, false);
     
     // Store original overview for editing
     window.originalOverview = overview;
@@ -1084,22 +1156,34 @@ function renderComplexityScore(score) {
 }
 
 function displayTechnical(technical) {
-    
     const container = document.getElementById('technical-data');
+    const headerElement = document.querySelector('#technical-content .content-header');
     
     if (!technical) {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
+        // Check if technical is in generating state - show skeleton
+        const specData = currentSpecData;
+        if (specData && specData.status && specData.status.technical === 'generating') {
+            displaySkeleton('technical-data', 'technical');
+            displaySectionLoading(headerElement, true);
+        } else {
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
+            displaySectionLoading(headerElement, false);
+        }
         return;
     }
     
     if (technical === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
+        displaySectionLoading(headerElement, false);
         const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
         if (retryTechnicalBtn) {
             retryTechnicalBtn.style.display = 'inline-block';
         }
         return;
     }
+    
+    // Hide loading state
+    displaySectionLoading(headerElement, false);
     
     // Format the technical content
     const formattedContent = formatTextContent(technical);
@@ -1127,20 +1211,33 @@ function displayTechnical(technical) {
 
 function displayMarket(market) {
     const container = document.getElementById('market-data');
+    const headerElement = document.querySelector('#market-content .content-header');
     
     if (!market) {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
+        // Check if market is in generating state - show skeleton
+        const specData = currentSpecData;
+        if (specData && specData.status && specData.status.market === 'generating') {
+            displaySkeleton('market-data', 'market');
+            displaySectionLoading(headerElement, true);
+        } else {
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
+            displaySectionLoading(headerElement, false);
+        }
         return;
     }
     
     if (market === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
+        displaySectionLoading(headerElement, false);
         const retryMarketBtn = document.getElementById('retryMarketBtn');
         if (retryMarketBtn) {
             retryMarketBtn.style.display = 'inline-block';
         }
         return;
     }
+    
+    // Hide loading state
+    displaySectionLoading(headerElement, false);
     
     // Format the market content
     const formattedContent = formatTextContent(market);
@@ -1469,20 +1566,33 @@ function retryMindMap() {
 
 function displayDesign(design) {
     const container = document.getElementById('design-data');
+    const headerElement = document.querySelector('#design-content .content-header');
     
     if (!design) {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Design & Branding</h3><p>Please approve the Overview first to generate the design specification.</p></div>';
+        // Check if design is in generating state - show skeleton
+        const specData = currentSpecData;
+        if (specData && specData.status && specData.status.design === 'generating') {
+            displaySkeleton('design-data', 'design');
+            displaySectionLoading(headerElement, true);
+        } else {
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Design & Branding</h3><p>Please approve the Overview first to generate the design specification.</p></div>';
+            displaySectionLoading(headerElement, false);
+        }
         return;
     }
     
     if (design === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Design Specification</h3><p>There was an error generating the design specification. Please try again.</p></div>';
+        displaySectionLoading(headerElement, false);
         const retryDesignBtn = document.getElementById('retryDesignBtn');
         if (retryDesignBtn) {
             retryDesignBtn.style.display = 'inline-block';
         }
         return;
     }
+    
+    // Hide loading state
+    displaySectionLoading(headerElement, false);
     
     // Parse design data for colors and typography (for preview buttons)
     const designData = parseDesignData(design);
@@ -8534,3 +8644,183 @@ function cleanupSpecListeners() {
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', cleanupSpecListeners);
+
+// ============================================
+// Skeleton UI Functions
+// ============================================
+
+/**
+ * Display skeleton loading state for a section
+ */
+function displaySkeleton(containerId, sectionName) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const skeletonHTML = `
+        <div class="skeleton-container">
+            <div class="skeleton-header">
+                <div class="skeleton-spinner"></div>
+                <div class="skeleton-text"></div>
+            </div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line long"></div>
+        </div>
+    `;
+    
+    container.innerHTML = skeletonHTML;
+}
+
+/**
+ * Display section loading state with spinner
+ */
+function displaySectionLoading(headerElement, isLoading) {
+    if (!headerElement) return;
+    
+    let loadingIndicator = headerElement.querySelector('.section-loading');
+    
+    if (isLoading) {
+        if (!loadingIndicator) {
+            loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'section-loading';
+            loadingIndicator.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span>Loading...</span>
+            `;
+            headerElement.appendChild(loadingIndicator);
+        }
+        loadingIndicator.style.display = 'flex';
+    } else {
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+}
+
+// ============================================
+// Progress Bar with Rotating Messages
+// ============================================
+
+let progressMessageInterval = null;
+let currentProgressMessageIndex = 0;
+
+const progressMessages = [
+    'Understanding your idea...',
+    'Defining core features...',
+    'Mapping user workflows...',
+    'Analyzing technical requirements...',
+    'Researching market opportunities...',
+    'Designing user experience...',
+    'Finalizing specification...'
+];
+
+/**
+ * Start progress bar with rotating messages
+ */
+function startProgressBar() {
+    const progressContainer = document.getElementById('spec-generation-progress');
+    if (!progressContainer) return;
+    
+    progressContainer.classList.remove('hidden');
+    
+    const messageElement = document.getElementById('progress-message');
+    if (!messageElement) return;
+    
+    // Set initial message
+    messageElement.textContent = progressMessages[0];
+    currentProgressMessageIndex = 0;
+    
+    // Rotate messages every 3.5 seconds
+    progressMessageInterval = setInterval(() => {
+        currentProgressMessageIndex = (currentProgressMessageIndex + 1) % progressMessages.length;
+        messageElement.textContent = progressMessages[currentProgressMessageIndex];
+    }, 3500);
+}
+
+/**
+ * Stop progress bar
+ */
+function stopProgressBar() {
+    const progressContainer = document.getElementById('spec-generation-progress');
+    if (progressContainer) {
+        progressContainer.classList.add('hidden');
+    }
+    
+    if (progressMessageInterval) {
+        clearInterval(progressMessageInterval);
+        progressMessageInterval = null;
+    }
+}
+
+// ============================================
+// Chat Bubbles (Micro-Content)
+// ============================================
+
+/**
+ * Toggle chat bubble card
+ */
+function toggleChatBubble(type) {
+    const card = document.getElementById(`${type}-card`);
+    const bubble = document.getElementById(`${type}-bubble`);
+    
+    if (!card || !bubble) return;
+    
+    // Close all other cards first
+    const allCards = document.querySelectorAll('.chat-bubble-card');
+    allCards.forEach(c => {
+        if (c !== card) {
+            c.classList.add('hidden');
+        }
+    });
+    
+    // Toggle current card
+    if (card.classList.contains('hidden')) {
+        card.classList.remove('hidden');
+        bubble.style.opacity = '0.8';
+    } else {
+        card.classList.add('hidden');
+        bubble.style.opacity = '1';
+    }
+}
+
+/**
+ * Close chat bubble card
+ */
+function closeChatBubble(type) {
+    const card = document.getElementById(`${type}-card`);
+    const bubble = document.getElementById(`${type}-bubble`);
+    
+    if (card) {
+        card.classList.add('hidden');
+    }
+    if (bubble) {
+        bubble.style.opacity = '1';
+    }
+}
+
+// Make functions globally accessible for onclick handlers
+window.toggleChatBubble = toggleChatBubble;
+window.closeChatBubble = closeChatBubble;
+
+// Close chat bubbles when clicking outside
+document.addEventListener('click', (e) => {
+    const bubblesContainer = document.getElementById('chat-bubbles-container');
+    if (!bubblesContainer) return;
+    
+    // Check if click is outside chat bubbles
+    if (!bubblesContainer.contains(e.target)) {
+        const allCards = document.querySelectorAll('.chat-bubble-card');
+        allCards.forEach(card => {
+            card.classList.add('hidden');
+        });
+        
+        const allBubbles = document.querySelectorAll('.chat-bubble');
+        allBubbles.forEach(bubble => {
+            bubble.style.opacity = '1';
+        });
+    }
+});
