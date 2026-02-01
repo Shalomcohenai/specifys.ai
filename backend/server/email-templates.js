@@ -197,7 +197,7 @@ function welcomeEmail(userName, getStartedUrl, creditsCount = 1) {
 }
 
 /**
- * Spec ready email template
+ * Spec ready email template (first spec)
  */
 function specReadyEmail(userName, specTitle, specLink) {
   const headerTitle = 'You did it! Your first specification is ready!';
@@ -207,6 +207,29 @@ function specReadyEmail(userName, specTitle, specLink) {
       </p>
       <p class="content-text">
         Your specification is ready! You can always access it to view and upgrade it.
+      </p>
+      <div class="btn-container">
+        <a href="${specLink}" class="btn">View Your Specification</a>
+      </div>
+      <p class="content-text" style="color: #666; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+        If the button doesn't work, copy and paste this link into your browser:<br>
+        <a href="${specLink}" style="color: #FF6B35; word-break: break-all;">${specLink}</a>
+      </p>
+  `;
+  return getBaseTemplate(headerTitle, bodyContent);
+}
+
+/**
+ * Spec ready email template (subsequent specs - 2nd, 3rd, etc.)
+ */
+function specReadyEmailSubsequent(userName, specTitle, specLink) {
+  const headerTitle = 'Your specification is ready!';
+  const bodyContent = `
+      <p class="content-text">
+        Hello ${userName},
+      </p>
+      <p class="content-text">
+        Great news! Your specification <strong>"${specTitle}"</strong> is ready and waiting for you.
       </p>
       <div class="btn-container">
         <a href="${specLink}" class="btn">View Your Specification</a>
@@ -361,6 +384,7 @@ module.exports = {
   getBaseTemplate,
   welcomeEmail,
   specReadyEmail,
+  specReadyEmailSubsequent,
   advancedSpecReadyEmail,
   newsletterEmail,
   notificationEmail,

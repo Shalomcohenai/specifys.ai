@@ -87,7 +87,7 @@ class EmailService {
   }
 
   /**
-   * Send spec ready notification email
+   * Send spec ready notification email (first spec)
    * @param {string} userEmail - User's email address
    * @param {string} userName - User's display name
    * @param {string} specTitle - Specification title
@@ -138,6 +138,63 @@ class EmailService {
       return { success: true, messageId: result.id };
     } catch (error) {
       logger.error({ userEmail, specId, error: error.message }, '[EmailService] Failed to send spec ready email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send spec ready notification email (subsequent specs - 2nd, 3rd, etc.)
+   * @param {string} userEmail - User's email address
+   * @param {string} userName - User's display name
+   * @param {string} specTitle - Specification title
+   * @param {string} specId - Specification ID
+   * @param {string} userId - User ID (for tracking)
+   * @param {string} baseUrl - Base URL of the site
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendSpecReadyEmailSubsequent(userEmail, userName, specTitle, specId, userId, baseUrl) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendSpecReadyEmailSubsequent - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!userEmail) {
+      logger.warn('[EmailService] sendSpecReadyEmailSubsequent - User email not provided');
+      return { success: false, error: 'User email missing' };
+    }
+
+    try {
+      // Generate tracking URL
+      const specLinkBase = `${baseUrl}/pages/spec-viewer.html?id=${specId}`;
+      const specLink = emailTracking.generateTrackingUrl(
+        specLinkBase, 
+        'spec-ready-subsequent', 
+        userId || 'anonymous',
+        'spec-view',
+        { specId }
+      );
+      
+      const html = emailTemplates.specReadyEmailSubsequent(userName || userEmail.split('@')[0], specTitle, specLink);
+      
+      const subject = `Your specification "${specTitle}" is ready!`;
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: userEmail,
+        subject: subject,
+        html: html
+      });
+
+      // Record email sent for analytics
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'spec-ready-subsequent', 'spec_created', { messageId: result.id, specId }).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record spec ready email sent');
+        });
+      }
+
+      logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Spec ready email (subsequent) sent successfully');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ userEmail, specId, error: error.message }, '[EmailService] Failed to send spec ready email (subsequent)');
       return { success: false, error: error.message };
     }
   }

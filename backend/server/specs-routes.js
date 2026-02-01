@@ -263,15 +263,35 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
             return next(createError('User has disabled spec notification emails', ERROR_CODES.INVALID_REQUEST, 400));
         }
         
-        // Send email using Resend service
-        const emailResult = await emailService.sendSpecReadyEmail(
-            userEmail,
-            displayName,
-            specData.title || 'App Specification',
-            specId,
-            userId,
-            baseUrl
-        );
+        // Check how many specs the user has to determine which email template to use
+        const userSpecsSnapshot = await db.collection('specs')
+            .where('userId', '==', userId)
+            .get();
+        
+        const userSpecsCount = userSpecsSnapshot.size;
+        const isFirstSpec = userSpecsCount <= 1; // 1 because we're counting the current spec
+        
+        // Send email using Resend service - different email for first vs subsequent specs
+        let emailResult;
+        if (isFirstSpec) {
+            emailResult = await emailService.sendSpecReadyEmail(
+                userEmail,
+                displayName,
+                specData.title || 'App Specification',
+                specId,
+                userId,
+                baseUrl
+            );
+        } else {
+            emailResult = await emailService.sendSpecReadyEmailSubsequent(
+                userEmail,
+                displayName,
+                specData.title || 'App Specification',
+                specId,
+                userId,
+                baseUrl
+            );
+        }
         
         if (emailResult.success) {
             // Mark email as sent in Firestore
