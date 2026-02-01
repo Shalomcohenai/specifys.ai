@@ -464,6 +464,13 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                 
                 // If specId provided, update the spec
                 if (specId) {
+                    // Verify spec exists before updating
+                    const specDoc = await db.collection('specs').doc(specId).get();
+                    if (!specDoc.exists) {
+                        logger.error({ requestId, specId }, '[specs-routes] Spec not found when trying to update overview');
+                        throw new Error(`Spec ${specId} not found`);
+                    }
+                    
                     await db.collection('specs').doc(specId).update({
                         overview: overviewContent,
                         'status.overview': 'ready',
@@ -476,13 +483,23 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                 
                 return overviewContent;
             } catch (error) {
-                logger.error({ requestId, error: error.message }, '[specs-routes] Overview generation failed');
+                logger.error({ requestId, error: error.message, specId }, '[specs-routes] Overview generation failed');
                 if (specId) {
-                    await db.collection('specs').doc(specId).update({
-                        'status.overview': 'error',
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                    });
-                    specEvents.emitSpecError(specId, 'overview', error);
+                    // Verify spec exists before updating error status
+                    try {
+                        const specDoc = await db.collection('specs').doc(specId).get();
+                        if (specDoc.exists) {
+                            await db.collection('specs').doc(specId).update({
+                                'status.overview': 'error',
+                                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                            });
+                            specEvents.emitSpecError(specId, 'overview', error);
+                        } else {
+                            logger.warn({ requestId, specId }, '[specs-routes] Spec does not exist, cannot update error status');
+                        }
+                    } catch (updateError) {
+                        logger.error({ requestId, specId, updateError: updateError.message }, '[specs-routes] Failed to update spec error status');
+                    }
                 }
                 throw error;
             }

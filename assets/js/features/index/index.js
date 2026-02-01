@@ -1194,6 +1194,39 @@ async function generateSpecification() {
       }
     }
     
+    // Check if user already has a spec BEFORE creating a new one
+    try {
+      const existingSpecsSnapshot = await firebase.firestore()
+        .collection('specs')
+        .where('userId', '==', user.uid)
+        .limit(1)
+        .get();
+      
+      if (!existingSpecsSnapshot.empty) {
+        const existingSpec = existingSpecsSnapshot.docs[0];
+        const existingSpecId = existingSpec.id;
+        const existingSpecData = existingSpec.data();
+        
+        const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+        if (generateButton) {
+          setButtonLoading(generateButton, false);
+        }
+        if (window.store) {
+          window.store.set('loading', false);
+        }
+        
+        // Show user-friendly message and redirect to existing spec
+        const message = 'You already have a spec. Only one spec per user is allowed. Would you like to view your existing spec?';
+        if (confirm(message)) {
+          window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
+        }
+        return;
+      }
+    } catch (checkError) {
+      console.warn('Error checking for existing specs:', checkError);
+      // Continue with creation if check fails - don't block user
+    }
+    
     // Show loading state on button
     const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
     if (generateButton) {
@@ -1390,12 +1423,54 @@ async function generateSpecification() {
         }
       }
     } catch (error) {
+      // Cleanup: Delete any spec that was created but failed
+      if (specIdForQueue) {
+        try {
+          await firebase.firestore().collection('specs').doc(specIdForQueue).delete();
+          console.log('Cleaned up spec after error:', specIdForQueue);
+        } catch (cleanupError) {
+          console.warn('Failed to cleanup spec after error:', cleanupError);
+        }
+      }
+      
       // Handle 403 (paywall) errors
       if (error.status === 403) {
         const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
         if (generateButton) {
           setButtonLoading(generateButton, false);
         }
+        if (window.store) {
+          window.store.set('loading', false);
+        }
+        
+        // Check if error is about existing spec
+        const errorMessage = error.data?.message || error.data?.details?.message || error.message || '';
+        if (errorMessage.includes('already have a spec') || errorMessage.includes('already has a spec')) {
+          // Try to find existing spec and redirect
+          try {
+            const existingSpecsSnapshot = await firebase.firestore()
+              .collection('specs')
+              .where('userId', '==', user.uid)
+              .limit(1)
+              .get();
+            
+            if (!existingSpecsSnapshot.empty) {
+              const existingSpecId = existingSpecsSnapshot.docs[0].id;
+              const redirectMessage = 'You already have a spec. Only one spec per user is allowed.\n\nWould you like to view your existing spec?';
+              if (confirm(redirectMessage)) {
+                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
+                return;
+              }
+            }
+          } catch (findError) {
+            console.warn('Error finding existing spec:', findError);
+          }
+          
+          alert(errorMessage || 'You already have a spec. Only one spec per user is allowed.');
+          return;
+        }
+        
+        // Handle insufficient credits
         let paywallPayload;
         if (error.data) {
           paywallPayload = error.data?.paywallData || {
@@ -1430,6 +1505,15 @@ async function generateSpecification() {
           errorMessage += ` (${errorData.errorType})`;
         }
       }
+      
+      const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+      if (generateButton) {
+        setButtonLoading(generateButton, false);
+      }
+      if (window.store) {
+        window.store.set('loading', false);
+      }
+      
       throw new Error(errorMessage);
     }
     
@@ -1467,16 +1551,65 @@ async function generateSpecification() {
         if (errorMessage.includes('already processed') || errorMessage.includes('alreadyProcessed')) {
           creditConsumed = true;
           consumeTransactionId = `idempotent-${Date.now()}`;
+        } else if (creditError.status === 403) {
+          // Handle 403 errors (user already has spec or insufficient credits)
+          const errorData = creditError.data || {};
+          const userMessage = errorData.message || errorData.details?.message || 'You already have a spec. Only one spec per user is allowed.';
+          
+          // Delete spec and show error
+          if (firebaseId) {
+            try {
+              await firebase.firestore().collection('specs').doc(firebaseId).delete();
+            } catch (e) {
+              console.warn('Failed to delete spec after credit error:', e);
+            }
+          }
+          
+          const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
+          if (generateButton) {
+            setButtonLoading(generateButton, false);
+          }
+          if (window.store) {
+            window.store.set('loading', false);
+          }
+          
+          // Try to find existing spec and redirect
+          try {
+            const existingSpecsSnapshot = await firebase.firestore()
+              .collection('specs')
+              .where('userId', '==', user.uid)
+              .limit(1)
+              .get();
+            
+            if (!existingSpecsSnapshot.empty) {
+              const existingSpecId = existingSpecsSnapshot.docs[0].id;
+              const redirectMessage = `${userMessage}\n\nWould you like to view your existing spec?`;
+              if (confirm(redirectMessage)) {
+                window.location.href = `/pages/spec-viewer.html?id=${existingSpecId}`;
+                return;
+              }
+            }
+          } catch (findError) {
+            console.warn('Error finding existing spec:', findError);
+          }
+          
+          alert(userMessage);
+          return;
         } else {
           // Delete spec and show error
           if (firebaseId) {
             try {
               await firebase.firestore().collection('specs').doc(firebaseId).delete();
-            } catch (e) {}
+            } catch (e) {
+              console.warn('Failed to delete spec after credit error:', e);
+            }
           }
           const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
           if (generateButton) {
             setButtonLoading(generateButton, false);
+          }
+          if (window.store) {
+            window.store.set('loading', false);
           }
           throw creditError;
         }
