@@ -55,6 +55,36 @@ const demoSpecData = {
             userEngagement: "Daily active users spend average of 35 minutes in platform, complete 85% of high-priority tasks on time, reduce task overload by 40% within first month",
             productivityImprovement: "Users report 28% increase in meaningful work accomplished, 35% reduction in context switching, and 50% decrease in missed deadlines",
             businessMetrics: "Target 50,000 paying users in Year 1, $5M ARR by Year 2, 90% net revenue retention rate, enterprise segment representing 60% of revenue by Year 3"
+        },
+        screenDescriptions: {
+            screens: [
+                {
+                    name: "Dashboard",
+                    description: "Main productivity dashboard showing task overview, AI-suggested priorities, energy-based scheduling recommendations, and quick access to all active projects.",
+                    uiComponents: ["Task list with priority indicators", "AI suggestion panel", "Calendar integration widget", "Productivity metrics cards", "Quick action buttons"]
+                },
+                {
+                    name: "Task Detail View",
+                    description: "Comprehensive task view with all metadata, subtasks, dependencies, time tracking, comments, and AI-powered suggestions for optimal completion time.",
+                    uiComponents: ["Task title and description editor", "Priority and deadline selectors", "Subtasks checklist", "Dependency graph", "Time tracking timer", "Comments section", "AI suggestions panel"]
+                },
+                {
+                    name: "Project Board",
+                    description: "Kanban-style project board with real-time collaboration, live cursors, activity streams, and smart task grouping based on AI analysis.",
+                    uiComponents: ["Drag-and-drop columns", "Task cards with preview", "Live collaboration indicators", "Filter and sort controls", "Bulk action toolbar", "Activity feed sidebar"]
+                },
+                {
+                    name: "Analytics Dashboard",
+                    description: "Productivity analytics showing time expenditure patterns, completion rates, productivity trends, and personalized insights from AI coaching.",
+                    uiComponents: ["Time distribution charts", "Productivity trend graphs", "Completion rate metrics", "Energy level heatmap", "Weekly insights report", "Export options"]
+                },
+                {
+                    name: "Settings & Preferences",
+                    description: "User preferences and settings including AI behavior customization, integration configurations, notification preferences, and account management.",
+                    uiComponents: ["AI behavior sliders", "Integration toggle switches", "Notification preferences", "Theme and layout options", "Account settings", "Team management"]
+                }
+            ],
+            navigationStructure: "Bottom navigation on mobile with Dashboard, Projects, Analytics, and Profile tabs. Side navigation on desktop with collapsible sections. Deep linking supports direct navigation to specific tasks, projects, or analytics views."
         }
     },
     technical: {

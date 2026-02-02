@@ -19,6 +19,7 @@ extra_js:
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js
+  - https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
   - /assets/js/features/spec-viewer/spec-viewer-firebase.js
   - /assets/js/features/spec-viewer/spec-viewer-api-helper.js
   - /assets/js/features/spec-viewer/spec-viewer-scroll.js
@@ -27,6 +28,7 @@ extra_js:
   - /assets/js/mermaid.js
   - /assets/js/features/spec-viewer/spec-viewer-main.js
   - /assets/js/features/share-prompt/share-prompt-modal.js
+  - /assets/js/features/spec-viewer/cursor-windsurf-export.js
 custom_js_modules:
   - /assets/js/features/spec-viewer/spec-viewer-event-handlers.js
 ---
@@ -159,9 +161,9 @@ custom_js_modules:
             </div>
             
             <div class="side-menu-item" data-tab="export">
-                <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export specification">
+                <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export & Integration">
                     <i class="fa fa-download" aria-hidden="true"></i>
-                    <span class="side-menu-text">Export</span>
+                    <span class="side-menu-text">Export & Integration</span>
                 </button>
             </div>
             
@@ -377,7 +379,7 @@ custom_js_modules:
             
             <div id="export-content" class="tab-content hidden">
                 <div class="content-header">
-                    <h2><i class="fa fa-download"></i> Export Specification</h2>
+                    <h2><i class="fa fa-download"></i> Export & Integration</h2>
                 </div>
                 <div id="export-data" class="content-body">
                     <!-- כרטיסיות פנימיות -->
@@ -387,6 +389,9 @@ custom_js_modules:
                         </button>
                         <button class="export-inner-tab" onclick="showExportTab('jira')" id="export-jira-tab">
                             Jira Export
+                        </button>
+                        <button class="export-inner-tab" onclick="showExportTab('cursor-windsurf')" id="export-cursor-windsurf-tab">
+                            <i class="fa fa-code" style="margin-right: 8px;"></i> Cursor & Windsurf
                         </button>
                     </div>
                     
@@ -511,6 +516,57 @@ custom_js_modules:
                                     <div id="jira-progress-bar" class="progress-bar"></div>
                                 </div>
                                 <p id="jira-progress-text" class="progress-text">Preparing Jira export...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cursor & Windsurf Export Tab -->
+                    <div id="export-cursor-windsurf-content" class="export-inner-content hidden">
+                        <div class="export-container">
+                            <div class="export-intro">
+                                <p>Export your specification as a structured project package for <strong>Cursor integration</strong> and <strong>Windsurf integration</strong> AI editors.</p>
+                                <p style="margin-top: 10px;">
+                                    <i class="fa fa-info-circle"></i> 
+                                    <strong>Includes:</strong> Project plan, architecture docs, design guidelines, development roadmap, diagrams, and AI editor configuration files.
+                                </p>
+                            </div>
+                            
+                            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e0e0e0;">
+                                <h4 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;"><i class="fa fa-folder-open" style="color: #FF6B35; margin-right: 8px;"></i>Export Package Contents:</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+                                    <li><strong>PROJECT_PLAN.md</strong> - Project overview and market analysis</li>
+                                    <li><strong>ARCHITECTURE.md</strong> - Technical specifications</li>
+                                    <li><strong>DESIGN_GUIDELINES.md</strong> - UI/UX guidelines</li>
+                                    <li><strong>DEVELOPMENT_ROADMAP.md</strong> - Step-by-step development plan</li>
+                                    <li><strong>DIAGRAMS.md</strong> - System diagrams</li>
+                                    <li><strong>.cursorrules</strong> - Cursor AI editor configuration</li>
+                                    <li><strong>.windsurf/info.md</strong> - Windsurf AI agent context</li>
+                                    <li><strong>README.md</strong> - Quick start guide</li>
+                                    <li><strong>metadata.json</strong> - Export information</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="export-actions">
+                                <button id="generate-cursor-windsurf-btn" class="btn btn-primary export-generate-btn" onclick="generateCursorWindsurfExport()">
+                                    <i class="fa fa-download"></i> Export to ZIP
+                                </button>
+                            </div>
+                            
+                            <div id="cursor-windsurf-export-progress" class="export-progress hidden" style="margin-top: 20px;">
+                                <div class="progress-bar-container">
+                                    <div id="cursor-windsurf-progress-bar" class="progress-bar"></div>
+                                </div>
+                                <p id="cursor-windsurf-progress-text" class="progress-text">Preparing export...</p>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 20px; background: #fff4f0; border-radius: 8px; margin-top: 20px; border: 2px dashed #FF6B35;">
+                                <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                    <i class="fa fa-info-circle" style="color: #FF6B35; margin-right: 8px;"></i>
+                                    After extracting the ZIP file, Cursor and Windsurf will automatically detect the configuration files.
+                                </p>
+                                <a href="/pages/cursor-windsurf-integration.html" style="display: inline-block; padding: 10px 20px; background: #FF6B35; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                    Learn More About Cursor & Windsurf Integration
+                                </a>
                             </div>
                         </div>
                     </div>

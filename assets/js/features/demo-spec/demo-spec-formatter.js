@@ -4,6 +4,14 @@
 // This file contains all formatting functions extracted from old demo-spec.html
 // These functions format the demo spec data for display
 
+// Helper function to escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Format Overview section
 function formatOverview(data) {
     let html = '';
@@ -12,9 +20,54 @@ function formatOverview(data) {
     if (data.applicationSummary && data.applicationSummary.paragraphs) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-clipboard"></i> Application Summary</h3>';
-        data.applicationSummary.paragraphs.forEach(p => {
+        // Show only first half of paragraphs (rounded up)
+        const paragraphsToShow = Math.ceil(data.applicationSummary.paragraphs.length / 2);
+        data.applicationSummary.paragraphs.slice(0, paragraphsToShow).forEach(p => {
             html += `<p>${p}</p>`;
         });
+        html += '</div>';
+    }
+    
+    // Screens
+    if (data.screenDescriptions && data.screenDescriptions.screens && Array.isArray(data.screenDescriptions.screens)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-desktop"></i> Screens (' + data.screenDescriptions.screens.length + ' total)</h3>';
+        
+        html += '<div class="screens-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">';
+        
+        data.screenDescriptions.screens.forEach((screen, index) => {
+            const screenName = screen.name || `Screen ${index + 1}`;
+            const screenDescription = screen.description || 'No description provided';
+            const uiComponents = screen.uiComponents || [];
+            
+            html += '<div class="screen-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.15)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 4px rgba(0,0,0,0.1)\';">';
+            html += '<h5 style="margin: 0 0 12px 0; color: #FF6B35; font-size: 1.1em; border-bottom: 2px solid #FF6B35; padding-bottom: 8px;">' + escapeHtml(screenName) + '</h5>';
+            html += '<p style="margin: 0 0 15px 0; color: #333; line-height: 1.6;">' + escapeHtml(screenDescription) + '</p>';
+            
+            if (uiComponents.length > 0) {
+                html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">';
+                html += '<div style="font-size: 0.9em; font-weight: bold; color: #555; margin-bottom: 10px;">UI Components:</div>';
+                html += '<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">';
+                uiComponents.forEach(component => {
+                    const componentText = typeof component === 'string' ? component : component.name || component;
+                    html += '<li style="margin-bottom: 6px; color: #666; font-size: 0.9em; line-height: 1.5;">' + escapeHtml(componentText) + '</li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+        });
+        
+        html += '</div>';
+        
+        if (data.screenDescriptions.navigationStructure) {
+            html += '<div style="margin-top: 30px;">';
+            html += '<h4>Navigation Structure:</h4>';
+            html += '<p style="line-height: 1.6;">' + escapeHtml(data.screenDescriptions.navigationStructure) + '</p>';
+            html += '</div>';
+        }
+        
         html += '</div>';
     }
     
@@ -1063,6 +1116,9 @@ function formatExport() {
     html += '<button class="export-inner-tab-btn" onclick="showExportInnerTab(\'jira\')" id="export-jira-tab-btn" style="padding: 12px 24px; background: #f0f0f0; color: #666; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 600;">';
     html += '<i class="fa fa-tasks" style="color: #666 !important;"></i> Jira Export';
     html += '</button>';
+    html += '<button class="export-inner-tab-btn" onclick="showExportInnerTab(\'cursor-windsurf\')" id="export-cursor-windsurf-tab-btn" style="padding: 12px 24px; background: #f0f0f0; color: #666; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 600;">';
+    html += '<i class="fa fa-code" style="color: #666 !important;"></i> Cursor & Windsurf';
+    html += '</button>';
     html += '</div>';
     
     // HTML Export Content
@@ -1140,6 +1196,45 @@ function formatExport() {
     html += '</div>';
     html += '</div>';
     
+    // Cursor & Windsurf Export Content
+    html += '<div id="export-cursor-windsurf-content" class="export-inner-content" style="display: none;">';
+    html += '<div style="background: #f9f9f9; padding: 25px; border-radius: 8px;">';
+    html += '<div style="margin-bottom: 25px;">';
+    html += '<p style="margin-bottom: 15px; color: #555;">Export your specification as a structured project package for <strong>Cursor integration</strong> and <strong>Windsurf integration</strong> AI editors.</p>';
+    html += '<p style="color: #666; font-size: 14px;">';
+    html += '<i class="fa fa-info-circle" style="color: #FF6B35; margin-right: 8px;"></i>';
+    html += '<strong>Includes:</strong> Project plan, architecture docs, design guidelines, development roadmap, diagrams, and AI editor configuration files.';
+    html += '</p>';
+    html += '</div>';
+    
+    html += '<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e0e0;">';
+    html += '<h4 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;"><i class="fa fa-folder-open" style="color: #FF6B35; margin-right: 8px;"></i>Export Package Contents:</h4>';
+    html += '<ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">';
+    html += '<li><strong>PROJECT_PLAN.md</strong> - Project overview and market analysis</li>';
+    html += '<li><strong>ARCHITECTURE.md</strong> - Technical specifications</li>';
+    html += '<li><strong>DESIGN_GUIDELINES.md</strong> - UI/UX guidelines</li>';
+    html += '<li><strong>DEVELOPMENT_ROADMAP.md</strong> - Step-by-step development plan</li>';
+    html += '<li><strong>DIAGRAMS.md</strong> - System diagrams</li>';
+    html += '<li><strong>.cursorrules</strong> - Cursor AI editor configuration</li>';
+    html += '<li><strong>.windsurf/info.md</strong> - Windsurf AI agent context</li>';
+    html += '<li><strong>README.md</strong> - Quick start guide</li>';
+    html += '<li><strong>metadata.json</strong> - Export information</li>';
+    html += '</ul>';
+    html += '</div>';
+    
+    html += '<div style="text-align: center; padding: 20px; background: #fff4f0; border-radius: 8px; border: 2px dashed #FF6B35;">';
+    html += '<p style="margin: 0; color: #666; font-size: 14px;">';
+    html += '<i class="fa fa-info-circle" style="color: #FF6B35; margin-right: 8px;"></i>';
+    html += 'In the full version, this would generate a ZIP file ready for <strong>Cursor integration</strong> and <strong>Windsurf integration</strong>.';
+    html += '</p>';
+    html += '<a href="/pages/cursor-windsurf-integration.html" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #FF6B35; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">';
+    html += 'Learn More About Cursor & Windsurf Integration';
+    html += '</a>';
+    html += '</div>';
+    
+    html += '</div>';
+    html += '</div>';
+    
     html += '</div>';
     
     return html;
@@ -1159,13 +1254,17 @@ window.showExportInnerTab = function(tab) {
     });
     
     // Show selected content
-    document.getElementById(`export-${tab}-content`).style.display = 'block';
-    const btn = document.getElementById(`export-${tab}-tab-btn`);
-    btn.style.background = '#FF6B35';
-    btn.style.color = 'white';
-    const icon = btn.querySelector('i');
-    if (icon) {
-        icon.style.setProperty('color', 'white', 'important');
+    const contentId = tab === 'cursor-windsurf' ? 'export-cursor-windsurf-content' : `export-${tab}-content`;
+    document.getElementById(contentId).style.display = 'block';
+    const btnId = tab === 'cursor-windsurf' ? 'export-cursor-windsurf-tab-btn' : `export-${tab}-tab-btn`;
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.style.background = '#FF6B35';
+        btn.style.color = 'white';
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.style.setProperty('color', 'white', 'important');
+        }
     }
 };
 
