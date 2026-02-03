@@ -5646,7 +5646,7 @@ function startSpecStatusPolling(specId) {
                         const doc = await firebase.firestore().collection('specs').doc(specId).get();
                         if (doc.exists) {
                             const updatedData = { id: doc.id, ...doc.data() };
-                            currentSpecData = updatedData;
+                            updateCurrentSpecData(updatedData);
                             displaySpec(updatedData);
                         }
                     }
