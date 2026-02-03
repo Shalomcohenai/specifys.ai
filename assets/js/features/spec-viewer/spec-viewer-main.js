@@ -953,7 +953,35 @@ function displaySpec(data) {
             refreshTabsAfterDesignReady();
         }
         
-        hideApproveButton();
+        // Check if advanced specs were actually created
+        // Only hide approval button if at least one advanced spec is ready or error
+        // This ensures the modal stays visible if generation failed or was interrupted
+        const technicalStatus = data.status?.technical;
+        const marketStatus = data.status?.market;
+        const designStatus = data.status?.design;
+        
+        const hasAtLeastOneSpecReady = 
+            technicalStatus === 'ready' || 
+            marketStatus === 'ready' || 
+            designStatus === 'ready' ||
+            technicalStatus === 'error' || 
+            marketStatus === 'error' || 
+            designStatus === 'error';
+        
+        if (hasAtLeastOneSpecReady) {
+            // At least one spec was created, safe to hide the approval modal
+            hideApproveButton();
+        } else {
+            // Specs are still generating or never started - keep modal visible
+            // This handles the case where internet was cut during generation
+            showApproveButton();
+            const approvalContainer = document.getElementById('approval-container');
+            if (approvalContainer) {
+                approvalContainer.style.display = 'flex';
+            }
+            // Show a message that generation is in progress or needs to be restarted
+            showNotification('Advanced specifications are still being generated. Please wait or click Approve again if generation was interrupted.', 'info');
+        }
     } else {
         showApproveButton();
         disableTechnicalTabs();
@@ -5224,6 +5252,26 @@ function showApproveButton() {
 }
 
 function hideApproveButton() {
+    // Double check that specs were actually created before hiding
+    if (currentSpecData && currentSpecData.overviewApproved) {
+        const technicalStatus = currentSpecData.status?.technical;
+        const marketStatus = currentSpecData.status?.market;
+        const designStatus = currentSpecData.status?.design;
+        
+        const hasAtLeastOneSpecReady = 
+            technicalStatus === 'ready' || 
+            marketStatus === 'ready' || 
+            designStatus === 'ready' ||
+            technicalStatus === 'error' || 
+            marketStatus === 'error' || 
+            designStatus === 'error';
+        
+        if (!hasAtLeastOneSpecReady) {
+            // Don't hide if specs weren't created yet
+            return;
+        }
+    }
+    
     const approveBtn = document.getElementById('approveBtn');
     if (approveBtn) {
         approveBtn.style.display = 'none';
