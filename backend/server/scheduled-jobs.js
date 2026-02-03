@@ -12,6 +12,7 @@ const { ToolsFinderJob } = require('./tools-automation');
 const { ArticleWriterJob } = require('./articles-automation');
 const { CreditsSyncJob } = require('./credits-sync-job');
 const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
+const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
@@ -469,17 +470,52 @@ async function runCreditsSyncJob() {
 }
 
 /**
- * Start daily report job (runs every day at 9:00 AM)
+ * Helper function to calculate next scheduled time in a specific timezone
+ * @param {number} hour - Hour of day (0-23)
+ * @param {string} timezone - Timezone string (e.g., 'Asia/Jerusalem', 'UTC')
+ * @returns {Date} Next scheduled time in UTC
+ */
+function getNextScheduledTime(hour, timezone = 'UTC') {
+  const now = new Date();
+  
+  // Get current time in the specified timezone
+  const tzNow = utcToZonedTime(now, timezone);
+  
+  // Create next run time in the timezone
+  const nextRun = new Date(tzNow);
+  nextRun.setHours(hour, 0, 0, 0);
+  nextRun.setSeconds(0, 0);
+  nextRun.setMilliseconds(0);
+  
+  // If it's already past the scheduled hour today, schedule for tomorrow
+  if (tzNow.getHours() >= hour) {
+    nextRun.setDate(nextRun.getDate() + 1);
+  }
+  
+  // Convert back to UTC
+  return zonedTimeToUtc(nextRun, timezone);
+}
+
+/**
+ * Start daily report job (runs every day at configured hour)
  * Sends a daily email report with comprehensive statistics
+ * 
+ * Environment variables:
+ * - DAILY_REPORT_HOUR: Hour of day (0-23), default: 9
+ * - REPORT_TIMEZONE: Timezone (e.g., 'Asia/Jerusalem', 'UTC'), default: 'UTC'
  */
 function startDailyReportJob() {
   const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
   const enabled = process.env.DAILY_REPORT_ENABLED !== 'false';
+  const reportHour = parseInt(process.env.DAILY_REPORT_HOUR) || 9;
+  const timezone = process.env.REPORT_TIMEZONE || 'UTC';
 
   logger.info({ 
     enabled, 
     adminEmail: adminEmail ? 'configured' : 'missing',
-    dailyReportEnabled: process.env.DAILY_REPORT_ENABLED 
+    dailyReportEnabled: process.env.DAILY_REPORT_ENABLED,
+    reportHour,
+    timezone
   }, '[scheduled-jobs] Daily report job configuration check');
 
   if (!enabled) {
@@ -492,38 +528,40 @@ function startDailyReportJob() {
     return;
   }
 
+  // Validate hour
+  let validHour = reportHour;
+  if (reportHour < 0 || reportHour > 23) {
+    logger.warn({ reportHour }, '[scheduled-jobs] Invalid DAILY_REPORT_HOUR, using default 9');
+    validHour = 9;
+  }
+
   // Calculate milliseconds in 24 hours
   const hours24 = 24 * 60 * 60 * 1000;
 
-  // Calculate time until next 9:00 AM
+  // Calculate time until next scheduled hour in the specified timezone
   const now = new Date();
-  const next9AM = new Date(now);
-  next9AM.setHours(9, 0, 0, 0);
-  
-  // If it's already past 9 AM today, schedule for tomorrow
-  if (now.getHours() >= 9) {
-    next9AM.setDate(next9AM.getDate() + 1);
-  }
-  
-  const msUntilNext9AM = next9AM.getTime() - now.getTime();
+  const nextRun = getNextScheduledTime(validHour, timezone);
+  const msUntilNext = nextRun.getTime() - now.getTime();
 
-  // Run job every day (starting from next 9:00 AM)
+  // Run job every day (starting from next scheduled time)
   setTimeout(() => {
-    // Run immediately on first 9 AM
+    // Run immediately on first scheduled time
     runDailyReportJob(adminEmail);
     
     // Then schedule for every 24 hours
     dailyReportInterval = setInterval(() => {
       runDailyReportJob(adminEmail);
     }, hours24);
-  }, msUntilNext9AM);
+  }, msUntilNext);
 
   logger.info({ 
-    nextRun: next9AM.toISOString(),
+    nextRun: nextRun.toISOString(),
+    reportHour: validHour,
+    timezone,
     adminEmail,
-    msUntilNextRun: msUntilNext9AM,
+    msUntilNextRun: msUntilNext,
     currentTime: now.toISOString()
-  }, '[scheduled-jobs] Daily report job started - will run every day at 9:00 AM');
+  }, `[scheduled-jobs] Daily report job started - will run every day at ${validHour}:00 ${timezone}`);
 }
 
 /**
@@ -578,12 +616,18 @@ async function runDailyReportJob(adminEmail) {
 }
 
 /**
- * Start weekly report job (runs every Sunday at 9:00 AM)
+ * Start weekly report job (runs every Sunday at configured hour)
  * Sends a weekly email report with comprehensive statistics for the past week
+ * 
+ * Environment variables:
+ * - WEEKLY_REPORT_HOUR: Hour of day (0-23), default: 9
+ * - REPORT_TIMEZONE: Timezone (e.g., 'Asia/Jerusalem', 'UTC'), default: 'UTC'
  */
 function startWeeklyReportJob() {
   const adminEmail = process.env.ADMIN_EMAIL || 'specifysai@gmail.com';
   const enabled = process.env.WEEKLY_REPORT_ENABLED !== 'false';
+  const reportHour = parseInt(process.env.WEEKLY_REPORT_HOUR) || 9;
+  const timezone = process.env.REPORT_TIMEZONE || 'UTC';
 
   if (!enabled) {
     logger.info('[scheduled-jobs] Weekly report job disabled via WEEKLY_REPORT_ENABLED');
@@ -595,21 +639,39 @@ function startWeeklyReportJob() {
     return;
   }
 
+  // Validate hour
+  let validHour = reportHour;
+  if (reportHour < 0 || reportHour > 23) {
+    logger.warn({ reportHour }, '[scheduled-jobs] Invalid WEEKLY_REPORT_HOUR, using default 9');
+    validHour = 9;
+  }
+
   // Calculate milliseconds in 7 days
   const days7 = 7 * 24 * 60 * 60 * 1000;
 
-  // Calculate time until next Sunday at 9:00 AM
+  // Calculate time until next Sunday at the specified hour in the timezone
   const now = new Date();
-  const nextSunday = new Date(now);
-  nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
-  nextSunday.setHours(9, 0, 0, 0);
+  const tzNow = utcToZonedTime(now, timezone);
   
-  // If it's already past 9 AM on Sunday, schedule for next Sunday
-  if (now.getDay() === 0 && now.getHours() >= 9) {
-    nextSunday.setDate(nextSunday.getDate() + 7);
+  // Find next Sunday
+  let daysUntilSunday = (7 - tzNow.getDay()) % 7;
+  
+  // If today is Sunday and we haven't passed the scheduled hour, run today
+  // Otherwise, schedule for next Sunday
+  if (daysUntilSunday === 0 && tzNow.getHours() >= validHour) {
+    daysUntilSunday = 7;
   }
   
-  const msUntilNextSunday = nextSunday.getTime() - now.getTime();
+  // Create next Sunday date in the timezone
+  const nextSunday = new Date(tzNow);
+  nextSunday.setDate(tzNow.getDate() + daysUntilSunday);
+  nextSunday.setHours(validHour, 0, 0, 0);
+  nextSunday.setSeconds(0, 0);
+  nextSunday.setMilliseconds(0);
+  
+  // Convert back to UTC
+  const nextRun = zonedTimeToUtc(nextSunday, timezone);
+  const msUntilNext = nextRun.getTime() - now.getTime();
 
   // Run job every 7 days (starting from next Sunday)
   setTimeout(() => {
@@ -620,12 +682,14 @@ function startWeeklyReportJob() {
     weeklyReportInterval = setInterval(() => {
       runWeeklyReportJob(adminEmail);
     }, days7);
-  }, msUntilNextSunday);
+  }, msUntilNext);
 
   logger.info({ 
-    nextRun: nextSunday.toISOString(),
+    nextRun: nextRun.toISOString(),
+    reportHour: validHour,
+    timezone,
     adminEmail 
-  }, '[scheduled-jobs] Weekly report job started - will run every Sunday at 9:00 AM');
+  }, `[scheduled-jobs] Weekly report job started - will run every Sunday at ${validHour}:00 ${timezone}`);
 }
 
 /**
