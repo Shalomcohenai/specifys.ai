@@ -9,8 +9,29 @@ async function generateCursorWindsurfExport() {
     console.log(`[${requestId}] [generateCursorWindsurfExport] Starting export generation`);
     
     try {
-        // Get current spec data
-        const specData = window.currentSpecData;
+        // Get current spec data - try multiple ways to access it
+        let specData = null;
+        
+        // Method 1: Try to get from global scope (if exposed)
+        if (typeof window !== 'undefined' && window.currentSpecData) {
+            specData = window.currentSpecData;
+        }
+        // Method 2: Try to get from Firestore directly using spec ID from URL
+        else {
+            const urlParams = new URLSearchParams(window.location.search);
+            const specId = urlParams.get('id');
+            if (specId && typeof firebase !== 'undefined' && firebase.firestore) {
+                try {
+                    const specDoc = await firebase.firestore().collection('specs').doc(specId).get();
+                    if (specDoc.exists) {
+                        specData = { id: specDoc.id, ...specDoc.data() };
+                    }
+                } catch (firestoreError) {
+                    console.warn('Failed to load spec from Firestore:', firestoreError);
+                }
+            }
+        }
+        
         if (!specData) {
             throw new Error('No specification data available. Please load a specification first.');
         }

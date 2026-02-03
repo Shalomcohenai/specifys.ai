@@ -4,6 +4,15 @@ let isLoading = false;
 let specUnsubscribe = null; // Firestore listener unsubscribe function
 let specPollInterval = null; // Polling interval for spec status
 
+// Helper function to update currentSpecData and expose it to window
+function updateCurrentSpecData(newData) {
+    currentSpecData = newData;
+    if (typeof window !== 'undefined') {
+        window.currentSpecData = currentSpecData;
+    }
+    return currentSpecData;
+}
+
 // Worker endpoints configuration
 const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
 const MOCKUPS_ANALYZE_URL = 'https://mockup.shalom-cohen-111.workers.dev/analyze-screens';
@@ -470,7 +479,7 @@ async function loadSpec(specId) {
             return;
         }
         
-        currentSpecData = { id: doc.id, ...specData };
+        updateCurrentSpecData({ id: doc.id, ...specData });
         console.log('[loadSpec] Current spec data set, status:', currentSpecData.status);
         
         const technicalPreview = specData.technical ? specData.technical.substring(0, 200) + (specData.technical.length > 200 ? '...' : '') : 'null';
@@ -524,7 +533,7 @@ async function loadSpec(specId) {
                     });
                     
                     // Update current spec data
-                    currentSpecData = updatedData;
+                    updateCurrentSpecData(updatedData);
                     
                     // Check if overview status changed
                     const prevOverviewStatus = previousStatus.overview;
