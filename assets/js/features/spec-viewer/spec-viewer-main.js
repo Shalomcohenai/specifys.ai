@@ -4948,6 +4948,14 @@ async function checkProAccess() {
             if (data && data.unlimited === true) {
                 return true;
             }
+            // API returned but unlimited is not true - fallback to users.plan (e.g. Pro not yet synced to V3)
+            const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                if (userData.plan === 'pro') {
+                    return true;
+                }
+            }
         } catch (apiError) {
             // If API call fails, fallback to checking user plan
             const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
