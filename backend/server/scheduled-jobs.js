@@ -12,7 +12,7 @@ const { ToolsFinderJob } = require('./tools-automation');
 const { ArticleWriterJob } = require('./articles-automation');
 const { CreditsSyncJob } = require('./credits-sync-job');
 const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
-const { zonedTimeToUtc, utcToZonedTime } = require('date-fns-tz');
+const { fromZonedTime, toZonedTime } = require('date-fns-tz');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
@@ -479,7 +479,7 @@ function getNextScheduledTime(hour, timezone = 'UTC') {
   const now = new Date();
   
   // Get current time in the specified timezone
-  const tzNow = utcToZonedTime(now, timezone);
+  const tzNow = toZonedTime(now, timezone);
   
   // Create next run time in the timezone
   const nextRun = new Date(tzNow);
@@ -493,7 +493,7 @@ function getNextScheduledTime(hour, timezone = 'UTC') {
   }
   
   // Convert back to UTC
-  return zonedTimeToUtc(nextRun, timezone);
+  return fromZonedTime(nextRun, timezone);
 }
 
 /**
@@ -651,7 +651,7 @@ function startWeeklyReportJob() {
 
   // Calculate time until next Sunday at the specified hour in the timezone
   const now = new Date();
-  const tzNow = utcToZonedTime(now, timezone);
+  const tzNow = toZonedTime(now, timezone);
   
   // Find next Sunday
   let daysUntilSunday = (7 - tzNow.getDay()) % 7;
@@ -670,7 +670,7 @@ function startWeeklyReportJob() {
   nextSunday.setMilliseconds(0);
   
   // Convert back to UTC
-  const nextRun = zonedTimeToUtc(nextSunday, timezone);
+  const nextRun = fromZonedTime(nextSunday, timezone);
   const msUntilNext = nextRun.getTime() - now.getTime();
 
   // Run job every 7 days (starting from next Sunday)

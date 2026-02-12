@@ -6598,7 +6598,8 @@ async function generateMockupSpec() {
         return;
     }
     
-    const useMockData = document.getElementById('useMockDataCheckbox').checked;
+    const checkboxEl = document.getElementById('useMockDataCheckbox');
+    const useMockData = checkboxEl ? checkboxEl.checked : false;
     const generateBtn = document.getElementById('generateMockupBtn');
     
     // Initialize batch manager
@@ -6610,8 +6611,10 @@ async function generateMockupSpec() {
     mockupBatchManager.useMockData = useMockData;
     
     // Disable button and show loading
-    generateBtn.disabled = true;
-    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing Screens...';
+    if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing Screens...';
+    }
     updateTabLoadingState('mockup', true);
     
     const container = document.getElementById('mockup-data');
@@ -6645,7 +6648,9 @@ async function generateMockupSpec() {
         }
         
         // Step 2: Generate mockups one by one
-        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
+        if (generateBtn) {
+            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
+        }
         
         for (let i = 0; i < mockupBatchManager.screens.length; i++) {
             mockupBatchManager.currentIndex = i;
@@ -6745,26 +6750,30 @@ async function generateMockupSpec() {
         
     } catch (error) {
         // Error generating mockups
-        container.innerHTML = `
-            <div class="locked-tab-message">
-                <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
-                <p>${error.message}</p>
-                ${mockupBatchManager.mockups.length > 0 ? `
-                    <p style="margin-top: 15px; color: #666;">
-                        Partial results: ${mockupBatchManager.mockups.length} mockups generated successfully.
-                    </p>
-                ` : ''}
-                <button onclick="generateMockupSpec()" class="btn btn-primary" style="margin-top: 15px;">
-                    <i class="fa fa-refresh"></i> Try Again
-                </button>
-            </div>
-        `;
+        if (container) {
+            container.innerHTML = `
+                <div class="locked-tab-message">
+                    <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
+                    <p>${error.message}</p>
+                    ${mockupBatchManager.mockups.length > 0 ? `
+                        <p style="margin-top: 15px; color: #666;">
+                            Partial results: ${mockupBatchManager.mockups.length} mockups generated successfully.
+                        </p>
+                    ` : ''}
+                    <button onclick="generateMockupSpec()" class="btn btn-primary" style="margin-top: 15px;">
+                        <i class="fa fa-refresh"></i> Try Again
+                    </button>
+                </div>
+            `;
+        }
         updateTabLoadingState('mockup', false);
         showNotification(`Failed to generate mockups: ${error.message}`, 'error');
     } finally {
         mockupBatchManager.isRunning = false;
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fa fa-magic"></i> Create Mockups';
+        if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fa fa-magic"></i> Create Mockups';
+        }
     }
 }
 
