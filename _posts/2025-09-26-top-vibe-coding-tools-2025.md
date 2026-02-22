@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Top Vibe Coding Tools to Watch in 2025"
-description: "From Lovable to Base44, the Vibe Coding landscape in 2025 is buzzing with innovative platforms that turn natural language into production-ready apps..."
+description: "What is Vibe Coding? Learn how to use natural language and AI tools like Specifys to build functional applications without traditional coding bottlenecks."
 date: 2025-09-26
 tags: ["vibe-coding", "lovable", "base44", "tools", "coding", "app-development"]
 author: "specifys.ai Team"
