@@ -6,6 +6,20 @@
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
+        <div class="header-nav">
+            <div class="header-nav-dropdown" id="header-features-dropdown">
+                <button type="button" class="header-nav-link header-nav-trigger" id="header-features-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="header-features-menu">
+                    Features
+                </button>
+                <ul class="header-nav-menu" id="header-features-menu" role="menu" aria-label="Features">
+                    <li role="none"><a href="{{ '/pages/spec-viewer.html' | relative_url }}" role="menuitem">Spec Viewer</a></li>
+                </ul>
+            </div>
+            <a class="header-nav-link" href="{{ '/pages/about.html' | relative_url }}">About</a>
+            <a class="header-nav-link" href="{{ '/pages/pricing.html' | relative_url }}">Pricing</a>
+            <a class="header-nav-link" href="{{ '/pages/contact.html' | relative_url }}">Contact</a>
+            <a class="header-nav-link" href="{{ '/blog/' | relative_url }}">Blog</a>
+        </div>
     </nav>
     <div class="header-right" role="complementary" aria-label="User account and credits">
         <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
@@ -22,4 +36,19 @@
 <!-- Credits Display Scripts (V3) -->
 <script src="/assets/js/pages/credits-v3-manager.js"></script>
 <script src="/assets/js/pages/credits-v3-display.js"></script>
+<script>
+(function() {
+  var trigger = document.getElementById('header-features-trigger');
+  var menu = document.getElementById('header-features-menu');
+  if (trigger && menu) {
+    trigger.addEventListener('click', function() {
+      var expanded = trigger.getAttribute('aria-expanded') === 'true';
+      trigger.setAttribute('aria-expanded', !expanded);
+    });
+    menu.addEventListener('blur', function() {
+      trigger.setAttribute('aria-expanded', 'false');
+    }, true);
+  }
+})();
+</script>
 

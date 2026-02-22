@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.innerHTML = `
           <div class="image-modal-content">
             <span class="image-modal-close">&times;</span>
-            <img src="${img.src}" alt="${img.alt}">
+            <img src="${img.src}" alt="${img.alt || img.getAttribute('alt') || 'Post image'}" />
           </div>
         `;
         

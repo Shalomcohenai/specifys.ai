@@ -190,9 +190,10 @@
   // Initialize on DOM ready
   function init() {
     const contactBtn = document.getElementById('contact-us-btn');
-    if (contactBtn) {
-      contactBtn.addEventListener('click', openContactModal);
-    }
+    if (contactBtn) contactBtn.addEventListener('click', openContactModal);
+    document.querySelectorAll('.contact-us-trigger').forEach(function(el) {
+      el.addEventListener('click', openContactModal);
+    });
   }
 
   // Initialize when DOM is ready

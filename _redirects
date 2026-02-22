@@ -62,6 +62,14 @@
 # Format fixes - missing /pages/ or .html
 /about.html /pages/about.html 301
 /about /pages/about.html 301
+/contact /pages/contact.html 301
+/contact.html /pages/contact.html 301
+/terms /pages/terms.html 301
+/terms.html /pages/terms.html 301
+/privacy /pages/privacy.html 301
+/privacy.html /pages/privacy.html 301
+/login /pages/auth.html 301
+/signup /pages/auth.html 301
 /ToolPicker /pages/ToolPicker.html 301
 /ToolPicker.html /pages/ToolPicker.html 301
 /Demo.html /pages/demo-spec.html 301
