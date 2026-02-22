@@ -747,12 +747,10 @@ async function generateSitemap(req, res, next) {
         
         xml += '</urlset>';
         
-        logger.info({ 
-            requestId, 
-            urlCount: allUrls.length, 
+        logger.info({
+            requestId,
+            urlCount: allUrls.length,
             articleCount: articleUrls.length,
-            categoryCount: categoryUrls.length,
-            guideCount: guideUrls.length,
             staticCount: staticUrls.length
         }, '[articles-routes] Sitemap generated successfully');
         

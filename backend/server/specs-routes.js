@@ -338,8 +338,8 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
             return next(createError('overview is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
         }
 
-        if (!Array.isArray(answers) || answers.length === 0) {
-            return next(createError('answers array is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        if (!Array.isArray(answers)) {
+            return next(createError('answers must be an array', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
         }
 
         // Verify spec ownership

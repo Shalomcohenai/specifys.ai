@@ -20,29 +20,12 @@
      * Get API base URL
      */
     getApiBaseUrl() {
-      let baseUrl;
-      if (typeof window.getApiBaseUrl === 'function') {
-        baseUrl = window.getApiBaseUrl();
-      } else if (typeof window.API_BASE_URL !== 'undefined') {
-        baseUrl = window.API_BASE_URL;
-      } else {
-        baseUrl = 'https://specifys-ai-development2.onrender.com';
-      }
-      
-      // Validate URL format
+      const baseUrl = (typeof window.getApiBaseUrl === 'function')
+        ? window.getApiBaseUrl()
+        : (window.API_BASE_URL || '');
       if (!baseUrl || typeof baseUrl !== 'string') {
-        const fallback = 'https://specifys-ai-development2.onrender.com';
-        if (window.appLogger) {
-          window.appLogger.log('Error', 'Invalid API base URL, using fallback', { 
-            context: 'CreditsV3Manager.getApiBaseUrl',
-            received: baseUrl,
-            fallback: fallback
-          });
-        }
-        return fallback;
+        throw new Error('API base URL not configured. Ensure config.js is loaded first.');
       }
-      
-      // Ensure URL doesn't end with slash
       return baseUrl.replace(/\/$/, '');
     }
 

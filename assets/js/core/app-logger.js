@@ -14,13 +14,13 @@
    * Get API base URL
    */
   function getApiBaseUrl() {
-    if (typeof window !== 'undefined' && window.getApiBaseUrl) {
+    if (typeof window !== 'undefined' && typeof window.getApiBaseUrl === 'function') {
       return window.getApiBaseUrl();
     }
     if (typeof window !== 'undefined' && window.API_BASE_URL) {
       return window.API_BASE_URL;
     }
-    return 'https://specifys-ai-development2.onrender.com';
+    return '';
   }
 
   /**

@@ -61,34 +61,38 @@
   })();
 
   const API_CONFIG = {
-    // Production backend URL
-    production: 'https://specifys-ai-development2.onrender.com', // Render backend URL
-    
-    // Local development backend URL
-    local: 'http://localhost:10000', // Local backend server
-    
-    // Detect if we're in development mode
+    staging: 'https://specifys-ai-development2.onrender.com',
+    local: 'http://localhost:10000',
+
     get isDevelopment() {
       if (typeof window === 'undefined' || typeof window.location === 'undefined') {
         return false;
       }
       const hostname = (window.location.hostname || '').toLowerCase();
       const devHosts = new Set(['localhost', '127.0.0.1', '::1']);
-      return devHosts.has(hostname) || 
-             hostname.endsWith('.local') || 
-             hostname.endsWith('.localhost') || 
-             hostname.endsWith('.lan') || 
+      return devHosts.has(hostname) ||
+             hostname.endsWith('.local') ||
+             hostname.endsWith('.localhost') ||
+             hostname.endsWith('.lan') ||
              hostname.endsWith('.test');
     },
 
-    // Return appropriate URL based on environment
+    get isProductionSite() {
+      if (typeof window === 'undefined' || typeof window.location === 'undefined') {
+        return false;
+      }
+      const hostname = (window.location.hostname || '').toLowerCase();
+      return hostname === 'specifys-ai.com' || hostname === 'www.specifys-ai.com';
+    },
+
     get baseUrl() {
-      // Use local backend when running on localhost
       if (this.isDevelopment) {
         return this.local;
       }
-      // Use production backend otherwise
-      return this.production || 'https://specifys-ai-development2.onrender.com';
+      if (this.isProductionSite && window.location.origin) {
+        return window.location.origin;
+      }
+      return this.staging;
     }
   };
 
@@ -115,19 +119,20 @@
           return window.API_BASE_URL;
       }
       
-      // Fallback: check if we're on localhost
       if (typeof window !== 'undefined' && window.location) {
         const hostname = (window.location.hostname || '').toLowerCase();
         const devHosts = new Set(['localhost', '127.0.0.1', '::1']);
-        if (devHosts.has(hostname) || 
-            hostname.endsWith('.local') || 
-            hostname.endsWith('.localhost') || 
-            hostname.endsWith('.lan') || 
+        if (devHosts.has(hostname) ||
+            hostname.endsWith('.local') ||
+            hostname.endsWith('.localhost') ||
+            hostname.endsWith('.lan') ||
             hostname.endsWith('.test')) {
           return 'http://localhost:10000';
         }
+        if (hostname === 'specifys-ai.com' || hostname === 'www.specifys-ai.com') {
+          return window.location.origin;
+        }
       }
-      // Default to production Render URL
       return 'https://specifys-ai-development2.onrender.com';
   };
 
