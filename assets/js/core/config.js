@@ -89,8 +89,9 @@
       if (this.isDevelopment) {
         return this.local;
       }
-      if (this.isProductionSite && window.location.origin) {
-        return window.location.origin;
+      // Production site (specifys-ai.com) is static; API runs on Render
+      if (this.isProductionSite) {
+        return this.staging;
       }
       return this.staging;
     }
@@ -130,7 +131,7 @@
           return 'http://localhost:10000';
         }
         if (hostname === 'specifys-ai.com' || hostname === 'www.specifys-ai.com') {
-          return window.location.origin;
+          return 'https://specifys-ai-development2.onrender.com';
         }
       }
       return 'https://specifys-ai-development2.onrender.com';
