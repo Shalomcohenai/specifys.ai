@@ -1,89 +1,96 @@
 // ============================================
 // Footer - Specifys.ai
 // ============================================
-// Based on about.html page
+// Grouped links, social icons, copyright. Minimal on mobile.
 
-footer {
-  padding: 20px 10px;
-  text-align: center;
+footer.site-footer {
+  padding: 24px 20px 16px;
   width: 100%;
   color: var(--text-color);
   flex-shrink: 0;
   background: var(--bg-primary);
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.footer-content {
+.footer-nav {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 1.25rem;
+  max-width: 100%;
 }
 
-.footer-links {
+// Sitemap: groups in a row (Features, Company, Resources, Legal, Account)
+.footer-sitemap {
   display: flex;
-  justify-content: center;
-  gap: 15px;
   flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.footer-links a,
-.footer-links button {
+.footer-sitemap-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.footer-sitemap-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.footer-sitemap-group a,
+.footer-sitemap-group .footer-link-btn {
   color: var(--text-color);
   text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: var(--font-weight-medium);
+  font-size: 0.875rem;
   transition: color var(--transition-normal);
   font-family: var(--font-family-primary);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  text-align: left;
 }
 
-.footer-links a:hover,
-.footer-links button:hover {
+.footer-sitemap-group a:hover,
+.footer-sitemap-group .footer-link-btn:hover {
   color: var(--primary-color);
-  text-decoration: none;
 }
 
 .contact-us-link {
-  color: var(--text-color);
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: var(--font-weight-medium);
-  transition: color var(--transition-normal);
-  font-family: var(--font-family-primary);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  &.footer-link-btn {
+    color: var(--text-color);
+    font-weight: var(--font-weight-medium);
+  }
 }
 
-.contact-us-link:hover {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.footer-divider {
-  color: var(--text-color);
-  font-size: 1.2rem;
-  font-weight: 300;
+// Social icons row
+.footer-social-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--border-color);
 }
 
 .footer-social {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .footer-social a {
   color: var(--text-color);
   text-decoration: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   transition: color var(--transition-normal);
   display: flex;
   align-items: center;
@@ -94,7 +101,6 @@ footer {
 
 .footer-social a:hover {
   color: var(--primary-color);
-  text-decoration: none;
 }
 
 .footer-social a i {
@@ -102,9 +108,79 @@ footer {
 }
 
 .footer-copyright {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
   margin-top: 1rem;
+  text-align: center;
 }
 
-/* Note: Contact modal styles moved to assets/css/components/_modals.scss */
+// ============================================
+// Mobile: more minimal
+// ============================================
+@media (max-width: 768px) {
+  footer.site-footer {
+    padding: 16px 12px 12px;
+  }
+
+  .footer-nav {
+    gap: 1rem;
+  }
+
+  .footer-sitemap {
+    gap: 1rem 1.25rem;
+    justify-content: flex-start;
+    padding: 0 4px;
+  }
+
+  .footer-sitemap-title {
+    font-size: 0.65rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .footer-sitemap-group a,
+  .footer-sitemap-group .footer-link-btn {
+    font-size: 0.8rem;
+  }
+
+  .footer-social-wrap {
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .footer-social {
+    gap: 0.75rem;
+  }
+
+  .footer-social a {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.7rem;
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  footer.site-footer {
+    padding: 12px 10px 10px;
+  }
+
+  .footer-sitemap {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .footer-sitemap-group {
+    align-items: center;
+  }
+
+  .footer-sitemap-group a,
+  .footer-sitemap-group .footer-link-btn {
+    text-align: center;
+  }
+}
