@@ -113,6 +113,18 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
     }
 
+    // Brain Dump messages subcollection - part of spec, same ownership
+    match /specs/{specId}/brainDumpMessages/{messageId} {
+      allow read, write: if request.auth != null && (
+        get(/databases/$(database)/documents/specs/$(specId)).data.userId == request.auth.uid || isAdmin()
+      );
+    }
+
+    // Brain Dump rate limit - per user, user can only access own document
+    match /brainDumpRateLimit/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Market research collection
     match /marketResearch/{document} {
       allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();

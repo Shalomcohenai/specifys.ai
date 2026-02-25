@@ -5237,14 +5237,16 @@ function enableAllTabs() {
     if (marketTab) marketTab.disabled = false;
     if (designTab) designTab.disabled = false;
     if (diagramsTab) diagramsTab.disabled = false;
-    // Enable chat tab after overview approval
+    // Enable chat and Brain Dump tabs after overview approval
     enableChatTab();
+    if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
 }
 
 function enableChatTabOnly() {
-    // Enable AI Chat tab immediately after overview approval
+    // Enable AI Chat and Brain Dump tabs immediately after overview approval
     // without waiting for other specs to be generated
     enableChatTab();
+    if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
 }
 
 function disableTechnicalTabs() {

@@ -94,8 +94,20 @@ Interactive API documentation is available at:
 
 ### Chat (`/api/chat`)
 
-- `POST /api/chat` - Send chat message
-- `GET /api/chat/history` - Get chat history
+- `POST /api/chat/init` - Initialize chat session for a spec
+- `POST /api/chat/message` - Send chat message
+- `POST /api/chat/demo` - Demo chat (public, no auth, rate limited per IP)
+
+### Brain Dump (`/api/brain-dump`)
+
+Brain Dump is a spec-scoped chat for asking how to add features or changes; answers are based on the spec, and users can generate a "personal prompt" (copy-paste ready for Cursor/IDE) per reply. Requires authentication; available from the spec viewer only. History is stored as part of the spec (Firestore subcollection).
+
+- `POST /api/brain-dump/init` - Initialize Brain Dump for a spec (get or create thread). Body: `{ specId }`. Returns `{ threadId, assistantId }`.
+- `POST /api/brain-dump/message` - Send a message. Body: `{ specId, threadId, assistantId, message }`. Returns `{ response, messageId, threadId, assistantId }`.
+- `GET /api/brain-dump/history?specId=...` - Get persisted messages for the spec (ordered by time).
+- `POST /api/brain-dump/personal-prompt` - Generate a single copy-paste ready prompt for a feature/change. Body: `{ specId, userQuestion?, assistantReply?, messageId? }` (either `userQuestion`+`assistantReply` or `messageId` to use stored reply). Returns `{ prompt }`.
+
+**Rate limit**: "Create personal prompt" is limited to **5 per day per user** (tracked in Firestore `brainDumpRateLimit/{userId}`). When exceeded, the API returns `429` with a message to try again tomorrow.
 
 ### Admin (`/api/admin`)
 
@@ -118,6 +130,39 @@ Interactive API documentation is available at:
 - `POST /api/lemon/webhook` - Lemon Squeezy webhook
 - `GET /api/lemon/products` - Get products
 - `POST /api/lemon/checkout` - Create checkout session
+
+### MCP (`/api/mcp`) – API Key only
+
+Used by the Specifys MCP Server (Cursor / Claude Desktop). All requests require an **API Key** (not Firebase token).
+
+**Authentication**
+
+- Header: `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`
+- **Getting an API key**
+  - **Development**: Set `MCP_API_KEY` and `MCP_API_USER_ID` in the backend `.env`; use that key in the MCP server.
+  - **Production**: Store a key in Firestore `users/{userId}.mcpApiKey` (e.g. from a “Create API key” flow in the app). The same key is used in the MCP server config.
+
+**Endpoints**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/mcp/specs` | List current user's specs (metadata) |
+| GET | `/api/mcp/specs/:id` | Get full spec (overview, technical, market, design) |
+| PUT | `/api/mcp/specs/:id` | Partial update: body may include `overview`, `technical`, `design`, `market`, `title` (strings) |
+| GET | `/api/mcp/prompt-templates` | Prompt templates reference (overview, technical, market, design) |
+| GET | `/api/mcp/tools` | List Vibe Coding tools |
+
+**Example: updating a spec section**
+
+```bash
+curl -X PUT "https://your-backend.com/api/mcp/specs/SPEC_ID" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"technical": "Updated technical specification content..."}'
+```
+
+**MCP Server (Cursor / Claude Desktop)**  
+See [MCP Setup](../setup/mcp.md) for installing the Specifys MCP server and config examples.
 
 ## Error Handling
 
@@ -146,6 +191,7 @@ API endpoints are rate-limited to prevent abuse:
 - **General**: 100 requests per 15 minutes
 - **Auth**: 5 requests per 15 minutes
 - **Feedback**: 10 requests per 15 minutes
+- **Brain Dump personal prompt**: 5 per day per user (for `POST /api/brain-dump/personal-prompt` only)
 
 Rate limit headers are included in responses:
 - `X-RateLimit-Limit` - Request limit

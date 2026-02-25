@@ -255,6 +255,244 @@ button[onclick*="openVisualizer"]:active {
   color: white !important;
 }
 
+/* Brain Dump - distinct styling (teal accent) */
+.brain-dump-container {
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #b2dfdb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f1f8f6;
+}
+
+.brain-dump-header {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #e0f2f1 0%, #fff 100%);
+  color: #333;
+  border-bottom: 2px solid #00897b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brain-dump-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #004d40;
+}
+
+.brain-dump-header h2 .fa {
+  color: #00897b;
+}
+
+.brain-dump-subtitle {
+  margin: 5px 0 0 0;
+  color: #555;
+  font-size: 13px;
+}
+
+.brain-dump-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f1f8f6;
+}
+
+.brain-dump-welcome {
+  text-align: center;
+  padding: 30px 20px;
+  color: #555;
+}
+
+.brain-dump-welcome .fa {
+  font-size: 48px;
+  color: #00897b;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.brain-dump-welcome h3 {
+  margin: 0 0 10px 0;
+  color: #004d40;
+}
+
+.brain-dump-welcome p {
+  margin: 0;
+  color: #555;
+}
+
+.brain-dump-message-wrap {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brain-dump-message-wrap.user {
+  align-items: flex-end;
+}
+
+.brain-dump-message-wrap.assistant {
+  align-items: flex-start;
+}
+
+.brain-dump-message-bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  background: white;
+  border: 1px solid #b2dfdb;
+  color: #333;
+}
+
+.brain-dump-message-wrap.user .brain-dump-message-bubble {
+  background: #e0f2f1;
+  border-color: #00897b;
+}
+
+.brain-dump-create-prompt-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #00897b;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.brain-dump-create-prompt-btn:hover {
+  background: #00695c;
+}
+
+.brain-dump-create-prompt-btn .fa {
+  margin-right: 4px;
+  color: white;
+}
+
+.brain-dump-loading {
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #b2dfdb;
+  border-radius: 8px;
+  color: #555;
+}
+
+.brain-dump-input-container {
+  padding: 15px 20px;
+  border-top: 1px solid #b2dfdb;
+  background: white;
+  display: flex;
+  gap: 10px;
+}
+
+.brain-dump-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #b2dfdb;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.brain-dump-input:focus {
+  outline: none;
+  border-color: #00897b;
+}
+
+.brain-dump-send-btn {
+  padding: 10px 20px;
+  background: #00897b;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.brain-dump-send-btn .fa {
+  color: white;
+}
+
+.brain-dump-prompt-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.brain-dump-prompt-modal.hidden {
+  display: none;
+}
+
+.brain-dump-prompt-modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 90vw;
+  width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #b2dfdb;
+}
+
+.brain-dump-prompt-modal-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brain-dump-prompt-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #004d40;
+}
+
+.brain-dump-prompt-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.brain-dump-prompt-modal-body {
+  padding: 16px;
+  overflow: auto;
+  flex: 1;
+}
+
+.brain-dump-prompt-text {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.brain-dump-prompt-modal-body .btn {
+  padding: 8px 16px;
+  background: #00897b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* Page intro section spacing and centering */
 .page-intro-section {
   margin-top: 100px;

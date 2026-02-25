@@ -317,6 +317,44 @@ class ChatService {
   }
 
   /**
+   * Get or create Brain Dump thread for a spec (persisted in Firestore, separate from main chat)
+   * @param {string} specId - Spec ID
+   * @param {string} userId - User ID
+   * @param {string} requestId - Request ID for logging
+   * @returns {Promise<{ threadId: string, assistantId: string }>}
+   */
+  async getOrCreateBrainDumpThread(specId, userId, requestId) {
+    const specData = await this.verifySpecOwnership(specId, userId);
+    const { fileId, assistantId } = await this.ensureSpecReadyForChat(specId, userId, requestId);
+
+    const specDoc = await db.collection('specs').doc(specId).get();
+    const currentData = specDoc.data();
+    let threadId = currentData?.brainDumpThreadId;
+
+    if (threadId) {
+      logger.debug({ requestId, specId, threadId }, '[chat-service] Using existing Brain Dump thread');
+      return { threadId, assistantId };
+    }
+
+    const thread = await retryWithBackoff(
+      () => this.openaiStorage.createThread(),
+      {
+        operationName: 'createThread',
+        maxRetries: 2,
+        initialDelay: 500
+      }
+    );
+
+    threadId = thread.id;
+    await db.collection('specs').doc(specId).update({
+      brainDumpThreadId: threadId
+    });
+
+    logger.info({ requestId, specId, threadId }, '[chat-service] Brain Dump thread created and saved');
+    return { threadId, assistantId };
+  }
+
+  /**
    * Clear cache for a spec (useful when spec is updated or assistant is deleted)
    * @param {string} specId - Spec ID
    */

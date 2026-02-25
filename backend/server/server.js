@@ -353,6 +353,13 @@ const specsRoutes = require('./specs-routes');
 app.use('/api/specs', specsRoutes);
 logger.info({ type: 'route_mounted', path: '/api/specs' }, '[UNIFIED SERVER] ✅ Specs routes mounted');
 
+// MCP routes (API Key auth) - for MCP Server (Cursor / Claude Desktop)
+logger.info({ type: 'route_mount', path: '/api/mcp', route: 'mcpRoutes' }, '[UNIFIED SERVER] 📌 Mounting MCP routes');
+const { verifyApiKey } = require('./mcp-auth');
+const mcpRoutes = require('./mcp-routes');
+app.use('/api/mcp', verifyApiKey, mcpRoutes);
+logger.info({ type: 'route_mounted', path: '/api/mcp' }, '[UNIFIED SERVER] ✅ MCP routes mounted');
+
 // Credits routes for credit management (OLD - REMOVED)
 // Old routes have been removed. V2 routes have been removed. V3 is now the only active system.
 
@@ -377,6 +384,11 @@ logger.info({ type: 'route_mount', path: '/api/chat', route: 'chatRoutes' }, '[U
 const chatRoutes = require('./chat-routes');
 app.use('/api/chat', chatRoutes);
 logger.info({ type: 'route_mounted', path: '/api/chat' }, '[UNIFIED SERVER] ✅ Chat routes mounted');
+
+logger.info({ type: 'route_mount', path: '/api/brain-dump', route: 'brainDumpRoutes' }, '[UNIFIED SERVER] 📌 Mounting brain-dump routes');
+const brainDumpRoutes = require('./brain-dump-routes');
+app.use('/api/brain-dump', brainDumpRoutes);
+logger.info({ type: 'route_mounted', path: '/api/brain-dump' }, '[UNIFIED SERVER] ✅ Brain Dump routes mounted');
 
 // Blog routes (must be before static files to avoid conflicts)
 // Public routes - no authentication required (returns only published posts)
