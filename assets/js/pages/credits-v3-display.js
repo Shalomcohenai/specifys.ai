@@ -93,6 +93,12 @@
     variant: 'loading'
   };
 
+  const GUEST_PRICING_STATE = {
+    text: 'Pricing',
+    title: 'View pricing plans',
+    variant: 'credits'
+  };
+
   let isUpdating = false;
 
   /**
@@ -141,19 +147,13 @@
     // Check if user is authenticated
     const auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
     if (!auth) {
-      const creditsDisplay = document.getElementById('credits-display');
-      if (creditsDisplay) {
-        creditsDisplay.style.display = 'none';
-      }
+      applyCreditsState(GUEST_PRICING_STATE);
       return;
     }
 
     const user = auth.currentUser;
     if (!user) {
-      const creditsDisplay = document.getElementById('credits-display');
-      if (creditsDisplay) {
-        creditsDisplay.style.display = 'none';
-      }
+      applyCreditsState(GUEST_PRICING_STATE);
       return;
     }
 
@@ -396,13 +396,12 @@
             // Then update with actual credits
             updateCreditsDisplay();
           } else {
-            const creditsDisplay = document.getElementById('credits-display');
-            if (creditsDisplay) {
-              creditsDisplay.style.display = 'none';
-            }
+            applyCreditsState(GUEST_PRICING_STATE);
           }
         });
       }
+      // Show Pricing for guests while auth loads
+      applyCreditsState(GUEST_PRICING_STATE);
       return;
     }
 
@@ -420,10 +419,7 @@
         // Then update with actual credits
         updateCreditsDisplay();
       } else {
-        const creditsDisplay = document.getElementById('credits-display');
-        if (creditsDisplay) {
-          creditsDisplay.style.display = 'none';
-        }
+        applyCreditsState(GUEST_PRICING_STATE);
       }
     });
 
@@ -463,11 +459,8 @@
         updateCreditsDisplay();
       }
     } else {
-      // Hide credits display if user is not authenticated
-      const creditsDisplay = document.getElementById('credits-display');
-      if (creditsDisplay) {
-        creditsDisplay.style.display = 'none';
-      }
+      // Show Pricing for guests (not authenticated)
+      applyCreditsState(GUEST_PRICING_STATE);
     }
   }
 
