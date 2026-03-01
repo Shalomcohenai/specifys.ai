@@ -138,7 +138,7 @@ The user wants this feature or change:
 
 Return a single JSON object with exactly these keys (no other text before or after, no markdown). All output must be in English.
 
-- "plainText": A clear explanation in English only. Describe: (1) how this change connects to the existing system, (2) what already exists in the spec that is relevant (e.g. existing pages, APIs, data models), (3) what remains to be implemented or changed. Write in plain language for the product owner.
+- "plainText": Context Explanation — a detailed, longer explanation in English only. Its role is to give the user a "sandbox" experience: walk them through how the new feature or change will work in practice step by step (e.g. what the user sees, what they click, what data appears, how it fits the existing app). Include: (1) how this connects to the existing system and what already exists that is relevant, (2) a concrete walkthrough of the new flow so the reader can imagine using it, (3) what remains to be implemented. Be thorough and vivid so the product owner feels they are experiencing the feature before it is built.
 - "mermaidCode": A Mermaid diagram (flowchart or graph) showing ONLY the relevant subsystem that is affected—not the whole app. Highlight the node that changes with: style NodeId fill:#e1f5fe (use the actual node id). Output valid Mermaid syntax only.
 - "fullPrompt": A single, detailed, copy-paste-ready prompt in English for a developer in Cursor or another AI IDE. It must: (1) reference or summarize the existing spec structure (overview + technical) so the AI knows the current architecture, (2) state the exact feature or change to add, (3) give precise implementation steps so the result fits the existing codebase and spec (file structure, endpoints, data models). The prompt should be self-contained and precise enough to implement without guesswork.
 
@@ -156,6 +156,10 @@ Return ONLY valid JSON with keys: plainText, mermaidCode, fullPrompt.`;
     const plainText = parsed.plainText || '';
     const mermaidCode = typeof parsed.mermaidCode === 'string' ? parsed.mermaidCode.trim() : '';
     const fullPrompt = typeof parsed.fullPrompt === 'string' ? parsed.fullPrompt : '';
+
+    await db.collection('specs').doc(specId).update({
+      brainDumpLastUsedAt: admin.firestore.FieldValue.serverTimestamp()
+    }).catch(err => logger.warn({ requestId, specId, err: err.message }, '[brain-dump] Failed to set brainDumpLastUsedAt on spec'));
 
     logger.info({ requestId, specId, userId }, '[brain-dump] POST /generate - Success');
     res.json({
@@ -462,6 +466,7 @@ Preserve existing structure and only integrate this change. Output only valid JS
     await db.collection('specs').doc(specId).update({
       overview: parsed.overview,
       technical: parsed.technical,
+      brainDumpLastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 

@@ -71,6 +71,7 @@ function displayBrainDumpResult(data) {
   var resultEl = document.getElementById('brain-dump-result');
   if (!resultEl) return;
 
+  var contextWrap = document.getElementById('brain-dump-context-wrap');
   var plainEl = document.getElementById('brain-dump-plain');
   var mermaidWrap = document.getElementById('brain-dump-mermaid-wrap');
   var promptWrap = document.getElementById('brain-dump-prompt-wrap');
@@ -80,9 +81,10 @@ function displayBrainDumpResult(data) {
 
   resultEl.classList.remove('hidden');
 
-  if (plainEl) {
+  if (contextWrap && plainEl) {
+    var hasContext = !!(data.plainText && data.plainText.trim());
+    contextWrap.classList.toggle('hidden', !hasContext);
     plainEl.textContent = data.plainText || '';
-    plainEl.style.display = data.plainText ? 'block' : 'none';
   }
 
   if (mermaidWrap) {

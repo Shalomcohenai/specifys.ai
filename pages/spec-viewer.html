@@ -390,7 +390,7 @@ custom_js_modules:
                     <div class="brain-dump-header">
                         <div>
                             <h2><i class="fa fa-lightbulb"></i> Brain Dump</h2>
-                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a plain explanation, a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
+                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a detailed Context Explanation (sandbox-style walkthrough), a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
                         </div>
                     </div>
                     
@@ -408,7 +408,10 @@ custom_js_modules:
                     </div>
                     
                     <div id="brain-dump-result" class="brain-dump-result hidden">
-                        <div id="brain-dump-plain" class="brain-dump-result-block"></div>
+                        <div id="brain-dump-context-wrap" class="brain-dump-result-block brain-dump-context-wrap hidden">
+                            <h3 class="brain-dump-context-header"><i class="fa fa-info-circle"></i> Context Explanation</h3>
+                            <div id="brain-dump-plain" class="brain-dump-context-body"></div>
+                        </div>
                         <div id="brain-dump-mermaid-wrap" class="brain-dump-result-block brain-dump-mermaid-wrap hidden"></div>
                         <div id="brain-dump-prompt-wrap" class="brain-dump-result-block">
                             <div class="brain-dump-prompt-header">

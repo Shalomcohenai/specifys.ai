@@ -89,6 +89,8 @@ export class SpecUsageView {
         ));
       case 'aichat':
         return !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
+      case 'brainDump':
+        return !!(specData.brainDumpLastUsedAt);
       default:
         return false;
     }
@@ -106,7 +108,8 @@ export class SpecUsageView {
       withDesign: 0,
       withPrompts: 0,
       withMockups: 0,
-      withAiChat: 0
+      withAiChat: 0,
+      withBrainDump: 0
     };
     
     specs.forEach(spec => {
@@ -118,6 +121,7 @@ export class SpecUsageView {
       const hasPrompts = this.hasFeature(spec, 'prompts');
       const hasMockups = this.hasFeature(spec, 'mockups');
       const hasAiChat = this.hasFeature(spec, 'aichat');
+      const hasBrainDump = this.hasFeature(spec, 'brainDump');
       
       if (hasOverview && !hasTechnical && !hasMarket) {
         stats.overviewOnly++;
@@ -142,6 +146,9 @@ export class SpecUsageView {
       }
       if (hasAiChat) {
         stats.withAiChat++;
+      }
+      if (hasBrainDump) {
+        stats.withBrainDump++;
       }
     });
     
@@ -196,6 +203,8 @@ export class SpecUsageView {
     helpers.dom('#spec-usage-with-prompts').textContent = stats.withPrompts.toLocaleString();
     helpers.dom('#spec-usage-with-mockups').textContent = stats.withMockups.toLocaleString();
     helpers.dom('#spec-usage-with-aichat').textContent = stats.withAiChat.toLocaleString();
+    const brainDumpEl = helpers.dom('#spec-usage-with-brain-dump');
+    if (brainDumpEl) brainDumpEl.textContent = stats.withBrainDump.toLocaleString();
   }
   
   /**
@@ -206,7 +215,7 @@ export class SpecUsageView {
     if (!tbody) return;
     
     if (specs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" class="table-empty-state">No specs found for selected criteria.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" class="table-empty-state">No specs found for selected criteria.</td></tr>';
       return;
     }
     
@@ -230,6 +239,7 @@ export class SpecUsageView {
       const hasPrompts = this.hasFeature(spec, 'prompts');
       const hasMockups = this.hasFeature(spec, 'mockups');
       const hasAiChat = this.hasFeature(spec, 'aichat');
+      const hasBrainDump = this.hasFeature(spec, 'brainDump');
       
       return `
         <tr>
@@ -278,6 +288,11 @@ export class SpecUsageView {
           <td class="feature-cell">
             <span class="feature-indicator ${hasAiChat ? 'active' : ''}" title="AI Chat">
               <i class="fas fa-${hasAiChat ? 'check-circle' : 'circle'}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasBrainDump ? 'active' : ''}" title="Brain Dump">
+              <i class="fas fa-${hasBrainDump ? 'check-circle' : 'circle'}"></i>
             </span>
           </td>
         </tr>
