@@ -145,18 +145,18 @@ custom_js_modules:
                 <div class="side-menu-submenu" id="submenu-prompts" role="region" aria-label="Prompts subsections"></div>
             </div>
             
+            <div class="side-menu-item" data-tab="brain-dump">
+                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                    <span class="side-menu-text">Brain Dump</span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="chat">
                 <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
                     <i class="fa fa-comments" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
                     <span class="side-menu-text">AI Chat</span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item" data-tab="brain-dump">
-                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
-                    <span class="side-menu-text">Brain Dump</span>
                 </button>
             </div>
             
@@ -390,44 +390,44 @@ custom_js_modules:
                     <div class="brain-dump-header">
                         <div>
                             <h2><i class="fa fa-lightbulb-o"></i> Brain Dump</h2>
-                            <p class="brain-dump-subtitle">Ask how to add features or changes—get answers in the context of your spec, then create a personal prompt to implement them.</p>
+                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a plain explanation, a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
                         </div>
                     </div>
                     
-                    <div id="brain-dump-messages" class="brain-dump-messages">
-                        <div class="brain-dump-welcome">
-                            <i class="fa fa-lightbulb-o"></i>
-                            <h3>Brain Dump</h3>
-                            <p>Ask things like: How do I add an image upload to my site? How do I add an admin dashboard? How do I change the background to a gradient? Answers are based on your specification, and you can create a copy-paste ready prompt for each reply (5 per day).</p>
-                        </div>
-                    </div>
-                    
-                    <div class="brain-dump-input-container">
+                    <div class="brain-dump-input-section">
                         <textarea 
                             id="brain-dump-input" 
                             class="brain-dump-input" 
-                            placeholder="e.g. How do I add an image upload system to my site?"
-                            rows="2"
-                            aria-label="Brain Dump question"
+                            placeholder="e.g. How do I add an image upload system to my site? Or: Add a develop page that shows sum and average from the check table."
+                            rows="3"
+                            aria-label="Describe feature or change"
                         ></textarea>
-                        <button id="brain-dump-send-btn" class="btn btn-primary brain-dump-send-btn">
-                            <i class="fa fa-paper-plane"></i> Send
+                        <button id="brain-dump-generate-btn" class="btn btn-primary brain-dump-send-btn">
+                            <i class="fa fa-magic"></i> Generate
                         </button>
                     </div>
-                </div>
-            </div>
-            
-            <div id="brain-dump-prompt-modal" class="brain-dump-prompt-modal hidden" role="dialog" aria-labelledby="brain-dump-prompt-modal-title" aria-modal="true">
-                <div class="brain-dump-prompt-modal-content">
-                    <div class="brain-dump-prompt-modal-header">
-                        <h3 id="brain-dump-prompt-modal-title">Personal prompt</h3>
-                        <button type="button" class="brain-dump-prompt-modal-close" onclick="closeBrainDumpPromptModal()" aria-label="Close">×</button>
+                    
+                    <div id="brain-dump-result" class="brain-dump-result hidden">
+                        <div id="brain-dump-plain" class="brain-dump-result-block"></div>
+                        <div id="brain-dump-mermaid-wrap" class="brain-dump-result-block brain-dump-mermaid-wrap hidden"></div>
+                        <div id="brain-dump-prompt-wrap" class="brain-dump-result-block">
+                            <div class="brain-dump-prompt-header">
+                                <h3><i class="fa fa-code"></i> Full Development Prompt</h3>
+                                <button type="button" class="btn btn-secondary brain-dump-copy-prompt-btn">
+                                    <i class="fa fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <pre id="brain-dump-full-prompt" class="brain-dump-full-prompt"></pre>
+                        </div>
+                        <div id="brain-dump-apply-wrap" class="brain-dump-result-block brain-dump-apply-wrap hidden">
+                            <button type="button" id="brain-dump-apply-btn" class="btn btn-primary brain-dump-apply-btn">
+                                <i class="fa fa-plus-circle"></i> Add to main architecture
+                            </button>
+                        </div>
                     </div>
-                    <div class="brain-dump-prompt-modal-body">
-                        <textarea id="brain-dump-prompt-text" class="brain-dump-prompt-text" readonly></textarea>
-                        <button type="button" class="btn btn-primary" onclick="copyBrainDumpPrompt()">
-                            <i class="fa fa-copy"></i> Copy prompt
-                        </button>
+                    
+                    <div id="brain-dump-loading" class="brain-dump-loading-block hidden">
+                        <i class="fa fa-spinner fa-spin"></i> Generating...
                     </div>
                 </div>
             </div>

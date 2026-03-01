@@ -1,26 +1,35 @@
 # Brain Dump
 
-Brain Dump is a spec-scoped chat in the spec viewer that lets users ask how to add features or make changes (e.g. "How do I add an image upload to my site?") and get answers based on their **current specification**. Each assistant reply can be turned into a **personal prompt**—a single copy-paste ready prompt for Cursor or another AI IDE to implement that feature in context.
+Brain Dump is a single-shot flow in the spec viewer: the user describes a feature or change they want (e.g. "How do I add an image upload to my site?" or "Add a develop page that shows sum and average from the check table"), and the system returns a **4-part result** based on the **current specification**. The result is **not saved**—refreshing the page clears it.
 
 ## Access
 
 - **Where**: Spec viewer page only (tab "Brain Dump"), for the spec currently being viewed.
-- **Who**: Any logged-in user (not Pro-only). Requires authentication.
-- **Scope**: One Brain Dump thread per spec; history is stored as part of the spec in Firestore.
+- **Who**: Any logged-in user (not Pro-only) can use Generate. **Add to main architecture** is Pro-only.
+- **Scope**: One description per run; no conversation history.
 
 ## Flow
 
-1. User opens the Brain Dump tab and asks a question (e.g. how to add a feature).
-2. The backend uses the same spec context as the main AI Chat (same assistant/vector store, separate thread) and returns an answer.
-3. Each assistant message shows a button: **"Create personal prompt for this change/feature"**.
-4. Clicking it calls the API to generate a single, copy-paste ready prompt (including spec context). The user can copy it and use it in Cursor/IDE.
+1. User enters a short description of the feature or change in the text area and clicks **Generate**.
+2. The backend (rate limited: 5 per day per user) returns a structured result with:
+   - **Plain text**: A short, simple explanation of the change.
+   - **Mermaid diagram**: The relevant subsystem only, with the changed part highlighted.
+   - **Full development prompt**: A copy-paste ready prompt for Cursor or another AI IDE (with a Copy button).
+   - **Add to main architecture** (Pro only): A button that merges the change into the spec’s **overview** and **technical** sections (design is not updated). After applying, the spec is updated and the OpenAI cache is invalidated so Chat/Brain Dump use the new content.
+
+3. The user can copy the prompt and use it elsewhere. If they are Pro and click **Add to main architecture**, the change is written into the spec and the page can refresh spec data.
+
+## What is not saved
+
+- The 4-part result (plain text, diagram, prompt) is **not** stored in Firestore or localStorage. It exists only in the current session and is lost on refresh.
+- Applying to spec (Pro) **does** update the spec document (overview + technical).
 
 ## Rate limit
 
-- **Personal prompt**: Up to **5 per day per user** (not per spec).
-- When the limit is reached, the API returns `429` and the UI shows: "Limit reached (5 personal prompts per day). Try again tomorrow."
-- The limit is tracked in Firestore (`brainDumpRateLimit/{userId}`) and resets at midnight (date-based).
+- **Generate**: Up to **5 per day per user**.
+- When the limit is reached, the API returns `429` and the UI shows a message to try again tomorrow.
+- Tracked in Firestore (`brainDumpRateLimit/{userId}`), reset at midnight (date-based).
 
 ## API
 
-See [API – Brain Dump](../architecture/API.md#brain-dump-apibrain-dump) for endpoints and request/response shapes.
+See [API – Brain Dump](../architecture/API.md#brain-dump-apibrain-dump) for `POST /api/brain-dump/generate` and `POST /api/brain-dump/apply-to-spec`.

@@ -100,14 +100,14 @@ Interactive API documentation is available at:
 
 ### Brain Dump (`/api/brain-dump`)
 
-Brain Dump is a spec-scoped chat for asking how to add features or changes; answers are based on the spec, and users can generate a "personal prompt" (copy-paste ready for Cursor/IDE) per reply. Requires authentication; available from the spec viewer only. History is stored as part of the spec (Firestore subcollection).
+Brain Dump is a single-shot flow in the spec viewer: the user describes a feature or change, and the backend returns a structured result (plain-text explanation, Mermaid diagram of the affected subsystem, and a full copy-paste prompt). The result is not persisted; refreshing the page clears it. Requires authentication; available from the spec viewer only.
 
-- `POST /api/brain-dump/init` - Initialize Brain Dump for a spec (get or create thread). Body: `{ specId }`. Returns `{ threadId, assistantId }`.
-- `POST /api/brain-dump/message` - Send a message. Body: `{ specId, threadId, assistantId, message }`. Returns `{ response, messageId, threadId, assistantId }`.
-- `GET /api/brain-dump/history?specId=...` - Get persisted messages for the spec (ordered by time).
-- `POST /api/brain-dump/personal-prompt` - Generate a single copy-paste ready prompt for a feature/change. Body: `{ specId, userQuestion?, assistantReply?, messageId? }` (either `userQuestion`+`assistantReply` or `messageId` to use stored reply). Returns `{ prompt }`.
+- `POST /api/brain-dump/generate` - Single-shot: generate the 4-part result from a description. Body: `{ specId, description }`. Returns `{ plainText, mermaidCode?, fullPrompt }`. **Rate limited**: 5 per day per user (same as below).
+- `POST /api/brain-dump/apply-to-spec` - **Pro only**: merge the change into the spec’s overview and technical sections (design is not updated). Body: `{ specId, plainText, fullPrompt }`. Returns `{ success: true }`. Requires Pro (credits V3 unlimited).
 
-**Rate limit**: "Create personal prompt" is limited to **5 per day per user** (tracked in Firestore `brainDumpRateLimit/{userId}`). When exceeded, the API returns `429` with a message to try again tomorrow.
+Legacy endpoints (chat-style, not used by the current UI): `POST /init`, `POST /message`, `GET /history`, `POST /personal-prompt`.
+
+**Rate limit**: Generate (and legacy personal-prompt) is limited to **5 per day per user** (Firestore `brainDumpRateLimit/{userId}`). When exceeded, the API returns `429`.
 
 ### Admin (`/api/admin`)
 
@@ -191,7 +191,7 @@ API endpoints are rate-limited to prevent abuse:
 - **General**: 100 requests per 15 minutes
 - **Auth**: 5 requests per 15 minutes
 - **Feedback**: 10 requests per 15 minutes
-- **Brain Dump personal prompt**: 5 per day per user (for `POST /api/brain-dump/personal-prompt` only)
+- **Brain Dump generate**: 5 per day per user (for `POST /api/brain-dump/generate`; legacy `personal-prompt` uses the same limit)
 
 Rate limit headers are included in responses:
 - `X-RateLimit-Limit` - Request limit

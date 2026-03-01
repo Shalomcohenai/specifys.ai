@@ -17,6 +17,13 @@ const openaiStorage = process.env.OPENAI_API_KEY
   : null;
 const chatService = openaiStorage ? new ChatService(openaiStorage) : null;
 
+let creditsV3Service;
+try {
+  creditsV3Service = require('./credits-v3-service');
+} catch (e) {
+  creditsV3Service = null;
+}
+
 const BRAIN_DUMP_DAILY_LIMIT = 5;
 
 function getTodayKey() {
@@ -65,6 +72,91 @@ async function checkAndIncrementPersonalPromptRateLimit(userId) {
   await ref.update({ count: admin.firestore.FieldValue.increment(1) });
   return null;
 }
+
+/**
+ * Parse JSON from assistant response (may be wrapped in ```json ... ```)
+ */
+function parseStructuredResponse(responseText) {
+  if (!responseText || typeof responseText !== 'string') return null;
+  let str = responseText.trim();
+  const jsonMatch = str.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) {
+    str = jsonMatch[1].trim();
+  }
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * POST /api/brain-dump/generate
+ * Single-shot: description -> structured output (plainText, mermaidCode, fullPrompt). Rate limited 5/day.
+ */
+router.post('/generate', verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `brain-dump-gen-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const userId = req.user.uid;
+
+  try {
+    const rateLimitError = await checkAndIncrementPersonalPromptRateLimit(userId);
+    if (rateLimitError) {
+      return next(rateLimitError);
+    }
+
+    if (!chatService || !openaiStorage) {
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
+    }
+    const { specId, description } = req.body;
+    if (!specId) {
+      return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+    if (!description || typeof description !== 'string' || !description.trim()) {
+      return next(createError('description is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+
+    await chatService.verifySpecOwnership(specId, userId);
+    const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
+
+    const userMessage = `The user wants this feature or change:
+
+"${description.trim()}"
+
+Based on the specification in your knowledge, return a single JSON object with exactly these keys (no other text before or after, no markdown):
+- "plainText": A short, simple explanation in plain language (Hebrew or English) of how this change works and what will be added/changed. Example style: "Yes, this is easy! The system has a table X from which you can pull the data; then using 2 new functions get_sum and get_avg you can get the numbers; the display will be on the develop page in the site style."
+- "mermaidCode": A Mermaid diagram (flowchart or graph) showing ONLY the relevant subsystem that is affected—not the whole app. Highlight the node that changes by adding a line: style NodeId fill:#e1f5fe (use the actual node id in your diagram). Output valid Mermaid syntax only.
+- "fullPrompt": A complete, copy-paste ready prompt for a developer to use in Cursor or another AI IDE to implement this feature, including all relevant context from the spec (endpoints, data models, structure).
+
+Return ONLY valid JSON with keys: plainText, mermaidCode, fullPrompt.`;
+
+    const thread = await openaiStorage.createThread();
+    const responseText = await openaiStorage.sendMessage(thread.id, assistantId, userMessage);
+
+    const parsed = parseStructuredResponse(responseText);
+    if (!parsed || typeof parsed.plainText !== 'string') {
+      logger.warn({ requestId, responsePreview: responseText?.slice(0, 200) }, '[brain-dump] POST /generate - AI response was not valid JSON');
+      return next(createError('Failed to get structured response from AI', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    const plainText = parsed.plainText || '';
+    const mermaidCode = typeof parsed.mermaidCode === 'string' ? parsed.mermaidCode.trim() : '';
+    const fullPrompt = typeof parsed.fullPrompt === 'string' ? parsed.fullPrompt : '';
+
+    logger.info({ requestId, specId, userId }, '[brain-dump] POST /generate - Success');
+    res.json({
+      success: true,
+      plainText,
+      mermaidCode: mermaidCode || undefined,
+      fullPrompt
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[brain-dump] POST /generate - Error');
+    if (error.message === 'Spec not found' || error.message.includes('Unauthorized')) {
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
+    }
+    next(createError('Failed to generate', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, { details: error.message }));
+  }
+});
 
 /**
  * POST /api/brain-dump/init
@@ -292,6 +384,80 @@ ${userPrompt}`;
       return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
     }
     next(createError('Failed to generate personal prompt', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, { details: error.message }));
+  }
+});
+
+/**
+ * POST /api/brain-dump/apply-to-spec
+ * Pro only: merge the change into overview + technical. Does not update design.
+ */
+router.post('/apply-to-spec', verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `brain-dump-apply-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const userId = req.user.uid;
+
+  try {
+    if (!creditsV3Service) {
+      return next(createError('Credits service not available', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
+    }
+    const available = await creditsV3Service.getAvailableCredits(userId);
+    if (!available || available.unlimited !== true) {
+      return next(createError('Add to main architecture is available for PRO users only', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403));
+    }
+
+    if (!chatService || !openaiStorage) {
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
+    }
+    const { specId, plainText, fullPrompt } = req.body;
+    if (!specId) {
+      return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+    if (!plainText || typeof plainText !== 'string') {
+      return next(createError('plainText is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+    if (!fullPrompt || typeof fullPrompt !== 'string') {
+      return next(createError('fullPrompt is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+
+    await chatService.verifySpecOwnership(specId, userId);
+    const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
+
+    const mergeMessage = `Merge the following change into the specification. Do not change design.
+
+Change summary:
+${plainText.trim()}
+
+Full implementation prompt (for context):
+${fullPrompt.trim()}
+
+Return a JSON object with exactly two keys:
+- "overview": the updated full overview content (integrate the change into the existing overview).
+- "technical": the updated full technical specification content (integrate the change into the existing technical spec).
+
+Preserve existing structure and only integrate this change. Output only valid JSON, no other text or markdown.`;
+
+    const thread = await openaiStorage.createThread();
+    const responseText = await openaiStorage.sendMessage(thread.id, assistantId, mergeMessage);
+
+    const parsed = parseStructuredResponse(responseText);
+    if (!parsed || typeof parsed.overview !== 'string' || typeof parsed.technical !== 'string') {
+      logger.warn({ requestId, responsePreview: responseText?.slice(0, 200) }, '[brain-dump] POST /apply-to-spec - AI response was not valid JSON');
+      return next(createError('Failed to get updated spec from AI', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+
+    await db.collection('specs').doc(specId).update({
+      overview: parsed.overview,
+      technical: parsed.technical,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    logger.info({ requestId, specId, userId }, '[brain-dump] POST /apply-to-spec - Success');
+    res.json({ success: true });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[brain-dump] POST /apply-to-spec - Error');
+    if (error.message === 'Spec not found' || error.message.includes('Unauthorized')) {
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
+    }
+    next(createError('Failed to apply to spec', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, { details: error.message }));
   }
 });
 

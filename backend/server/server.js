@@ -951,6 +951,16 @@ logger.info({
   }
 }, '[UNIFIED SERVER] 📌 Setting up static file serving...');
 
+// Serve built homepage from _site so CSS and layout apply (root index.html is Jekyll source)
+const builtIndexPath = path.resolve(path.join(staticRootPath, '_site', 'index.html'));
+const serveBuiltIndex = (req, res, next) => {
+  res.sendFile(builtIndexPath, (err) => {
+    if (err) next();
+  });
+};
+app.get('/', serveBuiltIndex);
+app.get('/index.html', serveBuiltIndex);
+
 // IMPORTANT: Explicit route for /blog/ must come BEFORE express.static(staticRootPath)
 // Otherwise staticRootPath will serve blog/index.html (source) instead of _site/blog/index.html (built)
 app.get('/blog/', (req, res) => {
