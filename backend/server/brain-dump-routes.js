@@ -115,17 +115,32 @@ router.post('/generate', verifyFirebaseToken, async (req, res, next) => {
       return next(createError('description is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
 
-    await chatService.verifySpecOwnership(specId, userId);
+    const specData = await chatService.verifySpecOwnership(specId, userId);
     const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
 
-    const userMessage = `The user wants this feature or change:
+    const overviewRaw = specData.overview != null ? specData.overview : {};
+    const technicalRaw = specData.technical != null ? specData.technical : {};
+    const overviewText = typeof overviewRaw === 'string' ? overviewRaw : JSON.stringify(overviewRaw, null, 2);
+    const technicalText = typeof technicalRaw === 'string' ? technicalRaw : JSON.stringify(technicalRaw, null, 2);
+
+    const userMessage = `Current specification (Overview + Technical) for context — use this to tie the requested change into the existing system:
+
+--- Overview ---
+${overviewText}
+
+--- Technical ---
+${technicalText}
+---
+
+The user wants this feature or change:
 
 "${description.trim()}"
 
-Based on the specification in your knowledge, return a single JSON object with exactly these keys (no other text before or after, no markdown):
-- "plainText": A short, simple explanation in plain language (Hebrew or English) of how this change works and what will be added/changed. Example style: "Yes, this is easy! The system has a table X from which you can pull the data; then using 2 new functions get_sum and get_avg you can get the numbers; the display will be on the develop page in the site style."
-- "mermaidCode": A Mermaid diagram (flowchart or graph) showing ONLY the relevant subsystem that is affected—not the whole app. Highlight the node that changes by adding a line: style NodeId fill:#e1f5fe (use the actual node id in your diagram). Output valid Mermaid syntax only.
-- "fullPrompt": A complete, copy-paste ready prompt for a developer to use in Cursor or another AI IDE to implement this feature, including all relevant context from the spec (endpoints, data models, structure).
+Return a single JSON object with exactly these keys (no other text before or after, no markdown). All output must be in English.
+
+- "plainText": A clear explanation in English only. Describe: (1) how this change connects to the existing system, (2) what already exists in the spec that is relevant (e.g. existing pages, APIs, data models), (3) what remains to be implemented or changed. Write in plain language for the product owner.
+- "mermaidCode": A Mermaid diagram (flowchart or graph) showing ONLY the relevant subsystem that is affected—not the whole app. Highlight the node that changes with: style NodeId fill:#e1f5fe (use the actual node id). Output valid Mermaid syntax only.
+- "fullPrompt": A single, detailed, copy-paste-ready prompt in English for a developer in Cursor or another AI IDE. It must: (1) reference or summarize the existing spec structure (overview + technical) so the AI knows the current architecture, (2) state the exact feature or change to add, (3) give precise implementation steps so the result fits the existing codebase and spec (file structure, endpoints, data models). The prompt should be self-contained and precise enough to implement without guesswork.
 
 Return ONLY valid JSON with keys: plainText, mermaidCode, fullPrompt.`;
 

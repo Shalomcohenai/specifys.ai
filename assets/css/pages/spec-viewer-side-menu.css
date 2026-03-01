@@ -200,6 +200,20 @@
   cursor: not-allowed;
 }
 
+/* Keep Brain Dump icon visible when tab is disabled */
+.side-menu-item[data-tab="brain-dump"] .side-menu-button i {
+  opacity: 1;
+  color: #666;
+}
+.side-menu-item[data-tab="brain-dump"] .side-menu-button:disabled i {
+  opacity: 1;
+}
+.side-menu-item[data-tab="brain-dump"] .side-menu-button.active i,
+.side-menu-item[data-tab="brain-dump"] .side-menu-button.viewed i,
+.side-menu-item.viewed[data-tab="brain-dump"] .side-menu-button i {
+  color: #FF6B35;
+}
+
 .side-menu-button i {
   font-size: 20px;
   flex-shrink: 0;

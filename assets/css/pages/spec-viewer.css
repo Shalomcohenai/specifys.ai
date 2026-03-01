@@ -255,15 +255,15 @@ button[onclick*="openVisualizer"]:active {
   color: white !important;
 }
 
-/* Brain Dump - distinct styling (teal accent), single-shot */
+/* Brain Dump - site orange accent (#FF6B35) */
 .brain-dump-container {
   min-height: 400px;
   display: flex;
   flex-direction: column;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
   border-radius: 8px;
   overflow: hidden;
-  background: #f1f8f6;
+  background: #fff8f5;
   padding-bottom: 20px;
 }
 .brain-dump-input-section {
@@ -283,7 +283,7 @@ button[onclick*="openVisualizer"]:active {
 }
 .brain-dump-result-block {
   background: white;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
   border-radius: 8px;
   padding: 16px;
 }
@@ -302,7 +302,7 @@ button[onclick*="openVisualizer"]:active {
 .brain-dump-prompt-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #004d40;
+  color: #333;
 }
 .brain-dump-full-prompt {
   margin: 0;
@@ -323,14 +323,14 @@ button[onclick*="openVisualizer"]:active {
 }
 .brain-dump-apply-btn {
   padding: 10px 20px;
-  background: #00897b;
+  background: #FF6B35;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 .brain-dump-apply-btn:hover {
-  background: #00695c;
+  background: #e55a2b;
 }
 .brain-dump-apply-btn:disabled {
   opacity: 0.7;
@@ -339,7 +339,7 @@ button[onclick*="openVisualizer"]:active {
 .brain-dump-loading-block {
   padding: 24px;
   text-align: center;
-  color: #004d40;
+  color: #333;
 }
 .brain-dump-loading-block.hidden {
   display: none;
@@ -350,9 +350,9 @@ button[onclick*="openVisualizer"]:active {
 
 .brain-dump-header {
   padding: 15px 20px;
-  background: linear-gradient(135deg, #e0f2f1 0%, #fff 100%);
+  background: linear-gradient(135deg, #fff0eb 0%, #fff 100%);
   color: #333;
-  border-bottom: 2px solid #00897b;
+  border-bottom: 2px solid #FF6B35;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -362,11 +362,11 @@ button[onclick*="openVisualizer"]:active {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #004d40;
+  color: #333;
 }
 
 .brain-dump-header h2 .fa {
-  color: #00897b;
+  color: #FF6B35;
 }
 
 .brain-dump-subtitle {
@@ -379,7 +379,7 @@ button[onclick*="openVisualizer"]:active {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  background: #f1f8f6;
+  background: #fff8f5;
 }
 
 .brain-dump-welcome {
@@ -390,14 +390,14 @@ button[onclick*="openVisualizer"]:active {
 
 .brain-dump-welcome .fa {
   font-size: 48px;
-  color: #00897b;
+  color: #FF6B35;
   margin-bottom: 15px;
   display: block;
 }
 
 .brain-dump-welcome h3 {
   margin: 0 0 10px 0;
-  color: #004d40;
+  color: #333;
 }
 
 .brain-dump-welcome p {
@@ -425,13 +425,13 @@ button[onclick*="openVisualizer"]:active {
   border-radius: 8px;
   word-wrap: break-word;
   background: white;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
   color: #333;
 }
 
 .brain-dump-message-wrap.user .brain-dump-message-bubble {
-  background: #e0f2f1;
-  border-color: #00897b;
+  background: #fff0eb;
+  border-color: #FF6B35;
 }
 
 .brain-dump-create-prompt-btn {
@@ -439,14 +439,14 @@ button[onclick*="openVisualizer"]:active {
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 4px;
-  background: #00897b;
+  background: #FF6B35;
   color: white;
   border: none;
   cursor: pointer;
 }
 
 .brain-dump-create-prompt-btn:hover {
-  background: #00695c;
+  background: #e55a2b;
 }
 
 .brain-dump-create-prompt-btn .fa {
@@ -457,14 +457,14 @@ button[onclick*="openVisualizer"]:active {
 .brain-dump-loading {
   padding: 12px 16px;
   background: white;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
   border-radius: 8px;
   color: #555;
 }
 
 .brain-dump-input-container {
   padding: 15px 20px;
-  border-top: 1px solid #b2dfdb;
+  border-top: 1px solid #ffd4c4;
   background: white;
   display: flex;
   gap: 10px;
@@ -473,7 +473,7 @@ button[onclick*="openVisualizer"]:active {
 .brain-dump-input {
   flex: 1;
   padding: 10px;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
   border-radius: 4px;
   resize: vertical;
   font-family: inherit;
@@ -482,12 +482,12 @@ button[onclick*="openVisualizer"]:active {
 
 .brain-dump-input:focus {
   outline: none;
-  border-color: #00897b;
+  border-color: #FF6B35;
 }
 
 .brain-dump-send-btn {
   padding: 10px 20px;
-  background: #00897b;
+  background: #FF6B35;
   border: none;
   color: white;
   border-radius: 4px;
@@ -521,7 +521,7 @@ button[onclick*="openVisualizer"]:active {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  border: 1px solid #b2dfdb;
+  border: 1px solid #ffd4c4;
 }
 
 .brain-dump-prompt-modal-header {
@@ -535,7 +535,7 @@ button[onclick*="openVisualizer"]:active {
 .brain-dump-prompt-modal-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #004d40;
+  color: #333;
 }
 
 .brain-dump-prompt-modal-close {
@@ -568,7 +568,7 @@ button[onclick*="openVisualizer"]:active {
 
 .brain-dump-prompt-modal-body .btn {
   padding: 8px 16px;
-  background: #00897b;
+  background: #FF6B35;
   color: white;
   border: none;
   border-radius: 4px;

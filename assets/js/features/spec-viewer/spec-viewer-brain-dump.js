@@ -31,22 +31,38 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-function renderBrainDumpMermaid(container, mermaidCode) {
-  if (!container || !mermaidCode) return Promise.resolve();
-  if (typeof mermaid === 'undefined' || !mermaid.render) {
-    container.textContent = 'Diagram (Mermaid not loaded): ' + mermaidCode.substring(0, 300) + (mermaidCode.length > 300 ? '...' : '');
+function ensureMermaidReady() {
+  if (typeof mermaid !== 'undefined' && typeof mermaid.render === 'function') {
     return Promise.resolve();
   }
-  var uniqueId = 'brain-dump-mermaid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  return mermaid.render(uniqueId, mermaidCode).then(function (result) {
-    var wrap = document.createElement('div');
-    wrap.className = 'brain-dump-mermaid-rendered';
-    wrap.style.overflow = 'auto';
-    wrap.innerHTML = result.svg;
-    container.innerHTML = '';
-    container.appendChild(wrap);
-  }).catch(function (err) {
-    container.textContent = 'Diagram could not be rendered. Raw code: ' + mermaidCode.substring(0, 200) + '...';
+  if (window.mermaidManager && typeof window.mermaidManager.loadMermaid === 'function') {
+    return window.mermaidManager.loadMermaid().then(function () {
+      if (typeof window.mermaidManager.initialize === 'function') {
+        return window.mermaidManager.initialize();
+      }
+    });
+  }
+  return Promise.resolve();
+}
+
+function renderBrainDumpMermaid(container, mermaidCode) {
+  if (!container || !mermaidCode) return Promise.resolve();
+  return ensureMermaidReady().then(function () {
+    if (typeof mermaid === 'undefined' || !mermaid.render) {
+      container.textContent = 'Diagram (Mermaid not loaded): ' + mermaidCode.substring(0, 300) + (mermaidCode.length > 300 ? '...' : '');
+      return;
+    }
+    var uniqueId = 'brain-dump-mermaid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    return mermaid.render(uniqueId, mermaidCode).then(function (result) {
+      var wrap = document.createElement('div');
+      wrap.className = 'brain-dump-mermaid-rendered';
+      wrap.style.overflow = 'auto';
+      wrap.innerHTML = result.svg;
+      container.innerHTML = '';
+      container.appendChild(wrap);
+    }).catch(function (err) {
+      container.textContent = 'Diagram could not be rendered. Raw code: ' + mermaidCode.substring(0, 200) + '...';
+    });
   });
 }
 
