@@ -1058,6 +1058,17 @@ app.get('/pages/articles.html', (req, res) => {
   });
 });
 
+// Redirect old /pages/academy/ URL to canonical /academy.html (Jekyll permalink)
+app.get('/pages/academy', (req, res) => {
+  res.redirect(301, '/academy.html');
+});
+app.get('/pages/academy/', (req, res) => {
+  res.redirect(301, '/academy.html');
+});
+app.get('/pages/academy/index.html', (req, res) => {
+  res.redirect(301, '/academy.html');
+});
+
 // Handle /article.html route - check if article exists before serving (prevent Soft 404)
 app.get('/article.html', async (req, res, next) => {
   const slug = req.query.slug;
