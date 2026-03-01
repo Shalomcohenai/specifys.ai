@@ -350,13 +350,13 @@
         
         // Listen for auth state changes (this catches redirect results)
         onAuthStateChanged(auth, async (user) => {
+            if (user) console.log('[Auth] onAuthStateChanged(1): user', user.uid, 'isProcessingRedirect=', isProcessingRedirect);
             if (user && !isProcessingRedirect) {
-                // User is signed in - check if this is from a redirect
-                const urlParams = new URLSearchParams(window.location.search);
                 const fromAuth = sessionStorage.getItem('attemptingGoogleSignIn');
-                
+                if (user) console.log('[Auth] onAuthStateChanged(1): fromAuth=', fromAuth);
                 // If we were attempting sign in, process it
                 if (fromAuth === 'true') {
+                    console.log('[Auth] onAuthStateChanged(1): handling redirect flow (attemptingGoogleSignIn)');
                     isProcessingRedirect = true;
                     sessionStorage.removeItem('attemptingGoogleSignIn');
                     
@@ -397,15 +397,11 @@
         
         // Handle redirect result when user comes back from Google Sign-In
         (async function checkRedirectResult() {
-
-
-
-            
+            console.log('[Auth] checkRedirectResult: start (page load)');
             try {
                 const { getRedirectResult, getAdditionalUserInfo } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                console.log('[Auth] checkRedirectResult: calling getRedirectResult(auth)');
 
-
-                
                 // Show loading state while checking
                 const authContainer = document.querySelector('.auth-container');
                 if (authContainer) {
@@ -414,85 +410,46 @@
                     loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000; text-align: center;';
                     loadingDiv.innerHTML = '<div class="loading-text">Completing sign in...</div>';
                     document.body.appendChild(loadingDiv);
-                    
+                }
 
-                    const result = await getRedirectResult(auth);
-                    
-                    // Remove loading
-                    loadingDiv.remove();
-                    
-                    if (result && result.user) {
-                        // Check if this is a new user using Firebase Auth's additionalUserInfo
-                        const additionalUserInfo = getAdditionalUserInfo(result);
-                        const isNewUser = additionalUserInfo?.isNewUser === true;
-                        
-                        // Create user document (but don't rely on its response for isNewUser)
-                        await createUserDocument(result.user, isNewUser);
-                        
-                        // Set popup flag based on Firebase Auth's isNewUser
-                        if (isNewUser) {
-                            sessionStorage.setItem('showCreditPopup', 'true');
-                            // נקה cache
-                            if (typeof window.clearCreditsCache === 'function') {
-                                window.clearCreditsCache();
-                            }
-                            // שמור flag לעדכון תצוגה ב-index.html
-                            sessionStorage.setItem('refreshCreditsOnLoad', 'true');
-                        }
-                        
-                        showSuccess('Login successful! Redirecting to homepage...');
-                        setTimeout(() => {
-                            window.location.href = '../index.html';
-                        }, 1500);
-                    } else {
+                const result = await getRedirectResult(auth);
+                console.log('[Auth] checkRedirectResult: getRedirectResult returned', result ? { uid: result.user?.uid, email: result.user?.email } : null);
 
+                if (authContainer && document.getElementById('redirect-loading')) document.getElementById('redirect-loading').remove();
+
+                if (result && result.user) {
+                    console.log('[Auth] checkRedirectResult: has user, creating document');
+                    const additionalUserInfo = getAdditionalUserInfo(result);
+                    const isNewUser = additionalUserInfo?.isNewUser === true;
+                    await createUserDocument(result.user, isNewUser);
+                    console.log('[Auth] checkRedirectResult: createUserDocument done, redirecting in 1.5s');
+                    if (isNewUser) {
+                        sessionStorage.setItem('showCreditPopup', 'true');
+                        if (typeof window.clearCreditsCache === 'function') window.clearCreditsCache();
+                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                     }
+                    showSuccess('Login successful! Redirecting to homepage...');
+                    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
                 } else {
-                    const result = await getRedirectResult(auth);
-                    
-                    if (result && result.user) {
-                        // Check if this is a new user using Firebase Auth's additionalUserInfo
-                        const additionalUserInfo = getAdditionalUserInfo(result);
-                        const isNewUser = additionalUserInfo?.isNewUser === true;
-                        
-                        // Create user document (but don't rely on its response for isNewUser)
-                        await createUserDocument(result.user, isNewUser);
-                        
-                        // Set popup flag based on Firebase Auth's isNewUser
-                        if (isNewUser) {
-                            sessionStorage.setItem('showCreditPopup', 'true');
-                            // נקה cache
-                            if (typeof window.clearCreditsCache === 'function') {
-                                window.clearCreditsCache();
-                            }
-                            // שמור flag לעדכון תצוגה ב-index.html
-                            sessionStorage.setItem('refreshCreditsOnLoad', 'true');
-                        }
-                        
-                        showSuccess('Login successful! Redirecting to homepage...');
-                        setTimeout(() => {
-                            window.location.href = '../index.html';
-                        }, 1500);
-                    } else {
-
-                    }
+                    console.log('[Auth] checkRedirectResult: no redirect result (normal on first load or popup flow)');
                 }
             } catch (error) {
+                console.error('[Auth] checkRedirectResult: error', error?.code || error?.message, error);
                 showError('Authentication error: ' + error.message);
             }
-            
-
         })();
 
         // Initialize user documents (users + entitlements) via API
         // Uses Firestore Transaction for atomicity
         async function createUserDocument(user, isNewUser = null, retryCount = 0) {
+            console.log('[Auth] createUserDocument: start', user?.uid, 'isNewUser=', isNewUser);
             const MAX_RETRIES = 3;
             const RETRY_DELAYS = [500, 1000, 2000]; // ms
             
             try {
                 // Verify user is still authenticated
                 if (!user) {
+                    console.log('[Auth] createUserDocument: no user, skip');
                     return; // User logged out, skip initialization
                 }
                 
@@ -525,8 +482,10 @@
                 }
 
                 const result = await response.json();
+                console.log('[Auth] createUserDocument: success', result?.created ? 'created' : 'existing');
                 return result;
             } catch (error) {
+                console.log('[Auth] createUserDocument: error', error?.message, 'retryCount=', retryCount);
                 // Don't retry on network errors that suggest the endpoint doesn't exist
                 if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
                     // Silently return - endpoint might not be available
@@ -612,8 +571,11 @@
             const googleLoginBtn = document.getElementById('google-login-btn');
             if (googleLoginBtn) {
                 googleLoginBtn.addEventListener('click', function() {
+                    console.log('[Auth] Google button clicked');
                     if (window.loginWithGoogle) {
                         window.loginWithGoogle();
+                    } else {
+                        console.warn('[Auth] window.loginWithGoogle not defined');
                     }
                 });
             }
@@ -934,44 +896,29 @@
         
         // Google login - SYNCHRONOUS to avoid popup blocker
         window.loginWithGoogle = function() {
-
-            
-            // Check compatibility first
+            console.log('[Auth] loginWithGoogle: called, calling signInWithPopup');
             checkBrowserCompatibility();
-            
-            // Call signInWithPopup IMMEDIATELY (synchronously) from user click
-            // This prevents popup blockers
-
-
-
-            
 
             const popupPromise = signInWithPopup(auth, googleProvider);
 
-            
             popupPromise
                 .then(async (result) => {
-                    // Check if this is a new user using Firebase Auth's additionalUserInfo
+                    console.log('[Auth] signInWithPopup: resolved', result?.user?.uid);
                     const additionalUserInfo = getAdditionalUserInfo(result);
                     const isNewUser = additionalUserInfo?.isNewUser === true;
+                    console.log('[Auth] signInWithPopup: createUserDocument start');
                     const createResult = await createUserDocument(result.user, isNewUser);
-                    // Set popup flag if this is a new user (from Firebase Auth or server response as fallback)
+                    console.log('[Auth] signInWithPopup: createUserDocument done, redirecting in 1.5s');
                     if (isNewUser || (createResult && createResult.isNewUser)) {
                         sessionStorage.setItem('showCreditPopup', 'true');
-                        // נקה cache
-                        if (typeof window.clearCreditsCache === 'function') {
-                            window.clearCreditsCache();
-                        }
-                        // שמור flag לעדכון תצוגה ב-index.html
+                        if (typeof window.clearCreditsCache === 'function') window.clearCreditsCache();
                         sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                     }
-                    
                     showSuccess('Login successful! Redirecting to homepage...');
-                    setTimeout(() => {
-                        window.location.href = '../index.html';
-                    }, 1500);
+                    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
                 })
                 .catch((error) => {
+                    console.error('[Auth] signInWithPopup: rejected', error?.code, error?.message, error);
                     if (error.code === 'auth/popup-blocked') {
                         showError('Popup was blocked. Please allow popups for this site and try again.');
                     } else if (error.code === 'auth/popup-closed-by-user') {
@@ -1080,7 +1027,9 @@
 
         // Redirect if already logged in
         onAuthStateChanged(auth, (user) => {
+            console.log('[Auth] onAuthStateChanged:', user ? { uid: user.uid, email: user.email } : 'no user');
             if (user) {
+                console.log('[Auth] onAuthStateChanged: user present, redirecting to index');
                 window.location.href = '../index.html';
             }
         });
