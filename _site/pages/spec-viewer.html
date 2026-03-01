@@ -107,8 +107,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Specifys.ai">
-    <title>Specification Viewer - Specifys.ai - Specifys.ai</title>
-    <meta name="description" content="View, edit, and manage your app specifications with AI-powered insights. Includes technical specs, market research, design guidelines, diagrams, and development prompts.">
+    <title>Spec Viewer - Specifys.ai</title>
+    <meta name="description" content="View your app spec after creation. Personal, dynamic content.">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
     
@@ -124,19 +124,19 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/pages/spec-viewer.html">
+    <link rel="canonical" href="https://specifys-ai.com/pages/spec-viewer.html">
     
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
-    <meta property="og:title" content="Specification Viewer - Specifys.ai">
-    <meta property="og:description" content="View, edit, and manage your app specifications with AI-powered insights. Includes technical specs, market research, design guidelines, diagrams, and development prompts.">
+    <meta property="og:title" content="Spec Viewer">
+    <meta property="og:description" content="View your app spec after creation. Personal, dynamic content.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/pages/spec-viewer.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="https://specifys-ai.com/pages/spec-viewer.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Specification Viewer - Specifys.ai - Specifys.ai">
+    <meta property="og:image:alt" content="Spec Viewer - Specifys.ai">
     <meta property="og:locale" content="en_US">
     
     
@@ -144,10 +144,10 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@specifysai">
     <meta name="twitter:creator" content="@specifysai">
-    <meta name="twitter:title" content="Specification Viewer - Specifys.ai">
-    <meta name="twitter:description" content="View, edit, and manage your app specifications with AI-powered insights. Includes technical specs, market research, design guidelines, diagrams, and development prompts.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
-    <meta name="twitter:image:alt" content="Specification Viewer - Specifys.ai - Specifys.ai">
+    <meta name="twitter:title" content="Spec Viewer">
+    <meta name="twitter:description" content="View your app spec after creation. Personal, dynamic content.">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="Spec Viewer - Specifys.ai">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -176,7 +176,6 @@
     
     <!-- Font Awesome - Loaded asynchronously -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
     <script defer src="/assets/js/config.js"></script>
@@ -468,13 +467,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://localhost:4000/"
+          "item": "https://specifys-ai.com/"
         },
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Specification Viewer - Specifys.ai",
-          "item": "http://localhost:4000/pages/spec-viewer.html"
+          "name": "Spec Viewer",
+          "item": "https://specifys-ai.com/pages/spec-viewer.html"
         }
       ]
     }
@@ -564,9 +563,10 @@ s0.parentNode.insertBefore(s1,s0);
 
 
 <body class="spec-viewer-page">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Header -->
     
-    <!-- Header -->
+    <!-- Header: logo (left), user (left), credits (right) -->
 <header class="thematic-header" role="banner">
     <nav class="header-center" aria-label="Main navigation">
         <div class="logo">
@@ -576,13 +576,13 @@ s0.parentNode.insertBefore(s1,s0);
         </div>
     </nav>
     <div class="header-right" role="complementary" aria-label="User account and credits">
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
+            <!-- Will be populated by auth system -->
+        </div>
         <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
                 <span id="credits-text" aria-label="Available credits">Credits: 0</span>
             </div>
-        </div>
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
         </div>
     </div>
 </header>
@@ -712,6 +712,13 @@ s0.parentNode.insertBefore(s1,s0);
                     <i class="fa fa-comments" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
                     <span class="side-menu-text">AI Chat</span>
+                </button>
+            </div>
+            
+            <div class="side-menu-item" data-tab="brain-dump">
+                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                    <span class="side-menu-text">Brain Dump</span>
                 </button>
             </div>
             
@@ -936,6 +943,53 @@ s0.parentNode.insertBefore(s1,s0);
                         <button id="send-chat-btn" class="btn btn-primary chat-send-btn">
                             <i class="fa fa-paper-plane"></i> Send
                         </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="brain-dump-content" class="tab-content hidden">
+                <div class="brain-dump-container">
+                    <div class="brain-dump-header">
+                        <div>
+                            <h2><i class="fa fa-lightbulb-o"></i> Brain Dump</h2>
+                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a plain explanation, a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
+                        </div>
+                    </div>
+                    
+                    <div class="brain-dump-input-section">
+                        <textarea 
+                            id="brain-dump-input" 
+                            class="brain-dump-input" 
+                            placeholder="e.g. How do I add an image upload system to my site? Or: Add a develop page that shows sum and average from the check table."
+                            rows="3"
+                            aria-label="Describe feature or change"
+                        ></textarea>
+                        <button id="brain-dump-generate-btn" class="btn btn-primary brain-dump-send-btn">
+                            <i class="fa fa-magic"></i> Generate
+                        </button>
+                    </div>
+                    
+                    <div id="brain-dump-result" class="brain-dump-result hidden">
+                        <div id="brain-dump-plain" class="brain-dump-result-block"></div>
+                        <div id="brain-dump-mermaid-wrap" class="brain-dump-result-block brain-dump-mermaid-wrap hidden"></div>
+                        <div id="brain-dump-prompt-wrap" class="brain-dump-result-block">
+                            <div class="brain-dump-prompt-header">
+                                <h3><i class="fa fa-code"></i> Full Development Prompt</h3>
+                                <button type="button" class="btn btn-secondary brain-dump-copy-prompt-btn">
+                                    <i class="fa fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <pre id="brain-dump-full-prompt" class="brain-dump-full-prompt"></pre>
+                        </div>
+                        <div id="brain-dump-apply-wrap" class="brain-dump-result-block brain-dump-apply-wrap hidden">
+                            <button type="button" id="brain-dump-apply-btn" class="btn btn-primary brain-dump-apply-btn">
+                                <i class="fa fa-plus-circle"></i> Add to main architecture
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="brain-dump-loading" class="brain-dump-loading-block hidden">
+                        <i class="fa fa-spinner fa-spin"></i> Generating...
                     </div>
                 </div>
             </div>
@@ -1338,28 +1392,48 @@ s0.parentNode.insertBefore(s1,s0);
     
     <!-- Footer -->
     
-    <!-- Footer -->
-<footer role="contentinfo">
-  <nav class="footer-content" aria-label="Footer navigation">
-    <div class="footer-links" role="list">
-      <a href="/pages/how.html" aria-label="Learn how specifys.ai works" role="listitem">How It Works</a>
-      <a href="/pages/about.html" aria-label="Learn more about specifys.ai" role="listitem">About Us</a>
-      <a href="/pages/why.html" aria-label="Why Specifys.ai" role="listitem">Why?</a>
-      <a href="/blog/" aria-label="Visit our blog" role="listitem">Blog</a>
-      <a href="/pages/articles.html" aria-label="Browse our articles" role="listitem">Articles</a>
-      <a href="/academy.html" aria-label="Visit Specifys Academy" role="listitem">Academy</a>
-      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map" role="listitem">Vibe Coding Tools Map</a>
-      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder" role="listitem">Tool Finder</a>
-      <button class="contact-us-link" id="contact-us-btn" aria-label="Contact Us" type="button" role="listitem">
-        Contact Us
-      </button>
+    <!-- Footer: grouped links, social icons, copyright -->
+<footer role="contentinfo" class="site-footer">
+  <nav class="footer-nav" aria-label="Footer navigation">
+    <div class="footer-sitemap">
+      <div class="footer-sitemap-group">
+        <span class="footer-sitemap-title">Features</span>
+        <a href="/pages/spec-viewer.html" role="listitem">Spec Viewer</a>
+        <a href="/pages/academy/" role="listitem">Academy</a>
+        <a href="/tools/map/vibe-coding-tools-map.html" role="listitem">Vibe Coding Tools Map</a>
+        <a href="/pages/ToolPicker.html" role="listitem">Tool Finder</a>
+      </div>
+      <div class="footer-sitemap-group">
+        <span class="footer-sitemap-title">Company</span>
+        <a href="/pages/about.html" role="listitem">About</a>
+        <a href="/pages/contact.html" role="listitem">Contact</a>
+        <a href="/blog/" role="listitem">Blog</a>
+        <a href="/pages/pricing.html" role="listitem">Pricing</a>
+        <button class="footer-link-btn contact-us-link" id="contact-us-btn" aria-label="Contact Us" type="button" role="listitem">Contact Us</button>
+      </div>
+      <div class="footer-sitemap-group">
+        <span class="footer-sitemap-title">Resources</span>
+        <a href="/pages/how.html" role="listitem">How It Works</a>
+        <a href="/pages/why.html" role="listitem">Why?</a>
+        <a href="/pages/articles.html" role="listitem">Articles</a>
+      </div>
+      <div class="footer-sitemap-group">
+        <span class="footer-sitemap-title">Legal</span>
+        <a href="/pages/terms.html" role="listitem">Terms</a>
+        <a href="/pages/privacy.html" role="listitem">Privacy</a>
+      </div>
+      <div class="footer-sitemap-group">
+        <span class="footer-sitemap-title">Account</span>
+        <a href="/pages/auth.html" role="listitem">Sign In</a>
+      </div>
     </div>
-    <span class="footer-divider" aria-hidden="true">|</span>
-    <div class="footer-social" role="list" aria-label="Social media links">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
+    <div class="footer-social-wrap">
+      <div class="footer-social" role="list" aria-label="Social media links">
+        <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a href="mailto:specifysai@gmail.com" aria-label="Email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
+      </div>
     </div>
   </nav>
   <div class="footer-copyright">
@@ -1443,6 +1517,8 @@ s0.parentNode.insertBefore(s1,s0);
         <script src="/assets/js/features/spec-viewer/spec-viewer-auth.js"></script>
       
         <script src="/assets/js/features/spec-viewer/spec-viewer-chat.js"></script>
+      
+        <script src="/assets/js/features/spec-viewer/spec-viewer-brain-dump.js"></script>
       
         <script src="/assets/js/mermaid.js"></script>
       
