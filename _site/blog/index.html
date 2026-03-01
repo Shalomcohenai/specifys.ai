@@ -1637,7 +1637,7 @@ s0.parentNode.insertBefore(s1,s0);
       }
       
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
       
       // Check if user is new based on sessionStorage flag (set in auth.html during registration)
       // This helps the server correctly identify new users even if documents were created by race condition

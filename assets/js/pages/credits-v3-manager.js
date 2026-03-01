@@ -22,7 +22,7 @@
     getApiBaseUrl() {
       const baseUrl = (typeof window.getApiBaseUrl === 'function')
         ? window.getApiBaseUrl()
-        : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+        : (window.API_BASE_URL || window.BACKEND_URL || '');
       if (!baseUrl || typeof baseUrl !== 'string') {
         throw new Error('API base URL not configured. Ensure config.js is loaded first.');
       }

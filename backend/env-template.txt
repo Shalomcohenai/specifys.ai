@@ -145,8 +145,8 @@ BASE_URL=https://specifys-ai.com
 SITE_URL=https://specifys-ai.com
 
 # Production Server URL (for API calls)
-# Default: https://specifys-ai-development2.onrender.com
-PRODUCTION_SERVER_URL=https://specifys-ai-development2.onrender.com
+# Backend public URL (single source: backend/server/config.js default)
+PRODUCTION_SERVER_URL=https://specifys-ai-backend.onrender.com
 
 # Optional: redirect non-API GET requests to SITE_URL (Render = API only). See docs/setup/render-deployment.md
 # Options: true, false (or unset)

@@ -107,18 +107,8 @@ logger.info({ type: 'compression_enabled' }, '[UNIFIED SERVER] ✅ Compression m
 // Must be before routes and rate limiting
 // Do not remove origins without verifying they are unused (removal can break auth/API/payments)
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:4000',
-  'http://localhost:8080',
-  'http://localhost:10000',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:4000',
-  'https://specifys-ai.com',
-  'https://www.specifys-ai.com',
-  'https://specifys-ai.onrender.com',
-  'https://specifys-ai-development2.onrender.com',
-  'https://specifys-ai-development2.onrender.com',
-  process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
+  ...config.allowedOrigins,
+  'http://localhost:8080'
 ].filter(Boolean);
 
 logger.info({ 

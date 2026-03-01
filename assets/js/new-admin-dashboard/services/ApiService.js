@@ -20,7 +20,7 @@ export class ApiService {
       // Ensure URL doesn't have trailing slash
       return url.endsWith('/') ? url.slice(0, -1) : url;
     }
-    return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+    return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
   }
   
   /**

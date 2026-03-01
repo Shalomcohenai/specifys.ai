@@ -1,13 +1,18 @@
 // Configuration file for Specifys.ai server
+// ========== BACKEND BASE URL – change only here ==========
+const BACKEND_BASE_URL = process.env.PRODUCTION_SERVER_URL || 'https://specifys-ai-backend.onrender.com';
+// ==========================================================
+
 module.exports = {
+  BACKEND_BASE_URL,
   // Server configuration
   port: process.env.PORT || 10000,
   
   // Google Apps Script URL for feedback
   googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbym3fu04RejAdA6GHKV9lMkT5dgkB9cxgY9yZ0hPkGxJzPrSrO3pT0XgooeL_z4_mtayQ/exec',
   
-  // Production server URL (replace with your actual production server)
-  productionServerUrl: process.env.PRODUCTION_SERVER_URL || 'https://specifys-ai-development2.onrender.com',
+  // Production server URL
+  productionServerUrl: BACKEND_BASE_URL,
   
   // CORS origins (allowed domains)
   allowedOrigins: [
@@ -20,10 +25,9 @@ module.exports = {
     'http://127.0.0.1:10000',
     'https://specifys-ai.com',
     'https://www.specifys-ai.com',
-    'https://specifys-ai.onrender.com',
-    'https://specifys-ai-development2.onrender.com',
-    'https://specifys-ai-development2.onrender.com'
-  ],
+    BACKEND_BASE_URL,
+    process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
+  ].filter(Boolean),
   
   // Credits V3 Configuration
   creditsV3: {

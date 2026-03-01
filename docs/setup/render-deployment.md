@@ -5,7 +5,7 @@
 **Render hosts the API only.** The main website (frontend) is served from **https://specifys-ai.com** (e.g. Netlify or another host). Users should use the domain for the site; the Render service URL is for API calls only.
 
 - **Frontend (site):** https://specifys-ai.com  
-- **Backend (API):** Render service (e.g. `https://specifys-ai-development2.onrender.com`)
+- **Backend (API):** Render service (see `BACKEND_URL` in `assets/js/config.js`; default `https://specifys-ai-backend.onrender.com`)
 
 The backend does not build or serve the Jekyll `_site` on Render. Build and deploy of the static site are done separately (e.g. via GitHub Actions or your frontend host).
 

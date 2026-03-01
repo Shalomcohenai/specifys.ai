@@ -33,7 +33,7 @@
       if (typeof window !== 'undefined' && window.API_BASE_URL) {
         return window.API_BASE_URL;
       }
-      return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+      return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
     }
 
     // Send metric to backend

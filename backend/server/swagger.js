@@ -4,6 +4,7 @@
  */
 
 const swaggerJsdoc = require('swagger-jsdoc');
+const config = require('./config');
 
 const options = {
   definition: {
@@ -22,7 +23,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://specifys-ai-development2.onrender.com',
+        url: config.productionServerUrl,
         description: 'Production server',
       },
       {

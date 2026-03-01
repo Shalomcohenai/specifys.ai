@@ -1,12 +1,14 @@
-// API Configuration (secondary – single source of truth is assets/js/config.js)
-// Uses window.SPECIFYS_BACKEND_URL when set by config.js; fallback only when this file loads alone.
+// API Configuration
+// This file centralizes all API endpoints
+//
+// ========== BACKEND URL – single place: change only here ==========
+var BACKEND_URL = 'https://specifys-ai-backend.onrender.com';
+// ==================================================================
 //
 // Prevent double-loading - wrap everything in IIFE
 (function() {
   'use strict';
-
-  var FALLBACK_BACKEND_URL = 'https://specifys-ai-development2.onrender.com';
-
+  
   // If already loaded, skip initialization
   if (typeof window !== 'undefined' && window.__CONFIG_LOADED__) {
     return;
@@ -62,12 +64,11 @@
     });
   })();
 
-  if (typeof window !== 'undefined' && !window.SPECIFYS_BACKEND_URL) {
-    window.SPECIFYS_BACKEND_URL = FALLBACK_BACKEND_URL;
-  }
+  window.SPECIFYS_BACKEND_URL = BACKEND_URL;
+  window.BACKEND_URL = BACKEND_URL;
 
   const API_CONFIG = {
-    staging: window.SPECIFYS_BACKEND_URL || FALLBACK_BACKEND_URL,
+    staging: window.SPECIFYS_BACKEND_URL,
     local: 'http://localhost:10000',
 
     get isDevelopment() {
@@ -137,10 +138,10 @@
           return 'http://localhost:10000';
         }
         if (hostname === 'specifys-ai.com' || hostname === 'www.specifys-ai.com') {
-          return window.SPECIFYS_BACKEND_URL || FALLBACK_BACKEND_URL;
+          return window.SPECIFYS_BACKEND_URL;
         }
       }
-      return window.SPECIFYS_BACKEND_URL || FALLBACK_BACKEND_URL;
+      return window.SPECIFYS_BACKEND_URL;
   };
 
   // Version logging for frontend

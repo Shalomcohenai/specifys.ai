@@ -21,6 +21,6 @@ if (typeof window.getApiBaseUrl !== 'function') {
         }
         
         // Always return Render URL - no localhost support
-        return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
     };
 }

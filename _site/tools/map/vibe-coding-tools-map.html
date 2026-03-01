@@ -108,7 +108,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Specifys.ai">
     <title>Vibe Coding Tools Map - Specifys.ai - Specifys.ai</title>
-    <meta name="description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
+    <meta name="description" content="Generate comprehensive software requirement documents (PRD) in minutes. The ultimate AI tool for app spec creation.">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
     
@@ -130,7 +130,7 @@
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="Vibe Coding Tools Map - Specifys.ai">
-    <meta property="og:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
+    <meta property="og:description" content="Generate comprehensive software requirement documents (PRD) in minutes. The ultimate AI tool for app spec creation.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="http://localhost:4000/tools/map/vibe-coding-tools-map.html">
     <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
@@ -145,7 +145,7 @@
     <meta name="twitter:site" content="@specifysai">
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding Tools Map - Specifys.ai">
-    <meta name="twitter:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
+    <meta name="twitter:description" content="Generate comprehensive software requirement documents (PRD) in minutes. The ultimate AI tool for app spec creation.">
     <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Vibe Coding Tools Map - Specifys.ai - Specifys.ai">
     
@@ -1902,7 +1902,7 @@ s0.parentNode.insertBefore(s1,s0);
       }
       
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
       
       // Check if user is new based on sessionStorage flag (set in auth.html during registration)
       // This helps the server correctly identify new users even if documents were created by race condition
