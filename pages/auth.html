@@ -345,6 +345,12 @@
         const privacyPolicyGroup = document.getElementById('privacy-policy-group');
         const privacyPolicyError = document.getElementById('privacy-policy-error');
         
+        // [AUTH-DEBUG] Environment - only difference between dev and prod is origin
+        const _origin = window.location.origin;
+        const _hostname = window.location.hostname;
+        const _apiBaseUrl = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
+        console.log('[Auth] [ENV] origin=', _origin, 'hostname=', _hostname, 'apiBaseUrl=', _apiBaseUrl);
+        
         // Track if we're processing a redirect
         let isProcessingRedirect = false;
         // Track if Google popup is in progress - avoid redirect race that causes "Sign-in cancelled"
@@ -399,7 +405,7 @@
         
         // Handle redirect result when user comes back from Google Sign-In
         (async function checkRedirectResult() {
-            console.log('[Auth] checkRedirectResult: start (page load)');
+            console.log('[Auth] checkRedirectResult: start (page load) origin=', window.location.origin);
             try {
                 const { getRedirectResult, getAdditionalUserInfo } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
                 console.log('[Auth] checkRedirectResult: calling getRedirectResult(auth)');
@@ -457,13 +463,15 @@
                 
                 const token = await user.getIdToken();
                 const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+                const initUrl = `${apiBaseUrl}/api/users/initialize`;
+                console.log('[Auth] createUserDocument: fetch URL=', initUrl, 'origin=', window.location.origin);
                 
                 const requestBody = {};
                 if (isNewUser !== null) {
                     requestBody.isNewUser = isNewUser;
                 }
                 
-                const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+                const response = await fetch(initUrl, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -472,14 +480,15 @@
                     body: JSON.stringify(requestBody)
                 });
 
+                console.log('[Auth] createUserDocument: response status=', response.status, 'ok=', response.ok, 'url=', response.url);
                 if (response.status === 404) {
-                    // Endpoint doesn't exist - silently return (might be development or endpoint not deployed)
-                    // Don't retry on 404 - it won't help
+                    console.log('[Auth] createUserDocument: 404 - endpoint not found (dev?)');
                     return null;
                 }
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
+                    console.error('[Auth] createUserDocument: !response.ok', response.status, errorData);
                     throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
 
@@ -488,6 +497,9 @@
                 return result;
             } catch (error) {
                 console.log('[Auth] createUserDocument: error', error?.message, 'retryCount=', retryCount);
+                if (error?.message && (error.message.includes('Failed to fetch') || error.name === 'TypeError')) {
+                    console.warn('[Auth] createUserDocument: likely CORS or network (request never reached backend?) origin=', window.location.origin);
+                }
                 // Don't retry on network errors that suggest the endpoint doesn't exist
                 if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
                     // Silently return - endpoint might not be available
@@ -898,7 +910,7 @@
         
         // Google login - SYNCHRONOUS to avoid popup blocker
         window.loginWithGoogle = function() {
-            console.log('[Auth] loginWithGoogle: called, calling signInWithPopup');
+            console.log('[Auth] loginWithGoogle: called, origin=', window.location.origin, 'calling signInWithPopup at', Date.now());
             checkBrowserCompatibility();
             googlePopupInProgress = true;
 
@@ -923,7 +935,9 @@
                 })
                 .catch((error) => {
                     googlePopupInProgress = false;
+                    const currentUser = auth.currentUser;
                     console.error('[Auth] signInWithPopup: rejected', error?.code, error?.message, error);
+                    console.log('[Auth] signInWithPopup: on reject auth.currentUser=', currentUser ? { uid: currentUser.uid, email: currentUser.email } : null, '(if set, sign-in may have succeeded but postMessage failed)');
                     if (error.code === 'auth/popup-blocked') {
                         showError('Popup was blocked. Please allow popups for this site and try again.');
                     } else if (error.code === 'auth/popup-closed-by-user') {
@@ -1032,9 +1046,9 @@
 
         // Redirect if already logged in (skip when popup in progress to avoid "Sign-in cancelled" race)
         onAuthStateChanged(auth, (user) => {
-            console.log('[Auth] onAuthStateChanged:', user ? { uid: user.uid, email: user.email } : 'no user');
+            console.log('[Auth] onAuthStateChanged(2): user=', user ? { uid: user.uid, email: user.email } : null, 'googlePopupInProgress=', googlePopupInProgress, 'willRedirect=', !!(user && !googlePopupInProgress));
             if (user && !googlePopupInProgress) {
-                console.log('[Auth] onAuthStateChanged: user present, redirecting to index');
+                console.log('[Auth] onAuthStateChanged(2): redirecting to index');
                 window.location.href = '../index.html';
             }
         });

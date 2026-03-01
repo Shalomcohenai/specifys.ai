@@ -15,7 +15,7 @@ async function verifyFirebaseToken(req, res, next) {
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            logger.warn({ path: req.path }, '[user-routes] No valid authorization header');
+            logger.warn({ path: req.path, origin: req.get('origin') }, '[user-routes] [AUTH-DEBUG] No valid authorization header');
             return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
         }
 
@@ -26,7 +26,7 @@ async function verifyFirebaseToken(req, res, next) {
         req.user = decodedToken;
         next();
     } catch (error) {
-        logger.error({ error: error.message, path: req.path }, '[user-routes] Token verification failed');
+        logger.error({ error: error.message, path: req.path, origin: req.get('origin') }, '[user-routes] [AUTH-DEBUG] Token verification failed');
         next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
     }
 }
@@ -40,6 +40,7 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
     const requestId = req.requestId || `user-init-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     logger.info({ requestId, userId: req.user?.uid }, '[user-routes] ========== POST /api/users/initialize - START ==========');
+    logger.info({ requestId, origin: req.get('origin'), referer: req.get('referer'), host: req.get('host'), userId: req.user?.uid }, '[user-routes] [AUTH-DEBUG] origin/referer/host (dev vs prod)');
     logger.info({ requestId, userId: req.user?.uid, method: req.method, path: req.path }, '[user-routes] Request received');
     
     try {
