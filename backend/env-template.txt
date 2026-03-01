@@ -3,10 +3,10 @@
 # ============================================
 # 
 # הוראות:
-# 1. העתק קובץ זה ל-.env בתיקיית backend/
+# 1. העתק קובץ זה ל-.env בתיקיית backend/ (זה המקום המומלץ – השרת טוען קודם backend/.env)
 # 2. מלא את כל הערכים הנדרשים (הסר את ה-placeholders)
 # 3. לעולם אל תעלה את קובץ .env ל-Git (הוא ב-.gitignore)
-# 4. ב-Render: הוסף את המשתנים ב-Dashboard > Environment
+# 4. ב-Render: אין שימוש ב-.env – הגדר את כל המשתנים ב-Dashboard > Environment
 #
 # ============================================
 
@@ -132,19 +132,25 @@ FEEDBACK_EMAIL=feedback@yourdomain.com
 GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 
 # ============================================
-# Site Configuration (Optional)
+# Site Configuration
 # ============================================
-# Base URL of the site
+# Base URL of the site (links in emails, webhooks, redirects).
+# Recommended in production (Render): set explicitly.
 # Default: https://specifys-ai.com
 BASE_URL=https://specifys-ai.com
 
-# Site URL (for sitemap generation)
+# Site URL (sitemap, redirects, optional redirect of non-API GET to site).
+# Recommended in production (Render): set explicitly.
 # Default: https://specifys-ai.com
 SITE_URL=https://specifys-ai.com
 
 # Production Server URL (for API calls)
 # Default: https://specifys-ai-development2.onrender.com
 PRODUCTION_SERVER_URL=https://specifys-ai-development2.onrender.com
+
+# Optional: redirect non-API GET requests to SITE_URL (Render = API only). See docs/setup/render-deployment.md
+# Options: true, false (or unset)
+# REDIRECT_NON_API_TO_SITE=true
 
 # ============================================
 # Notes
@@ -164,7 +170,8 @@ PRODUCTION_SERVER_URL=https://specifys-ai-development2.onrender.com
 #    - LEMON_WEBHOOK_SECRET
 #
 # 3. ב-Render:
-#    - הוסף את כל המשתנים ב-Dashboard > Environment
+#    - אין קובץ .env – הוסף את כל המשתנים ב-Dashboard > Environment
+#    - עבור פרודקשן מומלץ להגדיר במפורש: BASE_URL, SITE_URL (למשל https://specifys-ai.com)
 #    - עבור FIREBASE_SERVICE_ACCOUNT_KEY: הדבק את כל ה-JSON בשורה אחת
 #    - Render מגדיר אוטומטית: PORT, RENDER_EXTERNAL_URL, RENDER_URL
 #

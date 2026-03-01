@@ -867,7 +867,7 @@ export class UsersView {
         try {
           // Get auth token and make request directly (ApiService returns JSON, we need blob)
           const token = await this.getAuthToken();
-          const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+          const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
           const response = await fetch(`${apiBaseUrl}/api/admin/users/export-csv`, {
             method: 'GET',
             headers: {

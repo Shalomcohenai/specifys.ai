@@ -1,6 +1,6 @@
 # 🎨 Design System - Specifys.ai
 
-**תאריך עדכון:** 2025-01-27  
+**תאריך עדכון:** 2025-03-01  
 **גרסה:** 2.0  
 **מצב:** ✅ פעיל ומעודכן
 
@@ -626,7 +626,7 @@ assets/css/
 
 ### תיעוד נוסף
 
-- [PAGE-CREATION-GUIDE.md](./PAGE-CREATION-GUIDE.md) - הוראות להקמת דפים חדשים
+- [PAGE-CREATION-GUIDE.md](../guides/PAGE-CREATION-GUIDE.md) - הוראות להקמת דפים חדשים
 - [CSS-IMPROVEMENT-STATUS.md](./CSS-IMPROVEMENT-STATUS.md) - סטטוס שיפורי CSS
 - [CSS-STATUS-OVERVIEW-HE.md](./CSS-STATUS-OVERVIEW-HE.md) - סקירת מצב CSS
 
@@ -653,5 +653,5 @@ assets/css/
 
 ---
 
-**תאריך עדכון אחרון:** 2025-01-27  
+**תאריך עדכון אחרון:** 2025-03-01  
 **עודכן על ידי:** AI Assistant

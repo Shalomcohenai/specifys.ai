@@ -4,7 +4,7 @@
 
   const API_BASE_URL = typeof window.getApiBaseUrl === "function"
     ? window.getApiBaseUrl()
-    : "https://specifys-ai-development2.onrender.com";
+    : (window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com'));
 
   // Get slug from URL path
   function getSlugFromURL() {

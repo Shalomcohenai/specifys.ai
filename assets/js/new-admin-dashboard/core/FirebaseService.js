@@ -452,7 +452,7 @@ export class FirebaseService {
       }
       
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
       
       const response = await fetch(`${apiBaseUrl}/api/v3/credits/grant`, {
         method: 'POST',

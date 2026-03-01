@@ -115,7 +115,7 @@ extra_js:
         setLoading(true);
         
         try {
-            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development2.onrender.com';
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development2.onrender.com');
             
             const response = await fetch(`${apiBaseUrl}/api/newsletter/unsubscribe`, {
                 method: 'POST',

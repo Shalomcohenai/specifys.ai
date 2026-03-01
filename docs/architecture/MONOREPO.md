@@ -4,11 +4,13 @@
 
 The Specifys.ai project is organized as a monorepo using npm workspaces. This allows us to share code between frontend and backend, maintain consistent versions, and improve code organization.
 
+**Workspaces:** Only `packages/*` are npm workspaces. The `backend/` and `mcp-server/` directories are separate Node projects (not workspace members).
+
 ## Structure
 
 ```
 specifys-ai/
-├── packages/
+├── packages/               # npm workspaces
 │   ├── api-client/        # Shared API client
 │   │   ├── src/
 │   │   │   └── index.js
@@ -20,13 +22,16 @@ specifys-ai/
 │   │   │   │   └── Modal.js
 │   │   │   └── index.js
 │   │   └── package.json
-│   └── design-system/     # Design tokens
+│   └── design-system/     # Design tokens (colors, spacing, typography, etc.)
 │       ├── tokens/
-│       │   └── index.js
+│       │   └── index.js   # Single entry: exports colors, spacing, typography, borderRadius, shadows
 │       └── package.json
-├── assets/                # Frontend assets (Jekyll)
-├── backend/               # Backend server (Node/Express)
-├── package.json           # Root workspace config
+├── assets/                # Frontend assets (Jekyll: JS, CSS, images)
+├── backend/               # Backend server (Node/Express) — not a workspace
+│   └── server/            # Entry: server.js
+├── mcp-server/            # MCP server for Cursor/Claude — separate package
+├── config/                # Config package (optional tooling)
+├── package.json           # Root workspace config (workspaces: ["packages/*"])
 └── ...
 ```
 
@@ -66,11 +71,12 @@ modal.open();
 
 ### @specifys/design-system
 
-Design tokens for colors, spacing, typography, etc.
+Design tokens (colors, spacing, typography, borderRadius, shadows) in a single file: `tokens/index.js`.
 
 **Usage:**
 ```javascript
-import { colors, spacing } from '@specifys/design-system/tokens';
+import { colors, spacing, typography } from '@specifys/design-system/tokens';
+// or: import tokens from '@specifys/design-system';
 
 console.log(colors.primary.DEFAULT); // '#FF6B35'
 console.log(spacing.md); // '1rem'
@@ -135,6 +141,11 @@ npm run build  # Build all packages
 4. **Easier Testing**: Test packages independently
 5. **Type Safety**: Can add TypeScript to individual packages
 
+## Backend (not in workspaces)
+
+- **Run:** From repo root: `npm run dev` (runs `backend/server` with nodemon), or `cd backend && npm start` (runs `node server/server.js`).
+- **Port:** Configurable via `PORT` or `backend/server/config.js` (default 10000).
+
 ## Migration Notes
 
 The monorepo structure was introduced in Phase 2. The following files were moved:
@@ -143,7 +154,7 @@ The monorepo structure was introduced in Phase 2. The following files were moved
 - `assets/js/components/base.js` → `packages/ui/src/components/base.js`
 - `assets/js/components/Modal.js` → `packages/ui/src/components/Modal.js`
 
-For backward compatibility, the original files still exist and are symlinked or copied to maintain compatibility with existing code.
+For backward compatibility, the original files in `assets/js/` may still exist and are used by the Jekyll frontend; the packages are available for shared or build-time use.
 
 ## Future Improvements
 

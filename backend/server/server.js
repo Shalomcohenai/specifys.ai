@@ -105,6 +105,7 @@ logger.info({ type: 'compression_enabled' }, '[UNIFIED SERVER] ✅ Compression m
 
 // CORS middleware to allow requests from your frontend
 // Must be before routes and rate limiting
+// Do not remove origins without verifying they are unused (removal can break auth/API/payments)
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4000',
@@ -1177,9 +1178,32 @@ app.use('/2025', express.static(postsStaticPath, {
 }));
 logger.info({ type: 'static_mounted', path: '/2025', directory: postsStaticPath }, '[UNIFIED SERVER] ✅ Blog posts static files mounted');
 
-// Note: Admin endpoints are defined above
+// Optional: redirect non-API GET requests to main site (Render = API only; see docs/setup/render-deployment.md)
+const redirectNonApiToSite = process.env.REDIRECT_NON_API_TO_SITE === 'true' && process.env.SITE_URL;
+if (redirectNonApiToSite) {
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      const target = `${process.env.SITE_URL.replace(/\/$/, '')}${req.originalUrl || '/'}`;
+      return res.redirect(302, target);
+    }
+    next();
+  });
+  logger.info({ type: 'redirect_enabled', siteUrl: process.env.SITE_URL }, '[UNIFIED SERVER] ✅ Redirect non-API GET to SITE_URL enabled');
+}
 
-// 404 handler - must be after all routes
+// For non-API GET with Accept: text/html, serve 404 HTML page instead of JSON
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
+  const accept = (req.headers.accept || '').toLowerCase();
+  if (!accept.includes('text/html')) return next();
+  const notFoundPath = path.join(staticRootPath, '_site', 'pages', '404.html');
+  const resolvedPath = path.resolve(notFoundPath);
+  res.status(404).sendFile(resolvedPath, (err) => {
+    if (err) next();
+  });
+});
+
+// 404 handler - must be after all routes (API and non-HTML requests get JSON)
 logger.info({ type: 'middleware_mount', middleware: 'notFoundHandler' }, '[UNIFIED SERVER] 📌 Mounting 404 handler');
 app.use(notFoundHandler);
 logger.info({ type: 'middleware_mounted', middleware: 'notFoundHandler' }, '[UNIFIED SERVER] ✅ 404 handler mounted');

@@ -7,9 +7,9 @@
 
 ## 📋 סיכום כללי
 
-האתר מכיל **23 דפים** המחולקים ל-2 קטגוריות:
-1. **דפים עם Jekyll Layout** (8 דפים) - משתמשים ב-`layout: default`
-2. **דפים סטטיים** (15 דפים) - HTML מלא ללא layout
+רוב הדפים באתר משתמשים ב-**Jekyll Layout** `layout: default` (header/footer משותפים, CSS, Firebase, Analytics). דף **Auth** הוא HTML עצמאי (ללא layout).
+
+**Layouts קיימים:** `_layouts/default.html`, `_layouts/dashboard.html`, `_layouts/post.html`, `_layouts/auth.html`, `_layouts/standalone.html`.
 
 ---
 
@@ -17,44 +17,39 @@
 
 ### דפים עם Jekyll Layout (`layout: default`)
 
-דפים אלה משתמשים ב-`_layouts/default.html` ומקבלים אוטומטית:
-- Header/Footer משותפים
-- כל קבצי ה-CSS דרך `_includes/head.html`
-- Firebase authentication
-- Analytics
+דפים אלה משתמשים ב-`_layouts/default.html` ומקבלים אוטומטית Header/Footer, CSS, Firebase, Analytics.
 
-| דף | מיקום | Permalink | Extra CSS | הערות |
-|-----|-------|-----------|-----------|-------|
-| **Blog** | `blog/index.html` | `/blog/` | `blog.css` | ✅ |
-| **Article** | `pages/article.html` | `/article.html` | - | ✅ |
-| **Articles** | `pages/articles.html` | `/pages/articles.html` | - | ✅ |
-| **Academy** | `pages/academy/index.html` | `/academy.html` | `academy.css` | ✅ |
-| **Academy Category** | `pages/academy/category.html` | `/academy/category.html` | `academy.css` | ✅ |
-| **Academy Guide** | `pages/academy/guide.html` | `/academy/guide.html` | `academy.css` | ✅ |
-| **Dynamic Post** | `pages/dynamic-post.html` | `/dynamic-post/` | - | ✅ |
-| **Tools Map** | `tools/map/vibe-coding-tools-map.html` | `/tools/map/vibe-coding-tools-map.html` | `vibe-coding-tools-map.css` | ✅ |
+| דף | מיקום | הערות |
+|-----|-------|-------|
+| **404** | `pages/404.html` | ✅ |
+| **About** | `pages/about.html` | ✅ |
+| **Articles** | `pages/articles.html` | ✅ |
+| **Article** | `pages/article.html` | ✅ |
+| **Contact** | `pages/contact.html` | ✅ |
+| **Demo Spec** | `pages/demo-spec.html` | ✅ |
+| **Dynamic Post** | `pages/dynamic-post.html` | ✅ |
+| **How** | `pages/how.html` | ✅ |
+| **Legacy Viewer** | `pages/legacy-viewer.html` | ✅ |
+| **New Admin** | `pages/new-admin-dashboard.html` | ✅ |
+| **Planning** | `pages/planning.html` | ✅ |
+| **Pricing** | `pages/pricing.html` | ✅ |
+| **Profile** | `pages/profile.html` | ✅ |
+| **Privacy** | `pages/privacy.html` | ✅ |
+| **Spec Viewer** | `pages/spec-viewer.html` | ✅ |
+| **Terms** | `pages/terms.html` | ✅ |
+| **Tool Picker** | `pages/ToolPicker.html` | ✅ |
+| **Why** | `pages/why.html` | ✅ |
+| **Unsubscribe** | `pages/unsubscribe.html` | ✅ |
+| **Cursor/Windsurf** | `pages/cursor-windsurf-integration.html` | ✅ |
+| **Academy** | `pages/academy/index.html`, `category.html`, `guide.html` | ✅ |
 
-### דפים סטטיים (Static HTML)
+(דפי Blog ב-`blog/index.html` ו-`_posts/` עם layout `post`.)
 
-דפים אלה הם HTML מלא עם `<head>` משלהם. הם **לא** משתמשים ב-Jekyll layouts.
+### דפים עצמאיים (ללא Jekyll layout)
 
-| דף | מיקום | URL | CSS | הערות |
-|-----|-------|-----|-----|-------|
-| **Homepage** | `index.html` | `/` | מלא | ✅ |
-| **About** | `pages/about.html` | `/pages/about.html` | מלא | ✅ |
-| **Pricing** | `pages/pricing.html` | `/pages/pricing.html` | מלא | ✅ |
-| **Auth** | `pages/auth.html` | `/pages/auth.html` | מלא | ✅ |
-| **Profile** | `pages/profile.html` | `/pages/profile.html` | מלא | ✅ |
-| **Spec Viewer** | `pages/spec-viewer.html` | `/pages/spec-viewer.html` | מלא | ✅ |
-| **Demo Spec** | `pages/demo-spec.html` | `/pages/demo-spec.html` | מלא | ✅ |
-| **How It Works** | `pages/how.html` | `/pages/how.html` | מלא | ✅ |
-| **Why** | `pages/why.html` | `/pages/why.html` | מלא | ✅ |
-| **Tool Picker** | `pages/ToolPicker.html` | `/pages/ToolPicker.html` | מלא | ✅ |
-| **404** | `pages/404.html` | `/pages/404.html` | מלא | ✅ |
-| **Maintenance** | `pages/maintenance.html` | `/pages/maintenance.html` | מלא | ✅ |
-| **Admin Dashboard** | `pages/admin-dashboard.html` | `/pages/admin-dashboard.html` | מלא | ✅ |
-| **Legacy Viewer** | `pages/legacy-viewer.html` | `/pages/legacy-viewer.html` | מלא | ✅ |
-| **Academy Admin** | `pages/admin/academy/index.html` | `/pages/admin/academy/index.html` | מלא | ✅ |
+| דף | מיקום | הערות |
+|-----|-------|-------|
+| **Auth** | `pages/auth.html` | HTML מלא, ללא front matter layout |
 
 ---
 

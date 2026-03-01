@@ -33,22 +33,25 @@ Open: http://localhost:4000
 ### Layouts
 ```
 _layouts/
-├── default.html    - Base layout with header/footer
-├── page.html       - For static pages
+├── default.html    - Base layout with header/footer (used by most pages)
 ├── post.html       - For blog posts
-├── tool.html       - For tools and dynamic pages
-└── dashboard.html  - For user dashboards
+├── dashboard.html  - For user dashboards
+├── auth.html       - Auth-specific layout
+└── standalone.html - Standalone pages (minimal wrapper)
 ```
 
 ### Includes
 ```
 _includes/
 ├── head.html           - Meta tags, CSS, fonts
-├── header.html         - Site header (🔴 with red logo for now)
+├── header.html         - Site header
 ├── footer.html         - Site footer
 ├── analytics.html      - Google Analytics
+├── analytics-events.html - Analytics event helpers
 ├── firebase-init.html  - Firebase SDK initialization
 ├── firebase-auth.html  - Firebase auth functions
+├── structured-data.html - SEO structured data
+├── crisp.html          - Crisp chat (if enabled)
 └── scroll-to-top.html  - Scroll to top button
 ```
 
@@ -68,7 +71,7 @@ Create a new file in `pages/`:
 
 ```yaml
 ---
-layout: page
+layout: default
 title: "My New Page"
 description: "Page description"
 permalink: /pages/my-new-page.html
@@ -89,8 +92,9 @@ Edit the include files:
 ### Change Colors/Styles
 
 Edit the CSS files:
-- `assets/css/core/variables.css` - Change colors, fonts, spacing
+- `assets/css/core/_variables.scss` - Design tokens (colors, fonts, spacing)
 - `assets/css/components/` - Component-specific styles
+- Compile: `npm run build:css` or `npm run watch:css`
 
 ### Add a Blog Post
 
@@ -186,18 +190,19 @@ The site requires a backend server for API endpoints (user entitlements, spec cr
 
 ### Start the Backend Server
 
+From repo root:
 ```bash
-cd scripts/backend
-./start-server.sh
+npm run dev
 ```
+(This runs the backend server with nodemon from `backend/server`.)
 
 Or manually:
 ```bash
-cd backend/server
-node server.js
+cd backend && npm start
 ```
+(Runs `node server/server.js`.)
 
-The backend runs on: http://localhost:10000
+The backend runs on: http://localhost:10000 (configurable via `PORT` or `backend/server/config.js`).
 
 ---
 
@@ -237,12 +242,14 @@ See `scripts/localhost/LOCALHOST-SETUP.md` for complete setup instructions (in H
 
 ### Backend API Endpoints
 
-- `GET /api/status` - Server status
-- `GET /api/specs/entitlements` - Get user entitlements (credits)
-- `POST /api/specs/create` - Create new specification
-- `POST /api/specs/check-edit` - Check edit permissions
-- `POST /api/chat/init` - Initialize chat for a spec
-- `POST /api/chat/message` - Send chat message
+See `docs/architecture/API.md` for full reference. Key endpoints:
+
+- `GET /api/health` - Health check
+- `GET /api/users/me` - Current user
+- Credits V3: `GET /api/credits` (or credits routes) - User credits (source: `user_credits_v3`)
+- `GET /api/specs`, `POST /api/specs` - List/create specs
+- `POST /api/chat/init`, `POST /api/chat/message` - Chat for a spec
+- `POST /api/brain-dump/generate` - Brain Dump (rate limited)
 
 **Important:** Make sure the backend server is running when testing user features like viewing credits or creating specs!
 
@@ -275,11 +282,10 @@ Firebase Authentication is integrated and working:
 ## 🎨 Customization
 
 ### Change Primary Color
-Edit `assets/css/core/variables.css`:
-```css
-:root {
-  --primary-color: #YOUR_COLOR;
-}
+Edit `assets/css/core/_variables.scss` (design tokens), then run `npm run build:css`:
+```scss
+// In _variables.scss
+--primary-color: #YOUR_COLOR;
 ```
 
 ### Change Fonts

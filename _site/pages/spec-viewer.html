@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="https://specifys-ai.com/pages/spec-viewer.html">
+    <link rel="canonical" href="http://localhost:4000/pages/spec-viewer.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Spec Viewer">
     <meta property="og:description" content="View your app spec after creation. Personal, dynamic content.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/pages/spec-viewer.html">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/pages/spec-viewer.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Spec Viewer - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Spec Viewer">
     <meta name="twitter:description" content="View your app spec after creation. Personal, dynamic content.">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Spec Viewer - Specifys.ai">
     
     <!-- Favicon -->
@@ -467,13 +467,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://specifys-ai.com/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Spec Viewer",
-          "item": "https://specifys-ai.com/pages/spec-viewer.html"
+          "item": "http://localhost:4000/pages/spec-viewer.html"
         }
       ]
     }
@@ -707,18 +707,18 @@ s0.parentNode.insertBefore(s1,s0);
                 <div class="side-menu-submenu" id="submenu-prompts" role="region" aria-label="Prompts subsections"></div>
             </div>
             
+            <div class="side-menu-item" data-tab="brain-dump">
+                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
+                    <span class="side-menu-text">Brain Dump</span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="chat">
                 <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
                     <i class="fa fa-comments" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
                     <span class="side-menu-text">AI Chat</span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item" data-tab="brain-dump">
-                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
-                    <span class="side-menu-text">Brain Dump</span>
                 </button>
             </div>
             
@@ -951,8 +951,8 @@ s0.parentNode.insertBefore(s1,s0);
                 <div class="brain-dump-container">
                     <div class="brain-dump-header">
                         <div>
-                            <h2><i class="fa fa-lightbulb-o"></i> Brain Dump</h2>
-                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a plain explanation, a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
+                            <h2><i class="fa fa-lightbulb"></i> Brain Dump</h2>
+                            <p class="brain-dump-subtitle">Describe the feature or change you want. Get a detailed Context Explanation (sandbox-style walkthrough), a diagram of the affected subsystem, and a full prompt to implement it (5 per day).</p>
                         </div>
                     </div>
                     
@@ -970,7 +970,10 @@ s0.parentNode.insertBefore(s1,s0);
                     </div>
                     
                     <div id="brain-dump-result" class="brain-dump-result hidden">
-                        <div id="brain-dump-plain" class="brain-dump-result-block"></div>
+                        <div id="brain-dump-context-wrap" class="brain-dump-result-block brain-dump-context-wrap hidden">
+                            <h3 class="brain-dump-context-header"><i class="fa fa-info-circle"></i> Context Explanation</h3>
+                            <div id="brain-dump-plain" class="brain-dump-context-body"></div>
+                        </div>
                         <div id="brain-dump-mermaid-wrap" class="brain-dump-result-block brain-dump-mermaid-wrap hidden"></div>
                         <div id="brain-dump-prompt-wrap" class="brain-dump-result-block">
                             <div class="brain-dump-prompt-header">
@@ -983,7 +986,7 @@ s0.parentNode.insertBefore(s1,s0);
                         </div>
                         <div id="brain-dump-apply-wrap" class="brain-dump-result-block brain-dump-apply-wrap hidden">
                             <button type="button" id="brain-dump-apply-btn" class="btn btn-primary brain-dump-apply-btn">
-                                <i class="fa fa-plus-circle"></i> Add to main architecture
+                                <i class="fa fa-plus-circle"></i> Add to architecture (PRO)
                             </button>
                         </div>
                     </div>
@@ -1399,7 +1402,7 @@ s0.parentNode.insertBefore(s1,s0);
       <div class="footer-sitemap-group">
         <span class="footer-sitemap-title">Features</span>
         <a href="/pages/spec-viewer.html" role="listitem">Spec Viewer</a>
-        <a href="/pages/academy/" role="listitem">Academy</a>
+        <a href="/academy.html" role="listitem">Academy</a>
         <a href="/tools/map/vibe-coding-tools-map.html" role="listitem">Vibe Coding Tools Map</a>
         <a href="/pages/ToolPicker.html" role="listitem">Tool Finder</a>
       </div>

@@ -11,12 +11,16 @@ This document provides a complete reference for all Firestore collections and th
 | Collection | Document ID | Primary Purpose |
 |------------|-------------|-----------------|
 | `users` | Firebase UID | User profile and account data |
-| `entitlements` | Firebase UID | User credits and permissions |
+| `user_credits_v3` | Firebase UID | **Credits V3 – single source of truth** (balances, subscription, permissions) |
+| `entitlements` | Firebase UID | Legacy credits/permissions (deprecated; use `user_credits_v3`) |
+| `credit_ledger_v3` | Auto-generated | V3 credit transaction ledger |
+| `subscriptions_v3` | — | Archive/logs for subscription events (not primary source) |
 | `purchases` | Auto-generated | Purchase history |
-| `subscriptions` | Firebase UID | Subscription records |
+| `subscriptions` | Firebase UID | Legacy subscription records |
 | `pending_entitlements` | Auto-generated | Pre-signup purchases |
 | `processed_webhook_events` | Event ID | Webhook idempotency |
 | `audit_logs` | Auto-generated | Debugging and compliance |
+| `brainDumpRateLimit` | Firebase UID | Brain Dump daily rate limit (5/day per user) |
 | `specs` | Auto-generated | User specifications |
 | `apps` | Auto-generated | App dashboards |
 | `marketResearch` | Auto-generated | Market research data |
@@ -80,7 +84,74 @@ This document provides a complete reference for all Firestore collections and th
 
 ---
 
-## 💳 `entitlements` Collection
+## 💳 `user_credits_v3` Collection (Primary Credits System)
+
+**Document ID:** Firebase UID (string)
+
+**Purpose:** Single source of truth for user credits, subscription status, and permissions. Replaces the legacy `entitlements`-based credit logic.
+
+### Fields
+
+```javascript
+{
+  userId: string,
+  balances: {
+    paid: number,    // Purchased credits
+    free: number,    // Free/welcome credits
+    bonus: number   // Bonus credits
+  },
+  total: number,    // Computed: paid + free + bonus (single source of truth)
+  subscription: {
+    type: 'none' | 'pro',
+    status: 'none' | 'active' | 'paid' | 'expired' | 'cancelled',
+    expiresAt: timestamp | null,
+    preservedCredits: number,
+    lemonSubscriptionId: string | null,
+    lastSyncedAt: timestamp | null,
+    productKey: string | null,
+    productName: string | null,
+    billingInterval: string | null,
+    renewsAt: timestamp | null,
+    endsAt: timestamp | null,
+    cancelAtPeriodEnd: boolean
+  },
+  permissions: {
+    canEdit: boolean,
+    canCreateUnlimited: boolean   // Pro: unlimited spec creation
+  },
+  metadata: {
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    migratedFrom: string | null,
+    migrationTimestamp: timestamp | null,
+    lastCreditGrant: timestamp | null,
+    lastCreditConsume: timestamp | null,
+    welcomeCreditGranted: boolean
+  }
+}
+```
+
+### Key Points
+
+- **Document ID = UID.** One document per user.
+- **Credits:** Use `total` or `balances.paid + balances.free + balances.bonus`. Consumption order: free → bonus → paid.
+- **Pro:** `subscription.type === 'pro'` and `status === 'active'` or `'paid'` with valid `expiresAt` → unlimited creation.
+- **New users:** Get 1 free welcome credit (`balances.free: 1`, `metadata.welcomeCreditGranted: true`).
+- Ledger and subscription events are recorded in `credit_ledger_v3` and `subscriptions_v3` (archive).
+
+---
+
+## 📊 `brainDumpRateLimit` Collection
+
+**Document ID:** Firebase UID (string)
+
+**Purpose:** Enforce Brain Dump API rate limit (5 requests per day per user). Reset is date-based (e.g. midnight).
+
+Used by `POST /api/brain-dump/generate`. When exceeded, API returns `429`.
+
+---
+
+## 💳 `entitlements` Collection (Legacy)
 
 **Document ID:** Firebase UID (string)
 
@@ -375,13 +446,15 @@ Store user tool configuration
 
 ## 🔍 How to Check User Credits
 
+**Primary:** Use the `user_credits_v3` collection. Check document with ID = User ID; fields `total` and `balances` (paid, free, bonus). For Pro, check `subscription.type === 'pro'` and `subscription.status === 'active'` or `'paid'`.
+
 ### Method 1: Firebase Console
 
 1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Navigate to **Firestore Database**
-3. Open `entitlements` collection
+3. Open **`user_credits_v3`** collection (primary) or legacy `entitlements`
 4. Find document with UID = User ID
-5. Check `spec_credits` field
+5. Check `total` and `balances` (V3) or `spec_credits` (legacy)
 
 ### Method 2: Command Line Script
 
@@ -438,11 +511,16 @@ Firebase Auth (UID)
     ↓
 users/{userId}
     ↓
-entitlements/{userId} ────► Main credit source
+user_credits_v3/{userId} ────► Primary credit source (V3: balances, total, subscription, permissions)
     ↓
-subscriptions/{userId} ────► Pro access control
+credit_ledger_v3 ────► Transaction log
+subscriptions_v3 ────► Subscription event archive
+    ↓
+entitlements/{userId} ────► Legacy (deprecated)
+subscriptions/{userId} ────► Legacy Pro access
     ↓
 purchases/{purchaseId} ────► Purchase history linked to userId
+brainDumpRateLimit/{userId} ────► Brain Dump daily rate limit
 ```
 
 **User-to-Entitlements:**
@@ -581,5 +659,5 @@ db.collection('pending_entitlements')
 
 ---
 
-*Last Updated: November 2025*
+*Last Updated: March 2025*
 

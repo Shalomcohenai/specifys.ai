@@ -9,31 +9,31 @@
   - סקריפטים: `assets/js/*.js` (לוגיקת homepage/spec/credits/admin/mermaid וכו').
   - סטיילינג: `assets/css/**/*`.
 - **Backend (Node/Express)**
-  - שרת: `backend/server/server.js` (Unified Server v2.0.0)
-  - ראוטרים: `user-routes.js`, `specs-routes.js`, `credits-routes.js`, `chat-routes.js`, `admin-routes.js`, `blog-routes.js`, `lemon-routes.js`, `health-routes.js`, `stats-routes.js`, `live-brief-routes.js`
-  - אימות Firebase Admin, עדכוני entitlements, webhookים (לרכישות).
+  - שרת: `backend/server/server.js` (Unified Server). הרצה: `cd backend && npm start` או מהשורש `npm run dev`.
+  - ראוטרים: `user-routes.js`, `specs-routes.js`, `credits-v3-routes.js` (מקור קרדיטים: `user_credits_v3`), `chat-routes.js`, `brain-dump-routes.js`, `admin-routes.js`, `blog-routes.js`, `lemon-routes.js`, `health-routes.js`, `stats-routes.js`, `live-brief-routes.js`, `mcp-routes.js`, ועוד.
+  - אימות Firebase Admin; קרדיטים ופרו מנוהלים ב־`user_credits_v3`; webhookים לרכישות דרך Lemon.
 - **AI Services**
   - **Cloudflare Worker**: `https://spspec.shalom-cohen-111.workers.dev/generate` - יצירת ספקיפיקציות (Overview, Technical, Market, Design)
   - **OpenAI API**: 
     - OpenAI Storage Service (`openai-storage-service.js`) - העלאה ל-Files API, יצירת Assistants, Chat, Diagrams
     - OpenAI Whisper API - תמלול קול ב-Live Brief
 - **Data**
-  - Firestore: `users`, `entitlements`, `specs`, `purchases`, `subscriptions`, `blog_posts`, `public_stats`
+  - Firestore: `users`, `user_credits_v3` (מקור יחיד לקרדיטים/פרו), `credit_ledger_v3`, `subscriptions_v3`, `specs`, `purchases`, `subscriptions`, `blog_posts`, `public_stats`, `brainDumpRateLimit`.
 - **אימות**
   - Firebase Auth בפרונט; אימות ID Token בבקאנד לכל endpoint רגיש.
 - **תשלום/קרדיטים**
-  - Lemon Squeezy (Checkout + webhookים), ניהול יתרות ב־`entitlements`.
+  - Lemon Squeezy (Checkout + webhookים). ניהול יתרות ופרו ב־`user_credits_v3` (Credits V3); `entitlements` דפרסייטד.
 - **Build/Deploy**
   - Jekyll לסטטי, Vite לבאנדלים, שרת Node מתארח (Render), CDN לסטטי.
 
 ## 2) מפת דפים מרכזיים
 - `index.html` – דף הבית: Hero, CTA Start, Demo, Pricing, תכונות, FAQ, ועוד.
 - `pages/auth.html` – Login/Signup (Firebase UI מותאם).
-- `pages/spec.html` – עורך יצירה (מצב עריכה/הרחבה קיים חלקית).
+- `pages/planning.html` – יצירת Spec (Question Flow / עורך יצירה).
 - `pages/spec-viewer.html` – צפייה/אישור Overview, יצירת Technical/Market/Design, Diagrams, Raw Data, AI Chat.
 - `pages/profile.html` – פרופיל: רשימת Specs, סטטוסים, יתרות, קישורים ל-Viewer/Editor.
 - `pages/pricing.html` – תמחור ורכישה (Single/3-Pack/Pro).
-- `pages/admin-dashboard.html` – אדמין: ניהול משתמשים/Specs/בלוג/מדדים.
+- `pages/new-admin-dashboard.html` – אדמין: ניהול משתמשים/Specs/בלוג/מדדים (מקור: `user_credits_v3`).
 - `pages/how.html`, `pages/about.html`, `pages/demo-spec.html`, `pages/legacy-viewer.html`, `pages/ToolPicker.html`.
 - בלוג: `/blog/` ו-`_posts/*` דרך `_layouts/post.html`.
 
@@ -44,7 +44,7 @@
 - אם לא מחובר → Redirect ל־`/pages/auth.html`.
 - לאחר התחברות:
   - קליינט: `onAuthStateChanged` יורה `ensure user` ל־`/api/users/ensure` עם Bearer Token.
-  - שרת: מאמת טוקן, יוצר/מעדכן `users/{uid}`, ו־`entitlements/{uid}` עם ברירת־מחדל (תוכנית free, יתרות ראשוניות).
+  - שרת: מאמת טוקן, יוצר/מעדכן `users/{uid}` ו־`user_credits_v3/{uid}` (יתרות ראשוניות, למשל 1 קרדיט חינם).
   - חזרה ל־Home או לזרימה שנדרשה.
 
 ### 3.2 יצירת Spec חדש (Question Flow)
@@ -95,7 +95,7 @@
 - Free: לפחות Spec אחד ראשוני.
 - רכישות: Single/3-Pack/Pro ב־`pages/pricing.html` עם Lemon Squeezy.
 - לאחר רכישה:
-  - Webhookים בשרת מעדכנים `entitlements/{uid}`: `spec_credits`, `unlimited`, `can_edit`.
+  - Webhookים בשרת מעדכנים `user_credits_v3/{uid}` (יתרות, פרו, ledger).
   - הקליינט מרענן תצוגת קרדיטים/אפשרויות.
 
 ## 4) שכבת ה-Frontend
@@ -118,7 +118,7 @@
 ### 5.1 Routes ו-Endpoints
 
 **Users (`/api/users`)**:
-- `POST /api/users/ensure` - יצירה/עדכון משתמש ו-entitlements
+- `POST /api/users/ensure` - יצירה/עדכון משתמש ו־user_credits_v3
 - `GET /api/users/me` - מידע משתמש נוכחי
 - `GET /api/users/:userId` - מידע משתמש ספציפי
 
@@ -132,7 +132,7 @@
 **Credits (`/api/credits`)**:
 - `POST /api/credits/consume` - שריפת קרדיט ביצירה
 - `POST /api/credits/refund` - החזר קרדיט במקרה כשל
-- `GET /api/credits/entitlements` - קבלת entitlements
+- `GET /api/credits` (או credits routes) - קבלת יתרות מ־user_credits_v3
 
 **Chat (`/api/chat`)**:
 - `POST /api/chat/init` - אתחול chat thread

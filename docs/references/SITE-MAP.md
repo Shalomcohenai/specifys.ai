@@ -3,21 +3,20 @@
 This document maps all pages, key files, backend services, core functions, and main user flows for the site. Keep this file updated when adding pages, APIs, or flows.
 
 ## Pages (Jekyll)
+
+Most pages use `layout: default` and live under `pages/` or `pages/academy/`.
+
 - `index.html` (home)
 - `blog/index.html`
-- `pages/404.html`
-- `pages/about.html`
-- `pages/how.html`
-- `pages/ToolPicker.html`
-- `pages/demo.html`
-- `pages/demo-spec.html`
-- `pages/legacy-viewer.html`
-- `pages/spec.html` (spec creation UI)
+- `pages/404.html`, `pages/about.html`, `pages/how.html`, `pages/why.html`, `pages/contact.html`
+- `pages/ToolPicker.html`, `pages/demo-spec.html`, `pages/legacy-viewer.html`
 - `pages/spec-viewer.html` (spec viewer)
-- `pages/admin-dashboard.html`
-- `pages/profile.html`
-- `pages/pricing.html`
-- `pages/research.html`
+- `pages/planning.html` (spec creation / planning UI)
+- `pages/profile.html`, `pages/pricing.html`, `pages/auth.html` (standalone HTML, no layout)
+- `pages/articles.html`, `pages/article.html`, `pages/dynamic-post.html`
+- `pages/new-admin-dashboard.html`, `pages/cursor-windsurf-integration.html`
+- `pages/privacy.html`, `pages/terms.html`, `pages/unsubscribe.html`
+- `pages/academy/index.html`, `pages/academy/category.html`, `pages/academy/guide.html`
 
 Blog posts live under `_posts/` and render via `_layouts/post.html`.
 
@@ -37,62 +36,63 @@ Blog posts live under `_posts/` and render via `_layouts/post.html`.
 - `security-utils.js`, `mobile-optimizations.js`, `typingEffect.js`, `mermaid.js`, `mermaid-simple.js`, `post.js`, `script.js`
 
 ## Backend (Node, `backend/server/`)
-- Entrypoint: `server.js`
-- Auth/Users: `userAuth.js`, `user-management.js`, `firebase-admin.js`
-- Security/Errors: `security.js`, `error-logger.js`, `health-routes.js`
-- Specs API: `spec-routes.js` (create/read/ownership, token verification)
+- Entrypoint: `server.js` (run via `cd backend && npm start` or root `npm run dev`)
+- Auth/Users: `user-management.js`, `firebase-admin.js`, `user-routes.js`
+- Security/Errors: `security.js`, `error-handler.js`, `error-logger.js`, `health-routes.js`
+- Specs: `specs-routes.js` (create/read/update/ownership, token verification)
 - Chat/LLM: `chat-routes.js`, `openai-storage-service.js`
-- Payments/Credits: `lemon-webhook.js` (webhooks), `entitlement-service.js` (credits + entitlements)
-- Admin/Stats/Blog: `admin-routes.js`, `stats-routes.js`, `blog-routes.js`
-- Config/Test: `config.js`, `test-config.js`
-- Scripts: `scripts/migrate-specs-to-openai.js`, `scripts/init-public-stats.js`, `scripts/cleanup-orphaned-assistants.js`
+- Credits V3 (primary): `credits-v3-service.js`, `credits-v3-routes.js`; sync: `credits-sync-service.js`, `lemon-subscription-resolver.js`
+- Lemon: `lemon-routes.js`, `lemon-webhook-utils.js`, `lemon-purchase-service.js`, `lemon-credits-service.js`, `lemon-products-config.js`
+- Admin/Stats/Blog/Articles: `admin-routes.js`, `stats-routes.js`, `blog-routes.js`, `blog-routes-public.js`, `articles-routes.js`
+- Other: `brain-dump-routes.js`, `mcp-routes.js`, `mcp-auth.js`, `academy-routes.js`, `tools-routes.js`, `tool-finder-routes.js`, `live-brief-routes.js`, `share-prompt-routes.js`, `analytics-routes.js`, `newsletter-routes.js`, `email-tracking-routes.js`, `automation-routes.js`, `api-docs-routes.js`
+- Config: `config.js`
 
 Related configuration and data:
-- `config/lemon-products.json` – Lemon Squeezy products and webhook config
+- `backend/server/config.js` – Port, CORS, credits V3 flag
 - `assets/data/lemon-products.json` – Frontend-accessible product definitions
 
 ## Data Model (Firestore - high level)
-- `users/{userId}` – profile, flags (credits managed in `user_credits_v3`)
-- `entitlements/{userId}` – purchased credits, pro status, pending entitlements
+- `users/{userId}` – profile, flags (credits **not** here; use `user_credits_v3`)
+- `user_credits_v3/{userId}` – **single source of truth**: balances (paid/free/bonus), total, subscription, permissions
+- `credit_ledger_v3` – credit transaction log; `subscriptions_v3` – subscription event archive
+- `entitlements/{userId}` – legacy (deprecated)
 - `specs/{specId}` – spec documents (owner, content, metadata)
-- `purchases/*`, `subscriptions/*` – stored from webhooks (as applicable)
+- `purchases/*`, `subscriptions/*` – from webhooks; `brainDumpRateLimit/{userId}` – Brain Dump daily limit
 
 ## Key Functions (selection)
 
 Frontend:
-- `generateSpecification()` in `assets/js/index.js` – Orchestrates spec generation
-- `saveSpecToFirebase()` in `assets/js/index.js` – Persists spec to backend/Firestore
+- Spec generation / planning: `assets/js/features/planning/`, `assets/js/features/index/`
+- Spec viewer: `assets/js/features/spec-viewer/` (spec-viewer-main.js, spec-viewer-api-helper.js, etc.)
 - `PaywallManager` in `assets/js/paywall.js` – Purchase flow via Lemon Squeezy
-- `purchaseSpec()` (inline) in `pages/pricing.html` – Opens product checkout
-- `updateCreditsUI()` family in `assets/js/credits-display.js` – Updates UI with entitlement state
+- Credits display: `assets/js/services/api-client.js`, `window.api` (from packages/api-client or assets copy)
+- Admin: `assets/js/new-admin-dashboard/` (DataManager, FirebaseService, UsersView, etc.)
 
 Backend:
-- `verifyFirebaseToken` in `backend/server/spec-routes.js` – Auth guard
-- `consumeSpecCredit(userId)` and `refundSpecCredit(userId)` in `backend/server/entitlement-service.js` – Credit accounting
-- `handleLemonWebhook(req, res)` and event handlers in `backend/server/lemon-webhook.js` – Webhook processing
-- `createSpec`, `getSpec`, ownership helpers in `backend/server/spec-routes.js`
-- `chat` endpoints in `backend/server/chat-routes.js`
-- `getStats` in `backend/server/stats-routes.js`
+- Auth: `verifyFirebaseToken` (e.g. in security or route middleware), `user-management.js`
+- Credits V3: `credits-v3-service.js` – getCredits, consumeCredit, refund, subscription sync
+- Lemon: `lemon-routes.js`, `lemon-subscription-resolver.js`, webhook handlers
+- Specs: `specs-routes.js` – create, get, update, ownership
+- Chat: `chat-routes.js`; Brain Dump: `brain-dump-routes.js`
+- Stats: `stats-routes.js`
 
 ## Systems and Relationships
-- Spec Creation depends on: Auth (Firebase), Credits/Entitlements, LLM/Chat service, Spec storage
-- Payment (Lemon Squeezy) updates Entitlements via Webhooks → `entitlements` collection
-- Credits System mediates access to Spec Creation; UI surfaces via `credits-display.js`
-- Admin/Stats/Blog are separated routes with auth checks
+- Spec creation depends on: Auth (Firebase), Credits V3 (`user_credits_v3`), LLM/Chat service, Spec storage
+- Payment (Lemon Squeezy) → Webhooks → `lemon-routes.js` / `lemon-subscription-resolver.js` → update `user_credits_v3` and ledger
+- Credits V3 is single source of truth; admin and frontend read from `user_credits_v3`
+- Admin/Stats/Blog/Articles/MCP are separate route modules with auth where required
 
 ## Main Flows
 1) User Purchase (Credits/Pro)
-   - Frontend opens checkout (via `paywall.js` or `pricing.html`)
-   - Lemon Squeezy → Webhook (`lemon-webhook.js`) → validate + upsert purchase/subscription
-   - `entitlement-service.js` updates `entitlements/{userId}`
-   - UI polls/refreshes credits (`credits-display.js`)
+   - Frontend: checkout via `paywall.js` or `pricing.html`
+   - Lemon Squeezy → Webhook → `lemon-routes.js` / `lemon-subscription-resolver.js` → update `user_credits_v3` (and ledger/subscriptions_v3)
+   - UI refreshes credits (API client / credits endpoints)
 
 2) Create Spec
-   - User authenticated → check entitlements
-   - Attempt to consume credit (`consumeSpecCredit`) before generation
-   - Call LLM/chat route if needed → produce content
-   - Save spec (`saveSpecToFirebase` → `spec-routes.js`)
-   - On failure: refund credit (`refundSpecCredit`)
+   - User authenticated → credits checked via V3 (`user_credits_v3`)
+   - Consume credit (credits-v3-service) before generation
+   - LLM/chat route → produce content; save spec via `specs-routes.js`
+   - On failure: refund credit (credits-v3-service)
 
 3) Spec Viewing
    - `spec-viewer.html` loads spec by id with ownership/visibility checks
