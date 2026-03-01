@@ -7233,7 +7233,7 @@ class AdminDashboardApp {
           </div>
         </div>
         <div class="content-actions">
-          <a href="/pages/academy/guide.html?id=${guide.id}" target="_blank" class="action-link" title="View guide">
+          <a href="/academy/guide.html?guide=${guide.id}" target="_blank" class="action-link" title="View guide">
             <i class="fas fa-external-link-alt"></i>
           </a>
         </div>
