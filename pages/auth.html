@@ -347,6 +347,8 @@
         
         // Track if we're processing a redirect
         let isProcessingRedirect = false;
+        // Track if Google popup is in progress - avoid redirect race that causes "Sign-in cancelled"
+        let googlePopupInProgress = false;
         
         // Listen for auth state changes (this catches redirect results)
         onAuthStateChanged(auth, async (user) => {
@@ -898,11 +900,13 @@
         window.loginWithGoogle = function() {
             console.log('[Auth] loginWithGoogle: called, calling signInWithPopup');
             checkBrowserCompatibility();
+            googlePopupInProgress = true;
 
             const popupPromise = signInWithPopup(auth, googleProvider);
 
             popupPromise
                 .then(async (result) => {
+                    googlePopupInProgress = false;
                     console.log('[Auth] signInWithPopup: resolved', result?.user?.uid);
                     const additionalUserInfo = getAdditionalUserInfo(result);
                     const isNewUser = additionalUserInfo?.isNewUser === true;
@@ -918,6 +922,7 @@
                     setTimeout(() => { window.location.href = '../index.html'; }, 1500);
                 })
                 .catch((error) => {
+                    googlePopupInProgress = false;
                     console.error('[Auth] signInWithPopup: rejected', error?.code, error?.message, error);
                     if (error.code === 'auth/popup-blocked') {
                         showError('Popup was blocked. Please allow popups for this site and try again.');
@@ -1025,10 +1030,10 @@
                 });
         };
 
-        // Redirect if already logged in
+        // Redirect if already logged in (skip when popup in progress to avoid "Sign-in cancelled" race)
         onAuthStateChanged(auth, (user) => {
             console.log('[Auth] onAuthStateChanged:', user ? { uid: user.uid, email: user.email } : 'no user');
-            if (user) {
+            if (user && !googlePopupInProgress) {
                 console.log('[Auth] onAuthStateChanged: user present, redirecting to index');
                 window.location.href = '../index.html';
             }
