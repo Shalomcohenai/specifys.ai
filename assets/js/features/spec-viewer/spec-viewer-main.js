@@ -889,9 +889,10 @@ function displaySpec(data) {
     // Email notifications are now sent automatically when spec is created via /api/specs/:id/record-activity
     // No need to send email here - it would trigger every time user visits the spec page
     
-    // Handle approval state
-    if (data.overviewApproved) {
-        // Enable AI Chat immediately when overview is approved
+    // Handle approval state (include fallback for existing specs that may lack overviewApproved)
+    const overviewReady = data.overviewApproved || data.status?.overview === 'ready' || data.status?.technical === 'ready';
+    if (overviewReady) {
+        // Enable AI Chat and Brain Dump when overview is approved or spec already has technical
         enableChatTabOnly();
         
         // Only enable other tabs if their specs are ready
