@@ -25,21 +25,10 @@
   }
 
   function initWebVitals() {
-    // Get API base URL
-    function getApiBaseUrl() {
-      if (typeof window !== 'undefined' && window.getApiBaseUrl) {
-        return window.getApiBaseUrl();
-      }
-      if (typeof window !== 'undefined' && window.API_BASE_URL) {
-        return window.API_BASE_URL;
-      }
-      return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
-    }
-
     // Send metric to backend
     function sendMetric(metric) {
       try {
-        const apiUrl = getApiBaseUrl();
+        const apiUrl = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
         const endpoint = `${apiUrl}/api/analytics/web-vitals`;
 
         // Use sendBeacon for better reliability

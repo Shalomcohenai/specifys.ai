@@ -1,7 +1,7 @@
 /**
  * Home Bundle - Homepage specific scripts
  * Includes: index.js, paywall.js
- * Note: Credits system moved to credits-v2-manager.js and credits-v2-display.js (loaded in header.html)
+ * Note: Credits system moved to credits-v3-manager.js and credits-v3-display.js (loaded in header.html)
  */
 
 // Import home page scripts

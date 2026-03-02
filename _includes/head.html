@@ -207,7 +207,7 @@
     <script type="module" src="{{ '/assets/js/components/Modal.js' | relative_url }}"></script>
     
     <!-- State Management -->
-    <script defer src="{{ '/assets/js/store.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/store.js' | relative_url }}"></script>
     
     <!-- Safe localStorage utilities (must load early) -->
     <script src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
@@ -222,7 +222,7 @@
     <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
     
     <!-- Security Utils -->
-    <script type="module" src="{{ '/assets/js/security-utils.js' | relative_url }}"></script>
+    <script type="module" src="{{ '/assets/js/core/security-utils.js' | relative_url }}"></script>
     
     <!-- Core Bundle (if exists) -->
     {% if site.data.bundles.core %}

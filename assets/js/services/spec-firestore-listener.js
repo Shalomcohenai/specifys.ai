@@ -1,6 +1,6 @@
 /**
- * Spec Event Listener
- * Listens to Firestore real-time updates for spec changes
+ * Spec Firestore Listener
+ * Listens to Firestore real-time updates for spec changes (backend spec-events.js is the EventEmitter for SSE/generation).
  */
 class SpecEventListener {
   constructor(specId) {
@@ -158,7 +158,3 @@ class SpecEventListener {
 if (typeof window !== 'undefined') {
   window.SpecEventListener = SpecEventListener;
 }
-
-
-
-

@@ -1588,7 +1588,7 @@ async function generateSpecification() {
       await window.updateCreditsDisplay({ forceRefresh: true });
     }
     
-    // Update store with credits (will be updated by credits-v2-display.js)
+    // Update store with credits (will be updated by credits-v3-display.js)
     if (window.store) {
       window.store.subscribe((newState, prevState) => {
         if (newState.credits !== prevState.credits) {

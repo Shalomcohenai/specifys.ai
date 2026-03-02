@@ -66,10 +66,10 @@ export class FirebaseService {
     this.auth = getAuth(this.app);
     this.db = getFirestore(this.app);
     
-    // Make auth available globally for credits-v2-display.js compatibility
+    // Make auth available globally for credits-v3-display.js compatibility
     if (typeof window !== 'undefined') {
       window.auth = this.auth;
-      // Also create firebase compat object for credits-v2-display.js
+      // Also create firebase compat object for credits-v3-display.js
       if (!window.firebase) {
         window.firebase = {
           auth: () => this.auth,
@@ -501,7 +501,7 @@ export class FirebaseService {
 // Export singleton instance - Initialize immediately
 export const firebaseService = new FirebaseService();
 
-// Make sure Firebase is available globally for credits-v2-display.js
+// Make sure Firebase is available globally for credits-v3-display.js
 if (typeof window !== 'undefined') {
   // Ensure auth is available
   if (!window.auth) {

@@ -15,35 +15,6 @@
         enabled: true
     };
 
-    /**
-     * Get API base URL (same logic as app-logger.js)
-     * Detects production vs development and uses appropriate URL
-     */
-    function getApiBaseUrl() {
-        // First try to get from global function (from config.js)
-        if (typeof window !== 'undefined' && window.getApiBaseUrl) {
-            return window.getApiBaseUrl();
-        }
-        if (typeof window !== 'undefined' && window.API_BASE_URL) {
-            return window.API_BASE_URL;
-        }
-        
-        // Detect production vs development based on hostname
-        const hostname = window.location.hostname;
-        const isProduction = hostname === 'specifys-ai.com' || 
-                            hostname === 'www.specifys-ai.com' ||
-                            hostname.endsWith('.specifys-ai.com');
-        
-        // Use production backend URL for production, development URL for dev
-        if (isProduction) {
-            // Production: use the same backend URL (Render service)
-            return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
-        } else {
-            // Development: use development backend
-            return window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
-        }
-    }
-
     // State
     const state = {
         cssFiles: new Map(), // Track all CSS files
@@ -615,7 +586,7 @@
         
         try {
             // Use absolute URL to Render backend (not relative path for GitHub Pages)
-            const apiBaseUrl = getApiBaseUrl();
+            const apiBaseUrl = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
             const fullEndpoint = `${apiBaseUrl}${CONFIG.backendEndpoint}`;
 
             const response = await fetch(fullEndpoint, {

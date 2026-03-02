@@ -415,7 +415,7 @@ let articlesManager;
 // Wait for page to be ready and admin dashboard to be initialized
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        // Wait a bit for admin-dashboard.js to initialize
+        // Wait a bit for admin auth to initialize (e.g. new-admin-dashboard)
         setTimeout(() => {
             articlesManager = new ArticlesManager();
             window.articlesManager = articlesManager; // Make available globally

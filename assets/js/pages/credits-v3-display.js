@@ -12,22 +12,15 @@
   function waitForDependencies() {
     return new Promise((resolve) => {
       // Check if CreditsV3Manager is available
-      const checkManager = () => {
-        if (typeof window.CreditsV3Manager !== 'undefined' || typeof window.CreditsV2Manager !== 'undefined') {
-          return true;
-        }
-        return false;
-      };
+      const checkManager = () => typeof window.CreditsV3Manager !== 'undefined';
 
       if (checkManager()) {
         resolve();
       } else {
-        // Wait for credits-v3-manager.js to load
         const checkInterval = setInterval(() => {
           if (checkManager()) {
             clearInterval(checkInterval);
             window.removeEventListener('credits-v3-manager-ready', readyHandler);
-            window.removeEventListener('credits-v2-manager-ready', readyHandler);
             resolve();
           }
         }, 100);
@@ -35,17 +28,14 @@
         const readyHandler = () => {
           clearInterval(checkInterval);
           window.removeEventListener('credits-v3-manager-ready', readyHandler);
-          window.removeEventListener('credits-v2-manager-ready', readyHandler);
           resolve();
         };
         window.addEventListener('credits-v3-manager-ready', readyHandler);
-        window.addEventListener('credits-v2-manager-ready', readyHandler);
 
-        // Timeout after 10 seconds
         setTimeout(() => {
           clearInterval(checkInterval);
-          window.removeEventListener('credits-v2-manager-ready', readyHandler);
-          resolve(); // Resolve anyway to prevent hanging
+          window.removeEventListener('credits-v3-manager-ready', readyHandler);
+          resolve();
         }, 10000);
       }
     });

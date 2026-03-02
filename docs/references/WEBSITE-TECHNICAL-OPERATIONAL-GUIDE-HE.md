@@ -105,7 +105,7 @@
   - `assets/js/spec-formatter.js`: עזרה לעיבוד/רינדור טקסטואלי.
   - `assets/js/credits-display.js`, `assets/js/entitlements-cache.js`: הצגת יתרות/Cache.
   - `assets/js/mermaid.js`: טעינת דיאגרמות Mermaid.
-  - `assets/js/admin-dashboard.js`: UI אדמין.
+  - `assets/js/new-admin-dashboard/`, `pages/new-admin-dashboard.html`: UI אדמין (Admin Dashboard).
   - `assets/js/live-brief-modal.js`: UX מודאלי תומך.
 - UI מותנה הרשאות:
   - הצגת כפתורי Edit/Approve/Share בהתאם ל־user state ו־entitlements.
@@ -270,7 +270,7 @@
 
 ## 9) ניהול אדמין
 
-- `pages/admin-dashboard.html`:
+- `pages/new-admin-dashboard.html`:
   - ניהול משתמשים/entitlements.
   - עיון/פתיחה של Specs (Viewer/Editor).
   - ניהול בלוג ותכני מערכת.

@@ -12,7 +12,7 @@ function enableBrainDumpTab() {
 }
 
 function getApiBase() {
-  return typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (window.getApiBaseUrl && window.getApiBaseUrl());
+  return typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
 }
 
 function setBrainDumpLoading(show) {
@@ -165,24 +165,8 @@ async function runBrainDumpGenerate() {
 
   setBrainDumpLoading(true);
   try {
-    var token = await user.getIdToken();
-    var res = await fetch(getApiBase() + '/api/brain-dump/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({ specId: currentSpecData.id, description: description })
-    });
-    var data = await res.json().catch(function () { return {}; });
+    var data = await window.api.post('/api/brain-dump/generate', { specId: currentSpecData.id, description: description });
     setBrainDumpLoading(false);
-    if (res.status === 429) {
-      if (typeof showNotification === 'function') showNotification(data.error || 'Limit reached (5 per day). Try again tomorrow.', 'error');
-      return;
-    }
-    if (!res.ok) {
-      throw new Error(data.error || data.details || 'Failed to generate');
-    }
     displayBrainDumpResult({
       plainText: data.plainText,
       mermaidCode: data.mermaidCode,
@@ -190,6 +174,10 @@ async function runBrainDumpGenerate() {
     });
   } catch (err) {
     setBrainDumpLoading(false);
+    if (err.status === 429) {
+      if (typeof showNotification === 'function') showNotification((err.data && err.data.error) || 'Limit reached (5 per day). Try again tomorrow.', 'error');
+      return;
+    }
     if (typeof showNotification === 'function') showNotification(err.message || 'Failed to generate', 'error');
   }
 }
@@ -211,27 +199,11 @@ async function runBrainDumpApplyToSpec() {
   var btn = document.getElementById('brain-dump-apply-btn');
   if (btn) btn.disabled = true;
   try {
-    var token = await user.getIdToken();
-    var res = await fetch(getApiBase() + '/api/brain-dump/apply-to-spec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        specId: currentSpecData.id,
-        plainText: lastBrainDumpResult.plainText,
-        fullPrompt: lastBrainDumpResult.fullPrompt
-      })
+    await window.api.post('/api/brain-dump/apply-to-spec', {
+      specId: currentSpecData.id,
+      plainText: lastBrainDumpResult.plainText,
+      fullPrompt: lastBrainDumpResult.fullPrompt
     });
-    var data = await res.json().catch(function () { return {}; });
-    if (res.status === 403) {
-      if (typeof showNotification === 'function') showNotification(data.error || 'PRO users only', 'error');
-      return;
-    }
-    if (!res.ok) {
-      throw new Error(data.error || data.details || 'Failed to apply');
-    }
     if (typeof showNotification === 'function') showNotification('Spec updated. Overview and technical have been updated.', 'success');
     if (typeof updateCurrentSpecData === 'function' && currentSpecData) {
       var specId = currentSpecData.id;

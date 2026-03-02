@@ -22,7 +22,7 @@ grep "WEBHOOK\|ORDER_CREATED" backend/server.log
 ```
 
 ### 2. Admin Dashboard
-**URL:** `http://localhost:10000/pages/admin-dashboard.html` (or production URL)
+**URL:** `http://localhost:10000/pages/new-admin-dashboard.html` (or production URL)
 
 Navigate to:
 - **Payments tab** → Transactions table

@@ -27,19 +27,7 @@ async function triggerOpenAIUploadForSpec(specId) {
             return;
         }
         
-        const token = await user.getIdToken();
-        const response = await fetch(`${getApiBaseUrl()}/api/specs/${specId}/upload-to-openai`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Upload failed');
-        }
+        await window.api.post(`/api/specs/${specId}/upload-to-openai`, {});
         
 
     } catch (error) {
@@ -55,24 +43,8 @@ async function sendSpecReadyNotification(specId) {
             return; // User not authenticated, skip notification
         }
         
-        const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
-        
-        const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/send-ready-notification`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || 'Failed to send notification');
-        }
-        
-        const result = await response.json();
-        if (result.success) {
+        const result = await window.api.post(`/api/specs/${specId}/send-ready-notification`, {});
+        if (result && result.success) {
             // Spec ready notification sent successfully
         }
     } catch (error) {
@@ -6961,30 +6933,14 @@ async function autoRepairBrokenDiagrams() {
                     return;
                 }
                 
-                const token = await user.getIdToken();
-                
                 // Call repair endpoint
-                const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        specId: currentSpecData.id,
-                        diagramId: diagram.id,
-                        brokenCode: diagram.mermaidCode,
-                        diagramType: diagram.type,
-                        errorMessage: diagram._lastError || ''
-                    })
+                const result = await window.api.post('/api/chat/diagrams/repair', {
+                    specId: currentSpecData.id,
+                    diagramId: diagram.id,
+                    brokenCode: diagram.mermaidCode,
+                    diagramType: diagram.type,
+                    errorMessage: diagram._lastError || ''
                 });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to repair diagram');
-                }
-                
-                const result = await response.json();
                 
                 if (result.repairedDiagram && result.repairedDiagram.mermaidCode) {
                     // Update the diagram data with repaired code
@@ -7024,23 +6980,14 @@ async function autoRepairBrokenDiagrams() {
                             
                             // Retry repair with error message
                             try {
-                                const retryResponse = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({
-                                        specId: currentSpecData.id,
-                                        diagramId: diagram.id,
-                                        brokenCode: diagram.mermaidCode,
-                                        diagramType: diagram.type,
-                                        errorMessage: diagram._lastError
-                                    })
+                                const retryResult = await window.api.post('/api/chat/diagrams/repair', {
+                                    specId: currentSpecData.id,
+                                    diagramId: diagram.id,
+                                    brokenCode: diagram.mermaidCode,
+                                    diagramType: diagram.type,
+                                    errorMessage: diagram._lastError
                                 });
-                                
-                                if (retryResponse.ok) {
-                                    const retryResult = await retryResponse.json();
+                                if (retryResult) {
                                     
                                     if (retryResult.repairedDiagram && retryResult.repairedDiagram.mermaidCode) {
                                         diagram.mermaidCode = retryResult.repairedDiagram.mermaidCode;
@@ -7148,29 +7095,10 @@ async function generateDiagrams() {
             throw new Error('User must be authenticated');
         }
         
-        const token = await user.getIdToken();
-        
         // Call new memory-based API endpoint - only send specId
-        const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/generate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                specId: currentSpecData.id
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to generate diagrams');
-        }
-        
-        const result = await response.json();
+        const result = await window.api.post('/api/chat/diagrams/generate', { specId: currentSpecData.id });
 
-        
-        if (result.diagrams && Array.isArray(result.diagrams)) {
+        if (result && result.diagrams && Array.isArray(result.diagrams)) {
             // Store ALL diagrams data globally (including broken ones)
             diagramsData = result.diagrams;
             
@@ -8853,30 +8781,14 @@ async function repairDiagram(diagramId) {
             throw new Error('Please log in to use repair');
         }
         
-        const token = await user.getIdToken();
-        
         // Call Assistant API repair endpoint
-        const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                specId: currentSpecData?.id,
-                diagramId: diagramId,
-                brokenCode: diagramData.mermaidCode,
-                diagramType: diagramData.type,
-                errorMessage: diagramData._lastError || ''
-            })
+        const result = await window.api.post('/api/chat/diagrams/repair', {
+            specId: currentSpecData?.id,
+            diagramId: diagramId,
+            brokenCode: diagramData.mermaidCode,
+            diagramType: diagramData.type,
+            errorMessage: diagramData._lastError || ''
         });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to repair diagram');
-        }
-        
-        const result = await response.json();
         
         if (result.repairedDiagram && result.repairedDiagram.mermaidCode) {
             // Update the diagram data with repaired code

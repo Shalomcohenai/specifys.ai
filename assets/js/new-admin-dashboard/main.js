@@ -903,7 +903,7 @@ class NewAdminDashboard {
   }
 }
 
-// Initialize FirebaseService immediately to make auth available for credits-v2-display.js
+// Initialize FirebaseService immediately to make auth available for credits-v3-display.js
 // This ensures Firebase is initialized before credits scripts try to access it
 firebaseService.getCurrentUser(); // This will initialize Firebase if not already initialized
 

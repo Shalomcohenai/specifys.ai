@@ -11,19 +11,6 @@
   const RETRY_DELAY = 1000;
 
   /**
-   * Get API base URL
-   */
-  function getApiBaseUrl() {
-    if (typeof window !== 'undefined' && typeof window.getApiBaseUrl === 'function') {
-      return window.getApiBaseUrl();
-    }
-    if (typeof window !== 'undefined' && window.API_BASE_URL) {
-      return window.API_BASE_URL;
-    }
-    return '';
-  }
-
-  /**
    * Send log to backend
    */
   async function sendLog(logType, message, data = {}) {
@@ -43,7 +30,7 @@
         pageInfo
       };
 
-      const apiUrl = getApiBaseUrl();
+      const apiUrl = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.API_BASE_URL || '');
       const endpoint = `${apiUrl}${LOG_ENDPOINT}`;
 
       // Try to send log (don't block if it fails)

@@ -618,7 +618,7 @@ extra_js:
 ### דוגמאות
 
 - **דף עם Layout:** `pages/about.html`
-- **דף Standalone:** `pages/admin-dashboard.html`
+- **דף Standalone:** `pages/new-admin-dashboard.html`
 - **דף Blog:** `_posts/` (כל הפוסטים)
 
 ---

@@ -7,7 +7,7 @@
  */
 
 const { db, admin } = require('../server/firebase-admin');
-const creditsV2Service = require('../server/credits-v2-service');
+const creditsV3Service = require('../server/credits-v3-service');
 
 const userId = process.argv[2];
 
@@ -25,7 +25,7 @@ async function fixProUser(uid) {
         // Check current state
         console.log('📋 Current State:');
         const userDoc = await db.collection('users').doc(uid).get();
-        const creditsDoc = await db.collection('user_credits').doc(uid).get();
+        const creditsDoc = await db.collection('user_credits_v3').doc(uid).get();
         
         if (!userDoc.exists) {
             console.error('❌ User not found!');
@@ -46,19 +46,19 @@ async function fixProUser(uid) {
         });
         console.log('✓ Set user plan to "pro"');
         
-        // Fix user_credits using enableProSubscription
-        await creditsV2Service.enableProSubscription(uid, {
+        // Fix user_credits_v3 using enableProSubscription
+        await creditsV3Service.enableProSubscription(uid, {
             plan: 'pro',
             subscriptionStatus: 'active'
         });
-        console.log('✓ Enabled Pro subscription in user_credits');
+        console.log('✓ Enabled Pro subscription in user_credits_v3');
         
         console.log('\n✅ Pro user fixed successfully!');
         
         // Verify
         console.log('\n📋 New State:');
         const newUserDoc = await userRef.get();
-        const newCreditsDoc = await db.collection('user_credits').doc(uid).get();
+        const newCreditsDoc = await db.collection('user_credits_v3').doc(uid).get();
         console.log('User plan:', newUserDoc.data().plan);
         console.log('User credits:', newCreditsDoc.exists() ? newCreditsDoc.data() : 'Document not found');
         

@@ -50,25 +50,8 @@ async function initializeChat() {
             throw new Error('No specification loaded');
         }
         
-        const token = await user.getIdToken();
         const response = await retryChatOperation(async () => {
-            const res = await fetch(`${getApiBaseUrl()}/api/chat/init`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    specId: currentSpecData.id
-                })
-            });
-            
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || 'Failed to initialize chat');
-            }
-            
-            return await res.json();
+            return window.api.post('/api/chat/init', { specId: currentSpecData.id });
         });
         
         chatThreadId = response.threadId;
@@ -108,40 +91,23 @@ async function sendChatMessage() {
     showChatLoading('AI is thinking...');
     
     try {
-        const user = firebase.auth().currentUser;
-        const token = await user.getIdToken();
-        
         const data = await retryChatOperation(async () => {
-            const response = await fetch(`${getApiBaseUrl()}/api/chat/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
+            try {
+                return await window.api.post('/api/chat/message', {
                     specId: currentSpecData.id,
                     threadId: chatThreadId,
                     assistantId: chatAssistantId,
                     message: message
-                })
-            });
-            
-            if (!response.ok) {
-                let errorMessage = 'Failed to send message';
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.error || errorData.details || errorMessage;
-                    if (errorData.details) {
-                        errorMessage += ': ' + errorData.details;
-                    }
-                } catch (e) {
-                    errorMessage = `Server error (${response.status})`;
+                });
+            } catch (err) {
+                let errorMessage = err.message || 'Failed to send message';
+                if (err.data && (err.data.error || err.data.details)) {
+                    errorMessage = err.data.error || err.data.details;
+                    if (err.data.details) errorMessage += ': ' + err.data.details;
                 }
                 throw new Error(errorMessage);
             }
-            
-            return await response.json();
-        }, 2, 1000);
+        });
         
         // Update thread/assistant IDs if they changed (e.g., after assistant recreation or if missing)
         if (data.threadId) {

@@ -224,7 +224,7 @@ function handleCheckoutRedirect() {
                 }
             }, 10000); // 10 seconds - final check
         } else {
-            // Fallback: try to clear cache and wait for credits-v2-display to load
+            // Fallback: try to clear cache and wait for credits-v3-display to load
             if (typeof window.clearCreditsCache === 'function') {
                 window.clearCreditsCache();
             }
