@@ -42,6 +42,9 @@ export class OverviewView {
     
     // Load Resend status
     this.checkResendStatus();
+    
+    // Load Buy Now clicks (pricing)
+    this.loadBuyNowClicks();
   }
   
   /**
@@ -56,6 +59,14 @@ export class OverviewView {
         this.stateManager.setState('overviewRange', range);
         this.updateMetricDescriptions(range);
         this.updateMetrics();
+      });
+    }
+    
+    // Buy Now clicks range select
+    const buyNowRangeSelect = helpers.dom('#buy-now-clicks-range');
+    if (buyNowRangeSelect) {
+      buyNowRangeSelect.addEventListener('change', (e) => {
+        this.loadBuyNowClicks(e.target.value);
       });
     }
     
@@ -1547,6 +1558,66 @@ export class OverviewView {
         badge.className = 'status-badge error';
         badge.title = 'Failed to check status';
       }
+    }
+  }
+  
+  /**
+   * Product key to display label (pricing page)
+   */
+  static BUY_NOW_PRODUCT_LABELS = {
+    single_spec: 'Single Spec',
+    three_pack: '3-Pack',
+    pro_monthly: 'Pro Monthly',
+    pro_yearly: 'Pro Yearly'
+  };
+  
+  /**
+   * Load and render Buy Now clicks per product (pricing page)
+   */
+  async loadBuyNowClicks(range) {
+    const listEl = helpers.dom('#buy-now-clicks-list');
+    const totalEl = helpers.dom('#buy-now-clicks-total');
+    if (!listEl) return;
+    
+    const rangeSelect = helpers.dom('#buy-now-clicks-range');
+    const selectedRange = range != null ? range : (rangeSelect?.value || 'week');
+    
+    listEl.innerHTML = '<div class="buy-now-clicks-loading">Loading...</div>';
+    if (totalEl) totalEl.textContent = '';
+    
+    try {
+      const response = await apiService.getBuyNowClicks(selectedRange);
+      if (response.success) {
+        this.renderBuyNowClicks(response.byProduct, response.total, listEl, totalEl);
+      } else {
+        listEl.innerHTML = '<div class="buy-now-clicks-error">Failed to load</div>';
+      }
+    } catch (error) {
+      console.error('[OverviewView] Error loading buy-now clicks:', error);
+      listEl.innerHTML = '<div class="buy-now-clicks-error">Failed to load</div>';
+    }
+  }
+  
+  /**
+   * Render Buy Now clicks list
+   */
+  renderBuyNowClicks(byProduct, total, listEl, totalEl) {
+    const labels = OverviewView.BUY_NOW_PRODUCT_LABELS;
+    const order = ['single_spec', 'three_pack', 'pro_monthly', 'pro_yearly'];
+    
+    let html = '';
+    for (const key of order) {
+      const count = byProduct[key] || 0;
+      const label = labels[key] || key;
+      html += `<div class="buy-now-click-row">
+        <span class="buy-now-product">${String(label).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(>/g, '&gt;')}</span>
+        <span class="buy-now-count">${count.toLocaleString()}</span>
+      </div>`;
+    }
+    listEl.innerHTML = html || '<div class="buy-now-clicks-empty">No clicks in this period</div>';
+    if (totalEl) {
+      totalEl.textContent = `Total: ${(total || 0).toLocaleString()} clicks`;
+      totalEl.className = 'buy-now-clicks-total';
     }
   }
   

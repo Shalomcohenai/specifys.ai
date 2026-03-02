@@ -429,6 +429,65 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Get Buy Now button clicks per product (pricing page)
+ * GET /api/analytics/buy-now-clicks?range=week
+ */
+router.get('/buy-now-clicks', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `buy-now-clicks-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, query: req.query }, '[analytics-routes] GET /buy-now-clicks');
+
+  try {
+    const range = req.query.range || 'all';
+    const ranges = {
+      day: 24 * 60 * 60 * 1000,
+      week: 7 * 24 * 60 * 60 * 1000,
+      month: 30 * 24 * 60 * 60 * 1000
+    };
+
+    let query = db.collection('analytics_events')
+      .where('type', '==', 'button_click');
+
+    if (range !== 'all' && ranges[range]) {
+      const now = new Date();
+      const startDate = new Date(now.getTime() - ranges[range]);
+      const startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
+      const endTimestamp = admin.firestore.Timestamp.fromDate(now);
+      query = query
+        .where('timestamp', '>=', startTimestamp)
+        .where('timestamp', '<=', endTimestamp);
+    }
+
+    const snapshot = await query.get();
+    const byProduct = {};
+    let total = 0;
+
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const entityId = data.entityId;
+      if (entityId && typeof entityId === 'string' && entityId.startsWith('buy_now_')) {
+        const productKey = entityId.replace(/^buy_now_/, '');
+        byProduct[productKey] = (byProduct[productKey] || 0) + 1;
+        total++;
+      }
+    });
+
+    logger.info({ requestId, range, byProduct, total }, '[analytics-routes] GET /buy-now-clicks - Success');
+
+    res.json({
+      success: true,
+      range,
+      byProduct,
+      total
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[analytics-routes] GET /buy-now-clicks - Error');
+    next(createError('Failed to get buy-now clicks', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * Store Web Vitals metrics (public endpoint - no auth required)
  * POST /api/analytics/web-vitals
  */

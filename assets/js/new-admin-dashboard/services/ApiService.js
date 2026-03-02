@@ -165,6 +165,13 @@ export class ApiService {
   async getContentStats(range = 'week') {
     return this.get(`/api/analytics/content-stats?range=${range}`);
   }
+
+  /**
+   * Get Buy Now button clicks per product (pricing page)
+   */
+  async getBuyNowClicks(range = 'all') {
+    return this.get(`/api/analytics/buy-now-clicks?range=${range}`);
+  }
   
   /**
    * Get user sync status

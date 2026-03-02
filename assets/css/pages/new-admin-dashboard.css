@@ -821,6 +821,69 @@
   padding: var(--spacing-lg);
 }
 
+/* Buy Now Clicks (Pricing) card */
+.buy-now-clicks-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.select-modern.select-compact {
+  min-width: 140px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.875rem;
+}
+
+.buy-now-clicks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.buy-now-click-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+}
+
+.buy-now-product {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.buy-now-count {
+  font-weight: 600;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.buy-now-clicks-total {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+
+.buy-now-clicks-loading,
+.buy-now-clicks-error,
+.buy-now-clicks-empty {
+  padding: var(--spacing-md);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.buy-now-clicks-error {
+  color: var(--error);
+}
+
 .activity-list {
   display: flex;
   flex-direction: column;
