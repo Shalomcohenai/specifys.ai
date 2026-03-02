@@ -1060,6 +1060,17 @@ app.get('/pages/academy/index.html', (req, res) => {
   res.redirect(301, '/academy.html');
 });
 
+// Serve all /pages/*.html from _site/pages/ (Jekyll built output) so layout and CSS apply
+app.get('/pages/:filename', (req, res, next) => {
+  const filename = req.params.filename;
+  if (!filename.endsWith('.html')) return next();
+  const filePath = path.join(staticRootPath, '_site', 'pages', filename);
+  const resolvedPath = path.resolve(filePath);
+  res.sendFile(resolvedPath, (err) => {
+    if (err) next();
+  });
+});
+
 // Handle /article.html route - check if article exists before serving (prevent Soft 404)
 app.get('/article.html', async (req, res, next) => {
   const slug = req.query.slug;

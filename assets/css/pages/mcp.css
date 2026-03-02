@@ -153,7 +153,7 @@
   text-decoration: underline;
 }
 
-/* ===== ROTATING EXAMPLES ===== */
+/* ===== ROTATING EXAMPLES (prompt/search box style) ===== */
 .mcp-examples {
   background: #f8f9fa;
 }
@@ -163,34 +163,52 @@
   margin: 0 auto;
 }
 
-.mcp-example-card {
-  padding: 2rem;
+.mcp-example-prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  transition: opacity 0.4s ease;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: opacity 0.4s ease, box-shadow 0.2s ease;
 }
 
-.mcp-example-card.fade-swap {
+.mcp-example-prompt:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mcp-example-prompt.fade-swap {
   opacity: 0;
 }
 
-.mcp-example-card__quote {
-  margin: 0 0 0.75rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #333;
-  font-style: italic;
-}
-
-.mcp-example-card__tools {
-  margin: 0;
-  font-size: 0.85rem;
-  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+.mcp-example-prompt__icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 8px;
   color: #888;
+  font-size: 0.9rem;
 }
 
+.mcp-example-prompt__line {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+  font-family: "SF Mono", "Monaco", "Consolas", "Menlo", monospace;
+}
+
+.mcp-example-prompt__at {
+  color: #FF6B35;
+  font-weight: 600;
+}
 
 /* ===== INTERACTIVE COMMANDS ===== */
 .mcp-commands {
@@ -274,16 +292,6 @@
   color: #333;
 }
 
-/* Example card: @specifys tag with orange highlight */
-.mcp-example-card__via {
-  margin: 0 0 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-.mcp-example-card__at {
-  color: #FF6B35;
-  font-weight: 600;
-}
 
 /* ===== FAQ ===== */
 .mcp-faq {

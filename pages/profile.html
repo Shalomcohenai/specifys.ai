@@ -296,70 +296,40 @@ custom_js_modules:
     </div>
 </div>
 
-<!-- MCP Connect Modal (English, Cursor / Claude tabs) -->
+<!-- MCP Connect Modal: compact, one explanation block, Cursor/Claude text switch -->
 <div id="mcpModal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 560px;">
+    <div class="modal-content mcp-modal-content">
         <div class="modal-header">
             <h3><i class="fas fa-plug"></i> Connect MCP</h3>
             <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
         </div>
-        <div class="modal-body">
-            <p class="info-description" style="margin-bottom: 12px;">
-                Your API key lets <strong>Cursor</strong> or <strong>Claude Desktop</strong> access your specs and templates. One key per user.
-            </p>
-            <div class="info-card" style="margin-bottom: 16px;">
-                <div class="info-row">
-                    <label>Status</label>
-                    <div class="info-value">
-                        <span id="mcp-key-status">Checking...</span>
-                    </div>
+        <div class="modal-body mcp-modal-body">
+            <p class="mcp-modal-intro">Your API key lets Cursor or Claude Desktop access your specs. One key per user.</p>
+            <div class="mcp-modal-key-block">
+                <div class="mcp-modal-key-row">
+                    <span class="mcp-modal-label">Status</span>
+                    <span id="mcp-key-status">Checking...</span>
                 </div>
-                <div class="info-row">
-                    <div class="info-value">
-                        <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
-                            <i class="fas fa-key"></i> Create API key
-                        </button>
-                        <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
-                            <i class="fas fa-sync-alt"></i> Regenerate key
-                        </button>
-                    </div>
+                <div class="mcp-modal-key-row">
+                    <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
+                    <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
                 </div>
-                <div id="mcp-key-display-wrap" class="info-row" style="display: none; margin-top: 12px; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <label style="margin: 0;">API key:</label>
-                    <input type="text" id="mcp-key-input" readonly style="flex: 1; min-width: 180px; padding: 8px; font-family: monospace; font-size: 0.9em; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa;" />
-                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="Copy key">
-                        <i class="fas fa-copy"></i> Copy key
-                    </button>
+                <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
+                    <input type="text" id="mcp-key-input" readonly />
+                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="Copy key">Copy key</button>
                 </div>
-                <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
+                <div id="mcp-key-message" class="mcp-modal-message" style="display: none;"></div>
             </div>
-
-            <div class="mcp-setup-tabs" role="tablist" aria-label="Setup for Cursor or Claude">
-                <button type="button" class="mcp-setup-tab active" role="tab" aria-selected="true" id="mcp-tab-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button>
-                <button type="button" class="mcp-setup-tab" role="tab" aria-selected="false" id="mcp-tab-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button>
+            <p class="mcp-modal-setup-label">Setup: <button type="button" class="mcp-modal-setup-link active" id="mcp-tab-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button> <span class="mcp-modal-setup-sep">|</span> <button type="button" class="mcp-modal-setup-link" id="mcp-tab-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button></p>
+            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel">
+                <p class="mcp-setup-text">In Cursor open <strong>Settings - MCP</strong>. Add a server and paste the JSON below. In <code>args</code> put the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
             </div>
-            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel" aria-labelledby="mcp-tab-cursor">
-                <h4 style="margin: 0 0 8px 0; font-size: 1rem;">Setup in Cursor</h4>
-                <p class="info-description" style="margin-bottom: 10px; font-size: 0.9em;">
-                    1. In Cursor open <strong>Settings - MCP</strong> (or your MCP config file).<br>
-                    2. Add a new server and paste the JSON below (it includes your key and path).<br>
-                    3. In <code>args</code> replace the path with the full path on your machine to <code>mcp-server/dist/index.js</code>.<br>
-                    4. Save and restart Cursor.
-                </p>
+            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel">
+                <p class="mcp-setup-text">Open Claude Desktop MCP config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
             </div>
-            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel" aria-labelledby="mcp-tab-claude">
-                <h4 style="margin: 0 0 8px 0; font-size: 1rem;">Setup in Claude Desktop</h4>
-                <p class="info-description" style="margin-bottom: 10px; font-size: 0.9em;">
-                    1. Open your Claude Desktop MCP config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> on macOS).<br>
-                    2. Add the Specifys server using the JSON below. Set <code>args</code> to the full path to <code>mcp-server/dist/index.js</code> and set <code>env.SPECIFYS_API_KEY</code> to your key.<br>
-                    3. Restart Claude Desktop so the MCP server loads.
-                </p>
-            </div>
-            <div style="position: relative; margin-top: 8px;">
-                <textarea id="mcp-json-config" readonly rows="12" style="width: 100%; box-sizing: border-box; padding: 10px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; background: #f8f9fa; resize: vertical;"></textarea>
-                <button type="button" class="panel-action-btn" style="position: absolute; top: 8px; right: 8px;" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">
-                    <i class="fas fa-copy"></i> Copy JSON
-                </button>
+            <div class="mcp-modal-json-wrap">
+                <textarea id="mcp-json-config" readonly rows="6"></textarea>
+                <button type="button" class="panel-action-btn mcp-copy-json-btn" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">Copy JSON</button>
             </div>
         </div>
         <div class="modal-footer">

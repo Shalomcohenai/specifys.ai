@@ -7,14 +7,20 @@
   var ROTATE_EXAMPLE_MS = 5800;
   var ROTATE_CMD_MS = 4500;
 
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   var exampleData = [
-    { quote: 'List my specs so I can pick which one to work on.', tools: 'list_my_specs' },
-    { quote: 'Build the site according to the architecture in my spec, then style it using the design spec.', tools: 'get_spec, get_spec_design' },
-    { quote: 'Use my spec overview and technical section to implement the auth flow.', tools: 'get_spec_overview, get_spec_technical' },
-    { quote: 'Update the overview with the new feature we just agreed on.', tools: 'update_spec_overview' },
-    { quote: 'What prompt templates does Specifys use for the technical section?', tools: 'get_spec_prompts' },
-    { quote: 'Show me the full spec for this project so you have full context.', tools: 'get_spec' },
-    { quote: 'Change the market section to include the new competitor analysis.', tools: 'update_spec_market' },
+    '@specifys list_my_specs so I can pick which one to work on.',
+    '@specifys get_spec and get_spec_design - build the site from my spec architecture and style it with the design spec.',
+    '@specifys get_spec_overview get_spec_technical - use my spec overview and technical section to implement the auth flow.',
+    '@specifys update_spec_overview with the new feature we just agreed on.',
+    '@specifys get_spec_prompts - what prompt templates does Specifys use for the technical section?',
+    '@specifys get_spec so you have full context for this project.',
+    '@specifys update_spec_market - change the market section to include the new competitor analysis.',
   ];
 
   function ready(fn) {
@@ -60,17 +66,16 @@
 
   function initRotatingExamples() {
     var card = document.getElementById('mcp-example-card');
-    var quoteEl = document.getElementById('mcp-example-quote');
-    var toolsEl = document.getElementById('mcp-example-tools');
-    if (!card || !quoteEl || !toolsEl) return;
+    var lineEl = document.getElementById('mcp-example-line');
+    if (!card || !lineEl) return;
 
     var index = 0;
     function next() {
       card.classList.add('fade-swap');
       setTimeout(function () {
         var item = exampleData[index % exampleData.length];
-        quoteEl.textContent = item.quote;
-        toolsEl.textContent = 'Uses: ' + item.tools;
+        var escaped = escapeHtml(item);
+        lineEl.innerHTML = escaped.replace(/@specifys/g, '<span class="mcp-example-prompt__at">@specifys</span>');
         index += 1;
         card.classList.remove('fade-swap');
       }, 400);

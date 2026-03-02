@@ -2229,6 +2229,14 @@ document.addEventListener('DOMContentLoaded', function() {
           }, 300); // Appears 300ms after buttons
         }
         
+        // Fade in MCP teaser after subtext (part of same sequence)
+        const mcpTeaser = document.querySelector('.hero-mcp-teaser');
+        if (mcpTeaser) {
+          setTimeout(() => {
+            mcpTeaser.classList.add('visible');
+          }, 500); // Appears 500ms after buttons (200ms after subtext)
+        }
+        
         // Fade in browser window after Start button appears
         const browserWindow = document.querySelector('.browser-window-preview');
         if (browserWindow) {

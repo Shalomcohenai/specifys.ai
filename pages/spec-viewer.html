@@ -9,6 +9,7 @@ page_class: spec-viewer-page
 extra_css:
   - /assets/css/pages/spec-viewer.css
   - /assets/css/pages/spec-viewer-side-menu.css
+  - /assets/css/pages/mcp-modal.css
 extra_js:
   - /assets/js/script.js
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
@@ -30,6 +31,7 @@ extra_js:
   - /assets/js/features/spec-viewer/spec-viewer-main.js
   - /assets/js/features/share-prompt/share-prompt-modal.js
   - /assets/js/features/spec-viewer/cursor-windsurf-export.js
+  - /assets/js/mcp-modal.js
 custom_js_modules:
   - /assets/js/features/spec-viewer/spec-viewer-event-handlers.js
 ---
@@ -176,10 +178,10 @@ custom_js_modules:
             </div>
             
             <div class="side-menu-item">
-                <a href="{{ '/pages/profile.html' | relative_url }}#mcp" class="side-menu-button side-menu-button--link" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
+                <button type="button" class="side-menu-button" onclick="window.openMcpModal && window.openMcpModal()" id="sideMenuMcpBtn" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
                     <i class="fa fa-plug" aria-hidden="true"></i>
                     <span class="side-menu-text">MCP</span>
-                </a>
+                </button>
             </div>
             
             <div class="side-menu-item hidden" data-tab="raw">
@@ -190,6 +192,48 @@ custom_js_modules:
             </div>
         </nav>
     </aside>
+
+<!-- MCP Connect Modal (same as Profile: compact, Cursor/Claude text switch) -->
+<div id="mcpModal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-content mcp-modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plug"></i> Connect MCP</h3>
+            <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body mcp-modal-body">
+            <p class="mcp-modal-intro">Your API key lets Cursor or Claude Desktop access your specs. One key per user.</p>
+            <div class="mcp-modal-key-block">
+                <div class="mcp-modal-key-row">
+                    <span class="mcp-modal-label">Status</span>
+                    <span id="mcp-key-status">Checking...</span>
+                </div>
+                <div class="mcp-modal-key-row">
+                    <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
+                    <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
+                </div>
+                <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
+                    <input type="text" id="mcp-key-input" readonly />
+                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="Copy key">Copy key</button>
+                </div>
+                <div id="mcp-key-message" class="mcp-modal-message" style="display: none;"></div>
+            </div>
+            <p class="mcp-modal-setup-label">Setup: <button type="button" class="mcp-modal-setup-link active" id="mcp-tab-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button> <span class="mcp-modal-setup-sep">|</span> <button type="button" class="mcp-modal-setup-link" id="mcp-tab-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button></p>
+            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel">
+                <p class="mcp-setup-text">In Cursor open <strong>Settings - MCP</strong>. Add a server and paste the JSON below. In <code>args</code> put the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
+            </div>
+            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel">
+                <p class="mcp-setup-text">Open Claude Desktop MCP config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
+            </div>
+            <div class="mcp-modal-json-wrap">
+                <textarea id="mcp-json-config" readonly rows="6"></textarea>
+                <button type="button" class="panel-action-btn mcp-copy-json-btn" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">Copy JSON</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
+        </div>
+    </div>
+</div>
 
 <!-- Main Content -->
     <!-- Page Introduction Section -->

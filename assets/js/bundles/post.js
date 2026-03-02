@@ -1,10 +1,10 @@
 /**
  * Post Bundle - Blog post scripts
- * Includes: post.js, mermaid-simple.js
+ * Includes: pages/post.js, mermaid-simple.js
  */
 
 // Import post scripts
-import '../post.js';
+import '../pages/post.js';
 import '../mermaid-simple.js';
 
 

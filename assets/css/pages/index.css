@@ -240,11 +240,20 @@ body .logo a:hover .logo-dot {
   border-radius: 8px;
   text-decoration: none;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease-out 0.3s, transform 0.8s ease-out 0.3s, background 0.2s, border-color 0.2s, color 0.2s;
 }
-.hero-mcp-teaser:hover {
+.hero-mcp-teaser.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-mcp-teaser:hover,
+.hero-mcp-teaser.visible:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.5);
   color: #fff;
+  text-decoration: none;
 }
 .hero-mcp-teaser-label {
   font-weight: 700;

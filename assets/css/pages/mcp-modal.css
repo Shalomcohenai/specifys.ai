@@ -1,0 +1,144 @@
+/* MCP modal: shared compact styles (spec-viewer uses this; profile has its own in profile.css) */
+#mcpModal.modal-overlay.hidden {
+  display: none !important;
+}
+.mcp-modal-content {
+  max-width: 480px;
+}
+.mcp-modal-body {
+  padding: 1rem 1.25rem;
+}
+.mcp-modal-intro {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.45;
+}
+.mcp-modal-key-block {
+  margin-bottom: 0.75rem;
+}
+.mcp-modal-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.mcp-modal-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 4rem;
+}
+.mcp-modal-key-display {
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.mcp-modal-key-display input {
+  flex: 1;
+  min-width: 180px;
+  padding: 6px 10px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+.mcp-modal-message {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.mcp-modal-setup-label {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+.mcp-modal-setup-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: #666;
+  cursor: pointer;
+  text-decoration: none;
+}
+.mcp-modal-setup-link:hover {
+  color: #FF6B35;
+}
+.mcp-modal-setup-link.active {
+  color: #FF6B35;
+  font-weight: 600;
+}
+.mcp-modal-setup-sep {
+  color: #bbb;
+  margin: 0 0.25rem;
+}
+.mcp-setup-panel {
+  margin-bottom: 0.5rem;
+}
+.mcp-setup-panel.hidden {
+  display: none;
+}
+.mcp-setup-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #555;
+}
+.mcp-modal-json-wrap {
+  position: relative;
+  margin-top: 0.5rem;
+}
+.mcp-modal-json-wrap textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-family: monospace;
+  font-size: 11px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  resize: vertical;
+}
+.mcp-copy-json-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+/* Modal buttons when not on profile (spec-viewer) */
+.mcp-modal-content .panel-action-btn {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #FF6B35;
+  color: #fff;
+}
+.mcp-modal-content .panel-action-btn:hover {
+  background: #e55a2b;
+}
+.mcp-modal-content .panel-action-btn.cancel-btn {
+  background: #6c757d;
+}
+.mcp-modal-content .panel-action-btn.cancel-btn:hover {
+  background: #5a6268;
+}
+.mcp-modal-content .modal-footer .btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mcp-modal-content .modal-footer .btn-secondary {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+.mcp-modal-content .modal-footer .btn-secondary:hover {
+  background: #e5e5e5;
+}

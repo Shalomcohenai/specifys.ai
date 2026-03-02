@@ -27,7 +27,6 @@ export default defineConfig({
         // JS bundles
         'core': path.resolve(__dirname, 'assets/js/bundles/core.js'),
         'auth': path.resolve(__dirname, 'assets/js/bundles/auth.js'),
-        'admin': path.resolve(__dirname, 'assets/js/bundles/admin.js'),
         'home': path.resolve(__dirname, 'assets/js/bundles/home.js'),
         'utils': path.resolve(__dirname, 'assets/js/bundles/utils.js'),
         'post': path.resolve(__dirname, 'assets/js/bundles/post.js'),

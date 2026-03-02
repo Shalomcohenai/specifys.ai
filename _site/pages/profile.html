@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/pages/profile.html">
+    <link rel="canonical" href="https://specifys-ai.com/pages/profile.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="My Profile">
     <meta property="og:description" content="Manage your Specifys.ai profile and apps">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/pages/profile.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="https://specifys-ai.com/pages/profile.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="My Profile - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="My Profile">
     <meta name="twitter:description" content="Manage your Specifys.ai profile and apps">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="My Profile - Specifys.ai">
     
     <!-- Favicon -->
@@ -465,13 +465,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://localhost:4000/"
+          "item": "https://specifys-ai.com/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "My Profile",
-          "item": "http://localhost:4000/pages/profile.html"
+          "item": "https://specifys-ai.com/pages/profile.html"
         }
       ]
     }
@@ -614,9 +614,9 @@ s0.parentNode.insertBefore(s1,s0);
                         <i class="fas fa-user-circle" aria-hidden="true"></i>
                         <span>Personal Info</span>
                     </button>
-                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openMcpModal()" title="Connect Cursor / MCP" aria-label="Open MCP API key and Cursor connection">
+                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openMcpModal()" title="Connect MCP (Cursor / Claude)" aria-label="Open MCP API key and setup">
                         <i class="fas fa-plug" aria-hidden="true"></i>
-                        <span>Connect Cursor</span>
+                        <span>Connect MCP</span>
                     </button>
                     <button class="profile-dashboard__btn profile-dashboard__btn--admin hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/new-admin-dashboard.html'" title="Admin Dashboard" aria-label="Go to admin dashboard">
                         <i class="fas fa-user-shield" aria-hidden="true"></i>
@@ -876,60 +876,44 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
 </div>
 
-<!-- MCP / Connect Cursor Modal -->
+<!-- MCP Connect Modal: compact, one explanation block, Cursor/Claude text switch -->
 <div id="mcpModal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 560px;">
+    <div class="modal-content mcp-modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-plug"></i> חיבור Cursor</h3>
-            <button class="modal-close" onclick="closeMcpModal()" aria-label="סגור">&times;</button>
+            <h3><i class="fas fa-plug"></i> Connect MCP</h3>
+            <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
         </div>
-        <div class="modal-body">
-            <p class="info-description" style="margin-bottom: 12px;">
-                מפתח ה-API מאפשר ל־<strong>Cursor</strong> (או Claude Desktop) לגשת לספקים שלך ולתבניות. כל משתמש עם מפתח משלו.
-            </p>
-            <div class="info-card" style="margin-bottom: 16px;">
-                <div class="info-row">
-                    <label>סטטוס</label>
-                    <div class="info-value">
-                        <span id="mcp-key-status">בודק...</span>
-                    </div>
+        <div class="modal-body mcp-modal-body">
+            <p class="mcp-modal-intro">Your API key lets Cursor or Claude Desktop access your specs. One key per user.</p>
+            <div class="mcp-modal-key-block">
+                <div class="mcp-modal-key-row">
+                    <span class="mcp-modal-label">Status</span>
+                    <span id="mcp-key-status">Checking...</span>
                 </div>
-                <div class="info-row">
-                    <div class="info-value">
-                        <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
-                            <i class="fas fa-key"></i> צור מפתח API
-                        </button>
-                        <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
-                            <i class="fas fa-sync-alt"></i> צור מפתח חדש
-                        </button>
-                    </div>
+                <div class="mcp-modal-key-row">
+                    <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
+                    <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
                 </div>
-                <div id="mcp-key-display-wrap" class="info-row" style="display: none; margin-top: 12px; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <label style="margin: 0;">מפתח API:</label>
-                    <input type="text" id="mcp-key-input" readonly style="flex: 1; min-width: 180px; padding: 8px; font-family: monospace; font-size: 0.9em; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa;" />
-                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="העתק מפתח">
-                        <i class="fas fa-copy"></i> העתק מפתח
-                    </button>
+                <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
+                    <input type="text" id="mcp-key-input" readonly />
+                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="Copy key">Copy key</button>
                 </div>
-                <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
+                <div id="mcp-key-message" class="mcp-modal-message" style="display: none;"></div>
             </div>
-
-            <h4 style="margin: 0 0 8px 0; font-size: 1rem;">הגדרה ב-Cursor</h4>
-            <p class="info-description" style="margin-bottom: 10px; font-size: 0.9em;">
-                1. פתח ב-Cursor: <strong>Settings → MCP</strong> (או קובץ תצורת MCP).<br>
-                2. הוסף שרת חדש והדבק את ה-JSON למטה (כולל המפתח והנתיב).<br>
-                3. בנתיב <code>args</code> החלף לנתיב המלא בתיקייה שלך אל <code>mcp-server/dist/index.js</code>.<br>
-                4. שמור ואתחל את Cursor.
-            </p>
-            <div style="position: relative;">
-                <textarea id="mcp-json-config" readonly rows="12" style="width: 100%; box-sizing: border-box; padding: 10px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; background: #f8f9fa; resize: vertical;"></textarea>
-                <button type="button" class="panel-action-btn" style="position: absolute; top: 8px; right: 8px;" onclick="window.copyMcpJson && window.copyMcpJson()" title="העתק JSON">
-                    <i class="fas fa-copy"></i> העתק JSON
-                </button>
+            <p class="mcp-modal-setup-label">Setup: <button type="button" class="mcp-modal-setup-link active" id="mcp-tab-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button> <span class="mcp-modal-setup-sep">|</span> <button type="button" class="mcp-modal-setup-link" id="mcp-tab-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button></p>
+            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel">
+                <p class="mcp-setup-text">In Cursor open <strong>Settings - MCP</strong>. Add a server and paste the JSON below. In <code>args</code> put the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
+            </div>
+            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel">
+                <p class="mcp-setup-text">Open Claude Desktop MCP config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
+            </div>
+            <div class="mcp-modal-json-wrap">
+                <textarea id="mcp-json-config" readonly rows="6"></textarea>
+                <button type="button" class="panel-action-btn mcp-copy-json-btn" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">Copy JSON</button>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeMcpModal()">סגור</button>
+            <button class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
         </div>
     </div>
 </div>
@@ -965,6 +949,7 @@ s0.parentNode.insertBefore(s1,s0);
       <div class="footer-sitemap-group">
         <span class="footer-sitemap-title">Features</span>
         <a href="/pages/spec-viewer.html" role="listitem">Spec Viewer</a>
+        <a href="/pages/mcp.html" role="listitem">MCP for Cursor</a>
         <a href="/academy.html" role="listitem">Academy</a>
         <a href="/tools/map/vibe-coding-tools-map.html" role="listitem">Vibe Coding Tools Map</a>
         <a href="/pages/ToolPicker.html" role="listitem">Tool Finder</a>

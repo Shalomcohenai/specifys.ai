@@ -1361,32 +1361,112 @@ body .panel-action-btn:hover {
   }
 }
 
-/* MCP modal: Cursor / Claude setup tabs */
-.mcp-setup-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #e0e0e0;
+/* MCP modal: compact, no extra scroll, simple Cursor/Claude switch */
+#mcpModal.modal-overlay.hidden {
+  display: none !important;
 }
-.mcp-setup-tab {
-  padding: 8px 16px;
+.mcp-modal-content {
+  max-width: 480px;
+}
+.mcp-modal-body {
+  padding: 1rem 1.25rem;
+}
+.mcp-modal-intro {
+  margin: 0 0 0.75rem;
   font-size: 0.95rem;
+  color: #444;
+  line-height: 1.45;
+}
+.mcp-modal-key-block {
+  margin-bottom: 0.75rem;
+}
+.mcp-modal-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.mcp-modal-label {
   font-weight: 600;
-  color: #666;
-  background: transparent;
+  font-size: 0.9rem;
+  min-width: 4rem;
+}
+.mcp-modal-key-display {
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.mcp-modal-key-display input {
+  flex: 1;
+  min-width: 180px;
+  padding: 6px 10px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+.mcp-modal-message {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.mcp-modal-setup-label {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+.mcp-modal-setup-link {
+  background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  padding: 0;
+  font-size: inherit;
+  color: #666;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  text-decoration: none;
 }
-.mcp-setup-tab:hover {
-  color: #333;
-}
-.mcp-setup-tab.active {
+.mcp-modal-setup-link:hover {
   color: #FF6B35;
-  border-bottom-color: #FF6B35;
+}
+.mcp-modal-setup-link.active {
+  color: #FF6B35;
+  font-weight: 600;
+}
+.mcp-modal-setup-sep {
+  color: #bbb;
+  margin: 0 0.25rem;
+}
+.mcp-setup-panel {
+  margin-bottom: 0.5rem;
 }
 .mcp-setup-panel.hidden {
   display: none;
+}
+.mcp-setup-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #555;
+}
+.mcp-modal-json-wrap {
+  position: relative;
+  margin-top: 0.5rem;
+}
+.mcp-modal-json-wrap textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-family: monospace;
+  font-size: 11px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  resize: vertical;
+}
+.mcp-copy-json-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }

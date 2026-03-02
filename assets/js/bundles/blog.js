@@ -1,9 +1,9 @@
 /**
  * Blog Bundle - Blog management scripts
- * Includes: blog-manager.js
+ * Includes: pages/blog-manager.js
  */
 
 // Import blog scripts
-import '../blog-manager.js';
+import '../pages/blog-manager.js';
 
 
