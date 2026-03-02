@@ -123,30 +123,24 @@
   list-style: none;
   margin: 2.5rem 0 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
 }
 
 .mcp-point {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: transparent;
-  border: 1px solid #e0e0e0;
-  border-radius: 999px;
+  padding: 1.25rem 1.25rem;
+  background: #f8f9fa;
+  border-radius: 12px;
   font-size: 0.95rem;
-  line-height: 1.45;
+  line-height: 1.55;
   color: #444;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
 }
 
 .mcp-point:hover {
-  border-color: #FF6B35;
-  background: rgba(255, 107, 53, 0.06);
-  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .mcp-point a {
@@ -241,22 +235,21 @@
 .mcp-commands__explanation {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0.85rem 1.25rem;
-  background: transparent;
-  border: 1px solid #e0e0e0;
-  border-radius: 999px;
+  padding: 1.25rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
   min-height: 52px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
 }
 
 .mcp-commands__explanation:hover {
-  border-color: #ccc;
-  background: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .mcp-commands__explanation-label {
@@ -279,6 +272,17 @@
   font-size: 1rem;
   line-height: 1.5;
   color: #333;
+}
+
+/* Example card: @specifys tag with orange highlight */
+.mcp-example-card__via {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+.mcp-example-card__at {
+  color: #FF6B35;
+  font-weight: 600;
 }
 
 /* ===== FAQ ===== */
