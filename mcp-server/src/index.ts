@@ -197,6 +197,7 @@ server.registerResource(
         return {
           resources: data.specs.map((s) => ({
             uri: `spec://${s.id}`,
+            name: (s.title as string) || `Spec ${s.id}`,
             description: (s.title as string) || `Spec ${s.id}`,
             mimeType: "application/json",
           })),

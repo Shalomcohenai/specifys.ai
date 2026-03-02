@@ -1863,7 +1863,7 @@ graph TD
         
         // If entitlements were created or updated, trigger credits refresh
         if (result.entitlements && (result.created || result.updated)) {
-          // Clear credits cache (using new credits-v2 system)
+          // Clear credits cache (credits-v3)
           if (typeof window.clearCreditsCache === 'function') {
             window.clearCreditsCache();
           }
