@@ -1610,7 +1610,7 @@ export class OverviewView {
       const count = byProduct[key] || 0;
       const label = labels[key] || key;
       html += `<div class="buy-now-click-row">
-        <span class="buy-now-product">${String(label).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(>/g, '&gt;')}</span>
+        <span class="buy-now-product">${String(label).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;')}</span>
         <span class="buy-now-count">${count.toLocaleString()}</span>
       </div>`;
     }

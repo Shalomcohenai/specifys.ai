@@ -203,27 +203,6 @@ custom_js_modules:
         </div>
       </div>
 
-      <!-- Buy Now Clicks (Pricing) -->
-      <div class="overview-card buy-now-clicks-card" id="buy-now-clicks-card">
-        <div class="card-header">
-          <h2>Buy Now Clicks (Pricing)</h2>
-          <div class="card-header-actions">
-            <select class="select-modern select-compact" id="buy-now-clicks-range">
-              <option value="all">All time</option>
-              <option value="month">Last 30 days</option>
-              <option value="week" selected>Last 7 days</option>
-              <option value="day">Today</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="buy-now-clicks-list" id="buy-now-clicks-list">
-            <div class="buy-now-clicks-loading">Loading...</div>
-          </div>
-          <div class="buy-now-clicks-total" id="buy-now-clicks-total"></div>
-        </div>
-      </div>
-
       <!-- Two Column Layout -->
       <div class="overview-columns">
         <!-- Recent Activity -->
@@ -435,6 +414,27 @@ custom_js_modules:
                 <textarea id="api-response-text" readonly placeholder="Health check results will appear here..."></textarea>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Buy Now Clicks (Pricing) -->
+        <div class="overview-card buy-now-clicks-card" id="buy-now-clicks-card">
+          <div class="card-header">
+            <h2>Buy Now Clicks (Pricing)</h2>
+            <div class="card-header-actions">
+              <select class="select-modern select-compact" id="buy-now-clicks-range">
+                <option value="all">All time</option>
+                <option value="month">Last 30 days</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="day">Today</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="buy-now-clicks-list" id="buy-now-clicks-list">
+              <div class="buy-now-clicks-loading">Loading...</div>
+            </div>
+            <div class="buy-now-clicks-total" id="buy-now-clicks-total"></div>
           </div>
         </div>
 
