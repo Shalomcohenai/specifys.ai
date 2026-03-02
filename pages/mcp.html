@@ -1,0 +1,176 @@
+---
+layout: default
+title: "MCP for Cursor & Claude | Use Your Specs Inside AI Coding Tools"
+description: "Model Context Protocol (MCP) connects Specifys.ai with Cursor and Claude Desktop. List, read, and update your app specifications directly from your AI assistant. Get your API key and start coding with full spec context."
+permalink: /pages/mcp.html
+extra_css:
+  - /assets/css/pages/mcp.css
+extra_js:
+  - /assets/js/pages/mcp.js
+keywords: MCP, Model Context Protocol, Cursor MCP, Claude Desktop, specifys integration, API specs, AI coding tools
+---
+
+<div class="mcp-page">
+  <!-- Hero + What is MCP (top half) -->
+  <section class="mcp-hero" aria-label="MCP overview">
+    <div class="mcp-hero__inner">
+      <h1 class="mcp-hero__title fade-in">MCP for Cursor & Claude</h1>
+      <p class="mcp-hero__subtitle fade-in">
+        Use your Specifys.ai specifications directly inside <strong>Cursor</strong> and <strong>Claude Desktop</strong>. 
+        The Model Context Protocol (MCP) lets the AI read and update your specs without leaving the editor.
+      </p>
+      <nav class="mcp-hero__anchors fade-in" aria-label="Page sections">
+        <a href="#example-commands">Example commands</a>
+        <a href="#all-commands">All commands</a>
+        <a href="#faq">FAQ</a>
+        <a href="#cta">Get started</a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="mcp-explained section" id="what-is-mcp" aria-label="What is MCP">
+    <div class="container">
+      <h2 class="section-title fade-in">What is MCP and how does it connect to Specifys?</h2>
+      <p class="section-intro fade-in">
+        <strong>Model Context Protocol (MCP)</strong> is an open protocol that lets AI applications talk to external tools and data. 
+        Specifys provides an MCP server that exposes your specifications as <strong>tools</strong> and <strong>resources</strong>. 
+        When you connect Cursor or Claude Desktop to our MCP server with your API key, the AI can list your specs, read any section (overview, technical, design, market), and update content so you can say “use my existing spec” and the assistant has full context.
+      </p>
+      <ul class="mcp-explained__points" role="list">
+        <li class="mcp-point fade-in">One API key per user. Create it in <a href="{{ '/pages/profile.html' | relative_url }}">Profile</a> and add it to your MCP config.</li>
+        <li class="mcp-point fade-in">Works with Cursor and Claude Desktop. Your specs stay in Specifys; the AI accesses them in real time.</li>
+        <li class="mcp-point fade-in">Read and update overview, technical, design, and market sections so the AI and your spec stay in sync.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Rotating example commands (middle half) -->
+  <section class="mcp-examples section" id="example-commands" aria-label="Example commands">
+    <div class="container">
+      <h2 class="section-title fade-in">Example commands from real use cases</h2>
+      <p class="section-intro fade-in">Real prompts you can use in Cursor or Claude. Examples rotate below.</p>
+      <div class="mcp-examples__rotating">
+        <div class="mcp-example-card" id="mcp-example-card" role="status" aria-live="polite">
+          <p class="mcp-example-card__quote" id="mcp-example-quote">List my specs so I can pick which one to work on.</p>
+          <p class="mcp-example-card__tools" id="mcp-example-tools">Uses: list_my_specs</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive: one button per command, explanation below -->
+  <section class="mcp-commands section" id="all-commands" aria-label="All MCP commands">
+    <div class="container">
+      <h2 class="section-title fade-in">All MCP commands</h2>
+      <p class="section-intro fade-in">Click or hover a command to see what it does. If you don’t interact, explanations rotate automatically.</p>
+      <div class="mcp-commands__buttons" role="tablist" aria-label="MCP commands">
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="list_my_specs" data-desc="List the current user's specifications (metadata: id, title, createdAt, status)." aria-selected="true">list_my_specs</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="get_spec" data-desc="Get full spec document by specId (overview, technical, market, design).">get_spec</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="get_spec_overview" data-desc="Get only the overview section of a spec by specId.">get_spec_overview</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="get_spec_technical" data-desc="Get only the technical specification section of a spec by specId.">get_spec_technical</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="get_spec_design" data-desc="Get only the design specification section of a spec by specId.">get_spec_design</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="get_spec_prompts" data-desc="Get prompt templates reference (overview, technical, market, design) used by Specifys.ai for generation.">get_spec_prompts</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="update_spec_overview" data-desc="Update the overview section of a spec (by specId) with new content.">update_spec_overview</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="update_spec_technical" data-desc="Update the technical specification section of a spec (by specId) with new content.">update_spec_technical</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="update_spec_design" data-desc="Update the design specification section of a spec (by specId) with new content.">update_spec_design</button>
+        <button type="button" class="mcp-cmd-btn" role="tab" data-cmd="update_spec_market" data-desc="Update the market specification section of a spec (by specId) with new content.">update_spec_market</button>
+      </div>
+      <div class="mcp-commands__explanation" aria-live="polite">
+        <span class="mcp-commands__explanation-label">What it does</span>
+        <p class="mcp-commands__explanation-text" id="mcp-cmd-explanation">List the current user's specifications (metadata: id, title, createdAt, status).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="mcp-faq section" id="faq" aria-label="Frequently asked questions">
+    <div class="container">
+      <h2 class="section-title fade-in">Frequently asked questions</h2>
+      <div class="mcp-faq__list">
+        <article class="mcp-faq__item fade-in">
+          <h3 class="mcp-faq__q">How does this save me time and make work more efficient?</h3>
+          <p class="mcp-faq__a">You stop switching between the Specifys site and your editor. The AI has your spec in context instantly, so you can say "build the auth flow from my technical spec" or "update the overview with this change" without copying, pasting, or re-explaining. One source of truth stays in sync whether you edit in the browser or via the AI.</p>
+        </article>
+        <article class="mcp-faq__item fade-in">
+          <h3 class="mcp-faq__q">How long does it take to install the MCP system in Cursor or Claude?</h3>
+          <p class="mcp-faq__a">About 2-5 minutes. You create an API key in your <a href="{{ '/pages/profile.html' | relative_url }}">Profile</a>, add the Specifys MCP server in Cursor (Settings - MCP) or Claude Desktop config, set <code>SPECIFYS_API_KEY</code>, and restart. No extra services or code to run.</p>
+        </article>
+        <article class="mcp-faq__item fade-in">
+          <h3 class="mcp-faq__q">Is the system bidirectional? Can I edit the spec on the site through Cursor or Claude?</h3>
+          <p class="mcp-faq__a">Yes. MCP supports both read and update. The AI can change the overview, technical, design, or market sections of a spec via the update tools. Edits made in Cursor or Claude are saved to your spec on Specifys and appear in the <a href="{{ '/pages/spec-viewer.html' | relative_url }}">Spec Viewer</a> and everywhere else you use that spec.</p>
+        </article>
+        <article class="mcp-faq__item fade-in">
+          <h3 class="mcp-faq__q">How do I get an API key?</h3>
+          <p class="mcp-faq__a">Sign in, go to <a href="{{ '/pages/profile.html' | relative_url }}">Profile</a> - Personal Info - MCP API Key, and click Create API key (or Regenerate). Copy the key once; it is not shown again. Use it as <code>SPECIFYS_API_KEY</code> in your MCP client configuration.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="mcp-cta section" id="cta" aria-label="Get started with MCP">
+    <div class="container">
+      <h2 class="section-title fade-in">Use your specs inside Cursor or Claude</h2>
+      <p class="section-intro fade-in">
+        Get an API key, connect the Specifys MCP server, and let the AI use your specifications in real time.
+      </p>
+      <div class="mcp-cta__buttons fade-in">
+        <a href="{{ '/pages/auth.html' | relative_url }}" class="btn btn-primary btn-large mcp-cta__primary">
+          <i class="fas fa-key" aria-hidden="true"></i>
+          Sign in &amp; get API key
+        </a>
+        <a href="{{ '/pages/profile.html' | relative_url }}#mcp" class="btn btn-secondary btn-large">
+          <i class="fas fa-cog" aria-hidden="true"></i>
+          MCP setup in Profile
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "MCP for Cursor & Claude | Specifys.ai",
+  "description": "Use your Specifys.ai specifications inside Cursor and Claude Desktop via the Model Context Protocol (MCP). List, read, and update specs with your API key.",
+  "url": "https://specifys.ai/pages/mcp.html",
+  "mainEntity": {
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does this save me time and make work more efficient?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You stop switching between the Specifys site and your editor. The AI has your spec in context instantly, so you can say build the auth flow from my technical spec or update the overview with this change without copying, pasting, or re-explaining. One source of truth stays in sync whether you edit in the browser or via the AI."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to install the MCP system in Cursor or Claude?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "About 2-5 minutes. You create an API key in your Profile, add the Specifys MCP server in Cursor (Settings - MCP) or Claude Desktop config, set SPECIFYS_API_KEY, and restart. No extra services or code to run."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the system bidirectional? Can I edit the spec on the site through Cursor or Claude?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. MCP supports both read and update. The AI can change the overview, technical, design, or market sections of a spec via the update tools. Edits made in Cursor or Claude are saved to your spec on Specifys and appear in the Spec Viewer and everywhere else you use that spec."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I get an API key?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sign in, go to Profile - Personal Info - MCP API Key, and click Create API key (or Regenerate). Copy the key once; it is not shown again. Use it as SPECIFYS_API_KEY in your MCP client configuration."
+        }
+      }
+    ]
+  }
+}
+</script>

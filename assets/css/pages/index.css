@@ -229,6 +229,28 @@ body .logo a:hover .logo-dot {
   transform: translateY(0);
 }
 
+.hero-mcp-teaser {
+  display: inline-block;
+  margin: 0 0 2rem 0;
+  padding: 0.4rem 0.85rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.hero-mcp-teaser:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+.hero-mcp-teaser-label {
+  font-weight: 700;
+  margin-right: 0.25rem;
+}
+
 .hero-cta-button {
   font-family: "Montserrat", sans-serif;
   background: var(--primary-color);

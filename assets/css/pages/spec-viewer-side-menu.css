@@ -200,6 +200,15 @@
   cursor: not-allowed;
 }
 
+.side-menu-button--link {
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
+}
+.side-menu-button--link:hover {
+  color: #333;
+}
+
 /* Keep Brain Dump icon visible when tab is disabled */
 .side-menu-item[data-tab="brain-dump"] .side-menu-button i {
   opacity: 1;

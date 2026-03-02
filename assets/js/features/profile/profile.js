@@ -2500,16 +2500,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 if (response.ok) {
                     const data = await response.json();
                     const hasKey = data.hasKey === true;
-                    statusEl.textContent = hasKey ? 'יש לך מפתח API' : 'אין מפתח';
+                    statusEl.textContent = hasKey ? 'You have an API key' : 'No key';
                     if (createBtn) createBtn.style.display = hasKey ? 'none' : 'inline-block';
                     if (regenBtn) regenBtn.style.display = hasKey ? 'inline-block' : 'none';
                 } else {
-                    statusEl.textContent = 'לא ניתן לבדוק';
+                    statusEl.textContent = 'Unable to check';
                     if (createBtn) createBtn.style.display = 'inline-block';
                     if (regenBtn) regenBtn.style.display = 'none';
                 }
             } catch (e) {
-                statusEl.textContent = 'לא ניתן לבדוק';
+                statusEl.textContent = 'Unable to check';
                 if (createBtn) createBtn.style.display = 'inline-block';
                 if (regenBtn) regenBtn.style.display = 'none';
             }
@@ -2531,7 +2531,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 });
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok) {
-                    throw new Error(data.error || 'יצירת המפתח נכשלה');
+                    throw new Error(data.error || 'Failed to create key');
                 }
                 if (data.apiKey) {
                     window._mcpCurrentKeyForModal = data.apiKey;
@@ -2539,12 +2539,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     if (keyWrap) keyWrap.style.display = 'flex';
                     updateMcpJsonConfig(data.apiKey);
                     try { await navigator.clipboard.writeText(data.apiKey); } catch (_) {}
-                    if (typeof showSuccess === 'function') showSuccess('מפתח נוצר והועתק ללוח');
+                    if (typeof showSuccess === 'function') showSuccess('Key created and copied to clipboard');
                     await loadMcpApiKeyStatus();
                 }
             } catch (e) {
                 if (messageEl) {
-                    messageEl.textContent = e.message || 'יצירת מפתח נכשלה';
+                    messageEl.textContent = e.message || 'Failed to create key';
                     messageEl.style.backgroundColor = '#f8d7da';
                     messageEl.style.color = '#721c24';
                     messageEl.style.display = 'block';
@@ -2554,7 +2554,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
         window.regenerateMcpApiKey = async function() {
             if (!currentUser) return;
-            if (!confirm('מפתח חדש יבטל את הנוכחי. תצטרך לעדכן את Cursor במפתח החדש. להמשיך?')) return;
+            if (!confirm('A new key will replace the current one. You will need to update Cursor/Claude with the new key. Continue?')) return;
             const messageEl = document.getElementById('mcp-key-message');
             const keyWrap = document.getElementById('mcp-key-display-wrap');
             const keyInput = document.getElementById('mcp-key-input');
@@ -2569,7 +2569,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 });
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok) {
-                    throw new Error(data.error || 'יצירת מפתח חדש נכשלה');
+                    throw new Error(data.error || 'Failed to regenerate key');
                 }
                 if (data.apiKey) {
                     window._mcpCurrentKeyForModal = data.apiKey;
@@ -2577,12 +2577,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     if (keyWrap) keyWrap.style.display = 'flex';
                     updateMcpJsonConfig(data.apiKey);
                     try { await navigator.clipboard.writeText(data.apiKey); } catch (_) {}
-                    if (typeof showSuccess === 'function') showSuccess('מפתח חדש נוצר והועתק');
+                    if (typeof showSuccess === 'function') showSuccess('New key created and copied');
                     await loadMcpApiKeyStatus();
                 }
             } catch (e) {
                 if (messageEl) {
-                    messageEl.textContent = e.message || 'יצירת מפתח חדש נכשלה';
+                    messageEl.textContent = e.message || 'Failed to regenerate key';
                     messageEl.style.backgroundColor = '#f8d7da';
                     messageEl.style.color = '#721c24';
                     messageEl.style.display = 'block';
@@ -2721,8 +2721,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
         function updateMcpJsonConfig(apiKey) {
             const baseUrl = getMcpBaseUrl();
-            const pathPlaceholder = '<נתיב_מלא_אל_specifys-ai/mcp-server/dist/index.js>';
-            const keyValue = apiKey && apiKey.trim() ? apiKey.trim() : '<מפתח_API_מהאתר>';
+            const pathPlaceholder = '<FULL_PATH_TO_specifys-ai/mcp-server/dist/index.js>';
+            const keyValue = apiKey && apiKey.trim() ? apiKey.trim() : '<YOUR_API_KEY_FROM_THIS_PAGE>';
             const config = {
                 mcpServers: {
                     specifys: {
@@ -2757,11 +2757,34 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             }
         };
 
+        window.switchMcpSetupTab = function(tab) {
+            const cursorTab = document.getElementById('mcp-tab-cursor');
+            const claudeTab = document.getElementById('mcp-tab-claude');
+            const cursorPanel = document.getElementById('mcp-setup-cursor');
+            const claudePanel = document.getElementById('mcp-setup-claude');
+            if (!cursorTab || !claudeTab || !cursorPanel || !claudePanel) return;
+            if (tab === 'claude') {
+                cursorTab.classList.remove('active');
+                cursorTab.setAttribute('aria-selected', 'false');
+                claudeTab.classList.add('active');
+                claudeTab.setAttribute('aria-selected', 'true');
+                cursorPanel.classList.add('hidden');
+                claudePanel.classList.remove('hidden');
+            } else {
+                claudeTab.classList.remove('active');
+                claudeTab.setAttribute('aria-selected', 'false');
+                cursorTab.classList.add('active');
+                cursorTab.setAttribute('aria-selected', 'true');
+                claudePanel.classList.add('hidden');
+                cursorPanel.classList.remove('hidden');
+            }
+        };
+
         window.copyMcpKey = function() {
             const input = document.getElementById('mcp-key-input');
             if (!input || !input.value) return;
             navigator.clipboard.writeText(input.value).then(() => {
-                if (typeof showSuccess === 'function') showSuccess('המפתח הועתק');
+                if (typeof showSuccess === 'function') showSuccess('Key copied');
             }).catch(() => {});
         };
 
@@ -2769,9 +2792,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const textarea = document.getElementById('mcp-json-config');
             if (!textarea || !textarea.value) return;
             navigator.clipboard.writeText(textarea.value).then(() => {
-                if (typeof showSuccess === 'function') showSuccess('ה-JSON הועתק');
+                if (typeof showSuccess === 'function') showSuccess('JSON copied');
             }).catch(() => {});
         };
+
+        if (typeof window.location !== 'undefined' && window.location.hash === '#mcp') {
+            setTimeout(function() { window.openMcpModal(); }, 600);
+        }
 
         window.saveDisplayName = async function() {
             const newName = document.getElementById('editDisplayNameInput').value.trim();
