@@ -94,6 +94,9 @@ const securityHeaders = helmet({
   // Referrer Policy
   referrerPolicy: { policy: 'same-origin' },
   
+  // Allow auth popup: Firebase signInWithPopup needs opener to check/close popup
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  
   // HTTP Strict Transport Security
   hsts: {
     maxAge: 31536000,
