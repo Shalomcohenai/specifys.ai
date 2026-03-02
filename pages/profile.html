@@ -298,40 +298,58 @@ custom_js_modules:
 
 <!-- MCP / Connect Cursor Modal -->
 <div id="mcpModal" class="modal-overlay hidden">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 560px;">
         <div class="modal-header">
-            <h3><i class="fas fa-plug"></i> Connect Cursor</h3>
-            <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
+            <h3><i class="fas fa-plug"></i> חיבור Cursor</h3>
+            <button class="modal-close" onclick="closeMcpModal()" aria-label="סגור">&times;</button>
         </div>
         <div class="modal-body">
-            <p class="info-description" style="margin-bottom: 16px;">
-                Use an API key to connect the Specifys MCP server from <strong>Cursor</strong> (or Claude Desktop). Your specs will appear as tools and resources. Each user has their own key.
+            <p class="info-description" style="margin-bottom: 12px;">
+                מפתח ה-API מאפשר ל־<strong>Cursor</strong> (או Claude Desktop) לגשת לספקים שלך ולתבניות. כל משתמש עם מפתח משלו.
             </p>
-            <p class="info-description" style="margin-bottom: 16px; font-size: 0.95em;">
-                <strong>Cursor:</strong> Settings → MCP → Add server. Set <code>SPECIFYS_API_KEY</code> to the key below and <code>SPECIFYS_API_BASE_URL</code> to your backend URL (e.g. <code>https://specifys-ai-backend.onrender.com</code>).
-            </p>
-            <div class="info-card" style="margin-top: 12px;">
+            <div class="info-card" style="margin-bottom: 16px;">
                 <div class="info-row">
-                    <label>Status</label>
+                    <label>סטטוס</label>
                     <div class="info-value">
-                        <span id="mcp-key-status">Checking...</span>
+                        <span id="mcp-key-status">בודק...</span>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-value">
                         <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
-                            <i class="fas fa-key"></i> Create API key
+                            <i class="fas fa-key"></i> צור מפתח API
                         </button>
                         <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
-                            <i class="fas fa-sync-alt"></i> Regenerate key
+                            <i class="fas fa-sync-alt"></i> צור מפתח חדש
                         </button>
                     </div>
                 </div>
+                <div id="mcp-key-display-wrap" class="info-row" style="display: none; margin-top: 12px; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <label style="margin: 0;">מפתח API:</label>
+                    <input type="text" id="mcp-key-input" readonly style="flex: 1; min-width: 180px; padding: 8px; font-family: monospace; font-size: 0.9em; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa;" />
+                    <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="העתק מפתח">
+                        <i class="fas fa-copy"></i> העתק מפתח
+                    </button>
+                </div>
                 <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
+            </div>
+
+            <h4 style="margin: 0 0 8px 0; font-size: 1rem;">הגדרה ב-Cursor</h4>
+            <p class="info-description" style="margin-bottom: 10px; font-size: 0.9em;">
+                1. פתח ב-Cursor: <strong>Settings → MCP</strong> (או קובץ תצורת MCP).<br>
+                2. הוסף שרת חדש והדבק את ה-JSON למטה (כולל המפתח והנתיב).<br>
+                3. בנתיב <code>args</code> החלף לנתיב המלא בתיקייה שלך אל <code>mcp-server/dist/index.js</code>.<br>
+                4. שמור ואתחל את Cursor.
+            </p>
+            <div style="position: relative;">
+                <textarea id="mcp-json-config" readonly rows="12" style="width: 100%; box-sizing: border-box; padding: 10px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; background: #f8f9fa; resize: vertical;"></textarea>
+                <button type="button" class="panel-action-btn" style="position: absolute; top: 8px; right: 8px;" onclick="window.copyMcpJson && window.copyMcpJson()" title="העתק JSON">
+                    <i class="fas fa-copy"></i> העתק JSON
+                </button>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
+            <button class="btn btn-secondary" onclick="closeMcpModal()">סגור</button>
         </div>
     </div>
 </div>
