@@ -34,6 +34,10 @@ custom_js_modules:
                         <i class="fas fa-user-circle" aria-hidden="true"></i>
                         <span>Personal Info</span>
                     </button>
+                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openMcpModal()" title="Connect Cursor / MCP" aria-label="Open MCP API key and Cursor connection">
+                        <i class="fas fa-plug" aria-hidden="true"></i>
+                        <span>Connect Cursor</span>
+                    </button>
                     <button class="profile-dashboard__btn profile-dashboard__btn--admin hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/new-admin-dashboard.html'" title="Admin Dashboard" aria-label="Go to admin dashboard">
                         <i class="fas fa-user-shield" aria-hidden="true"></i>
                         <span>Admin Dashboard</span>
@@ -224,30 +228,6 @@ custom_js_modules:
             </div>
 
             <div class="info-section">
-                <h3>MCP API Key</h3>
-                <p class="info-description" style="margin-bottom: 10px;">Use this key in Cursor or Claude Desktop to connect the Specifys MCP server. Each user has their own key; the backend shows only your specs.</p>
-                <div class="info-card">
-                    <div class="info-row">
-                        <label>Status</label>
-                        <div class="info-value">
-                            <span id="mcp-key-status">Checking...</span>
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-value">
-                            <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
-                                <i class="fas fa-key"></i> Create API key
-                            </button>
-                            <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
-                                <i class="fas fa-sync-alt"></i> Regenerate key
-                            </button>
-                        </div>
-                    </div>
-                    <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
-                </div>
-            </div>
-
-            <div class="info-section">
                 <h3>Email Preferences</h3>
                 <div class="info-card">
                     <div class="info-row">
@@ -312,6 +292,46 @@ custom_js_modules:
                     <div id="subscription-message" class="subscription-message" aria-live="polite"></div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- MCP / Connect Cursor Modal -->
+<div id="mcpModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plug"></i> Connect Cursor</h3>
+            <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="info-description" style="margin-bottom: 16px;">
+                Use an API key to connect the Specifys MCP server from <strong>Cursor</strong> (or Claude Desktop). Your specs will appear as tools and resources. Each user has their own key.
+            </p>
+            <p class="info-description" style="margin-bottom: 16px; font-size: 0.95em;">
+                <strong>Cursor:</strong> Settings → MCP → Add server. Set <code>SPECIFYS_API_KEY</code> to the key below and <code>SPECIFYS_API_BASE_URL</code> to your backend URL (e.g. <code>https://specifys-ai-backend.onrender.com</code>).
+            </p>
+            <div class="info-card" style="margin-top: 12px;">
+                <div class="info-row">
+                    <label>Status</label>
+                    <div class="info-value">
+                        <span id="mcp-key-status">Checking...</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-value">
+                        <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
+                            <i class="fas fa-key"></i> Create API key
+                        </button>
+                        <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
+                            <i class="fas fa-sync-alt"></i> Regenerate key
+                        </button>
+                    </div>
+                </div>
+                <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
         </div>
     </div>
 </div>

@@ -2711,6 +2711,23 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             document.getElementById('editNameModal').style.display = 'none';
         };
 
+        window.openMcpModal = function() {
+            const modal = document.getElementById('mcpModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                loadMcpApiKeyStatus();
+            }
+        };
+
+        window.closeMcpModal = function() {
+            const modal = document.getElementById('mcpModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        };
+
         window.saveDisplayName = async function() {
             const newName = document.getElementById('editDisplayNameInput').value.trim();
             if (!newName) {
