@@ -16,6 +16,8 @@
 
 הגדרות שירותים: Firebase, SEO, GA4, Lemon Squeezy, Render, MCP, webhooks ועוד.
 
+- [run-system-per-user.md](setup/run-system-per-user.md) – הפעלת המערכת במצב Per-User (מפתח MCP לכל משתמש), הוראות מפורטות בעברית.
+
 ## מדריכים (`guides/`)
 
 מדריכי עבודה: יצירת דפים, Testing, Logging, Simulation.

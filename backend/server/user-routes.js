@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { auth, db, admin } = require('./firebase-admin');
 const { initializeUser } = require('./user-management');
@@ -301,6 +302,63 @@ router.get('/me', verifyFirebaseToken, async (req, res, next) => {
             }
         }, '[user-routes] Error getting user info');
         next(createError('Failed to get user information', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
+/**
+ * Get MCP API key status (whether user has a key; key is never returned)
+ * GET /api/users/me/mcp-api-key
+ */
+router.get('/me/mcp-api-key', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `mcp-key-status-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    try {
+        const userId = req.user.uid;
+        const userDoc = await db.collection('users').doc(userId).get();
+        const hasKey = userDoc.exists && !!userDoc.data()?.mcpApiKey;
+        logger.info({ requestId, userId, hasKey }, '[user-routes] GET /me/mcp-api-key');
+        res.json({ success: true, hasKey });
+    } catch (err) {
+        logger.error({ requestId, userId: req.user?.uid, error: err.message }, '[user-routes] GET /me/mcp-api-key error');
+        next(createError('Failed to get MCP API key status', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
+/**
+ * Create or regenerate MCP API key for the current user.
+ * Key is returned only in this response; store it for use with MCP (Cursor / Claude Desktop).
+ * POST /api/users/me/mcp-api-key
+ * Body: { regenerate?: boolean } - optional; if true, replace existing key.
+ */
+router.post('/me/mcp-api-key', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `mcp-key-create-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    try {
+        const userId = req.user.uid;
+        const userRef = db.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        const existingKey = userDoc.exists ? userDoc.data()?.mcpApiKey : null;
+
+        if (existingKey && !req.body?.regenerate) {
+            return res.status(400).json({
+                success: false,
+                error: 'MCP API key already exists. Send { "regenerate": true } to replace it.',
+                hasKey: true
+            });
+        }
+
+        const apiKey = crypto.randomBytes(24).toString('hex');
+        await userRef.set(
+            { mcpApiKey: apiKey, mcpApiKeyUpdatedAt: admin.firestore.FieldValue.serverTimestamp() },
+            { merge: true }
+        );
+        logger.info({ requestId, userId, regenerated: !!existingKey }, '[user-routes] POST /me/mcp-api-key - key created');
+        res.json({
+            success: true,
+            apiKey,
+            message: 'Store this key securely. It will not be shown again. Use it as SPECIFYS_API_KEY in your MCP client (Cursor / Claude Desktop).'
+        });
+    } catch (err) {
+        logger.error({ requestId, userId: req.user?.uid, error: err.message }, '[user-routes] POST /me/mcp-api-key error');
+        next(createError('Failed to create MCP API key', ERROR_CODES.DATABASE_ERROR, 500));
     }
 });
 

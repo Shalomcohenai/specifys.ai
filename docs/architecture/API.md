@@ -50,6 +50,8 @@ Interactive API documentation is available at:
 ### User Management (`/api/users`)
 
 - `GET /api/users/me` - Get current user
+- `GET /api/users/me/mcp-api-key` - Check if current user has an MCP API key (`{ hasKey: true/false }`; key is never returned)
+- `POST /api/users/me/mcp-api-key` - Create or regenerate MCP API key; response includes `apiKey` once (use as `SPECIFYS_API_KEY` in MCP). Body: optional `{ "regenerate": true }` to replace existing key.
 - `POST /api/users` - Create user
 - `PUT /api/users/:id` - Update user
 - `DELETE /api/users/:id` - Delete user
@@ -139,7 +141,8 @@ Used by the Specifys MCP Server (Cursor / Claude Desktop). All requests require 
 
 - Header: `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`
 - **Getting an API key**
-  - **Development**: Set `MCP_API_KEY` and `MCP_API_USER_ID` in the backend `.env`; use that key in the MCP server.
+  - **Per user (recommended):** `POST /api/users/me/mcp-api-key` (Firebase auth) returns `apiKey` once; use as `SPECIFYS_API_KEY`. No `MCP_API_USER_ID` needed.
+  - **Single-user / dev:** Set `MCP_API_KEY` and `MCP_API_USER_ID` in the backend `.env`; use that key in the MCP server.
   - **Production**: Store a key in Firestore `users/{userId}.mcpApiKey` (e.g. from a “Create API key” flow in the app). The same key is used in the MCP server config.
 
 **Endpoints**

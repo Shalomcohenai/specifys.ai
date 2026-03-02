@@ -224,6 +224,30 @@ custom_js_modules:
             </div>
 
             <div class="info-section">
+                <h3>MCP API Key</h3>
+                <p class="info-description" style="margin-bottom: 10px;">Use this key in Cursor or Claude Desktop to connect the Specifys MCP server. Each user has their own key; the backend shows only your specs.</p>
+                <div class="info-card">
+                    <div class="info-row">
+                        <label>Status</label>
+                        <div class="info-value">
+                            <span id="mcp-key-status">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-value">
+                            <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">
+                                <i class="fas fa-key"></i> Create API key
+                            </button>
+                            <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">
+                                <i class="fas fa-sync-alt"></i> Regenerate key
+                            </button>
+                        </div>
+                    </div>
+                    <div id="mcp-key-message" class="info-message" style="display: none; margin-top: 10px; padding: 10px; border-radius: 6px;"></div>
+                </div>
+            </div>
+
+            <div class="info-section">
                 <h3>Email Preferences</h3>
                 <div class="info-card">
                     <div class="info-row">

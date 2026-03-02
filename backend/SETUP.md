@@ -139,3 +139,7 @@ NODE_ENV=development
 - השרת רץ על פורט 10000 (ברירת מחדל)
 - הלוגים נשמרים ב-`backend/server.log` (אם רץ ברקע)
 
+## MCP (Per-User)
+
+לשימוש ב-MCP עם מפתח לכל משתמש (מומלץ): **אין צורך** להגדיר `MCP_API_KEY` או `MCP_API_USER_ID` ב-backend. משתמשים יוצרים מפתח בפרופיל או דרך `POST /api/users/me/mcp-api-key`. הוראות מלאות: [docs/setup/run-system-per-user.md](../docs/setup/run-system-per-user.md).
+

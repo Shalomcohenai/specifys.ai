@@ -2461,6 +2461,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 // Load email preferences
                 await loadEmailPreferences();
 
+                // Load MCP API key status
+                await loadMcpApiKeyStatus();
+
                 document.getElementById('renewal-row').style.display = 'none';
                 document.getElementById('cost-row').style.display = 'none';
                 document.getElementById('cancelSubBtn').style.display = 'none';
@@ -2477,6 +2480,111 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
             }
         }
+
+        // Load MCP API key status and show Create / Regenerate buttons
+        async function loadMcpApiKeyStatus() {
+            const statusEl = document.getElementById('mcp-key-status');
+            const createBtn = document.getElementById('mcp-create-key-btn');
+            const regenBtn = document.getElementById('mcp-regenerate-key-btn');
+            const messageEl = document.getElementById('mcp-key-message');
+            if (!statusEl || !currentUser) return;
+
+            try {
+                const token = await currentUser.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
+                const response = await fetch(`${apiBaseUrl}/api/users/me/mcp-api-key`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+                if (messageEl) messageEl.style.display = 'none';
+                if (response.ok) {
+                    const data = await response.json();
+                    const hasKey = data.hasKey === true;
+                    statusEl.textContent = hasKey ? 'You have an API key' : 'No API key';
+                    if (createBtn) createBtn.style.display = hasKey ? 'none' : 'inline-block';
+                    if (regenBtn) regenBtn.style.display = hasKey ? 'inline-block' : 'none';
+                } else {
+                    statusEl.textContent = 'Unable to check';
+                    if (createBtn) createBtn.style.display = 'inline-block';
+                    if (regenBtn) regenBtn.style.display = 'none';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Unable to check';
+                if (createBtn) createBtn.style.display = 'inline-block';
+                if (regenBtn) regenBtn.style.display = 'none';
+            }
+        }
+
+        window.createMcpApiKey = async function() {
+            if (!currentUser) return;
+            const messageEl = document.getElementById('mcp-key-message');
+            try {
+                const token = await currentUser.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
+                const response = await fetch(`${apiBaseUrl}/api/users/me/mcp-api-key`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create key');
+                }
+                if (data.apiKey) {
+                    try { await navigator.clipboard.writeText(data.apiKey); } catch (_) {}
+                    if (messageEl) {
+                        messageEl.textContent = 'API key created and copied to clipboard. Store it securely; it will not be shown again. Use it as SPECIFYS_API_KEY in Cursor or Claude Desktop.';
+                        messageEl.style.backgroundColor = '#d4edda';
+                        messageEl.style.color = '#155724';
+                        messageEl.style.display = 'block';
+                    }
+                    await loadMcpApiKeyStatus();
+                }
+            } catch (e) {
+                if (messageEl) {
+                    messageEl.textContent = e.message || 'Failed to create API key';
+                    messageEl.style.backgroundColor = '#f8d7da';
+                    messageEl.style.color = '#721c24';
+                    messageEl.style.display = 'block';
+                }
+            }
+        };
+
+        window.regenerateMcpApiKey = async function() {
+            if (!currentUser) return;
+            if (!confirm('Regenerating will invalidate your current key. You will need to update Cursor/Claude with the new key. Continue?')) return;
+            const messageEl = document.getElementById('mcp-key-message');
+            try {
+                const token = await currentUser.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
+                const response = await fetch(`${apiBaseUrl}/api/users/me/mcp-api-key`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ regenerate: true })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to regenerate key');
+                }
+                if (data.apiKey) {
+                    try { await navigator.clipboard.writeText(data.apiKey); } catch (_) {}
+                    if (messageEl) {
+                        messageEl.textContent = 'New API key created and copied to clipboard. Update SPECIFYS_API_KEY in Cursor/Claude. The old key no longer works.';
+                        messageEl.style.backgroundColor = '#d4edda';
+                        messageEl.style.color = '#155724';
+                        messageEl.style.display = 'block';
+                    }
+                    await loadMcpApiKeyStatus();
+                }
+            } catch (e) {
+                if (messageEl) {
+                    messageEl.textContent = e.message || 'Failed to regenerate API key';
+                    messageEl.style.backgroundColor = '#f8d7da';
+                    messageEl.style.color = '#721c24';
+                    messageEl.style.display = 'block';
+                }
+            }
+        };
 
         // Load email preferences
         async function loadEmailPreferences() {

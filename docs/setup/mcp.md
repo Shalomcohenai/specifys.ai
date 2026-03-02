@@ -4,13 +4,20 @@ Use the Specifys MCP server from **Cursor** or **Claude Desktop** to read and up
 
 ## Prerequisites
 
-- Backend running (local or production) with MCP API key configured.
-- Node.js 18+ (for running the MCP server).
+- **Backend** running (local or production). For **per-user** usage (recommended), no MCP-related env vars are required on the backend.
+- **Node.js 18+** for running the MCP server.
 
-## 1. Get an API key
+## 1. Get an API key (per user – recommended)
 
-- **Local dev**: In the backend `.env`, set `MCP_API_KEY` and `MCP_API_USER_ID` (the Firebase UID of the user to act as). Use that value as your API key.
-- **Production**: Create an API key from the app (e.g. Settings → MCP / API → Create key) and store it in Firestore `users/{userId}.mcpApiKey`, or use an env-based key as above.
+Each user has their own key. The backend does **not** need `MCP_API_KEY` or `MCP_API_USER_ID` in this mode.
+
+- **From the website:** Log in → **Profile** → **Personal Info** → section **MCP API Key**. Click **Create API key** (or **Regenerate**). Copy the key once; it is not shown again.
+- **From the API (logged-in user):**
+  - `GET /api/users/me/mcp-api-key` – check if you already have a key (`hasKey: true/false`).
+  - `POST /api/users/me/mcp-api-key` – create a new key. Response includes `apiKey`; store it securely. Send `{ "regenerate": true }` to replace an existing key.
+- Use that key as `SPECIFYS_API_KEY` in your MCP client (Cursor / Claude Desktop). The backend identifies you by this key and returns only your specs.
+
+**Optional (single-user / dev only):** In the backend `.env`, set `MCP_API_KEY` and `MCP_API_USER_ID` to one fixed user, then use that key in the MCP server.
 
 ## 2. Build and run the MCP server
 
