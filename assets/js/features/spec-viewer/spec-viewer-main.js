@@ -222,9 +222,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Load spec will be triggered after user authentication
-    
-
+    // Delegated listener for overview Suggestions toggle (event delegation so it works after dynamic content)
+    document.addEventListener('click', function(e) {
+        const item = e.target.closest('.suggestion-item');
+        if (!item) return;
+        e.preventDefault();
+        toggleSuggestionSelection(item);
+    });
+    document.addEventListener('keydown', function(e) {
+        const item = e.target.closest('.suggestion-item');
+        if (!item) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleSuggestionSelection(item);
+        }
+    });
 });
 
 // Check authentication status and show modal if needed
@@ -2374,7 +2386,110 @@ function formatTextContent(content) {
     }
 }
 
-// REMOVED: Duplicate escapeHtml() - Using the one defined later in the file
+/**
+ * Merge selected suggestions (toInclude) into overview content for generate-all payload.
+ * Returns overview JSON string with ideaSummary and coreFeaturesOverview including selected suggestions.
+ */
+function mergeSelectedSuggestionsIntoOverview(overviewString) {
+    if (!overviewString) return overviewString;
+    var root;
+    try {
+        root = typeof overviewString === 'string' ? JSON.parse(overviewString) : overviewString;
+    } catch (e) {
+        return overviewString;
+    }
+    var o = (root.overview && typeof root.overview === 'object') ? root.overview : root;
+    var changed = false;
+    if (o.suggestionsIdeaSummary && Array.isArray(o.suggestionsIdeaSummary.toInclude) && o.suggestionsIdeaSummary.toInclude.length > 0) {
+        var extra = o.suggestionsIdeaSummary.toInclude.join(' ');
+        o.ideaSummary = (o.ideaSummary || '') + '\n\nAdditional ideas: ' + extra;
+        changed = true;
+    }
+    if (o.suggestionsCoreFeatures && Array.isArray(o.suggestionsCoreFeatures.toInclude) && o.suggestionsCoreFeatures.toInclude.length > 0) {
+        o.coreFeaturesOverview = Array.isArray(o.coreFeaturesOverview) ? o.coreFeaturesOverview.slice() : [];
+        o.suggestionsCoreFeatures.toInclude.forEach(function(t) { o.coreFeaturesOverview.push(t); });
+        changed = true;
+    }
+    if (!changed) return overviewString;
+    return JSON.stringify(root);
+}
+
+/**
+ * Toggle a suggestion between toInclude and notToInclude, update Firestore and DOM.
+ * @param {HTMLElement} item - .suggestion-item element with data-section and data-suggestion-text
+ */
+function toggleSuggestionSelection(item) {
+    if (!currentSpecData || !currentSpecData.id) return;
+    const section = item.getAttribute('data-section');
+    const text = item.getAttribute('data-suggestion-text');
+    if (!section || text == null) return;
+    const overviewRaw = currentSpecData.overview;
+    let root = typeof overviewRaw === 'string' ? (function() { try { return JSON.parse(overviewRaw); } catch (e) { return null; } })() : overviewRaw;
+    if (!root) return;
+    var overviewObj = (root.overview && typeof root.overview === 'object') ? root.overview : root;
+    const key = section === 'ideaSummary' ? 'suggestionsIdeaSummary' : 'suggestionsCoreFeatures';
+    const data = overviewObj[key];
+    if (!data || !Array.isArray(data.notToInclude) || !Array.isArray(data.toInclude)) return;
+    const isSelected = item.getAttribute('data-selected') === 'true';
+    if (isSelected) {
+        const i = data.toInclude.indexOf(text);
+        if (i === -1) return;
+        data.toInclude.splice(i, 1);
+        data.notToInclude.push(text);
+    } else {
+        const i = data.notToInclude.indexOf(text);
+        if (i === -1) return;
+        data.notToInclude.splice(i, 1);
+        data.toInclude.push(text);
+    }
+    var newOverviewString = (root.overview && typeof root.overview === 'object') ? JSON.stringify(root) : JSON.stringify(overviewObj);
+    currentSpecData.overview = newOverviewString;
+    if (window.originalOverview) window.originalOverview = newOverviewString;
+    item.setAttribute('data-selected', isSelected ? 'false' : 'true');
+    item.classList.toggle('suggestion-selected', !isSelected);
+    const checkEl = item.querySelector('.suggestion-check');
+    if (checkEl) {
+        if (isSelected) checkEl.innerHTML = ''; else checkEl.innerHTML = '<i class="fa fa-check"></i>';
+    }
+    firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+        overview: newOverviewString,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(err) {
+        showNotification('Failed to save suggestion selection', 'error');
+    });
+}
+
+/** Escape for HTML and attributes (used in overview suggestions) */
+function escapeHtmlSpec(str) {
+    if (str == null) return '';
+    const s = String(str);
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Render Suggestions block for a section (Idea Summary or Core Features) */
+function renderSuggestionsBlock(sectionKey, data) {
+    if (!data || (!Array.isArray(data.notToInclude) && !Array.isArray(data.toInclude))) return '';
+    const notToInclude = data.notToInclude || [];
+    const toInclude = data.toInclude || [];
+    const all = [...notToInclude, ...toInclude];
+    if (all.length === 0) return '';
+    let html = '<div class="overview-suggestions-block content-section" data-suggestions-section="' + escapeHtmlSpec(sectionKey) + '">';
+    html += '<h4 class="suggestions-heading"><i class="fa fa-lightbulb-o"></i> Suggestions</h4>';
+    html += '<div class="suggestions-list">';
+    notToInclude.forEach(function (text) {
+        html += '<div class="suggestion-item" data-section="' + escapeHtmlSpec(sectionKey) + '" data-suggestion-text="' + escapeHtmlSpec(text) + '" data-selected="false" role="button" tabindex="0">';
+        html += '<span class="suggestion-check" aria-hidden="true"></span>';
+        html += '<span class="suggestion-text">' + escapeHtmlSpec(text) + '</span></div>';
+    });
+    toInclude.forEach(function (text) {
+        html += '<div class="suggestion-item suggestion-selected" data-section="' + escapeHtmlSpec(sectionKey) + '" data-suggestion-text="' + escapeHtmlSpec(text) + '" data-selected="true" role="button" tabindex="0">';
+        html += '<span class="suggestion-check" aria-hidden="true"><i class="fa fa-check"></i></span>';
+        html += '<span class="suggestion-text">' + escapeHtmlSpec(text) + '</span></div>';
+    });
+    html += '</div></div>';
+    return html;
+}
+
 function formatJSONContent(jsonData) {
     let html = '';
     
@@ -2401,8 +2516,9 @@ function formatJSONContent(jsonData) {
     if (jsonData.ideaSummary) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-lightbulb-o"></i> Idea Summary</h3>';
-        html += `<p>${jsonData.ideaSummary}</p>`;
+        html += '<p>' + escapeHtmlSpec(jsonData.ideaSummary) + '</p>';
         html += '</div>';
+        html += renderSuggestionsBlock('ideaSummary', jsonData.suggestionsIdeaSummary);
     }
     
     // Handle new Detailed User Flow (moved to position 2, after Idea Summary)
@@ -2484,10 +2600,11 @@ function formatJSONContent(jsonData) {
         html += '<h3><i class="fa fa-star"></i> Core Features Overview</h3>';
         html += '<ul>';
         jsonData.coreFeaturesOverview.forEach(feature => {
-            html += `<li>${feature}</li>`;
+            html += `<li>${escapeHtmlSpec(feature)}</li>`;
         });
         html += '</ul>';
         html += '</div>';
+        html += renderSuggestionsBlock('coreFeatures', jsonData.suggestionsCoreFeatures);
     }
     
     // Handle new User Journey Summary
@@ -5432,8 +5549,9 @@ async function approveOverview() {
         
         // Use server queue API - generation continues in background even if user closes window
         try {
+            const overviewForGeneration = mergeSelectedSuggestionsIntoOverview(currentSpecData.overview);
             const response = await window.api.post(`/api/specs/${currentSpecData.id}/generate-all`, {
-                overview: currentSpecData.overview,
+                overview: overviewForGeneration,
                 answers: currentSpecData.answers || []
             });
             

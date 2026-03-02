@@ -2387,3 +2387,78 @@ button[onclick*="openVisualizer"]:active {
     font-size: 0.85em;
   }
 }
+
+/* ===== Overview Suggestions (הצעות) ===== */
+.overview-suggestions-block {
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.suggestions-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.suggestions-heading .fa {
+  color: #FF6B35;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  min-height: 2.5rem;
+}
+
+.suggestion-item:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.suggestion-check {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #fff;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.suggestion-item.suggestion-selected .suggestion-check {
+  background: #FF6B35;
+  border-color: #FF6B35;
+}
+
+.suggestion-item.suggestion-selected .suggestion-check .fa-check {
+  font-size: 10px;
+}
+
+.suggestion-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #444;
+  flex: 1;
+}

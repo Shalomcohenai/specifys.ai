@@ -149,14 +149,10 @@ class SpecGenerationService {
         const data = JSON.parse(responseText);
 
         // Cloudflare Worker returns { overview: {...}, meta: {...} } format
-        let specification;
-        if (data.overview) {
-          specification = JSON.stringify(data.overview);
-        } else if (data.specification) {
-          specification = data.specification;
-        } else {
-          specification = JSON.stringify(data);
-        }
+        let overviewObj = data.overview || (data.specification ? (typeof data.specification === 'string' ? JSON.parse(data.specification) : data.specification) : data);
+        // Normalize suggestions: support array from Worker -> { toInclude: [], notToInclude: [...] }
+        overviewObj = this.normalizeOverviewSuggestions(overviewObj);
+        const specification = JSON.stringify(overviewObj);
 
         const duration = Date.now() - startTime;
         logger.info({ requestId, duration: `${duration}ms` }, '[SpecGeneration] Overview generation completed');
@@ -182,6 +178,30 @@ class SpecGenerationService {
 
       throw error;
     }
+  }
+
+  /**
+   * Normalize overview suggestions to { toInclude: [], notToInclude: [] } per section.
+   * Worker may send suggestionsIdeaSummary / suggestionsCoreFeatures as array or already as object.
+   */
+  normalizeOverviewSuggestions(overview) {
+    if (!overview || typeof overview !== 'object') return overview;
+    const normalized = { ...overview };
+    const sections = [
+      { key: 'suggestionsIdeaSummary', defaultNotToInclude: [] },
+      { key: 'suggestionsCoreFeatures', defaultNotToInclude: [] }
+    ];
+    for (const { key, defaultNotToInclude } of sections) {
+      const val = normalized[key];
+      if (Array.isArray(val)) {
+        normalized[key] = { toInclude: [], notToInclude: [...val] };
+      } else if (val && typeof val === 'object' && Array.isArray(val.toInclude) && Array.isArray(val.notToInclude)) {
+        // already normalized
+      } else {
+        normalized[key] = { toInclude: [], notToInclude: defaultNotToInclude };
+      }
+    }
+    return normalized;
   }
 
   /**
