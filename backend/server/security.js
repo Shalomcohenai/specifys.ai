@@ -119,6 +119,11 @@ const rateLimiters = {
   general: rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
+    skip: (req) => {
+      const ip = req.ip || req.connection?.remoteAddress || '';
+      const host = req.get('host') || '';
+      return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || host.startsWith('localhost:');
+    },
     message: {
       error: 'Too many requests from this IP, please try again later.',
       retryAfter: '15 minutes'
