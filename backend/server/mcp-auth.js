@@ -103,7 +103,7 @@ function buildSpecUpdatePayload(body) {
     if (value === null || value === undefined) continue;
     if (typeof value !== 'string') return { updateData, error: `Field "${field}" must be a string` };
     if (value.length > MAX_FIELD_SIZE) return { updateData, error: `Field "${field}" exceeds max size (1MB)` };
-    updateData[field] = value;
+    updateData[field] = value; // allow empty string to clear a section
   }
 
   return { updateData };

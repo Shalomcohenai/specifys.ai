@@ -21,6 +21,14 @@ function log(msg: string, ...args: unknown[]) {
   console.error("[specifys-mcp]", msg, ...args);
 }
 
+/** Normalize section value for read tools: object → JSON string, string → as-is, missing → fallback. */
+function normalizeSectionValue(value: unknown, fallback: string): string {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === "string") return value;
+  if (typeof value === "object") return JSON.stringify(value, null, 2);
+  return String(value);
+}
+
 const server = new McpServer({
   name: "specifys",
   version: "1.0.0",
@@ -72,7 +80,7 @@ server.registerTool(
   async ({ specId }) => {
     try {
       const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
-      const text = data.spec.overview ?? "(no overview)";
+      const text = normalizeSectionValue(data.spec.overview, "(no overview)");
       return { content: [{ type: "text" as const, text }] };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -90,7 +98,7 @@ server.registerTool(
   async ({ specId }) => {
     try {
       const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
-      const text = data.spec.technical ?? "(no technical spec)";
+      const text = normalizeSectionValue(data.spec.technical, "(no technical spec)");
       return { content: [{ type: "text" as const, text }] };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -108,7 +116,7 @@ server.registerTool(
   async ({ specId }) => {
     try {
       const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
-      const text = data.spec.design ?? "(no design spec)";
+      const text = normalizeSectionValue(data.spec.design, "(no design spec)");
       return { content: [{ type: "text" as const, text }] };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -139,13 +147,13 @@ server.registerTool(
 server.registerTool(
   "get_spec_architecture",
   {
-    description: "Get the architecture section of a spec by specId (Markdown + Mermaid).",
+    description: "Get the architecture section of a spec by specId (Markdown + Mermaid). If missing, use update_spec_architecture to add it.",
     inputSchema: { specId: z.string().describe("Spec document ID") },
   },
   async ({ specId }) => {
     try {
       const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
-      const text = data.spec.architecture ?? "(no architecture)";
+      const text = normalizeSectionValue(data.spec.architecture, "(no architecture)");
       return { content: [{ type: "text" as const, text }] };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
