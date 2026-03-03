@@ -431,7 +431,8 @@ Note: Target Audience information should be inferred from the app description an
     const prompts = {
       technical: 'You are a highly experienced software architect and lead developer. Generate a detailed technical specification.',
       market: 'You are a market research specialist and business analyst. Generate comprehensive market research insights.',
-      design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines and branding elements.'
+      design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines and branding elements.',
+      architecture: 'You are a software architect. Produce a single Markdown document that synthesizes overview, technical, market, and design into one coherent architecture spec. Use Mermaid code blocks where helpful. Output only valid Markdown.'
     };
     return prompts[stage] || 'You are an expert specification generator.';
   }
@@ -445,9 +446,105 @@ Note: Target Audience information should be inferred from the app description an
     const prompts = {
       technical: 'Create a comprehensive technical specification including data models, database schema, API design, security, and integration points.',
       market: 'Create detailed market analysis including market overview, competitors analysis, target audience personas, and pricing strategy.',
-      design: 'Create detailed design specifications including color schemes, typography, UI components, user experience guidelines, and branding elements.'
+      design: 'Create detailed design specifications including color schemes, typography, UI components, user experience guidelines, and branding elements.',
+      architecture: 'Create a single Markdown document that combines overview, technical, market, and design into one coherent architecture spec. Include: high-level file/folder structure, main modules and their responsibilities, key function flows. Use Markdown headings and optional Mermaid code blocks (```mermaid ... ```) for structure and flow diagrams. Output must be valid Markdown.'
     };
     return prompts[stage] || 'Generate a comprehensive specification.';
+  }
+
+  /**
+   * Generate architecture section from overview + technical + market + design.
+   * Called after advanced specs are ready; output is Markdown with optional Mermaid blocks.
+   * @param {string} specId - Spec ID
+   * @param {string} overview - Overview content
+   * @param {string} technical - Technical content
+   * @param {string} market - Market content
+   * @param {string} design - Design content
+   * @returns {Promise<string>} Architecture markdown
+   */
+  async generateArchitecture(specId, overview, technical, market, design) {
+    const requestId = `generate-architecture-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+
+    logger.info({ requestId, specId }, '[SpecGeneration] Starting architecture generation');
+
+    const userPrompt = `Combine the following specification sections into one architecture document (Markdown with optional Mermaid diagrams).
+
+## Overview
+${(overview || '').slice(0, 15000)}
+
+## Technical
+${(technical || '').slice(0, 20000)}
+
+## Market
+${(market || '').slice(0, 8000)}
+
+## Design
+${(design || '').slice(0, 12000)}
+
+Produce a single Markdown document that includes:
+1. High-level file/folder structure (as text or Mermaid graph)
+2. Main modules and their responsibilities
+3. Key data/function flows (optional Mermaid sequence or flowchart)
+4. Any architecture decisions inferred from the specs above.
+
+Use \`\`\`mermaid ... \`\`\` blocks where a diagram helps. Return ONLY the Markdown (no JSON wrapper).`;
+
+    const requestBody = {
+      stage: 'architecture',
+      locale: 'en-US',
+      temperature: 0.2,
+      prompt: {
+        system: 'You are a software architect. Output valid Markdown only. Use Mermaid code blocks where helpful for structure or flow.',
+        developer: this.getDeveloperPrompt('architecture'),
+        user: userPrompt
+      }
+    };
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(this.workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
+
+      const responseText = await response.text();
+      let architecture = '';
+
+      try {
+        const data = JSON.parse(responseText);
+        if (data.architecture && typeof data.architecture === 'string') {
+          architecture = data.architecture;
+        } else if (typeof data === 'string') {
+          architecture = data;
+        } else {
+          architecture = responseText;
+        }
+      } catch (_) {
+        architecture = responseText;
+      }
+
+      const duration = Date.now() - startTime;
+      logger.info({ requestId, specId, duration: `${duration}ms` }, '[SpecGeneration] Architecture generation completed');
+
+      return architecture;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
+      logger.error({ requestId, specId, error: error.message, duration: `${duration}ms` }, '[SpecGeneration] Architecture generation failed');
+      throw error;
+    }
   }
 }
 

@@ -6,7 +6,7 @@
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
-const ALLOWED_KEYS = new Set(['overview', 'technical', 'design', 'market', 'title']);
+const ALLOWED_KEYS = new Set(['overview', 'technical', 'design', 'market', 'title', 'architecture']);
 const MAX_FIELD_SIZE = 1024 * 1024; // 1MB per field
 
 /**

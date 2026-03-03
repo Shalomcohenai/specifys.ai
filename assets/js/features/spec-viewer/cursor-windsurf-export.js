@@ -74,9 +74,11 @@ async function generateCursorWindsurfExport() {
         const projectPlan = generateProjectPlan(specData);
         zip.file('PROJECT_PLAN.md', projectPlan);
 
-        // 2. ARCHITECTURE.md - Technical specifications
+        // 2. ARCHITECTURE.md - Composite architecture (text-only, no Mermaid) or fallback from technical
         updateProgress(30, 'Creating ARCHITECTURE.md...');
-        const architecture = generateArchitecture(specData);
+        const architecture = specData.architecture
+            ? stripMermaidFromMarkdown(specData.architecture)
+            : generateArchitecture(specData);
         zip.file('ARCHITECTURE.md', architecture);
 
         // 3. DESIGN_GUIDELINES.md - Design specifications
@@ -223,7 +225,15 @@ function generateProjectPlan(specData) {
 }
 
 /**
- * Generate ARCHITECTURE.md content
+ * Strip all ```mermaid ... ``` blocks from markdown (for export: architecture file is text-only).
+ */
+function stripMermaidFromMarkdown(markdown) {
+    if (!markdown || typeof markdown !== 'string') return '';
+    return markdown.replace(/```mermaid\s*[\s\S]*?```/gi, '').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/**
+ * Generate ARCHITECTURE.md content (fallback when spec.architecture is not set)
  */
 function generateArchitecture(specData) {
     const title = specData.title || 'Application';

@@ -48,7 +48,7 @@ server.registerTool(
 server.registerTool(
   "get_spec",
   {
-    description: "Get full spec document by specId (overview, technical, market, design).",
+    description: "Get full spec document by specId (overview, technical, market, design, architecture when present).",
     inputSchema: { specId: z.string().describe("Spec document ID") },
   },
   async ({ specId }) => {
@@ -136,11 +136,29 @@ server.registerTool(
   }
 );
 
+server.registerTool(
+  "get_spec_architecture",
+  {
+    description: "Get the architecture section of a spec by specId (Markdown + Mermaid).",
+    inputSchema: { specId: z.string().describe("Spec document ID") },
+  },
+  async ({ specId }) => {
+    try {
+      const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
+      const text = data.spec.architecture ?? "(no architecture)";
+      return { content: [{ type: "text" as const, text }] };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: "text" as const, text: `Error: ${msg}` }], isError: true };
+    }
+  }
+);
+
 // ---- Update tools ----
 function registerUpdateTool(
   name: string,
   description: string,
-  field: "overview" | "technical" | "design" | "market"
+  field: "overview" | "technical" | "design" | "market" | "architecture"
 ) {
   server.registerTool(
     name,
@@ -184,6 +202,11 @@ registerUpdateTool(
   "update_spec_market",
   "Update the market specification section of a spec (by specId) with new content.",
   "market"
+);
+registerUpdateTool(
+  "update_spec_architecture",
+  "Update the architecture section of a spec (by specId) with new content.",
+  "architecture"
 );
 
 // ---- Resources ----

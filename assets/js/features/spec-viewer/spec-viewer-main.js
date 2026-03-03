@@ -863,6 +863,7 @@ function displaySpec(data) {
     displayMockup(data.mockups).catch(err => {
         // Error displaying mockup
     });
+    displayArchitectureFromData(data);
     displayDiagramsFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -911,6 +912,20 @@ function displaySpec(data) {
                     }
                 }
             });
+        }
+        
+        // Enable architecture tab when technical, market, design are all ready (or when architecture exists)
+        if (data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready') {
+            const architectureTab = document.getElementById('architectureTab');
+            if (architectureTab) {
+                architectureTab.disabled = false;
+            }
+        }
+        if (data.architecture || data.status?.architecture === 'ready') {
+            const architectureTab = document.getElementById('architectureTab');
+            if (architectureTab) {
+                architectureTab.disabled = false;
+            }
         }
         
         // Enable diagrams only if both technical and market are ready
@@ -2230,6 +2245,98 @@ function displayRaw(data) {
 }
 
 
+
+function displayArchitectureFromData(data) {
+    const container = document.getElementById('architecture-data');
+    if (!container) return;
+    if (!data.architecture || typeof data.architecture !== 'string' || !data.architecture.trim()) {
+        if (data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready') {
+            container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready. If you don\'t see it yet, wait for generation to complete.</p></div>';
+        } else {
+            container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready.</p></div>';
+        }
+        return;
+    }
+    displayArchitecture(data.architecture, container);
+}
+
+function displayArchitecture(content, containerEl) {
+    const container = containerEl || document.getElementById('architecture-data');
+    if (!container) return;
+    container.innerHTML = '';
+    const mermaidRegex = /```mermaid\s*([\s\S]*?)```/gi;
+    let match;
+    let lastIndex = 0;
+    const mermaidParts = [];
+    const textParts = [];
+    while ((match = mermaidRegex.exec(content)) !== null) {
+        if (match.index > lastIndex) {
+            textParts.push(content.slice(lastIndex, match.index));
+        }
+        mermaidParts.push(match[1].trim());
+        lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < content.length) {
+        textParts.push(content.slice(lastIndex));
+    }
+    // Mermaid first: render all diagrams
+    mermaidParts.forEach(function(mermaidCode, index) {
+        const wrap = document.createElement('div');
+        wrap.className = 'architecture-mermaid-wrap';
+        wrap.innerHTML = '<div class="architecture-mermaid-loading">Rendering diagram...</div>';
+        container.appendChild(wrap);
+        const uniqueId = 'arch-mermaid-' + index + '-' + Date.now();
+        if (typeof mermaid !== 'undefined' && mermaid.render) {
+            mermaid.render(uniqueId, mermaidCode).then(function(result) {
+                wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
+            }).catch(function() {
+                wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
+            });
+        } else {
+            wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre>';
+        }
+    });
+    // Then text
+    textParts.forEach(function(text) {
+        var trimmed = text.trim();
+        if (!trimmed) return;
+        var textBlock = document.createElement('div');
+        textBlock.className = 'architecture-text-block';
+        textBlock.style.whiteSpace = 'pre-wrap';
+        textBlock.style.marginBottom = '1rem';
+        textBlock.textContent = trimmed;
+        container.appendChild(textBlock);
+    });
+}
+
+var _architectureGenerationInProgress = false;
+async function triggerGenerateArchitecture(specId) {
+    if (_architectureGenerationInProgress) return;
+    if (!window.api || typeof window.api.post !== 'function') {
+        showNotification('API not available. Please refresh the page.', 'error');
+        return;
+    }
+    _architectureGenerationInProgress = true;
+    try {
+        const result = await window.api.post('/api/specs/' + encodeURIComponent(specId) + '/generate-architecture', {});
+        if (result && result.success) {
+            showNotification('Architecture generated successfully.', 'success');
+            var doc = await firebase.firestore().collection('specs').doc(specId).get();
+            if (doc.exists && currentSpecData && currentSpecData.id === specId) {
+                var updated = { id: doc.id, ...doc.data() };
+                updateCurrentSpecData(updated);
+                displayArchitectureFromData(updated);
+                var architectureTab = document.getElementById('architectureTab');
+                if (architectureTab) architectureTab.disabled = false;
+            }
+        }
+    } catch (err) {
+        console.warn('Failed to generate architecture:', err);
+        showNotification('Architecture generation failed. You can try again later.', 'error');
+    } finally {
+        _architectureGenerationInProgress = false;
+    }
+}
 
 function displayDiagramsFromData(data) {
     const container = document.getElementById('diagrams-data');
@@ -4842,7 +4949,7 @@ function updateSubsections(tabName) {
 
 // Initialize all subsections when page loads
 function initializeAllSubsections() {
-    const tabs = ['overview', 'technical', 'market', 'design', 'diagrams', 'prompts'];
+    const tabs = ['overview', 'technical', 'market', 'design', 'architecture', 'diagrams', 'prompts'];
     tabs.forEach(tabName => {
         const tabContent = document.getElementById(`${tabName}-content`);
         if (tabContent) {
@@ -5104,19 +5211,27 @@ async function updateMockupTab() {
 // Refresh tabs menu after Design spec is ready - enables Prompts tab if conditions are met
 function refreshTabsAfterDesignReady() {
     if (!currentSpecData) return;
-    
+
     // Check if overview is approved
     if (!currentSpecData.overviewApproved) {
         return;
     }
-    
+
     // Enable Design tab if ready
     if (currentSpecData.status?.design === 'ready') {
         const designTab = document.getElementById('designTab');
         if (designTab) {
             designTab.disabled = false;
         }
-        
+
+        // Enable Architecture tab when technical, market, design are all ready
+        if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.market === 'ready') {
+            const architectureTab = document.getElementById('architectureTab');
+            if (architectureTab) {
+                architectureTab.disabled = false;
+            }
+        }
+
         // Enable mockup tab when design is ready (only for PRO users)
         checkProAccess().then(hasProAccess => {
             if (hasProAccess) {
@@ -5671,6 +5786,10 @@ async function approveOverview() {
                                     // Non-blocking - don't interrupt user experience
                                     console.warn('Failed to upload spec to OpenAI after generation:', err);
                                 });
+                                // Auto-generate architecture (after advanced specs, before diagrams/prompts)
+                                if (!currentSpecData.architecture && !currentSpecData.status?.architecture) {
+                                    triggerGenerateArchitecture(currentSpecData.id);
+                                }
                             }
                         } else {
                             showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');

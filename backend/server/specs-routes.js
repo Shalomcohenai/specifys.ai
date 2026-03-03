@@ -446,6 +446,63 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
 });
 
 /**
+ * Generate architecture section from overview + technical + market + design.
+ * POST /api/specs/:id/generate-architecture
+ * Requires: spec has overview, technical, market, design. Writes spec.architecture and status.architecture.
+ */
+router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `generate-architecture-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    const specId = req.params.id;
+    const userId = req.user.uid;
+
+    try {
+        const specDoc = await db.collection('specs').doc(specId).get();
+        if (!specDoc.exists) {
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+        }
+        const specData = specDoc.data();
+        if (specData.userId !== userId) {
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
+        }
+
+        const overview = specData.overview;
+        const technical = specData.technical;
+        const market = specData.market;
+        const design = specData.design;
+
+        if (!overview || !technical || !market || !design) {
+            return next(createError('Overview, technical, market, and design are required before generating architecture', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+
+        const architecture = await specGenerationService.generateArchitecture(specId, overview, technical, market, design);
+
+        await db.collection('specs').doc(specId).update({
+            architecture,
+            'status.architecture': 'ready',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        const totalTime = Date.now() - startTime;
+        logger.info({ requestId, specId, userId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-architecture - Success');
+
+        res.json({
+            success: true,
+            architecture,
+            specId,
+            requestId
+        });
+    } catch (error) {
+        const totalTime = Date.now() - startTime;
+        logger.error({ requestId, specId: req.params.id, error: error.message, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-architecture - Error');
+        next(createError(error.message || 'Failed to generate architecture', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+            details: error.message,
+            requestId
+        }));
+    }
+});
+
+/**
  * Generate overview spec in background
  * POST /api/specs/generate-overview
  * Body: { userInput: string, specId?: string }

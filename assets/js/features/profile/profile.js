@@ -2760,6 +2760,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 modal.style.display = 'flex';
                 updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
                 loadMcpApiKeyStatus();
+                const jsonWrap = document.getElementById('mcp-modal-json-wrap');
+                if (jsonWrap) jsonWrap.classList.remove('revealed');
                 trackMcpEvent('mcp_modal_open');
             }
         };
@@ -2777,6 +2779,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const claudeTab = document.getElementById('mcp-tab-claude');
             const cursorPanel = document.getElementById('mcp-setup-cursor');
             const claudePanel = document.getElementById('mcp-setup-claude');
+            const jsonWrap = document.getElementById('mcp-modal-json-wrap');
             if (!cursorTab || !claudeTab || !cursorPanel || !claudePanel) return;
             if (tab === 'claude') {
                 cursorTab.classList.remove('active');
@@ -2793,6 +2796,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 claudePanel.classList.add('hidden');
                 cursorPanel.classList.remove('hidden');
             }
+            if (jsonWrap) jsonWrap.classList.add('revealed');
         };
 
         window.copyMcpKey = function() {

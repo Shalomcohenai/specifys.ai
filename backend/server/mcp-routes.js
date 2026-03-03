@@ -111,7 +111,7 @@ router.put('/specs/:id', async (req, res, next) => {
       return next(createError(error, ERROR_CODES.VALIDATION_ERROR, 400));
     }
     if (Object.keys(updateData).length === 0) {
-      return next(createError('No allowed fields to update (overview, technical, design, market, title)', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+      return next(createError('No allowed fields to update (overview, technical, design, market, title, architecture)', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
     await db.collection('specs').doc(specId).update(updateData);

@@ -57,6 +57,7 @@ export interface SpecFull {
   technical?: string;
   market?: string;
   design?: string;
+  architecture?: string;
   status?: Record<string, string>;
   [key: string]: unknown;
 }

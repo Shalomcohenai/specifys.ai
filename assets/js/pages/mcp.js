@@ -147,6 +147,20 @@
     startAutoRotate();
   }
 
+  function initFaqAccordion() {
+    var faqItems = document.querySelectorAll('.mcp-faq .faq-item');
+    faqItems.forEach(function (item, index) {
+      item.addEventListener('click', function () {
+        var question = item.querySelector('.faq-question');
+        var answer = item.querySelector('.faq-answer');
+        if (question && answer) {
+          question.classList.toggle('open');
+          answer.classList.toggle('open');
+        }
+      });
+    });
+  }
+
   function trackMcpPageView() {
     var auth = window.auth;
     if (!auth || !auth.currentUser) return;
@@ -165,6 +179,7 @@
     initFadeIn();
     initRotatingExamples();
     initCommandButtons();
+    initFaqAccordion();
     trackMcpPageView();
   });
 })();

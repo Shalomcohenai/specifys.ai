@@ -105,6 +105,8 @@
       modal.style.display = 'flex';
       updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
       loadMcpApiKeyStatus();
+      var jsonWrap = document.getElementById('mcp-modal-json-wrap');
+      if (jsonWrap) jsonWrap.classList.remove('revealed');
       trackMcpEvent('mcp_modal_open');
     }
   };
@@ -122,18 +124,24 @@
     var claudeTab = document.getElementById('mcp-tab-claude');
     var cursorPanel = document.getElementById('mcp-setup-cursor');
     var claudePanel = document.getElementById('mcp-setup-claude');
+    var jsonWrap = document.getElementById('mcp-modal-json-wrap');
     if (!cursorTab || !claudeTab || !cursorPanel || !claudePanel) return;
     if (tab === 'claude') {
       cursorTab.classList.remove('active');
+      cursorTab.setAttribute('aria-selected', 'false');
       claudeTab.classList.add('active');
+      claudeTab.setAttribute('aria-selected', 'true');
       cursorPanel.classList.add('hidden');
       claudePanel.classList.remove('hidden');
     } else {
       claudeTab.classList.remove('active');
+      claudeTab.setAttribute('aria-selected', 'false');
       cursorTab.classList.add('active');
+      cursorTab.setAttribute('aria-selected', 'true');
       claudePanel.classList.add('hidden');
       cursorPanel.classList.remove('hidden');
     }
+    if (jsonWrap) jsonWrap.classList.add('revealed');
   };
 
   window.createMcpApiKey = async function () {

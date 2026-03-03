@@ -1,60 +1,143 @@
-/* MCP modal: shared compact styles (spec-viewer uses this; profile has its own in profile.css) */
+/* MCP Connect Modal: shared styles (Profile + Spec Viewer) */
 #mcpModal.modal-overlay.hidden {
   display: none !important;
 }
+
 .mcp-modal-content {
-  max-width: 480px;
+  max-width: 600px;
+  width: 92%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
+
+.mcp-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.mcp-modal-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.mcp-modal-title i {
+  margin-right: 0.5rem;
+  color: #FF6B35;
+}
+
 .mcp-modal-body {
-  padding: 1rem 1.25rem;
+  padding: 1.5rem 1.5rem;
+  overflow-y: auto;
 }
+
 .mcp-modal-intro {
-  margin: 0 0 0.75rem;
-  font-size: 0.95rem;
-  color: #444;
-  line-height: 1.45;
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.55;
 }
+
 .mcp-modal-key-block {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #eee;
 }
+
 .mcp-modal-key-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
+
+.mcp-modal-key-row:last-child {
+  margin-bottom: 0;
+}
+
+.mcp-modal-key-actions {
+  margin-top: 0.5rem;
+}
+
 .mcp-modal-label {
   font-weight: 600;
   font-size: 0.9rem;
   min-width: 4rem;
+  color: #333;
 }
+
 .mcp-modal-key-display {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
+
 .mcp-modal-key-display input {
   flex: 1;
   min-width: 180px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-family: monospace;
   font-size: 0.85rem;
   border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #f8f9fa;
+  border-radius: 8px;
+  background: #fff;
 }
+
 .mcp-modal-message {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
 }
+
+/* Setup: Cursor | Claude Desktop buttons */
+.mcp-modal-setup-section {
+  margin-bottom: 1rem;
+}
+
 .mcp-modal-setup-label {
-  margin: 0.5rem 0 0.35rem;
+  margin: 0 0 0.5rem;
   font-size: 0.9rem;
-  color: #555;
+  font-weight: 600;
+  color: #333;
 }
+
+.mcp-modal-setup-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.mcp-setup-btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.mcp-setup-btn:hover {
+  border-color: #FF6B35;
+  color: #FF6B35;
+}
+
+.mcp-setup-btn.active {
+  background: #FF6B35;
+  border-color: #FF6B35;
+  color: #fff;
+}
+
+/* Legacy link-style tabs (if any page still uses them) */
 .mcp-modal-setup-link {
   background: none;
   border: none;
@@ -64,81 +147,133 @@
   cursor: pointer;
   text-decoration: none;
 }
+
 .mcp-modal-setup-link:hover {
   color: #FF6B35;
 }
+
 .mcp-modal-setup-link.active {
   color: #FF6B35;
   font-weight: 600;
 }
+
 .mcp-modal-setup-sep {
   color: #bbb;
   margin: 0 0.25rem;
 }
+
+/* Setup instructions panel */
 .mcp-setup-panel {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
+
 .mcp-setup-panel.hidden {
   display: none;
 }
+
 .mcp-setup-text {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: #555;
 }
-.mcp-modal-json-wrap {
-  position: relative;
-  margin-top: 0.5rem;
+
+.mcp-setup-text code {
+  font-size: 0.85em;
+  padding: 0.15rem 0.4rem;
+  background: #eee;
+  border-radius: 4px;
+  color: #333;
 }
+
+/* JSON block: hidden until user clicks Cursor or Claude */
+.mcp-modal-json-wrap {
+  margin-top: 0;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  display: none;
+  transition: opacity 0.2s ease;
+}
+
+.mcp-modal-json-wrap.revealed {
+  display: block;
+}
+
+.mcp-modal-json-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.mcp-modal-json-box {
+  position: relative;
+}
+
 .mcp-modal-json-wrap textarea {
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 10px;
-  font-family: monospace;
-  font-size: 11px;
+  padding: 12px 14px;
+  padding-right: 100px;
+  font-family: "SF Mono", Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #f8f9fa;
   resize: vertical;
-}
-.mcp-copy-json-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
+  min-height: 140px;
 }
 
-/* Modal buttons when not on profile (spec-viewer) */
+.mcp-copy-json-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Action buttons (Create key, Regenerate, Copy key, Copy JSON) */
 .mcp-modal-content .panel-action-btn {
   padding: 8px 14px;
   font-size: 0.9rem;
   font-weight: 600;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   background: #FF6B35;
   color: #fff;
+  transition: background 0.2s;
 }
+
 .mcp-modal-content .panel-action-btn:hover {
   background: #e55a2b;
 }
+
 .mcp-modal-content .panel-action-btn.cancel-btn {
   background: #6c757d;
 }
+
 .mcp-modal-content .panel-action-btn.cancel-btn:hover {
   background: #5a6268;
 }
+
+.mcp-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+}
+
 .mcp-modal-content .modal-footer .btn {
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
 }
+
 .mcp-modal-content .modal-footer .btn-secondary {
   background: #f0f0f0;
   border: 1px solid #ddd;
   color: #333;
 }
+
 .mcp-modal-content .modal-footer .btn-secondary:hover {
   background: #e5e5e5;
 }
