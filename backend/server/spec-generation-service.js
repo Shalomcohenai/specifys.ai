@@ -432,7 +432,7 @@ Note: Target Audience information should be inferred from the app description an
       technical: 'You are a highly experienced software architect and lead developer. Generate a detailed technical specification.',
       market: 'You are a market research specialist and business analyst. Generate comprehensive market research insights.',
       design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines and branding elements.',
-      architecture: 'You are a software architect. Produce a single Markdown document that synthesizes overview, technical, market, and design into one coherent architecture spec. Use Mermaid code blocks where helpful. Output only valid Markdown.'
+      architecture: 'You are a software architect. Produce a single Markdown document that follows a fixed 7-section structure. Each section must include the required subsections. Use Mermaid code blocks where helpful (e.g., tree diagrams, flowcharts). Output only valid Markdown with the exact section headings provided.'
     };
     return prompts[stage] || 'You are an expert specification generator.';
   }
@@ -447,7 +447,7 @@ Note: Target Audience information should be inferred from the app description an
       technical: 'Create a comprehensive technical specification including data models, database schema, API design, security, and integration points.',
       market: 'Create detailed market analysis including market overview, competitors analysis, target audience personas, and pricing strategy.',
       design: 'Create detailed design specifications including color schemes, typography, UI components, user experience guidelines, and branding elements.',
-      architecture: 'Create a single Markdown document that combines overview, technical, market, and design into one coherent architecture spec. Include: high-level file/folder structure, main modules and their responsibilities, key function flows. Use Markdown headings and optional Mermaid code blocks (```mermaid ... ```) for structure and flow diagrams. Output must be valid Markdown.'
+      architecture: 'Create a single Markdown document with exactly 7 main sections. Use the exact section titles and include all required subsections. Use Markdown headings (## for main sections, ### for subsections) and optional Mermaid code blocks. Output must be valid Markdown only.'
     };
     return prompts[stage] || 'Generate a comprehensive specification.';
   }
@@ -468,7 +468,55 @@ Note: Target Audience information should be inferred from the app description an
 
     logger.info({ requestId, specId }, '[SpecGeneration] Starting architecture generation');
 
-    const userPrompt = `Combine the following specification sections into one architecture document (Markdown with optional Mermaid diagrams).
+    const architectureStructure = `
+Your output MUST be a single Markdown document with exactly these 7 sections (use these exact headings). Include all subsections under each.
+
+## 1. System Overview & Tech Stack
+Defines the foundation and the "tools of the trade."
+- **Core Technologies:** List the primary languages and frameworks (e.g., Node.js, React, Python).
+- **Infrastructure:** Hosting (e.g., AWS, Render, Vercel) and Database (e.g., Firestore, PostgreSQL, Redis).
+- **Third-Party Integrations:** External APIs (e.g., Stripe, Firebase Auth, OpenAI).
+- **Architecture Pattern:** High-level logic (e.g., MVC, Microservices, Serverless).
+
+## 2. File & Directory Structure
+The "Map" for the AI. Prevents creating files in the wrong places.
+- **Tree Diagram:** Visual or text representation of folders (e.g., src/components, src/services). Use Mermaid if helpful.
+- **Naming Conventions:** Rules for naming files (e.g., kebab-case for files, PascalCase for React components).
+- **Module Responsibility:** Brief description of what each directory is allowed to contain.
+
+## 3. Data Schema & Models
+The "Memory" of the system. How data is structured and stored.
+- **Entities:** Main objects (e.g., User, Spec, McpKey).
+- **Field Definitions:** Property names, data types (String, Number, Boolean), required/optional.
+- **Relationships:** How entities link (e.g., One-to-Many between User and Specs).
+- **Indexing:** Key fields that need fast searching in the database.
+
+## 4. Key Logic Flows
+The "Instructions" for the backend. How the system handles complex tasks.
+- **User Journeys:** Step-by-step logic for key actions (e.g., "User requests API key -> System validates session -> Writes to DB").
+- **Data Lifecycle:** How data is created, updated, deleted or archived.
+- **Error Handling:** What happens when things go wrong (e.g., "If API Key invalid, return 401 Unauthorized").
+
+## 5. API & Function Definitions
+The "Interfaces." Specific code signatures.
+- **REST Endpoints:** Method, Path, Request Body, Response (e.g., PUT /api/specs/:id).
+- **Core Utility Functions:** Key logic functions that must exist (e.g., generateApiKey(), validateSchema()).
+- **Frontend Hooks/Services:** How the UI interacts with the logic (e.g., useSpecData()).
+
+## 6. UI & Page Architecture
+The "Visual Map." Bridges design and code.
+- **Sitemap:** List of all accessible pages and their routes.
+- **Component Hierarchy:** Reusable UI elements (e.g., Sidebar, SpecEditor, StatusBadge).
+- **Design Tokens:** System-wide constants (colors hex, spacing px/rem, typography).
+
+## 7. Security & Constraints
+The "Guardrails." Safety and efficiency.
+- **Authentication & Authorization:** How users log in and roles (e.g., Admin vs User).
+- **Environment Variables:** List of required .env keys (names only, no values).
+- **Performance Constraints:** Limits (e.g., max 50 specs per user, response time under 200ms).
+`;
+
+    const userPrompt = `Combine the following specification sections into one architecture document. The output MUST follow the exact 7-section structure provided below (use the same section numbers and titles).
 
 ## Overview
 ${(overview || '').slice(0, 15000)}
@@ -482,20 +530,18 @@ ${(market || '').slice(0, 8000)}
 ## Design
 ${(design || '').slice(0, 12000)}
 
-Produce a single Markdown document that includes:
-1. High-level file/folder structure (as text or Mermaid graph)
-2. Main modules and their responsibilities
-3. Key data/function flows (optional Mermaid sequence or flowchart)
-4. Any architecture decisions inferred from the specs above.
+---
+REQUIRED OUTPUT STRUCTURE (include every section and subsection; fill from the specs above):
+${architectureStructure}
 
-Use \`\`\`mermaid ... \`\`\` blocks where a diagram helps. Return ONLY the Markdown (no JSON wrapper).`;
+Use \`\`\`mermaid ... \`\`\` blocks where a diagram helps (e.g., tree, flowchart, sequence). Return ONLY the Markdown (no JSON wrapper).`;
 
     const requestBody = {
       stage: 'architecture',
       locale: 'en-US',
       temperature: 0.2,
       prompt: {
-        system: 'You are a software architect. Output valid Markdown only. Use Mermaid code blocks where helpful for structure or flow.',
+        system: this.getSystemPrompt('architecture'),
         developer: this.getDeveloperPrompt('architecture'),
         user: userPrompt
       }
