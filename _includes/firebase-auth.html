@@ -76,12 +76,17 @@
     authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists immediately for new users
-      if (user && document.visibilityState === 'visible') {
-        // Run immediately to ensure credits are available for new users
-        ensureUserDocument(user).catch(error => {
-          // Error ensuring user document
-        });
+      // Ensure user document exists immediately for new users; expose promise for credits loading
+      if (user) {
+        if (document.visibilityState === 'visible') {
+          window.__userInitPromise = ensureUserDocument(user).catch(function() {
+            // Error ensuring user document - credits flow will still try one GET
+          });
+        } else {
+          window.__userInitPromise = Promise.resolve();
+        }
+      } else {
+        window.__userInitPromise = undefined;
       }
     });
   }

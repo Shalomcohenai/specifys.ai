@@ -42,13 +42,10 @@ router.get('/', verifyFirebaseToken, async (req, res, next) => {
   try {
     const userId = req.user.uid;
     const result = await creditsV3Service.getAvailableCredits(userId);
-    const credits = await creditsV3Service.getUserCredits(userId);
 
     res.json({
       success: true,
-      ...result,
-      subscription: credits.subscription,
-      permissions: credits.permissions
+      ...result
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[credits-v3-routes] GET / - Error');

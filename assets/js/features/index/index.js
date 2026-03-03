@@ -1794,81 +1794,35 @@ async function initializeCreditsWithLoading() {
   }
   
   try {
-    // Show loading state in credits button immediately (via updateCreditsDisplay)
-    // This uses the existing loading state in the header credits button
+    // Show loading state in credits button immediately
     if (typeof window.updateCreditsDisplay === 'function') {
-      // This will show "Loading credits..." in the header button
       await window.updateCreditsDisplay({ forceRefresh: false });
     }
     
-    // Wait for ensureUserDocument to complete (it's called from firebase-auth.html)
-    // Poll until user is initialized or timeout
-    let attempts = 0;
-    const maxAttempts = 10; // 10 attempts * 500ms = 5 seconds max (reduced from 20 for faster loading)
-    let userInitialized = false;
-    let lastError = null;
+    // Wait for ensureUserDocument to complete (exposed as __userInitPromise from firebase-auth.html), max 3s
+    const initPromise = window.__userInitPromise || Promise.resolve();
+    const timeoutMs = 3000;
+    await Promise.race([
+      initPromise,
+      new Promise(function(resolve) { setTimeout(resolve, timeoutMs); })
+    ]);
     
-    while (attempts < maxAttempts && !userInitialized) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      attempts++;
-      
-      // Try to get credits - if it succeeds, user is initialized
-      try {
-        if (typeof window.clearCreditsCache === 'function') {
-          window.clearCreditsCache();
-        }
-        if (typeof window.updateCreditsDisplay === 'function') {
-          // Try to update credits - if user is initialized, this will work
-          await window.updateCreditsDisplay({ forceRefresh: true });
-          userInitialized = true;
-          break;
-        }
-      } catch (error) {
-        lastError = error;
-        // Check if error is about user not being initialized
-        const errorMessage = error.message || error.toString() || '';
-        const errorString = JSON.stringify(error).toLowerCase();
-        
-        if (errorMessage.includes('must be initialized') || 
-            errorMessage.includes('User credits not found') ||
-            errorMessage.includes('500') ||
-            errorString.includes('must be initialized') ||
-            errorString.includes('user credits not found')) {
-          // User not initialized yet, keep waiting
-          continue;
-        }
-        // Other errors - might be network issues
-      }
+    if (typeof window.clearCreditsCache === 'function') {
+      window.clearCreditsCache();
     }
-    
-    if (!userInitialized) {
-      // Try one more time with forceRefresh - maybe user was initialized in the meantime
-      if (typeof window.clearCreditsCache === 'function') {
-        window.clearCreditsCache();
-      }
-      if (typeof window.updateCreditsDisplay === 'function') {
-        try {
-          await window.updateCreditsDisplay({ forceRefresh: true });
-        } catch (finalError) {
-          // Credits will show "unavailable" - user can refresh page
-        }
-      }
-    } else {
-      // User initialized successfully, do final refresh to ensure latest data
-      if (typeof window.clearCreditsCache === 'function') {
-        window.clearCreditsCache();
-      }
-      if (typeof window.updateCreditsDisplay === 'function') {
-        await window.updateCreditsDisplay({ forceRefresh: true });
-      }
+    if (typeof window.updateCreditsDisplay === 'function') {
+      await window.updateCreditsDisplay({ forceRefresh: true });
     }
   } catch (error) {
-    // Even on error, try to show credits (might be cached)
+    // Fallback: try once more without blocking
+    if (typeof window.clearCreditsCache === 'function') {
+      window.clearCreditsCache();
+    }
     if (typeof window.updateCreditsDisplay === 'function') {
       try {
-        await window.updateCreditsDisplay({ forceRefresh: false });
-      } catch (e) {
-        // Ignore secondary errors
+        await window.updateCreditsDisplay({ forceRefresh: true });
+      } catch (finalError) {
+        // Credits will show "unavailable" - user can refresh page
       }
     }
   }

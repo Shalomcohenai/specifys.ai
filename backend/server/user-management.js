@@ -2,6 +2,7 @@ const { db, auth } = require('./firebase-admin');
 const admin = require('firebase-admin');
 const { recordUserRegistration } = require('./admin-activity-service');
 const config = require('./config');
+const creditsV3Service = require('./credits-v3-service');
 const MAX_REPORT_SAMPLE = 50;
 let lastUserSyncReport = null;
 
@@ -125,10 +126,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         
         const nowIso = new Date().toISOString();
         
-        // Load credits V3 service outside transaction for better performance
-        console.log(`[user-management] User ${uid}: Step 2 - Loading credits V3 service...`);
-        const creditsV3Service = require('./credits-v3-service');
-        console.log(`[user-management] User ${uid}: Credits V3 service loaded successfully`);
+        console.log(`[user-management] User ${uid}: Step 2 - Using credits V3 service (eager-loaded at startup)`);
         
         // Store authUser.creationTime for use inside transaction
         const authCreationTime = authUser.creationTime ? (authUser.creationTime instanceof Date ? authUser.creationTime : new Date(authUser.creationTime)) : null;

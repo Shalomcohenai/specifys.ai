@@ -259,7 +259,9 @@ async function getAvailableCredits(userId) {
         return {
           unlimited: false,
           total: total,
-          breakdown: credits.balances
+          breakdown: credits.balances,
+          subscription: credits.subscription,
+          permissions: credits.permissions
         };
       } else if (isNaN(expiresAt.getTime())) {
         // Invalid date - log warning and treat as unlimited
@@ -271,7 +273,9 @@ async function getAvailableCredits(userId) {
     return {
       unlimited: true,
       total: null,
-      breakdown: null
+      breakdown: null,
+      subscription: credits.subscription,
+      permissions: credits.permissions
     };
   }
   
@@ -281,7 +285,9 @@ async function getAvailableCredits(userId) {
   return {
     unlimited: false,
     total: total,
-    breakdown: credits.balances
+    breakdown: credits.balances,
+    subscription: credits.subscription,
+    permissions: credits.permissions
   };
 }
 
