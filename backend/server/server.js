@@ -1,4 +1,21 @@
 const path = require('path');
+const dotenv = require('dotenv');
+
+// Load .env BEFORE config so CREDITS_V3_ENABLED and other env vars are available
+const backendEnvPath = path.join(__dirname, '..', '.env');
+const rootEnvPath = path.join(__dirname, '..', '..', '.env');
+const serverEnvPath = path.join(__dirname, '.env');
+let loadedEnvPath = null;
+if (dotenv.config({ path: backendEnvPath }).parsed) {
+  loadedEnvPath = backendEnvPath;
+} else if (dotenv.config({ path: rootEnvPath }).parsed) {
+  loadedEnvPath = rootEnvPath;
+} else if (dotenv.config({ path: serverEnvPath }).parsed) {
+  loadedEnvPath = serverEnvPath;
+} else {
+  dotenv.config();
+}
+
 const express = require('express');
 const compression = require('compression');
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
@@ -10,7 +27,6 @@ if (typeof globalThis.fetch === 'function') {
   // Fallback for older Node versions
   fetch = require('node-fetch');
 }
-const dotenv = require('dotenv');
 const config = require('./config');
 const blogRoutes = require('./blog-routes');
 const blogRoutesPublic = require('./blog-routes-public');
@@ -30,34 +46,9 @@ const { syncAllUsers } = require('./user-management');
 const { startScheduledJobs } = require('./scheduled-jobs');
 const { initializeErrorCapture } = require('./render-error-capture');
 
-// Load environment variables BEFORE importing route modules
-// Try backend/.env first (preferred), then project root .env, then server/.env
-const backendEnvPath = path.join(__dirname, '..', '.env');
-const rootEnvPath = path.join(__dirname, '..', '..', '.env');
-const serverEnvPath = path.join(__dirname, '.env');
-let loadedEnvPath = null;
-
-logger.info({
-  type: 'env_loading_start',
-  paths: {
-    backend: backendEnvPath,
-    root: rootEnvPath,
-    server: serverEnvPath
-  }
-}, '[UNIFIED SERVER] 🔍 Loading environment variables...');
-
-if (dotenv.config({ path: backendEnvPath }).parsed) {
-  loadedEnvPath = backendEnvPath;
-  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from backend/.env');
-} else if (dotenv.config({ path: rootEnvPath }).parsed) {
-  loadedEnvPath = rootEnvPath;
-  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from project root .env');
-} else if (dotenv.config({ path: serverEnvPath }).parsed) {
-  loadedEnvPath = serverEnvPath;
-  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from server/.env');
+if (loadedEnvPath) {
+  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded');
 } else {
-  // Final fallback to default lookup (CWD)
-  dotenv.config();
   logger.warn({ type: 'env_fallback' }, '[UNIFIED SERVER] ⚠️ Using default environment variable lookup (CWD)');
 }
 
