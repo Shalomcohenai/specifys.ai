@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="https://specifys-ai.com/pages/profile.html">
+    <link rel="canonical" href="http://localhost:4000/pages/profile.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="My Profile">
     <meta property="og:description" content="Manage your Specifys.ai profile and apps">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/pages/profile.html">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/pages/profile.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="My Profile - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="My Profile">
     <meta name="twitter:description" content="Manage your Specifys.ai profile and apps">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="My Profile - Specifys.ai">
     
     <!-- Favicon -->
@@ -168,6 +168,8 @@
     
       
         <link rel="stylesheet" href="/assets/css/pages/profile.css">
+      
+        <link rel="stylesheet" href="/assets/css/pages/mcp-modal.css">
       
     
     
@@ -465,13 +467,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://specifys-ai.com/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "My Profile",
-          "item": "https://specifys-ai.com/pages/profile.html"
+          "item": "http://localhost:4000/pages/profile.html"
         }
       ]
     }
@@ -876,47 +878,61 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
 </div>
 
-<!-- MCP Connect Modal: compact, one explanation block, Cursor/Claude text switch -->
-<div id="mcpModal" class="modal-overlay hidden">
+<!-- MCP Connect Modal: shared markup for Profile and Spec Viewer -->
+<div id="mcpModal" class="modal-overlay hidden" aria-hidden="true" aria-label="Connect MCP">
     <div class="modal-content mcp-modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-plug"></i> Connect MCP</h3>
-            <button class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
+        <div class="modal-header mcp-modal-header">
+            <h3 class="mcp-modal-title"><i class="fas fa-plug" aria-hidden="true"></i> Connect MCP</h3>
+            <button type="button" class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body mcp-modal-body">
-            <p class="mcp-modal-intro">Your API key lets Cursor or Claude Desktop access your specs. One key per user.</p>
+            <p class="mcp-modal-intro">Use one API key per account. Cursor or Claude Desktop can then read and update your specs in real time.</p>
+
             <div class="mcp-modal-key-block">
                 <div class="mcp-modal-key-row">
                     <span class="mcp-modal-label">Status</span>
                     <span id="mcp-key-status">Checking...</span>
                 </div>
-                <div class="mcp-modal-key-row">
+                <div class="mcp-modal-key-row mcp-modal-key-actions">
                     <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
                     <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
                 </div>
                 <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
-                    <input type="text" id="mcp-key-input" readonly />
+                    <input type="text" id="mcp-key-input" readonly aria-label="API key" />
                     <button type="button" class="panel-action-btn" onclick="window.copyMcpKey && window.copyMcpKey()" title="Copy key">Copy key</button>
                 </div>
-                <div id="mcp-key-message" class="mcp-modal-message" style="display: none;"></div>
+                <div id="mcp-key-message" class="mcp-modal-message" style="display: none;" role="alert"></div>
             </div>
-            <p class="mcp-modal-setup-label">Setup: <button type="button" class="mcp-modal-setup-link active" id="mcp-tab-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button> <span class="mcp-modal-setup-sep">|</span> <button type="button" class="mcp-modal-setup-link" id="mcp-tab-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button></p>
-            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel">
-                <p class="mcp-setup-text">In Cursor open <strong>Settings - MCP</strong>. Add a server and paste the JSON below. In <code>args</code> put the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
+
+            <div class="mcp-modal-setup-section">
+                <p class="mcp-modal-setup-label">Setup</p>
+                <div class="mcp-modal-setup-buttons" role="tablist" aria-label="Choose editor">
+                    <button type="button" class="mcp-setup-btn active" id="mcp-tab-cursor" role="tab" aria-selected="true" aria-controls="mcp-setup-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button>
+                    <button type="button" class="mcp-setup-btn" id="mcp-tab-claude" role="tab" aria-selected="false" aria-controls="mcp-setup-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button>
+                </div>
             </div>
-            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel">
-                <p class="mcp-setup-text">Open Claude Desktop MCP config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
+
+            <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel" aria-labelledby="mcp-tab-cursor">
+                <p class="mcp-setup-text">In Cursor open <strong>Settings → MCP</strong>. Add a server and paste the JSON below. In <code>args</code> use the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
             </div>
-            <div class="mcp-modal-json-wrap">
-                <textarea id="mcp-json-config" readonly rows="6"></textarea>
-                <button type="button" class="panel-action-btn mcp-copy-json-btn" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">Copy JSON</button>
+            <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel" aria-labelledby="mcp-tab-claude">
+                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
+            </div>
+
+            <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap" aria-live="polite">
+                <p class="mcp-modal-json-label">Configuration (JSON)</p>
+                <div class="mcp-modal-json-box">
+                    <textarea id="mcp-json-config" readonly rows="8" aria-label="MCP configuration JSON"></textarea>
+                    <button type="button" class="panel-action-btn mcp-copy-json-btn" onclick="window.copyMcpJson && window.copyMcpJson()" title="Copy JSON">Copy JSON</button>
+                </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
+        <div class="modal-footer mcp-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeMcpModal()">Close</button>
         </div>
     </div>
 </div>
+
 
 <!-- Edit Display Name Modal -->
 <div id="editNameModal" class="modal-overlay hidden">

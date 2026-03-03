@@ -310,6 +310,18 @@
 
 
 /* ===== FAQ (accordion, same design as homepage) ===== */
+/* Override global .section / .section .faq-list opacity from main-compiled so FAQ is visible on MCP page */
+.mcp-page .mcp-faq.section {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+.mcp-page .mcp-faq .faq-list {
+  opacity: 1;
+  transform: none;
+}
+
 .mcp-faq {
   background: #f8f9fa;
 }
