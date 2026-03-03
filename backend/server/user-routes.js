@@ -362,6 +362,34 @@ router.post('/me/mcp-api-key', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
+const MCP_EVENT_TYPES = new Set(['mcp_modal_open', 'mcp_page_view']);
+
+/**
+ * Record MCP-related frontend event (modal open, MCP page view) for admin stats.
+ * POST /api/users/me/mcp-event
+ * Body: { type: 'mcp_modal_open' | 'mcp_page_view' }
+ */
+router.post('/me/mcp-event', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `mcp-event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    try {
+        const userId = req.user.uid;
+        const type = req.body?.type;
+        if (!type || !MCP_EVENT_TYPES.has(type)) {
+            return next(createError('Invalid type. Use mcp_modal_open or mcp_page_view', ERROR_CODES.INVALID_INPUT, 400));
+        }
+        await db.collection('mcp_events').add({
+            userId,
+            type,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+        logger.debug({ requestId, userId, type }, '[user-routes] MCP event recorded');
+        res.json({ success: true });
+    } catch (err) {
+        logger.error({ requestId, userId: req.user?.uid, error: err.message }, '[user-routes] POST /me/mcp-event error');
+        next(createError('Failed to record MCP event', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+});
+
 /**
  * Update user email preferences
  * PUT /api/users/preferences/email

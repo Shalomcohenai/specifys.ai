@@ -147,9 +147,24 @@
     startAutoRotate();
   }
 
+  function trackMcpPageView() {
+    var auth = window.auth;
+    if (!auth || !auth.currentUser) return;
+    var apiBaseUrl = (typeof window.getApiBaseUrl === 'function' && window.getApiBaseUrl()) || window.API_BASE_URL || window.BACKEND_URL || '';
+    if (!apiBaseUrl) return;
+    auth.currentUser.getIdToken().then(function (token) {
+      fetch(apiBaseUrl + '/api/users/me/mcp-event', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'mcp_page_view' })
+      }).catch(function () {});
+    }).catch(function () {});
+  }
+
   ready(function () {
     initFadeIn();
     initRotatingExamples();
     initCommandButtons();
+    trackMcpPageView();
   });
 })();

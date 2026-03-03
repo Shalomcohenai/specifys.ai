@@ -10,6 +10,20 @@ const ALLOWED_KEYS = new Set(['overview', 'technical', 'design', 'market', 'titl
 const MAX_FIELD_SIZE = 1024 * 1024; // 1MB per field
 
 /**
+ * Normalize MCP client from request header (X-MCP-Client: cursor | claude).
+ * @param {import('express').Request} req
+ * @returns {'cursor'|'claude'|'unknown'}
+ */
+function getMcpClientFromRequest(req) {
+  const raw = req.headers['x-mcp-client'];
+  if (!raw || typeof raw !== 'string') return 'unknown';
+  const v = raw.trim().toLowerCase();
+  if (v === 'cursor') return 'cursor';
+  if (v === 'claude') return 'claude';
+  return 'unknown';
+}
+
+/**
  * Get API key from request: Authorization Bearer or X-API-Key header.
  * @param {import('express').Request} req
  * @returns {string|null}
@@ -45,6 +59,7 @@ async function verifyApiKey(req, res, next) {
     const envUserId = process.env.MCP_API_USER_ID;
     if (envKey && envUserId && key === envKey) {
       req.user = { uid: envUserId };
+      req.mcpClient = getMcpClientFromRequest(req);
       logger.debug({ requestId, path: req.path }, '[mcp-auth] API key validated (env)');
       return next();
     }
@@ -59,6 +74,7 @@ async function verifyApiKey(req, res, next) {
     if (!usersSnap.empty) {
       const uid = usersSnap.docs[0].id;
       req.user = { uid };
+      req.mcpClient = getMcpClientFromRequest(req);
       logger.debug({ requestId, path: req.path, uid }, '[mcp-auth] API key validated (Firestore)');
       return next();
     }
@@ -96,6 +112,7 @@ function buildSpecUpdatePayload(body) {
 module.exports = {
   verifyApiKey,
   getApiKeyFromRequest,
+  getMcpClientFromRequest,
   buildSpecUpdatePayload,
   ALLOWED_KEYS,
   MAX_FIELD_SIZE

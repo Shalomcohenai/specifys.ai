@@ -1436,6 +1436,72 @@ router.get('/activity', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * GET /api/admin/stats/mcp
+ * MCP usage stats: users with key, frontend events (modal open, page view), API calls by path and client.
+ */
+router.get('/stats/mcp', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /stats/mcp');
+  try {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // 1) Users with MCP API key
+    const usersWithKeySnap = await db.collection('users')
+      .where('mcpApiKey', '!=', null)
+      .count()
+      .get();
+    const usersWithKey = usersWithKeySnap.data().count;
+
+    // 2) Frontend events (last 30 days) - mcp_events collection
+    const eventsSnap = await db.collection('mcp_events')
+      .where('timestamp', '>=', thirtyDaysAgo)
+      .get();
+    const modalOpens = eventsSnap.docs.filter(d => d.data().type === 'mcp_modal_open').length;
+    const pageViews = eventsSnap.docs.filter(d => d.data().type === 'mcp_page_view').length;
+
+    // 3) MCP API requests (last 30 days) - aggregate by path and by client
+    const requestsSnap = await db.collection('mcp_requests')
+      .where('timestamp', '>=', thirtyDaysAgo)
+      .get();
+    const byPath = {};
+    const byClient = { cursor: 0, claude: 0, unknown: 0 };
+    const uniqueUsers = new Set();
+    requestsSnap.docs.forEach(doc => {
+      const d = doc.data();
+      const path = d.path || 'unknown';
+      byPath[path] = (byPath[path] || 0) + 1;
+      const client = d.client === 'cursor' || d.client === 'claude' ? d.client : 'unknown';
+      byClient[client]++;
+      if (d.userId) uniqueUsers.add(d.userId);
+    });
+    const topFunctions = Object.entries(byPath)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([path, count]) => ({ path, count }));
+
+    res.json({
+      success: true,
+      data: {
+        usersWithKey,
+        events: {
+          mcp_modal_open: modalOpens,
+          mcp_page_view: pageViews
+        },
+        apiRequests: {
+          total: requestsSnap.size,
+          uniqueUsers: uniqueUsers.size,
+          byClient,
+          topFunctions
+        }
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] GET /stats/mcp error');
+    next(createError('Failed to fetch MCP stats', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
  * Refresh user subscription data from Lemon Squeezy API
  * POST /api/admin/users/:userId/refresh-subscription
  */

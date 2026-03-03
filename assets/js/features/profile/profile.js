@@ -2739,6 +2739,20 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             if (textarea) textarea.value = JSON.stringify(config, null, 2);
         }
 
+        function trackMcpEvent(type) {
+            const user = auth.currentUser;
+            if (!user) return;
+            const apiBaseUrl = (window.getApiBaseUrl && window.getApiBaseUrl()) || (window.API_BASE_URL || window.BACKEND_URL || '');
+            if (!apiBaseUrl) return;
+            user.getIdToken().then(token => {
+                fetch(`${apiBaseUrl}/api/users/me/mcp-event`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type })
+                }).catch(() => {});
+            }).catch(() => {});
+        }
+
         window.openMcpModal = function() {
             const modal = document.getElementById('mcpModal');
             if (modal) {
@@ -2746,6 +2760,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 modal.style.display = 'flex';
                 updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
                 loadMcpApiKeyStatus();
+                trackMcpEvent('mcp_modal_open');
             }
         };
 

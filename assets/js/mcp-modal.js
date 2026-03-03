@@ -85,6 +85,19 @@
     if (textarea) textarea.value = JSON.stringify(config, null, 2);
   }
 
+  function trackMcpEvent(type) {
+    var user = getCurrentUser();
+    if (!user) return;
+    var apiBaseUrl = getApiBaseUrl();
+    user.getIdToken().then(function (token) {
+      fetch(apiBaseUrl + '/api/users/me/mcp-event', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: type })
+      }).catch(function () {});
+    }).catch(function () {});
+  }
+
   window.openMcpModal = function () {
     var modal = document.getElementById('mcpModal');
     if (modal) {
@@ -92,6 +105,7 @@
       modal.style.display = 'flex';
       updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
       loadMcpApiKeyStatus();
+      trackMcpEvent('mcp_modal_open');
     }
   };
 

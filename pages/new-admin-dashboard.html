@@ -40,6 +40,10 @@ custom_js_modules:
         <i class="fas fa-file-code"></i>
         <span>Spec Usage</span>
       </button>
+      <button class="nav-tab" data-section="mcp" aria-label="MCP">
+        <i class="fas fa-plug"></i>
+        <span>MCP</span>
+      </button>
       <button class="nav-tab" data-section="payments" aria-label="Payments">
         <i class="fas fa-credit-card"></i>
         <span>Payments</span>
@@ -1223,6 +1227,104 @@ custom_js_modules:
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <!-- MCP Section -->
+    <section class="dashboard-content-section" id="mcp-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>MCP</h1>
+          <p>Model Context Protocol: API keys, feature access, and usage</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-modern" id="mcp-refresh-btn" title="Refresh MCP stats">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="quick-stats-grid" style="margin-bottom: 24px;">
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Users with MCP key</div>
+            <div class="stat-value" id="mcp-stat-users-with-key">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <i class="fas fa-window-restore"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Connect MCP modal opens (30d)</div>
+            <div class="stat-value" id="mcp-stat-modal-opens">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">MCP page views (30d)</div>
+            <div class="stat-value" id="mcp-stat-page-views">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fas fa-plug"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">API requests (30d)</div>
+            <div class="stat-value" id="mcp-stat-api-requests">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header-modern" style="margin-top: 24px;">
+        <h2 style="font-size: 1.1rem;">By client (30d)</h2>
+      </div>
+      <div class="quick-stats-grid" style="margin-bottom: 24px;">
+        <div class="quick-stat-card">
+          <div class="stat-content">
+            <div class="stat-label">Cursor</div>
+            <div class="stat-value" id="mcp-stat-cursor">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-content">
+            <div class="stat-label">Claude</div>
+            <div class="stat-value" id="mcp-stat-claude">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-content">
+            <div class="stat-label">Unknown</div>
+            <div class="stat-value" id="mcp-stat-unknown">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header-modern" style="margin-top: 24px;">
+        <h2 style="font-size: 1.1rem;">Most used MCP functions (30d)</h2>
+      </div>
+      <div class="table-card">
+        <table class="modern-table" id="mcp-top-functions-table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Calls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="2" class="table-empty-state">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 

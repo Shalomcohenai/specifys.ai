@@ -14,6 +14,7 @@ import { PaymentsView } from './views/PaymentsView.js';
 import { LogsView } from './views/LogsView.js';
 import { AnalyticsView } from './views/AnalyticsView.js';
 import { SpecUsageView } from './views/SpecUsageView.js';
+import { McpView } from './views/McpView.js';
 import { ArticlesView } from './views/ArticlesView.js';
 import { AcademyView } from './views/AcademyView.js';
 import { ToolsView } from './views/ToolsView.js';
@@ -399,6 +400,9 @@ class NewAdminDashboard {
       
       // Spec Usage view
       this.views.set('spec-usage', new SpecUsageView(this.dataManager, this.stateManager));
+      
+      // MCP view
+      this.views.set('mcp', new McpView(this.dataManager, this.stateManager));
       
       // Payments view
       this.views.set('payments', new PaymentsView(this.dataManager, this.stateManager));

@@ -13,6 +13,29 @@ const { buildSpecUpdatePayload } = require('./mcp-auth');
 const specGenerationService = require('./spec-generation-service');
 const { getAllTools } = require('./tools-migration-service');
 
+const MCP_REQUESTS_COLLECTION = 'mcp_requests';
+
+/**
+ * Middleware: log each MCP request to Firestore for stats (fire-and-forget).
+ */
+router.use((req, res, next) => {
+  const userId = req.user?.uid;
+  const path = req.path || req.url?.split('?')[0] || '';
+  const method = req.method || 'GET';
+  const client = req.mcpClient || 'unknown';
+  const doc = {
+    userId: userId || null,
+    path,
+    method,
+    client,
+    timestamp: admin.firestore.FieldValue.serverTimestamp()
+  };
+  db.collection(MCP_REQUESTS_COLLECTION).add(doc).catch(err => {
+    logger.warn({ err: err.message, path, method }, '[mcp-routes] Failed to log MCP request');
+  });
+  next();
+});
+
 /**
  * GET /api/mcp/specs
  * List current user's specs (metadata).
