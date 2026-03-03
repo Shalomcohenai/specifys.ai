@@ -2462,3 +2462,69 @@ button[onclick*="openVisualizer"]:active {
   color: #444;
   flex: 1;
 }
+
+/* Spec title edit button (pencil next to page title) */
+.page-title .spec-title-edit {
+  margin-left: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color, #333);
+  background: transparent;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.page-title .spec-title-edit:hover {
+  background: var(--border-color, #eee);
+  border-color: #ccc;
+  color: #222;
+}
+.page-title .spec-title-edit.hidden {
+  display: none;
+}
+
+/* Rename spec modal */
+#rename-spec-modal.modal {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10001;
+}
+#rename-spec-modal.modal:not(.hidden) {
+  display: flex;
+}
+.rename-spec-modal-content {
+  max-width: 420px;
+  width: 90%;
+}
+.rename-spec-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.rename-spec-input:focus {
+  outline: none;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+.rename-spec-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+.rename-spec-actions .btn {
+  min-width: 80px;
+}
+.rename-spec-spinner.hidden {
+  display: none;
+}
+.rename-spec-save-text.hidden {
+  display: none;
+}

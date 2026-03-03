@@ -9,6 +9,7 @@ const { db } = require('./firebase-admin');
 const emailService = require('./email-service');
 const { jobRegistry } = require('./automation-service');
 const { ToolsFinderJob } = require('./tools-automation');
+const { exportToolsToJson } = require('./tools-export-service');
 const { ArticleWriterJob } = require('./articles-automation');
 const { CreditsSyncJob } = require('./credits-sync-job');
 const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
@@ -335,6 +336,18 @@ async function runToolsFinderJob() {
     await jobRegistry.executeJob('tools-finder', { dryRun: false });
     
     logger.info({ requestId }, '[scheduled-jobs] Scheduled tools finder job completed successfully');
+
+    // Export Firestore tools to tools.json after successful run (source of truth sync)
+    try {
+      const exportResult = await exportToolsToJson({ dryRun: false });
+      if (exportResult.success) {
+        logger.info({ requestId, count: exportResult.count }, '[scheduled-jobs] Tools export to JSON completed');
+      } else {
+        logger.warn({ requestId, error: exportResult.error }, '[scheduled-jobs] Tools export to JSON failed');
+      }
+    } catch (exportErr) {
+      logger.warn({ requestId, error: exportErr.message }, '[scheduled-jobs] Tools export to JSON failed');
+    }
   } catch (error) {
     logger.error({ 
       requestId, 

@@ -253,6 +253,8 @@ See `docs/architecture/API.md` for full reference. Key endpoints:
 
 **Important:** Make sure the backend server is running when testing user features like viewing credits or creating specs!
 
+**Tools Map data:** Firestore is the source of truth for the Vibe Coding Tools Map. The file `tools/map/tools.json` is a derived export (Admin → Tools → "Export to JSON", or run automatically after the weekly tools-finder job). Use migration (JSON → Firestore) only for one-time seed or backup.
+
 ---
 
 ## 🔐 Firebase
@@ -311,7 +313,7 @@ For issues or questions:
 
 ## 📄 License
 
-© 2025 Specifys.ai. All rights reserved.
+© 2026 Specifys.ai. All rights reserved.
 
 ---
 

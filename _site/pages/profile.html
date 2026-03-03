@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/pages/profile.html">
+    <link rel="canonical" href="http://0.0.0.0:4000/pages/profile.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="My Profile">
     <meta property="og:description" content="Manage your Specifys.ai profile and apps">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/pages/profile.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/pages/profile.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="My Profile - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="My Profile">
     <meta name="twitter:description" content="Manage your Specifys.ai profile and apps">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="My Profile - Specifys.ai">
     
     <!-- Favicon -->
@@ -467,13 +467,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://localhost:4000/"
+          "item": "http://0.0.0.0:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "My Profile",
-          "item": "http://localhost:4000/pages/profile.html"
+          "item": "http://0.0.0.0:4000/pages/profile.html"
         }
       ]
     }
@@ -954,6 +954,29 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
 </div>
 
+<!-- Rename Spec Modal -->
+<div id="rename-spec-modal" class="modal-overlay hidden" role="dialog" aria-labelledby="rename-spec-modal-title" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="rename-spec-modal-title"><i class="fas fa-pencil-alt"></i> Edit spec name</h3>
+            <button class="modal-close" id="rename-spec-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="rename-spec-input">Specification name</label>
+                <input type="text" id="rename-spec-input" class="rename-spec-input" placeholder="Specification name" maxlength="120" />
+            </div>
+            <div class="rename-spec-actions modal-footer">
+                <button type="button" class="btn btn-secondary" id="rename-spec-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="rename-spec-save-btn">
+                    <span class="rename-spec-save-text">Save</span>
+                    <span class="rename-spec-spinner hidden" aria-hidden="true"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
     </main>
     
     <!-- Footer -->
@@ -1004,7 +1027,7 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
   </nav>
   <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved.
+    © 2026 specifys.ai. All rights reserved.
   </div>
 </footer>
 

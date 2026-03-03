@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/">
+    <link rel="canonical" href="http://0.0.0.0:4000/">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Create App Specs with AI">
     <meta property="og:description" content="Generate comprehensive PRDs and app specifications in minutes with Specifys AI. Optimize your Vibe Coding workflow and save development costs today.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Create App Specs with AI - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Create App Specs with AI">
     <meta name="twitter:description" content="Generate comprehensive PRDs and app specifications in minutes with Specifys AI. Optimize your Vibe Coding workflow and save development costs today.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Create App Specs with AI - Specifys.ai">
     
     <!-- Favicon -->
@@ -1590,7 +1590,7 @@ graph TD
     </div>
   </nav>
   <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved.
+    © 2026 specifys.ai. All rights reserved.
   </div>
 </footer>
 
@@ -1780,12 +1780,17 @@ graph TD
     authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists immediately for new users
-      if (user && document.visibilityState === 'visible') {
-        // Run immediately to ensure credits are available for new users
-        ensureUserDocument(user).catch(error => {
-          // Error ensuring user document
-        });
+      // Ensure user document exists immediately for new users; expose promise for credits loading
+      if (user) {
+        if (document.visibilityState === 'visible') {
+          window.__userInitPromise = ensureUserDocument(user).catch(function() {
+            // Error ensuring user document - credits flow will still try one GET
+          });
+        } else {
+          window.__userInitPromise = Promise.resolve();
+        }
+      } else {
+        window.__userInitPromise = undefined;
       }
     });
   }

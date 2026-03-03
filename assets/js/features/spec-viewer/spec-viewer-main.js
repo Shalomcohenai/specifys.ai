@@ -278,6 +278,90 @@ function continueAsGuest() {
     showNotification('You are now in guest mode. Your specifications will only be saved locally.', 'info');
 }
 
+// Rename spec modal
+function openRenameSpecModal() {
+    if (!currentSpecData || !currentSpecData.id) return;
+    const modal = document.getElementById('rename-spec-modal');
+    const input = document.getElementById('rename-spec-input');
+    if (!modal || !input) return;
+    input.value = currentSpecData.title || '';
+    input.focus();
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+}
+
+function closeRenameSpecModal() {
+    const modal = document.getElementById('rename-spec-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
+    const saveText = document.querySelector('.rename-spec-save-text');
+    const spinner = document.querySelector('.rename-spec-spinner');
+    if (saveText) saveText.classList.remove('hidden');
+    if (spinner) spinner.classList.add('hidden');
+}
+
+async function saveRenameSpec() {
+    if (!currentSpecData || !currentSpecData.id) return;
+    const input = document.getElementById('rename-spec-input');
+    const saveText = document.querySelector('.rename-spec-save-text');
+    const spinner = document.querySelector('.rename-spec-spinner');
+    if (!input) return;
+    const newTitle = input.value.trim();
+    if (!newTitle) {
+        showNotification('Please enter a name.', 'error');
+        return;
+    }
+    if (saveText) saveText.classList.add('hidden');
+    if (spinner) spinner.classList.remove('hidden');
+    try {
+        await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+            title: newTitle,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        updateCurrentSpecData({ ...currentSpecData, title: newTitle });
+        const specTitleEl = document.getElementById('spec-title');
+        if (specTitleEl) specTitleEl.textContent = newTitle;
+        document.title = `${newTitle} - Specifys.ai`;
+        closeRenameSpecModal();
+        showNotification('Spec name updated.', 'success');
+    } catch (err) {
+        showNotification('Failed to update name: ' + (err.message || 'Unknown error'), 'error');
+    } finally {
+        if (saveText) saveText.classList.remove('hidden');
+        if (spinner) spinner.classList.add('hidden');
+    }
+}
+
+function initRenameSpecModal() {
+    const editBtn = document.getElementById('spec-title-edit-btn');
+    const modal = document.getElementById('rename-spec-modal');
+    const closeBtn = document.getElementById('rename-spec-modal-close');
+    const cancelBtn = document.getElementById('rename-spec-cancel-btn');
+    const saveBtn = document.getElementById('rename-spec-save-btn');
+    const input = document.getElementById('rename-spec-input');
+    if (editBtn) editBtn.addEventListener('click', openRenameSpecModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeRenameSpecModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeRenameSpecModal);
+    if (saveBtn) saveBtn.addEventListener('click', saveRenameSpec);
+    if (input) {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeRenameSpecModal();
+            if (e.key === 'Enter') saveRenameSpec();
+        });
+    }
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeRenameSpecModal();
+        });
+    }
+}
+
 // Show notification function
 function showNotification(message, type = 'info') {
     // Create notification element
@@ -763,18 +847,18 @@ function displaySpec(data) {
         console.error('[displaySpec] Content div not found!');
     }
     
-    // Extract app name from title (first word)
-    const appName = data.title ? data.title.split(' ')[0] : '';
-    const fullTitle = appName ? `App Specification - ${appName}` : 'App Specification';
-    
-    // Update page title in browser tab
-    document.title = `${fullTitle} - Specifys.ai`;
-    
-    // Update page title if element exists
+    // Display spec title (user-facing; editable via pencil icon)
+    const displayTitle = data.title || 'Project Specifications';
     const specTitleElement = document.getElementById('spec-title');
     if (specTitleElement) {
-        specTitleElement.textContent = fullTitle;
+        specTitleElement.textContent = displayTitle;
     }
+    const specTitleEditBtn = document.getElementById('spec-title-edit-btn');
+    if (specTitleEditBtn) {
+        specTitleEditBtn.classList.remove('hidden');
+    }
+    // Browser tab title
+    document.title = `${displayTitle} - Specifys.ai`;
     
         // Update status indicators
         updateStatus('overview', data.status?.overview || 'ready');
@@ -9345,3 +9429,5 @@ document.addEventListener('click', (e) => {
         });
     }
 });
+
+initRenameSpecModal();

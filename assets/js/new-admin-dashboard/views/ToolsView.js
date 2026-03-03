@@ -75,6 +75,14 @@ export class ToolsView {
         this.viewAutomationLogs();
       });
     }
+
+    // Export to JSON button
+    const exportBtn = helpers.dom('#export-tools-json-btn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        this.exportToJson();
+      });
+    }
   }
   
   /**
@@ -316,6 +324,34 @@ export class ToolsView {
     }
   }
   
+  /**
+   * Export Firestore tools to tools/map/tools.json
+   */
+  async exportToJson() {
+    const btn = helpers.dom('#export-tools-json-btn');
+    if (!btn) return;
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+
+    try {
+      const result = await window.api.post('/api/tools/export', {});
+
+      if (result.success) {
+        alert(`Tools exported successfully. ${result.count} tools written to tools/map/tools.json`);
+      } else {
+        throw new Error(result.error || 'Export failed');
+      }
+    } catch (error) {
+      console.error('[ToolsView] Error exporting tools:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+
   /**
    * View automation logs
    */

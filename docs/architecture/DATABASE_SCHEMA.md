@@ -25,6 +25,7 @@ This document provides a complete reference for all Firestore collections and th
 | `apps` | Auto-generated | App dashboards |
 | `marketResearch` | Auto-generated | Market research data |
 | `userTools` | Firebase UID | User tool configuration |
+| `tools` | Auto-generated | **Vibe Coding Tools Map** – source of truth; `tools/map/tools.json` is derived export only |
 
 ---
 
@@ -53,7 +54,11 @@ This document provides a complete reference for all Firestore collections and th
   // Note: Credits are now managed in user_credits_v3 collection (single source of truth)
   // free_specs_remaining is deprecated - use user_credits_v3 instead
   lemon_customer_id: string|null,          // Lemon Squeezy customer ID
-  last_entitlement_sync_at: timestamp      // Last sync with entitlements
+  last_entitlement_sync_at: timestamp,     // Last sync with entitlements
+
+  // MCP (Cursor / Claude Desktop)
+  mcpApiKey: string|null,                  // Optional; per-user API key for MCP server (create via Profile or POST /api/users/me/mcp-api-key)
+  mcpApiKeyUpdatedAt: timestamp|null       // When the MCP API key was last set/regenerated
 }
 ```
 
@@ -70,7 +75,9 @@ This document provides a complete reference for all Firestore collections and th
   plan: "free",
   // Credits are stored in user_credits_v3 collection, not here
   lemon_customer_id: "cus_12345",
-  last_entitlement_sync_at: Timestamp(2025, 11, 2, 12, 0, 0)
+  last_entitlement_sync_at: Timestamp(2025, 11, 2, 12, 0, 0),
+  mcpApiKey: null,
+  mcpApiKeyUpdatedAt: null
 }
 ```
 
@@ -441,6 +448,21 @@ Store market research data
 ### `userTools` Collection
 
 Store user tool configuration
+
+### `tools` Collection (Vibe Coding Tools Map)
+
+**Document ID:** Auto-generated (Firestore)
+
+**Purpose:** Single source of truth for the Vibe Coding Tools Map. All reads (API, MCP, site) use this collection. The file `tools/map/tools.json` is a **derived export only** (see [TOOLS-MAP-DATA](../references/TOOLS-MAP-DATA.md)).
+
+**Fields (typical):**
+
+- `id` – numeric or string identifier
+- `name`, `category`, `description`, `link` – required
+- `rating`, `pros`, `cons`, `special`, `stats`, `added` – optional
+- `migratedAt`, `lastUpdated`, `source` – internal/metadata (excluded from public export)
+
+**Related:** Export via `tools-export-service.js` (admin or after tools-finder job). MCP exposes list via `GET /api/mcp/tools`.
 
 ---
 

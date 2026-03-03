@@ -133,6 +133,22 @@ Legacy endpoints (chat-style, not used by the current UI): `POST /init`, `POST /
 - `GET /api/lemon/products` - Get products
 - `POST /api/lemon/checkout` - Create checkout session
 
+### Tools (Vibe Coding Tools Map) (`/api/tools`)
+
+**Source of truth:** Firestore collection `tools`. The file `tools/map/tools.json` is a **derived export only** (static build, fallback, homepage count). See [TOOLS-MAP-DATA](../references/TOOLS-MAP-DATA.md) for full flow.
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/tools` | — | List all tools (query: `category`, `limit`) |
+| GET | `/api/tools/count` | — | Tool count only (lightweight, e.g. homepage) |
+| GET | `/api/tools/:id` | — | Get one tool by ID |
+| POST | `/api/tools/export` | Admin | Export Firestore → `tools/map/tools.json` (body: optional `{ "dryRun": true }`) |
+| POST | `/api/tools/automation/run` | Admin | Run tools-finder job (body: optional `{ "dryRun": true }`) |
+| GET | `/api/tools/automation/status` | — | Last tools-finder execution status |
+
+- **Export:** After the weekly tools-finder job runs successfully, the backend runs an export so `tools.json` stays in sync. Admin can also trigger export from the dashboard (Tools → Export to JSON) or `POST /api/tools/export`.
+- **MCP:** The tools list is exposed to the MCP server as `GET /api/mcp/tools` and as resource `specifys://tools`.
+
 ### MCP (`/api/mcp`) – API Key only
 
 Used by the Specifys MCP Server (Cursor / Claude Desktop). All requests require an **API Key** (not Firebase token).

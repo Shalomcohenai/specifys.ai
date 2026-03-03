@@ -16,6 +16,35 @@ const openaiStorage = process.env.OPENAI_API_KEY
   : null;
 
 /**
+ * Extract a display title from overview JSON content.
+ * Tries ideaSummary (first sentence / 50-80 chars), then applicationSummary.paragraphs[0], else "App Specification".
+ */
+function extractTitleFromOverview(overviewContent) {
+    if (!overviewContent || typeof overviewContent !== 'string') return 'App Specification';
+    try {
+        const overviewObj = JSON.parse(overviewContent);
+        const ideaSummary = overviewObj.ideaSummary || (overviewObj.overview && overviewObj.overview.ideaSummary);
+        if (ideaSummary && typeof ideaSummary === 'string' && ideaSummary.trim().length > 0) {
+            const trimmed = ideaSummary.trim();
+            const firstSentence = trimmed.split(/[.!?]/)[0].trim();
+            if (firstSentence.length >= 3 && firstSentence.length <= 80) return firstSentence;
+            if (firstSentence.length > 80) return firstSentence.substring(0, 77) + '...';
+            if (trimmed.length <= 80) return trimmed;
+            return trimmed.substring(0, 77) + '...';
+        }
+        if (overviewObj.applicationSummary && Array.isArray(overviewObj.applicationSummary.paragraphs) && overviewObj.applicationSummary.paragraphs[0]) {
+            const p = overviewObj.applicationSummary.paragraphs[0];
+            if (typeof p === 'string' && p.length > 0) {
+                return p.length <= 80 ? p : p.substring(0, 77) + '...';
+            }
+        }
+    } catch (e) {
+        // ignore parse errors
+    }
+    return 'App Specification';
+}
+
+/**
  * Middleware to verify Firebase ID token
  */
 async function verifyFirebaseToken(req, res, next) {
@@ -550,9 +579,11 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         return overviewContent; // Return the generated content but don't update non-existent spec
                     }
                     
+                    const extractedTitle = extractTitleFromOverview(overviewContent);
                     await db.collection('specs').doc(specId).update({
                         overview: overviewContent,
                         'status.overview': 'ready',
+                        title: extractedTitle,
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
                     

@@ -12,6 +12,7 @@ const { requireAdmin } = require('./security');
 const { getAllTools, getToolById } = require('./tools-migration-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { jobRegistry } = require('./automation-service');
+const { exportToolsToJson } = require('./tools-export-service');
 
 /**
  * GET /api/tools
@@ -41,6 +42,23 @@ router.get('/', async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[tools-routes] GET /api/tools - Error');
     next(createError(error.message || 'Failed to get tools', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * GET /api/tools/count
+ * Lightweight endpoint returning only tool count (for homepage etc.)
+ */
+router.get('/count', async (req, res, next) => {
+  const requestId = req.requestId || `tools-count-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.debug({ requestId }, '[tools-routes] GET /api/tools/count');
+
+  try {
+    const tools = await getAllTools();
+    res.json({ success: true, count: tools.length });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[tools-routes] GET /api/tools/count - Error');
+    next(createError(error.message || 'Failed to get tools count', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
@@ -153,6 +171,37 @@ router.get('/automation/status', async (req, res, next) => {
       status: null,
       message: 'Error loading automation status'
     });
+  }
+});
+
+/**
+ * POST /api/tools/export
+ * Export Firestore tools to tools/map/tools.json (admin only)
+ */
+router.post('/export', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `tools-export-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, body: req.body }, '[tools-routes] POST /api/tools/export');
+
+  try {
+    const { dryRun = false } = req.body;
+    const result = await exportToolsToJson({ dryRun });
+
+    if (!result.success) {
+      return next(createError(result.error || 'Export failed', ERROR_CODES.INTERNAL_ERROR, 500));
+    }
+
+    logger.info({ requestId, count: result.count, dryRun }, '[tools-routes] POST /api/tools/export - Success');
+
+    res.json({
+      success: true,
+      message: dryRun ? 'Dry run completed' : 'Tools exported to tools.json',
+      count: result.count,
+      path: result.path || null,
+      dryRun: !!dryRun
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message, stack: error.stack }, '[tools-routes] POST /api/tools/export - Error');
+    next(createError(error.message || 'Failed to export tools', ERROR_CODES.INTERNAL_ERROR, 500));
   }
 });
 

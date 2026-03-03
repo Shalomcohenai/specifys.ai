@@ -318,3 +318,26 @@ custom_js_modules:
         </div>
     </div>
 </div>
+
+<!-- Rename Spec Modal -->
+<div id="rename-spec-modal" class="modal-overlay hidden" role="dialog" aria-labelledby="rename-spec-modal-title" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="rename-spec-modal-title"><i class="fas fa-pencil-alt"></i> Edit spec name</h3>
+            <button class="modal-close" id="rename-spec-modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="rename-spec-input">Specification name</label>
+                <input type="text" id="rename-spec-input" class="rename-spec-input" placeholder="Specification name" maxlength="120" />
+            </div>
+            <div class="rename-spec-actions modal-footer">
+                <button type="button" class="btn btn-secondary" id="rename-spec-cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="rename-spec-save-btn">
+                    <span class="rename-spec-save-text">Save</span>
+                    <span class="rename-spec-spinner hidden" aria-hidden="true"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

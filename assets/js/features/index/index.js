@@ -209,10 +209,20 @@ function roundToNearest5(num) {
 // ===== LOAD DYNAMIC STATS =====
 async function loadDynamicStats() {
   try {
-    // Get tools count from tools.json only (no Firestore on homepage)
-    const toolsResponse = await fetch('/tools/map/tools.json');
-    const toolsData = await toolsResponse.json();
-    const toolsCount = Array.isArray(toolsData) ? toolsData.length : 0;
+    // Prefer API (Firestore) for tools count; fallback to static tools.json
+    let toolsCount = 0;
+    const countResponse = await fetch('/api/tools/count');
+    if (countResponse.ok) {
+      const countData = await countResponse.json();
+      toolsCount = countData.count ?? 0;
+    }
+    if (toolsCount === 0) {
+      const toolsResponse = await fetch('/tools/map/tools.json');
+      if (toolsResponse.ok) {
+        const toolsData = await toolsResponse.json();
+        toolsCount = Array.isArray(toolsData) ? toolsData.length : 0;
+      }
+    }
     
     // Use static base values for counters (no Firestore)
     const specsWithBase = 4590;
@@ -1658,14 +1668,27 @@ async function saveSpecToFirebase(overviewContent, answers) {
       throw new Error('User must be authenticated to save to Firebase');
     }
     
-    // Extract title from overview content
+    // Extract title from overview content: ideaSummary (first sentence / 50-80 chars), then applicationSummary.paragraphs[0], else default
     let title = "App Specification";
     try {
       const overviewObj = JSON.parse(overviewContent);
-      if (overviewObj.applicationSummary && overviewObj.applicationSummary.paragraphs) {
-        const firstParagraph = overviewObj.applicationSummary.paragraphs[0];
-        if (firstParagraph && firstParagraph.length > 10 && firstParagraph.length < 100) {
-          title = firstParagraph.substring(0, 50) + '...';
+      const ideaSummary = overviewObj.ideaSummary || (overviewObj.overview && overviewObj.overview.ideaSummary);
+      if (ideaSummary && typeof ideaSummary === 'string' && ideaSummary.trim().length > 0) {
+        const trimmed = ideaSummary.trim();
+        const firstSentence = trimmed.split(/[.!?]/)[0].trim();
+        if (firstSentence.length >= 3 && firstSentence.length <= 80) {
+          title = firstSentence;
+        } else if (firstSentence.length > 80) {
+          title = firstSentence.substring(0, 77) + '...';
+        } else if (trimmed.length <= 80) {
+          title = trimmed;
+        } else {
+          title = trimmed.substring(0, 77) + '...';
+        }
+      } else if (overviewObj.applicationSummary && overviewObj.applicationSummary.paragraphs && overviewObj.applicationSummary.paragraphs[0]) {
+        const p = overviewObj.applicationSummary.paragraphs[0];
+        if (typeof p === 'string' && p.length > 0) {
+          title = p.length <= 80 ? p : p.substring(0, 77) + '...';
         }
       }
     } catch (e) {

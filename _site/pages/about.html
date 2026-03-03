@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/pages/about.html">
+    <link rel="canonical" href="http://0.0.0.0:4000/pages/about.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="About Specifys.AI | Leading the AI Spec Revolution">
     <meta property="og:description" content="Discover the mission behind Specifys AI. We are building the foundational tools that bridge the gap between creative vision and technical execution.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/pages/about.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/pages/about.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="About Specifys.AI | Leading the AI Spec Revolution - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="About Specifys.AI | Leading the AI Spec Revolution">
     <meta name="twitter:description" content="Discover the mission behind Specifys AI. We are building the foundational tools that bridge the gap between creative vision and technical execution.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="About Specifys.AI | Leading the AI Spec Revolution - Specifys.ai">
     
     <!-- Favicon -->
@@ -465,13 +465,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://localhost:4000/"
+          "item": "http://0.0.0.0:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "About Specifys.AI | Leading the AI Spec Revolution",
-          "item": "http://localhost:4000/pages/about.html"
+          "item": "http://0.0.0.0:4000/pages/about.html"
         }
       ]
     },
@@ -690,7 +690,7 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
   </nav>
   <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved.
+    © 2026 specifys.ai. All rights reserved.
   </div>
 </footer>
 
@@ -880,12 +880,17 @@ s0.parentNode.insertBefore(s1,s0);
     authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists immediately for new users
-      if (user && document.visibilityState === 'visible') {
-        // Run immediately to ensure credits are available for new users
-        ensureUserDocument(user).catch(error => {
-          // Error ensuring user document
-        });
+      // Ensure user document exists immediately for new users; expose promise for credits loading
+      if (user) {
+        if (document.visibilityState === 'visible') {
+          window.__userInitPromise = ensureUserDocument(user).catch(function() {
+            // Error ensuring user document - credits flow will still try one GET
+          });
+        } else {
+          window.__userInitPromise = Promise.resolve();
+        }
+      } else {
+        window.__userInitPromise = undefined;
       }
     });
   }

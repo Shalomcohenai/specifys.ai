@@ -124,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/tools/map/vibe-coding-tools-map.html">
+    <link rel="canonical" href="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
     
     
     <!-- Open Graph -->
@@ -132,8 +132,8 @@
     <meta property="og:title" content="Vibe Coding Tools Map - Specifys.ai">
     <meta property="og:description" content="Generate comprehensive software requirement documents (PRD) in minutes. The ultimate AI tool for app spec creation.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/tools/map/vibe-coding-tools-map.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Vibe Coding Tools Map - Specifys.ai - Specifys.ai">
@@ -146,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding Tools Map - Specifys.ai">
     <meta name="twitter:description" content="Generate comprehensive software requirement documents (PRD) in minutes. The ultimate AI tool for app spec creation.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Vibe Coding Tools Map - Specifys.ai - Specifys.ai">
     
     <!-- Favicon -->
@@ -461,7 +461,7 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://localhost:4000/"
+          "item": "http://0.0.0.0:4000/"
         }
       ]
     }
@@ -1692,7 +1692,7 @@ s0.parentNode.insertBefore(s1,s0);
     </div>
   </nav>
   <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved.
+    © 2026 specifys.ai. All rights reserved.
   </div>
 </footer>
 
@@ -1882,12 +1882,17 @@ s0.parentNode.insertBefore(s1,s0);
     authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists immediately for new users
-      if (user && document.visibilityState === 'visible') {
-        // Run immediately to ensure credits are available for new users
-        ensureUserDocument(user).catch(error => {
-          // Error ensuring user document
-        });
+      // Ensure user document exists immediately for new users; expose promise for credits loading
+      if (user) {
+        if (document.visibilityState === 'visible') {
+          window.__userInitPromise = ensureUserDocument(user).catch(function() {
+            // Error ensuring user document - credits flow will still try one GET
+          });
+        } else {
+          window.__userInitPromise = Promise.resolve();
+        }
+      } else {
+        window.__userInitPromise = undefined;
       }
     });
   }

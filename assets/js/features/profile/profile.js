@@ -586,13 +586,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     </div>
                 `).join('');
                 
+                const canRename = item.type === 'new-spec' || item.type === 'old-spec';
+                const renameBtnHtml = canRename ? `<button type="button" class="workspace-item-rename-btn" data-spec-id="${item.id}" title="Edit name" aria-label="Edit spec name"><i class="fas fa-pencil-alt"></i></button>` : '';
                 return `
                     <div class="workspace-item ${item.type}" data-item-id="${item.id}" data-item-type="${item.type}" data-tooltip="${getItemTooltip(item)}">
                         <button class="workspace-delete-btn" onclick="deleteWorkspaceItem('${item.id}', '${item.type}')" title="Delete this item">
                             <i class="fas fa-times"></i>
                         </button>
                         <div class="workspace-item-header">
-                            <h4 class="workspace-item-title">${item.title}</h4>
+                            <div class="workspace-item-title-row">
+                                <h4 class="workspace-item-title">${item.title || 'Untitled'}</h4>
+                                ${renameBtnHtml}
+                            </div>
                             <p class="workspace-item-description">${getItemDescription(item)}</p>
                         </div>
                         
@@ -1723,6 +1728,73 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             window.location.href = `404.html`;
         };
 
+        // Rename spec modal state
+        let renameModalSpecId = null;
+
+        window.openRenameSpecModal = function(specId, currentTitle) {
+            renameModalSpecId = specId;
+            const modal = document.getElementById('rename-spec-modal');
+            const input = document.getElementById('rename-spec-input');
+            if (!modal || !input) return;
+            input.value = (currentTitle || '').trim();
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            input.focus();
+        };
+
+        window.closeRenameSpecModal = function() {
+            renameModalSpecId = null;
+            const modal = document.getElementById('rename-spec-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+            const saveText = document.querySelector('#rename-spec-modal .rename-spec-save-text');
+            const spinner = document.querySelector('#rename-spec-modal .rename-spec-spinner');
+            if (saveText) saveText.classList.remove('hidden');
+            if (spinner) spinner.classList.add('hidden');
+        };
+
+        window.saveRenameSpecModal = async function() {
+            if (!renameModalSpecId) return;
+            const input = document.getElementById('rename-spec-input');
+            const saveText = document.querySelector('#rename-spec-modal .rename-spec-save-text');
+            const spinner = document.querySelector('#rename-spec-modal .rename-spec-spinner');
+            if (!input) return;
+            const newTitle = input.value.trim();
+            if (!newTitle) {
+                showError('Please enter a name.');
+                return;
+            }
+            if (saveText) saveText.classList.add('hidden');
+            if (spinner) spinner.classList.remove('hidden');
+            try {
+                const specRef = doc(db, 'specs', renameModalSpecId);
+                await setDoc(specRef, {
+                    title: newTitle,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                const idx = workspaceItems.findIndex(i => i.id === renameModalSpecId);
+                if (idx !== -1) workspaceItems[idx].title = newTitle;
+                const specIdx = userSpecs.findIndex(s => s.id === renameModalSpecId);
+                if (specIdx !== -1) userSpecs[specIdx].title = newTitle;
+                filteredItems = [...workspaceItems];
+                applySorting();
+                renderWorkspace(filteredItems);
+                setupPagination();
+                window.closeRenameSpecModal();
+                showSuccess('Specification title updated successfully!');
+                setTimeout(updateLinkButtonAppearance, 100);
+            } catch (error) {
+                showError('Failed to update specification title');
+            } finally {
+                if (saveText) saveText.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
+            }
+        };
+
         // Global functions for spec actions
         window.editSpecCard = async function(specId) {
             const spec = userSpecs.find(s => s.id === specId);
@@ -1730,36 +1802,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 alert('Specification not found');
                 return;
             }
-            
-            const newTitle = prompt('Edit title:', spec.title);
-            if (newTitle === null || newTitle.trim() === '') return;
-            
-            try {
-                // Update in Firestore
-                const specRef = doc(db, 'specs', specId);
-                await setDoc(specRef, {
-                    title: newTitle.trim(),
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-                
-                // Update local data
-                const specIndex = userSpecs.findIndex(s => s.id === specId);
-                if (specIndex !== -1) {
-                    userSpecs[specIndex].title = newTitle.trim();
-                }
-                
-                // Re-render specs
-                renderSpecs();
-                
-                // Update link button appearance after re-render
-                setTimeout(updateLinkButtonAppearance, 100);
-                
-                showSuccess('Specification title updated successfully!');
-                
-            } catch (error) {
-
-                showError('Failed to update specification title');
-            }
+            window.openRenameSpecModal(specId, spec.title);
         };
 
         window.deleteSpecCard = function(specId) {
@@ -2349,9 +2392,47 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     }
                     return;
                 }
+
+                // Handle workspace rename (pencil) button
+                const renameBtn = event.target.closest('.workspace-item-rename-btn');
+                if (renameBtn) {
+                    const specId = renameBtn.getAttribute('data-spec-id');
+                    if (specId) {
+                        const item = workspaceItems.find(i => i.id === specId);
+                        if (item) window.openRenameSpecModal(specId, item.title);
+                    }
+                    return;
+                }
             });
             
             eventListenersSetup = true;
+        }
+
+        function initRenameSpecModal() {
+            const modal = document.getElementById('rename-spec-modal');
+            const closeBtn = document.getElementById('rename-spec-modal-close');
+            const cancelBtn = document.getElementById('rename-spec-cancel-btn');
+            const saveBtn = document.getElementById('rename-spec-save-btn');
+            const input = document.getElementById('rename-spec-input');
+            if (closeBtn) closeBtn.addEventListener('click', window.closeRenameSpecModal);
+            if (cancelBtn) cancelBtn.addEventListener('click', window.closeRenameSpecModal);
+            if (saveBtn) saveBtn.addEventListener('click', window.saveRenameSpecModal);
+            if (input) {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') window.closeRenameSpecModal();
+                    if (e.key === 'Enter') window.saveRenameSpecModal();
+                });
+            }
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) window.closeRenameSpecModal();
+                });
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRenameSpecModal);
+        } else {
+            initRenameSpecModal();
         }
 
         // Function to check if item is linked to any app

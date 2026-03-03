@@ -1,6 +1,8 @@
 /**
  * Tools Migration Service
- * Migrates tools from JSON file to Firestore
+ * Migrates tools from JSON file to Firestore.
+ * Source of truth: Firestore (collection `tools`). The file tools/map/tools.json
+ * is a derived export only; use tools-export-service to sync Firestore → JSON.
  */
 
 const fs = require('fs');

@@ -44,19 +44,22 @@ Blog posts live under `_posts/` and render via `_layouts/post.html`.
 - Credits V3 (primary): `credits-v3-service.js`, `credits-v3-routes.js`; sync: `credits-sync-service.js`, `lemon-subscription-resolver.js`
 - Lemon: `lemon-routes.js`, `lemon-webhook-utils.js`, `lemon-purchase-service.js`, `lemon-credits-service.js`, `lemon-products-config.js`
 - Admin/Stats/Blog/Articles: `admin-routes.js`, `stats-routes.js`, `blog-routes.js`, `blog-routes-public.js`, `articles-routes.js`
-- Other: `brain-dump-routes.js`, `mcp-routes.js`, `mcp-auth.js`, `academy-routes.js`, `tools-routes.js`, `tool-finder-routes.js`, `live-brief-routes.js`, `share-prompt-routes.js`, `analytics-routes.js`, `newsletter-routes.js`, `email-tracking-routes.js`, `automation-routes.js`, `api-docs-routes.js`
+- Other: `brain-dump-routes.js`, `mcp-routes.js`, `mcp-auth.js`, `academy-routes.js`, `tools-routes.js`, `tools-export-service.js`, `tools-migration-service.js`, `tools-automation.js` (ToolsFinderJob), `tool-finder-routes.js`, `live-brief-routes.js`, `share-prompt-routes.js`, `analytics-routes.js`, `newsletter-routes.js`, `email-tracking-routes.js`, `automation-routes.js`, `api-docs-routes.js`
 - Config: `config.js`
+- **Tools Map:** Firestore `tools` is source of truth; `tools-routes.js` serves GET/POST (read, export, automation). `tools-export-service.js` writes Firestore → `tools/map/tools.json`. Weekly tools-finder job (scheduled-jobs) runs automation then export. See [TOOLS-MAP-DATA](TOOLS-MAP-DATA.md).
+- **MCP:** `mcp-routes.js` (API key auth via `mcp-auth.js`); endpoints for specs (list/get/update), prompt-templates, and tools list. MCP server lives in `mcp-server/` (Cursor/Claude Desktop). See [MCP Setup](../setup/mcp.md).
 
 Related configuration and data:
 - `backend/server/config.js` – Port, CORS, credits V3 flag
 - `assets/data/lemon-products.json` – Frontend-accessible product definitions
 
 ## Data Model (Firestore - high level)
-- `users/{userId}` – profile, flags (credits **not** here; use `user_credits_v3`)
+- `users/{userId}` – profile, flags, `mcpApiKey` (optional; for MCP API key auth) (credits **not** here; use `user_credits_v3`)
 - `user_credits_v3/{userId}` – **single source of truth**: balances (paid/free/bonus), total, subscription, permissions
 - `credit_ledger_v3` – credit transaction log; `subscriptions_v3` – subscription event archive
 - `entitlements/{userId}` – legacy (deprecated)
 - `specs/{specId}` – spec documents (owner, content, metadata)
+- `tools` – **Vibe Coding Tools Map** source of truth (id, name, category, description, link, rating, pros, cons, etc.); `tools/map/tools.json` is derived export only
 - `purchases/*`, `subscriptions/*` – from webhooks; `brainDumpRateLimit/{userId}` – Brain Dump daily limit
 
 ## Key Functions (selection)
@@ -75,12 +78,16 @@ Backend:
 - Specs: `specs-routes.js` – create, get, update, ownership
 - Chat: `chat-routes.js`; Brain Dump: `brain-dump-routes.js`
 - Stats: `stats-routes.js`
+- **Tools Map:** `tools-migration-service.js` (read from Firestore), `tools-export-service.js` (Firestore → tools.json), `tools-routes.js` (API + admin export/automation), `tools-automation.js` (ToolsFinderJob); MCP exposes tools via `mcp-routes.js` → `GET /api/mcp/tools`
+- **MCP:** `mcp-auth.js` (API key → user), `mcp-routes.js` (specs, prompt-templates, tools); standalone `mcp-server/` for Cursor/Claude
 
 ## Systems and Relationships
 - Spec creation depends on: Auth (Firebase), Credits V3 (`user_credits_v3`), LLM/Chat service, Spec storage
 - Payment (Lemon Squeezy) → Webhooks → `lemon-routes.js` / `lemon-subscription-resolver.js` → update `user_credits_v3` and ledger
 - Credits V3 is single source of truth; admin and frontend read from `user_credits_v3`
 - Admin/Stats/Blog/Articles/MCP are separate route modules with auth where required
+- **MCP:** API key auth (Firestore `users/{uid}.mcpApiKey` or env `MCP_API_KEY`). MCP server (`mcp-server/`) calls backend `/api/mcp/*` for specs (list/get/update), prompt-templates, and Vibe Coding tools list. See [mcp.md](../setup/mcp.md).
+- **Tools Map:** Firestore `tools` is source of truth. Public/API read via `GET /api/tools`; admin export to `tools/map/tools.json` via `POST /api/tools/export` or dashboard. Weekly tools-finder job writes new tools to Firestore then runs export. See [TOOLS-MAP-DATA](TOOLS-MAP-DATA.md).
 
 ## Main Flows
 1) User Purchase (Credits/Pro)
