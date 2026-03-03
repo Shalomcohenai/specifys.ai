@@ -354,8 +354,10 @@ class LiveBriefModal {
     if (heroButtonContainer) heroButtonContainer.style.display = 'none';
     if (specCardsShowcase) specCardsShowcase.style.display = 'none';
     
-    // Show live brief container IMMEDIATELY (no animations)
+    // Show live brief container IMMEDIATELY (no animations) and lock background scroll
     if (this.modal) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       this.modal.style.display = 'block';
       // Force visibility with !important values
       this.modal.style.setProperty('visibility', 'visible', 'important');
@@ -420,10 +422,12 @@ class LiveBriefModal {
   close() {
     this.stopRecording();
     
-    // Hide live brief container
+    // Hide live brief container and restore background scroll
     if (this.modal) {
       this.modal.style.display = 'none';
       this.modal.classList.remove('fade-in');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     
     // Show hero content again

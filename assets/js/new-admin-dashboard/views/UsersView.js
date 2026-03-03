@@ -583,9 +583,11 @@ export class UsersView {
       </div>
     `;
     
-    // Add modal to page
+    // Add modal to page and lock background scroll
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     const modal = document.getElementById('edit-user-modal');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     
     // Setup event listeners
     const closeBtn = document.getElementById('edit-user-modal-close');
@@ -594,6 +596,8 @@ export class UsersView {
     
     const closeModal = () => {
       modal.remove();
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
     
     closeBtn.addEventListener('click', closeModal);

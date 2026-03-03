@@ -253,6 +253,8 @@ function checkAuthenticationStatus(user) {
 function showRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
         modal.style.display = 'flex';
 
     }
@@ -263,7 +265,8 @@ function closeRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
         modal.style.display = 'none';
-
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
     }
 }
 
@@ -2152,6 +2155,8 @@ function openVisualizer(type) {
         applyColorsToTemplate('web');
     }
     
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     modal.style.display = 'flex';
 }
 
@@ -2201,6 +2206,8 @@ function closeVisualizer() {
     const modal = document.getElementById('color-visualizer-modal');
     if (modal) {
         modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
     }
 }
 
@@ -6716,6 +6723,8 @@ function viewMockupCode() {
     const codeContent = document.getElementById('mockup-code-content');
     codeContent.textContent = mockup.html;
     
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     codeModal.style.display = 'flex';
 }
 
@@ -6747,7 +6756,11 @@ function createCodeModal() {
 
 function closeMockupCodeModal() {
     const modal = document.getElementById('mockup-code-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
 }
 
 function copyMockupCode() {
@@ -8831,7 +8844,9 @@ function openFullscreen(diagramId) {
     currentPanY = 0;
     updateTransform();
     
-    // Show modal - remove hidden class
+    // Show modal - remove hidden class and lock background scroll
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     modal.classList.remove('hidden');
     
     // Remove any existing listeners first to avoid duplicates
@@ -8859,6 +8874,8 @@ function closeFullscreen() {
     const modal = document.getElementById('fullscreenModal');
     if (modal) {
         modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
     }
     
     // Remove event listeners

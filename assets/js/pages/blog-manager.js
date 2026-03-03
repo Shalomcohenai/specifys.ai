@@ -119,8 +119,10 @@ class BlogManager {
             previewContent.innerHTML = html;
         }
 
-        // Show modal
+        // Show modal and lock background scroll
         if (this.previewModal) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
             this.previewModal.style.display = 'flex';
         }
     }
@@ -129,6 +131,8 @@ class BlogManager {
     closePreviewModal() {
         if (this.previewModal) {
             this.previewModal.style.display = 'none';
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
         }
     }
 

@@ -2193,14 +2193,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 </div>
             `;
             
-            // Add modal to body
+            // Add modal to body and lock background scroll
             document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
         }
 
         window.closeLinkModal = function() {
             const modal = document.getElementById('linkModal');
             if (modal) {
                 modal.remove();
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
             }
         };
 
@@ -2707,12 +2711,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const displayName = document.getElementById('info-display-name').textContent;
             
             input.value = displayName;
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
             modal.style.display = 'flex';
             setTimeout(() => input.focus(), 100);
         };
 
         window.closeEditNameModal = function() {
-            document.getElementById('editNameModal').style.display = 'none';
+            const el = document.getElementById('editNameModal');
+            if (el) {
+                el.style.display = 'none';
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+            }
         };
 
         function getMcpBaseUrl() {
@@ -2756,6 +2767,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
         window.openMcpModal = function() {
             const modal = document.getElementById('mcpModal');
             if (modal) {
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
                 modal.classList.remove('hidden');
                 modal.style.display = 'flex';
                 updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
@@ -2771,6 +2784,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             if (modal) {
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
             }
         };
 

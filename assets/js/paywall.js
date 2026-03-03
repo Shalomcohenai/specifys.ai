@@ -439,6 +439,8 @@
       attachPaywallButtonHandlers(paywallModal);
     }
 
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     paywallModal.style.display = 'block';
   }
 
@@ -446,6 +448,8 @@
     const paywallModal = document.getElementById('paywall-modal');
     if (paywallModal) {
       paywallModal.style.display = 'none';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
   }
 

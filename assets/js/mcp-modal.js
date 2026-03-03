@@ -101,6 +101,8 @@
   window.openMcpModal = function () {
     var modal = document.getElementById('mcpModal');
     if (modal) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
       updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
@@ -116,6 +118,8 @@
     if (modal) {
       modal.classList.add('hidden');
       modal.style.display = 'none';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
   };
 

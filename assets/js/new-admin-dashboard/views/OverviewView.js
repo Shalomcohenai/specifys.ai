@@ -1630,6 +1630,8 @@ export class OverviewView {
     const message = helpers.dom('#test-email-message');
     
     if (modal) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       modal.classList.remove('hidden');
       if (input) {
         input.value = '';
@@ -1651,6 +1653,8 @@ export class OverviewView {
     
     if (modal) {
       modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
     if (message) {
       message.classList.add('hidden');
