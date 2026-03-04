@@ -10,6 +10,7 @@
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",
     "compression": "^1.7.4",
+    "date-fns-tz": "^3.0.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
@@ -24,9 +25,10 @@
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
     "resend": "^6.8.0",
-    "date-fns-tz": "^3.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"

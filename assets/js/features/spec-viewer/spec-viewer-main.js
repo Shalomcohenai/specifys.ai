@@ -868,6 +868,15 @@ function displaySpec(data) {
     if (specTitleEditBtn) {
         specTitleEditBtn.classList.remove('hidden');
     }
+    // Show "Spec Engine v2" badge when this spec was generated with the new system
+    const v2Badge = document.getElementById('spec-v2-badge');
+    if (v2Badge) {
+        if (data.generationVersion === 'v2') {
+            v2Badge.classList.remove('hidden');
+        } else {
+            v2Badge.classList.add('hidden');
+        }
+    }
     // Browser tab title
     document.title = `${displayTitle} - Specifys.ai`;
     

@@ -1,5 +1,5 @@
 const { logger } = require('./logger');
-const specGenerationService = require('./spec-generation-service');
+const specGenerationServiceV2 = require('./spec-generation-service-v2');
 
 /**
  * Simple in-memory queue for spec generation jobs
@@ -95,7 +95,7 @@ class SpecQueue {
 
       logger.info({ specId }, '[SpecQueue] Processing job');
 
-      const results = await specGenerationService.generateAllSpecs(
+      const results = await specGenerationServiceV2.generateAllSpecs(
         specId,
         overview,
         answers

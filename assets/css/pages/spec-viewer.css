@@ -2491,6 +2491,25 @@ button[onclick*="openVisualizer"]:active {
   display: none;
 }
 
+/* Spec Engine v2 indicator – shown when spec was generated with the new system */
+.spec-v2-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary-color, #FF6B35);
+  background: rgba(255, 107, 53, 0.12);
+  border: 1px solid rgba(255, 107, 53, 0.35);
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.spec-v2-badge.hidden {
+  display: none;
+}
+
 /* Rename spec modal */
 #rename-spec-modal.modal {
   display: none;

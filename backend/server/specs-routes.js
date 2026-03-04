@@ -6,6 +6,7 @@ const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
 const specGenerationService = require('./spec-generation-service');
+const specGenerationServiceV2 = require('./spec-generation-service-v2');
 const specQueue = require('./spec-queue');
 const specEvents = require('./spec-events');
 const { recordSpecCreation } = require('./admin-activity-service');
@@ -409,6 +410,7 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
                 if (event.status === 'ready' && event.content) {
                     updateData[event.stage] = event.content;
                 }
+                updateData.generationVersion = 'v2';
 
                 db.collection('specs').doc(specId).update(updateData).catch(err => {
                     logger.error({ requestId, specId, stage: event.stage, error: err.message }, 'Failed to update spec in Firestore');
@@ -522,10 +524,11 @@ router.post('/:id/generate-section', verifyFirebaseToken, async (req, res, next)
         // Run in background so we can return 202 immediately
         setImmediate(async () => {
             try {
-                const result = await specGenerationService.generateSection(specId, section, overview, answers);
+                const result = await specGenerationServiceV2.generateSection(specId, section, overview, answers);
                 await db.collection('specs').doc(specId).update({
                     [section]: result,
                     [`status.${section}`]: 'ready',
+                    generationVersion: 'v2',
                     updatedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
                 logger.info({ requestId, specId, section }, '[specs-routes] POST /generate-section - Section ready');
@@ -591,11 +594,12 @@ router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, 
             return next(createError('Overview, technical, market, and design are required before generating architecture', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
         }
 
-        const architecture = await specGenerationService.generateArchitecture(specId, overview, technical, market, design);
+        const architecture = await specGenerationServiceV2.generateArchitecture(specId, overview, technical, market, design);
 
         await db.collection('specs').doc(specId).update({
             architecture,
             'status.architecture': 'ready',
+            generationVersion: 'v2',
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -650,11 +654,13 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
             }
         }
 
-        // Generate overview in background
+        // Generate overview in background (v2 requires specId for thread; fallback to legacy when missing)
         const generateOverview = async () => {
             try {
-                const overviewContent = await specGenerationService.generateOverview(userInput);
-                
+                const overviewContent = specId
+                    ? await specGenerationServiceV2.generateOverview(specId, userInput)
+                    : await specGenerationService.generateOverview(userInput);
+
                 // If specId provided, update the spec
                 if (specId) {
                     // Verify spec exists before updating
@@ -671,6 +677,7 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         overview: overviewContent,
                         'status.overview': 'ready',
                         title: extractedTitle,
+                        generationVersion: 'v2',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
                     

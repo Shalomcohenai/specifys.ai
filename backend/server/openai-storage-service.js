@@ -411,6 +411,76 @@ Always reference specific parts of the spec when relevant.`,
   }
 
   /**
+   * Run spec generation: add message, create run (optional response_format), poll, return assistant text.
+   * Used by spec-generation-service-v2. No file_search or tool_resources required.
+   * @param {string} threadId - Thread ID
+   * @param {string} assistantId - Assistant ID (gpt-4o or o1)
+   * @param {string} userMessage - User message content
+   * @param {object} [responseFormat] - Optional OpenAI response_format (e.g. { type: 'json_schema', json_schema: { name, strict: true, schema } })
+   * @returns {Promise<string>} Assistant response text
+   */
+  async runSpecGeneration(threadId, assistantId, userMessage, responseFormat) {
+    const requestId = `run-spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const messageResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        'OpenAI-Beta': 'assistants=v2'
+      },
+      body: JSON.stringify({ role: 'user', content: userMessage })
+    });
+    if (!messageResponse.ok) {
+      const errorText = await messageResponse.text();
+      throw new Error(`Failed to add message: ${errorText}`);
+    }
+
+    const runBody = { assistant_id: assistantId };
+    if (responseFormat) runBody.response_format = responseFormat;
+    const runResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        'OpenAI-Beta': 'assistants=v2'
+      },
+      body: JSON.stringify(runBody)
+    });
+    if (!runResponse.ok) {
+      const errorText = await runResponse.text();
+      throw new Error(`Failed to create run: ${errorText}`);
+    }
+    const run = await runResponse.json();
+    let runStatus = run;
+    let attempts = 0;
+    const maxAttempts = 300;
+    while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && attempts < maxAttempts) {
+      await new Promise(r => setTimeout(r, 1000));
+      const statusResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs/${run.id}`, {
+        headers: { 'Authorization': `Bearer ${this.apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
+      });
+      if (!statusResponse.ok) throw new Error(`Failed to check run status: ${await statusResponse.text()}`);
+      runStatus = await statusResponse.json();
+      if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
+        const errMsg = runStatus.last_error?.message || runStatus.status;
+        throw new Error(`Run ${runStatus.status}: ${errMsg}`);
+      }
+      attempts++;
+    }
+    if (runStatus.status !== 'completed') {
+      throw new Error(`Run timeout: status ${runStatus.status}`);
+    }
+    const messagesResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
+      headers: { 'Authorization': `Bearer ${this.apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
+    });
+    if (!messagesResponse.ok) throw new Error(`Failed to get messages: ${await messagesResponse.text()}`);
+    const messages = await messagesResponse.json();
+    const assistantMessage = (messages.data || []).find(m => m.role === 'assistant');
+    if (!assistantMessage?.content?.[0]?.text?.value) throw new Error('No assistant response');
+    return assistantMessage.content[0].text.value;
+  }
+
+  /**
    * Get assistant details
    * @param {string} assistantId - Assistant ID
    * @returns {Promise<object>} Assistant object
