@@ -365,9 +365,9 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.`
       : `Application Overview:\n${overviewContent}`;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
 
-Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). Return JSON with technical key containing detailed techStack, architectureOverview, databaseSchema, apiEndpoints, securityAuthentication, integrationExternalApis, devops, dataStorage, analytics, detailedDataModels, and dataFlowDetailed.
+Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). Return JSON with technical key. Required keys (never omit): techStack (object), architectureOverview (string), databaseSchema (object), apiEndpoints (array), securityAuthentication (object), integrationExternalApis (object). If unknown, use "" for architectureOverview and [] for apiEndpoints. Also include detailed devops, dataStorage, analytics, detailedDataModels, dataFlowDetailed where relevant.
 
 ${overviewSection}
 

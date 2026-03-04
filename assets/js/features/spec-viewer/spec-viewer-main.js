@@ -731,6 +731,13 @@ async function loadSpec(specId) {
                             updateNotificationDot(stage, 'error');
                             updateTabLoadingState(stage, false);
                             showNotification(`Failed to generate ${stage} specification. You can retry using the retry buttons.`, 'error');
+                            if (stage === 'technical') {
+                                displayTechnical('error');
+                            } else if (stage === 'market') {
+                                displayMarket('error');
+                            } else if (stage === 'design') {
+                                displayDesign('error');
+                            }
                         } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
                             console.log('[Firestore Listener] Stage started generating:', stage);
                             updateNotificationDot(stage, 'generating');
