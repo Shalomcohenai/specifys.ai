@@ -83,7 +83,7 @@ class SpecThreadManager {
   }
 
   /**
-   * Ensure spec generator assistant (gpt-4o) exists. Uses env OPENAI_SPEC_GENERATOR_ASSISTANT_ID or creates one.
+   * Ensure spec generator assistant (gpt-4o-mini) exists. Uses env OPENAI_SPEC_GENERATOR_ASSISTANT_ID or creates one.
    * @returns {Promise<string>} assistant_id
    */
   async getGeneratorAssistantId() {
@@ -93,14 +93,14 @@ class SpecThreadManager {
       this._generatorAssistantId = envId.trim();
       return this._generatorAssistantId;
     }
-    const id = await this._createAssistant('gpt-4o', 'You generate application specification sections (overview, technical, market, design). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.');
+    const id = await this._createAssistant('gpt-4o-mini', 'You generate application specification sections (overview, technical, market, design). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.');
     this._generatorAssistantId = id;
-    logger.info({ assistantId: id }, '[SpecThreadManager] Created spec generator assistant (gpt-4o). Set OPENAI_SPEC_GENERATOR_ASSISTANT_ID to reuse.');
+    logger.info({ assistantId: id }, '[SpecThreadManager] Created spec generator assistant (gpt-4o-mini). Set OPENAI_SPEC_GENERATOR_ASSISTANT_ID to reuse.');
     return id;
   }
 
   /**
-   * Ensure architecture assistant (o1) exists. Uses env OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID or creates one.
+   * Ensure architecture assistant (gpt-4o-mini) exists. Uses env OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID or creates one.
    * @returns {Promise<string>} assistant_id
    */
   async getArchitectureAssistantId() {
@@ -110,9 +110,9 @@ class SpecThreadManager {
       this._architectureAssistantId = envId.trim();
       return this._architectureAssistantId;
     }
-    const id = await this._createAssistant('gpt-4o', 'You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.');
+    const id = await this._createAssistant('gpt-4o-mini', 'You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.');
     this._architectureAssistantId = id;
-    logger.info({ assistantId: id }, '[SpecThreadManager] Created architecture assistant (gpt-4o). Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
+    logger.info({ assistantId: id }, '[SpecThreadManager] Created architecture assistant (gpt-4o-mini). Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
     return id;
   }
 
