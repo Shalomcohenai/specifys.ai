@@ -2389,6 +2389,10 @@ button[onclick*="openVisualizer"]:active {
 }
 
 /* ===== Overview Suggestions (הצעות) ===== */
+/* Hidden until feature is ready for release – remove the line below to show */
+.overview-suggestions-block {
+  display: none;
+}
 .overview-suggestions-block {
   margin-top: 1rem;
   padding: 0.75rem 0;
