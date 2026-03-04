@@ -20,25 +20,61 @@ class SpecThreadManager {
 
   /**
    * Get or create OpenAI thread for this spec. Persists thread_id in Firestore.
+   *
+   * Handles two failure modes:
+   * 1. Race condition — spec document not yet committed when background job starts.
+   *    We retry up to 3 times with exponential back-off before giving up.
+   * 2. Spec deleted mid-flight — between the initial get() and the update() call
+   *    the document may be deleted. We catch NOT_FOUND (Firestore code 5) and
+   *    raise a clear error instead of letting the raw Firestore error bubble up.
+   *
    * @param {string} specId - Spec document ID
    * @returns {Promise<string>} thread_id
    */
   async getOrCreateThread(specId) {
     const ref = this.db.collection('specs').doc(specId);
-    const doc = await ref.get();
-    const data = doc.exists ? doc.data() : null;
+
+    // Retry loop handles the race condition where Firestore hasn't committed
+    // the new spec document by the time the background generation job runs.
+    let doc;
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      doc = await ref.get();
+      if (doc.exists) break;
+      if (attempt < maxAttempts) {
+        const delay = attempt * 800; // 800 ms, 1600 ms
+        logger.warn({ specId, attempt, delay }, '[SpecThreadManager] Spec doc not found yet — retrying after delay');
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    if (!doc.exists) {
+      throw new Error(`Spec document not found after ${maxAttempts} attempts: ${specId}. Ensure the document is fully committed to Firestore before calling generate-overview or generate-all.`);
+    }
+
+    const data = doc.data();
     const existing = data?.thread_id && typeof data.thread_id === 'string' ? data.thread_id.trim() : null;
     if (existing) {
       logger.debug({ specId, threadId: existing }, '[SpecThreadManager] Using existing thread');
       return existing;
     }
-    if (!doc.exists) {
-      throw new Error('Spec document must exist before generating (create the spec first, then call generate-overview or generate-all)');
-    }
+
     const thread = await this.openaiStorage.createThread();
     const threadId = thread.id;
-    await ref.update({ thread_id: threadId, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
-    logger.info({ specId, threadId }, '[SpecThreadManager] Created and stored new thread');
+
+    try {
+      await ref.update({ thread_id: threadId, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+      logger.info({ specId, threadId }, '[SpecThreadManager] Created and stored new thread');
+    } catch (updateErr) {
+      // Firestore gRPC code 5 = NOT_FOUND — the spec was deleted between our get() and update().
+      const isNotFound = updateErr.code === 5 || String(updateErr.message).includes('NOT_FOUND');
+      if (isNotFound) {
+        logger.warn({ specId, threadId }, '[SpecThreadManager] Spec deleted during thread creation — aborting generation');
+        throw new Error(`Spec was deleted during generation setup: ${specId}`);
+      }
+      throw updateErr;
+    }
+
     return threadId;
   }
 

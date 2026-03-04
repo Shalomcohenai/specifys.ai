@@ -320,9 +320,15 @@ const STAGE_ROOT_KEYS = {
 };
 
 const { zodToJsonSchema } = require('zod-to-json-schema');
+const { logger } = require('../server/logger');
 
 /**
  * Build OpenAI response_format for strict structured output.
+ *
+ * zodToJsonSchema always wraps the top-level schema in a { "$ref": "#/definitions/<name>", "definitions": { ... } }
+ * envelope. OpenAI rejects that because the root has no `type` field (it sees type: "None").
+ * We unwrap the envelope so OpenAI receives { "type": "object", "properties": { ... }, ... } directly.
+ *
  * @param {string} stage - overview | technical | market | design
  * @returns {object} response_format for runs.create
  */
@@ -330,7 +336,33 @@ function buildResponseFormat(stage) {
   const schema = STAGE_PAYLOAD_SCHEMAS[stage];
   if (!schema) throw new Error(`Unknown stage: ${stage}`);
   const name = `${stage}_response`;
-  const jsonSchema = zodToJsonSchema(schema, { name, $refStrategy: 'none' });
+
+  let jsonSchema = zodToJsonSchema(schema, { name, $refStrategy: 'none' });
+
+  // Unwrap the $ref envelope that zodToJsonSchema always generates.
+  // The actual schema lives inside definitions[name].
+  if (jsonSchema.$ref) {
+    const refKey = jsonSchema.$ref
+      .replace(/^#\/definitions\//, '')
+      .replace(/^#\/\$defs\//, '');
+    const defs = jsonSchema.definitions || jsonSchema.$defs || {};
+    if (defs[refKey]) {
+      jsonSchema = { ...defs[refKey] };
+    }
+  }
+
+  // Strip JSON-Schema meta-fields that OpenAI does not accept.
+  delete jsonSchema.$schema;
+  delete jsonSchema.definitions;
+  delete jsonSchema.$defs;
+
+  // Safety: ensure root type is object.
+  if (!jsonSchema.type) {
+    jsonSchema.type = 'object';
+  }
+
+  logger.info({ stage, rootType: jsonSchema.type }, '[buildResponseFormat] Built response_format for OpenAI');
+
   return {
     type: 'json_schema',
     json_schema: {
