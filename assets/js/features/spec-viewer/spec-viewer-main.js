@@ -2392,15 +2392,47 @@ function displayRaw(data) {
 function displayArchitectureFromData(data) {
     const container = document.getElementById('architecture-data');
     if (!container) return;
-    if (!data.architecture || typeof data.architecture !== 'string' || !data.architecture.trim()) {
-        if (data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready') {
-            container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready. If you don\'t see it yet, wait for generation to complete.</p></div>';
-        } else {
-            container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready.</p></div>';
-        }
+
+    // Architecture content exists — render it
+    if (data.architecture && typeof data.architecture === 'string' && data.architecture.trim()) {
+        displayArchitecture(data.architecture, container);
         return;
     }
-    displayArchitecture(data.architecture, container);
+
+    const allAdvancedReady = data.status?.technical === 'ready'
+        && data.status?.market === 'ready'
+        && data.status?.design === 'ready';
+    const archStatus = data.status?.architecture;
+
+    if (!allAdvancedReady) {
+        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready.</p></div>';
+        return;
+    }
+
+    if (archStatus === 'generating') {
+        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
+            + '<i class="fa fa-cog fa-spin" style="font-size:2em;opacity:0.5;margin-bottom:14px;"></i>'
+            + '<p>Generating architecture document&hellip; This usually takes 30&ndash;90 seconds.</p>'
+            + '</div>';
+        return;
+    }
+
+    // Not generating and no architecture — show button (initial state or error/retry)
+    const isError = archStatus === 'error';
+    const btnLabel = isError ? 'Retry Architecture' : 'Generate Architecture';
+    const btnIcon  = isError ? 'fa-refresh'         : 'fa-magic';
+    const msg      = isError
+        ? 'Architecture generation failed. Click to try again.'
+        : 'All advanced specs are ready. Generate the architecture document now.';
+
+    container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
+        + '<i class="fa fa-building" style="font-size:2.5em;opacity:0.35;margin-bottom:14px;"></i>'
+        + '<p>' + msg + '</p>'
+        + '<button class="btn-generate-arch" id="btn-generate-arch-main" '
+        +   'onclick="triggerGenerateArchitecture(currentSpecData && currentSpecData.id)">'
+        +   '<i class="fa ' + btnIcon + '"></i> ' + btnLabel
+        + '</button>'
+        + '</div>';
 }
 
 function displayArchitecture(content, containerEl) {
@@ -2455,31 +2487,38 @@ function displayArchitecture(content, containerEl) {
 var _architectureGenerationInProgress = false;
 async function triggerGenerateArchitecture(specId) {
     if (_architectureGenerationInProgress) return;
+    if (!specId) { showNotification('Spec ID not available. Please refresh.', 'error'); return; }
     if (!window.api || typeof window.api.post !== 'function') {
         showNotification('API not available. Please refresh the page.', 'error');
         return;
     }
     _architectureGenerationInProgress = true;
-    try {
-        const result = await window.api.post('/api/specs/' + encodeURIComponent(specId) + '/generate-architecture', {});
-        if (result && result.success) {
-            showNotification('Architecture generated successfully.', 'success');
-            var doc = await firebase.firestore().collection('specs').doc(specId).get();
-            if (doc.exists && currentSpecData && currentSpecData.id === specId) {
-                var updated = { id: doc.id, ...doc.data() };
-                updateCurrentSpecData(updated);
-                displayArchitectureFromData(updated);
-                var architectureTab = document.getElementById('architectureTab');
-                if (architectureTab) architectureTab.disabled = false;
-                if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
-            }
-        }
-    } catch (err) {
-        console.warn('Failed to generate architecture:', err);
-        showNotification('Architecture generation failed. You can try again later.', 'error');
-    } finally {
-        _architectureGenerationInProgress = false;
+
+    // Show spinner immediately — Firestore real-time listener will update the view when done.
+    var container = document.getElementById('architecture-data');
+    if (container) {
+        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
+            + '<i class="fa fa-cog fa-spin" style="font-size:2em;opacity:0.5;margin-bottom:14px;"></i>'
+            + '<p>Generating architecture document&hellip; This usually takes 30&ndash;90 seconds.</p>'
+            + '</div>';
     }
+
+    try {
+        // Route returns 202 immediately; generation runs in the background on the server.
+        await window.api.post('/api/specs/' + encodeURIComponent(specId) + '/generate-architecture', {});
+        showNotification('Architecture generation started. The document will appear when ready.', 'info');
+        // The Firestore real-time listener will call displayArchitectureFromData() automatically
+        // when status.architecture changes to 'ready' or 'error'.
+    } catch (err) {
+        console.warn('Failed to start architecture generation:', err);
+        showNotification('Could not start architecture generation. Please try again.', 'error');
+        _architectureGenerationInProgress = false;
+        // Re-render to show the retry button
+        if (currentSpecData) displayArchitectureFromData(currentSpecData);
+        return;
+    }
+
+    _architectureGenerationInProgress = false;
 }
 
 function displayDiagramsFromData(data) {

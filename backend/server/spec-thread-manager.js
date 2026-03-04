@@ -67,10 +67,14 @@ class SpecThreadManager {
       logger.info({ specId, threadId }, '[SpecThreadManager] Created and stored new thread');
     } catch (updateErr) {
       // Firestore gRPC code 5 = NOT_FOUND — the spec was deleted between our get() and update().
+      // We do NOT abort: the thread already exists in OpenAI and generation can still proceed.
+      // Subsequent writes (overview content, status) will also fail NOT_FOUND and be caught
+      // gracefully by the caller in specs-routes.js. We log WARN but return the threadId so
+      // the generation job continues rather than erroring out immediately.
       const isNotFound = updateErr.code === 5 || String(updateErr.message).includes('NOT_FOUND');
       if (isNotFound) {
-        logger.warn({ specId, threadId }, '[SpecThreadManager] Spec deleted during thread creation — aborting generation');
-        throw new Error(`Spec was deleted during generation setup: ${specId}`);
+        logger.warn({ specId, threadId }, '[SpecThreadManager] Spec deleted during thread creation — thread_id not persisted, continuing generation');
+        return threadId;
       }
       throw updateErr;
     }
@@ -106,9 +110,9 @@ class SpecThreadManager {
       this._architectureAssistantId = envId.trim();
       return this._architectureAssistantId;
     }
-    const id = await this._createAssistant('o1-preview', 'You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.');
+    const id = await this._createAssistant('gpt-4o', 'You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.');
     this._architectureAssistantId = id;
-    logger.info({ assistantId: id }, '[SpecThreadManager] Created architecture assistant (o1-preview). Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
+    logger.info({ assistantId: id }, '[SpecThreadManager] Created architecture assistant (gpt-4o). Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
     return id;
   }
 

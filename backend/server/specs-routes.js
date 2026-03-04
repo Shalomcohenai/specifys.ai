@@ -567,7 +567,8 @@ router.post('/:id/generate-section', verifyFirebaseToken, async (req, res, next)
 /**
  * Generate architecture section from overview + technical + market + design.
  * POST /api/specs/:id/generate-architecture
- * Requires: spec has overview, technical, market, design. Writes spec.architecture and status.architecture.
+ * Returns 202 immediately; generation runs in background and updates Firestore when done.
+ * The frontend listens for status.architecture changes via Firestore real-time listener.
  */
 router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, next) => {
     const requestId = req.requestId || `generate-architecture-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -585,37 +586,59 @@ router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, 
             return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
         }
 
-        const overview = specData.overview;
-        const technical = specData.technical;
-        const market = specData.market;
-        const design = specData.design;
+        const { overview, technical, market, design } = specData;
 
         if (!overview || !technical || !market || !design) {
-            return next(createError('Overview, technical, market, and design are required before generating architecture', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+            return next(createError(
+                'Overview, technical, market, and design are required before generating architecture',
+                ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }
+            ));
         }
 
-        const architecture = await specGenerationServiceV2.generateArchitecture(specId, overview, technical, market, design);
-
+        // Anchor write: marks the doc as generating so the frontend shows a spinner
+        // and confirms the document is writable before the background job starts.
         await db.collection('specs').doc(specId).update({
-            architecture,
-            'status.architecture': 'ready',
-            generationVersion: 'v2',
+            'status.architecture': 'generating',
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        const totalTime = Date.now() - startTime;
-        logger.info({ requestId, specId, userId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-architecture - Success');
+        // Fire background generation — return 202 immediately so HTTP never times out.
+        (async () => {
+            try {
+                const architecture = await specGenerationServiceV2.generateArchitecture(
+                    specId, overview, technical, market, design
+                );
+                await db.collection('specs').doc(specId).update({
+                    architecture,
+                    'status.architecture': 'ready',
+                    generationVersion: 'v2',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+                specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
+                logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[specs-routes] Architecture generation complete');
+            } catch (err) {
+                logger.error({ requestId, specId, error: err.message }, '[specs-routes] Architecture background generation failed');
+                db.collection('specs').doc(specId).update({
+                    'status.architecture': 'error',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                }).catch(() => {});
+                specEvents.emitSpecError(specId, 'architecture', err);
+            }
+        })();
 
-        res.json({
+        const totalTime = Date.now() - startTime;
+        logger.info({ requestId, specId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-architecture - Job started');
+
+        res.status(202).json({
             success: true,
-            architecture,
+            message: 'Architecture generation started',
             specId,
             requestId
         });
     } catch (error) {
         const totalTime = Date.now() - startTime;
         logger.error({ requestId, specId: req.params.id, error: error.message, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-architecture - Error');
-        next(createError(error.message || 'Failed to generate architecture', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+        next(createError(error.message || 'Failed to start architecture generation', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
             details: error.message,
             requestId
         }));
