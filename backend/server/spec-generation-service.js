@@ -25,81 +25,79 @@ class SpecGenerationService {
 
     logger.info({ requestId, specId, stage }, `[SpecGeneration] Starting ${stage} generation`);
 
-    try {
-      // Build prompt based on stage
-      const prompt = this.buildPrompt(stage, specId, overview, answers);
+    const requestBody = {
+      stage: stage,
+      locale: 'en-US',
+      temperature: 0,
+      prompt: {
+        system: this.getSystemPrompt(stage),
+        developer: this.getDeveloperPrompt(stage),
+        user: this.buildPrompt(stage, specId, overview, answers)
+      }
+    };
 
-      const requestBody = {
-        stage: stage,
-        locale: 'en-US',
-        temperature: 0,
-        prompt: {
-          system: this.getSystemPrompt(stage),
-          developer: this.getDeveloperPrompt(stage),
-          user: prompt
-        }
-      };
-
-      // Call Cloudflare Worker
+    const doOneAttempt = async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
       try {
         const response = await fetch(this.workerUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestBody),
           signal: controller.signal
         });
-
         clearTimeout(timeoutId);
-
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`API Error: ${response.status} - ${errorText}`);
+          const err = new Error(`API Error: ${response.status} - ${errorText}`);
+          try {
+            const body = JSON.parse(errorText);
+            const apiError = body?.error || body;
+            if (apiError?.code) err.code = apiError.code;
+            if (Array.isArray(apiError?.issues)) err.issues = apiError.issues;
+          } catch (_) { /* keep message only */ }
+          err.statusCode = response.status;
+          throw err;
         }
-
         const responseText = await response.text();
         const data = JSON.parse(responseText);
+        return data[stage] ? JSON.stringify(data[stage], null, 2) : `No ${stage} specification generated`;
+      } catch (e) {
+        clearTimeout(timeoutId);
+        throw e;
+      }
+    };
 
-        const result = data[stage] 
-          ? JSON.stringify(data[stage], null, 2) 
-          : `No ${stage} specification generated`;
-
+    let lastError;
+    for (let attempt = 0; attempt <= 1; attempt++) {
+      try {
+        if (attempt === 1) {
+          logger.info({ requestId, specId, stage }, '[SpecGeneration] Retrying once after 422');
+          await new Promise(r => setTimeout(r, 4000));
+        }
+        const result = await doOneAttempt();
         const duration = Date.now() - startTime;
         logger.info({ requestId, specId, stage, duration: `${duration}ms` }, `[SpecGeneration] ${stage} generation completed`);
-
-        // Emit success event
         specEvents.emitSpecUpdate(specId, stage, 'ready', result);
-
         return result;
-
       } catch (error) {
-        clearTimeout(timeoutId);
-        throw error;
+        lastError = error;
+        const is422 = error.statusCode === 422 || error.code === 'INVALID_MODEL_OUTPUT' || (error.message && error.message.includes('422'));
+        if (attempt === 0 && is422) continue;
+        break;
       }
-
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      logger.error({ 
-        requestId, 
-        specId, 
-        stage, 
-        error: {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        },
-        duration: `${duration}ms`
-      }, `[SpecGeneration] ${stage} generation failed`);
-
-      // Emit error event
-      specEvents.emitSpecError(specId, stage, error);
-
-      throw error;
     }
+
+    const duration = Date.now() - startTime;
+    logger.error({
+      requestId,
+      specId,
+      stage,
+      error: { message: lastError.message, stack: lastError.stack, name: lastError.name },
+      duration: `${duration}ms`
+    }, `[SpecGeneration] ${stage} generation failed`);
+    specEvents.emitSpecError(specId, stage, lastError);
+    throw lastError;
   }
 
   /**

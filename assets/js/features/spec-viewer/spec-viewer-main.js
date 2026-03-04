@@ -1018,6 +1018,11 @@ function displaySpec(data) {
                 architectureTab.disabled = false;
             }
         }
+        // Enable Brain Dump only after advanced specs (technical, market, design) + architecture
+        const advancedAndArchitecture = data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready' && (data.architecture || data.status?.architecture === 'ready');
+        if (advancedAndArchitecture && typeof enableBrainDumpTab === 'function') {
+            enableBrainDumpTab();
+        }
         
         // Enable diagrams only if both technical and market are ready
         if (data.status?.technical === 'ready' && data.status?.market === 'ready') {
@@ -2423,6 +2428,7 @@ async function triggerGenerateArchitecture(specId) {
                 displayArchitectureFromData(updated);
                 var architectureTab = document.getElementById('architectureTab');
                 if (architectureTab) architectureTab.disabled = false;
+                if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
             }
         }
     } catch (err) {
@@ -5326,6 +5332,11 @@ function refreshTabsAfterDesignReady() {
                 architectureTab.disabled = false;
             }
         }
+        // Enable Brain Dump only after advanced specs + architecture
+        const advancedAndArch = currentSpecData.status?.technical === 'ready' && currentSpecData.status?.market === 'ready' && currentSpecData.status?.design === 'ready' && (currentSpecData.architecture || currentSpecData.status?.architecture === 'ready');
+        if (advancedAndArch && typeof enableBrainDumpTab === 'function') {
+            enableBrainDumpTab();
+        }
 
         // Enable mockup tab when design is ready (only for PRO users)
         checkProAccess().then(hasProAccess => {
@@ -5537,16 +5548,13 @@ function enableAllTabs() {
     if (marketTab) marketTab.disabled = false;
     if (designTab) designTab.disabled = false;
     if (diagramsTab) diagramsTab.disabled = false;
-    // Enable chat and Brain Dump tabs after overview approval
+    // Enable chat after overview approval; Brain Dump only after advanced specs + architecture
     enableChatTab();
-    if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
 }
 
 function enableChatTabOnly() {
-    // Enable AI Chat and Brain Dump tabs immediately after overview approval
-    // without waiting for other specs to be generated
+    // Enable AI Chat immediately after overview approval (Brain Dump stays disabled until advanced + architecture)
     enableChatTab();
-    if (typeof enableBrainDumpTab === 'function') enableBrainDumpTab();
 }
 
 function disableTechnicalTabs() {
@@ -6267,254 +6275,68 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
 }
 
 async function retryTechnical() {
-    const maxRetries = 3;
-    let retryCount = 0;
-    
-    while (retryCount < maxRetries) {
-        try {
-            const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
-            if (retryTechnicalBtn) {
-                retryTechnicalBtn.disabled = true;
-                retryTechnicalBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
-            }
-            
-            // Add loading animation
-            updateTabLoadingState('technical', true);
-            
-            const technicalContent = await generateTechnicalSpec();
-            
-            // Update Firebase
-            const user = firebase.auth().currentUser;
-            if (user && currentSpecData) {
-                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                    technical: technicalContent,
-                    status: {
-                        ...currentSpecData.status,
-                        technical: "ready"
-                    },
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                    console.warn('Failed to upload spec to OpenAI after technical retry:', err);
-                });
-            }
-            
-            // Update local data
-            currentSpecData.technical = technicalContent;
-            currentSpecData.status.technical = "ready";
-            
-            // Update export checkboxes when technical section is ready
-            updateExportCheckboxes();
-            
-            // Update localStorage backup
-            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-            
-            // Update UI
-            updateStatus('technical', 'ready');
-            updateTabLoadingState('technical', false);
-            displayTechnical(technicalContent);
-            if (retryTechnicalBtn) {
-                retryTechnicalBtn.style.display = 'none';
-            }
-            
-            // Enable Mind Map tab when technical is ready
-            const mindmapTab = document.getElementById('mindmapTab');
-            if (mindmapTab) {
-                mindmapTab.disabled = false;
-            }
-            
-            showNotification('Technical specification generated successfully!', 'success');
+    const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
+    if (retryTechnicalBtn) {
+        retryTechnicalBtn.disabled = true;
+        retryTechnicalBtn.textContent = '⏳ Generating...';
+    }
+    updateTabLoadingState('technical', true);
 
-            return;
-            
-        } catch (error) {
-            retryCount++;
-
-            
-            if (retryCount >= maxRetries) {
-                // Final failure
-                const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
-                if (retryTechnicalBtn) {
-                    retryTechnicalBtn.disabled = false;
-                    retryTechnicalBtn.textContent = 'Retry';
-                }
-                updateTabLoadingState('technical', false);
-                
-                showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
-                updateStatus('technical', 'error');
-
-                return;
-            } else {
-                // Wait before next retry
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+    try {
+        await window.api.post(`/api/specs/${currentSpecData.id}/generate-section`, { section: 'technical' });
+        showNotification('Technical specification generation started. The page will update when ready.', 'info');
+        // Firestore listener will update UI when backend finishes (ready or error)
+    } catch (error) {
+        if (retryTechnicalBtn) {
+            retryTechnicalBtn.disabled = false;
+            retryTechnicalBtn.textContent = 'Retry';
         }
+        updateTabLoadingState('technical', false);
+        showNotification(`Failed to start technical generation: ${error.message || 'Please try again.'}`, 'error');
     }
 }
 
 async function retryMarket() {
-    const maxRetries = 3;
-    let retryCount = 0;
-    
-    while (retryCount < maxRetries) {
-        try {
-            const retryMarketBtn = document.getElementById('retryMarketBtn');
-            if (retryMarketBtn) {
-                retryMarketBtn.disabled = true;
-                retryMarketBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
-            }
-            
-            // Add loading animation
-            updateTabLoadingState('market', true);
-            
-            const marketContent = await generateMarketSpec();
-            
-            // Update Firebase
-            const user = firebase.auth().currentUser;
-            if (user && currentSpecData) {
-                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                    market: marketContent,
-                    status: {
-                        ...currentSpecData.status,
-                        market: "ready"
-                    },
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                    console.warn('Failed to upload spec to OpenAI after market retry:', err);
-                });
-            }
-            
-            // Update local data
-            currentSpecData.market = marketContent;
-            currentSpecData.status.market = "ready";
-            
-            // Update export checkboxes when market section is ready
-            updateExportCheckboxes();
-            
-            // Update localStorage backup
-            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-            
-            // Update UI
-            updateStatus('market', 'ready');
-            updateTabLoadingState('market', false);
-            displayMarket(marketContent);
-            if (retryMarketBtn) {
-                retryMarketBtn.style.display = 'none';
-            }
-            
-            showNotification('Market research generated successfully!', 'success');
+    const retryMarketBtn = document.getElementById('retryMarketBtn');
+    if (retryMarketBtn) {
+        retryMarketBtn.disabled = true;
+        retryMarketBtn.textContent = '⏳ Generating...';
+    }
+    updateTabLoadingState('market', true);
 
-            return;
-            
-        } catch (error) {
-            retryCount++;
-
-            
-            if (retryCount >= maxRetries) {
-                // Final failure
-                const retryMarketBtn = document.getElementById('retryMarketBtn');
-                if (retryMarketBtn) {
-                    retryMarketBtn.disabled = false;
-                    retryMarketBtn.textContent = 'Retry';
-                }
-                updateTabLoadingState('market', false);
-                
-                showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
-                updateStatus('market', 'error');
-
-                return;
-            } else {
-                // Wait before next retry
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+    try {
+        await window.api.post(`/api/specs/${currentSpecData.id}/generate-section`, { section: 'market' });
+        showNotification('Market research generation started. The page will update when ready.', 'info');
+        // Firestore listener will update UI when backend finishes (ready or error)
+    } catch (error) {
+        if (retryMarketBtn) {
+            retryMarketBtn.disabled = false;
+            retryMarketBtn.textContent = 'Retry';
         }
+        updateTabLoadingState('market', false);
+        showNotification(`Failed to start market generation: ${error.message || 'Please try again.'}`, 'error');
     }
 }
 
 async function retryDesign() {
-    const maxRetries = 3;
-    let retryCount = 0;
-    
-    while (retryCount < maxRetries) {
-        try {
-            const retryDesignBtn = document.getElementById('retryDesignBtn');
-            if (retryDesignBtn) {
-                retryDesignBtn.disabled = true;
-                retryDesignBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
-            }
-            
-            // Add loading animation
-            updateTabLoadingState('design', true);
-            
-            const designContent = await generateDesignSpec();
-            
-            // Update Firebase
-            const user = firebase.auth().currentUser;
-            if (user && currentSpecData) {
-                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                    design: designContent,
-                    'status.design': 'ready',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                    console.warn('Failed to upload spec to OpenAI after design retry:', err);
-                });
-            }
-            
-            // Update local data
-            currentSpecData.design = designContent;
-            currentSpecData.status.design = "ready";
-            
-            // Update export checkboxes when design section is ready
-            updateExportCheckboxes();
-            
-            // Update localStorage backup
-            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-            
-            // Update UI
-            updateStatus('design', 'ready');
-            updateTabLoadingState('design', false);
-            displayDesign(designContent);
-            if (retryDesignBtn) {
-                retryDesignBtn.style.display = 'none';
-            }
-            
-            // Refresh tabs menu to enable Prompts tab if conditions are met
-            refreshTabsAfterDesignReady();
-            
-            showNotification('Design specification generated successfully!', 'success');
+    const retryDesignBtn = document.getElementById('retryDesignBtn');
+    if (retryDesignBtn) {
+        retryDesignBtn.disabled = true;
+        retryDesignBtn.textContent = '⏳ Generating...';
+    }
+    updateTabLoadingState('design', true);
 
-            return;
-            
-        } catch (error) {
-            retryCount++;
-
-            
-            if (retryCount >= maxRetries) {
-                // Final failure
-                const retryDesignBtn = document.getElementById('retryDesignBtn');
-                if (retryDesignBtn) {
-                    retryDesignBtn.disabled = false;
-                    retryDesignBtn.textContent = 'Retry';
-                }
-                updateTabLoadingState('design', false);
-                
-                showNotification(`Failed to generate design specification after ${maxRetries} attempts. ${error.message}`, 'error');
-                updateStatus('design', 'error');
-
-                return;
-            } else {
-                // Wait before next retry
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+    try {
+        await window.api.post(`/api/specs/${currentSpecData.id}/generate-section`, { section: 'design' });
+        showNotification('Design specification generation started. The page will update when ready.', 'info');
+        // Firestore listener will update UI when backend finishes (ready or error)
+    } catch (error) {
+        if (retryDesignBtn) {
+            retryDesignBtn.disabled = false;
+            retryDesignBtn.textContent = 'Retry';
         }
+        updateTabLoadingState('design', false);
+        showNotification(`Failed to start design generation: ${error.message || 'Please try again.'}`, 'error');
     }
 }
 

@@ -44,17 +44,20 @@ class SpecEventEmitter extends EventEmitter {
    * Emit spec generation error event
    * @param {string} specId - Spec ID
    * @param {string} stage - Stage that failed
-   * @param {Error} error - Error object
+   * @param {Error} error - Error object (may have .code and .issues from 422 response)
    */
   emitSpecError(specId, stage, error) {
-    this.emit('spec.error', { 
-      specId, 
-      stage, 
-      error: {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      },
+    const payload = {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    };
+    if (error.code) payload.code = error.code;
+    if (Array.isArray(error.issues)) payload.issues = error.issues;
+    this.emit('spec.error', {
+      specId,
+      stage,
+      error: payload,
       timestamp: new Date().toISOString()
     });
   }

@@ -21,11 +21,16 @@ class SpecQueue {
    * @returns {Object} Job object
    */
   async add(specId, overview, answers) {
-    // Check if job already exists for this specId
+    // Allow new job if existing one has finished (failed or completed) so retry / re-approve works
     if (this.jobs.has(specId)) {
       const existingJob = this.jobs.get(specId);
-      logger.warn({ specId }, '[SpecQueue] Job already exists for specId, returning existing job');
-      return existingJob;
+      if (existingJob.status === 'failed' || existingJob.status === 'completed') {
+        this.jobs.delete(specId);
+        logger.info({ specId, previousStatus: existingJob.status }, '[SpecQueue] Replacing finished job with new job');
+      } else {
+        logger.warn({ specId }, '[SpecQueue] Job already exists for specId, returning existing job');
+        return existingJob;
+      }
     }
 
     const job = {

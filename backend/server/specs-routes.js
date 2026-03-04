@@ -435,6 +435,13 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
         const errorListener = (event) => {
             if (event.specId === specId) {
                 logger.error({ requestId, specId, stage: event.stage, error: event.error }, 'Spec generation error');
+                // Persist error state so UI shows error + Retry instead of infinite loading
+                db.collection('specs').doc(specId).update({
+                    [`status.${event.stage}`]: 'error',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                }).catch(err => {
+                    logger.error({ requestId, specId, stage: event.stage, error: err.message }, 'Failed to update spec error status in Firestore');
+                });
             }
         };
 
@@ -468,6 +475,86 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
             duration: `${totalTime}ms`
         }, '[specs-routes] POST /generate-all - Error');
         next(createError('Failed to start spec generation', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+            details: error.message,
+            requestId
+        }));
+    }
+});
+
+/**
+ * Generate a single section (technical, market, or design).
+ * POST /api/specs/:id/generate-section
+ * Body: { section: 'technical' | 'market' | 'design' }
+ * Returns: 202 Accepted; runs in background and updates Firestore on success or failure.
+ */
+const VALID_SECTIONS = ['technical', 'market', 'design'];
+router.post('/:id/generate-section', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `generate-section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const specId = req.params.id;
+    const userId = req.user.uid;
+    const { section } = req.body;
+
+    if (!section || !VALID_SECTIONS.includes(section)) {
+        return next(createError('section must be one of: technical, market, design', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+    }
+
+    try {
+        const specDoc = await db.collection('specs').doc(specId).get();
+        if (!specDoc.exists) {
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+        }
+        const specData = specDoc.data();
+        if (specData.userId !== userId) {
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
+        }
+
+        const overview = specData.overview;
+        const answers = Array.isArray(specData.answers) ? specData.answers : [];
+        if (!overview) {
+            return next(createError('Spec overview is required to generate section', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+
+        await db.collection('specs').doc(specId).update({
+            [`status.${section}`]: 'generating',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Run in background so we can return 202 immediately
+        setImmediate(async () => {
+            try {
+                const result = await specGenerationService.generateSection(specId, section, overview, answers);
+                await db.collection('specs').doc(specId).update({
+                    [section]: result,
+                    [`status.${section}`]: 'ready',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+                logger.info({ requestId, specId, section }, '[specs-routes] POST /generate-section - Section ready');
+                if (openaiStorage) {
+                    triggerOpenAIUploadForSpec(specId).catch(err => {
+                        logger.warn({ requestId, specId, section, error: err.message }, 'Failed to trigger OpenAI upload after generate-section');
+                    });
+                }
+            } catch (err) {
+                logger.error({ requestId, specId, section, error: err.message }, '[specs-routes] POST /generate-section - Section failed');
+                await db.collection('specs').doc(specId).update({
+                    [`status.${section}`]: 'error',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                }).catch(updateErr => {
+                    logger.error({ requestId, specId, section, error: updateErr.message }, 'Failed to update spec error status in Firestore');
+                });
+            }
+        });
+
+        res.status(202).json({
+            success: true,
+            message: 'Section generation started',
+            specId,
+            section,
+            requestId
+        });
+    } catch (error) {
+        logger.error({ requestId, specId, section, error: error.message }, '[specs-routes] POST /generate-section - Error');
+        next(createError('Failed to start section generation', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
             details: error.message,
             requestId
         }));
