@@ -100,7 +100,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
     },
     "suggestionsIdeaSummary": {
       "toInclude": [],
-      "notToInclude": ["Short optional idea or angle to add to the idea summary", "Another optional idea"]
+      "notToInclude": ["One specific benefit or angle derived from THIS app's idea (e.g. concrete outcome or differentiator)", "Another concrete phrase that could be merged into the idea summary to deepen it"]
     },
     "suggestionsCoreFeatures": {
       "toInclude": [],
@@ -130,7 +130,7 @@ IMPORTANT DETAILED REQUIREMENTS:
   * functionality: Based on number of features, screens, and user flow complexity (simple = 30, moderate = 60, complex = 90)
   * userSystem: No user system = 0, Basic authentication = 40, Full user system with profiles = 80
 - suggestionsIdeaSummary and suggestionsCoreFeatures MUST be objects with exactly "toInclude" (array) and "notToInclude" (array). Put all generated suggestions in notToInclude (user can add them later). toInclude stays empty [].
-- suggestionsIdeaSummary.notToInclude: 3-5 short phrases or sentences (each one line) that could optionally be added to the idea summary—complementary angles, benefits, or differentiators.
+- suggestionsIdeaSummary.notToInclude: 3-5 short, concrete phrases or sentences (one line each) that DEVELOP THIS SPECIFIC IDEA. Each suggestion must: (a) be directly derived from this app's ideaSummary, valueProposition, or problemStatement; (b) be something that could be merged into the idea summary to deepen or refine it (e.g. a specific benefit, differentiator, or angle for this app). Do NOT suggest generic directions (e.g. "add target audience" or "mention scalability"); every item must be specific content that extends this idea.
 - suggestionsCoreFeatures.notToInclude: 3-5 optional features with brief descriptions (same format as coreFeaturesOverview items) that fit the app but were not included in the main list.
 - All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
@@ -204,7 +204,7 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
 
 8. suggestionsIdeaSummary and suggestionsCoreFeatures:
    - MUST be present with toInclude: [] and notToInclude: [...] (arrays of strings)
-   - suggestionsIdeaSummary.notToInclude: 3-5 optional ideas/phrases for the idea summary
+   - suggestionsIdeaSummary.notToInclude: 3-5 concrete phrases that develop this specific idea (derived from ideaSummary/valueProposition); each must be mergeable into the idea summary. No generic directions.
    - suggestionsCoreFeatures.notToInclude: 3-5 optional feature descriptions (same style as coreFeaturesOverview)
 
 VALIDATION CHECKLIST (Before generating output):
