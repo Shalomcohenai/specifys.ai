@@ -97,6 +97,14 @@ Create a comprehensive and detailed overview based on the user input. Follow the
       "integrations": 0-100,
       "functionality": 0-100,
       "userSystem": 0-100
+    },
+    "suggestionsIdeaSummary": {
+      "toInclude": [],
+      "notToInclude": ["Short optional idea or angle to add to the idea summary", "Another optional idea"]
+    },
+    "suggestionsCoreFeatures": {
+      "toInclude": [],
+      "notToInclude": ["Optional feature with brief description", "Another optional feature to consider"]
     }
   }
 }
@@ -121,6 +129,9 @@ IMPORTANT DETAILED REQUIREMENTS:
   * integrations: 0 integrations = 0, 1-2 = 30, 3-5 = 60, 6+ = 90 (based on third-party services mentioned)
   * functionality: Based on number of features, screens, and user flow complexity (simple = 30, moderate = 60, complex = 90)
   * userSystem: No user system = 0, Basic authentication = 40, Full user system with profiles = 80
+- suggestionsIdeaSummary and suggestionsCoreFeatures MUST be objects with exactly "toInclude" (array) and "notToInclude" (array). Put all generated suggestions in notToInclude (user can add them later). toInclude stays empty [].
+- suggestionsIdeaSummary.notToInclude: 3-5 short phrases or sentences (each one line) that could optionally be added to the idea summary—complementary angles, benefits, or differentiators.
+- suggestionsCoreFeatures.notToInclude: 3-5 optional features with brief descriptions (same format as coreFeaturesOverview items) that fit the app but were not included in the main list.
 - All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
 
@@ -191,6 +202,11 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - Use the App Description as the foundation
    - You may expand and enhance, but core content MUST align with user's description
 
+8. suggestionsIdeaSummary and suggestionsCoreFeatures:
+   - MUST be present with toInclude: [] and notToInclude: [...] (arrays of strings)
+   - suggestionsIdeaSummary.notToInclude: 3-5 optional ideas/phrases for the idea summary
+   - suggestionsCoreFeatures.notToInclude: 3-5 optional feature descriptions (same style as coreFeaturesOverview)
+
 VALIDATION CHECKLIST (Before generating output):
 ✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens as objects with name, description, uiComponents?
 ✓ Did I complete screenDescriptions.screens to minimum 5 screens (even if user provided fewer)?
@@ -205,6 +221,7 @@ VALIDATION CHECKLIST (Before generating output):
 ✓ Did I keep ideaSummary to 250-750 characters (concise, not too long)?
 ✓ Did I include ONLY steps in detailedUserFlow (no decisionPoints, errorHandling, confirmations, feedbackLoops)?
 ✓ For sections that DON'T exist, did I infer appropriately based on App Description?
+✓ Did I add suggestionsIdeaSummary and suggestionsCoreFeatures with toInclude: [] and notToInclude with 3-5 items each?
 
 REMEMBER: User-provided data is MANDATORY if it exists, but you MUST complete to minimum requirements. User data shows what's important, but don't ignore other essential elements.
 
