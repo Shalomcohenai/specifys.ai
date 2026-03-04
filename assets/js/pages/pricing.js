@@ -9,15 +9,23 @@
         return; // Already loaded, skip
     }
     window.PRICING_JS_INITIALIZED = true;
-    
-    // Set API base URL - use main backend server
-    var API_BASE_URL = window.PRICING_API_BASE_URL || (window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || ''));
-    // Ensure it includes /api if not already present
-    if (!API_BASE_URL.endsWith('/api')) {
-        API_BASE_URL = API_BASE_URL + '/api';
+
+    // Resolve API base URL at request time so it works even if config.js loads after this script (defer order).
+    // Fallback to Render backend so Buy Now never hits the static site origin.
+    function getPricingApiBaseUrl() {
+        var base = window.PRICING_API_BASE_URL || (window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || window.SPECIFYS_BACKEND_URL || ''));
+        if (!base || base === '/api') {
+            base = 'https://specifys-ai-backend.onrender.com';
+        }
+        if (!base.endsWith('/api')) {
+            base = base + '/api';
+        }
+        if (base.indexOf('http') === 0) {
+            window.PRICING_API_BASE_URL = base;
+        }
+        return base;
     }
-    window.PRICING_API_BASE_URL = API_BASE_URL;
-    
+
     var lemonConfigPromise = null;
     var lemonSdkPromise = null;
     var productButtons = [];
@@ -585,7 +593,7 @@ async function purchaseSpec(evt, productKey) {
                     await new Promise(resolve => setTimeout(resolve, retryDelay));
                 }
                 
-                response = await silentFetch(`${API_BASE_URL}/lemon/checkout`, {
+                response = await silentFetch(`${getPricingApiBaseUrl()}/lemon/checkout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -822,7 +830,7 @@ if (document.readyState === 'loading') {
 // Wake up the backend server when pricing page loads
 // This ensures the server is ready when user clicks "Buy Now"
 async function wakeUpServer() {
-    const healthUrl = `${API_BASE_URL}/health`;
+    const healthUrl = `${getPricingApiBaseUrl()}/health`;
     const maxRetries = 3;
     const retryDelay = 3000; // 3 seconds between retries (longer for cold start)
     

@@ -27,15 +27,15 @@
     {% include firebase-auth.html %}
     {% endunless %}
     
-    <!-- Extra JavaScript -->
+    <!-- Extra JavaScript (defer so config.js in head runs first) -->
     {% if page.extra_js %}
       {% for js in page.extra_js %}
-        <script src="{{ js | relative_url }}"></script>
+        <script defer src="{{ js | relative_url }}"></script>
       {% endfor %}
     {% endif %}
     {% if layout.extra_js %}
       {% for js in layout.extra_js %}
-        <script src="{{ js | relative_url }}"></script>
+        <script defer src="{{ js | relative_url }}"></script>
       {% endfor %}
     {% endif %}
     <!-- Custom JavaScript Modules -->
