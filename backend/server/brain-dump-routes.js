@@ -74,6 +74,17 @@ async function checkAndIncrementPersonalPromptRateLimit(userId) {
 }
 
 /**
+ * Brain Dump is allowed only after advanced specs (technical, market, design) + architecture.
+ */
+function isBrainDumpAllowed(specData) {
+  if (!specData) return false;
+  const status = specData.status || {};
+  const advanced = status.technical === 'ready' && status.market === 'ready' && status.design === 'ready';
+  const hasArch = (typeof specData.architecture === 'string' && specData.architecture.trim()) || status.architecture === 'ready';
+  return advanced && hasArch;
+}
+
+/**
  * Parse JSON from assistant response (may be wrapped in ```json ... ```)
  */
 function parseStructuredResponse(responseText) {
@@ -116,6 +127,9 @@ router.post('/generate', verifyFirebaseToken, async (req, res, next) => {
     }
 
     const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
     const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
 
     const overviewRaw = specData.overview != null ? specData.overview : {};
@@ -193,6 +207,10 @@ router.post('/init', verifyFirebaseToken, async (req, res, next) => {
     if (!specId) {
       return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
+    const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
 
     const { threadId, assistantId } = await chatService.getOrCreateBrainDumpThread(specId, userId, requestId);
     logger.info({ requestId, specId, userId }, '[brain-dump] POST /init - Success');
@@ -227,6 +245,9 @@ router.post('/message', verifyFirebaseToken, async (req, res, next) => {
     }
 
     const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
     let currentThreadId = threadId;
     let currentAssistantId = assistantId;
 
@@ -306,7 +327,10 @@ router.get('/history', verifyFirebaseToken, async (req, res, next) => {
     if (!specId) {
       return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
-    await chatService.verifySpecOwnership(specId, userId);
+    const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
 
     const snapshot = await db.collection('specs').doc(specId).collection('brainDumpMessages')
       .orderBy('timestamp', 'asc')
@@ -358,7 +382,10 @@ router.post('/personal-prompt', verifyFirebaseToken, async (req, res, next) => {
     if (!specId) {
       return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
-    await chatService.verifySpecOwnership(specId, userId);
+    const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
 
     let question = userQuestion;
     let reply = assistantReply;
@@ -437,7 +464,10 @@ router.post('/apply-to-spec', verifyFirebaseToken, async (req, res, next) => {
       return next(createError('fullPrompt is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
 
-    await chatService.verifySpecOwnership(specId, userId);
+    const specData = await chatService.verifySpecOwnership(specId, userId);
+    if (!isBrainDumpAllowed(specData)) {
+      return next(createError('Brain Dump is available only after advanced specs (Technical, Market, Design) and Architecture are ready', ERROR_CODES.VALIDATION_ERROR, 403));
+    }
     const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
 
     const mergeMessage = `Merge the following change into the specification. Do not change design.

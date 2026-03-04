@@ -431,36 +431,26 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
 /**
  * Get Buy Now button clicks per product (pricing page)
  * GET /api/analytics/buy-now-clicks?range=week
+ * Uses fallback: if indexed query fails (e.g. missing composite index), fetches by type only and filters by timestamp in memory.
  */
 router.get('/buy-now-clicks', requireAdmin, async (req, res, next) => {
   const requestId = req.requestId || `buy-now-clicks-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   logger.info({ requestId, query: req.query }, '[analytics-routes] GET /buy-now-clicks');
 
-  try {
-    const range = req.query.range || 'all';
-    const ranges = {
-      day: 24 * 60 * 60 * 1000,
-      week: 7 * 24 * 60 * 60 * 1000,
-      month: 30 * 24 * 60 * 60 * 1000
-    };
+  const range = req.query.range || 'all';
+  const ranges = {
+    day: 24 * 60 * 60 * 1000,
+    week: 7 * 24 * 60 * 60 * 1000,
+    month: 30 * 24 * 60 * 60 * 1000
+  };
+  const now = new Date();
+  const startDate = range !== 'all' && ranges[range]
+    ? new Date(now.getTime() - ranges[range])
+    : null;
 
-    let query = db.collection('analytics_events')
-      .where('type', '==', 'button_click');
-
-    if (range !== 'all' && ranges[range]) {
-      const now = new Date();
-      const startDate = new Date(now.getTime() - ranges[range]);
-      const startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
-      const endTimestamp = admin.firestore.Timestamp.fromDate(now);
-      query = query
-        .where('timestamp', '>=', startTimestamp)
-        .where('timestamp', '<=', endTimestamp);
-    }
-
-    const snapshot = await query.get();
+  function processSnapshot(snapshot) {
     const byProduct = {};
     let total = 0;
-
     snapshot.docs.forEach(doc => {
       const data = doc.data();
       const entityId = data.entityId;
@@ -470,15 +460,51 @@ router.get('/buy-now-clicks', requireAdmin, async (req, res, next) => {
         total++;
       }
     });
+    return { byProduct, total };
+  }
 
-    logger.info({ requestId, range, byProduct, total }, '[analytics-routes] GET /buy-now-clicks - Success');
-
-    res.json({
-      success: true,
-      range,
-      byProduct,
-      total
+  function filterByTimestamp(docs, startTs, endTs) {
+    return docs.filter(doc => {
+      const ts = doc.data().timestamp;
+      if (!ts || !ts.toDate) return false;
+      const t = ts.toDate().getTime();
+      return t >= startTs && t <= endTs;
     });
+  }
+
+  try {
+    let query = db.collection('analytics_events').where('type', '==', 'button_click');
+
+    if (range !== 'all' && ranges[range]) {
+      const startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
+      const endTimestamp = admin.firestore.Timestamp.fromDate(now);
+      query = query
+        .where('timestamp', '>=', startTimestamp)
+        .where('timestamp', '<=', endTimestamp);
+    }
+
+    let snapshot;
+    try {
+      snapshot = await query.get();
+    } catch (queryError) {
+      const msg = (queryError.message || '').toLowerCase();
+      const useFallback = range !== 'all' && ranges[range] && startDate && (msg.includes('index') || msg.includes('failed_precondition'));
+      if (!useFallback) throw queryError;
+
+      logger.warn({ requestId, error: queryError.message }, '[analytics-routes] GET /buy-now-clicks - Indexed query failed, using in-memory filter fallback');
+      const baseSnapshot = await db.collection('analytics_events').where('type', '==', 'button_click').get();
+      const startTs = startDate.getTime();
+      const endTs = now.getTime();
+      const filtered = filterByTimestamp(baseSnapshot.docs, startTs, endTs);
+      const fakeSnapshot = { docs: filtered.map(d => ({ data: () => d.data(), id: d.id })) };
+      const result = processSnapshot(fakeSnapshot);
+      logger.info({ requestId, range, byProduct: result.byProduct, total: result.total }, '[analytics-routes] GET /buy-now-clicks - Success (fallback)');
+      return res.json({ success: true, range, byProduct: result.byProduct, total: result.total });
+    }
+
+    const result = processSnapshot(snapshot);
+    logger.info({ requestId, range, byProduct: result.byProduct, total: result.total }, '[analytics-routes] GET /buy-now-clicks - Success');
+    res.json({ success: true, range, byProduct: result.byProduct, total: result.total });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[analytics-routes] GET /buy-now-clicks - Error');
     next(createError('Failed to get buy-now clicks', ERROR_CODES.DATABASE_ERROR, 500, {
