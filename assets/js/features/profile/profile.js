@@ -1587,8 +1587,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                             <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
                                 <i class="fas fa-link"></i>
                             </button>
-                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit name" aria-label="Edit spec name">
+                                <i class="fas fa-pencil-alt"></i>
                             </button>
                             <button class="btn-icon" onclick="deleteSpecCard('${spec.id}')" title="Delete">
                                 <i class="fas fa-trash"></i>

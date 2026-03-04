@@ -2463,7 +2463,7 @@ button[onclick*="openVisualizer"]:active {
   flex: 1;
 }
 
-/* Spec title edit button (pencil next to page title) */
+/* Spec title edit button (pencil next to page title) - always visible */
 .page-title .spec-title-edit {
   margin-left: 0.5rem;
   padding: 0.35rem 0.5rem;
@@ -2475,6 +2475,12 @@ button[onclick*="openVisualizer"]:active {
   cursor: pointer;
   vertical-align: middle;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-title .spec-title-edit i {
+  color: inherit;
 }
 .page-title .spec-title-edit:hover {
   background: var(--border-color, #eee);

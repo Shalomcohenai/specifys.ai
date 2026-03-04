@@ -286,7 +286,8 @@ function openRenameSpecModal() {
     const modal = document.getElementById('rename-spec-modal');
     const input = document.getElementById('rename-spec-input');
     if (!modal || !input) return;
-    input.value = (currentSpecData.titleSource === 'user' && currentSpecData.title) ? currentSpecData.title : 'Project Spec';
+    const raw = (currentSpecData.title && String(currentSpecData.title).trim()) ? String(currentSpecData.title).trim() : '';
+    input.value = (raw && raw !== 'Generating...') ? raw : 'Project Spec';
     input.focus();
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -324,10 +325,9 @@ async function saveRenameSpec() {
     try {
         await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
             title: newTitle,
-            titleSource: 'user',
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        updateCurrentSpecData({ ...currentSpecData, title: newTitle, titleSource: 'user' });
+        updateCurrentSpecData({ ...currentSpecData, title: newTitle });
         const specTitleEl = document.getElementById('spec-title');
         if (specTitleEl) specTitleEl.textContent = newTitle;
         document.title = `${newTitle} - Specifys.ai`;
@@ -850,8 +850,9 @@ function displaySpec(data) {
         console.error('[displaySpec] Content div not found!');
     }
     
-    // Display spec title: fixed "Project Spec" unless user has set a custom name (titleSource === 'user')
-    const displayTitle = (data.titleSource === 'user' && data.title) ? data.title : 'Project Spec';
+    // Display spec title (from overview or user edit); fallback when empty or placeholder
+    const raw = (data.title && String(data.title).trim()) ? String(data.title).trim() : '';
+    const displayTitle = (raw && raw !== 'Generating...') ? raw : 'Project Spec';
     const specTitleElement = document.getElementById('spec-title');
     if (specTitleElement) {
         specTitleElement.textContent = displayTitle;

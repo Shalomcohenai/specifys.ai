@@ -16,10 +16,11 @@ const openaiStorage = process.env.OPENAI_API_KEY
   : null;
 
 /**
- * Extract a display title from overview JSON content.
- * Tries ideaSummary (first sentence / 50-80 chars), then applicationSummary.paragraphs[0], else "App Specification".
+ * Extract a short display title (max 5 words) from overview JSON content.
+ * Used in profile cards and spec-viewer header.
  */
 function extractTitleFromOverview(overviewContent) {
+    const MAX_WORDS = 5;
     if (!overviewContent || typeof overviewContent !== 'string') return 'App Specification';
     try {
         const overviewObj = JSON.parse(overviewContent);
@@ -27,15 +28,14 @@ function extractTitleFromOverview(overviewContent) {
         if (ideaSummary && typeof ideaSummary === 'string' && ideaSummary.trim().length > 0) {
             const trimmed = ideaSummary.trim();
             const firstSentence = trimmed.split(/[.!?]/)[0].trim();
-            if (firstSentence.length >= 3 && firstSentence.length <= 80) return firstSentence;
-            if (firstSentence.length > 80) return firstSentence.substring(0, 77) + '...';
-            if (trimmed.length <= 80) return trimmed;
-            return trimmed.substring(0, 77) + '...';
+            const words = firstSentence.split(/\s+/).filter(Boolean);
+            if (words.length >= 1) return words.slice(0, MAX_WORDS).join(' ');
         }
         if (overviewObj.applicationSummary && Array.isArray(overviewObj.applicationSummary.paragraphs) && overviewObj.applicationSummary.paragraphs[0]) {
             const p = overviewObj.applicationSummary.paragraphs[0];
-            if (typeof p === 'string' && p.length > 0) {
-                return p.length <= 80 ? p : p.substring(0, 77) + '...';
+            if (typeof p === 'string' && p.trim().length > 0) {
+                const words = p.trim().split(/\s+/).filter(Boolean);
+                if (words.length >= 1) return words.slice(0, MAX_WORDS).join(' ');
             }
         }
     } catch (e) {
@@ -584,7 +584,6 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         overview: overviewContent,
                         'status.overview': 'ready',
                         title: extractedTitle,
-                        titleSource: 'extracted',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
                     
