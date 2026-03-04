@@ -286,7 +286,7 @@ function openRenameSpecModal() {
     const modal = document.getElementById('rename-spec-modal');
     const input = document.getElementById('rename-spec-input');
     if (!modal || !input) return;
-    input.value = currentSpecData.title || '';
+    input.value = (currentSpecData.titleSource === 'user' && currentSpecData.title) ? currentSpecData.title : 'Project Spec';
     input.focus();
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -324,9 +324,10 @@ async function saveRenameSpec() {
     try {
         await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
             title: newTitle,
+            titleSource: 'user',
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        updateCurrentSpecData({ ...currentSpecData, title: newTitle });
+        updateCurrentSpecData({ ...currentSpecData, title: newTitle, titleSource: 'user' });
         const specTitleEl = document.getElementById('spec-title');
         if (specTitleEl) specTitleEl.textContent = newTitle;
         document.title = `${newTitle} - Specifys.ai`;
@@ -849,8 +850,8 @@ function displaySpec(data) {
         console.error('[displaySpec] Content div not found!');
     }
     
-    // Display spec title (user-facing; editable via pencil icon)
-    const displayTitle = data.title || 'Project Specifications';
+    // Display spec title: fixed "Project Spec" unless user has set a custom name (titleSource === 'user')
+    const displayTitle = (data.titleSource === 'user' && data.title) ? data.title : 'Project Spec';
     const specTitleElement = document.getElementById('spec-title');
     if (specTitleElement) {
         specTitleElement.textContent = displayTitle;

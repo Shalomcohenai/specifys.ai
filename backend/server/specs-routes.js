@@ -584,6 +584,7 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         overview: overviewContent,
                         'status.overview': 'ready',
                         title: extractedTitle,
+                        titleSource: 'extracted',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
                     
