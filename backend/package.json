@@ -4,7 +4,8 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "nodemon server/server.js"
+    "dev": "nodemon server/server.js",
+    "build": "echo 'No build step'"
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",

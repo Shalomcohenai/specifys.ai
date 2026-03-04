@@ -7,7 +7,7 @@ The Specifys.ai API provides endpoints for user management, spec generation, cre
 ## Base URL
 
 - **Production**: `https://specifys-ai-backend.onrender.com`
-- **Development**: `http://localhost:3000`
+- **Development**: `http://localhost:10000`
 
 ## Authentication
 
@@ -42,7 +42,7 @@ Interactive API documentation is available at:
 
 ### Accessing Documentation
 
-1. **Local Development**: `http://localhost:3000/api-docs/swagger`
+1. **Local Development**: `http://localhost:10000/api-docs/swagger`
 2. **Production**: `https://specifys-ai-backend.onrender.com/api-docs/swagger`
 
 ## API Endpoints
