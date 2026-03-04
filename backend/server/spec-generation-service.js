@@ -367,7 +367,17 @@ Note: The system will retrieve the full overview content automatically. Use this
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
 
-Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). Return JSON with technical key. Required keys (never omit): techStack (object), architectureOverview (string), databaseSchema (object), apiEndpoints (array), securityAuthentication (object), integrationExternalApis (object). If unknown, use "" for architectureOverview and [] for apiEndpoints. Also include detailed devops, dataStorage, analytics, detailedDataModels, dataFlowDetailed where relevant.
+Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). You MUST return detailed, substantive content in every key—not just headings or placeholders.
+
+Required keys (never omit; each must contain full content):
+- techStack (object): frontend, backend, database, storage, authentication—each with a clear description of technologies and choices.
+- architectureOverview (string): a full paragraph describing system structure, client-server flow, API layout, and data flow. Use "" only if no overview is available.
+- databaseSchema (object): MUST include a description (at least 2–3 sentences) and a tables array. When Application Overview or app description exists, you MUST infer and return at least 2–3 tables; each table: name, purpose, fields (array of field names with types and constraints, e.g. "id (PK)", "email (string, unique)"), relationships. Never return an empty tables array when the overview or user input describes the app—infer the main entities (users, content, etc.) and define them.
+- apiEndpoints (array): each item MUST have path, method, description; and MUST include requestBody and responseBody (text or JSON string describing request/response structure). Also include parameters and statusCodes when relevant. Use [] only if no endpoints can be inferred.
+- securityAuthentication (object): authentication, authorization, and securityMeasures as full sentences; MUST include securityCriticalPoints array with 3–5 actionable security warnings (e.g. never store secrets in frontend, validate inputs, use HTTPS, JWT best practices).
+- integrationExternalApis (object): thirdPartyServices (array of names), integrations (paragraph), dataFlow (paragraph)—each with real descriptive content.
+
+Also include devops (deploymentStrategy, infrastructure, monitoring, scaling, backup, automation), dataStorage, analytics, detailedDataModels, dataFlowDetailed—each section with at least 2–3 sentences or bullet points per sub-key. All content must be comprehensive enough for a developer to implement from the spec.
 
 ${overviewSection}
 
@@ -403,9 +413,15 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.`
       : `Application Overview:\n${overviewContent}`;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. Never omit required keys. Each required key MUST contain detailed, substantive content—not empty objects or one-line stubs.
 
-Create comprehensive market research. Return JSON with market key containing exactly these required keys (objects or array where noted): industryOverview (object), targetAudienceInsights (object), competitiveLandscape (array), swotAnalysis (object), monetizationModel (object), marketingStrategy (object).
+Create comprehensive market research. Return JSON with market key containing exactly these required keys, each filled with full content:
+- industryOverview (object): trends, marketData, growth potential—each with paragraphs or detailed bullet points.
+- targetAudienceInsights (object): demographics, needs, behaviors, and insights—substantial text per sub-key.
+- competitiveLandscape (array): array of competitor objects, each with name, strengths, weaknesses, and differentiators; include at least 3–5 competitors with real content.
+- swotAnalysis (object): strengths, weaknesses, opportunities, threats—each with detailed points, not just headings.
+- monetizationModel (object): pricing strategy, revenue streams, and rationale—detailed descriptions.
+- marketingStrategy (object): channels, messaging, go-to-market—concrete, actionable content.
 
 Current Date: ${currentDateStr}
 Last 3 Months for Historical Data: ${last3Months}
@@ -430,9 +446,15 @@ Overview Location: Firebase > specs collection > ${specId} > overview field
 Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.`
       : `Application Overview:\n${overviewContent}`;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. Never omit required keys. Each required key MUST contain detailed, substantive content—not empty objects or placeholder text.
 
-Create comprehensive design specifications. Return JSON with design key containing exactly these required keys (all objects): visualStyleGuide (colors, typography, spacing, buttons, animations), logoIconography (logoConcepts, colorVersions, iconSet, appIcon with letters, bgColor, description), uiLayout (landingPage, dashboard, navigation, responsiveDesign), uxPrinciples (userFlow, accessibility, informationHierarchy).
+Create comprehensive design specifications. Return JSON with design key containing exactly these required keys, each filled with full content:
+- visualStyleGuide (object): colors (palette and usage), typography (fonts, sizes), spacing, buttons, animations—specific values and guidelines.
+- logoIconography (object): logoConcepts, colorVersions, iconSet, appIcon (letters, bgColor, description)—concrete descriptions and recommendations.
+- uiLayout (object): landingPage, dashboard, navigation, responsiveDesign—each with clear layout and structure descriptions.
+- uxPrinciples (object): userFlow (how users move through the app), accessibility (WCAG-relevant points), informationHierarchy—actionable, detailed text.
+
+Do not return section headers only; every sub-key must have real descriptive content suitable for a designer or developer.
 
 ${overviewSection}
 

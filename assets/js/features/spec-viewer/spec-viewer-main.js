@@ -3058,15 +3058,29 @@ function formatJSONContent(jsonData) {
         jsonData.apiEndpoints.forEach(endpoint => {
             html += `<h4>${endpoint.method || 'N/A'} ${endpoint.path || 'N/A'}</h4>`;
             html += `<p><strong>Description:</strong> ${endpoint.description || 'No description provided'}</p>`;
-            
+            if (endpoint.parameters) {
+                html += `<p><strong>Parameters:</strong> ${endpoint.parameters}</p>`;
+            }
             if (endpoint.requestExample) {
                 html += `<p><strong>Request Example:</strong></p>`;
-                html += `<pre><code>${endpoint.requestExample}</code></pre>`;
+                html += `<pre><code>${escapeHtmlSpec(String(endpoint.requestExample))}</code></pre>`;
             }
-            
+            if (endpoint.requestBody) {
+                const rb = typeof endpoint.requestBody === 'string' ? endpoint.requestBody : JSON.stringify(endpoint.requestBody, null, 2);
+                html += `<p><strong>Request Body:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(rb)}</code></pre>`;
+            }
             if (endpoint.responseExample) {
                 html += `<p><strong>Response Example:</strong></p>`;
-                html += `<pre><code>${endpoint.responseExample}</code></pre>`;
+                html += `<pre><code>${escapeHtmlSpec(String(endpoint.responseExample))}</code></pre>`;
+            }
+            if (endpoint.responseBody) {
+                const resb = typeof endpoint.responseBody === 'string' ? endpoint.responseBody : JSON.stringify(endpoint.responseBody, null, 2);
+                html += `<p><strong>Response Body:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(resb)}</code></pre>`;
+            }
+            if (endpoint.statusCodes) {
+                html += `<p><strong>Status Codes:</strong> ${endpoint.statusCodes}</p>`;
             }
         });
         
