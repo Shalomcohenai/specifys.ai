@@ -143,10 +143,10 @@ class SpecThreadManager {
   }
 
   /**
-   * Run a structured stage (overview, technical, market, design). Uses strict JSON schema; returns parsed object.
+   * Run a structured stage (overview, technical, market, design, architecture). Uses strict JSON schema; returns parsed object.
    * Logs the exact response_format schema on any OpenAI or parse failure for easier debugging.
    * @param {string} threadId - OpenAI thread ID
-   * @param {string} stage - overview | technical | market | design
+   * @param {string} stage - overview | technical | market | design | architecture
    * @param {string} userMessage - Full user prompt for this stage
    * @returns {Promise<object>} Parsed payload with single root key (e.g. { overview: {...} })
    */
@@ -191,17 +191,6 @@ class SpecThreadManager {
       }, '[SpecThreadManager] Zod validation failed on OpenAI response');
       throw validationErr;
     }
-  }
-
-  /**
-   * Run architecture stage (o1, Markdown). No response_format.
-   * @param {string} threadId - OpenAI thread ID
-   * @param {string} userMessage - Full user prompt for architecture
-   * @returns {Promise<string>} Markdown string
-   */
-  async runArchitecture(threadId, userMessage) {
-    const assistantId = await this.getArchitectureAssistantId();
-    return this.openaiStorage.runSpecGeneration(threadId, assistantId, userMessage, null);
   }
 }
 

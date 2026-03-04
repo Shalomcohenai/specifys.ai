@@ -305,20 +305,58 @@ const DesignSchema = z.object({
 const DesignPayloadSchema = z.object({ design: DesignSchema });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Architecture (structured; serialized to Markdown for storage)
+// ─────────────────────────────────────────────────────────────────────────────
+const CoreFunctionalityItemSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  technicalImplementation: z.string()
+});
+
+const ThirdPartyIntegrationSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  purpose: z.string(),
+  integrationMethod: z.string()
+});
+
+const WebPerformanceStrategySchema = z.object({
+  cachingStrategy: z.string().nullable(),
+  lazyLoadingStrategy: z.string().nullable(),
+  ssrSsgApproach: z.string().nullable()
+});
+
+const EmbeddedDiagramsSchema = z.object({
+  systemMapMermaid: z.string().nullable(),
+  sequenceDiagramThirdPartyMermaid: z.string().nullable()
+});
+
+const ArchitectureSchema = z.object({
+  coreFunctionalityLogic: z.array(CoreFunctionalityItemSchema),
+  thirdPartyIntegrations: z.array(ThirdPartyIntegrationSchema),
+  webPerformanceStrategy: WebPerformanceStrategySchema,
+  embeddedDiagrams: EmbeddedDiagramsSchema
+});
+
+const ArchitecturePayloadSchema = z.object({ architecture: ArchitectureSchema });
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Stage maps
 // ─────────────────────────────────────────────────────────────────────────────
 const STAGE_PAYLOAD_SCHEMAS = {
   overview: OverviewPayloadSchema,
   technical: TechnicalPayloadSchema,
   market: MarketPayloadSchema,
-  design: DesignPayloadSchema
+  design: DesignPayloadSchema,
+  architecture: ArchitecturePayloadSchema
 };
 
 const STAGE_ROOT_KEYS = {
   overview: 'overview',
   technical: 'technical',
   market: 'market',
-  design: 'design'
+  design: 'design',
+  architecture: 'architecture'
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -335,7 +373,7 @@ const { logger } = require('../server/logger');
  * OpenAI rejects this because the root has no `type` field (it sees type:"None").
  * We unwrap the envelope to give OpenAI a clean { type:"object", properties:{...}, ... }.
  *
- * @param {string} stage - overview | technical | market | design
+ * @param {string} stage - overview | technical | market | design | architecture
  * @returns {object} response_format for OpenAI runs.create
  */
 function buildResponseFormat(stage) {
@@ -372,7 +410,7 @@ function buildResponseFormat(stage) {
 /**
  * Parse and validate an API response for a stage using the Zod schema.
  * Throws ZodError if the structure does not match.
- * @param {string} stage - overview | technical | market | design
+ * @param {string} stage - overview | technical | market | design | architecture
  * @param {object} raw - Parsed JSON from OpenAI response
  * @returns {object} Validated payload (e.g. { overview: {...} })
  */
@@ -391,6 +429,8 @@ module.exports = {
   MarketPayloadSchema,
   DesignSchema,
   DesignPayloadSchema,
+  ArchitectureSchema,
+  ArchitecturePayloadSchema,
   STAGE_PAYLOAD_SCHEMAS,
   STAGE_ROOT_KEYS,
   buildResponseFormat,

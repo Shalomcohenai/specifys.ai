@@ -21,8 +21,8 @@ The previous system used a three-layer retry pyramid with no schema contract:
 | Layer | Old | New |
 |-------|-----|-----|
 | LLM API | Stateless Chat Completions via Worker | **OpenAI Assistants API v2** (direct from backend) |
-| Model (structured) | gpt-4o-mini | **gpt-4o** |
-| Model (architecture) | gpt-4o-mini | **o1-preview** |
+| Model (structured) | gpt-4o-mini | **gpt-5-mini** |
+| Model (architecture) | gpt-4o-mini | **gpt-5-mini** (structured JSON, serialized to Markdown for storage) |
 | Output contract | Heuristic validators + repair prompts | **Structured Outputs** (`json_schema`, `strict: true`) |
 | Context | String concatenation + truncation | **Persistent Threads** (`thread_id` in Firestore) |
 | Validation | None | **Zod** → `zod-to-json-schema` for `response_format` |
@@ -40,7 +40,7 @@ Schemas define the **full** output structure for each stage (same sections as be
 - **Technical:** `TechnicalPayloadSchema` — `technical` with techStack, architectureOverview, databaseSchema, apiEndpoints, securityAuthentication, integrationExternalApis, devops, dataStorage, analytics, detailedDataModels, dataFlowDetailed.
 - **Market:** `MarketPayloadSchema` — `market` with industryOverview, targetAudienceInsights, competitiveLandscape, swotAnalysis, monetizationModel, marketingStrategy.
 - **Design:** `DesignPayloadSchema` — `design` with visualStyleGuide, logoIconography, uiLayout, uxPrinciples.
-- **Architecture:** No JSON schema; o1 returns Markdown (7-section document).
+- **Architecture:** `ArchitecturePayloadSchema` — `architecture` with coreFunctionalityLogic, thirdPartyIntegrations, webPerformanceStrategy, embeddedDiagrams (systemMapMermaid, sequenceDiagramThirdPartyMermaid). Backend serializes validated JSON to Markdown for storage so the frontend continues to receive a string.
 
 Helpers:
 
@@ -64,13 +64,11 @@ Helpers:
 
 - **One thread per spec.** `thread_id` is stored on the spec document (Firestore).
 - **getOrCreateThread(specId):** Reads `specs/{specId}.thread_id`; if missing, creates a thread via OpenAI, updates the spec with `thread_id`, returns it.
-- **runStage(threadId, stage, userMessage):** Adds user message, creates run with `response_format` from `buildResponseFormat(stage)`, polls, parses JSON, validates with Zod, returns payload (e.g. `{ overview: {...} }`).
-- **runArchitecture(threadId, userMessage):** Same flow with the architecture assistant (o1); no `response_format`; returns Markdown string.
+- **runStage(threadId, stage, userMessage):** Adds user message, creates run with `response_format` from `buildResponseFormat(stage)` (including `stage === 'architecture'`), polls, parses JSON, validates with Zod, returns payload (e.g. `{ overview: {...} }` or `{ architecture: {...} }`). Architecture uses the same generator assistant; no separate runArchitecture.
 
 Assistants:
 
-- **Structured stages (overview, technical, market, design):** One gpt-4o assistant. ID from `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` or created on first use.
-- **Architecture:** One o1-preview assistant. ID from `OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID` or created on first use.
+- **All stages (overview, technical, market, design, architecture):** One gpt-5-mini assistant. ID from `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` or created on first use. (OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID is no longer used for the architecture stage.)
 
 ---
 
@@ -78,11 +76,11 @@ Assistants:
 
 | Stage | Model | response_format |
 |-------|--------|------------------|
-| Overview | gpt-4o | `json_schema` strict (OverviewPayloadSchema) |
-| Technical | gpt-4o | `json_schema` strict (TechnicalPayloadSchema) |
-| Market | gpt-4o | `json_schema` strict (MarketPayloadSchema) |
-| Design | gpt-4o | `json_schema` strict (DesignPayloadSchema) |
-| Architecture | o1-preview | None (Markdown) |
+| Overview | gpt-5-mini | `json_schema` strict (OverviewPayloadSchema) |
+| Technical | gpt-5-mini | `json_schema` strict (TechnicalPayloadSchema) |
+| Market | gpt-5-mini | `json_schema` strict (MarketPayloadSchema) |
+| Design | gpt-5-mini | `json_schema` strict (DesignPayloadSchema) |
+| Architecture | gpt-5-mini | `json_schema` strict (ArchitecturePayloadSchema); backend serializes to Markdown for storage |
 
 ---
 
@@ -93,7 +91,7 @@ Assistants:
 - **generateOverview(specId, userInput):** getOrCreateThread(specId), runStage(threadId, 'overview', userMessage), return overview JSON string.
 - **generateSection(specId, stage, overview, answers):** getOrCreateThread, build prompt, runStage, emit `spec.update` / `spec.error`, return section JSON string.
 - **generateAllSpecs(specId, overview, answers):** Sequential technical → market → design; then generateArchitecture; emits `spec.update` / `spec.complete` / `spec.error`.
-- **generateArchitecture(specId, overview, technical, market, design):** getOrCreateThread, runArchitecture with 7-section prompt, return Markdown.
+- **generateArchitecture(specId, overview, technical, market, design):** getOrCreateThread, runStage(threadId, 'architecture', userMessage), then _architecturePayloadToMarkdown(payload) to produce Markdown string for Firestore and frontend.
 
 No retries, no repair prompts, no “minimal content” heuristics. If the API returns, structured output is validated by schema.
 

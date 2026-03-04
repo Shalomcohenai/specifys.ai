@@ -218,67 +218,139 @@ Additional Details: ${additionalDetails}`;
   }
 
   /**
-   * Generate architecture Markdown from overview + technical + market + design. Uses o1 and full thread context.
+   * Generate architecture as structured JSON then serialize to Markdown for storage.
+   * Uses gpt-5-mini via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
    * @param {string} technical - Technical content
    * @param {string} market - Market content
    * @param {string} design - Design content
-   * @returns {Promise<string>} Markdown string
+   * @returns {Promise<string>} Markdown string (for Firestore and frontend)
    */
   async generateArchitecture(specId, overview, technical, market, design) {
     const requestId = `v2-arch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     logger.info({ requestId, specId }, '[SpecGenV2] Starting architecture generation');
-    const structure = `
-Your output MUST be a single Markdown document with exactly these 7 sections (use these exact headings):
 
-## 1. System Overview & Tech Stack
-Core Technologies, Infrastructure, Third-Party Integrations, Architecture Pattern.
-
-## 2. File & Directory Structure
-Tree Diagram (Mermaid if helpful), Naming Conventions, Module Responsibility.
-
-## 3. Data Schema & Models
-Entities, Field Definitions, Relationships, Indexing.
-
-## 4. Key Logic Flows
-User Journeys, Data Lifecycle, Error Handling.
-
-## 5. API & Function Definitions
-REST Endpoints, Core Utility Functions, Frontend Hooks/Services.
-
-## 6. UI & Page Architecture
-Sitemap, Component Hierarchy, Design Tokens.
-
-## 7. Security & Constraints
-Authentication & Authorization, Environment Variables, Performance Constraints.
-
-Use \`\`\`mermaid ... \`\`\` blocks where helpful. Return ONLY the Markdown.`;
-
-    const userPrompt = `Combine the following specification sections into one architecture document. Follow the exact 7-section structure below.
-
-## Overview
-${(overview || '').slice(0, 15000)}
-
-## Technical
-${(technical || '').slice(0, 20000)}
-
-## Market
-${(market || '').slice(0, 8000)}
-
-## Design
-${(design || '').slice(0, 12000)}
-
----
-REQUIRED OUTPUT STRUCTURE:
-${structure}`;
+    const userPrompt = this._buildArchitecturePrompt(overview, technical, market, design);
 
     const tm = this._getThreadManager();
     const threadId = await tm.getOrCreateThread(specId);
-    const markdown = await tm.runArchitecture(threadId, userPrompt);
+    const parsed = await tm.runStage(threadId, 'architecture', userPrompt);
+    const rootKey = STAGE_ROOT_KEYS.architecture;
+    const payload = parsed[rootKey];
+    const markdown = this._architecturePayloadToMarkdown(payload);
+
     logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Architecture completed');
     return typeof markdown === 'string' ? markdown : String(markdown);
+  }
+
+  _buildArchitecturePrompt(overview, technical, market, design) {
+    const overviewSlice = (overview || '').slice(0, 15000);
+    const technicalSlice = (technical || '').slice(0, 20000);
+    const marketSlice = (market || '').slice(0, 8000);
+    const designSlice = (design || '').slice(0, 12000);
+
+    return `You are an expert software architect. You are using gpt-5-mini and must provide specific, non-generic technical advice with real depth. Do not give vague or template-like answers.
+
+Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must match this structure exactly:
+
+1. coreFunctionalityLogic: Array of the system's most critical functions (e.g. "Real-time sync engine", "Payment processing flow"). Each item has: name (string), description (string), technicalImplementation (string summary).
+
+2. thirdPartyIntegrations: Array of external services. You MUST use the SAME integrations already mentioned in the Technical section (integrationExternalApis.thirdPartyServices and the integrations/dataFlow prose). For each integration use a stable id slug that matches that source (e.g. "Stripe" -> "stripe", "AWS S3" -> "aws-s3"). Each item has: id (string, slug), name (string or null), purpose (string), integrationMethod (string: one of "Webhooks", "SDK", "REST API"). Be OPINIONATED: recommend the best-practice integration method for the specific tech stack defined in the Technical stage (frontend, backend, database), not generic advice.
+
+3. webPerformanceStrategy: For web apps define: cachingStrategy (e.g. CDN, cache headers), lazyLoadingStrategy, ssrSsgApproach (SSR vs SSG). Use null for any that do not apply. Strings only, no nested objects.
+
+4. embeddedDiagrams: Two Mermaid diagram strings (use null if not applicable):
+   - systemMapMermaid: A system/architecture map diagram.
+   - sequenceDiagramThirdPartyMermaid: A SEQUENCE diagram showing a complex third-party integration flow (e.g. how the app talks to a Payment Gateway or Auth provider). This must be a sequenceDiagram, not a flowchart.
+
+MERMAID RULES (strict):
+- Use Mermaid 10–compatible syntax only.
+- Do NOT wrap diagram code in markdown code fences in your JSON; the strings must be raw Mermaid only.
+- No illegal characters in node or label text: avoid unescaped quotes or parentheses inside labels; use simple alphanumeric or hyphenated labels.
+- sequenceDiagramThirdPartyMermaid must use "sequenceDiagram" and show at least two participants (e.g. App and Payment Gateway) with clear steps.
+
+Input context:
+
+## Overview
+${overviewSlice}
+
+## Technical (use this for tech stack and thirdPartyServices — match integration names and ids here)
+${technicalSlice}
+
+## Market
+${marketSlice}
+
+## Design
+${designSlice}
+
+Output: single JSON object with key "architecture" and the four sections above. No markdown, no explanation.`;
+  }
+
+  _architecturePayloadToMarkdown(payload) {
+    if (!payload || typeof payload !== 'object') return '';
+
+    const lines = [];
+
+    if (Array.isArray(payload.coreFunctionalityLogic) && payload.coreFunctionalityLogic.length > 0) {
+      lines.push('## Core functionality');
+      lines.push('');
+      payload.coreFunctionalityLogic.forEach((item, i) => {
+        if (item && typeof item === 'object') {
+          lines.push(`### ${i + 1}. ${item.name || 'Function'}`);
+          lines.push('');
+          if (item.description) lines.push(item.description + '\n');
+          if (item.technicalImplementation) lines.push('**Implementation:** ' + item.technicalImplementation + '\n');
+        }
+      });
+    }
+
+    if (Array.isArray(payload.thirdPartyIntegrations) && payload.thirdPartyIntegrations.length > 0) {
+      lines.push('## Third-party integrations');
+      lines.push('');
+      payload.thirdPartyIntegrations.forEach((item) => {
+        if (item && typeof item === 'object') {
+          const name = item.name || item.id || 'Integration';
+          lines.push(`- **${name}** (id: \`${item.id}\`): ${item.purpose || ''} — *${item.integrationMethod || ''}*`);
+        }
+      });
+      lines.push('');
+    }
+
+    if (payload.webPerformanceStrategy && typeof payload.webPerformanceStrategy === 'object') {
+      const w = payload.webPerformanceStrategy;
+      if (w.cachingStrategy || w.lazyLoadingStrategy || w.ssrSsgApproach) {
+        lines.push('## Web performance strategy');
+        lines.push('');
+        if (w.cachingStrategy) lines.push('- **Caching:** ' + w.cachingStrategy);
+        if (w.lazyLoadingStrategy) lines.push('- **Lazy loading:** ' + w.lazyLoadingStrategy);
+        if (w.ssrSsgApproach) lines.push('- **SSR/SSG:** ' + w.ssrSsgApproach);
+        lines.push('');
+      }
+    }
+
+    if (payload.embeddedDiagrams && typeof payload.embeddedDiagrams === 'object') {
+      const d = payload.embeddedDiagrams;
+      if (d.systemMapMermaid && typeof d.systemMapMermaid === 'string' && d.systemMapMermaid.trim()) {
+        lines.push('## System map');
+        lines.push('');
+        lines.push('```mermaid');
+        lines.push(d.systemMapMermaid.trim());
+        lines.push('```');
+        lines.push('');
+      }
+      if (d.sequenceDiagramThirdPartyMermaid && typeof d.sequenceDiagramThirdPartyMermaid === 'string' && d.sequenceDiagramThirdPartyMermaid.trim()) {
+        lines.push('## Third-party integration sequence');
+        lines.push('');
+        lines.push('```mermaid');
+        lines.push(d.sequenceDiagramThirdPartyMermaid.trim());
+        lines.push('```');
+        lines.push('');
+      }
+    }
+
+    return lines.join('\n').trim() || '';
   }
 }
 

@@ -891,7 +891,6 @@ function displaySpec(data) {
         setTabStatus('marketTab', data.status?.market === 'ready' ? 'success' : 'pending');
     updateStatus('design', data.status?.design || 'pending');
     updateStatus('mockup', data.status?.mockup || 'pending');
-    updateDiagramsStatus(data.diagrams?.generated ? 'ready' : 'pending');
     updateStorageStatus(); // Add storage status update
     
     // Update all notification dots
@@ -971,7 +970,6 @@ function displaySpec(data) {
         // Error displaying mockup
     });
     displayArchitectureFromData(data);
-    displayDiagramsFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
     
@@ -4903,7 +4901,7 @@ document.addEventListener('keydown', function(e) {
       '2': 'technical',
       '3': 'market',
       '4': 'design',
-      '5': 'diagrams',
+      '5': 'architecture',
       '6': 'prompts',
       '7': 'chat',
       '8': 'mockup',
@@ -5146,7 +5144,7 @@ function updateSubsections(tabName) {
 
 // Initialize all subsections when page loads
 function initializeAllSubsections() {
-    const tabs = ['overview', 'technical', 'market', 'design', 'architecture', 'diagrams', 'prompts'];
+    const tabs = ['overview', 'technical', 'market', 'design', 'architecture', 'prompts'];
     tabs.forEach(tabName => {
         const tabContent = document.getElementById(`${tabName}-content`);
         if (tabContent) {
