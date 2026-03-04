@@ -168,6 +168,8 @@ function initMobileSideMenu() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile side menu
     initMobileSideMenu();
+    // Initialize rename spec modal (pencil icon next to title)
+    initRenameSpecModal();
     // Initialize Mermaid with custom theme
     try {
         if (typeof mermaid !== 'undefined') {
@@ -9429,5 +9431,3 @@ document.addEventListener('click', (e) => {
         });
     }
 });
-
-initRenameSpecModal();
