@@ -138,6 +138,7 @@ class SpecThreadManager {
 
   /**
    * Run a structured stage (overview, technical, market, design). Uses strict JSON schema; returns parsed object.
+   * Logs the exact response_format schema on any OpenAI or parse failure for easier debugging.
    * @param {string} threadId - OpenAI thread ID
    * @param {string} stage - overview | technical | market | design
    * @param {string} userMessage - Full user prompt for this stage
@@ -146,15 +147,44 @@ class SpecThreadManager {
   async runStage(threadId, stage, userMessage) {
     const responseFormat = buildResponseFormat(stage);
     const assistantId = await this.getGeneratorAssistantId();
-    const text = await this.openaiStorage.runSpecGeneration(threadId, assistantId, userMessage, responseFormat);
+
+    let text;
+    try {
+      text = await this.openaiStorage.runSpecGeneration(threadId, assistantId, userMessage, responseFormat);
+    } catch (err) {
+      logger.error({
+        stage,
+        threadId,
+        error: err.message,
+        sentSchema: JSON.stringify(responseFormat, null, 2)
+      }, '[SpecThreadManager] OpenAI run failed — schema sent above');
+      throw err;
+    }
+
     let raw;
     try {
       raw = JSON.parse(text);
     } catch (e) {
       const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-      raw = JSON.parse(cleaned);
+      try {
+        raw = JSON.parse(cleaned);
+      } catch (e2) {
+        logger.error({ stage, threadId, rawResponse: text.slice(0, 500) }, '[SpecThreadManager] Failed to parse JSON response');
+        throw new Error(`Failed to parse JSON response for stage "${stage}": ${e2.message}`);
+      }
     }
-    return parseAndValidateStage(stage, raw);
+
+    try {
+      return parseAndValidateStage(stage, raw);
+    } catch (validationErr) {
+      logger.error({
+        stage,
+        threadId,
+        validationError: validationErr.message,
+        receivedKeys: Object.keys(raw || {})
+      }, '[SpecThreadManager] Zod validation failed on OpenAI response');
+      throw validationErr;
+    }
   }
 
   /**

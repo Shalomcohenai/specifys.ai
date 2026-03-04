@@ -1,12 +1,23 @@
 /**
  * Zod schemas for spec generation (v2) — full output structure as in legacy system.
  * Used for OpenAI Structured Outputs (strict mode). Every section must be present.
+ *
+ * Strict-mode rules enforced here:
+ *  1. No .optional() — all fields use .nullable() so they appear in the JSON Schema
+ *     `required` array. OpenAI strict mode rejects any field not in `required`.
+ *  2. No z.record() / z.any() — replaced with explicit objects that have
+ *     additionalProperties:false (zodToJsonSchema sets this automatically).
+ *  3. No z.union() mixing object with string — DatabaseTableSchema.fields uses
+ *     a single object shape so array items have a consistent schema.
+ *
  * @see docs/architecture/ARCHITECTURE_REFRESH.md
  */
 
 const { z } = require('zod');
 
-// ---- Overview (same full structure as prompts.js / worker) ----
+// ─────────────────────────────────────────────────────────────────────────────
+// Overview
+// ─────────────────────────────────────────────────────────────────────────────
 const OverviewTargetAudienceSchema = z.object({
   ageRange: z.string(),
   sector: z.string(),
@@ -55,12 +66,11 @@ const OverviewSchema = z.object({
   suggestionsCoreFeatures: OverviewSuggestionsSchema
 });
 
-// Wrapper: API returns { overview: { ... } }
-const OverviewPayloadSchema = z.object({
-  overview: OverviewSchema
-});
+const OverviewPayloadSchema = z.object({ overview: OverviewSchema });
 
-// ---- Technical (full structure: techStack, databaseSchema, apiEndpoints, devops, etc.) ----
+// ─────────────────────────────────────────────────────────────────────────────
+// Technical
+// ─────────────────────────────────────────────────────────────────────────────
 const TechStackSchema = z.object({
   frontend: z.string(),
   backend: z.string(),
@@ -69,41 +79,44 @@ const TechStackSchema = z.object({
   authentication: z.string()
 });
 
+// Fields are always objects — removes the z.union([string, object]) that broke strict mode.
+const DatabaseTableFieldSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  required: z.boolean().nullable(),
+  constraints: z.string().nullable(),
+  description: z.string().nullable()
+});
+
 const DatabaseTableSchema = z.object({
   name: z.string(),
   purpose: z.string(),
-  fields: z.array(z.union([z.string(), z.object({
-    name: z.string(),
-    type: z.string(),
-    required: z.boolean().optional(),
-    constraints: z.string().optional(),
-    description: z.string().optional()
-  })])),
+  fields: z.array(DatabaseTableFieldSchema),
   relationships: z.string()
 });
 
 const DatabaseSchemaSchema = z.object({
   description: z.string(),
   tables: z.array(DatabaseTableSchema),
-  relationships: z.string().optional()
+  relationships: z.string().nullable()   // was .optional()
 });
 
 const ApiEndpointSchema = z.object({
   path: z.string(),
   method: z.string(),
   description: z.string(),
-  parameters: z.string().optional(),
+  parameters: z.string().nullable(),     // was .optional()
   requestBody: z.string(),
   responseBody: z.string(),
-  statusCodes: z.string().optional()
+  statusCodes: z.string().nullable()     // was .optional()
 });
 
 const SecurityAuthenticationSchema = z.object({
   authentication: z.string(),
   authorization: z.string(),
-  encryption: z.string().optional(),
+  encryption: z.string().nullable(),     // was .optional()
   securityMeasures: z.string(),
-  securityCriticalPoints: z.array(z.string()).min(3)
+  securityCriticalPoints: z.array(z.string())
 });
 
 const IntegrationExternalApisSchema = z.object({
@@ -138,36 +151,37 @@ const AnalyticsSchema = z.object({
 const DetailedDataModelFieldSchema = z.object({
   name: z.string(),
   type: z.string(),
-  required: z.boolean().optional(),
-  constraints: z.string().optional(),
-  description: z.string().optional()
+  required: z.boolean().nullable(),      // was .optional()
+  constraints: z.string().nullable(),    // was .optional()
+  description: z.string().nullable()     // was .optional()
 });
 
 const DetailedDataModelSchema = z.object({
   name: z.string(),
   purpose: z.string(),
   fields: z.array(DetailedDataModelFieldSchema),
-  relationships: z.string().optional(),
-  validationRules: z.string().optional(),
-  indexes: z.string().optional(),
-  sampleData: z.string().optional()
+  relationships: z.string().nullable(),  // was .optional()
+  validationRules: z.string().nullable(),
+  indexes: z.string().nullable(),
+  sampleData: z.string().nullable()
 });
 
 const DetailedDataModelsSchema = z.object({
   models: z.array(DetailedDataModelSchema),
-  overallStructure: z.string().optional(),
-  totalModelsCount: z.string().optional(),
-  crudOperations: z.string().optional()
+  overallStructure: z.string().nullable(),
+  totalModelsCount: z.string().nullable(),
+  crudOperations: z.string().nullable()
 });
 
+// All fields were .optional() — now .nullable() so they appear in required[].
 const DataFlowDetailedSchema = z.object({
-  authenticationFlow: z.string().optional(),
-  dataSubmissionFlow: z.string().optional(),
-  queryPatterns: z.string().optional(),
-  cachingStrategy: z.string().optional(),
-  errorScenarios: z.string().optional(),
-  dataValidation: z.string().optional(),
-  transactionFlow: z.string().optional()
+  authenticationFlow: z.string().nullable(),
+  dataSubmissionFlow: z.string().nullable(),
+  queryPatterns: z.string().nullable(),
+  cachingStrategy: z.string().nullable(),
+  errorScenarios: z.string().nullable(),
+  dataValidation: z.string().nullable(),
+  transactionFlow: z.string().nullable()
 });
 
 const TechnicalSchema = z.object({
@@ -184,82 +198,48 @@ const TechnicalSchema = z.object({
   dataFlowDetailed: DataFlowDetailedSchema
 });
 
-const TechnicalPayloadSchema = z.object({
-  technical: TechnicalSchema
-});
+const TechnicalPayloadSchema = z.object({ technical: TechnicalSchema });
 
-// ---- Market (full structure as in prompts.js) ----
-const IndustryOverviewSchema = z.object({
-  trends: z.string(),
-  marketData: z.string(),
-  growthProjections: z.string().optional(),
-  growthPotential: z.string().optional()
-});
+// ─────────────────────────────────────────────────────────────────────────────
+// Market
+// ─────────────────────────────────────────────────────────────────────────────
 
-const TargetAudienceInsightsSchema = z.object({
-  primaryAudience: z.record(z.any()).optional(),
-  secondaryAudience: z.record(z.any()).optional(),
-  needsAnalysis: z.string().optional(),
-  usageHabits: z.string().optional(),
-  demographics: z.string().optional(),
-  definition: z.string().optional(),
-  psychographics: z.string().optional(),
-  behaviors: z.string().optional(),
-  technologySkills: z.string().optional(),
-  specificRoles: z.array(z.string()).optional()
-});
-
-const CompetitorSchema = z.object({
-  competitor: z.string().optional(),
-  name: z.string().optional(),
-  advantages: z.string().optional(),
-  disadvantages: z.string().optional(),
-  strengths: z.string().optional(),
-  weaknesses: z.string().optional(),
-  differentiators: z.string().optional(),
-  marketPosition: z.string().optional(),
-  features: z.array(z.string()).optional(),
-  uxStrengths: z.string().optional(),
-  uxWeaknesses: z.string().optional(),
-  monetization: z.string().optional(),
-  gaps: z.array(z.string()).optional(),
-  marketShare: z.string().optional()
-});
-
-const SwotAnalysisSchema = z.object({
-  strengths: z.array(z.string()),
-  weaknesses: z.array(z.string()),
-  opportunities: z.array(z.string()),
-  threats: z.array(z.string())
+// Replaced z.record(z.any()) with an explicit object — records generate
+// additionalProperties which is forbidden in strict mode.
+const AudienceSegmentSchema = z.object({
+  description: z.string(),
+  ageRange: z.string().nullable(),
+  occupation: z.string().nullable(),
+  goals: z.string().nullable(),
+  painPoints: z.string().nullable()
 });
 
 const MarketSchema = z.object({
   industryOverview: z.object({
     trends: z.string(),
     marketData: z.string(),
-    growthProjections: z.string().optional(),
-    growthPotential: z.string().optional()
+    growthProjections: z.string().nullable(),  // was .optional()
+    growthPotential: z.string().nullable()     // was .optional()
   }),
   targetAudienceInsights: z.object({
-    primaryAudience: z.record(z.any()).optional(),
-    secondaryAudience: z.record(z.any()).optional(),
-    needsAnalysis: z.string().optional(),
-    usageHabits: z.string().optional(),
-    demographics: z.string().optional()
+    primaryAudience: AudienceSegmentSchema,    // was z.record(z.any()).optional()
+    secondaryAudience: AudienceSegmentSchema,  // was z.record(z.any()).optional()
+    needsAnalysis: z.string().nullable(),      // was .optional()
+    usageHabits: z.string().nullable(),        // was .optional()
+    demographics: z.string().nullable()        // was .optional()
   }),
   competitiveLandscape: z.array(z.object({
-    competitor: z.string().optional(),
-    name: z.string().optional(),
-    advantages: z.string().optional(),
-    disadvantages: z.string().optional(),
-    strengths: z.string().optional(),
-    weaknesses: z.string().optional(),
-    differentiators: z.string().optional(),
-    marketPosition: z.string().optional(),
-    features: z.array(z.string()).optional(),
-    gaps: z.array(z.string()).optional(),
-    marketShare: z.string().optional()
-  })).min(1),
+    name: z.string(),
+    advantages: z.string(),
+    disadvantages: z.string(),
+    strengths: z.string().nullable(),
+    weaknesses: z.string().nullable(),
+    differentiators: z.string().nullable(),
+    marketPosition: z.string().nullable(),
+    features: z.array(z.string()).nullable(),
+    gaps: z.array(z.string()).nullable(),
+    marketShare: z.string().nullable()
+  })),
   swotAnalysis: z.object({
     strengths: z.array(z.string()),
     weaknesses: z.array(z.string()),
@@ -267,31 +247,53 @@ const MarketSchema = z.object({
     threats: z.array(z.string())
   }),
   monetizationModel: z.object({
-    pricingStrategy: z.string().optional(),
-    revenueStreams: z.string().optional(),
-    rationale: z.string().optional(),
-    proposedModels: z.array(z.string()).optional(),
-    recommendations: z.string().optional()
+    pricingStrategy: z.string().nullable(),
+    revenueStreams: z.string().nullable(),
+    rationale: z.string().nullable(),
+    proposedModels: z.array(z.string()).nullable(),
+    recommendations: z.string().nullable()
   }),
   marketingStrategy: z.object({
-    channels: z.string().optional(),
-    messaging: z.string().optional(),
-    goToMarket: z.string().optional()
+    channels: z.string().nullable(),
+    messaging: z.string().nullable(),
+    goToMarket: z.string().nullable()
   })
 });
 
-const MarketPayloadSchema = z.object({
-  market: MarketSchema
+const MarketPayloadSchema = z.object({ market: MarketSchema });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Design
+// z.record() generates open schemas (additionalProperties:true) which strict
+// mode forbids. Replaced with explicit objects matching the prompt structure.
+// ─────────────────────────────────────────────────────────────────────────────
+const VisualStyleGuideSchema = z.object({
+  colors: z.string(),
+  typography: z.string(),
+  spacing: z.string(),
+  buttons: z.string(),
+  animations: z.string()
 });
 
-// ---- Design (full structure) ----
-const VisualStyleGuideSchema = z.record(z.union([z.string(), z.array(z.any())]));
+const LogoIconographySchema = z.object({
+  logoConcepts: z.string(),
+  colorVersions: z.string(),
+  iconSet: z.string(),
+  appIcon: z.string()
+});
 
-const LogoIconographySchema = z.record(z.union([z.string(), z.array(z.any()), z.record(z.any())]));
+const UiLayoutSchema = z.object({
+  landingPage: z.string(),
+  dashboard: z.string(),
+  navigation: z.string(),
+  responsiveDesign: z.string()
+});
 
-const UiLayoutSchema = z.record(z.string());
-
-const UxPrinciplesSchema = z.record(z.string());
+const UxPrinciplesSchema = z.object({
+  userFlow: z.string(),
+  accessibility: z.string(),
+  informationHierarchy: z.string()
+});
 
 const DesignSchema = z.object({
   visualStyleGuide: VisualStyleGuideSchema,
@@ -300,11 +302,11 @@ const DesignSchema = z.object({
   uxPrinciples: UxPrinciplesSchema
 });
 
-const DesignPayloadSchema = z.object({
-  design: DesignSchema
-});
+const DesignPayloadSchema = z.object({ design: DesignSchema });
 
-// ---- Exports and helpers for OpenAI response_format ----
+// ─────────────────────────────────────────────────────────────────────────────
+// Stage maps
+// ─────────────────────────────────────────────────────────────────────────────
 const STAGE_PAYLOAD_SCHEMAS = {
   overview: OverviewPayloadSchema,
   technical: TechnicalPayloadSchema,
@@ -319,65 +321,60 @@ const STAGE_ROOT_KEYS = {
   design: 'design'
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// OpenAI response_format builder
+// ─────────────────────────────────────────────────────────────────────────────
 const { zodToJsonSchema } = require('zod-to-json-schema');
 const { logger } = require('../server/logger');
 
 /**
- * Build OpenAI response_format for strict structured output.
+ * Build an OpenAI response_format object for strict structured output.
  *
- * zodToJsonSchema always wraps the top-level schema in a { "$ref": "#/definitions/<name>", "definitions": { ... } }
- * envelope. OpenAI rejects that because the root has no `type` field (it sees type: "None").
- * We unwrap the envelope so OpenAI receives { "type": "object", "properties": { ... }, ... } directly.
+ * zodToJsonSchema wraps every top-level schema in:
+ *   { "$ref": "#/definitions/<name>", "definitions": { "<name>": { type:"object", ... } } }
+ * OpenAI rejects this because the root has no `type` field (it sees type:"None").
+ * We unwrap the envelope to give OpenAI a clean { type:"object", properties:{...}, ... }.
  *
  * @param {string} stage - overview | technical | market | design
- * @returns {object} response_format for runs.create
+ * @returns {object} response_format for OpenAI runs.create
  */
 function buildResponseFormat(stage) {
-  const schema = STAGE_PAYLOAD_SCHEMAS[stage];
-  if (!schema) throw new Error(`Unknown stage: ${stage}`);
+  const zodSchema = STAGE_PAYLOAD_SCHEMAS[stage];
+  if (!zodSchema) throw new Error(`Unknown stage: ${stage}`);
+
   const name = `${stage}_response`;
+  let jsonSchema = zodToJsonSchema(zodSchema, { name, $refStrategy: 'none' });
 
-  let jsonSchema = zodToJsonSchema(schema, { name, $refStrategy: 'none' });
-
-  // Unwrap the $ref envelope that zodToJsonSchema always generates.
-  // The actual schema lives inside definitions[name].
+  // Unwrap $ref envelope — the real schema is inside definitions[name].
   if (jsonSchema.$ref) {
     const refKey = jsonSchema.$ref
       .replace(/^#\/definitions\//, '')
       .replace(/^#\/\$defs\//, '');
     const defs = jsonSchema.definitions || jsonSchema.$defs || {};
-    if (defs[refKey]) {
-      jsonSchema = { ...defs[refKey] };
-    }
+    if (defs[refKey]) jsonSchema = { ...defs[refKey] };
   }
 
-  // Strip JSON-Schema meta-fields that OpenAI does not accept.
+  // Remove JSON Schema meta-fields that OpenAI rejects.
   delete jsonSchema.$schema;
   delete jsonSchema.definitions;
   delete jsonSchema.$defs;
 
-  // Safety: ensure root type is object.
-  if (!jsonSchema.type) {
-    jsonSchema.type = 'object';
-  }
+  if (!jsonSchema.type) jsonSchema.type = 'object';
 
   logger.info({ stage, rootType: jsonSchema.type }, '[buildResponseFormat] Built response_format for OpenAI');
 
   return {
     type: 'json_schema',
-    json_schema: {
-      name,
-      strict: true,
-      schema: jsonSchema
-    }
+    json_schema: { name, strict: true, schema: jsonSchema }
   };
 }
 
 /**
- * Parse and validate API response for a stage. Throws ZodError if invalid.
+ * Parse and validate an API response for a stage using the Zod schema.
+ * Throws ZodError if the structure does not match.
  * @param {string} stage - overview | technical | market | design
- * @param {object} raw - Parsed JSON from API
- * @returns {object} Validated payload (root key only, e.g. { overview: {...} })
+ * @param {object} raw - Parsed JSON from OpenAI response
+ * @returns {object} Validated payload (e.g. { overview: {...} })
  */
 function parseAndValidateStage(stage, raw) {
   const schema = STAGE_PAYLOAD_SCHEMAS[stage];

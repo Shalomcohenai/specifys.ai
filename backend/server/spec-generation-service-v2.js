@@ -7,7 +7,7 @@
 const { logger } = require('./logger');
 const specEvents = require('./spec-events');
 const { getSpecThreadManager } = require('./spec-thread-manager');
-const { STAGE_ROOT_KEYS } = require('../schemas/spec-schemas');
+const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
 
 const OVERVIEW_USER_PROMPT_PREFIX = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. All output must be in English.
 Include: ideaSummary, problemStatement, targetAudience (object: ageRange, sector, interests, needs), valueProposition, coreFeaturesOverview (array of 6-8 features), userJourneySummary, detailedUserFlow.steps, screenDescriptions (screens array with name, description, uiComponents; navigationStructure), complexityScore (architecture, integrations, functionality, userSystem as numbers 0-100), suggestionsIdeaSummary and suggestionsCoreFeatures as { toInclude: [], notToInclude: [...] }.
@@ -159,7 +159,15 @@ Additional Details: ${additionalDetails}`;
       logger.info({ requestId, specId, stage, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Section completed');
       return content;
     } catch (error) {
-      logger.error({ requestId, specId, stage, error: error.message }, '[SpecGenV2] Section failed');
+      const isSchemaError = /invalid_json_schema|json_schema|response_format|schema must/i.test(error.message);
+      logger.error({
+        requestId,
+        specId,
+        stage,
+        error: error.message,
+        // Log the exact schema we attempted to send when it looks like a schema error.
+        ...(isSchemaError && { attemptedSchema: JSON.stringify(buildResponseFormat(stage), null, 2) })
+      }, '[SpecGenV2] Section failed');
       specEvents.emitSpecError(specId, stage, error);
       throw error;
     }

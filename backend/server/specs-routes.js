@@ -642,7 +642,11 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
             return next(createError('userInput is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
         }
 
-        // If specId provided, verify ownership
+        // If specId provided, verify ownership AND commit status before background job starts.
+        // Writing status.overview:'generating' before firing the background task serves two purposes:
+        //  1. Confirms the spec document is fully committed and writable in Firestore.
+        //  2. Eliminates the race condition where getOrCreateThread reads the doc before the
+        //     client-side write has propagated to the server-side Firestore connection.
         if (specId) {
             const specDoc = await db.collection('specs').doc(specId).get();
             if (!specDoc.exists) {
@@ -652,6 +656,14 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
             if (specData.userId !== userId) {
                 return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
             }
+
+            // Anchor write: confirms doc is committed before background job starts.
+            // If this fails with NOT_FOUND the error is caught by the outer try/catch
+            // and a 500 is returned — preventing a ghost background job.
+            await db.collection('specs').doc(specId).update({
+                'status.overview': 'generating',
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
         }
 
         // Generate overview in background (v2 requires specId for thread; fallback to legacy when missing)
