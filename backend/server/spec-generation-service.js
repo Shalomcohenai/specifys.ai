@@ -12,6 +12,55 @@ class SpecGenerationService {
   }
 
   /**
+   * Check if technical content is minimal (empty or stub sections)
+   */
+  isTechnicalContentMinimal(parsed) {
+    if (!parsed || typeof parsed !== 'object') return true;
+    const arch = parsed.architectureOverview;
+    const hasArch = typeof arch === 'string' && arch.trim().length >= 80;
+    const tables = parsed.databaseSchema?.tables;
+    const hasTables = Array.isArray(tables) && tables.length >= 2;
+    const endpoints = parsed.apiEndpoints;
+    const hasEndpoints = Array.isArray(endpoints) && endpoints.length > 0;
+    const hasRequestBody = hasEndpoints && endpoints.some(e => (e.requestBody && String(e.requestBody).trim()) || (e.responseBody && String(e.responseBody).trim()));
+    return !hasArch || !hasTables || !hasRequestBody;
+  }
+
+  /**
+   * Check if market/design content is minimal
+   */
+  isStageContentMinimal(stage, parsed) {
+    if (!parsed || typeof parsed !== 'object') return true;
+    if (stage === 'market') {
+      const industry = parsed.industryOverview && typeof parsed.industryOverview === 'object';
+      const landscape = Array.isArray(parsed.competitiveLandscape) && parsed.competitiveLandscape.length >= 1;
+      return !industry || !landscape;
+    }
+    if (stage === 'design') {
+      const hasLayout = parsed.uiLayout && typeof parsed.uiLayout === 'object' && Object.keys(parsed.uiLayout).length >= 2;
+      const hasUx = parsed.uxPrinciples && typeof parsed.uxPrinciples === 'object';
+      return !hasLayout || !hasUx;
+    }
+    return false;
+  }
+
+  /**
+   * Get repair instruction appended to user prompt when content was minimal
+   */
+  getRepairPromptSuffix(stage) {
+    if (stage === 'technical') {
+      return '\n\n[CRITICAL]: Your response must be complete. databaseSchema.tables MUST have at least 2 tables with name, purpose, fields, relationships. architectureOverview MUST be a full paragraph (80+ characters). Every apiEndpoint MUST include requestBody and responseBody (text or JSON string). Return full JSON only.';
+    }
+    if (stage === 'market') {
+      return '\n\n[CRITICAL]: Your response must be complete. industryOverview, competitiveLandscape (at least 2 competitors with details), swotAnalysis, and other required keys must contain full paragraphs or detailed content—not empty objects or one-line stubs. Return full JSON only.';
+    }
+    if (stage === 'design') {
+      return '\n\n[CRITICAL]: Your response must be complete. visualStyleGuide, logoIconography, uiLayout, uxPrinciples must each contain detailed sub-keys with real text—not empty objects or headers only. Return full JSON only.';
+    }
+    return '';
+  }
+
+  /**
    * Generate a single spec section
    * @param {string} specId - Spec ID
    * @param {string} stage - Stage name (technical, market, design)
@@ -25,6 +74,7 @@ class SpecGenerationService {
 
     logger.info({ requestId, specId, stage }, `[SpecGeneration] Starting ${stage} generation`);
 
+    const userPromptOriginal = this.buildPrompt(stage, specId, overview, answers);
     const requestBody = {
       stage: stage,
       locale: 'en-US',
@@ -32,18 +82,21 @@ class SpecGenerationService {
       prompt: {
         system: this.getSystemPrompt(stage),
         developer: this.getDeveloperPrompt(stage),
-        user: this.buildPrompt(stage, specId, overview, answers)
+        user: userPromptOriginal
       }
     };
 
-    const doOneAttempt = async () => {
+    const doOneAttempt = async (userPromptOverride) => {
+      const body = userPromptOverride
+        ? { ...requestBody, prompt: { ...requestBody.prompt, user: userPromptOverride } }
+        : requestBody;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
       try {
         const response = await fetch(this.workerUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
+          body: JSON.stringify(body),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -51,8 +104,8 @@ class SpecGenerationService {
           const errorText = await response.text();
           const err = new Error(`API Error: ${response.status} - ${errorText}`);
           try {
-            const body = JSON.parse(errorText);
-            const apiError = body?.error || body;
+            const parsedErr = JSON.parse(errorText);
+            const apiError = parsedErr?.error || parsedErr;
             if (apiError?.code) err.code = apiError.code;
             if (Array.isArray(apiError?.issues)) err.issues = apiError.issues;
           } catch (_) { /* keep message only */ }
@@ -61,7 +114,13 @@ class SpecGenerationService {
         }
         const responseText = await response.text();
         const data = JSON.parse(responseText);
-        return data[stage] ? JSON.stringify(data[stage], null, 2) : `No ${stage} specification generated`;
+        const content = data[stage];
+        if (content == null || (typeof content === 'object' && Object.keys(content).length === 0)) {
+          const err = new Error(`Invalid or empty ${stage} response from worker`);
+          err.code = 'INVALID_MODEL_OUTPUT';
+          throw err;
+        }
+        return typeof content === 'string' ? content : JSON.stringify(content, null, 2);
       } catch (e) {
         clearTimeout(timeoutId);
         throw e;
@@ -69,17 +128,46 @@ class SpecGenerationService {
     };
 
     let lastError;
+    let lastResult;
     for (let attempt = 0; attempt <= 1; attempt++) {
       try {
         if (attempt === 1) {
           logger.info({ requestId, specId, stage }, '[SpecGeneration] Retrying once after 422');
           await new Promise(r => setTimeout(r, 4000));
         }
-        const result = await doOneAttempt();
+        lastResult = await doOneAttempt();
+        let parsed;
+        try {
+          parsed = typeof lastResult === 'string' ? JSON.parse(lastResult) : lastResult;
+        } catch (_) {
+          const err = new Error(`Invalid JSON in ${stage} response`);
+          err.code = 'INVALID_MODEL_OUTPUT';
+          throw err;
+        }
+        const isMinimal = stage === 'technical'
+          ? this.isTechnicalContentMinimal(parsed)
+          : this.isStageContentMinimal(stage, parsed);
+        if (isMinimal && ['technical', 'market', 'design'].includes(stage)) {
+          logger.warn({ requestId, specId, stage }, '[SpecGeneration] Response was minimal, attempting one repair request');
+          await new Promise(r => setTimeout(r, 3000));
+          try {
+            const repairResult = await doOneAttempt(userPromptOriginal + this.getRepairPromptSuffix(stage));
+            const repairParsed = typeof repairResult === 'string' ? JSON.parse(repairResult) : repairResult;
+            const repairMinimal = stage === 'technical'
+              ? this.isTechnicalContentMinimal(repairParsed)
+              : this.isStageContentMinimal(stage, repairParsed);
+            if (!repairMinimal || JSON.stringify(repairParsed).length > JSON.stringify(parsed).length) {
+              lastResult = repairResult;
+              logger.info({ requestId, specId, stage }, '[SpecGeneration] Repair request produced better content');
+            }
+          } catch (repairErr) {
+            logger.warn({ requestId, specId, stage, error: repairErr.message }, '[SpecGeneration] Repair request failed, using original result');
+          }
+        }
         const duration = Date.now() - startTime;
         logger.info({ requestId, specId, stage, duration: `${duration}ms` }, `[SpecGeneration] ${stage} generation completed`);
-        specEvents.emitSpecUpdate(specId, stage, 'ready', result);
-        return result;
+        specEvents.emitSpecUpdate(specId, stage, 'ready', lastResult);
+        return lastResult;
       } catch (error) {
         lastError = error;
         const is422 = error.statusCode === 422 || error.code === 'INVALID_MODEL_OUTPUT' || (error.message && error.message.includes('422'));
@@ -472,12 +560,12 @@ Note: Target Audience information should be inferred from the app description an
    */
   getSystemPrompt(stage) {
     const prompts = {
-      technical: 'You are a highly experienced software architect and lead developer. Generate a detailed technical specification.',
-      market: 'You are a market research specialist and business analyst. Generate comprehensive market research insights.',
-      design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines and branding elements.',
+      technical: 'You are a highly experienced software architect and lead developer. Generate a detailed, comprehensive technical specification. Every section must contain substantive content—never return empty objects, empty arrays, or placeholder text. Short or stub responses are not acceptable.',
+      market: 'You are a market research specialist and business analyst. Generate comprehensive market research with full content in every section. Never return empty objects or one-line stubs—each key must have detailed paragraphs or structured data.',
+      design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines with real content in every key. Never return section headers only—every sub-key must have concrete descriptions, values, or recommendations.',
       architecture: 'You are a software architect. Produce a single Markdown document that follows a fixed 7-section structure. Each section must include the required subsections. Use Mermaid code blocks where helpful (e.g., tree diagrams, flowcharts). Output only valid Markdown with the exact section headings provided.'
     };
-    return prompts[stage] || 'You are an expert specification generator.';
+    return prompts[stage] || 'You are an expert specification generator. Output must be detailed and complete.';
   }
 
   /**
@@ -487,12 +575,12 @@ Note: Target Audience information should be inferred from the app description an
    */
   getDeveloperPrompt(stage) {
     const prompts = {
-      technical: 'Create a comprehensive technical specification including data models, database schema, API design, security, and integration points.',
-      market: 'Create detailed market analysis including market overview, competitors analysis, target audience personas, and pricing strategy.',
-      design: 'Create detailed design specifications including color schemes, typography, UI components, user experience guidelines, and branding elements.',
+      technical: 'Create a comprehensive technical specification. Include full database schema (at least 2–3 tables with fields and relationships), complete API endpoints with request/response bodies, security details, and integration descriptions. Every field must have real content—no placeholders.',
+      market: 'Create detailed market analysis: industry overview, target audience insights, competitive landscape (multiple competitors with details), SWOT, monetization, and marketing strategy. Each section must be fully written out.',
+      design: 'Create detailed design specifications: visual style guide (colors, typography, spacing), logo and iconography, UI layout (landing, dashboard, navigation, responsive), and UX principles. Every sub-key must contain actionable, detailed text.',
       architecture: 'Create a single Markdown document with exactly 7 main sections. Use the exact section titles and include all required subsections. Use Markdown headings (## for main sections, ### for subsections) and optional Mermaid code blocks. Output must be valid Markdown only.'
     };
-    return prompts[stage] || 'Generate a comprehensive specification.';
+    return prompts[stage] || 'Generate a comprehensive, detailed specification.';
   }
 
   /**

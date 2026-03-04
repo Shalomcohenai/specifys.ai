@@ -1542,6 +1542,16 @@ function displayTechnical(technical) {
     const formattedContent = formatTextContent(technical);
     container.innerHTML = formattedContent;
     
+    // If content appears minimal, show a short notice so user can retry
+    if (isTechnicalContentMinimal(technical)) {
+        const notice = document.createElement('div');
+        notice.className = 'technical-minimal-notice';
+        notice.setAttribute('role', 'alert');
+        notice.style.cssText = 'margin-top: 16px; padding: 12px 16px; background: #fff8e6; border: 1px solid #f0e6c8; border-radius: 8px; font-size: 14px; color: #5c4a00;';
+        notice.innerHTML = '<i class="fa fa-info-circle" aria-hidden="true"></i> Some sections may be incomplete. You can use <strong>Retry</strong> to regenerate the technical specification for fuller content.';
+        container.appendChild(notice);
+    }
+    
     // Update subsections after content is loaded
     setTimeout(() => {
         if (currentTab === 'technical') {
@@ -1560,6 +1570,23 @@ function displayTechnical(technical) {
     if (technicalTab) {
         technicalTab.classList.add('generated');
     }
+}
+
+/**
+ * Detect if technical spec has minimal content (missing tables, short overview, or endpoints without request/response body)
+ */
+function isTechnicalContentMinimal(technical) {
+    if (!technical || typeof technical !== 'object') return false;
+    const arch = technical.architectureOverview;
+    const hasArch = typeof arch === 'string' && arch.trim().length >= 80;
+    const tables = technical.databaseSchema?.tables;
+    const hasTables = Array.isArray(tables) && tables.length >= 2;
+    const endpoints = technical.apiEndpoints;
+    const hasEndpoints = Array.isArray(endpoints) && endpoints.length > 0;
+    const hasRequestBody = !hasEndpoints || endpoints.some(function (e) {
+        return (e.requestBody && String(e.requestBody).trim()) || (e.responseBody && String(e.responseBody).trim());
+    });
+    return !hasArch || !hasTables || !hasRequestBody;
 }
 
 function displayMarket(market) {
