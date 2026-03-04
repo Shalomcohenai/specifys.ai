@@ -386,11 +386,11 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
             return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
         }
 
-        // Update status to generating
+        // Update status: only technical generating initially (Market, Design run sequentially after)
         await db.collection('specs').doc(specId).update({
             'status.technical': 'generating',
-            'status.market': 'generating',
-            'status.design': 'generating',
+            'status.market': 'pending',
+            'status.design': 'pending',
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 

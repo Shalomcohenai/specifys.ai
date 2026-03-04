@@ -9,7 +9,7 @@ class SpecQueue {
   constructor() {
     this.queue = [];
     this.processing = false;
-    this.maxConcurrent = 3; // Process 3 specs at once
+    this.maxConcurrent = 1; // Process one spec at a time (Technical → Market → Design → Architecture)
     this.jobs = new Map(); // Track active jobs by specId
   }
 

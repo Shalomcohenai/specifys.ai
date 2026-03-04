@@ -203,38 +203,60 @@ class SpecGenerationService {
   }
 
   /**
-   * Generate all specs in parallel
+   * Generate all specs sequentially (Technical → Market → Design → Architecture)
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
    * @param {Array} answers - User answers
-   * @returns {Promise<Object>} Results object with technical, market, design
+   * @returns {Promise<Object>} Results object with technical, market, design, architecture
    */
   async generateAllSpecs(specId, overview, answers) {
     const requestId = `generate-all-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
 
-    logger.info({ requestId, specId }, '[SpecGeneration] Starting parallel generation of all specs');
+    logger.info({ requestId, specId }, '[SpecGeneration] Starting sequential generation of all specs');
 
-    // Generate all three sections in parallel using Promise.allSettled
-    const results = await Promise.allSettled([
-      this.generateSection(specId, 'technical', overview, answers),
-      this.generateSection(specId, 'market', overview, answers),
-      this.generateSection(specId, 'design', overview, answers)
-    ]);
+    const stages = ['technical', 'market', 'design'];
+    const results = [];
 
-    // Process results
+    for (const stage of stages) {
+      specEvents.emitSpecUpdate(specId, stage, 'generating', null);
+      try {
+        const content = await this.generateSection(specId, stage, overview, answers);
+        results.push({ status: 'fulfilled', value: content });
+      } catch (err) {
+        results.push({ status: 'rejected', reason: err });
+        // generateSection already emitted spec.error; continue to next stage or abort
+        const failedIndex = results.length - 1;
+        logger.warn({ requestId, specId, stage: stages[failedIndex] }, '[SpecGeneration] Section failed, continuing with remaining stages');
+      }
+    }
+
     const processed = this.processResults(results);
+    processed.architecture = null;
+
+    if (processed.technical && processed.market && processed.design) {
+      specEvents.emitSpecUpdate(specId, 'architecture', 'generating', null);
+      try {
+        const architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design);
+        processed.architecture = architecture;
+        specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
+        processed.successes.push({ stage: 'architecture', content: architecture });
+      } catch (err) {
+        logger.error({ requestId, specId, error: err.message }, '[SpecGeneration] Architecture generation failed');
+        specEvents.emitSpecError(specId, 'architecture', err);
+        processed.errors.push({ stage: 'architecture', error: err, retryable: this.isRetryable(err) });
+      }
+    }
 
     const duration = Date.now() - startTime;
-    logger.info({ 
-      requestId, 
-      specId, 
+    logger.info({
+      requestId,
+      specId,
       duration: `${duration}ms`,
       successes: processed.successes.length,
       errors: processed.errors.length
-    }, '[SpecGeneration] Parallel generation completed');
+    }, '[SpecGeneration] Sequential generation completed');
 
-    // Emit complete event
     specEvents.emitSpecComplete(specId, processed);
 
     return processed;
@@ -308,9 +330,10 @@ class SpecGenerationService {
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
 
-    // Determine if using reference or full content
-    const isReference = typeof specId === 'string' && specId.length < 100;
-    const overviewContent = isReference ? null : overview;
+    // Use full overview when provided so Worker receives context (reference mode only when overview is missing)
+    const hasOverview = overview && typeof overview === 'string' && overview.trim().length > 0;
+    const overviewContent = hasOverview ? overview : null;
+    const isReference = !overviewContent;
 
     // Build stage-specific prompt based on PROMPTS structure from tools/prompts.js
     if (stage === 'technical') {
@@ -382,7 +405,7 @@ Note: The system will retrieve the full overview content automatically. Use this
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create comprehensive market research including marketOverview, competitorsAnalysis, targetAudiencePersonas, pricingStrategy, marketTrends, and goToMarketStrategy.
+Create comprehensive market research. Return JSON with market key containing exactly these required keys (objects or array where noted): industryOverview (object), targetAudienceInsights (object), competitiveLandscape (array), swotAnalysis (object), monetizationModel (object), marketingStrategy (object).
 
 Current Date: ${currentDateStr}
 Last 3 Months for Historical Data: ${last3Months}
@@ -409,7 +432,7 @@ Note: The system will retrieve the full overview content automatically. Use this
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create comprehensive design specifications including visualStyleGuide (colors, typography, spacing, layout), uiComponents, userExperienceGuidelines, brandingElements, and responsiveDesign.
+Create comprehensive design specifications. Return JSON with design key containing exactly these required keys (all objects): visualStyleGuide (colors, typography, spacing, buttons, animations), logoIconography (logoConcepts, colorVersions, iconSet, appIcon with letters, bgColor, description), uiLayout (landingPage, dashboard, navigation, responsiveDesign), uxPrinciples (userFlow, accessibility, informationHierarchy).
 
 ${overviewSection}
 
