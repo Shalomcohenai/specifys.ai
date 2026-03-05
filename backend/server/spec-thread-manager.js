@@ -10,6 +10,9 @@ const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-
 
 const ASSISTANTS_V2_HEADER = 'assistants=v2';
 
+/** Model fallback order for creating assistants (first success wins). */
+const ASSISTANT_MODEL_FALLBACKS = ['gpt-5.2', 'gpt-5-mini', 'gpt-5-nano', 'gpt-5'];
+
 class SpecThreadManager {
   constructor(openaiStorage, db) {
     this.openaiStorage = openaiStorage;
@@ -83,8 +86,8 @@ class SpecThreadManager {
   }
 
   /**
-   * Ensure spec generator assistant (gpt-4-mini) exists. Uses env OPENAI_SPEC_GENERATOR_ASSISTANT_ID or creates one.
-   * @see https://developers.openai.com/api/docs/models/gpt-4-mini
+   * Ensure spec generator assistant exists. Uses env OPENAI_SPEC_GENERATOR_ASSISTANT_ID or creates one.
+   * Model: first from ASSISTANT_MODEL_FALLBACKS that succeeds (gpt-5.2, gpt-5-mini, gpt-5-nano, gpt-5).
    * @returns {Promise<string>} assistant_id
    */
   async getGeneratorAssistantId() {
@@ -94,15 +97,15 @@ class SpecThreadManager {
       this._generatorAssistantId = envId.trim();
       return this._generatorAssistantId;
     }
-    const id = await this._createAssistant('gpt-4-mini', 'You generate application specification sections (overview, technical, market, design). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.');
+    const { id, model } = await this._createAssistant('You generate application specification sections (overview, technical, market, design). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.', 'generator');
     this._generatorAssistantId = id;
-    logger.info({ assistantId: id }, '[SpecThreadManager] Created spec generator assistant (gpt-4-mini). Set OPENAI_SPEC_GENERATOR_ASSISTANT_ID to reuse.');
+    logger.info({ assistantId: id, model }, '[SpecThreadManager] Created spec generator assistant. Set OPENAI_SPEC_GENERATOR_ASSISTANT_ID to reuse.');
     return id;
   }
 
   /**
-   * Ensure architecture assistant (gpt-4-mini) exists. Uses env OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID or creates one.
-   * @see https://developers.openai.com/api/docs/models/gpt-4-mini
+   * Ensure architecture assistant exists. Uses env OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID or creates one.
+   * Model: first from ASSISTANT_MODEL_FALLBACKS that succeeds.
    * @returns {Promise<string>} assistant_id
    */
   async getArchitectureAssistantId() {
@@ -112,34 +115,58 @@ class SpecThreadManager {
       this._architectureAssistantId = envId.trim();
       return this._architectureAssistantId;
     }
-    const id = await this._createAssistant('gpt-4-mini', 'You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.');
+    const { id, model } = await this._createAssistant('You are a software architect. Produce a single Markdown document with exactly 7 sections as specified in the user message. Use Mermaid code blocks where helpful. Output only valid Markdown.', 'architecture');
     this._architectureAssistantId = id;
-    logger.info({ assistantId: id }, '[SpecThreadManager] Created architecture assistant (gpt-4-mini). Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
+    logger.info({ assistantId: id, model }, '[SpecThreadManager] Created architecture assistant. Set OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID to reuse.');
     return id;
   }
 
-  async _createAssistant(model, instructions) {
+  /**
+   * Create an assistant using the first model from ASSISTANT_MODEL_FALLBACKS that succeeds.
+   * @param {string} instructions - Assistant instructions
+   * @param {'generator'|'architecture'} assistantType - For naming
+   * @returns {Promise<{id: string, model: string}>}
+   */
+  async _createAssistant(instructions, assistantType = 'generator') {
     const baseURL = this.openaiStorage.baseURL || 'https://api.openai.com/v1';
     const apiKey = this.openaiStorage.apiKey;
     if (!apiKey) throw new Error('OpenAI API key not configured');
     const fetchFn = await this.openaiStorage.getFetch();
-    const res = await fetchFn(`${baseURL}/assistants`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': ASSISTANTS_V2_HEADER
-      },
-      body: JSON.stringify({
-        name: `Spec ${model === 'o1-preview' ? 'Architecture' : 'Generator'} - ${model}`,
-        model,
-        instructions,
-        tools: []
-      })
-    });
-    if (!res.ok) throw new Error(`Failed to create assistant: ${await res.text()}`);
-    const body = await res.json();
-    return body.id;
+    const namePrefix = assistantType === 'architecture' ? 'Architecture' : 'Generator';
+    let lastError = null;
+    for (const model of ASSISTANT_MODEL_FALLBACKS) {
+      const res = await fetchFn(`${baseURL}/assistants`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': ASSISTANTS_V2_HEADER
+        },
+        body: JSON.stringify({
+          name: `Spec ${namePrefix} - ${model}`,
+          model,
+          instructions,
+          tools: []
+        })
+      });
+      const text = await res.text();
+      if (res.ok) {
+        const body = JSON.parse(text);
+        return { id: body.id, model };
+      }
+      let code;
+      try {
+        const errBody = JSON.parse(text);
+        code = errBody?.error?.code;
+      } catch (_) {}
+      if (code === 'unsupported_model' || code === 'model_not_found') {
+        lastError = new Error(`Failed to create assistant: ${text}`);
+        logger.warn({ model, code }, '[SpecThreadManager] Model not available, trying next fallback');
+        continue;
+      }
+      throw new Error(`Failed to create assistant: ${text}`);
+    }
+    throw lastError || new Error('Failed to create assistant: no model succeeded');
   }
 
   /**
