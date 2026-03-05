@@ -563,7 +563,7 @@ Note: Target Audience information should be inferred from the app description an
       technical: 'You are a highly experienced software architect and lead developer. Generate a detailed, comprehensive technical specification. Every section must contain substantive content—never return empty objects, empty arrays, or placeholder text. Short or stub responses are not acceptable.',
       market: 'You are a market research specialist and business analyst. Generate comprehensive market research with full content in every section. Never return empty objects or one-line stubs—each key must have detailed paragraphs or structured data.',
       design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines with real content in every key. Never return section headers only—every sub-key must have concrete descriptions, values, or recommendations.',
-      architecture: 'You are a software architect. Produce a single Markdown document that follows a fixed 7-section structure. Each section must include the required subsections. Use Mermaid code blocks where helpful (e.g., tree diagrams, flowcharts). Output only valid Markdown with the exact section headings provided.'
+      architecture: 'You are a software architect. Produce a single, detailed Markdown document that follows a fixed 7-section structure. Each section must include all required subsections filled with substantive content (paragraphs or bullet points). Use fenced ```mermaid ... ``` blocks for every diagram—never output raw graph or sequenceDiagram without the fence. Output only valid Markdown with the exact section headings provided.'
     };
     return prompts[stage] || 'You are an expert specification generator. Output must be detailed and complete.';
   }
@@ -578,7 +578,7 @@ Note: Target Audience information should be inferred from the app description an
       technical: 'Create a comprehensive technical specification. Include full database schema (at least 2–3 tables with fields and relationships), complete API endpoints with request/response bodies, security details, and integration descriptions. Every field must have real content—no placeholders.',
       market: 'Create detailed market analysis: industry overview, target audience insights, competitive landscape (multiple competitors with details), SWOT, monetization, and marketing strategy. Each section must be fully written out.',
       design: 'Create detailed design specifications: visual style guide (colors, typography, spacing), logo and iconography, UI layout (landing, dashboard, navigation, responsive), and UX principles. Every sub-key must contain actionable, detailed text.',
-      architecture: 'Create a single Markdown document with exactly 7 main sections. Use the exact section titles and include all required subsections. Use Markdown headings (## for main sections, ### for subsections) and optional Mermaid code blocks. Output must be valid Markdown only.'
+      architecture: 'Create a single, detailed Markdown document with exactly 7 main sections. Use the exact section titles and include all required subsections with full content. Every subsection must have at least 2–4 sentences or concrete bullets from the Technical/Market/Design specs. Use ## for main sections, ### for subsections. Put every Mermaid diagram inside ```mermaid ... ```. Output must be valid Markdown only.'
     };
     return prompts[stage] || 'Generate a comprehensive, detailed specification.';
   }
@@ -647,24 +647,25 @@ The "Guardrails." Safety and efficiency.
 - **Performance Constraints:** Limits (e.g., max 50 specs per user, response time under 200ms).
 `;
 
-    const userPrompt = `Combine the following specification sections into one architecture document. The output MUST follow the exact 7-section structure provided below (use the same section numbers and titles).
+    const userPrompt = `Combine the following specification sections into one architecture document. The output MUST follow the exact 7-section structure provided below (use the same section numbers and titles). Every section and subsection MUST be filled with detailed, substantive content (at least 2–4 sentences or concrete bullet points)—no empty placeholders or one-line stubs.
 
 ## Overview
-${(overview || '').slice(0, 15000)}
+${(overview || '').slice(0, 18000)}
 
 ## Technical
-${(technical || '').slice(0, 20000)}
+${(technical || '').slice(0, 25000)}
 
 ## Market
-${(market || '').slice(0, 8000)}
+${(market || '').slice(0, 10000)}
 
 ## Design
-${(design || '').slice(0, 12000)}
+${(design || '').slice(0, 15000)}
 
 ---
-REQUIRED OUTPUT STRUCTURE (include every section and subsection; fill from the specs above):
+REQUIRED OUTPUT STRUCTURE (include every section and subsection; fill from the specs above with full detail):
 ${architectureStructure}
 
+CRITICAL - Mermaid diagrams: Every diagram MUST be inside a fenced code block. Write exactly \`\`\`mermaid on a new line, then the diagram code (e.g. graph TD;, sequenceDiagram;), then \`\`\` on the next line. Never output raw "graph TD;" or "sequenceDiagram;" without the \`\`\`mermaid and \`\`\` fences—the viewer will not render them otherwise.
 Use \`\`\`mermaid ... \`\`\` blocks where a diagram helps (e.g., tree, flowchart, sequence). Return ONLY the Markdown (no JSON wrapper).`;
 
     const requestBody = {

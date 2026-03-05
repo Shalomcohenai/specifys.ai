@@ -2423,10 +2423,45 @@ function displayArchitectureFromData(data) {
         + '</div>';
 }
 
+/**
+ * Wrap raw Mermaid (graph TD;, sequenceDiagram; etc.) in ```mermaid ... ``` so the viewer can render them.
+ */
+function normalizeArchitectureMermaidFences(content) {
+    if (!content || typeof content !== 'string') return content;
+    // Match raw mermaid blocks: line starting with graph XX; or sequenceDiagram; then lines until ## or ``` or double newline
+    return content.replace(/(\n)(graph\s+[A-Za-z]+\s*;|sequenceDiagram\s*;)([\s\S]*?)(?=\n##\s|\n```\s*\n|\n\n\n|$)/gim, function (_, newline, first, rest) {
+        var block = first + rest;
+        if (block.length > 5000) block = block.slice(0, 5000) + '\n';
+        return newline + '```mermaid\n' + block.trim() + '\n```';
+    });
+}
+
+/**
+ * Convert simple Markdown (## ### ** - list) to HTML for architecture text. Escapes HTML for safety.
+ */
+function architectureMarkdownToHtml(md) {
+    if (!md || typeof md !== 'string') return '';
+    var s = escapeHtmlSpec(md);
+    s = s.replace(/^### (.+)$/gm, '<h3 class="architecture-h3">$1</h3>');
+    s = s.replace(/^## (.+)$/gm, '<h2 class="architecture-h2">$1</h2>');
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/^- (.+)$/gm, '<li>$1</li>');
+    s = s.replace(/(<li>.*<\/li>\n?)+/g, '<ul class="architecture-ul">$&</ul>');
+    var paras = s.split(/\n\n+/);
+    s = paras.map(function(seg) {
+        var t = seg.trim();
+        if (!t) return '';
+        if (/^<(h[23]|ul)/i.test(t)) return t;
+        return '<p class="architecture-p">' + t.replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+    return s || '';
+}
+
 function displayArchitecture(content, containerEl) {
     const container = containerEl || document.getElementById('architecture-data');
     if (!container) return;
     container.innerHTML = '';
+    content = normalizeArchitectureMermaidFences(content);
     const mermaidRegex = /```mermaid\s*([\s\S]*?)```/gi;
     let match;
     let lastIndex = 0;
@@ -2459,15 +2494,14 @@ function displayArchitecture(content, containerEl) {
             wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre>';
         }
     });
-    // Then text
+    // Then text: render as Markdown (headings, bold, lists)
     textParts.forEach(function(text) {
         var trimmed = text.trim();
         if (!trimmed) return;
         var textBlock = document.createElement('div');
         textBlock.className = 'architecture-text-block';
-        textBlock.style.whiteSpace = 'pre-wrap';
         textBlock.style.marginBottom = '1rem';
-        textBlock.textContent = trimmed;
+        textBlock.innerHTML = architectureMarkdownToHtml(trimmed);
         container.appendChild(textBlock);
     });
 }
