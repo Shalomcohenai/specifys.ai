@@ -10,8 +10,12 @@ const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-
 
 const ASSISTANTS_V2_HEADER = 'assistants=v2';
 
-/** Model fallback order for creating assistants (first success wins). */
-const ASSISTANT_MODEL_FALLBACKS = ['gpt-5.2', 'gpt-5-mini', 'gpt-5-nano', 'gpt-5'];
+/** Model fallback order for creating assistants (first success wins). Older models (4, 3.5) last. */
+const ASSISTANT_MODEL_FALLBACKS = [
+  'gpt-5.2', 'gpt-5-mini', 'gpt-5-nano', 'gpt-5',
+  'gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo', 'gpt-4',
+  'gpt-3.5-turbo'
+];
 
 class SpecThreadManager {
   constructor(openaiStorage, db) {
