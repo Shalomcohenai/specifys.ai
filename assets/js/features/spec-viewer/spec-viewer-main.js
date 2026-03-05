@@ -728,6 +728,26 @@ async function loadSpec(specId) {
                         }
                     });
 
+                    // Architecture: handle status changes so UI updates without refresh (dot, tab state, content, orange icon)
+                    const prevArchStatus = previousStatus.architecture;
+                    const newArchStatus = newStatus.architecture;
+                    if (newArchStatus === 'ready' && prevArchStatus !== 'ready' && updatedData.architecture) {
+                        updateNotificationDot('architecture', 'ready');
+                        updateTabLoadingState('architecture', false);
+                        displayArchitectureFromData(updatedData);
+                        const architectureTab = document.getElementById('architectureTab');
+                        if (architectureTab) architectureTab.classList.add('generated');
+                        updateExportCheckboxes();
+                    } else if (newArchStatus === 'generating' && prevArchStatus !== 'generating') {
+                        updateNotificationDot('architecture', 'generating');
+                        updateTabLoadingState('architecture', true);
+                        displayArchitectureFromData(updatedData);
+                    } else if (newArchStatus === 'error' && prevArchStatus !== 'error') {
+                        updateNotificationDot('architecture', 'error');
+                        updateTabLoadingState('architecture', false);
+                        displayArchitectureFromData(updatedData);
+                    }
+
                     // Upload only after all stages (including architecture) are finished (ready or error). Enables manual retry/upload of missing parts.
                     const allStagesForUpload = ['technical', 'market', 'design', 'architecture'];
                     const allTerminal = newStatus.overview === 'ready' && allStagesForUpload.every(s => newStatus[s] === 'ready' || newStatus[s] === 'error');
@@ -760,9 +780,10 @@ async function loadSpec(specId) {
             });
         
         // Start polling as backup (especially if generation is in progress)
-        if (specData.status?.technical === 'generating' || 
-            specData.status?.market === 'generating' || 
-            specData.status?.design === 'generating') {
+        if (specData.status?.technical === 'generating' ||
+            specData.status?.market === 'generating' ||
+            specData.status?.design === 'generating' ||
+            specData.status?.architecture === 'generating') {
             startSpecStatusPolling(specId);
         }
         
@@ -1009,18 +1030,10 @@ function displaySpec(data) {
             });
         }
         
-        // Enable architecture tab when technical, market, design are all ready (or when architecture exists)
-        if (data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready') {
+        // Architecture tab always enabled when spec is loaded (so Generate Architecture is always available for testing)
+        if (data.id) {
             const architectureTab = document.getElementById('architectureTab');
-            if (architectureTab) {
-                architectureTab.disabled = false;
-            }
-        }
-        if (data.architecture || data.status?.architecture === 'ready') {
-            const architectureTab = document.getElementById('architectureTab');
-            if (architectureTab) {
-                architectureTab.disabled = false;
-            }
+            if (architectureTab) architectureTab.disabled = false;
         }
         // Enable Brain Dump only after advanced specs (technical, market, design) + architecture
         const advancedAndArchitecture = data.status?.technical === 'ready' && data.status?.market === 'ready' && data.status?.design === 'ready' && (data.architecture || data.status?.architecture === 'ready');
@@ -2381,9 +2394,13 @@ function displayArchitectureFromData(data) {
     const container = document.getElementById('architecture-data');
     if (!container) return;
 
-    // Architecture content exists — render it
+    const architectureTab = document.getElementById('architectureTab');
+    if (architectureTab) architectureTab.classList.remove('generated');
+
+    // Architecture content exists — render it and show orange icon
     if (data.architecture && typeof data.architecture === 'string' && data.architecture.trim()) {
         displayArchitecture(data.architecture, container);
+        if (architectureTab) architectureTab.classList.add('generated');
         return;
     }
 
@@ -2392,26 +2409,25 @@ function displayArchitectureFromData(data) {
         && data.status?.design === 'ready';
     const archStatus = data.status?.architecture;
 
-    if (!allAdvancedReady) {
-        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder"><p>Architecture is generated automatically after Technical, Market, and Design are ready.</p></div>';
-        return;
-    }
-
+    // Loading state: same skeleton animation as other tabs
     if (archStatus === 'generating') {
-        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
-            + '<i class="fa fa-cog fa-spin" style="font-size:2em;opacity:0.5;margin-bottom:14px;"></i>'
-            + '<p>Generating architecture document&hellip; This usually takes 30&ndash;90 seconds.</p>'
+        container.innerHTML = '<div class="skeleton-container" id="architecture-placeholder">'
+            + '<div class="skeleton-header"><div class="skeleton-spinner"></div><div class="skeleton-text"></div></div>'
+            + '<div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div>'
+            + '<div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div>'
             + '</div>';
         return;
     }
 
-    // Not generating and no architecture — show button (initial state or error/retry)
+    // Not generating and no architecture — always show Generate/Retry button (for testing and normal use)
     const isError = archStatus === 'error';
     const btnLabel = isError ? 'Retry Architecture' : 'Generate Architecture';
     const btnIcon  = isError ? 'fa-refresh'         : 'fa-magic';
     const msg      = isError
         ? 'Architecture generation failed. Click to try again.'
-        : 'All advanced specs are ready. Generate the architecture document now.';
+        : (allAdvancedReady
+            ? 'Generate the architecture document now.'
+            : 'Technical, Market, and Design are recommended first. You can still generate architecture now.');
 
     container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
         + '<i class="fa fa-building" style="font-size:2.5em;opacity:0.35;margin-bottom:14px;"></i>'
@@ -2516,14 +2532,17 @@ async function triggerGenerateArchitecture(specId) {
     }
     _architectureGenerationInProgress = true;
 
-    // Show spinner immediately — Firestore real-time listener will update the view when done.
+    // Show same skeleton as other tabs — Firestore real-time listener will update when done.
     var container = document.getElementById('architecture-data');
     if (container) {
-        container.innerHTML = '<div class="locked-tab-message" id="architecture-placeholder">'
-            + '<i class="fa fa-cog fa-spin" style="font-size:2em;opacity:0.5;margin-bottom:14px;"></i>'
-            + '<p>Generating architecture document&hellip; This usually takes 30&ndash;90 seconds.</p>'
+        container.innerHTML = '<div class="skeleton-container" id="architecture-placeholder">'
+            + '<div class="skeleton-header"><div class="skeleton-spinner"></div><div class="skeleton-text"></div></div>'
+            + '<div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div>'
+            + '<div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line long"></div>'
             + '</div>';
     }
+    updateNotificationDot('architecture', 'generating');
+    updateTabLoadingState('architecture', true);
 
     try {
         // Route returns 202 immediately; generation runs in the background on the server.
@@ -2822,6 +2841,11 @@ function formatJSONContent(jsonData) {
     if (jsonData.overview && typeof jsonData.overview === 'object') {
 
         jsonData = jsonData.overview;
+    }
+
+    // Handle nested design structure (design.design) so Color Palette and App Icon come from spec
+    if (jsonData.design && typeof jsonData.design === 'object') {
+        jsonData = jsonData.design;
     }
     
     // Handle new Overview structure
@@ -4859,6 +4883,7 @@ function updateAllNotificationDots() {
         'technical': currentSpecData.status.technical,
         'market': currentSpecData.status.market,
         'design': currentSpecData.status.design,
+        'architecture': currentSpecData.status.architecture,
         'diagrams': currentSpecData.status.diagrams,
         'mockup': currentSpecData.status.mockup,
         'chat': currentSpecData.status.chat,
