@@ -878,6 +878,10 @@ custom_js_modules:
           <div class="summary-label">With Brain Dump</div>
           <div class="summary-value" id="spec-usage-with-brain-dump">0</div>
         </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With Architecture</div>
+          <div class="summary-value" id="spec-usage-with-architecture">0</div>
+        </div>
       </div>
 
       <!-- Specs Table -->
@@ -897,11 +901,12 @@ custom_js_modules:
               <th class="feature-column">Mockups</th>
               <th class="feature-column">AI Chat</th>
               <th class="feature-column">Brain Dump</th>
+              <th class="feature-column">Architecture</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td colspan="12" class="table-empty-state">Loading specs...</td>
+              <td colspan="13" class="table-empty-state">Loading specs...</td>
             </tr>
           </tbody>
         </table>
@@ -1282,6 +1287,27 @@ custom_js_modules:
             <div class="stat-value" id="mcp-stat-api-requests">—</div>
           </div>
         </div>
+      </div>
+
+      <div class="section-header-modern" style="margin-top: 24px;">
+        <h2 style="font-size: 1.1rem;">Users with MCP API key</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Who has an API key (key is never shown)</p>
+      </div>
+      <div class="table-card" style="margin-bottom: 24px;">
+        <table class="modern-table" id="mcp-users-with-key-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Email</th>
+              <th>Display name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="3" class="table-empty-state">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="section-header-modern" style="margin-top: 24px;">

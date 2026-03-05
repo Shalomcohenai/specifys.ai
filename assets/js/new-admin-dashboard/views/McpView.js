@@ -74,6 +74,18 @@ export class McpView {
           .join('');
       }
     }
+
+    const usersWithKeyTbody = helpers.dom('#mcp-users-with-key-table tbody');
+    if (usersWithKeyTbody) {
+      const list = d.usersWithKeyList ?? [];
+      if (list.length === 0) {
+        usersWithKeyTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state">No users with MCP API key</td></tr>';
+      } else {
+        usersWithKeyTbody.innerHTML = list
+          .map(u => `<tr><td><code>${escapeHtml(u.userId)}</code></td><td>${escapeHtml(u.email || '—')}</td><td>${escapeHtml(u.displayName || '—')}</td></tr>`)
+          .join('');
+      }
+    }
   }
 
   renderError() {
@@ -87,6 +99,10 @@ export class McpView {
     const tbody = helpers.dom('#mcp-top-functions-table tbody');
     if (tbody) {
       tbody.innerHTML = '<tr><td colspan="2" class="table-empty-state">Error loading MCP stats</td></tr>';
+    }
+    const usersWithKeyTbody = helpers.dom('#mcp-users-with-key-table tbody');
+    if (usersWithKeyTbody) {
+      usersWithKeyTbody.innerHTML = '<tr><td colspan="3" class="table-empty-state">Error loading MCP stats</td></tr>';
     }
   }
 

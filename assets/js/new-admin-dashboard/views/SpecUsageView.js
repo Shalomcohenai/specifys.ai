@@ -91,6 +91,8 @@ export class SpecUsageView {
         return !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
       case 'brainDump':
         return !!(specData.brainDumpLastUsedAt);
+      case 'architecture':
+        return !!(specData.architecture && status.architecture === 'ready');
       default:
         return false;
     }
@@ -109,7 +111,8 @@ export class SpecUsageView {
       withPrompts: 0,
       withMockups: 0,
       withAiChat: 0,
-      withBrainDump: 0
+      withBrainDump: 0,
+      withArchitecture: 0
     };
     
     specs.forEach(spec => {
@@ -122,6 +125,7 @@ export class SpecUsageView {
       const hasMockups = this.hasFeature(spec, 'mockups');
       const hasAiChat = this.hasFeature(spec, 'aichat');
       const hasBrainDump = this.hasFeature(spec, 'brainDump');
+      const hasArchitecture = this.hasFeature(spec, 'architecture');
       
       if (hasOverview && !hasTechnical && !hasMarket) {
         stats.overviewOnly++;
@@ -149,6 +153,9 @@ export class SpecUsageView {
       }
       if (hasBrainDump) {
         stats.withBrainDump++;
+      }
+      if (hasArchitecture) {
+        stats.withArchitecture++;
       }
     });
     
@@ -205,6 +212,8 @@ export class SpecUsageView {
     helpers.dom('#spec-usage-with-aichat').textContent = stats.withAiChat.toLocaleString();
     const brainDumpEl = helpers.dom('#spec-usage-with-brain-dump');
     if (brainDumpEl) brainDumpEl.textContent = stats.withBrainDump.toLocaleString();
+    const architectureEl = helpers.dom('#spec-usage-with-architecture');
+    if (architectureEl) architectureEl.textContent = stats.withArchitecture.toLocaleString();
   }
   
   /**
@@ -215,7 +224,7 @@ export class SpecUsageView {
     if (!tbody) return;
     
     if (specs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="12" class="table-empty-state">No specs found for selected criteria.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="13" class="table-empty-state">No specs found for selected criteria.</td></tr>';
       return;
     }
     
@@ -240,6 +249,7 @@ export class SpecUsageView {
       const hasMockups = this.hasFeature(spec, 'mockups');
       const hasAiChat = this.hasFeature(spec, 'aichat');
       const hasBrainDump = this.hasFeature(spec, 'brainDump');
+      const hasArchitecture = this.hasFeature(spec, 'architecture');
       
       return `
         <tr>
@@ -293,6 +303,11 @@ export class SpecUsageView {
           <td class="feature-cell">
             <span class="feature-indicator ${hasBrainDump ? 'active' : ''}" title="Brain Dump">
               <i class="fas fa-${hasBrainDump ? 'check-circle' : 'circle'}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasArchitecture ? 'active' : ''}" title="Architecture">
+              <i class="fas fa-${hasArchitecture ? 'check-circle' : 'circle'}"></i>
             </span>
           </td>
         </tr>

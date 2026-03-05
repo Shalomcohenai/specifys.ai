@@ -53,6 +53,7 @@ const OverviewSuggestionsSchema = z.object({
 });
 
 const OverviewSchema = z.object({
+  shortTitle: z.string(),
   ideaSummary: z.string(),
   problemStatement: z.string(),
   targetAudience: OverviewTargetAudienceSchema,

@@ -17,15 +17,19 @@ const openaiStorage = process.env.OPENAI_API_KEY
   : null;
 
 /**
- * Extract a short display title (max 5 words) from overview JSON content.
+ * Get display title from overview: use shortTitle from structured output when present,
+ * otherwise fall back to extracting from ideaSummary (legacy / backward compatibility).
  * Used in profile cards and spec-viewer header.
  */
-function extractTitleFromOverview(overviewContent) {
+function getTitleFromOverview(overviewContent) {
     const MAX_WORDS = 5;
     if (!overviewContent || typeof overviewContent !== 'string') return 'App Specification';
     try {
         const overviewObj = JSON.parse(overviewContent);
-        const ideaSummary = overviewObj.ideaSummary || (overviewObj.overview && overviewObj.overview.ideaSummary);
+        const o = overviewObj.overview && typeof overviewObj.overview === 'object' ? overviewObj.overview : overviewObj;
+        const shortTitle = o.shortTitle && typeof o.shortTitle === 'string' ? o.shortTitle.trim() : '';
+        if (shortTitle.length > 0) return shortTitle;
+        const ideaSummary = o.ideaSummary || overviewObj.ideaSummary;
         if (ideaSummary && typeof ideaSummary === 'string' && ideaSummary.trim().length > 0) {
             const trimmed = ideaSummary.trim();
             const firstSentence = trimmed.split(/[.!?]/)[0].trim();
@@ -716,11 +720,11 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         return overviewContent; // Return the generated content but don't update non-existent spec
                     }
                     
-                    const extractedTitle = extractTitleFromOverview(overviewContent);
+                    const specTitle = getTitleFromOverview(overviewContent);
                     await db.collection('specs').doc(specId).update({
                         overview: overviewContent,
                         'status.overview': 'ready',
-                        title: extractedTitle,
+                        title: specTitle,
                         generationVersion: 'v2',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     });

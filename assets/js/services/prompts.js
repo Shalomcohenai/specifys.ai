@@ -68,6 +68,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
 
 {
   "overview": {
+    "shortTitle": "A concise display title (3-8 words) for the spec, e.g. 'Task Management for Teams' or 'Healthcare Patient Portal'",
     "ideaSummary": "A concise, clear description (250-750 characters) of what the application does, what problem it solves for users, why it's important, core functionality, and main benefits. Keep it focused and impactful.",
     "problemStatement": "A detailed problem statement (2-3 paragraphs, 400-800 characters) describing: the core problem this app solves, why this problem matters, specific user pain points (both practical and emotional), current workarounds users employ, and the gap that exists in current solutions.",
     "targetAudience": {
@@ -110,6 +111,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
 }
 
 IMPORTANT DETAILED REQUIREMENTS: 
+- shortTitle MUST be a concise display title in 3-8 words (e.g. "Task Management for Teams", "Healthcare Patient Portal"). It will be shown as the spec title in the UI—do not use the first sentence of ideaSummary; create a dedicated catchy title.
 - ideaSummary should be 250-750 characters with concise explanation of purpose, functionality, benefits, and value
 - problemStatement should be 2-3 paragraphs (400-800 characters) covering: the problem, why it matters, pain points (practical and emotional), current workarounds, and solution gap
 - targetAudience.ageRange should include reasoning for the age group
@@ -208,6 +210,7 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - suggestionsCoreFeatures.notToInclude: 3-5 optional feature descriptions (same style as coreFeaturesOverview)
 
 VALIDATION CHECKLIST (Before generating output):
+✓ Did I include shortTitle as a 3-8 word display title (not the start of ideaSummary)?
 ✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens as objects with name, description, uiComponents?
 ✓ Did I complete screenDescriptions.screens to minimum 5 screens (even if user provided fewer)?
 ✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps in detailedUserFlow.steps?

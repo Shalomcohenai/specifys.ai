@@ -1445,12 +1445,24 @@ router.get('/stats/mcp', requireAdmin, async (req, res, next) => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // 1) Users with MCP API key
+    // 1) Users with MCP API key (count + list of users, never expose the key)
     const usersWithKeySnap = await db.collection('users')
       .where('mcpApiKey', '!=', null)
       .count()
       .get();
     const usersWithKey = usersWithKeySnap.data().count;
+
+    const usersWithKeyListSnap = await db.collection('users')
+      .where('mcpApiKey', '!=', null)
+      .get();
+    const usersWithKeyList = usersWithKeyListSnap.docs.map(doc => {
+      const data = doc.data();
+      return {
+        userId: doc.id,
+        email: data.email ?? null,
+        displayName: data.displayName ?? null
+      };
+    });
 
     // 2) Frontend events (last 30 days) - mcp_events collection
     const eventsSnap = await db.collection('mcp_events')
@@ -1483,6 +1495,7 @@ router.get('/stats/mcp', requireAdmin, async (req, res, next) => {
       success: true,
       data: {
         usersWithKey,
+        usersWithKeyList,
         events: {
           mcp_modal_open: modalOpens,
           mcp_page_view: pageViews
