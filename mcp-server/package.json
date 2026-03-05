@@ -1,11 +1,12 @@
 {
   "name": "specifys-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP Server for Specifys.ai - specs and tools via Cursor/Claude Desktop",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "specifys-mcp": "./dist/index.js"
+    "specifys-mcp-server": "dist/index.js",
+    "specifys-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -15,6 +16,19 @@
   "engines": {
     "node": ">=18"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "specifys",
+    "cursor",
+    "claude"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/specifys-ai/specifys-ai.git",
+    "directory": "mcp-server"
+  },
+  "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.0",
     "zod": "^3.23.0"
@@ -24,5 +38,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.0.0"
   },
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }

@@ -1,0 +1,12 @@
+# Source (only dist is published via package.json "files")
+src/
+*.ts
+!*.d.ts
+tsconfig.json
+
+# Development and tooling
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store

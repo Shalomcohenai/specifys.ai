@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * Specifys.ai MCP Server
  * Exposes specs (read/update) and tools list via Tools and Resources for Cursor / Claude Desktop.
