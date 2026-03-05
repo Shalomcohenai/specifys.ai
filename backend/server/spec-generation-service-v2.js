@@ -219,7 +219,7 @@ Additional Details: ${additionalDetails}`;
 
   /**
    * Generate architecture as structured JSON then serialize to Markdown for storage.
-   * Uses gpt-5-mini via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
+   * Uses gpt-4-mini via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
    * @param {string} technical - Technical content
@@ -251,7 +251,7 @@ Additional Details: ${additionalDetails}`;
     const marketSlice = (market || '').slice(0, 8000);
     const designSlice = (design || '').slice(0, 12000);
 
-    return `You are an expert software architect. You are using gpt-5-mini and must provide specific, non-generic technical advice with real depth. Do not give vague or template-like answers.
+    return `You are an expert software architect. You are using gpt-4-mini and must provide specific, non-generic technical advice with real depth. Do not give vague or template-like answers.
 
 Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must match this structure exactly:
 

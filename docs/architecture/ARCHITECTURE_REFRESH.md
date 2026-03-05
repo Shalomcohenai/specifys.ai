@@ -21,8 +21,8 @@ The previous system used a three-layer retry pyramid with no schema contract:
 | Layer | Old | New |
 |-------|-----|-----|
 | LLM API | Stateless Chat Completions via Worker | **OpenAI Assistants API v2** (direct from backend) |
-| Model (structured) | gpt-4o-mini | **gpt-5-mini** |
-| Model (architecture) | gpt-4o-mini | **gpt-5-mini** (structured JSON, serialized to Markdown for storage) |
+| Model (structured) | gpt-4o-mini | **gpt-4-mini** |
+| Model (architecture) | gpt-4o-mini | **gpt-4-mini** (structured JSON, serialized to Markdown for storage) |
 | Output contract | Heuristic validators + repair prompts | **Structured Outputs** (`json_schema`, `strict: true`) |
 | Context | String concatenation + truncation | **Persistent Threads** (`thread_id` in Firestore) |
 | Validation | None | **Zod** → `zod-to-json-schema` for `response_format` |
@@ -68,7 +68,7 @@ Helpers:
 
 Assistants:
 
-- **All stages (overview, technical, market, design, architecture):** One gpt-5-mini assistant. ID from `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` or created on first use. (OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID is no longer used for the architecture stage.)
+- **All stages (overview, technical, market, design, architecture):** One gpt-4-mini assistant. ID from `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` or created on first use. (OPENAI_SPEC_ARCHITECTURE_ASSISTANT_ID is no longer used for the architecture stage.)
 
 ---
 
@@ -76,11 +76,11 @@ Assistants:
 
 | Stage | Model | response_format |
 |-------|--------|------------------|
-| Overview | gpt-5-mini | `json_schema` strict (OverviewPayloadSchema) |
-| Technical | gpt-5-mini | `json_schema` strict (TechnicalPayloadSchema) |
-| Market | gpt-5-mini | `json_schema` strict (MarketPayloadSchema) |
-| Design | gpt-5-mini | `json_schema` strict (DesignPayloadSchema) |
-| Architecture | gpt-5-mini | `json_schema` strict (ArchitecturePayloadSchema); backend serializes to Markdown for storage |
+| Overview | gpt-4-mini | `json_schema` strict (OverviewPayloadSchema) |
+| Technical | gpt-4-mini | `json_schema` strict (TechnicalPayloadSchema) |
+| Market | gpt-4-mini | `json_schema` strict (MarketPayloadSchema) |
+| Design | gpt-4-mini | `json_schema` strict (DesignPayloadSchema) |
+| Architecture | gpt-4-mini | `json_schema` strict (ArchitecturePayloadSchema); backend serializes to Markdown for storage |
 
 ---
 
