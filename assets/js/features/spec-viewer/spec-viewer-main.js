@@ -666,37 +666,7 @@ async function loadSpec(specId) {
                             
                             // Update export checkboxes
                             updateExportCheckboxes();
-                            
-                            // Check if all stages are ready
-                            const allReady = stages.every(s => newStatus[s] === 'ready') && newStatus.overview === 'ready';
-                            if (allReady) {
-                                console.log('[Firestore Listener] All stages are ready!');
-                                showNotification('All specifications generated successfully!', 'success');
-                                hideApproveButton();
-                                stopProgressBar();
-                                
-                                // Hide chat bubbles when generation is complete
-                                const bubblesContainer = document.getElementById('chat-bubbles-container');
-                                if (bubblesContainer) {
-                                    bubblesContainer.style.display = 'none';
-                                    console.log('[Firestore Listener] Chat bubbles hidden');
-                                }
-                                
-                                // Stop polling if all done
-                                if (specPollInterval) {
-                                    clearInterval(specPollInterval);
-                                    specPollInterval = null;
-                                    console.log('[Firestore Listener] Polling stopped');
-                                }
-                                
-                                // Upload to OpenAI (non-blocking)
-                                if (updatedData.id) {
-                                    triggerOpenAIUploadForSpec(updatedData.id).catch(err => {
-                                        console.warn('Failed to upload spec to OpenAI:', err);
-                                    });
-                                }
-                            }
-                            
+                            // Note: Upload and "all done" notification run below when all stages including architecture are terminal (ready or error).
                             // Update progress bar based on current status
                             // Only show progress bar and bubbles if overview is still generating
                             // Once overview is ready, hide them even if other stages are generating
@@ -757,7 +727,27 @@ async function loadSpec(specId) {
                             startProgressBar();
                         }
                     });
-                    
+
+                    // Upload only after all stages (including architecture) are finished (ready or error). Enables manual retry/upload of missing parts.
+                    const allStagesForUpload = ['technical', 'market', 'design', 'architecture'];
+                    const allTerminal = newStatus.overview === 'ready' && allStagesForUpload.every(s => newStatus[s] === 'ready' || newStatus[s] === 'error');
+                    const prevAllTerminal = previousStatus.overview === 'ready' && allStagesForUpload.every(s => previousStatus[s] === 'ready' || previousStatus[s] === 'error');
+                    if (allTerminal && !prevAllTerminal && updatedData.id) {
+                        const allSuccessful = allStagesForUpload.every(s => newStatus[s] === 'ready');
+                        showNotification(allSuccessful
+                            ? 'All specifications generated successfully!'
+                            : 'Some specifications failed. You can retry failed sections or upload what exists.', allSuccessful ? 'success' : 'error');
+                        hideApproveButton();
+                        stopProgressBar();
+                        const bubblesContainer = document.getElementById('chat-bubbles-container');
+                        if (bubblesContainer) bubblesContainer.style.display = 'none';
+                        if (specPollInterval) {
+                            clearInterval(specPollInterval);
+                            specPollInterval = null;
+                        }
+                        triggerOpenAIUploadForSpec(updatedData.id).catch(err => console.warn('Failed to upload spec to OpenAI:', err));
+                    }
+
                     // Update all notification dots
                     updateAllNotificationDots();
                 }
@@ -5965,33 +5955,24 @@ async function approveOverview() {
                         }
                     }
                     
-                    // Check if all are ready or errored to show final notification
-                    const allDone = ['technical', 'market', 'design'].every(stage =>
-                        updates.status[stage] === 'ready' || updates.status[stage] === 'error'
+                    // Upload and final notification only when all stages including architecture are finished (ready or error)
+                    const mergedStatus = { ...currentSpecData?.status, ...updates?.status };
+                    const allStagesForUpload = ['technical', 'market', 'design', 'architecture'];
+                    const allDone = allStagesForUpload.every(stage =>
+                        mergedStatus[stage] === 'ready' || mergedStatus[stage] === 'error'
                     );
 
-                    if (allDone) {
-                        const allSuccessful = ['technical', 'market', 'design'].every(stage =>
-                            updates.status[stage] === 'ready'
-                        );
-                        if (allSuccessful) {
-                            showNotification('All specifications generated successfully!', 'success');
-                            
-                            // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-                            if (currentSpecData && currentSpecData.id) {
-                                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                                    // Non-blocking - don't interrupt user experience
-                                    console.warn('Failed to upload spec to OpenAI after generation:', err);
-                                });
-                                // Auto-generate architecture (after advanced specs, before diagrams/prompts)
-                                if (!currentSpecData.architecture && !currentSpecData.status?.architecture) {
-                                    triggerGenerateArchitecture(currentSpecData.id);
-                                }
-                            }
-                        } else {
-                            showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
-                        }
+                    if (allDone && currentSpecData?.id) {
+                        const allSuccessful = allStagesForUpload.every(stage => mergedStatus[stage] === 'ready');
+                        showNotification(allSuccessful
+                            ? 'All specifications generated successfully!'
+                            : 'Some specifications failed. You can retry failed sections or upload what exists.', allSuccessful ? 'success' : 'error');
+                        triggerOpenAIUploadForSpec(currentSpecData.id).catch(err =>
+                            console.warn('Failed to upload spec to OpenAI after generation:', err));
                         hideApproveButton();
+                    } else if (!mergedStatus.architecture && ['technical', 'market', 'design'].every(s => mergedStatus[s] === 'ready') && currentSpecData?.id && !currentSpecData.architecture) {
+                        // Fallback: trigger architecture if backend did not (e.g. single-section flow)
+                        triggerGenerateArchitecture(currentSpecData.id);
                     }
                 } catch (error) {
                     if (window.appLogger) {

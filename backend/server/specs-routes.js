@@ -157,8 +157,9 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res, next)
             return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
         }
 
-        // Check if already uploaded
-        if (specData.openaiFileId) {
+        // Check if already uploaded (skip when forceReupload so user can re-upload after manual sections)
+        const forceReupload = req.query.forceReupload === 'true' || req.body?.forceReupload === true;
+        if (specData.openaiFileId && !forceReupload) {
             console.log(`[${requestId}] ✅ Spec already uploaded to OpenAI: ${specData.openaiFileId}`);
             const totalTime = Date.now() - startTime;
             console.log(`[${requestId}] ✅ /api/specs/:id/upload-to-openai SUCCESS (already uploaded) (${totalTime}ms)`);
@@ -425,11 +426,15 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
                 specEvents.removeListener('spec.complete', completeListener);
                 specEvents.removeListener('spec.error', errorListener);
 
-                // Trigger OpenAI upload (non-blocking)
+                // Trigger OpenAI upload only after all Firestore writes (including architecture) have had time to complete.
+                // Upload runs with whatever is in Firestore: full spec on success, or partial (e.g. overview + technical + market + design) on partial failure.
                 if (openaiStorage) {
-                    triggerOpenAIUploadForSpec(specId).catch(err => {
-                        logger.warn({ requestId, specId, error: err.message }, 'Failed to trigger OpenAI upload');
-                    });
+                    const uploadDelayMs = 3000;
+                    setTimeout(() => {
+                        triggerOpenAIUploadForSpec(specId).catch(err => {
+                            logger.warn({ requestId, specId, error: err.message }, 'Failed to trigger OpenAI upload');
+                        });
+                    }, uploadDelayMs);
                 }
             }
         };
@@ -616,6 +621,10 @@ router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, 
                 });
                 specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
                 logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[specs-routes] Architecture generation complete');
+                if (openaiStorage) {
+                    triggerOpenAIUploadForSpec(specId, { forceReupload: true }).catch(err =>
+                        logger.warn({ requestId, specId, error: err.message }, 'Failed to upload spec to OpenAI after architecture'));
+                }
             } catch (err) {
                 logger.error({ requestId, specId, error: err.message }, '[specs-routes] Architecture background generation failed');
                 db.collection('specs').doc(specId).update({
@@ -819,13 +828,15 @@ router.get('/:id/generation-status', verifyFirebaseToken, async (req, res, next)
 });
 
 // Helper function to trigger OpenAI upload
-async function triggerOpenAIUploadForSpec(specId) {
+// @param {string} specId
+// @param {{ forceReupload?: boolean }} [options] - forceReupload: re-upload even if openaiFileId exists (e.g. after manual architecture)
+async function triggerOpenAIUploadForSpec(specId, options = {}) {
     try {
         const specDoc = await db.collection('specs').doc(specId).get();
         if (!specDoc.exists) return;
 
         const specData = specDoc.data();
-        if (specData.openaiFileId) return; // Already uploaded
+        if (specData.openaiFileId && !options.forceReupload) return; // Already uploaded
 
         if (openaiStorage) {
             const fileId = await openaiStorage.uploadSpec(specId, specData);
