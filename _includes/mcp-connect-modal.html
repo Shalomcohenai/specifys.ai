@@ -8,6 +8,10 @@
         <div class="modal-body mcp-modal-body">
             <p class="mcp-modal-intro">Use one API key per account. Cursor or Claude Desktop can then read and update your specs in real time.</p>
 
+            <div class="mcp-modal-requirement">
+                <p class="mcp-setup-text"><strong>Requirement:</strong> <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> must be installed on your machine to use MCP (Cursor and Claude run the Specifys server via <code>npx</code>).</p>
+            </div>
+
             <div class="mcp-modal-key-block">
                 <div class="mcp-modal-key-row">
                     <span class="mcp-modal-label">Status</span>
@@ -33,10 +37,10 @@
             </div>
 
             <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel" aria-labelledby="mcp-tab-cursor">
-                <p class="mcp-setup-text">In Cursor open <strong>Settings → MCP</strong>. Add a server and paste the JSON below. In <code>args</code> use the full path to <code>mcp-server/dist/index.js</code>. Save and restart Cursor.</p>
+                <p class="mcp-setup-text">In Cursor open <strong>Settings → MCP</strong>. Add a server and paste the JSON below (no path needed — it uses the <code>specifys-mcp-server</code> package). Save and restart Cursor.</p>
             </div>
             <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel" aria-labelledby="mcp-tab-claude">
-                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>args</code> and <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
+                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>env.SPECIFYS_API_KEY</code> (and optionally <code>SPECIFYS_API_BASE_URL</code>). Restart Claude Desktop.</p>
             </div>
 
             <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap" aria-live="polite">

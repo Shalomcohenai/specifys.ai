@@ -67,13 +67,12 @@
 
   function updateMcpJsonConfig(apiKey) {
     var baseUrl = getApiBaseUrl();
-    var pathPlaceholder = '<FULL_PATH_TO_specifys-ai/mcp-server/dist/index.js>';
     var keyValue = apiKey && apiKey.trim() ? apiKey.trim() : '<YOUR_API_KEY_FROM_THIS_PAGE>';
     var config = {
       mcpServers: {
         specifys: {
-          command: 'node',
-          args: [pathPlaceholder],
+          command: 'npx',
+          args: ['-y', 'specifys-mcp-server'],
           env: {
             SPECIFYS_API_KEY: keyValue,
             SPECIFYS_API_BASE_URL: baseUrl

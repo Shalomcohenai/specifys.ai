@@ -2813,13 +2813,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
         function updateMcpJsonConfig(apiKey) {
             const baseUrl = getMcpBaseUrl();
-            const pathPlaceholder = '<FULL_PATH_TO_specifys-ai/mcp-server/dist/index.js>';
             const keyValue = apiKey && apiKey.trim() ? apiKey.trim() : '<YOUR_API_KEY_FROM_THIS_PAGE>';
             const config = {
                 mcpServers: {
                     specifys: {
-                        command: 'node',
-                        args: [pathPlaceholder],
+                        command: 'npx',
+                        args: ['-y', 'specifys-mcp-server'],
                         env: {
                             SPECIFYS_API_KEY: keyValue,
                             SPECIFYS_API_BASE_URL: baseUrl
