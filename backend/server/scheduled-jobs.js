@@ -360,14 +360,28 @@ async function runToolsFinderJob() {
 }
 
 /**
- * Start article writer job (runs daily - every 24 hours)
+ * Start weekly article writer job (vibe coding / AI topics + N articles per run)
+ *
+ * Env:
+ * - WEEKLY_ARTICLES_ENABLED — default true when articles automation is on (set 'false' to disable schedule only)
+ * - WEEKLY_ARTICLES_DAY — 0–6, Sunday–Saturday (default: 1 = Monday)
+ * - WEEKLY_ARTICLES_HOUR — 0–23 (default: 9)
+ * - WEEKLY_ARTICLES_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC)
+ * - WEEKLY_ARTICLES_COUNT — articles per run (default: 3, max 10)
+ * - ARTICLES_AUTOMATION_ENABLED — master switch (default on)
  */
 function startArticleWriterJob() {
   const apiKey = process.env.OPENAI_API_KEY;
-  const enabled = process.env.ARTICLES_AUTOMATION_ENABLED !== 'false';
+  const masterEnabled = process.env.ARTICLES_AUTOMATION_ENABLED !== 'false';
+  const weeklyEnabled = process.env.WEEKLY_ARTICLES_ENABLED !== 'false';
 
-  if (!enabled) {
+  if (!masterEnabled) {
     logger.info('[scheduled-jobs] Article writer job disabled via ARTICLES_AUTOMATION_ENABLED');
+    return;
+  }
+
+  if (!weeklyEnabled) {
+    logger.info('[scheduled-jobs] Weekly article writer schedule disabled via WEEKLY_ARTICLES_ENABLED');
     return;
   }
 
@@ -376,7 +390,6 @@ function startArticleWriterJob() {
     return;
   }
 
-  // Register job if not already registered
   try {
     jobRegistry.getJob('article-writer');
   } catch (error) {
@@ -385,37 +398,96 @@ function startArticleWriterJob() {
     logger.info('[scheduled-jobs] Article writer job registered');
   }
 
-  // Calculate milliseconds in 24 hours
-  const hours24 = 24 * 60 * 60 * 1000;
+  const timezone = process.env.WEEKLY_ARTICLES_TIMEZONE || process.env.REPORT_TIMEZONE || 'UTC';
+  let reportHour = parseInt(process.env.WEEKLY_ARTICLES_HOUR, 10);
+  if (Number.isNaN(reportHour) || reportHour < 0 || reportHour > 23) {
+    reportHour = 9;
+  }
 
-  // Run job every 24 hours
-  articleWriterInterval = setInterval(() => {
+  let targetDay = parseInt(process.env.WEEKLY_ARTICLES_DAY, 10);
+  if (Number.isNaN(targetDay) || targetDay < 0 || targetDay > 6) {
+    targetDay = 1;
+  }
+
+  const days7 = 7 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const tzNow = toZonedTime(now, timezone);
+
+  let daysUntil = (targetDay - tzNow.getDay() + 7) % 7;
+  if (daysUntil === 0 && tzNow.getHours() >= reportHour) {
+    daysUntil = 7;
+  }
+
+  const nextRunLocal = new Date(tzNow);
+  nextRunLocal.setDate(tzNow.getDate() + daysUntil);
+  nextRunLocal.setHours(reportHour, 0, 0, 0);
+  nextRunLocal.setSeconds(0, 0);
+  nextRunLocal.setMilliseconds(0);
+
+  const nextRun = fromZonedTime(nextRunLocal, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
+
+  setTimeout(() => {
     runArticleWriterJob();
-  }, hours24);
+    articleWriterInterval = setInterval(() => {
+      runArticleWriterJob();
+    }, days7);
+  }, msUntilNext);
 
-  logger.info('[scheduled-jobs] Article writer job started - will run every 24 hours');
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    reportHour,
+    targetDay,
+    timezone,
+    msUntilNext
+  }, '[scheduled-jobs] Weekly article writer scheduled');
 }
 
 /**
- * Run article writer job once
+ * Run weekly article batch once (topic list + one article per topic)
  */
-async function runArticleWriterJob() {
+async function runArticleWriterJob(overrides = {}) {
   const requestId = `scheduled-article-writer-${Date.now()}`;
-  
+
   try {
-    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled article writer job');
-    
-    await jobRegistry.executeJob('article-writer', { dryRun: false });
-    
-    logger.info({ requestId }, '[scheduled-jobs] Scheduled article writer job completed successfully');
+    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled weekly article writer job');
+
+    const execResult = await jobRegistry.executeJob('article-writer', {
+      dryRun: false,
+      weeklyBatch: true,
+      ...overrides
+    });
+
+    if (!execResult.success) {
+      logger.error({
+        requestId,
+        error: execResult.error
+      }, '[scheduled-jobs] Scheduled article writer job reported failure');
+      return execResult;
+    }
+
+    const r = execResult.result;
+    if (r?.skipped) {
+      logger.info({ requestId, weekKey: r.weekKey, reason: r.reason }, '[scheduled-jobs] Weekly article batch skipped');
+      return execResult;
+    }
+
+    logger.info({
+      requestId,
+      weekKey: r?.weekKey,
+      articleCount: r?.articles?.length,
+      errors: r?.errors?.length || 0
+    }, '[scheduled-jobs] Scheduled weekly article writer job completed');
+    return execResult;
   } catch (error) {
-    logger.error({ 
-      requestId, 
-      error: { 
-        message: error.message, 
-        stack: error.stack 
-      } 
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
     }, '[scheduled-jobs] Scheduled article writer job failed');
+    throw error;
   }
 }
 

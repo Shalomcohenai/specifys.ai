@@ -2743,16 +2743,28 @@ router.post('/scheduled-jobs/article-writer/test', requireAdmin, async (req, res
   try {
     const { runArticleWriterJob } = require('./scheduled-jobs');
     
-    logger.info({ requestId }, '[admin-routes] Testing article writer job');
+    const skipWeekCheck = req.body?.skipWeekCheck === true;
+    const dryRun = req.body?.dryRun === true;
+
+    logger.info({ requestId, skipWeekCheck, dryRun }, '[admin-routes] Testing weekly article writer job');
     
-    // Run the job
-    await runArticleWriterJob();
-    
+    const execResult = await runArticleWriterJob({ skipWeekCheck, dryRun });
+
+    if (!execResult?.success) {
+      return next(createError(
+        execResult?.error?.message || 'Article writer job failed',
+        ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+        500,
+        { details: execResult?.error }
+      ));
+    }
+
     logger.info({ requestId }, '[admin-routes] Article writer job test completed');
     res.json({
       success: true,
-      message: 'Article writer job executed successfully. Check Render logs for details.',
-      requestId
+      message: 'Weekly article batch executed (topic list + articles). Check logs. Use body { "skipWeekCheck": true } to force another run the same ISO week; { "dryRun": true } to simulate without saving.',
+      requestId,
+      result: execResult.result
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] Article writer job test failed');
