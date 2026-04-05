@@ -493,6 +493,13 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                     <span class="nav-btn-indicator"></span>
                     <span>Audience</span>
                 </button>
+                <button onclick="openSection('screenshot')" class="nav-btn nav-btn-screenshot" type="button" data-section="screenshot">
+                    <span class="nav-btn-indicator"></span>
+                    <span class="nav-btn-label-stack">
+                        <span class="nav-btn-main-label">Screenshot</span>
+                        <span class="nav-btn-new-badge" aria-label="New feature">NEW!</span>
+                    </span>
+                </button>
             </div>
 
             <div id="section-panel" class="section-panel hidden-el">
@@ -622,6 +629,31 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                         <div class="audience-section">
                             <h3 class="audience-section-title">Interests & Topics</h3>
                             <div class="interests-grid" id="interests-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-screenshot" class="section-view hidden-el">
+                    <div class="screenshot-section">
+                        <p class="screenshot-lead">Upload UI references (screenshots)—up to <strong>10</strong> per spec. Add a short note, run AI analysis, edit the English description, then confirm. Confirmed items are included in your final spec.</p>
+                        <p id="screenshot-at-limit-notice" class="screenshot-at-limit-notice hidden-el" role="status">You’ve reached the maximum of 10 screenshot references for this spec. Remove one to add another.</p>
+                        <div id="screenshot-confirmed-list" class="screenshot-confirmed-list" aria-live="polite"></div>
+                        <div class="screenshot-composer">
+                            <input type="file" id="screenshot-file-input" class="screenshot-file-input-hidden" accept="image/jpeg,image/png,image/gif,image/webp" />
+                            <button type="button" class="screenshot-upload-trigger" id="screenshot-upload-trigger" aria-label="Upload image">+</button>
+                            <div id="screenshot-preview-wrap" class="screenshot-preview-wrap hidden-el">
+                                <img id="screenshot-preview-img" class="screenshot-preview-img" alt="Selected screenshot preview" />
+                            </div>
+                            <textarea id="screenshot-user-instruction" class="screenshot-user-instruction hidden-el" rows="2" placeholder='What should we match? (e.g. "Add a dashboard like this with the same colors")'></textarea>
+                            <div id="screenshot-analyze-row" class="screenshot-analyze-row hidden-el">
+                                <button type="button" class="screenshot-analyze-btn" id="screenshot-analyze-btn">Add</button>
+                                <span id="screenshot-analyze-spinner" class="screenshot-analyze-spinner hidden-el" aria-hidden="true"></span>
+                            </div>
+                            <label id="screenshot-generated-label" class="screenshot-generated-label hidden-el" for="screenshot-generated-text">AI description (edit if needed)</label>
+                            <textarea id="screenshot-generated-text" class="screenshot-generated-text hidden-el" rows="6"></textarea>
+                            <button type="button" class="screenshot-confirm-btn hidden-el" id="screenshot-confirm-btn">Confirm</button>
+                            <p id="screenshot-error" class="screenshot-error hidden-el" role="alert"></p>
+                            <p id="screenshot-auth-hint" class="screenshot-auth-hint hidden-el">Sign in to analyze screenshots.</p>
                         </div>
                     </div>
                 </div>

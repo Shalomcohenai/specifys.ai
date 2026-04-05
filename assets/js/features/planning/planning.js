@@ -9,7 +9,8 @@ const helpTexts = {
     design: "Choose the visual DNA of your app. This affects fonts, spacing, and brand feel.",
     integrations: "Connect your app to external worlds like payments, maps, or AI.",
     features: "Select specific functional tools your app needs to work.",
-    audience: "Define who will use this and on which devices."
+    audience: "Define who will use this and on which devices.",
+    screenshot: "Upload UI screenshots as references. AI turns them into detailed English spec text you can edit."
 };
 
 const sectionDescriptions = {
@@ -18,7 +19,8 @@ const sectionDescriptions = {
     design: "Choose the visual DNA of your app. This affects fonts, spacing, colors, and overall brand feel.",
     integrations: "Connect your app to external services like payments, maps, AI, and other third-party tools.",
     features: "Select specific functional tools and capabilities your app needs to work effectively.",
-    audience: "Define who will use this app and on which devices they'll access it."
+    audience: "Define who will use this app and on which devices they'll access it.",
+    screenshot: "Upload reference screenshots of UIs you want to emulate. Add a short instruction, run analysis, edit the result, and confirm. Each confirmed item is merged into your specification."
 };
 
 const designStyles = [
@@ -181,6 +183,10 @@ window.openSection = function(id) {
         renderAudience();
         const audienceView = document.getElementById('view-audience');
         if (audienceView) audienceView.classList.remove('hidden-el');
+    } else if (id === 'screenshot') {
+        const screenshotView = document.getElementById('view-screenshot');
+        if (screenshotView) screenshotView.classList.remove('hidden-el');
+        updateScreenshotLimitUI();
     } else {
         const genericView = document.getElementById('view-generic');
         if (genericView) genericView.classList.remove('hidden-el');
@@ -921,7 +927,34 @@ window.generateJSON = function() {
                 explanation: `Target age range is ${ageMin} to ${ageMax} years old.`
             },
             explanation: `Target audience: ${platform ? platform.label : 'No platform selected'}, ${interests.length} interest(s), age ${ageMin}-${ageMax}.`
-        }
+        },
+        screenshots: (function collectScreenshots() {
+            const refs = [];
+            document.querySelectorAll('.screenshot-ref-card').forEach((card) => {
+                const noteEl = card.querySelector('.screenshot-ref-note-text');
+                const descEl = card.querySelector('.screenshot-ref-description');
+                const note = noteEl ? noteEl.textContent.trim() : '';
+                const description = descEl ? descEl.value.trim() : '';
+                if (description) {
+                    refs.push({
+                        index: refs.length + 1,
+                        userNote: note === '—' ? '' : note,
+                        confirmedDescription: description
+                    });
+                }
+            });
+            const capped = refs.slice(0, PLANNING_MAX_SCREENSHOT_REFS);
+            capped.forEach((r, i) => {
+                r.index = i + 1;
+            });
+            return {
+                count: capped.length,
+                list: capped,
+                explanation: capped.length > 0
+                    ? `${capped.length} screenshot reference(s) with UI/visual requirements derived from images and user notes.`
+                    : 'No screenshot references were confirmed for this application.'
+            };
+        })()
     };
     
     // Convert to JSON string with pretty formatting
@@ -1022,6 +1055,18 @@ window.generatePlanningText = function() {
         }
         text += '\n';
     }
+
+    if (data.screenshots && data.screenshots.list && data.screenshots.list.length > 0) {
+        text += `UI Screenshot References (${data.screenshots.count}):\n`;
+        data.screenshots.list.forEach((ref) => {
+            text += `${ref.index}. `;
+            if (ref.userNote) {
+                text += `(User note: ${ref.userNote}) `;
+            }
+            text += `${ref.confirmedDescription}\n`;
+        });
+        text += '\n';
+    }
     
     return text.trim();
 };
@@ -1079,6 +1124,10 @@ function updateSectionIndicator(sectionId) {
                 (parseInt(ageMin.value) !== 18 || parseInt(ageMax.value) !== 35);
             hasData = hasPlatform || hasInterests || hasAgeRange;
             break;
+
+        case 'screenshot':
+            hasData = document.querySelectorAll('.screenshot-ref-card').length > 0;
+            break;
     }
     
     if (hasData) {
@@ -1092,9 +1141,288 @@ function updateSectionIndicator(sectionId) {
  * Update all section indicators
  */
 function updateAllIndicators() {
-    ['pages', 'workflow', 'features', 'design', 'integrations', 'audience'].forEach(sectionId => {
+    ['pages', 'workflow', 'features', 'design', 'integrations', 'audience', 'screenshot'].forEach(sectionId => {
         updateSectionIndicator(sectionId);
     });
+}
+
+/** Maximum confirmed screenshot references merged into one spec */
+const PLANNING_MAX_SCREENSHOT_REFS = 10;
+
+const screenshotComposerState = {
+    previewObjectUrl: null,
+    selectedFile: null
+};
+
+function getScreenshotRefCount() {
+    return document.querySelectorAll('.screenshot-ref-card').length;
+}
+
+function updateScreenshotLimitUI() {
+    const uploadBtn = document.getElementById('screenshot-upload-trigger');
+    const notice = document.getElementById('screenshot-at-limit-notice');
+    const composer = document.querySelector('.screenshot-composer');
+    const atLimit = getScreenshotRefCount() >= PLANNING_MAX_SCREENSHOT_REFS;
+    if (uploadBtn) {
+        uploadBtn.disabled = atLimit;
+        uploadBtn.setAttribute('aria-disabled', atLimit ? 'true' : 'false');
+        if (atLimit) {
+            uploadBtn.classList.add('screenshot-upload-trigger--disabled');
+        } else {
+            uploadBtn.classList.remove('screenshot-upload-trigger--disabled');
+        }
+    }
+    if (notice) {
+        if (atLimit) {
+            notice.classList.remove('hidden-el');
+        } else {
+            notice.classList.add('hidden-el');
+        }
+    }
+    if (composer) {
+        composer.classList.toggle('screenshot-composer--at-limit', atLimit);
+    }
+}
+
+function getPlanningApiBase() {
+    if (window.api && typeof window.api.baseUrl === 'string') {
+        return window.api.baseUrl.replace(/\/$/, '');
+    }
+    if (typeof window.getApiBaseUrl === 'function') {
+        return String(window.getApiBaseUrl() || '').replace(/\/$/, '');
+    }
+    return String(window.API_BASE_URL || window.BACKEND_URL || '').replace(/\/$/, '');
+}
+
+function setScreenshotError(msg) {
+    const el = document.getElementById('screenshot-error');
+    if (!el) return;
+    if (msg) {
+        el.textContent = msg;
+        el.classList.remove('hidden-el');
+    } else {
+        el.textContent = '';
+        el.classList.add('hidden-el');
+    }
+}
+
+function toggleScreenshotPanelEl(id, show) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (show) el.classList.remove('hidden-el');
+    else el.classList.add('hidden-el');
+}
+
+function resetScreenshotComposer() {
+    const fileInput = document.getElementById('screenshot-file-input');
+    if (screenshotComposerState.previewObjectUrl) {
+        URL.revokeObjectURL(screenshotComposerState.previewObjectUrl);
+        screenshotComposerState.previewObjectUrl = null;
+    }
+    screenshotComposerState.selectedFile = null;
+    if (fileInput) fileInput.value = '';
+    const prevImg = document.getElementById('screenshot-preview-img');
+    if (prevImg) prevImg.removeAttribute('src');
+    toggleScreenshotPanelEl('screenshot-preview-wrap', false);
+    const ui = document.getElementById('screenshot-user-instruction');
+    if (ui) ui.value = '';
+    toggleScreenshotPanelEl('screenshot-user-instruction', false);
+    toggleScreenshotPanelEl('screenshot-analyze-row', false);
+    toggleScreenshotPanelEl('screenshot-generated-label', false);
+    toggleScreenshotPanelEl('screenshot-generated-text', false);
+    toggleScreenshotPanelEl('screenshot-confirm-btn', false);
+    toggleScreenshotPanelEl('screenshot-analyze-spinner', false);
+    const gen = document.getElementById('screenshot-generated-text');
+    if (gen) gen.value = '';
+    const analyzeBtn = document.getElementById('screenshot-analyze-btn');
+    if (analyzeBtn) analyzeBtn.disabled = false;
+    toggleScreenshotPanelEl('screenshot-auth-hint', false);
+    setScreenshotError('');
+}
+
+function appendScreenshotRefCard(dataUrl, userNote, description) {
+    const list = document.getElementById('screenshot-confirmed-list');
+    if (!list) return;
+    const card = document.createElement('div');
+    card.className = 'screenshot-ref-card';
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'screenshot-ref-thumb-wrap';
+    const thumb = document.createElement('img');
+    thumb.className = 'screenshot-ref-thumb';
+    thumb.alt = 'Screenshot reference';
+    thumb.src = dataUrl;
+    thumbWrap.appendChild(thumb);
+    const body = document.createElement('div');
+    body.className = 'screenshot-ref-body';
+    const noteP = document.createElement('p');
+    noteP.className = 'screenshot-ref-note';
+    const strong = document.createElement('strong');
+    strong.textContent = 'Your note: ';
+    noteP.appendChild(strong);
+    const noteSpan = document.createElement('span');
+    noteSpan.className = 'screenshot-ref-note-text';
+    noteSpan.textContent = userNote || '—';
+    noteP.appendChild(noteSpan);
+    const desc = document.createElement('textarea');
+    desc.className = 'screenshot-ref-description';
+    desc.rows = 5;
+    desc.value = description || '';
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'screenshot-ref-remove';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', function() {
+        card.remove();
+        updateAllIndicators();
+        updateScreenshotLimitUI();
+    });
+    desc.addEventListener('input', function() {
+        setTimeout(updateAllIndicators, 50);
+    });
+    body.appendChild(noteP);
+    body.appendChild(desc);
+    body.appendChild(removeBtn);
+    card.appendChild(thumbWrap);
+    card.appendChild(body);
+    list.appendChild(card);
+    updateAllIndicators();
+    updateScreenshotLimitUI();
+}
+
+async function postScreenshotAnalyze(file, userInstruction) {
+    const base = getPlanningApiBase();
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('userInstruction', userInstruction);
+    const headers = {};
+    if (window.auth && window.auth.currentUser) {
+        const token = await window.auth.currentUser.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    const res = await fetch(`${base}/api/planning/analyze-screenshot`, {
+        method: 'POST',
+        headers: headers,
+        body: formData
+    });
+    const data = await res.json().catch(function() { return {}; });
+    if (!res.ok) {
+        const msg = (data.error && data.error.message) || data.message || ('Request failed (' + res.status + ')');
+        throw new Error(msg);
+    }
+    if (!data.description || typeof data.description !== 'string') {
+        throw new Error('No description returned');
+    }
+    return data.description;
+}
+
+function wireScreenshotComposer() {
+    const uploadBtn = document.getElementById('screenshot-upload-trigger');
+    const fileInput = document.getElementById('screenshot-file-input');
+    const analyzeBtn = document.getElementById('screenshot-analyze-btn');
+    const confirmBtn = document.getElementById('screenshot-confirm-btn');
+    if (!uploadBtn || !fileInput) return;
+
+    uploadBtn.addEventListener('click', function() {
+        if (getScreenshotRefCount() >= PLANNING_MAX_SCREENSHOT_REFS) {
+            setScreenshotError('Maximum ' + PLANNING_MAX_SCREENSHOT_REFS + ' screenshot references per spec. Remove one to add another.');
+            return;
+        }
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function() {
+        setScreenshotError('');
+        if (getScreenshotRefCount() >= PLANNING_MAX_SCREENSHOT_REFS) {
+            fileInput.value = '';
+            setScreenshotError('Maximum ' + PLANNING_MAX_SCREENSHOT_REFS + ' screenshot references per spec. Remove one to add another.');
+            return;
+        }
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        if (screenshotComposerState.previewObjectUrl) {
+            URL.revokeObjectURL(screenshotComposerState.previewObjectUrl);
+            screenshotComposerState.previewObjectUrl = null;
+        }
+        screenshotComposerState.selectedFile = file;
+        const url = URL.createObjectURL(file);
+        screenshotComposerState.previewObjectUrl = url;
+        const img = document.getElementById('screenshot-preview-img');
+        if (img) img.src = url;
+        toggleScreenshotPanelEl('screenshot-preview-wrap', true);
+        toggleScreenshotPanelEl('screenshot-user-instruction', true);
+        toggleScreenshotPanelEl('screenshot-analyze-row', true);
+        toggleScreenshotPanelEl('screenshot-generated-label', false);
+        toggleScreenshotPanelEl('screenshot-generated-text', false);
+        toggleScreenshotPanelEl('screenshot-confirm-btn', false);
+        const gen = document.getElementById('screenshot-generated-text');
+        if (gen) gen.value = '';
+    });
+
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', async function() {
+            setScreenshotError('');
+            const file = screenshotComposerState.selectedFile;
+            const instrEl = document.getElementById('screenshot-user-instruction');
+            const instruction = instrEl ? instrEl.value.trim() : '';
+            if (!file) {
+                setScreenshotError('Please choose an image first.');
+                return;
+            }
+            if (!instruction) {
+                setScreenshotError('Please add a short description of what you want.');
+                return;
+            }
+            if (!window.auth || !window.auth.currentUser) {
+                toggleScreenshotPanelEl('screenshot-auth-hint', true);
+                setScreenshotError('You need to be signed in to analyze screenshots.');
+                return;
+            }
+            if (getScreenshotRefCount() >= PLANNING_MAX_SCREENSHOT_REFS) {
+                setScreenshotError('Maximum ' + PLANNING_MAX_SCREENSHOT_REFS + ' screenshot references per spec. Remove one to add another.');
+                return;
+            }
+            toggleScreenshotPanelEl('screenshot-auth-hint', false);
+            analyzeBtn.disabled = true;
+            toggleScreenshotPanelEl('screenshot-analyze-spinner', true);
+            try {
+                const description = await postScreenshotAnalyze(file, instruction);
+                const gen = document.getElementById('screenshot-generated-text');
+                if (gen) gen.value = description;
+                toggleScreenshotPanelEl('screenshot-generated-label', true);
+                toggleScreenshotPanelEl('screenshot-generated-text', true);
+                toggleScreenshotPanelEl('screenshot-confirm-btn', true);
+            } catch (e) {
+                setScreenshotError(e.message || 'Analysis failed. Try again.');
+            } finally {
+                analyzeBtn.disabled = false;
+                toggleScreenshotPanelEl('screenshot-analyze-spinner', false);
+            }
+        });
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const file = screenshotComposerState.selectedFile;
+            const instrEl = document.getElementById('screenshot-user-instruction');
+            const gen = document.getElementById('screenshot-generated-text');
+            const instruction = instrEl ? instrEl.value.trim() : '';
+            const description = gen ? gen.value.trim() : '';
+            if (!file || !description) {
+                setScreenshotError('Missing image or description.');
+                return;
+            }
+            if (getScreenshotRefCount() >= PLANNING_MAX_SCREENSHOT_REFS) {
+                setScreenshotError('Maximum ' + PLANNING_MAX_SCREENSHOT_REFS + ' screenshot references per spec. Remove one to add another.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function() {
+                appendScreenshotRefCard(reader.result, instruction, description);
+                resetScreenshotComposer();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 }
 
 // Initialize on page load
@@ -1182,6 +1510,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pitchInput) {
         updateCharacterCount();
     }
+
+    wireScreenshotComposer();
+    updateScreenshotLimitUI();
 });
 
 /**

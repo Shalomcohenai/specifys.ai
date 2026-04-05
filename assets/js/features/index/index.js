@@ -1241,9 +1241,16 @@ async function generateSpecification() {
       const audienceText = planningData?.audience
         ? `\n\nTarget Audience:\n${planningData.audience.platform ? `Platform: ${planningData.audience.platform.label || planningData.audience.platform.type}\n` : ''}${planningData.audience.interests?.list?.length > 0 ? `Interests: ${planningData.audience.interests.list.join(', ')}\n` : ''}${planningData.audience.ageRange ? `Age Range: ${planningData.audience.ageRange.min} - ${planningData.audience.ageRange.max} years\n` : ''}${planningData.audience.gender ? `Gender: ${planningData.audience.gender.label || planningData.audience.gender.type}` : ''}`
         : '';
-      
+      const screenshotsList = planningData?.screenshots?.list;
+      const screenshotsText = screenshotsList && screenshotsList.length > 0
+        ? `\n\nUI Screenshot References:\n${screenshotsList.map((ref) => {
+            const note = ref.userNote ? `(User note: ${ref.userNote}) ` : '';
+            return `${ref.index}. ${note}${ref.confirmedDescription || ''}`;
+          }).join('\n')}`
+        : '';
+
       // Create comprehensive user input from planning data
-      const userInput = `App Description: ${mainPitch}${pagesText}${workflowsText}${featuresText}${designText}${integrationsText}${audienceText}`;
+      const userInput = `App Description: ${mainPitch}${pagesText}${workflowsText}${featuresText}${designText}${integrationsText}${audienceText}${screenshotsText}`;
       
       // Use PROMPTS.overview with the user input as a single answer
       prompt = PROMPTS.overview([userInput, '', '']);

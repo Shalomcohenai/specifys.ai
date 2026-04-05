@@ -888,6 +888,9 @@ logger.info({ type: 'route_mount', path: '/api/live-brief', route: 'liveBriefRou
 const liveBriefRoutes = require('./live-brief-routes');
 app.use('/api/live-brief', liveBriefRoutes);
 
+const planningRoutes = require('./planning-routes');
+app.use('/api/planning', planningRoutes);
+
 const toolFinderRoutes = require('./tool-finder-routes');
 app.use('/api/tool-finder', toolFinderRoutes);
 logger.info({ type: 'route_mounted', path: '/api/live-brief' }, '[UNIFIED SERVER] ✅ Live brief routes mounted');

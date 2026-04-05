@@ -868,7 +868,7 @@ Root `package.json` defines workspaces: `packages/*`. Vite config defines aliase
 | STR-2 | `design-system/package.json` | Declares exports `./colors`, `./spacing`, `./typography` but files don't exist. |
 | STR-3 | `scripts/backend/start-server.sh` | Uses port 3001; backend actually uses 10000. |
 | STR-4 | `scripts/backend/restart-server.sh` | Uses port 3002; mismatch. |
-| STR-5 | `_plugins/vite_manifest.rb` | Vite plugin exists but `{% vite_bundle %}` tag is not used in any layout or page. |
+| STR-5 | `_plugins/vite_manifest.rb` | Vite plugin exists but {% raw %}`{% vite_bundle %}`{% endraw %} tag is not used in any layout or page. |
 | STR-6 | `health-routes.js` | References `error_logs` collection; `error-logger.js` uses `errorLogs`. Possible mismatch. |
 | STR-7 | `layout/_header.css` | Compiled CSS alongside SCSS source. Redundant if SCSS is compiled via main pipeline. |
 | STR-8 | `style.scss` | 207 bytes. Jekyll placeholder, mostly empty. |

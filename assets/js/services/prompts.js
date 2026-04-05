@@ -1,6 +1,6 @@
 // Prompts for Planning-Based Specification Flow
 // This file contains all the prompts for the planning-based specification system
-// The system now uses: App Description + Structured Cards (Pages, Workflows, Features, Design, Integrations, Target Audience)
+// The system now uses: App Description + Structured Cards (Pages, Workflows, Features, Design, Integrations, Target Audience, optional UI Screenshot References)
 
 const PROMPTS = {
   // Overview prompt - generates general app information
@@ -22,6 +22,7 @@ The user input below is structured into clear sections:
 - "Design Style:" - Design preferences the user has selected (if provided)
 - "Integrations:" - Third-party integrations the user has specified (if provided)
 - "Target Audience:" - Audience details the user has provided (if provided)
+- "UI Screenshot References:" - One or more English UI/visual requirements derived from user-uploaded screenshots plus optional short user notes (if provided)
 
 CRITICAL WORKFLOW - FOLLOW THIS EXACT ORDER:
 
@@ -33,6 +34,7 @@ First, scan the user input and identify which sections exist:
 - Does "Design Style:" section exist? → Note the design style
 - Does "Integrations:" section exist? → List all integrations
 - Does "Target Audience:" section exist? → Extract all audience details
+- Does "UI Screenshot References:" section exist? → List every reference line (layout, colors, components, dashboard type, etc.)
 
 STEP 2: USE USER-PROVIDED DATA AS FOUNDATION (MANDATORY)
 For each section that EXISTS in the user input:
@@ -45,6 +47,7 @@ For each section that EXISTS in the user input:
 - If user provided design style → it MUST be reflected in the design descriptions
 - If user provided integrations → they MUST be included in complexityScore and relevant sections
 - If user provided target audience details → those EXACT values must appear in targetAudience
+- If user provided UI screenshot references → EVERY reference MUST be reflected in screenDescriptions (matching screens or new screen objects), valueProposition/visual language where relevant, and coreFeaturesOverview when the reference implies functionality (e.g. charts, metrics). Do NOT ignore colors, typography, or layout described in those lines.
 
 STEP 3: COMPLETE TO MINIMUM REQUIREMENTS (CRITICAL)
 After including all user-provided data, you MUST complete to minimum requirements:
@@ -63,6 +66,7 @@ For sections that DO NOT exist in the user input:
 - You may infer design style if not provided (but ONLY if "Design Style:" section was empty)
 - You may infer integrations if not provided (but ONLY if "Integrations:" section was empty)
 - You may infer target audience if not provided (but ONLY if "Target Audience:" section was empty)
+- You may NOT invent conflicting UI/visual details if "UI Screenshot References:" exists—treat those lines as authoritative for the described screens
 
 Create a comprehensive and detailed overview based on the user input. Follow the workflow above to ensure user-provided data is prioritized:
 
@@ -199,12 +203,19 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - IF "Target Audience:" section DOES NOT EXIST:
      * You may infer target audience based on App Description analysis
 
-7. ideaSummary, problemStatement, valueProposition:
+7. UI Screenshot References (screenDescriptions, valueProposition, coreFeaturesOverview):
+   - IF "UI Screenshot References:" section EXISTS in user input:
+     * EVERY numbered item MUST inform the spec: merge into relevant screenDescriptions.screens (add or extend screens to match), describe UI components and visual style explicitly, and mention metrics/widgets/features implied by the reference
+     * Preserve concrete details: color palette, typography hints, chart types, card layouts, navigation patterns
+   - IF "UI Screenshot References:" section DOES NOT EXIST:
+     * Do not assume extra screenshot-based UI beyond App Description and other sections
+
+8. ideaSummary, problemStatement, valueProposition:
    - MUST be based on "App Description:" section
    - Use the App Description as the foundation
    - You may expand and enhance, but core content MUST align with user's description
 
-8. suggestionsIdeaSummary and suggestionsCoreFeatures:
+9. suggestionsIdeaSummary and suggestionsCoreFeatures:
    - MUST be present with toInclude: [] and notToInclude: [...] (arrays of strings)
    - suggestionsIdeaSummary.notToInclude: 3-5 concrete phrases that develop this specific idea (derived from ideaSummary/valueProposition); each must be mergeable into the idea summary. No generic directions.
    - suggestionsCoreFeatures.notToInclude: 3-5 optional feature descriptions (same style as coreFeaturesOverview)
@@ -220,6 +231,7 @@ VALIDATION CHECKLIST (Before generating output):
 ✓ Did I check if "Design Style:" section exists? If yes, did I incorporate it in design descriptions?
 ✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?
 ✓ Did I check if "Target Audience:" section exists? If yes, did I use EXACT values (platform, interests, age range)?
+✓ Did I check if "UI Screenshot References:" exists? If yes, did I apply EVERY reference to screenDescriptions and related fields without dropping colors, layout, or implied features?
 ✓ Did I base ideaSummary, problemStatement, and valueProposition on "App Description:" section?
 ✓ Did I keep ideaSummary to 250-750 characters (concise, not too long)?
 ✓ Did I include ONLY steps in detailedUserFlow (no decisionPoints, errorHandling, confirmations, feedbackLoops)?
