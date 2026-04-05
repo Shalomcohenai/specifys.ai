@@ -172,6 +172,13 @@ export class ApiService {
   async getBuyNowClicks(range = 'all') {
     return this.get(`/api/analytics/buy-now-clicks?range=${range}`);
   }
+
+  /**
+   * Aggregated planning UI events (admin)
+   */
+  async getPlanningStats(days = 30) {
+    return this.get(`/api/analytics/planning-stats?days=${days}`);
+  }
   
   /**
    * Get user sync status

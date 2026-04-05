@@ -514,6 +514,122 @@ router.get('/buy-now-clicks', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Planning UI usage (aggregated from analytics_events: type planning_action)
+ * GET /api/analytics/planning-stats?days=30
+ */
+router.get('/planning-stats', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `planning-stats-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const daysRaw = parseInt(req.query.days, 10);
+  const days = Number.isFinite(daysRaw) && daysRaw > 0 && daysRaw <= 365 ? daysRaw : 30;
+
+  const now = new Date();
+  const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
+  const endTimestamp = admin.firestore.Timestamp.fromDate(now);
+
+  function aggregateFromDocs(docs) {
+    const byAction = {};
+    docs.forEach((doc) => {
+      const data = typeof doc.data === 'function' ? doc.data() : doc;
+      if (!data || data.type !== 'planning_action') return;
+      const actionId = data.entityId;
+      if (!actionId || typeof actionId !== 'string') return;
+      if (!byAction[actionId]) {
+        byAction[actionId] = { totalEvents: 0, uniqueUsers: new Set() };
+      }
+      byAction[actionId].totalEvents += 1;
+      if (data.userId) {
+        byAction[actionId].uniqueUsers.add(data.userId);
+      }
+    });
+
+    const actions = Object.entries(byAction)
+      .map(([id, v]) => ({
+        id,
+        totalEvents: v.totalEvents,
+        uniqueUsers: v.uniqueUsers.size
+      }))
+      .sort((a, b) => b.totalEvents - a.totalEvents);
+
+    const totals = actions.reduce(
+      (acc, row) => {
+        acc.totalEvents += row.totalEvents;
+        return acc;
+      },
+      { totalEvents: 0 }
+    );
+
+    return { actions, totals };
+  }
+
+  function filterDocsByTimeRange(docs, startMs, endMs) {
+    return docs.filter((doc) => {
+      const ts = doc.data().timestamp;
+      if (!ts || typeof ts.toDate !== 'function') return false;
+      const t = ts.toDate().getTime();
+      return t >= startMs && t <= endMs;
+    });
+  }
+
+  try {
+    logger.info({ requestId, days }, '[analytics-routes] GET /planning-stats');
+
+    let snapshot;
+    try {
+      snapshot = await db
+        .collection('analytics_events')
+        .where('type', '==', 'planning_action')
+        .where('timestamp', '>=', startTimestamp)
+        .where('timestamp', '<=', endTimestamp)
+        .get();
+    } catch (queryError) {
+      const msg = (queryError.message || '').toLowerCase();
+      const useFallback =
+        msg.includes('index') || msg.includes('failed_precondition');
+      if (!useFallback) throw queryError;
+
+      logger.warn(
+        { requestId, error: queryError.message },
+        '[analytics-routes] GET /planning-stats - Indexed query failed, using in-memory filter'
+      );
+      const base = await db.collection('analytics_events').where('type', '==', 'planning_action').get();
+      const filtered = filterDocsByTimeRange(base.docs, startDate.getTime(), now.getTime());
+      const { actions, totals } = aggregateFromDocs(filtered.map((d) => ({ data: () => d.data() })));
+      return res.json({
+        success: true,
+        days,
+        startDate: startDate.toISOString(),
+        endDate: now.toISOString(),
+        actions,
+        totals
+      });
+    }
+
+    const { actions, totals } = aggregateFromDocs(snapshot.docs);
+    logger.info({ requestId, days, actionCount: actions.length }, '[analytics-routes] GET /planning-stats - Success');
+
+    res.json({
+      success: true,
+      days,
+      startDate: startDate.toISOString(),
+      endDate: now.toISOString(),
+      actions,
+      totals
+    });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[analytics-routes] GET /planning-stats - Error'
+    );
+    next(
+      createError('Failed to get planning stats', ERROR_CODES.DATABASE_ERROR, 500, {
+        details: error.message
+      })
+    );
+  }
+});
+
+/**
  * Store Web Vitals metrics (public endpoint - no auth required)
  * POST /api/analytics/web-vitals
  */

@@ -58,6 +58,20 @@ const commonFeatures = [
     "Multi-language Support"
 ];
 
+/**
+ * Fire-and-forget planning analytics (see GET /api/analytics/planning-stats).
+ */
+function trackPlanningAction(entityId, metadata) {
+    if (!entityId) return;
+    try {
+        if (window.analyticsTracker && typeof window.analyticsTracker.trackEvent === 'function') {
+            window.analyticsTracker.trackEvent('planning_action', entityId, 'planning', metadata || {});
+        }
+    } catch (e) {
+        /* non-critical */
+    }
+}
+
 const predefinedPages = [
     { name: "Login", description: "User authentication and sign-in page" },
     { name: "Sign Up", description: "New user registration page" },
@@ -168,6 +182,7 @@ window.openSection = function(id) {
             const existingPages = pagesList.querySelectorAll('.page-card:not(.add-page-card)');
             if (existingPages.length === 0) {
                 addPage("Homepage", "Main landing page or homepage of the application");
+                trackPlanningAction('default_homepage_seeded');
             }
         }
         const pagesView = document.getElementById('view-pages');
@@ -207,6 +222,8 @@ window.openSection = function(id) {
     
     // Restore scroll position to prevent jump
     window.scrollTo(0, scrollY);
+
+    trackPlanningAction('section_' + id);
 };
 
 /**
@@ -237,6 +254,7 @@ function renderDesign() {
         div.onclick = function() { 
             document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
+            trackPlanningAction('design_selected', { style: style.name });
             updateSectionIndicator('design');
         };
         
@@ -293,6 +311,9 @@ function renderIntegrations() {
             
             btn.onclick = function() {
                 this.classList.toggle('selected');
+                if (this.classList.contains('selected')) {
+                    trackPlanningAction('integration_selected', { name: item });
+                }
                 updateSectionIndicator('integrations');
             };
             container.appendChild(btn);
@@ -322,7 +343,11 @@ function renderFeatures() {
         btn.appendChild(textSpan);
         btn.appendChild(checkIcon);
         btn.onclick = function() {
+            const wasSelected = this.classList.contains('selected');
             this.classList.toggle('selected');
+            if (!wasSelected && this.classList.contains('selected')) {
+                trackPlanningAction('preset_feature_selected', { feature: feature });
+            }
             updateSectionIndicator('features');
         };
         grid.appendChild(btn);
@@ -362,6 +387,9 @@ function renderAudience() {
         btn.appendChild(checkIcon);
         btn.onclick = function() {
             this.classList.toggle('selected');
+            if (this.classList.contains('selected')) {
+                trackPlanningAction('audience_interest_selected', { interest: interest });
+            }
             updateSectionIndicator('audience');
         };
         interestsGrid.appendChild(btn);
@@ -379,6 +407,7 @@ window.selectPlatform = function(platform) {
     if (selectedBtn) {
         selectedBtn.classList.add('selected');
     }
+    trackPlanningAction('audience_platform', { platform: platform });
     updateSectionIndicator('audience');
 }
 
@@ -440,6 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Add a custom feature
  */
 window.addCustomFeature = function() {
+    trackPlanningAction('add_custom_feature');
     const grid = document.getElementById('features-grid');
     if (!grid) return;
     
@@ -484,6 +514,7 @@ function renderPredefinedPages() {
         btn.textContent = page.name;
         btn.onclick = function() {
             addPage(page.name, page.description);
+            trackPlanningAction('add_predefined_page', { page: page.name });
         };
         container.appendChild(btn);
     });
@@ -493,6 +524,7 @@ function renderPredefinedPages() {
  * Add a custom page (creates new empty page card)
  */
 window.addCustomPage = function() {
+    trackPlanningAction('add_custom_page');
     addPage("New Page", "");
     // Focus on the name input of the newly created page
     setTimeout(() => {
@@ -564,6 +596,7 @@ window.addPage = function(name, description = "") {
  * Create a new workflow flow
  */
 window.createNewFlow = function() {
+    trackPlanningAction('create_workflow');
     const area = document.getElementById('workflow-area');
     if (!area) return;
     
@@ -648,6 +681,7 @@ function addWorkflowNameStepToContainer(container) {
  * Add a step to a workflow
  */
 window.addStep = function(flowId, insertAfter = null) {
+    trackPlanningAction('add_workflow_step');
     const container = document.getElementById('steps-' + flowId);
     if (!container) return;
     
@@ -1339,6 +1373,7 @@ function wireScreenshotComposer() {
         }
         const file = fileInput.files && fileInput.files[0];
         if (!file) return;
+        trackPlanningAction('screenshot_file_selected');
         if (screenshotComposerState.previewObjectUrl) {
             URL.revokeObjectURL(screenshotComposerState.previewObjectUrl);
             screenshotComposerState.previewObjectUrl = null;
@@ -1386,6 +1421,7 @@ function wireScreenshotComposer() {
             toggleScreenshotPanelEl('screenshot-analyze-spinner', true);
             try {
                 const description = await postScreenshotAnalyze(file, instruction);
+                trackPlanningAction('screenshot_analyze_success');
                 const gen = document.getElementById('screenshot-generated-text');
                 if (gen) gen.value = description;
                 toggleScreenshotPanelEl('screenshot-generated-label', true);
@@ -1418,6 +1454,7 @@ function wireScreenshotComposer() {
             const reader = new FileReader();
             reader.onload = function() {
                 appendScreenshotRefCard(reader.result, instruction, description);
+                trackPlanningAction('screenshot_confirmed');
                 resetScreenshotComposer();
             };
             reader.readAsDataURL(file);

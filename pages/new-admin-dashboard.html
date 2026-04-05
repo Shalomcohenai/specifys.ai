@@ -668,6 +668,43 @@ custom_js_modules:
         </div>
       </div>
 
+      <!-- Planning tool usage -->
+      <div class="analytics-email-section" style="margin-top: 40px;">
+        <div class="section-header-modern">
+          <div>
+            <h2 style="margin: 0; font-size: 1.5rem;">Planning usage</h2>
+            <p style="margin: 4px 0 0 0; color: #666;">Actions in the planning UI (pages, workflows, features, etc.)</p>
+          </div>
+          <div class="header-actions">
+            <select class="select-modern" id="planning-analytics-range-select">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h3>Actions</h3>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 0.875rem;">Unique users counts only signed-in users; total events include anonymous.</p>
+          </div>
+          <table class="modern-table" id="planning-analytics-table">
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Unique users</th>
+                <th>Total events</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="table-empty-state">Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Key Metrics Cards -->
       <div class="analytics-metrics-grid">
         <div class="metric-card-small">

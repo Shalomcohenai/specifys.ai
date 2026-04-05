@@ -149,6 +149,81 @@ export class AnalyticsView {
     
     // Load email analytics on init
     this.loadEmailAnalytics(30);
+
+    const planningRangeSelect = helpers.dom('#planning-analytics-range-select');
+    if (planningRangeSelect) {
+      planningRangeSelect.addEventListener('change', (e) => {
+        this.loadPlanningAnalytics(parseInt(e.target.value, 10) || 30);
+      });
+    }
+    this.loadPlanningAnalytics(30);
+  }
+
+  /**
+   * Human-readable labels for planning_action entity ids
+   */
+  formatPlanningActionLabel(id) {
+    const labels = {
+      section_pages: 'Opened Pages section',
+      section_workflow: 'Opened Workflows section',
+      section_features: 'Opened Features section',
+      section_design: 'Opened Design section',
+      section_integrations: 'Opened Integrations section',
+      section_audience: 'Opened Audience section',
+      section_screenshot: 'Opened Screenshot section',
+      add_custom_page: 'Add custom page',
+      add_predefined_page: 'Quick-add predefined page',
+      default_homepage_seeded: 'Default Homepage added (first visit to Pages)',
+      create_workflow: 'Create new workflow',
+      add_workflow_step: 'Add workflow step',
+      preset_feature_selected: 'Selected preset feature',
+      add_custom_feature: 'Add custom feature',
+      design_selected: 'Selected design style',
+      integration_selected: 'Selected integration',
+      audience_interest_selected: 'Selected audience interest',
+      audience_platform: 'Selected platform (mobile/web/both)',
+      screenshot_file_selected: 'Screenshot file chosen',
+      screenshot_analyze_success: 'Screenshot AI analysis succeeded',
+      screenshot_confirmed: 'Screenshot reference confirmed'
+    };
+    return labels[id] || id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  /**
+   * Load planning usage from analytics_events
+   */
+  async loadPlanningAnalytics(days = 30) {
+    const tbody = helpers.dom('#planning-analytics-table tbody');
+    if (!tbody) return;
+
+    try {
+      const response = await apiService.getPlanningStats(days);
+      if (response.success && Array.isArray(response.actions)) {
+        if (response.actions.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="3" class="table-empty-state">No planning events in this period</td></tr>';
+          return;
+        }
+        tbody.innerHTML = response.actions
+          .map((row) => {
+            const label = this.escapeHtml(this.formatPlanningActionLabel(row.id));
+            return `
+          <tr>
+            <td>${label}</td>
+            <td><strong>${row.uniqueUsers ?? 0}</strong></td>
+            <td><strong>${row.totalEvents ?? 0}</strong></td>
+          </tr>
+        `;
+          })
+          .join('');
+        return;
+      }
+      tbody.innerHTML =
+        '<tr><td colspan="3" class="table-empty-state">No data</td></tr>';
+    } catch (error) {
+      console.error('[AnalyticsView] Planning analytics:', error);
+      tbody.innerHTML = `<tr><td colspan="3" class="table-empty-state">Error: ${this.escapeHtml(error.message || 'Unknown')}</td></tr>`;
+    }
   }
   
   /**
@@ -1090,6 +1165,9 @@ export class AnalyticsView {
    */
   show() {
     this.updateAll();
+    const planningSelect = helpers.dom('#planning-analytics-range-select');
+    const planningDays = planningSelect ? parseInt(planningSelect.value, 10) || 30 : 30;
+    this.loadPlanningAnalytics(planningDays);
   }
   
   /**
