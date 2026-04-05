@@ -119,6 +119,12 @@ RESEND_API_KEY=re_your_resend_api_key_here
 # לדוגמה: Specifys-Ai-Team@specifys-ai.com או hello@specifys-ai.com
 RESEND_FROM_EMAIL=Specifys-Ai-Team@specifys-ai.com
 
+# Resend Audience ID — משתמשים חדשים נוספים אוטומטית ל-audience ב-/api/users/initialize (אופציונלי).
+# ב-Dashboard: Audiences → בחר audience → מזהה מה-URL או מההגדרות. אם אין, השרת מדלג בשקט.
+# ניתן גם RESEND_SEGMENT_ID כאותו ערך (ממשק Segments ב-Resend).
+# RESEND_AUDIENCE_ID=
+# RESEND_SEGMENT_ID=
+
 # Gmail User (לשימוש עם Nodemailer - legacy, לא בשימוש אם משתמשים ב-Resend)
 EMAIL_USER=your_gmail@gmail.com
 

@@ -32,6 +32,94 @@ class EmailService {
   }
 
   /**
+   * Resend Audience / Segment ID for signup sync (Audiences in dashboard; API path uses /audiences/:id/contacts).
+   * RESEND_SEGMENT_ID is accepted as an alias for the same ID shown under Segments in newer Resend UI.
+   */
+  getResendAudienceId() {
+    return process.env.RESEND_AUDIENCE_ID || process.env.RESEND_SEGMENT_ID || null;
+  }
+
+  /**
+   * Add a newly registered user to the configured Resend audience (non-blocking callers should .catch).
+   * Skips quietly if audience ID env is unset. Uses Idempotency-Key per Firebase uid when provided.
+   *
+   * @param {string} userEmail
+   * @param {string} [displayName]
+   * @param {string} [userId] - Firebase uid
+   * @param {object} [emailPreferences] - if newsletter or marketing is explicitly false, contact is created unsubscribed
+   * @returns {Promise<{success: boolean, contactId?: string, skipped?: boolean, reason?: string, error?: string}>}
+   */
+  async addSignupToResendAudience(userEmail, displayName, userId, emailPreferences = null) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] addSignupToResendAudience - Resend not configured');
+      return { success: false, error: 'Email service not configured', skipped: true };
+    }
+
+    const audienceId = this.getResendAudienceId();
+    if (!audienceId) {
+      logger.debug('[EmailService] addSignupToResendAudience - RESEND_AUDIENCE_ID / RESEND_SEGMENT_ID unset, skip');
+      return { success: true, skipped: true, reason: 'no_audience_id' };
+    }
+
+    if (!userEmail || typeof userEmail !== 'string') {
+      logger.warn('[EmailService] addSignupToResendAudience - missing email');
+      return { success: false, error: 'User email missing', skipped: true };
+    }
+
+    const email = userEmail.trim();
+    const prefs = emailPreferences && typeof emailPreferences === 'object' ? emailPreferences : {};
+    const unsubscribed = prefs.newsletter === false || prefs.marketing === false;
+
+    const raw = (displayName || '').trim();
+    let firstName;
+    let lastName;
+    if (raw) {
+      const parts = raw.split(/\s+/);
+      firstName = parts[0];
+      lastName = parts.length > 1 ? parts.slice(1).join(' ') : undefined;
+    }
+    if (!firstName) {
+      firstName = email.split('@')[0] || 'user';
+    }
+
+    try {
+      const requestOptions = userId ? { idempotencyKey: `specifys-signup-${userId}` } : {};
+      const { data, error } = await this.resend.contacts.create(
+        {
+          audienceId,
+          email,
+          firstName,
+          lastName,
+          unsubscribed
+        },
+        requestOptions
+      );
+
+      if (error) {
+        const msg = String(error.message || '').toLowerCase();
+        const code = error.statusCode;
+        const duplicate =
+          code === 409 ||
+          msg.includes('already') ||
+          msg.includes('duplicate') ||
+          msg.includes('taken');
+        if (duplicate) {
+          logger.info({ email, userId }, '[EmailService] Resend audience: contact already present');
+          return { success: true, skipped: true, reason: 'duplicate' };
+        }
+        logger.warn({ email, userId, error }, '[EmailService] Resend audience: failed to create contact');
+        return { success: false, error: error.message || 'Resend contact error' };
+      }
+
+      logger.info({ email, userId, contactId: data?.id }, '[EmailService] User added to Resend audience');
+      return { success: true, contactId: data?.id };
+    } catch (err) {
+      logger.error({ email, userId, err: err.message }, '[EmailService] Resend audience: exception');
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
    * Send welcome email to new user
    * @param {string} userEmail - User's email address
    * @param {string} userName - User's display name

@@ -181,6 +181,20 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
                 const creditsCount = creditsInfo?.total || 1;
 
                 if (userEmail) {
+                    const emailPrefs = result.user?.emailPreferences;
+                    // Resend marketing audience (optional: RESEND_AUDIENCE_ID / RESEND_SEGMENT_ID on server)
+                    emailService.addSignupToResendAudience(userEmail, userName, userId, emailPrefs).then((audienceResult) => {
+                        if (audienceResult.success && !audienceResult.skipped) {
+                            logger.info({ requestId, userId, userEmail, contactId: audienceResult.contactId }, '[user-routes] ✅ User synced to Resend audience');
+                        } else if (audienceResult.success && audienceResult.skipped && audienceResult.reason === 'no_audience_id') {
+                            logger.debug({ requestId, userId }, '[user-routes] Resend audience sync skipped (no audience ID configured)');
+                        } else if (!audienceResult.success) {
+                            logger.warn({ requestId, userId, userEmail, error: audienceResult.error }, '[user-routes] ⚠️ Resend audience sync failed (non-fatal)');
+                        }
+                    }).catch((err) => {
+                        logger.warn({ requestId, userId, userEmail, error: err.message }, '[user-routes] ⚠️ Resend audience sync exception (non-fatal)');
+                    });
+
                     // Send email asynchronously (don't wait for it to complete)
                     emailService.sendWelcomeEmail(userEmail, userName, userId, baseUrl, creditsCount).then(emailResult => {
                         if (emailResult.success) {
