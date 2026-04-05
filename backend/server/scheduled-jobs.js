@@ -682,6 +682,8 @@ async function runDailyReportJob(adminEmail) {
         newUsers: stats.users?.newUsers || 0,
         messageId: emailResult.messageId 
       }, '[scheduled-jobs] Daily report email sent successfully');
+    } else if (emailResult.error === 'Email service not configured') {
+      logger.warn({ requestId, error: emailResult.error }, '[scheduled-jobs] Daily report skipped — email not configured');
     } else {
       logger.error({ 
         requestId, 
@@ -811,6 +813,8 @@ async function runWeeklyReportJob(adminEmail) {
         newUsers: stats.users?.newUsers || 0,
         messageId: emailResult.messageId 
       }, '[scheduled-jobs] Weekly report email sent successfully');
+    } else if (emailResult.error === 'Email service not configured') {
+      logger.warn({ requestId, error: emailResult.error }, '[scheduled-jobs] Weekly report skipped — email not configured');
     } else {
       logger.error({ 
         requestId, 

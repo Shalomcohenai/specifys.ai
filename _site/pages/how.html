@@ -934,6 +934,13 @@ function trackPreference(preferenceName, preferenceValue) {
 
 
     <script>
+  /** Firebase Auth compat instance — never rely on a bare global `auth` (not visible in all script/module orderings). */
+  function getFirebaseAuthCompat() {
+    if (typeof window !== 'undefined' && window.auth) return window.auth;
+    if (typeof firebase !== 'undefined' && firebase.auth) return firebase.auth();
+    return null;
+  }
+
   // Auth UI functions
   function updateAuthUI(user) {
     const authButtons = document.getElementById('auth-buttons');
@@ -978,8 +985,7 @@ function trackPreference(preferenceName, preferenceValue) {
       trackAuthEvent('logout', 'email');
     }
     
-    // Get auth instance safely
-    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    const authInstance = getFirebaseAuthCompat();
     
     if (!authInstance) {
       // Redirect to auth page as fallback
@@ -1000,8 +1006,7 @@ function trackPreference(preferenceName, preferenceValue) {
 
   // Listen to auth state changes (only after Firebase is initialized)
   function setupAuthListener() {
-    // Get auth from window or local scope
-    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    const authInstance = getFirebaseAuthCompat();
     
     if (!authInstance) {
       setTimeout(setupAuthListener, 100);
@@ -1167,8 +1172,7 @@ function trackPreference(preferenceName, preferenceValue) {
     const authButtons = document.getElementById('auth-buttons');
     if (!authButtons) return;
     
-    // Check if auth is already initialized and set up listener immediately
-    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    const authInstance = getFirebaseAuthCompat();
     if (authInstance) {
       // Auth is available, set up a one-time listener to check current state
       // This ensures we get the auth state even if it's still loading

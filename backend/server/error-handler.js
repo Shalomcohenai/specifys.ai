@@ -7,6 +7,23 @@ const { logger } = require('./logger');
 const { logError } = require('./error-logger');
 
 /**
+ * Crawlers and probes often hit these routes; avoid ERROR noise in production logs.
+ */
+function isExpectedClientOrBotNoise(req, err) {
+  const status = err.statusCode || err.status || 500;
+  const p = req.path || '';
+  const orig = req.originalUrl || '';
+  const noAuth = !req.headers.authorization;
+
+  if (status === 404) {
+    if (req.method === 'GET' && (p === '/api/logs' || p === '/api/analytics/page-view')) return true;
+    if (p === '/favicon.png' || orig.includes('%7B%7B') || p.includes('{{')) return true;
+  }
+  if (status === 401 && req.method === 'GET' && p.startsWith('/api/admin/') && noAuth) return true;
+  return false;
+}
+
+/**
  * Error codes for different error types
  */
 const ERROR_CODES = {
@@ -48,9 +65,8 @@ const ERROR_CODES = {
  */
 function errorHandler(err, req, res, next) {
   const requestId = req.requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
-  // Enhanced error logging
-  logger.error({
+  const noise = isExpectedClientOrBotNoise(req, err);
+  const logPayload = {
     type: 'error_handler',
     requestId,
     method: req.method,
@@ -79,7 +95,13 @@ function errorHandler(err, req, res, next) {
     adminEmail: req.adminUser?.email,
     adminUserId: req.adminUser?.uid,
     timestamp: new Date().toISOString()
-  }, `[error-handler] ❌ Error handling request: ${req.method} ${req.originalUrl} - ${err.message} (${err.statusCode || err.status || 500})`);
+  };
+  const logMsg = `[error-handler] ❌ Error handling request: ${req.method} ${req.originalUrl} - ${err.message} (${err.statusCode || err.status || 500})`;
+  if (noise) {
+    logger.debug(logPayload, `${logMsg} (expected noise)`);
+  } else {
+    logger.error(logPayload, logMsg);
+  }
 
   // Save error to Firebase (only for server errors - 500+)
   // Skip saving 4xx errors as they're usually client-side issues

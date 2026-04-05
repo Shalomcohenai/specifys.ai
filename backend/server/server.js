@@ -273,6 +273,19 @@ app.post('/api/logs', async (req, res, next) => {
   }
 });
 
+// Crawlers GET /api/logs; client logger uses POST only
+app.get('/api/logs', (req, res) => {
+  res.setHeader('Allow', 'POST');
+  res.status(405).json({
+    success: false,
+    error: {
+      code: 'METHOD_NOT_ALLOWED',
+      message: 'Use POST to submit client logs'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // CSS crash logs endpoint - GET to retrieve logs
 app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res, next) => {
   try {
@@ -946,6 +959,19 @@ const serveBuiltIndex = (req, res, next) => {
 app.get('/', serveBuiltIndex);
 app.get('/index.html', serveBuiltIndex);
 
+// Clients (e.g. okhttp) often request /favicon.png; site uses /favicon.ico
+app.get('/favicon.png', (req, res) => {
+  res.redirect(301, '/favicon.ico');
+});
+
+// Jekyll emits academy at _site/academy.html; express.static serves repo root, so serve built file explicitly
+const builtAcademyPath = path.resolve(path.join(staticRootPath, '_site', 'academy.html'));
+app.get('/academy.html', (req, res, next) => {
+  res.sendFile(builtAcademyPath, (err) => {
+    if (err) next();
+  });
+});
+
 // IMPORTANT: Explicit route for /blog/ must come BEFORE express.static(staticRootPath)
 // Otherwise staticRootPath will serve blog/index.html (source) instead of _site/blog/index.html (built)
 app.get('/blog/', (req, res) => {
@@ -1020,27 +1046,29 @@ app.get('/:year/:month/:day/:slug/', async (req, res, next) => {
 app.use('/blog/assets', express.static(path.join(blogStaticPath, 'assets')));
 logger.info({ type: 'static_mounted', path: '/blog/assets', directory: path.join(blogStaticPath, 'assets') }, '[UNIFIED SERVER] ✅ Blog assets mounted');
 
-// Handle /pages/articles.html route - serve from _site/pages/articles.html (Jekyll permalink)
+// Handle /pages/articles.html — try Jekyll output first, then source (Render may omit _site)
 app.get('/pages/articles.html', (req, res) => {
-  const articlesPath = path.join(staticRootPath, '_site', 'pages', 'articles.html');
-  const resolvedPath = path.resolve(articlesPath);
-  logger.info({ type: 'articles_request', path: '/pages/articles.html', resolvedPath }, '[UNIFIED SERVER] 📝 Serving articles.html');
-  res.sendFile(resolvedPath, (err) => {
-    if (err) {
-      logger.error({ type: 'file_error', path: '/pages/articles.html', error: err.message, resolvedPath }, '[UNIFIED SERVER] ❌ Error serving articles.html');
-      // Fallback: try to serve from source pages directory
-      const fallbackPath = path.join(staticRootPath, 'pages', 'articles.html');
-      const fallbackResolvedPath = path.resolve(fallbackPath);
-      res.sendFile(fallbackResolvedPath, (fallbackErr) => {
-        if (fallbackErr) {
-          logger.error({ type: 'file_error', path: '/pages/articles.html', error: fallbackErr.message, fallbackResolvedPath }, '[UNIFIED SERVER] ❌ Error serving articles.html from fallback path');
-          res.status(404).send('Articles page not found');
-        }
-      });
-    } else {
-      logger.info({ type: 'articles_served', path: '/pages/articles.html' }, '[UNIFIED SERVER] ✅ Articles.html served successfully');
+  const candidates = [
+    path.join(staticRootPath, '_site', 'pages', 'articles.html'),
+    path.join(staticRootPath, 'pages', 'articles.html')
+  ];
+  const tryArticle = (index) => {
+    if (index >= candidates.length) {
+      logger.error({ type: 'file_error', path: '/pages/articles.html' }, '[UNIFIED SERVER] ❌ articles.html not found in _site or pages');
+      return res.status(404).send('Articles page not found');
     }
-  });
+    const resolvedPath = path.resolve(candidates[index]);
+    logger.info({ type: 'articles_request', path: '/pages/articles.html', resolvedPath }, '[UNIFIED SERVER] 📝 Serving articles.html');
+    res.sendFile(resolvedPath, (err) => {
+      if (err) {
+        logger.debug({ type: 'articles_fallback', path: '/pages/articles.html', resolvedPath, error: err.message }, '[UNIFIED SERVER] articles candidate miss');
+        tryArticle(index + 1);
+      } else {
+        logger.info({ type: 'articles_served', path: '/pages/articles.html', resolvedPath }, '[UNIFIED SERVER] ✅ Articles.html served successfully');
+      }
+    });
+  };
+  tryArticle(0);
 });
 
 // Redirect old /pages/academy/ URL to canonical /academy.html (Jekyll permalink)

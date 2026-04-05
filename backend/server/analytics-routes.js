@@ -243,6 +243,21 @@ router.get('/top-guides', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Crawlers often GET this URL; respond with 405 so it is not a 404 in logs.
+ */
+router.get('/page-view', (req, res) => {
+  res.setHeader('Allow', 'POST');
+  res.status(405).json({
+    success: false,
+    error: {
+      code: 'METHOD_NOT_ALLOWED',
+      message: 'Use POST to record a page view'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+/**
  * Record a page view (public endpoint - no auth required)
  * POST /api/analytics/page-view
  */
