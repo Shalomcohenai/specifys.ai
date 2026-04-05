@@ -51,7 +51,6 @@ _includes/
 ├── firebase-init.html  - Firebase SDK initialization
 ├── firebase-auth.html  - Firebase auth functions
 ├── structured-data.html - SEO structured data
-├── crisp.html          - Crisp chat (if enabled)
 └── scroll-to-top.html  - Scroll to top button
 ```
 

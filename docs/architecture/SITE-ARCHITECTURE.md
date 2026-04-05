@@ -533,7 +533,7 @@ All frontend JS in `assets/js/`. Loaded via `<script>` tags in HTML pages (not v
 
 | File | Purpose | Loaded By |
 |------|---------|-----------|
-| `head.html` | `<head>`: meta, OG, fonts, main-compiled.css, config.js, api-client.js, focus-manager.js, analytics, Crisp, structured-data | All layouts |
+| `head.html` | `<head>`: meta, OG, fonts, main-compiled.css, config.js, api-client.js, focus-manager.js, analytics, structured-data | All layouts |
 | `header.html` | Site header: logo, nav, auth buttons, credits display | default, dashboard |
 | `footer.html` | Footer: nav links, social, copyright, contact modal | default, dashboard |
 | `analytics.html` | Google Analytics gtag | head.html |
@@ -541,7 +541,6 @@ All frontend JS in `assets/js/`. Loaded via `<script>` tags in HTML pages (not v
 | `scroll-to-top.html` | Scroll-to-top button + script | default |
 | `firebase-init.html` | Firebase SDK init, config, lazy Firestore | default, standalone, dashboard |
 | `firebase-auth.html` | Auth UI: updateAuthUI, showLoginModal, logout, ensureUserDocument | default, dashboard |
-| `crisp.html` | Tawk.to chat widget (misnamed) | head.html |
 | `structured-data.html` | JSON-LD structured data | head.html |
 | `mcp-connect-modal.html` | MCP API key modal | spec-viewer.html, profile.html |
 
@@ -858,7 +857,6 @@ Root `package.json` defines workspaces: `packages/*`. Vite config defines aliase
 | LEG-7 | `spec-viewer-main.js` | ~9k lines. References 5 Cloudflare Workers directly. Should extract Worker URLs to config. |
 | LEG-8 | Multiple route files | `verifyFirebaseToken` duplicated in 5+ route files. Should centralize in middleware. |
 | LEG-9 | `index.html` FAQ | "Is it really 100% free?" conflicts with paid plans |
-| LEG-10 | `crisp.html` | Named "crisp" but loads Tawk.to widget |
 
 ### STRUCTURAL ISSUES
 
