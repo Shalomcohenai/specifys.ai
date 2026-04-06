@@ -13,6 +13,144 @@ function updateCurrentSpecData(newData) {
     return currentSpecData;
 }
 
+/** Admin emails allowed to view debug tools (Export tab advanced row data, etc.). Keep in sync with loadSpec permission check. */
+const SPECVIEWER_ADMIN_EMAILS = ['specifysai@gmail.com'];
+
+function isSpecViewerAdmin(user) {
+    return !!(user && user.email && SPECVIEWER_ADMIN_EMAILS.includes(user.email));
+}
+
+function tryParseJsonField(value) {
+    if (value == null) return value;
+    if (typeof value !== 'string') return value;
+    try {
+        return JSON.parse(value);
+    } catch (e) {
+        return value;
+    }
+}
+
+function serializeFirestoreFieldForDebug(v) {
+    if (v == null) return v;
+    if (typeof v.toDate === 'function') {
+        try {
+            return v.toDate().toISOString();
+        } catch (e) {
+            return String(v);
+        }
+    }
+    if (typeof v === 'object' && typeof v._seconds === 'number') {
+        return new Date(v._seconds * 1000).toISOString();
+    }
+    if (typeof v === 'object' && typeof v.seconds === 'number') {
+        return new Date(v.seconds * 1000).toISOString();
+    }
+    return v;
+}
+
+/**
+ * Build a JSON-serializable object of advanced spec fields (including diagram strings) for admin debugging.
+ */
+function buildAdvancedSpecDebugPayload(data) {
+    if (!data || typeof data !== 'object') return {};
+    return {
+        id: data.id,
+        title: data.title,
+        userId: data.userId,
+        generationVersion: data.generationVersion,
+        mode: data.mode,
+        status: data.status,
+        createdAt: serializeFirestoreFieldForDebug(data.createdAt),
+        overviewApproved: data.overviewApproved,
+        overview: tryParseJsonField(data.overview),
+        technical: tryParseJsonField(data.technical),
+        market: tryParseJsonField(data.market),
+        design: tryParseJsonField(data.design),
+        architecture: data.architecture,
+        diagrams: data.diagrams,
+        mockups: data.mockups,
+        prompts: data.prompts,
+        mindMap: data.mindMap || data.mindmap,
+        brainDump: data.brainDump,
+        openaiFileId: data.openaiFileId,
+        openaiUploadTimestamp: serializeFirestoreFieldForDebug(data.openaiUploadTimestamp),
+        thread_id: data.thread_id
+    };
+}
+
+function updateExportAdminDebugSection(user) {
+    const wrap = document.getElementById('export-admin-advanced-raw');
+    if (!wrap) return;
+    if (isSpecViewerAdmin(user)) {
+        wrap.classList.remove('hidden');
+        wrap.setAttribute('aria-hidden', 'false');
+    } else {
+        wrap.classList.add('hidden');
+        wrap.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function openAdvancedRawModal() {
+    const modal = document.getElementById('advanced-raw-modal');
+    const pre = document.getElementById('advanced-raw-json-pre');
+    if (!modal || !pre) return;
+    const payload = buildAdvancedSpecDebugPayload(currentSpecData);
+    pre.textContent = JSON.stringify(payload, null, 2);
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+}
+
+function closeAdvancedRawModal() {
+    const modal = document.getElementById('advanced-raw-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+}
+
+function initExportAdminAdvancedRaw() {
+    const openBtn = document.getElementById('btn-open-advanced-raw-modal');
+    const closeBtn = document.getElementById('advanced-raw-modal-close');
+    const modal = document.getElementById('advanced-raw-modal');
+    const copyBtn = document.getElementById('btn-copy-advanced-raw');
+    if (openBtn) {
+        openBtn.addEventListener('click', function () {
+            openAdvancedRawModal();
+        });
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            closeAdvancedRawModal();
+        });
+    }
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeAdvancedRawModal();
+            }
+        });
+    }
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+            const pre = document.getElementById('advanced-raw-json-pre');
+            if (!pre || !pre.textContent) return;
+            navigator.clipboard.writeText(pre.textContent).then(function () {
+                if (typeof showNotification === 'function') {
+                    showNotification('Copied to clipboard', 'success');
+                }
+            }).catch(function () {});
+        });
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            closeAdvancedRawModal();
+        }
+    });
+}
+
 // Worker endpoints configuration
 const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
 const MOCKUPS_ANALYZE_URL = 'https://mockup.shalom-cohen-111.workers.dev/analyze-screens';
@@ -170,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileSideMenu();
     // Initialize rename spec modal (pencil icon next to title)
     initRenameSpecModal();
+    initExportAdminAdvancedRaw();
     // Initialize Mermaid with custom theme
     try {
         if (typeof mermaid !== 'undefined') {
@@ -222,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSpecData) {
             updateStorageStatus();
         }
+        updateExportAdminDebugSection(user);
     });
     
     // Delegated listener for overview Suggestions toggle (event delegation so it works after dynamic content)
@@ -544,9 +684,8 @@ async function loadSpec(specId) {
         
         // Check if user has permission to view this spec
         // spec-viewer.html only shows specs to their owner or admin (not public specs)
-        const adminEmails = ['specifysai@gmail.com'];
         const isOwner = specData.userId === user.uid;
-        const isAdmin = adminEmails.includes(user.email);
+        const isAdmin = isSpecViewerAdmin(user);
         
         if (!isOwner && !isAdmin) {
             showError('You do not have permission to view this specification. You can only view specifications that you created.');
@@ -983,6 +1122,7 @@ function displaySpec(data) {
     displayArchitectureFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
+    updateExportAdminDebugSection(firebase.auth().currentUser);
     
     // Update export checkboxes based on available sections
     updateExportCheckboxes();
@@ -2540,13 +2680,27 @@ function displayArchitecture(content, containerEl) {
     if (lastIndex < content.length) {
         textParts.push(content.slice(lastIndex));
     }
-    // Mermaid first: render all diagrams
-    mermaidParts.forEach(function(mermaidCode, index) {
+    // Interleave text and diagrams in document order (previously all diagrams were rendered first, which broke layout).
+    function appendArchitectureTextSegment(trimmed) {
+        if (!trimmed) return;
+        var textBlock = document.createElement('div');
+        textBlock.className = 'architecture-text-block';
+        textBlock.style.marginBottom = '1rem';
+        textBlock.innerHTML = architectureMarkdownToHtml(trimmed);
+        container.appendChild(textBlock);
+    }
+    var idx;
+    for (idx = 0; idx < mermaidParts.length; idx++) {
+        const seg = (textParts[idx] || '').trim();
+        if (seg) {
+            appendArchitectureTextSegment(seg);
+        }
+        const mermaidCode = mermaidParts[idx];
         const wrap = document.createElement('div');
         wrap.className = 'architecture-mermaid-wrap';
         wrap.innerHTML = '<div class="architecture-mermaid-loading">Rendering diagram...</div>';
         container.appendChild(wrap);
-        const uniqueId = 'arch-mermaid-' + index + '-' + Date.now();
+        const uniqueId = 'arch-mermaid-' + idx + '-' + Date.now();
         if (typeof mermaid !== 'undefined' && mermaid.render) {
             mermaid.render(uniqueId, mermaidCode).then(function(result) {
                 wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
@@ -2556,17 +2710,11 @@ function displayArchitecture(content, containerEl) {
         } else {
             wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre>';
         }
-    });
-    // Then text: render as Markdown (headings, bold, lists)
-    textParts.forEach(function(text) {
-        var trimmed = text.trim();
-        if (!trimmed) return;
-        var textBlock = document.createElement('div');
-        textBlock.className = 'architecture-text-block';
-        textBlock.style.marginBottom = '1rem';
-        textBlock.innerHTML = architectureMarkdownToHtml(trimmed);
-        container.appendChild(textBlock);
-    });
+    }
+    var tail = (textParts[mermaidParts.length] || '').trim();
+    if (tail) {
+        appendArchitectureTextSegment(tail);
+    }
 }
 
 var _architectureGenerationInProgress = false;

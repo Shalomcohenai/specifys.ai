@@ -2605,3 +2605,65 @@ button[onclick*="openVisualizer"]:active {
   cursor: not-allowed;
   transform: none;
 }
+
+/* ---- Export tab: admin advanced row data (debug) ---- */
+.export-admin-advanced-raw {
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #ddd);
+  background: #fafafa;
+}
+.export-admin-advanced-raw-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  color: #333;
+}
+.export-admin-advanced-raw-desc {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+.export-admin-advanced-raw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advanced-raw-modal-content {
+  max-width: min(92vw, 960px);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.advanced-raw-modal-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.advanced-raw-modal-hint {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.45;
+}
+.advanced-raw-modal-actions {
+  margin-bottom: 10px;
+}
+.advanced-raw-json-pre {
+  flex: 1;
+  min-height: 200px;
+  max-height: min(65vh, 560px);
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+  padding: 12px;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

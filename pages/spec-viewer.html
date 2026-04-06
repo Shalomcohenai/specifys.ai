@@ -631,6 +631,16 @@ custom_js_modules:
                             </div>
                         </div>
                     </div>
+                    
+                    <div id="export-admin-advanced-raw" class="export-admin-advanced-raw hidden" aria-hidden="true">
+                        <div class="export-admin-advanced-raw-inner">
+                            <h3 class="export-admin-advanced-raw-title"><i class="fa fa-shield" aria-hidden="true"></i> Admin — row data (debug)</h3>
+                            <p class="export-admin-advanced-raw-desc">View all advanced spec fields as stored, including Mermaid diagram strings (technical, architecture, diagrams, etc.). Use this to verify API output.</p>
+                            <button type="button" class="btn btn-secondary export-admin-advanced-raw-btn" id="btn-open-advanced-raw-modal">
+                                <i class="fa fa-database" aria-hidden="true"></i> View advanced row data (JSON)
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -780,6 +790,23 @@ custom_js_modules:
             <p class="guest-note">
                 <small>As a guest, your specifications will only be saved locally and may be lost if you clear your browser data.</small>
             </p>
+        </div>
+    </div>
+</div>
+
+<!-- Admin: advanced spec JSON (Export tab) -->
+<div id="advanced-raw-modal" class="modal hidden" role="dialog" aria-labelledby="advanced-raw-modal-title" aria-modal="true">
+    <div class="modal-content advanced-raw-modal-content">
+        <div class="modal-header">
+            <h3 id="advanced-raw-modal-title"><i class="fa fa-code" aria-hidden="true"></i> Advanced row data (JSON)</h3>
+            <span class="close" id="advanced-raw-modal-close" role="button" tabindex="0" aria-label="Close">&times;</span>
+        </div>
+        <div class="modal-body advanced-raw-modal-body">
+            <p class="advanced-raw-modal-hint">Includes overview, technical, market, design, architecture (full markdown with diagrams), diagrams, prompts, mockups, mind map, status, and metadata.</p>
+            <div class="advanced-raw-modal-actions">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-advanced-raw"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
+            </div>
+            <pre id="advanced-raw-json-pre" class="raw-display advanced-raw-json-pre" tabindex="0"></pre>
         </div>
     </div>
 </div>
