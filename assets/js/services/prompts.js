@@ -257,155 +257,34 @@ Note: The user input above uses a structured format with sections. Follow the wo
     const isReference = typeof specId === 'string' && specId.length < 100;
     const overviewContent = isReference ? null : specId;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
 
-Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). Return JSON with technical key containing:
+Create a comprehensive technical specification with Mermaid diagrams in the designated fields (raw Mermaid syntax only—no markdown fences inside JSON strings). Return JSON with technical key containing:
 
 {
   "technical": {
-    "techStack": {
-      "frontend": "Client-side technologies",
-      "backend": "Server-side technologies", 
-      "database": "Database technology",
-      "storage": "Storage solutions",
-      "authentication": "Authentication methods"
-    },
-    "architectureOverview": "Textual description of system structure (client-server, API routes, data flow)",
-    "databaseSchema": {
-      "description": "Textual description of tables, relationships, and general data logic",
-      "tables": [
-        {
-          "name": "Table name (e.g., Users)",
-          "purpose": "What this table stores and why",
-          "fields": ["id (Primary Key, Auto-increment)", "name (String, Required)", "email (String, Unique, Required)", "createdAt (Timestamp)"],
-          "relationships": "How this table relates to other tables"
-        }
-      ],
-      "relationships": "Description of how tables relate to each other"
-    },
-    "apiEndpoints": [
-      {
-        "path": "/api/endpoint",
-        "method": "GET/POST/PUT/DELETE",
-        "description": "What this endpoint does",
-        "parameters": "List of URL parameters if any (e.g., ?userId=123)",
-        "requestBody": "Textual description of request structure and example data as JSON-formatted string",
-        "responseBody": "Textual description of response structure and example data as JSON-formatted string",
-        "statusCodes": "Common HTTP status codes and their meanings for this endpoint"
-      }
-    ],
+    "techStack": { "frontend": "", "backend": "", "database": "", "storage": "", "authentication": "" },
+    "architectureOverview": { "narrative": "", "systemContextDiagramMermaid": null },
+    "databaseSchema": { "description": "", "erDiagramMermaid": "", "tablesSupplement": null },
+    "apiDesign": { "endpointsOverviewDiagramMermaid": null, "endpoints": [] },
+    "dataFlow": { "narrative": "", "diagramMermaid": null },
     "securityAuthentication": {
-      "securityCriticalPoints": [
-        "CRITICAL: Never store API keys, secrets, or sensitive credentials in frontend code. Always use backend server or environment variables.",
-        "CRITICAL: Always validate and sanitize all user inputs on the backend to prevent injection attacks (SQL injection, XSS, etc.).",
-        "CRITICAL: Use HTTPS for all API communications and never send sensitive data over unencrypted connections.",
-        "CRITICAL: Implement proper authentication tokens (JWT) with expiration and refresh mechanisms. Never store passwords in plain text.",
-        "CRITICAL: Use CORS properly configured on the backend to prevent unauthorized cross-origin requests. Never use wildcard (*) in production."
-      ],
-      "authentication": "Authentication methods and flow",
-      "authorization": "Authorization and permissions",
-      "encryption": "Data encryption methods",
-      "securityMeasures": "Additional security measures"
+      "authentication": "","authorization": "","encryption": null,"securityMeasures": "",
+      "securityCriticalPoints": [],
+      "authFlowDiagramMermaid": null
     },
-    "integrationExternalApis": {
-      "thirdPartyServices": ["Service 1", "Service 2"],
-      "integrations": "Description of external API integrations",
-      "dataFlow": "How external data flows into the system"
-    },
-    "devops": {
-      "deploymentStrategy": "Deployment approach (CI/CD, hosting platforms, containerization)",
-      "infrastructure": "Infrastructure requirements and cloud services",
-      "monitoring": "Monitoring and logging strategy",
-      "scaling": "Scaling strategy and load balancing approach",
-      "backup": "Backup and disaster recovery plan",
-      "automation": "Automation tools and processes"
-    },
-    "dataStorage": {
-      "storageStrategy": "Where and how data will be stored (database choice reasoning)",
-      "dataRetention": "Data retention policies and lifecycle management",
-      "dataBackup": "Backup strategy for data",
-      "storageArchitecture": "Storage architecture and optimization"
-    },
-    "analytics": {
-      "analyticsStrategy": "What metrics and analytics to track",
-      "trackingMethods": "How to implement tracking (events, user behavior)",
-      "analysisTools": "Recommended analytics tools and platforms",
-      "reporting": "Reporting structure and dashboards"
-    },
-    "detailedDataModels": {
-      "models": [
-        {
-          "name": "Model name (e.g., User, Product, Order)",
-          "purpose": "What this model represents and stores",
-          "fields": [
-            {
-              "name": "field_name",
-              "type": "field type (String, Integer, Boolean, Timestamp, etc.)",
-              "required": true,
-              "constraints": "Any constraints (unique, max length, default value, etc.)",
-              "description": "What this field stores and how it's used"
-            }
-          ],
-          "relationships": "Relationships with other models",
-          "validationRules": "Validation rules for this model",
-          "indexes": "Database indexes for optimization",
-          "sampleData": "Example of what data looks like in this model"
-        }
-      ],
-      "overallStructure": "How all models relate to each other and the overall data architecture",
-      "totalModelsCount": "Total number of data models in the system",
-      "crudOperations": "Main CRUD operations for each model"
-    },
-    "dataFlowDetailed": {
-      "authenticationFlow": "Step-by-step authentication process from user login to system access",
-      "dataSubmissionFlow": "How data moves through the system from user input to storage",
-      "queryPatterns": "Common database queries and their purposes",
-      "cachingStrategy": "What data gets cached and why",
-      "errorScenarios": "Error handling at each step of data flow",
-      "dataValidation": "Where and how data is validated throughout the system",
-      "transactionFlow": "Complex multi-step processes and their flow"
-    }
+    "integrationExternalApis": { "thirdPartyServices": [], "integrations": "", "dataFlow": "", "integrationLandscapeDiagramMermaid": null },
+    "devops": { "deploymentStrategy": "", "infrastructure": "", "monitoring": "", "scaling": "", "backup": "", "automation": "", "cicdPipelineDiagramMermaid": null },
+    "dataStorage": { "storageStrategy": "", "dataRetention": "", "dataBackup": "", "storageArchitecture": "" },
+    "analytics": { "analyticsStrategy": "", "trackingMethods": "", "analysisTools": "", "reporting": "" }
   }
 }
 
-IMPORTANT: All descriptions must be textual only. Diagrams will be generated separately.
+Use erDiagram for databaseSchema.erDiagramMermaid; flowchart/graph for system context and API overview; sequenceDiagram for auth flow when relevant. tablesSupplement must list detailed tables (name, purpose, fields as objects with name, type, etc.) when helpful.
 
-CRITICAL FOR DATABASE SCHEMA:
-- databaseSchema.tables MUST be an array of objects, not just string descriptions
-- Each table object MUST include: name, purpose, fields (array of field definitions), and relationships
-- fields array MUST list ALL fields for each table with their types and constraints
-- Provide COMPLETE database schema with ALL tables that will be used in the application
-- Example of correct format: { "name": "Users", "purpose": "Stores user accounts", "fields": ["id (PK, auto-increment)", "email (string, unique, required)", "password (string, hashed, required)"], "relationships": "Users has many Orders" }
+CRITICAL FOR SECURITY: securityCriticalPoints MUST be 3–5 actionable CRITICAL warnings.
 
-CRITICAL FOR SECURITY & AUTHENTICATION:
-- securityAuthentication.securityCriticalPoints MUST be an array of 3-5 critical security warnings
-- Each security critical point MUST be a clear, actionable warning about common security mistakes in vibe coding
-- Generate warnings that are SPECIFIC to this application based on its features and integrations
-- Focus on critical issues that developers often miss when building quickly:
-  * If the app uses API keys or third-party services: "CRITICAL: Never store API keys, secrets, or sensitive credentials in frontend code. Always use backend server or environment variables."
-  * If the app has user input or forms: "CRITICAL: Always validate and sanitize all user inputs on the backend to prevent injection attacks (SQL injection, XSS, etc.)."
-  * If the app handles authentication: "CRITICAL: Implement proper authentication tokens (JWT) with expiration and refresh mechanisms. Never store passwords in plain text - always use hashing (bcrypt, argon2)."
-  * If the app makes API calls: "CRITICAL: Use HTTPS for all API communications and never send sensitive data over unencrypted connections."
-  * If the app has a backend API: "CRITICAL: Use CORS properly configured on the backend to prevent unauthorized cross-origin requests. Never use wildcard (*) in production."
-  * If the app uses a database: "CRITICAL: Use parameterized queries or ORM to prevent SQL injection attacks. Never concatenate user input directly into SQL queries."
-  * If the app displays user-generated content: "CRITICAL: Sanitize all user-generated content before displaying to prevent XSS attacks. Use Content Security Policy (CSP) headers."
-- These warnings MUST be specific, actionable, and critical for application security
-- The security field is very vulnerable in vibe coding - these warnings are ESSENTIAL
-- Generate 3-5 warnings that are MOST RELEVANT to this specific application
-
-CRITICAL FOR DETAILED DATA MODELS:
-- detailedDataModels.models MUST include ALL models/tables from databaseSchema
-- Every model MUST include ALL fields with complete information: name, type, required status, constraints, and description
-- Never omit models - if there are 10 tables, include all 10 models
-- Each model must have comprehensive field definitions
-- Must match and expand upon the databaseSchema.tables information
-
-IMPORTANT FOR API ENDPOINTS:
-- requestBody and responseBody must be detailed textual descriptions OR valid JSON strings (never [object Object])
-- Include actual field names, types, and example values specific to the application
-- Format as plain text descriptions or JSON strings, not JSON objects
-- Example of good requestBody: "JSON string with fields: { \\"name\\": \\"John Doe\\", \\"email\\": \\"john@example.com\\", \\"age\\": 30 }"
-- Example of good responseBody: "Returns JSON with fields: { \\"userId\\": 123, \\"status\\": \\"success\\" }"
+IMPORTANT FOR API: apiDesign.endpoints must include requestBody and responseBody as detailed strings.
 
 Application Overview:
 ${isReference ? `[SPEC_REFERENCE]
@@ -827,9 +706,11 @@ If the user input contains a "Target Audience:" section:
 Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section. The design specification MUST reflect the exact pages, workflows, features, design style, integrations, and target audience provided by the user.`;
   },
 
-  // Diagrams prompt - generates Mermaid diagrams
+  // Diagrams prompt — legacy; product embeds Mermaid in Technical + Architecture JSON
   diagrams: (technicalContent, overviewContent) => {
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
+    return `NOTE: Prefer embedded diagrams in the technical spec (erDiagramMermaid, systemContextDiagramMermaid, apiDesign, etc.). This standalone 7-diagram set is legacy.
+
+Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
 
 Generate 7 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 7 diagram objects, each with:
 
@@ -962,7 +843,7 @@ Create a comprehensive raw text response. Return JSON with rawText key containin
 User Input:
 ${appDescription}
 
-Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section when generating diagrams.`;
+Note: The user input above may contain structured information organized into sections (App Description, Pages, Workflows, Features, Design Style, Integrations, Target Audience). If such sections exist, you MUST analyze and incorporate EVERY piece of information from EACH section.`;
   },
 
   // Prompts generation - creates comprehensive development prompt and third-party integration instructions
@@ -1040,8 +921,8 @@ FROM OVERVIEW SPECIFICATION:
 
 FROM TECHNICAL SPECIFICATION:
 - Include ALL technologies from techStack: frontend, backend, database, authentication, and ALL other services
-- Include ALL entities from databaseSchema.tables - list EVERY table with ALL its fields, data types, constraints, and relationships
-- Include ALL API endpoints from apiEndpoints - describe each endpoint with method, path, parameters, request body, response format
+- Include database schema: erDiagramMermaid and/or tablesSupplement (or legacy databaseSchema.tables) — every entity with fields and relationships
+- Include ALL API endpoints from apiDesign.endpoints (or legacy apiEndpoints) — method, path, parameters, request body, response format
 - Include ALL security requirements: authentication methods, authorization rules, data encryption, rate limiting
 - Include ALL third-party integrations from integrationExternalApis - describe each integration's purpose, setup, and usage
 - Include ALL environment variables needed

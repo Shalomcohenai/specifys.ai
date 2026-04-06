@@ -250,63 +250,30 @@ router.post('/message', verifyFirebaseToken, async (req, res, next) => {
 });
 
 /**
- * Generate diagrams for a specification
+ * Generate diagrams for a specification (deprecated — diagrams are embedded in Technical & Architecture)
  * POST /api/chat/diagrams/generate
  */
 router.post('/diagrams/generate', verifyFirebaseToken, async (req, res, next) => {
   const requestId = req.requestId || `diagrams-generate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
-  
-  logger.info({ requestId, userId: req.user?.uid }, '[chat-routes] POST /diagrams/generate - Starting diagram generation');
+
+  logger.info({ requestId, userId: req.user?.uid }, '[chat-routes] POST /diagrams/generate - Deprecated stub');
 
   try {
-    if (!chatService) {
-      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
-      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503, { requestId }));
-    }
-    
     const { specId } = req.body;
-    const userId = req.user.uid;
-    
     if (!specId) {
       logger.error({ requestId }, '[chat-routes] Missing specId in request body');
       return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
     }
-    
-    // Verify ownership and ensure spec is ready
-    const specData = await chatService.verifySpecOwnership(specId, userId);
-    const { assistantId } = await chatService.ensureSpecReadyForChat(specId, userId, requestId);
-    
-    // Generate diagrams with retry
-    const diagrams = await retryWithBackoff(
-      async () => {
-        try {
-          return await openaiStorage.generateDiagrams(specId, assistantId);
-        } catch (error) {
-          // If assistant is corrupted, try to recreate it
-          if (isRetryableError(error) && specData.openaiFileId) {
-            const newAssistantId = await chatService.handleAssistantError(error, specId, userId, specData.openaiFileId, requestId);
-            if (newAssistantId) {
-              // Retry with new assistant
-              return await openaiStorage.generateDiagrams(specId, newAssistantId);
-            }
-          }
-          throw error;
-        }
-      },
-      {
-        operationName: 'generateDiagrams',
-        maxRetries: 2,
-        initialDelay: 2000
-      }
-    );
-    
+
     const totalTime = Date.now() - startTime;
-    logger.info({ requestId, specId, userId, duration: `${totalTime}ms`, diagramCount: diagrams?.length || 0 }, '[chat-routes] POST /diagrams/generate - Success');
-    
+    logger.info({ requestId, specId, duration: `${totalTime}ms` }, '[chat-routes] POST /diagrams/generate - Returning deprecated response');
+
     res.json({
       success: true,
-      diagrams: diagrams,
+      deprecated: true,
+      message: 'Standalone diagram generation is retired. Mermaid diagrams are embedded in the Technical Specification and Architecture sections.',
+      diagrams: [],
       requestId
     });
     

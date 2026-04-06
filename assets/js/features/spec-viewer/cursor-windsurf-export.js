@@ -255,10 +255,16 @@ function generateArchitecture(specData) {
                 content += `\n`;
             }
 
-            // Database Schema
-            if (technical.databaseSchema && technical.databaseSchema.tables) {
+            // Database Schema (v2: erDiagramMermaid + tablesSupplement; legacy: tables)
+            const dbTables = (technical.databaseSchema && technical.databaseSchema.tables)
+                ? technical.databaseSchema.tables
+                : (technical.databaseSchema && technical.databaseSchema.tablesSupplement) || null;
+            if (technical.databaseSchema && technical.databaseSchema.erDiagramMermaid) {
+                content += `## Database ER Diagram\n\n\`\`\`mermaid\n${technical.databaseSchema.erDiagramMermaid}\n\`\`\`\n\n`;
+            }
+            if (dbTables && Array.isArray(dbTables)) {
                 content += `## Database Schema\n\n`;
-                technical.databaseSchema.tables.forEach(table => {
+                dbTables.forEach(table => {
                     content += `### ${table.name}\n\n`;
                     if (table.fields && Array.isArray(table.fields)) {
                         content += `| Field | Type | Description |\n`;
@@ -271,18 +277,23 @@ function generateArchitecture(specData) {
                 });
             }
 
-            // API Endpoints
-            if (technical.apiEndpoints && Array.isArray(technical.apiEndpoints)) {
+            // API Endpoints (v2: apiDesign.endpoints; legacy: apiEndpoints)
+            const apiList = (technical.apiDesign && technical.apiDesign.endpoints) || technical.apiEndpoints;
+            if (apiList && Array.isArray(apiList)) {
                 content += `## API Endpoints\n\n`;
-                technical.apiEndpoints.forEach(endpoint => {
+                apiList.forEach(endpoint => {
                     content += `### ${endpoint.method || 'GET'} ${endpoint.path || endpoint.url || ''}\n\n`;
                     if (endpoint.description) content += `${endpoint.description}\n\n`;
                     if (endpoint.parameters) {
-                        content += `**Parameters:**\n`;
-                        endpoint.parameters.forEach(param => {
-                            content += `- ${param.name} (${param.type || 'string'}): ${param.description || ''}\n`;
-                        });
-                        content += `\n`;
+                        if (typeof endpoint.parameters === 'string') {
+                            content += `**Parameters:** ${endpoint.parameters}\n\n`;
+                        } else if (Array.isArray(endpoint.parameters)) {
+                            content += `**Parameters:**\n`;
+                            endpoint.parameters.forEach(param => {
+                                content += `- ${param.name} (${param.type || 'string'}): ${param.description || ''}\n`;
+                            });
+                            content += `\n`;
+                        }
                     }
                 });
             }

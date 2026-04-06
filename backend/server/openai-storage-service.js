@@ -895,10 +895,10 @@ CRITICAL REQUIREMENTS FOR data_schema DIAGRAM:
 CRITICAL REQUIREMENTS FOR database_schema DIAGRAM:
 - database_schema MUST include ALL entities/tables from the technical specification
 - MUST show ALL fields with their exact data types for each entity
-- MUST accurately represent the databaseSchema.tables from technical specification
+- MUST accurately represent databaseSchema.tables or databaseSchema.tablesSupplement (or erDiagramMermaid) from the technical specification
 - MUST include all relationships between entities
 - MUST include all constraints (PK, FK, UNIQUE, NOT NULL, etc.)
-- This diagram should be based on the databaseSchema.tables provided in the technical specification
+- This diagram should be based on the database schema fields in the technical specification
 - Use the detailed table information to create a complete technical ERD
 
 CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
@@ -907,7 +907,7 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
 - Include appropriate styling and formatting
 - Ensure diagrams are comprehensive and detailed
 - Each diagram should be self-contained and meaningful
-- database_schema diagram must match the actual databaseSchema from technical specification
+- database_schema diagram must match the actual database schema from the technical specification
 - Base diagrams on the specification content in the provided file
 - Use the technical and overview sections to understand the application structure`;
 

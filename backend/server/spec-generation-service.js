@@ -17,13 +17,18 @@ class SpecGenerationService {
   isTechnicalContentMinimal(parsed) {
     if (!parsed || typeof parsed !== 'object') return true;
     const arch = parsed.architectureOverview;
-    const hasArch = typeof arch === 'string' && arch.trim().length >= 80;
-    const tables = parsed.databaseSchema?.tables;
+    const hasArchLegacy = typeof arch === 'string' && arch.trim().length >= 80;
+    const hasArchV2 = arch && typeof arch === 'object' && typeof arch.narrative === 'string' && arch.narrative.trim().length >= 80;
+    const hasArch = hasArchLegacy || hasArchV2;
+    const er = parsed.databaseSchema?.erDiagramMermaid;
+    const hasEr = typeof er === 'string' && er.trim().length > 20;
+    const tables = parsed.databaseSchema?.tables || parsed.databaseSchema?.tablesSupplement;
     const hasTables = Array.isArray(tables) && tables.length >= 2;
-    const endpoints = parsed.apiEndpoints;
+    const hasDb = hasEr || hasTables;
+    const endpoints = parsed.apiDesign?.endpoints || parsed.apiEndpoints;
     const hasEndpoints = Array.isArray(endpoints) && endpoints.length > 0;
-    const hasRequestBody = hasEndpoints && endpoints.some(e => (e.requestBody && String(e.requestBody).trim()) || (e.responseBody && String(e.responseBody).trim()));
-    return !hasArch || !hasTables || !hasRequestBody;
+    const endpointsComplete = hasEndpoints && endpoints.some(e => (e.requestBody && String(e.requestBody).trim()) || (e.responseBody && String(e.responseBody).trim()));
+    return !hasArch || !hasDb || !hasEndpoints || !endpointsComplete;
   }
 
   /**
@@ -49,7 +54,7 @@ class SpecGenerationService {
    */
   getRepairPromptSuffix(stage) {
     if (stage === 'technical') {
-      return '\n\n[CRITICAL]: Your response must be complete. databaseSchema.tables MUST have at least 2 tables with name, purpose, fields, relationships. architectureOverview MUST be a full paragraph (80+ characters). Every apiEndpoint MUST include requestBody and responseBody (text or JSON string). Return full JSON only.';
+      return '\n\n[CRITICAL]: Your response must be complete. databaseSchema must include erDiagramMermaid and/or tablesSupplement with at least 2 tables. architectureOverview must be { narrative (80+ chars), systemContextDiagramMermaid }. apiDesign.endpoints must be full with requestBody and responseBody. Return full JSON only.';
     }
     if (stage === 'market') {
       return '\n\n[CRITICAL]: Your response must be complete. industryOverview, competitiveLandscape (at least 2 competitors with details), swotAnalysis, and other required keys must contain full paragraphs or detailed content—not empty objects or one-line stubs. Return full JSON only.';
@@ -455,17 +460,18 @@ Note: The system will retrieve the full overview content automatically. Use this
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
 
-Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). You MUST return detailed, substantive content in every key—not just headings or placeholders.
+Create a comprehensive technical specification with Mermaid diagrams in the designated fields (raw Mermaid syntax, no code fences inside JSON).
 
-Required keys (never omit; each must contain full content):
-- techStack (object): frontend, backend, database, storage, authentication—each with a clear description of technologies and choices.
-- architectureOverview (string): a full paragraph describing system structure, client-server flow, API layout, and data flow. Use "" only if no overview is available.
-- databaseSchema (object): MUST include a description (at least 2–3 sentences) and a tables array. When Application Overview or app description exists, you MUST infer and return at least 2–3 tables; each table: name, purpose, fields (array of field names with types and constraints, e.g. "id (PK)", "email (string, unique)"), relationships. Never return an empty tables array when the overview or user input describes the app—infer the main entities (users, content, etc.) and define them.
-- apiEndpoints (array): each item MUST have path, method, description; and MUST include requestBody and responseBody (text or JSON string describing request/response structure). Also include parameters and statusCodes when relevant. Use [] only if no endpoints can be inferred.
-- securityAuthentication (object): authentication, authorization, and securityMeasures as full sentences; MUST include securityCriticalPoints array with 3–5 actionable security warnings (e.g. never store secrets in frontend, validate inputs, use HTTPS, JWT best practices).
-- integrationExternalApis (object): thirdPartyServices (array of names), integrations (paragraph), dataFlow (paragraph)—each with real descriptive content.
-
-Also include devops (deploymentStrategy, infrastructure, monitoring, scaling, backup, automation), dataStorage, analytics, detailedDataModels, dataFlowDetailed—each section with at least 2–3 sentences or bullet points per sub-key. All content must be comprehensive enough for a developer to implement from the spec.
+Required keys (aligned with the v2 schema):
+- techStack: frontend, backend, database, storage, authentication.
+- architectureOverview: { narrative (80+ chars), systemContextDiagramMermaid (flowchart of client, API, DB, cache) }.
+- databaseSchema: { description, erDiagramMermaid (erDiagram), tablesSupplement (nullable array of tables with name, purpose, fields[], relationships) }.
+- apiDesign: { endpointsOverviewDiagramMermaid (nullable), endpoints (array with path, method, description, requestBody, responseBody, statusCodes) }.
+- dataFlow: { narrative, diagramMermaid (nullable flowchart) }.
+- securityAuthentication: authentication, authorization, encryption, securityMeasures, securityCriticalPoints (3–5), authFlowDiagramMermaid (nullable sequenceDiagram).
+- integrationExternalApis: thirdPartyServices, integrations, dataFlow, integrationLandscapeDiagramMermaid (nullable).
+- devops: deploymentStrategy, infrastructure, monitoring, scaling, backup, automation, cicdPipelineDiagramMermaid (nullable).
+- dataStorage, analytics: full sub-keys as text.
 
 ${overviewSection}
 
@@ -560,7 +566,7 @@ Note: Target Audience information should be inferred from the app description an
    */
   getSystemPrompt(stage) {
     const prompts = {
-      technical: 'You are a highly experienced software architect and lead developer. Generate a detailed, comprehensive technical specification. Every section must contain substantive content—never return empty objects, empty arrays, or placeholder text. Short or stub responses are not acceptable.',
+      technical: 'You are a highly experienced software architect and lead developer. Generate a detailed technical specification with Mermaid diagrams embedded in the JSON fields (raw Mermaid syntax, no markdown fences). Every section must contain substantive content—never return empty objects, empty arrays, or placeholder text.',
       market: 'You are a market research specialist and business analyst. Generate comprehensive market research with full content in every section. Never return empty objects or one-line stubs—each key must have detailed paragraphs or structured data.',
       design: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines with real content in every key. Never return section headers only—every sub-key must have concrete descriptions, values, or recommendations.',
       architecture: 'You are a software architect. Produce a single, detailed Markdown document that follows a fixed 7-section structure. Each section must include all required subsections filled with substantive content (paragraphs or bullet points). Use fenced ```mermaid ... ``` blocks for every diagram—never output raw graph or sequenceDiagram without the fence. Output only valid Markdown with the exact section headings provided.'
@@ -575,7 +581,7 @@ Note: Target Audience information should be inferred from the app description an
    */
   getDeveloperPrompt(stage) {
     const prompts = {
-      technical: 'Create a comprehensive technical specification. Include full database schema (at least 2–3 tables with fields and relationships), complete API endpoints with request/response bodies, security details, and integration descriptions. Every field must have real content—no placeholders.',
+      technical: 'Create a comprehensive technical specification: include ER diagram (erDiagram), system context flowchart, API map diagram, data-flow and integration diagrams where applicable, plus full apiDesign.endpoints and narrative sections. Use raw Mermaid only in diagram fields. Every field must have real content—no placeholders.',
       market: 'Create detailed market analysis: industry overview, target audience insights, competitive landscape (multiple competitors with details), SWOT, monetization, and marketing strategy. Each section must be fully written out.',
       design: 'Create detailed design specifications: visual style guide (colors, typography, spacing), logo and iconography, UI layout (landing, dashboard, navigation, responsive), and UX principles. Every sub-key must contain actionable, detailed text.',
       architecture: 'Create a single, detailed Markdown document with exactly 7 main sections. Use the exact section titles and include all required subsections with full content. Every subsection must have at least 2–4 sentences or concrete bullets from the Technical/Market/Design specs. Use ## for main sections, ### for subsections. Put every Mermaid diagram inside ```mermaid ... ```. Output must be valid Markdown only.'

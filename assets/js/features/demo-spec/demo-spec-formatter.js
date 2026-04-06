@@ -272,11 +272,15 @@ function formatTechnical(data) {
         html += '</div>';
     }
     
-    // Architecture Overview
+    // Architecture Overview (string legacy or v2 object)
     if (data.architectureOverview) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-building"></i> Architecture Overview</h3>';
-        html += `<p>${data.architectureOverview}</p>`;
+        if (typeof data.architectureOverview === 'string') {
+            html += `<p>${data.architectureOverview}</p>`;
+        } else if (typeof data.architectureOverview === 'object' && data.architectureOverview.narrative) {
+            html += `<p>${data.architectureOverview.narrative}</p>`;
+        }
         html += '</div>';
     }
     
@@ -287,10 +291,13 @@ function formatTechnical(data) {
         if (data.databaseSchema.description) {
             html += `<p>${data.databaseSchema.description}</p>`;
         }
-        if (data.databaseSchema.tables && Array.isArray(data.databaseSchema.tables)) {
+        const dbTables = (data.databaseSchema.tables && Array.isArray(data.databaseSchema.tables))
+            ? data.databaseSchema.tables
+            : (data.databaseSchema.tablesSupplement && Array.isArray(data.databaseSchema.tablesSupplement) ? data.databaseSchema.tablesSupplement : null);
+        if (dbTables) {
             html += '<h4>Database Tables:</h4>';
             html += '<ul>';
-            data.databaseSchema.tables.forEach(table => {
+            dbTables.forEach(table => {
                 if (typeof table === 'object' && table.name) {
                     html += `<li><strong>${table.name}:</strong> ${table.columns ? table.columns.join(', ') : 'No columns specified'}</li>`;
                 } else {
@@ -302,12 +309,13 @@ function formatTechnical(data) {
         html += '</div>';
     }
     
-    // API Endpoints
-    if (data.apiEndpoints && Array.isArray(data.apiEndpoints)) {
+    // API Endpoints (v2: apiDesign.endpoints)
+    const demoApiList = (data.apiDesign && data.apiDesign.endpoints) || data.apiEndpoints;
+    if (demoApiList && Array.isArray(demoApiList)) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-plug"></i> API Endpoints</h3>';
         html += '<ul>';
-        data.apiEndpoints.forEach(endpoint => {
+        demoApiList.forEach(endpoint => {
             html += `<li><strong>${endpoint.method}</strong> <code>${endpoint.path}</code> - ${endpoint.description}</li>`;
         });
         html += '</ul>';

@@ -96,10 +96,11 @@ const DatabaseTableSchema = z.object({
   relationships: z.string()
 });
 
+/** Legacy shape (pre–diagram-embedded v2); kept for docs/tests referencing table lists */
 const DatabaseSchemaSchema = z.object({
   description: z.string(),
   tables: z.array(DatabaseTableSchema),
-  relationships: z.string().nullable()   // was .optional()
+  relationships: z.string().nullable()
 });
 
 const ApiEndpointSchema = z.object({
@@ -115,15 +116,17 @@ const ApiEndpointSchema = z.object({
 const SecurityAuthenticationSchema = z.object({
   authentication: z.string(),
   authorization: z.string(),
-  encryption: z.string().nullable(),     // was .optional()
+  encryption: z.string().nullable(),
   securityMeasures: z.string(),
-  securityCriticalPoints: z.array(z.string())
+  securityCriticalPoints: z.array(z.string()),
+  authFlowDiagramMermaid: z.string().nullable()
 });
 
 const IntegrationExternalApisSchema = z.object({
   thirdPartyServices: z.array(z.string()),
   integrations: z.string(),
-  dataFlow: z.string()
+  dataFlow: z.string(),
+  integrationLandscapeDiagramMermaid: z.string().nullable()
 });
 
 const DevOpsSchema = z.object({
@@ -132,7 +135,8 @@ const DevOpsSchema = z.object({
   monitoring: z.string(),
   scaling: z.string(),
   backup: z.string(),
-  automation: z.string()
+  automation: z.string(),
+  cicdPipelineDiagramMermaid: z.string().nullable()
 });
 
 const DataStorageSchema = z.object({
@@ -149,54 +153,40 @@ const AnalyticsSchema = z.object({
   reporting: z.string()
 });
 
-const DetailedDataModelFieldSchema = z.object({
-  name: z.string(),
-  type: z.string(),
-  required: z.boolean().nullable(),      // was .optional()
-  constraints: z.string().nullable(),    // was .optional()
-  description: z.string().nullable()     // was .optional()
+/** High-level system context: narrative + optional flowchart/graph Mermaid */
+const TechnicalArchitectureOverviewBlockSchema = z.object({
+  narrative: z.string(),
+  systemContextDiagramMermaid: z.string().nullable()
 });
 
-const DetailedDataModelSchema = z.object({
-  name: z.string(),
-  purpose: z.string(),
-  fields: z.array(DetailedDataModelFieldSchema),
-  relationships: z.string().nullable(),  // was .optional()
-  validationRules: z.string().nullable(),
-  indexes: z.string().nullable(),
-  sampleData: z.string().nullable()
+/** Primary database representation is erDiagram; optional structured table list for export/search */
+const TechnicalDatabaseSchemaBlockSchema = z.object({
+  description: z.string(),
+  erDiagramMermaid: z.string(),
+  tablesSupplement: z.array(DatabaseTableSchema).nullable()
 });
 
-const DetailedDataModelsSchema = z.object({
-  models: z.array(DetailedDataModelSchema),
-  overallStructure: z.string().nullable(),
-  totalModelsCount: z.string().nullable(),
-  crudOperations: z.string().nullable()
+const TechnicalApiDesignSchema = z.object({
+  endpointsOverviewDiagramMermaid: z.string().nullable(),
+  endpoints: z.array(ApiEndpointSchema)
 });
 
-// All fields were .optional() — now .nullable() so they appear in required[].
-const DataFlowDetailedSchema = z.object({
-  authenticationFlow: z.string().nullable(),
-  dataSubmissionFlow: z.string().nullable(),
-  queryPatterns: z.string().nullable(),
-  cachingStrategy: z.string().nullable(),
-  errorScenarios: z.string().nullable(),
-  dataValidation: z.string().nullable(),
-  transactionFlow: z.string().nullable()
+const TechnicalDataFlowBlockSchema = z.object({
+  narrative: z.string(),
+  diagramMermaid: z.string().nullable()
 });
 
 const TechnicalSchema = z.object({
   techStack: TechStackSchema,
-  architectureOverview: z.string(),
-  databaseSchema: DatabaseSchemaSchema,
-  apiEndpoints: z.array(ApiEndpointSchema),
+  architectureOverview: TechnicalArchitectureOverviewBlockSchema,
+  databaseSchema: TechnicalDatabaseSchemaBlockSchema,
+  apiDesign: TechnicalApiDesignSchema,
+  dataFlow: TechnicalDataFlowBlockSchema,
   securityAuthentication: SecurityAuthenticationSchema,
   integrationExternalApis: IntegrationExternalApisSchema,
   devops: DevOpsSchema,
   dataStorage: DataStorageSchema,
-  analytics: AnalyticsSchema,
-  detailedDataModels: DetailedDataModelsSchema,
-  dataFlowDetailed: DataFlowDetailedSchema
+  analytics: AnalyticsSchema
 });
 
 const TechnicalPayloadSchema = z.object({ technical: TechnicalSchema });
@@ -307,36 +297,27 @@ const DesignPayloadSchema = z.object({ design: DesignSchema });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Architecture (structured; serialized to Markdown for storage)
+// Narrative + Mermaid per section; raw Mermaid only (no markdown fences inside JSON)
 // ─────────────────────────────────────────────────────────────────────────────
-const CoreFunctionalityItemSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  technicalImplementation: z.string()
+const ArchitectureNarrativeDiagramSchema = z.object({
+  narrative: z.string(),
+  diagramMermaid: z.string().nullable()
 });
 
-const ThirdPartyIntegrationSchema = z.object({
-  id: z.string(),
-  name: z.string().nullable(),
-  purpose: z.string(),
-  integrationMethod: z.string()
-});
-
-const WebPerformanceStrategySchema = z.object({
-  cachingStrategy: z.string().nullable(),
-  lazyLoadingStrategy: z.string().nullable(),
-  ssrSsgApproach: z.string().nullable()
-});
-
-const EmbeddedDiagramsSchema = z.object({
-  systemMapMermaid: z.string().nullable(),
-  sequenceDiagramThirdPartyMermaid: z.string().nullable()
+const ArchitectureCoreFlowsSchema = z.object({
+  narrative: z.string(),
+  primarySequenceDiagramMermaid: z.string().nullable()
 });
 
 const ArchitectureSchema = z.object({
-  coreFunctionalityLogic: z.array(CoreFunctionalityItemSchema),
-  thirdPartyIntegrations: z.array(ThirdPartyIntegrationSchema),
-  webPerformanceStrategy: WebPerformanceStrategySchema,
-  embeddedDiagrams: EmbeddedDiagramsSchema
+  executiveSummary: z.string(),
+  logicalSystemArchitecture: ArchitectureNarrativeDiagramSchema,
+  informationArchitecture: ArchitectureNarrativeDiagramSchema,
+  functionalArchitecture: ArchitectureNarrativeDiagramSchema,
+  coreFlows: ArchitectureCoreFlowsSchema,
+  integrationLandscape: ArchitectureNarrativeDiagramSchema,
+  nonFunctionalQuality: z.string(),
+  risksAndOpenDecisions: z.string()
 });
 
 const ArchitecturePayloadSchema = z.object({ architecture: ArchitectureSchema });
@@ -426,12 +407,20 @@ module.exports = {
   OverviewPayloadSchema,
   TechnicalSchema,
   TechnicalPayloadSchema,
+  TechnicalArchitectureOverviewBlockSchema,
+  TechnicalDatabaseSchemaBlockSchema,
+  TechnicalApiDesignSchema,
+  TechnicalDataFlowBlockSchema,
   MarketSchema,
   MarketPayloadSchema,
   DesignSchema,
   DesignPayloadSchema,
   ArchitectureSchema,
   ArchitecturePayloadSchema,
+  ArchitectureNarrativeDiagramSchema,
+  ArchitectureCoreFlowsSchema,
+  DatabaseSchemaSchema,
+  ApiEndpointSchema,
   STAGE_PAYLOAD_SCHEMAS,
   STAGE_ROOT_KEYS,
   buildResponseFormat,

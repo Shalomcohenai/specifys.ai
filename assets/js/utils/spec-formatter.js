@@ -19,6 +19,14 @@ function formatTextContent(content) {
 }
 
 /**
+ * Detect JSON keys that hold raw Mermaid source (no markdown fences).
+ */
+function isMermaidFieldKey(key) {
+    if (!key || typeof key !== 'string') return false;
+    return /Mermaid$/i.test(key) || key === 'erDiagramMermaid' || key === 'mermaidCode';
+}
+
+/**
  * Format JSON content - comprehensive version from spec-viewer
  */
 function formatJSONContent(jsonData) {
@@ -169,10 +177,13 @@ function formatJSONContent(jsonData) {
                         if (subValue !== null && subValue !== undefined && subValue !== '') {
                             html += '<div style="margin-bottom: 12px;">';
                             if (typeof subValue === 'string') {
-                                // Multi-line strings - preserve line breaks
-                                const formattedText = subValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
                                 html += `<strong style="color: #6366F1;">${subKey.charAt(0).toUpperCase() + subKey.slice(1).replace(/([A-Z])/g, ' $1')}:</strong> `;
-                                html += `<span>${formattedText}</span>`;
+                                if (isMermaidFieldKey(subKey) && subValue.trim()) {
+                                    html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(subValue)}"></div>`;
+                                } else {
+                                    const formattedText = subValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
+                                    html += `<span>${formattedText}</span>`;
+                                }
                             } else if (Array.isArray(subValue)) {
                                 html += `<strong style="color: #6366F1;">${subKey.charAt(0).toUpperCase() + subKey.slice(1).replace(/([A-Z])/g, ' $1')}:</strong> `;
                                 html += '<ul style="margin-top: 8px; margin-bottom: 0;">';
@@ -203,8 +214,13 @@ function formatJSONContent(jsonData) {
                                     const nestedValue = subValue[nestedKey];
                                     if (nestedValue !== null && nestedValue !== undefined && nestedValue !== '') {
                                         if (typeof nestedValue === 'string') {
-                                            const formattedNested = nestedValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
-                                            html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> ${formattedNested}</div>`;
+                                            if (isMermaidFieldKey(nestedKey) && nestedValue.trim()) {
+                                                html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong></div>`;
+                                                html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(nestedValue)}"></div>`;
+                                            } else {
+                                                const formattedNested = nestedValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
+                                                html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> ${formattedNested}</div>`;
+                                            }
                                         } else if (Array.isArray(nestedValue)) {
                                             html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> `;
                                             html += '<ul style="margin-top: 4px; margin-bottom: 0;">';

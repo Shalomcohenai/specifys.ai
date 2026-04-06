@@ -37,10 +37,12 @@ The previous system used a three-layer retry pyramid with no schema contract:
 Schemas define the **full** output structure for each stage (same sections as before), so the model returns complete specs, not partial ones.
 
 - **Overview:** `OverviewPayloadSchema` — `overview` with ideaSummary, problemStatement, targetAudience, valueProposition, coreFeaturesOverview, userJourneySummary, detailedUserFlow, screenDescriptions, complexityScore, suggestionsIdeaSummary, suggestionsCoreFeatures.
-- **Technical:** `TechnicalPayloadSchema` — `technical` with techStack, architectureOverview, databaseSchema, apiEndpoints, securityAuthentication, integrationExternalApis, devops, dataStorage, analytics, detailedDataModels, dataFlowDetailed.
+- **Technical:** `TechnicalPayloadSchema` — `technical` with techStack; `architectureOverview` as `{ narrative, systemContextDiagramMermaid }`; `databaseSchema` as `{ description, erDiagramMermaid, tablesSupplement }`; `apiDesign` as `{ endpointsOverviewDiagramMermaid, endpoints }`; `dataFlow` as `{ narrative, diagramMermaid }`; extended `securityAuthentication` (incl. `authFlowDiagramMermaid`), `integrationExternalApis` (incl. `integrationLandscapeDiagramMermaid`), `devops` (incl. `cicdPipelineDiagramMermaid`); `dataStorage`, `analytics`. Raw Mermaid only in `*Mermaid` fields (no fences inside JSON).
 - **Market:** `MarketPayloadSchema` — `market` with industryOverview, targetAudienceInsights, competitiveLandscape, swotAnalysis, monetizationModel, marketingStrategy.
 - **Design:** `DesignPayloadSchema` — `design` with visualStyleGuide, logoIconography, uiLayout, uxPrinciples.
-- **Architecture:** `ArchitecturePayloadSchema` — `architecture` with coreFunctionalityLogic, thirdPartyIntegrations, webPerformanceStrategy, embeddedDiagrams (systemMapMermaid, sequenceDiagramThirdPartyMermaid). Backend serializes validated JSON to Markdown for storage so the frontend continues to receive a string.
+- **Architecture:** `ArchitecturePayloadSchema` — `architecture` with `executiveSummary`; `logicalSystemArchitecture`, `informationArchitecture`, `functionalArchitecture`, `integrationLandscape` each `{ narrative, diagramMermaid }`; `coreFlows` as `{ narrative, primarySequenceDiagramMermaid }`; `nonFunctionalQuality`, `risksAndOpenDecisions`. Backend serializes validated JSON to Markdown (fenced ```mermaid) for storage. Legacy payloads (coreFunctionality, embeddedDiagrams, etc.) are still rendered if present in old documents.
+
+**Standalone Diagrams tab:** `POST /api/chat/diagrams/generate` returns a deprecated stub; diagrams are embedded in Technical and Architecture sections.
 
 Helpers:
 

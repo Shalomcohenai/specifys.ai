@@ -38,14 +38,19 @@ class SpecGenerationServiceV2 {
       ? `[SPEC_REFERENCE]\nSpec ID: ${specId}\nOverview Location: Firebase > specs collection > ${specId} > overview field\nNote: The system will retrieve the full overview content automatically.`
       : `Application Overview:\n${overviewContent}`;
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
-Create a comprehensive technical specification. Required keys (each with full content):
-- techStack (object): frontend, backend, database, storage, authentication.
-- architectureOverview (string): full paragraph (80+ chars).
-- databaseSchema (object): description, tables (array of at least 2 tables: name, purpose, fields array, relationships).
-- apiEndpoints (array): each with path, method, description, requestBody, responseBody.
-- securityAuthentication (object): authentication, authorization, securityMeasures, securityCriticalPoints (array of 3-5 strings).
-- integrationExternalApis (object): thirdPartyServices (array), integrations, dataFlow.
-- devops, dataStorage, analytics, detailedDataModels, dataFlowDetailed (each with full sub-keys).
+Create a comprehensive technical specification with Mermaid diagrams where indicated. All Mermaid strings must be RAW syntax only — no markdown fences inside JSON. Use Mermaid 10–compatible syntax; use simple node labels (alphanumeric, hyphens). Prefer flowchart/graph for system maps, erDiagram for data, sequenceDiagram for auth/integration flows.
+
+Required structure:
+- techStack: { frontend, backend, database, storage, authentication } — text only, no diagram.
+- architectureOverview: { narrative (full paragraph 80+ chars on client/API/DB/cache flow), systemContextDiagramMermaid (flowchart LR or TB showing Client, API, DB, cache, storage — use null only if impossible) }.
+- databaseSchema: { description, erDiagramMermaid (valid erDiagram with entities and relationships reflecting the app), tablesSupplement (nullable array of tables with name, purpose, fields[], relationships for export — at least 2 tables when the app implies data) }.
+- apiDesign: { endpointsOverviewDiagramMermaid (nullable flowchart grouping major API areas/modules), endpoints (array: path, method, description, parameters, requestBody, responseBody, statusCodes — each endpoint substantive) }.
+- dataFlow: { narrative (main data paths, sync, validation), diagramMermaid (nullable flowchart of primary data flow) }.
+- securityAuthentication: { authentication, authorization, encryption, securityMeasures, securityCriticalPoints (array 3–5 strings), authFlowDiagramMermaid (nullable sequenceDiagram for login/session) }.
+- integrationExternalApis: { thirdPartyServices (array), integrations, dataFlow, integrationLandscapeDiagramMermaid (nullable flowchart or graph of external services) }.
+- devops: { deploymentStrategy, infrastructure, monitoring, scaling, backup, automation, cicdPipelineDiagramMermaid (nullable flowchart of CI/CD) }.
+- dataStorage: { storageStrategy, dataRetention, dataBackup, storageArchitecture }.
+- analytics: { analyticsStrategy, trackingMethods, analysisTools, reporting }.
 
 ${overviewSection}
 
@@ -251,32 +256,37 @@ Additional Details: ${additionalDetails}`;
     const marketSlice = (market || '').slice(0, 8000);
     const designSlice = (design || '').slice(0, 12000);
 
-    return `You are an expert software architect. You are using a capable language model and must provide specific, non-generic technical advice with real depth. Do not give vague or template-like answers.
+    return `You are an expert software architect. Provide specific, non-generic, actionable architecture content. Do not give vague or template-like answers.
 
 Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must match this structure exactly:
 
-1. coreFunctionalityLogic: Array of the system's most critical functions (e.g. "Real-time sync engine", "Payment processing flow"). Each item has: name (string), description (string), technicalImplementation (string summary).
+- executiveSummary: string (2–4 short paragraphs: product, scope, critical areas).
 
-2. thirdPartyIntegrations: Array of external services. You MUST use the SAME integrations already mentioned in the Technical section (integrationExternalApis.thirdPartyServices and the integrations/dataFlow prose). For each integration use a stable id slug that matches that source (e.g. "Stripe" -> "stripe", "AWS S3" -> "aws-s3"). Each item has: id (string, slug), name (string or null), purpose (string), integrationMethod (string: one of "Webhooks", "SDK", "REST API"). Be OPINIONATED: recommend the best-practice integration method for the specific tech stack defined in the Technical stage (frontend, backend, database), not generic advice.
+- logicalSystemArchitecture: { narrative (logical layers, components, communication), diagramMermaid (flowchart/graph of system — use null only if impossible) }.
 
-3. webPerformanceStrategy: For web apps define: cachingStrategy (e.g. CDN, cache headers), lazyLoadingStrategy, ssrSsgApproach (SSR vs SSG). Use null for any that do not apply. Strings only, no nested objects.
+- informationArchitecture: { narrative (business entities, domains, source of truth), diagramMermaid (erDiagram or flowchart of information domains — nullable) }.
 
-4. embeddedDiagrams: Two Mermaid diagram strings (use null if not applicable):
-   - systemMapMermaid: A system/architecture map diagram.
-   - sequenceDiagramThirdPartyMermaid: A SEQUENCE diagram showing a complex third-party integration flow (e.g. how the app talks to a Payment Gateway or Auth provider). This must be a sequenceDiagram, not a flowchart.
+- functionalArchitecture: { narrative (capabilities, modules, bounded contexts), diagramMermaid (flowchart of major functions/modules — nullable) }.
+
+- coreFlows: { narrative (critical user journeys and system reactions), primarySequenceDiagramMermaid (sequenceDiagram for one main flow — nullable; must use sequenceDiagram with at least two participants when non-null) }.
+
+- integrationLandscape: { narrative (external systems, protocols, failure points), diagramMermaid (flowchart/graph of integrations — nullable; align with Technical integrationExternalApis) }.
+
+- nonFunctionalQuality: string (performance, availability, scalability, security posture at architecture level).
+
+- risksAndOpenDecisions: string (open decisions, trade-offs, technical debt).
 
 MERMAID RULES (strict):
-- Use Mermaid 10–compatible syntax only.
-- Do NOT wrap diagram code in markdown code fences in your JSON; the strings must be raw Mermaid only.
-- No illegal characters in node or label text: avoid unescaped quotes or parentheses inside labels; use simple alphanumeric or hyphenated labels.
-- sequenceDiagramThirdPartyMermaid must use "sequenceDiagram" and show at least two participants (e.g. App and Payment Gateway) with clear steps.
+- Mermaid 10–compatible syntax only.
+- Do NOT wrap diagram code in markdown fences inside JSON; raw Mermaid only.
+- Avoid unescaped quotes or parentheses inside labels; use simple alphanumeric or hyphenated labels.
 
 Input context:
 
 ## Overview
 ${overviewSlice}
 
-## Technical (use this for tech stack and thirdPartyServices — match integration names and ids here)
+## Technical
 ${technicalSlice}
 
 ## Market
@@ -285,7 +295,7 @@ ${marketSlice}
 ## Design
 ${designSlice}
 
-Output: single JSON object with key "architecture" and the four sections above. No markdown, no explanation.`;
+Output: single JSON object with key "architecture" and the fields above. No markdown outside JSON, no explanation.`;
   }
 
   _architecturePayloadToMarkdown(payload) {
@@ -293,6 +303,65 @@ Output: single JSON object with key "architecture" and the four sections above. 
 
     const lines = [];
 
+    const pushSection = (heading, narrative, diagramCode) => {
+      lines.push(`## ${heading}`);
+      lines.push('');
+      if (narrative && String(narrative).trim()) lines.push(String(narrative).trim() + '\n');
+      if (diagramCode && typeof diagramCode === 'string' && diagramCode.trim()) {
+        lines.push('```mermaid');
+        lines.push(diagramCode.trim());
+        lines.push('```');
+        lines.push('');
+      }
+    };
+
+    if (payload.executiveSummary && String(payload.executiveSummary).trim()) {
+      lines.push('## Executive summary');
+      lines.push('');
+      lines.push(String(payload.executiveSummary).trim());
+      lines.push('');
+    }
+
+    const nd = payload.logicalSystemArchitecture;
+    if (nd && typeof nd === 'object') {
+      pushSection('Logical system architecture', nd.narrative, nd.diagramMermaid);
+    }
+
+    const ia = payload.informationArchitecture;
+    if (ia && typeof ia === 'object') {
+      pushSection('Information architecture', ia.narrative, ia.diagramMermaid);
+    }
+
+    const fa = payload.functionalArchitecture;
+    if (fa && typeof fa === 'object') {
+      pushSection('Functional architecture', fa.narrative, fa.diagramMermaid);
+    }
+
+    const cf = payload.coreFlows;
+    if (cf && typeof cf === 'object') {
+      pushSection('Core user and system flows', cf.narrative, cf.primarySequenceDiagramMermaid);
+    }
+
+    const il = payload.integrationLandscape;
+    if (il && typeof il === 'object') {
+      pushSection('Integration landscape', il.narrative, il.diagramMermaid);
+    }
+
+    if (payload.nonFunctionalQuality && String(payload.nonFunctionalQuality).trim()) {
+      lines.push('## Non-functional quality');
+      lines.push('');
+      lines.push(String(payload.nonFunctionalQuality).trim());
+      lines.push('');
+    }
+
+    if (payload.risksAndOpenDecisions && String(payload.risksAndOpenDecisions).trim()) {
+      lines.push('## Risks and open decisions');
+      lines.push('');
+      lines.push(String(payload.risksAndOpenDecisions).trim());
+      lines.push('');
+    }
+
+    // Legacy v1 architecture payload (pre diagram-embedded schema)
     if (Array.isArray(payload.coreFunctionalityLogic) && payload.coreFunctionalityLogic.length > 0) {
       lines.push('## Core functionality');
       lines.push('');

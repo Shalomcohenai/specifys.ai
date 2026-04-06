@@ -1047,11 +1047,10 @@ function displaySpec(data) {
             if (diagramsTab) {
                 diagramsTab.disabled = false;
             }
-            // Show Generate only if no diagrams yet
-            const hasDiagrams = !!(data.diagrams && Array.isArray(data.diagrams.diagrams) && data.diagrams.diagrams.length > 0);
+            // Standalone diagram generation retired; diagrams live in Technical & Architecture
             const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
             if (generateDiagramsBtn) {
-                generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+                generateDiagramsBtn.style.display = 'none';
             }
         }
         
@@ -1548,12 +1547,17 @@ function displayTechnical(technical) {
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
-    // Format the technical content
+    // Format the technical content (string JSON or parsed object)
     const formattedContent = formatTextContent(technical);
     container.innerHTML = formattedContent;
-    
+    renderSpecMermaidPlaceholders(container);
+
+    var technicalForMinimal = technical;
+    if (typeof technical === 'string') {
+        try { technicalForMinimal = JSON.parse(technical); } catch (e) { technicalForMinimal = null; }
+    }
     // If content appears minimal, show a short notice so user can retry
-    if (isTechnicalContentMinimal(technical)) {
+    if (isTechnicalContentMinimal(technicalForMinimal)) {
         const notice = document.createElement('div');
         notice.className = 'technical-minimal-notice';
         notice.setAttribute('role', 'alert');
@@ -1588,15 +1592,20 @@ function displayTechnical(technical) {
 function isTechnicalContentMinimal(technical) {
     if (!technical || typeof technical !== 'object') return false;
     const arch = technical.architectureOverview;
-    const hasArch = typeof arch === 'string' && arch.trim().length >= 80;
-    const tables = technical.databaseSchema?.tables;
-    const hasTables = Array.isArray(tables) && tables.length >= 2;
-    const endpoints = technical.apiEndpoints;
+    const hasArchLegacy = typeof arch === 'string' && arch.trim().length >= 80;
+    const hasArchV2 = arch && typeof arch === 'object' && typeof arch.narrative === 'string' && arch.narrative.trim().length >= 80;
+    const hasArch = hasArchLegacy || hasArchV2;
+    const er = technical.databaseSchema && technical.databaseSchema.erDiagramMermaid;
+    const hasEr = typeof er === 'string' && er.trim().length > 20;
+    const tableList = technical.databaseSchema && (technical.databaseSchema.tables || technical.databaseSchema.tablesSupplement);
+    const hasTables = Array.isArray(tableList) && tableList.length >= 2;
+    const hasDb = hasEr || hasTables;
+    const endpoints = (technical.apiDesign && technical.apiDesign.endpoints) || technical.apiEndpoints;
     const hasEndpoints = Array.isArray(endpoints) && endpoints.length > 0;
-    const hasRequestBody = !hasEndpoints || endpoints.some(function (e) {
+    const endpointsComplete = hasEndpoints && endpoints.some(function (e) {
         return (e.requestBody && String(e.requestBody).trim()) || (e.responseBody && String(e.responseBody).trim());
     });
-    return !hasArch || !hasTables || !hasRequestBody;
+    return !hasArch || !hasDb || !hasEndpoints || !endpointsComplete;
 }
 
 function displayMarket(market) {
@@ -2589,7 +2598,7 @@ function displayDiagramsFromData(data) {
         return;
     }
     
-    // THIRD CHECK: Diagrams must be generated and valid
+    // THIRD CHECK: Legacy standalone diagrams (optional); embedded Mermaid lives in Technical & Architecture
     if (!data.diagrams?.generated || 
         !data.diagrams?.diagrams || 
         !Array.isArray(data.diagrams.diagrams) || 
@@ -2597,7 +2606,8 @@ function displayDiagramsFromData(data) {
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
-                <p>Click "Generate Diagrams" to create visual representations of your specification.</p>
+                <p>Visual diagrams are generated inside the <strong>Technical Specification</strong> and <strong>Architecture</strong> tabs (Mermaid). Legacy standalone diagram sets are no longer created here.</p>
+                <p style="margin-top:12px;">Open those tabs to view system, ER, API, and flow diagrams.</p>
             </div>
         `;
         return;
@@ -2614,7 +2624,7 @@ function displayDiagramsFromData(data) {
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
-                <p>No valid diagrams found. Click "Generate Diagrams" to create visual representations.</p>
+                <p>No valid legacy diagrams in this spec. Use the <strong>Technical</strong> and <strong>Architecture</strong> tabs for embedded Mermaid diagrams.</p>
             </div>
         `;
         return;
@@ -2697,24 +2707,20 @@ function displayPromptsFromData(data) {
 }
 
 function formatTextContent(content) {
-    
     if (!content) {
         return '<p>No content available</p>';
     }
-    
-    // Debug logging
-
-    
-    // Check if content is JSON
-    let parsedContent;
-    try {
-        parsedContent = JSON.parse(content);
-
-        return formatJSONContent(parsedContent);
-    } catch (error) {
-
-        return formatPlainTextContent(content);
+    if (typeof content === 'object' && content !== null) {
+        return formatJSONContent(content);
     }
+    if (typeof content === 'string') {
+        try {
+            return formatJSONContent(JSON.parse(content));
+        } catch (error) {
+            return formatPlainTextContent(content);
+        }
+    }
+    return formatPlainTextContent(String(content));
 }
 
 /**
@@ -2795,6 +2801,32 @@ function escapeHtmlSpec(str) {
     if (str == null) return '';
     const s = String(str);
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Render Mermaid blocks produced by formatJSONContent (.spec-mermaid-placeholder). */
+function renderSpecMermaidPlaceholders(container) {
+    if (!container || typeof mermaid === 'undefined' || !mermaid.render) return;
+    const nodes = container.querySelectorAll('.spec-mermaid-placeholder[data-spec-mermaid]');
+    nodes.forEach(function (el, index) {
+        const raw = el.getAttribute('data-spec-mermaid');
+        if (!raw) return;
+        var code;
+        try {
+            code = decodeURIComponent(raw);
+        } catch (e) {
+            return;
+        }
+        const wrap = document.createElement('div');
+        wrap.className = 'architecture-mermaid-wrap';
+        wrap.innerHTML = '<div class="architecture-mermaid-loading">Rendering diagram...</div>';
+        el.parentNode.replaceChild(wrap, el);
+        const uniqueId = 'spec-mer-' + index + '-' + Date.now();
+        mermaid.render(uniqueId, code).then(function (result) {
+            wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
+        }).catch(function () {
+            wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(code) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
+        });
+    });
 }
 
 /** Render Suggestions block for a section (Idea Summary or Core Features) */
@@ -3095,11 +3127,22 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle new Architecture Overview
+    // Handle new Architecture Overview (string legacy or { narrative, systemContextDiagramMermaid })
     if (jsonData.architectureOverview) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-building"></i> Architecture Overview</h3>';
-        html += `<p>${jsonData.architectureOverview}</p>`;
+        const ao = jsonData.architectureOverview;
+        if (typeof ao === 'string') {
+            html += `<p>${escapeHtmlSpec(ao)}</p>`;
+        } else if (typeof ao === 'object' && ao !== null) {
+            if (ao.narrative) {
+                html += `<p>${escapeHtmlSpec(ao.narrative)}</p>`;
+            }
+            if (ao.systemContextDiagramMermaid && String(ao.systemContextDiagramMermaid).trim()) {
+                html += '<h4>System context</h4>';
+                html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(ao.systemContextDiagramMermaid)}"></div>`;
+            }
+        }
         html += '</div>';
     }
     
@@ -3109,12 +3152,20 @@ function formatJSONContent(jsonData) {
         html += '<h3><i class="fa fa-database"></i> Database Schema</h3>';
         
         if (jsonData.databaseSchema.description) {
-            html += `<p>${jsonData.databaseSchema.description}</p>`;
+            html += `<p>${escapeHtmlSpec(jsonData.databaseSchema.description)}</p>`;
+        }
+
+        if (jsonData.databaseSchema.erDiagramMermaid && String(jsonData.databaseSchema.erDiagramMermaid).trim()) {
+            html += '<h4>ER diagram</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.databaseSchema.erDiagramMermaid)}"></div>`;
         }
         
-        if (jsonData.databaseSchema.tables && Array.isArray(jsonData.databaseSchema.tables)) {
+        const dbTables = (jsonData.databaseSchema.tables && Array.isArray(jsonData.databaseSchema.tables))
+            ? jsonData.databaseSchema.tables
+            : (jsonData.databaseSchema.tablesSupplement && Array.isArray(jsonData.databaseSchema.tablesSupplement) ? jsonData.databaseSchema.tablesSupplement : null);
+        if (dbTables) {
             html += '<h4>Tables:</h4>';
-            jsonData.databaseSchema.tables.forEach(table => {
+            dbTables.forEach(table => {
                 // Check if table is a string or an object
                 if (typeof table === 'string') {
                     // Handle string format (legacy)
@@ -3171,7 +3222,62 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle new API Endpoints
+    // API design (v2): overview diagram + endpoints array
+    if (jsonData.apiDesign && typeof jsonData.apiDesign === 'object') {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-project-diagram"></i> API Design</h3>';
+        if (jsonData.apiDesign.endpointsOverviewDiagramMermaid && String(jsonData.apiDesign.endpointsOverviewDiagramMermaid).trim()) {
+            html += '<h4>API map</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.apiDesign.endpointsOverviewDiagramMermaid)}"></div>`;
+        }
+        if (jsonData.apiDesign.endpoints && Array.isArray(jsonData.apiDesign.endpoints)) {
+            jsonData.apiDesign.endpoints.forEach(endpoint => {
+            html += `<h4>${escapeHtmlSpec(endpoint.method || 'N/A')} ${escapeHtmlSpec(endpoint.path || 'N/A')}</h4>`;
+            html += `<p><strong>Description:</strong> ${escapeHtmlSpec(endpoint.description || 'No description provided')}</p>`;
+            if (endpoint.parameters) {
+                html += `<p><strong>Parameters:</strong> ${escapeHtmlSpec(endpoint.parameters)}</p>`;
+            }
+            if (endpoint.requestExample) {
+                html += `<p><strong>Request Example:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(String(endpoint.requestExample))}</code></pre>`;
+            }
+            if (endpoint.requestBody) {
+                const rb = typeof endpoint.requestBody === 'string' ? endpoint.requestBody : JSON.stringify(endpoint.requestBody, null, 2);
+                html += `<p><strong>Request Body:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(rb)}</code></pre>`;
+            }
+            if (endpoint.responseExample) {
+                html += `<p><strong>Response Example:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(String(endpoint.responseExample))}</code></pre>`;
+            }
+            if (endpoint.responseBody) {
+                const resb = typeof endpoint.responseBody === 'string' ? endpoint.responseBody : JSON.stringify(endpoint.responseBody, null, 2);
+                html += `<p><strong>Response Body:</strong></p>`;
+                html += `<pre><code>${escapeHtmlSpec(resb)}</code></pre>`;
+            }
+            if (endpoint.statusCodes) {
+                html += `<p><strong>Status Codes:</strong> ${escapeHtmlSpec(endpoint.statusCodes)}</p>`;
+            }
+            });
+        }
+        html += '</div>';
+    }
+
+    // Data flow (v2)
+    if (jsonData.dataFlow && typeof jsonData.dataFlow === 'object') {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-share-alt"></i> Data Flow</h3>';
+        if (jsonData.dataFlow.narrative) {
+            html += `<p>${escapeHtmlSpec(jsonData.dataFlow.narrative)}</p>`;
+        }
+        if (jsonData.dataFlow.diagramMermaid && String(jsonData.dataFlow.diagramMermaid).trim()) {
+            html += '<h4>Flow diagram</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.dataFlow.diagramMermaid)}"></div>`;
+        }
+        html += '</div>';
+    }
+
+    // Handle new API Endpoints (legacy top-level)
     if (jsonData.apiEndpoints && Array.isArray(jsonData.apiEndpoints)) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-plug"></i> API Endpoints</h3>';
@@ -3242,6 +3348,11 @@ function formatJSONContent(jsonData) {
         if (jsonData.securityAuthentication.securityMeasures) {
             html += `<p><strong>Security Measures:</strong> ${jsonData.securityAuthentication.securityMeasures}</p>`;
         }
+
+        if (jsonData.securityAuthentication.authFlowDiagramMermaid && String(jsonData.securityAuthentication.authFlowDiagramMermaid).trim()) {
+            html += '<h4>Authentication flow</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.securityAuthentication.authFlowDiagramMermaid)}"></div>`;
+        }
         
         html += '</div>';
     }
@@ -3266,6 +3377,11 @@ function formatJSONContent(jsonData) {
         
         if (jsonData.integrationExternalApis.dataFlow) {
             html += `<p><strong>Data Flow:</strong> ${jsonData.integrationExternalApis.dataFlow}</p>`;
+        }
+
+        if (jsonData.integrationExternalApis.integrationLandscapeDiagramMermaid && String(jsonData.integrationExternalApis.integrationLandscapeDiagramMermaid).trim()) {
+            html += '<h4>Integration landscape</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.integrationExternalApis.integrationLandscapeDiagramMermaid)}"></div>`;
         }
         
         html += '</div>';
@@ -3298,6 +3414,11 @@ function formatJSONContent(jsonData) {
         
         if (jsonData.devops.automation) {
             html += `<p><strong>Automation:</strong> ${jsonData.devops.automation}</p>`;
+        }
+
+        if (jsonData.devops.cicdPipelineDiagramMermaid && String(jsonData.devops.cicdPipelineDiagramMermaid).trim()) {
+            html += '<h4>CI/CD pipeline</h4>';
+            html += `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(jsonData.devops.cicdPipelineDiagramMermaid)}"></div>`;
         }
         
         html += '</div>';
@@ -5511,11 +5632,9 @@ function refreshTabsAfterDesignReady() {
         const diagramsTab = document.getElementById('diagramsTab');
         if (diagramsTab) {
             diagramsTab.disabled = false;
-            // Show Generate only if no diagrams yet
-            const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
             const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
             if (generateDiagramsBtn) {
-                generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+                generateDiagramsBtn.style.display = 'none';
             }
         }
     }
@@ -6007,10 +6126,9 @@ async function approveOverview() {
                         if (diagramsTab) {
                             diagramsTab.disabled = false;
                         }
-                        const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
                         const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
                         if (generateDiagramsBtn) {
-                            generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+                            generateDiagramsBtn.style.display = 'none';
                         }
                     }
                     
@@ -7391,6 +7509,22 @@ async function generateDiagrams() {
         
         // Call new memory-based API endpoint - only send specId
         const result = await window.api.post('/api/chat/diagrams/generate', { specId: currentSpecData.id });
+
+        if (result && result.deprecated) {
+            showNotification(result.message || 'Diagrams are embedded in the Technical and Architecture tabs.', 'info');
+            if (currentSpecData && currentSpecData.status) {
+                currentSpecData.status.diagrams = 'ready';
+                updateNotificationDot('diagrams', 'ready');
+            }
+            updateDiagramsStatus('ready');
+            if (generateBtn) {
+                generateBtn.disabled = false;
+                generateBtn.style.display = 'none';
+                generateBtn.innerHTML = 'Generate Diagrams';
+                generateBtn.style.cursor = 'pointer';
+            }
+            return;
+        }
 
         if (result && result.diagrams && Array.isArray(result.diagrams)) {
             // Store ALL diagrams data globally (including broken ones)
