@@ -48,33 +48,18 @@ class MermaidManager {
         if (this.isInitialized) return;
 
         try {
-            // Wait for Mermaid to be available
             if (typeof mermaid === 'undefined') {
-                await this.waitForMermaid();
+                await this.loadMermaid();
+            }
+            if (typeof mermaid === 'undefined' || !mermaid.initialize) {
+                return;
             }
 
-            // Initialize Mermaid with configuration
             mermaid.initialize(this.config);
             this.isInitialized = true;
         } catch (error) {
 
         }
-    }
-
-    /**
-     * Wait for Mermaid to be available
-     */
-    async waitForMermaid() {
-        return new Promise((resolve) => {
-            const checkMermaid = () => {
-                if (typeof mermaid !== 'undefined') {
-                    resolve();
-                } else {
-                    setTimeout(checkMermaid, 100);
-                }
-            };
-            checkMermaid();
-        });
     }
 
     /**
