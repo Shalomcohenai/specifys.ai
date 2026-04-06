@@ -2449,15 +2449,53 @@ function displayArchitectureFromData(data) {
 }
 
 /**
- * Wrap raw Mermaid (graph TD;, sequenceDiagram; etc.) in ```mermaid ... ``` so the viewer can render them.
+ * Wrap raw Mermaid (erDiagram, graph TD, sequenceDiagram, etc.) in ```mermaid ... ``` so displayArchitecture can render them.
+ * Skips regions already inside ```mermaid ... ``` to avoid double-wrapping.
  */
 function normalizeArchitectureMermaidFences(content) {
     if (!content || typeof content !== 'string') return content;
-    // Match raw mermaid blocks: line starting with graph XX; or sequenceDiagram; then lines until ## or ``` or double newline
-    return content.replace(/(\n)(graph\s+[A-Za-z]+\s*;|sequenceDiagram\s*;)([\s\S]*?)(?=\n##\s|\n```\s*\n|\n\n\n|$)/gim, function (_, newline, first, rest) {
-        var block = first + rest;
-        if (block.length > 5000) block = block.slice(0, 5000) + '\n';
-        return newline + '```mermaid\n' + block.trim() + '\n```';
+    const fenced = /```mermaid\s*[\s\S]*?```/gi;
+    const out = [];
+    let last = 0;
+    let m;
+    while ((m = fenced.exec(content)) !== null) {
+        out.push(wrapRawMermaidBlocksInPlainText(content.slice(last, m.index)));
+        out.push(m[0]);
+        last = m.index + m[0].length;
+    }
+    out.push(wrapRawMermaidBlocksInPlainText(content.slice(last)));
+    return out.join('');
+}
+
+/**
+ * Find diagram blocks that are not yet fenced and wrap them. Stops before next ## heading or closing ```.
+ */
+function wrapRawMermaidBlocksInPlainText(text) {
+    if (!text || !text.trim()) return text;
+    // Keywords at line start (or start of string). Most diagrams do not use a trailing semicolon on line 1.
+    const diagramLine = [
+        'graph\\s+[A-Za-z]+(?:\\s*;)?',
+        'flowchart\\s+[A-Za-z]+(?:\\s*;)?',
+        'sequenceDiagram\\s*;?',
+        'erDiagram\\b',
+        'classDiagram\\b',
+        'stateDiagram-v2\\b',
+        'stateDiagram\\b',
+        'journey\\b',
+        'gantt\\b',
+        'pie\\b',
+        'requirementDiagram\\b',
+        'C4Context\\b',
+        'blockDiagram\\b'
+    ].join('|');
+    const re = new RegExp(
+        '(^|\\n)(' + diagramLine + ')([\\s\\S]*?)(?=\\n##\\s|\\n```|$)',
+        'gim'
+    );
+    return text.replace(re, function (match, lead, keyword, rest) {
+        var block = keyword + rest;
+        if (block.length > 50000) block = block.slice(0, 50000) + '\n';
+        return lead + '```mermaid\n' + block.trim() + '\n```';
     });
 }
 
