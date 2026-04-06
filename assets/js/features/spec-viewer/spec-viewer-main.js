@@ -2242,9 +2242,9 @@ function parseDesignData(designContent) {
                 if (jsonData.visualStyleGuide.colorReasoning) {
                     result.colorReasoning = jsonData.visualStyleGuide.colorReasoning;
                 }
-                // Extract colors from JSON
+                // Extract colors from JSON (object map or semicolon-separated string)
                 if (jsonData.visualStyleGuide.colors) {
-                    const colorsObj = jsonData.visualStyleGuide.colors;
+                    const colorsObj = normalizeVisualStyleGuideColors(jsonData.visualStyleGuide.colors);
                     Object.entries(colorsObj).forEach(([key, value]) => {
                         const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                         result.colors[capitalizedKey] = value;
@@ -2253,10 +2253,12 @@ function parseDesignData(designContent) {
                 // Extract typography from JSON
                 if (jsonData.visualStyleGuide.typography) {
                     const typographyObj = jsonData.visualStyleGuide.typography;
-                    Object.entries(typographyObj).forEach(([key, value]) => {
-                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-                        result.typography[capitalizedKey] = value;
-                    });
+                    if (typeof typographyObj === 'object' && typographyObj !== null && !Array.isArray(typographyObj)) {
+                        Object.entries(typographyObj).forEach(([key, value]) => {
+                            const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                            result.typography[capitalizedKey] = value;
+                        });
+                    }
                 }
 
                 return result;
@@ -2269,9 +2271,9 @@ function parseDesignData(designContent) {
                 if (jsonData.design.visualStyleGuide.colorReasoning) {
                     result.colorReasoning = jsonData.design.visualStyleGuide.colorReasoning;
                 }
-                // Extract colors from JSON
+                // Extract colors from JSON (object map or semicolon-separated string)
                 if (jsonData.design.visualStyleGuide.colors) {
-                    const colorsObj = jsonData.design.visualStyleGuide.colors;
+                    const colorsObj = normalizeVisualStyleGuideColors(jsonData.design.visualStyleGuide.colors);
                     Object.entries(colorsObj).forEach(([key, value]) => {
                         const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                         result.colors[capitalizedKey] = value;
@@ -2280,10 +2282,12 @@ function parseDesignData(designContent) {
                 // Extract typography from JSON
                 if (jsonData.design.visualStyleGuide.typography) {
                     const typographyObj = jsonData.design.visualStyleGuide.typography;
-                    Object.entries(typographyObj).forEach(([key, value]) => {
-                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-                        result.typography[capitalizedKey] = value;
-                    });
+                    if (typeof typographyObj === 'object' && typographyObj !== null && !Array.isArray(typographyObj)) {
+                        Object.entries(typographyObj).forEach(([key, value]) => {
+                            const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                            result.typography[capitalizedKey] = value;
+                        });
+                    }
                 }
 
                 return result;
@@ -2983,6 +2987,62 @@ function toggleSuggestionSelection(item) {
 }
 
 /** Escape for HTML and attributes (used in overview suggestions) */
+/**
+ * Parse semicolon-separated color string from API (e.g. "#1E90FF - Blue (Primary); #FF4500 - ...")
+ * into { RoleName: "#HEX - description" } so UI does not treat the string as per-character entries.
+ */
+function parseColorsSemicolonStringToObject(str) {
+    const out = {};
+    if (!str || typeof str !== 'string') return out;
+    const parts = str.split(';').map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+    parts.forEach(function (part, i) {
+        const m = part.match(/^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\s*-\s*(.+)$/i);
+        if (m) {
+            let hex = m[1];
+            if (hex.length === 3) {
+                hex = '#' + hex.split('').map(function (c) { return c + c; }).join('');
+            } else {
+                hex = '#' + hex;
+            }
+            const rest = m[2].trim();
+            const roleMatch = rest.match(/\(([^)]+)\)\s*$/);
+            let key = roleMatch ? roleMatch[1].trim() : ('Color ' + (i + 1));
+            if (out[key]) {
+                key = key + ' (' + (i + 1) + ')';
+            }
+            out[key] = hex + ' - ' + rest;
+            return;
+        }
+        const hexOnly = part.match(/#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/i);
+        if (hexOnly) {
+            let h = hexOnly[1];
+            if (h.length === 3) {
+                h = '#' + h.split('').map(function (c) { return c + c; }).join('');
+            } else {
+                h = '#' + h;
+            }
+            out['Color ' + (i + 1)] = h;
+        }
+    });
+    return out;
+}
+
+/** Normalize visualStyleGuide.colors whether it is an object map or one semicolon-separated string (v2 API). */
+function normalizeVisualStyleGuideColors(colors) {
+    if (colors == null) return {};
+    if (typeof colors === 'object' && !Array.isArray(colors)) {
+        return colors;
+    }
+    if (typeof colors === 'string') {
+        return parseColorsSemicolonStringToObject(colors);
+    }
+    return {};
+}
+
+if (typeof window !== 'undefined') {
+    window.normalizeVisualStyleGuideColors = normalizeVisualStyleGuideColors;
+}
+
 function escapeHtmlSpec(str) {
     if (str == null) return '';
     const s = String(str);
@@ -4698,24 +4758,29 @@ function formatJSONContent(jsonData) {
             html += '<h4>Color Palette</h4>';
             html += '<div class="feature-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">';
             
-            // Limit to 5 colors maximum
-            const colorEntries = Object.entries(jsonData.visualStyleGuide.colors).slice(0, 5);
+            const colorsMap = normalizeVisualStyleGuideColors(jsonData.visualStyleGuide.colors);
+            const colorEntries = Object.entries(colorsMap).slice(0, 24);
             
             colorEntries.forEach(([key, value]) => {
-                // Extract color code (everything before the first space or dash)
-                const colorMatch = String(value).match(/^#?[0-9A-Fa-f]{6}/);
-                const color = colorMatch ? colorMatch[0] : (String(value).startsWith('#') ? value : '#6366F1');
+                const colorMatch = String(value).match(/^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/);
+                let color = colorMatch ? ('#' + colorMatch[1]) : (String(value).startsWith('#') ? value.split(/\s/)[0] : '#6366F1');
+                if (color.length === 4 && color.startsWith('#')) {
+                    const x = color.slice(1);
+                    color = '#' + x.split('').map(function (c) { return c + c; }).join('');
+                }
+                if (!/^#[0-9A-Fa-f]{6}$/i.test(color)) {
+                    color = '#6366F1';
+                }
                 
-                // Extract description if available (after dash)
                 const dashIndex = String(value).indexOf(' - ');
                 const description = dashIndex > 0 ? String(value).substring(dashIndex + 3) : '';
                 
                 html += '<div style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #e0e0e0; text-align: center;">';
                 html += `<div style="width: 60px; height: 60px; border-radius: 12px; background: ${color}; margin: 0 auto 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>`;
-                html += `<div style="font-weight: 600; margin-bottom: 5px;">${key.charAt(0).toUpperCase() + key.slice(1)}</div>`;
-                html += `<div style="color: #666; font-size: 14px;">${color}</div>`;
+                html += `<div style="font-weight: 600; margin-bottom: 5px;">${escapeHtmlSpec(key.charAt(0).toUpperCase() + key.slice(1))}</div>`;
+                html += `<div style="color: #666; font-size: 14px;">${escapeHtmlSpec(color)}</div>`;
                 if (description) {
-                    html += `<div style="color: #888; font-size: 13px; margin-top: 5px;">${description}</div>`;
+                    html += `<div style="color: #888; font-size: 13px; margin-top: 5px;">${escapeHtmlSpec(description)}</div>`;
                 }
                 html += '</div>';
             });

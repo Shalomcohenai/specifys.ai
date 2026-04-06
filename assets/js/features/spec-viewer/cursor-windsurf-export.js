@@ -324,7 +324,12 @@ function generateDesignGuidelines(specData) {
                 
                 if (design.visualStyleGuide.colors) {
                     content += `### Colors\n\n`;
-                    Object.entries(design.visualStyleGuide.colors).forEach(([key, value]) => {
+                    const colorsMap = (typeof window !== 'undefined' && typeof window.normalizeVisualStyleGuideColors === 'function')
+                        ? window.normalizeVisualStyleGuideColors(design.visualStyleGuide.colors)
+                        : (typeof design.visualStyleGuide.colors === 'object' && design.visualStyleGuide.colors !== null && !Array.isArray(design.visualStyleGuide.colors)
+                            ? design.visualStyleGuide.colors
+                            : {});
+                    Object.entries(colorsMap).forEach(([key, value]) => {
                         content += `- **${key}:** ${value}\n`;
                     });
                     content += `\n`;
