@@ -3041,15 +3041,24 @@ function enhanceClarificationUI(container, tabName) {
 
         trigger.addEventListener('click', function (event) {
             event.preventDefault();
+            event.stopPropagation();
             const isHidden = panel.classList.contains('hidden');
             container.querySelectorAll('.clarify-inline-panel').forEach(function (otherPanel) {
                 if (otherPanel !== panel) otherPanel.classList.add('hidden');
             });
-            panel.classList.toggle('hidden', !isHidden);
+            if (isHidden) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
             if (isHidden) {
                 const input = panel.querySelector('.clarify-input');
                 if (input) input.focus();
             }
+        });
+
+        panel.addEventListener('click', function (event) {
+            event.stopPropagation();
         });
 
         const form = panel.querySelector('.clarify-form');

@@ -2672,8 +2672,9 @@ button[onclick*="openVisualizer"]:active {
 .tab-content .content-body .content-section .clarify-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
+  text-align: left;
 }
 
 .clarify-trigger {
@@ -2688,6 +2689,11 @@ button[onclick*="openVisualizer"]:active {
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.tab-content .content-body .content-section .clarify-heading .clarify-trigger {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .content-section:hover .clarify-trigger,
