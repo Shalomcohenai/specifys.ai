@@ -386,6 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (clickedInside) return;
         document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
             panel.classList.add('hidden');
+            const trigger = panel.closest('h3')?.querySelector('.clarify-trigger');
+            if (trigger) trigger.classList.remove('hidden');
         });
     });
 
@@ -393,6 +395,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key !== 'Escape') return;
         document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
             panel.classList.add('hidden');
+            const trigger = panel.closest('h3')?.querySelector('.clarify-trigger');
+            if (trigger) trigger.classList.remove('hidden');
         });
     });
 });
@@ -3008,14 +3012,13 @@ function createClarifyPanel(sectionTitle) {
     const panel = document.createElement('div');
     panel.className = 'clarify-inline-panel hidden';
     panel.innerHTML = `
-        <div class="clarify-panel-title">Ask for clarification</div>
-        <div class="clarify-panel-subtitle">${escapeHtmlSpec(sectionTitle)}</div>
         <form class="clarify-form">
-            <textarea class="clarify-input" rows="3" maxlength="1200" placeholder="Ask anything about this section..."></textarea>
+            <input class="clarify-input" type="text" maxlength="1200" placeholder="Ask for clarification" />
             <button type="submit" class="clarify-submit" aria-label="Send clarification question">
                 <span class="clarify-submit-label">Send</span>
                 <span class="clarify-submit-spinner" aria-hidden="true"></span>
             </button>
+            <button type="button" class="clarify-cancel" aria-label="Close clarification input">×</button>
         </form>
         <div class="clarify-answer hidden">
             <div class="clarify-answer-title">Answer</div>
@@ -3044,12 +3047,18 @@ function enhanceClarificationUI(container, tabName) {
             event.stopPropagation();
             const isHidden = panel.classList.contains('hidden');
             container.querySelectorAll('.clarify-inline-panel').forEach(function (otherPanel) {
-                if (otherPanel !== panel) otherPanel.classList.add('hidden');
+                if (otherPanel !== panel) {
+                    otherPanel.classList.add('hidden');
+                    const otherTrigger = otherPanel.closest('h3')?.querySelector('.clarify-trigger');
+                    if (otherTrigger) otherTrigger.classList.remove('hidden');
+                }
             });
             if (isHidden) {
                 panel.classList.remove('hidden');
+                trigger.classList.add('hidden');
             } else {
                 panel.classList.add('hidden');
+                trigger.classList.remove('hidden');
             }
             if (isHidden) {
                 const input = panel.querySelector('.clarify-input');
@@ -3060,6 +3069,15 @@ function enhanceClarificationUI(container, tabName) {
         panel.addEventListener('click', function (event) {
             event.stopPropagation();
         });
+
+        const cancelBtn = panel.querySelector('.clarify-cancel');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                panel.classList.add('hidden');
+                trigger.classList.remove('hidden');
+            });
+        }
 
         const form = panel.querySelector('.clarify-form');
         if (form) {
@@ -3074,7 +3092,7 @@ function enhanceClarificationUI(container, tabName) {
         }
 
         heading.appendChild(trigger);
-        sectionElement.insertBefore(panel, heading.nextSibling);
+        heading.appendChild(panel);
     });
 }
 

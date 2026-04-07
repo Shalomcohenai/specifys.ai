@@ -2675,6 +2675,7 @@ button[onclick*="openVisualizer"]:active {
   justify-content: flex-start;
   gap: 10px;
   text-align: left;
+  position: relative;
 }
 
 .clarify-trigger {
@@ -2696,6 +2697,10 @@ button[onclick*="openVisualizer"]:active {
   flex-shrink: 0;
 }
 
+.clarify-trigger.hidden {
+  display: none;
+}
+
 .content-section:hover .clarify-trigger,
 .content-section:focus-within .clarify-trigger {
   opacity: 1;
@@ -2713,8 +2718,9 @@ button[onclick*="openVisualizer"]:active {
 }
 
 .clarify-inline-panel {
-  margin: 10px 0 14px;
-  padding: 12px;
+  margin-left: auto;
+  width: min(420px, 68vw);
+  padding: 8px;
   border: 1px solid #f0d5c9;
   border-radius: 10px;
   background: #fffaf7;
@@ -2724,32 +2730,19 @@ button[onclick*="openVisualizer"]:active {
   display: none;
 }
 
-.clarify-panel-title {
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 2px;
-}
-
-.clarify-panel-subtitle {
-  font-size: 12px;
-  color: #777;
-  margin-bottom: 10px;
-}
-
 .clarify-form {
   display: flex;
   gap: 8px;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .clarify-input {
   flex: 1;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 10px;
+  padding: 9px 10px;
   font-size: 14px;
-  resize: vertical;
-  min-height: 70px;
+  min-height: 38px;
 }
 
 .clarify-input:focus {
@@ -2759,8 +2752,8 @@ button[onclick*="openVisualizer"]:active {
 }
 
 .clarify-submit {
-  min-width: 86px;
-  height: 40px;
+  min-width: 74px;
+  height: 38px;
   border: none;
   border-radius: 8px;
   background: #FF6B35;
@@ -2771,6 +2764,21 @@ button[onclick*="openVisualizer"]:active {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.clarify-cancel {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid #e4cfc3;
+  background: #fff;
+  color: #777;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .clarify-submit:disabled {
@@ -2793,8 +2801,8 @@ button[onclick*="openVisualizer"]:active {
 }
 
 .clarify-answer {
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #f0d5c9;
 }
 
@@ -2825,11 +2833,15 @@ button[onclick*="openVisualizer"]:active {
   }
 
   .clarify-form {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
-  .clarify-submit {
-    width: 100%;
+  .clarify-inline-panel {
+    width: min(96vw, 420px);
+  }
+
+  .clarify-input {
+    min-width: 160px;
   }
 }
