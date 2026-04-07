@@ -199,6 +199,7 @@ let currentPanY = 0;
 let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
+const CLARIFY_SUPPORTED_TABS = new Set(['overview', 'technical', 'market', 'design']);
 
 // Get spec ID from URL if provided
 const urlParams = new URLSearchParams(window.location.search);
@@ -378,6 +379,21 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             toggleSuggestionSelection(item);
         }
+    });
+
+    document.addEventListener('click', function (e) {
+        const clickedInside = e.target.closest('.clarify-inline-panel, .clarify-trigger');
+        if (clickedInside) return;
+        document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
+            panel.classList.add('hidden');
+        });
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
+            panel.classList.add('hidden');
+        });
     });
 });
 
@@ -1319,6 +1335,7 @@ function displayOverview(overview) {
                 // Format and display
                 const formattedContent = formatTextContent(overview);
                 container.innerHTML = formattedContent;
+                enhanceClarificationUI(container, 'overview');
                 
                 // Update subsections after content is loaded
                 setTimeout(() => {
@@ -1363,6 +1380,7 @@ function displayOverview(overview) {
     // Format and display
     const formattedContent = formatTextContent(overview);
     container.innerHTML = formattedContent;
+    enhanceClarificationUI(container, 'overview');
     
     // Update subsections after content is loaded
     setTimeout(() => {
@@ -1690,6 +1708,7 @@ function displayTechnical(technical) {
     // Format the technical content (string JSON or parsed object)
     const formattedContent = formatTextContent(technical);
     container.innerHTML = formattedContent;
+    enhanceClarificationUI(container, 'technical');
     renderSpecMermaidPlaceholders(container);
 
     var technicalForMinimal = technical;
@@ -1796,6 +1815,7 @@ function displayMarket(market) {
     // Format the market content
     const formattedContent = formatTextContent(market);
     container.innerHTML = formattedContent;
+    enhanceClarificationUI(container, 'market');
     
     // Update subsections after content is loaded
     setTimeout(() => {
@@ -2201,6 +2221,7 @@ function displayDesign(design) {
 
     // Set the final content
     container.innerHTML = finalContent;
+    enhanceClarificationUI(container, 'design');
     
     // Update raw data
     const rawDesign = document.getElementById('raw-design');
@@ -2911,6 +2932,141 @@ function formatTextContent(content) {
         }
     }
     return formatPlainTextContent(String(content));
+}
+
+function getSectionPlainText(sectionElement) {
+    if (!sectionElement) return '';
+    const clone = sectionElement.cloneNode(true);
+    clone.querySelectorAll('.clarify-trigger, .clarify-inline-panel').forEach(function (node) {
+        node.remove();
+    });
+    return (clone.textContent || '').trim();
+}
+
+async function submitClarification(panel, context) {
+    const textarea = panel.querySelector('.clarify-input');
+    const submitBtn = panel.querySelector('.clarify-submit');
+    const answerWrap = panel.querySelector('.clarify-answer');
+    const answerText = panel.querySelector('.clarify-answer-text');
+    if (!textarea || !submitBtn || !answerWrap || !answerText) return;
+
+    const question = textarea.value.trim();
+    if (!question) {
+        showNotification('Please type a question first.', 'info');
+        return;
+    }
+    if (!currentSpecData || !currentSpecData.id) {
+        showNotification('Spec is not loaded yet.', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.classList.add('is-loading');
+    answerWrap.classList.add('hidden');
+    answerText.innerHTML = '';
+
+    try {
+        const result = await window.api.post(
+            `/api/specs/${encodeURIComponent(currentSpecData.id)}/clarify`,
+            {
+                question,
+                sectionTitle: context.sectionTitle,
+                sectionText: context.sectionText,
+                tabName: context.tabName
+            }
+        );
+
+        const answer = result?.clarification?.answer || '';
+        if (!answer) {
+            throw new Error('No answer returned');
+        }
+
+        answerText.innerHTML = escapeHtmlSpec(answer).replace(/\n/g, '<br>');
+        answerWrap.classList.remove('hidden');
+    } catch (error) {
+        showNotification('Failed to get clarification: ' + (error.message || 'Unknown error'), 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
+    }
+}
+
+function createClarifyButton() {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'clarify-trigger';
+    button.setAttribute('aria-label', 'Ask for clarification');
+    button.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M9 21h6v-1.5H9V21zm3-20C8.14 1 5 4.14 5 8c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.7 11.28-.7.49V16h-4v-3.23l-.7-.49A5 5 0 0 1 7 8a5 5 0 1 1 10 0 5 5 0 0 1-2.3 4.28z"/>
+        </svg>
+    `;
+    return button;
+}
+
+function createClarifyPanel(sectionTitle) {
+    const panel = document.createElement('div');
+    panel.className = 'clarify-inline-panel hidden';
+    panel.innerHTML = `
+        <div class="clarify-panel-title">Ask for clarification</div>
+        <div class="clarify-panel-subtitle">${escapeHtmlSpec(sectionTitle)}</div>
+        <form class="clarify-form">
+            <textarea class="clarify-input" rows="3" maxlength="1200" placeholder="Ask anything about this section..."></textarea>
+            <button type="submit" class="clarify-submit" aria-label="Send clarification question">
+                <span class="clarify-submit-label">Send</span>
+                <span class="clarify-submit-spinner" aria-hidden="true"></span>
+            </button>
+        </form>
+        <div class="clarify-answer hidden">
+            <div class="clarify-answer-title">Answer</div>
+            <div class="clarify-answer-text"></div>
+        </div>
+    `;
+    return panel;
+}
+
+function enhanceClarificationUI(container, tabName) {
+    if (!container || !CLARIFY_SUPPORTED_TABS.has(tabName)) return;
+    const sections = container.querySelectorAll('.content-section');
+    sections.forEach(function (sectionElement) {
+        const heading = sectionElement.querySelector('h3');
+        if (!heading || heading.querySelector('.clarify-trigger')) return;
+
+        const sectionTitle = (heading.textContent || '').trim();
+        if (!sectionTitle) return;
+
+        heading.classList.add('clarify-heading');
+        const trigger = createClarifyButton();
+        const panel = createClarifyPanel(sectionTitle);
+
+        trigger.addEventListener('click', function (event) {
+            event.preventDefault();
+            const isHidden = panel.classList.contains('hidden');
+            container.querySelectorAll('.clarify-inline-panel').forEach(function (otherPanel) {
+                if (otherPanel !== panel) otherPanel.classList.add('hidden');
+            });
+            panel.classList.toggle('hidden', !isHidden);
+            if (isHidden) {
+                const input = panel.querySelector('.clarify-input');
+                if (input) input.focus();
+            }
+        });
+
+        const form = panel.querySelector('.clarify-form');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                submitClarification(panel, {
+                    tabName,
+                    sectionTitle,
+                    sectionText: getSectionPlainText(sectionElement)
+                });
+            });
+        }
+
+        heading.appendChild(trigger);
+        sectionElement.insertBefore(panel, heading.nextSibling);
+    });
 }
 
 /**

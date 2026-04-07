@@ -253,7 +253,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                             updatedAt: data.updatedAt,
                             status: data.status,
                             design: data.design,
-                            diagrams: data.diagrams,
+                            architecture: data.architecture,
+                            prompts: data.prompts,
                             overviewApproved: data.overviewApproved,
                             chatInitialized: data.chatInitialized,
                             viewUrl: `spec-viewer.html?id=${doc.id}`
@@ -537,37 +538,44 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                         }
                     }
                     const designStatus = hasDesign ? 'ready' : (status.design || 'pending');
-                    
-                    // Check if diagrams exist and are valid
-                    let hasDiagrams = false;
-                    if (item.diagrams !== undefined && item.diagrams !== null) {
-                        if (item.diagrams.generated === true) {
-                            if (item.diagrams.diagrams) {
-                                if (Array.isArray(item.diagrams.diagrams)) {
-                                    hasDiagrams = item.diagrams.diagrams.length > 0;
-                                } else if (typeof item.diagrams.diagrams === 'object') {
-                                    hasDiagrams = Object.keys(item.diagrams.diagrams).length > 0;
-                                } else if (typeof item.diagrams.diagrams === 'string') {
-                                    hasDiagrams = item.diagrams.diagrams.trim() !== '';
-                                } else {
-                                    hasDiagrams = true;
-                                }
-                            }
+
+                    // Check if architecture exists and is not empty
+                    let hasArchitecture = false;
+                    if (item.architecture !== undefined && item.architecture !== null && item.architecture !== '') {
+                        if (Array.isArray(item.architecture)) {
+                            hasArchitecture = item.architecture.length > 0;
+                        } else if (typeof item.architecture === 'object') {
+                            hasArchitecture = Object.keys(item.architecture).length > 0;
+                        } else if (typeof item.architecture === 'string') {
+                            hasArchitecture = item.architecture.trim() !== '';
+                        } else {
+                            hasArchitecture = true;
                         }
                     }
-                    const diagramsStatus = hasDiagrams ? 'ready' : (status.diagrams || 'pending');
-                    
-                    // Check if AI Chat is available (enabled when overview is approved)
-                    const chatAvailable = item.overviewApproved === true || item.chatInitialized === true;
-                    const chatStatus = chatAvailable ? 'ready' : 'pending';
+                    const architectureStatus = hasArchitecture ? 'ready' : (status.architecture || 'pending');
+
+                    // Check if prompts exist and are generated
+                    let hasPrompts = false;
+                    if (item.prompts !== undefined && item.prompts !== null) {
+                        if (item.prompts.generated === true) {
+                            hasPrompts = true;
+                        } else if (Array.isArray(item.prompts)) {
+                            hasPrompts = item.prompts.length > 0;
+                        } else if (typeof item.prompts === 'object') {
+                            hasPrompts = Object.keys(item.prompts).length > 0;
+                        } else if (typeof item.prompts === 'string') {
+                            hasPrompts = item.prompts.trim() !== '';
+                        }
+                    }
+                    const promptsStatus = hasPrompts ? 'ready' : (status.prompts || 'pending');
                     
                     progressItems = [
                         { name: 'Overview', status: overviewStatus },
                         { name: 'Technical', status: technicalStatus },
                         { name: 'Market', status: marketStatus },
                         { name: 'Design', status: designStatus },
-                        { name: 'Diagrams', status: diagramsStatus },
-                        { name: 'AI Chat', status: chatStatus }
+                        { name: 'Architecture', status: architectureStatus },
+                        { name: 'Prompts', status: promptsStatus }
                     ];
                 } else {
                     // For old specs and research

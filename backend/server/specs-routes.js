@@ -831,6 +831,148 @@ router.get('/:id/generation-status', verifyFirebaseToken, async (req, res, next)
     }
 });
 
+/**
+ * Clarify a specific section/paragraph with one-shot Q&A
+ * POST /api/specs/:id/clarify
+ * Body: { question: string, sectionTitle?: string, sectionText?: string, tabName?: string }
+ */
+router.post('/:id/clarify', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `clarify-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    const specId = req.params.id;
+    const userId = req.user.uid;
+
+    try {
+        if (!process.env.OPENAI_API_KEY) {
+            return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503, { requestId }));
+        }
+
+        const question = typeof req.body?.question === 'string' ? req.body.question.trim() : '';
+        const sectionTitle = typeof req.body?.sectionTitle === 'string' ? req.body.sectionTitle.trim() : 'Section';
+        const sectionText = typeof req.body?.sectionText === 'string' ? req.body.sectionText.trim() : '';
+        const tabName = typeof req.body?.tabName === 'string' ? req.body.tabName.trim() : '';
+
+        if (!question) {
+            return next(createError('question is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+        if (question.length > 1200) {
+            return next(createError('question is too long (max 1200 chars)', ERROR_CODES.VALIDATION_ERROR, 400, { requestId }));
+        }
+
+        const specDoc = await db.collection('specs').doc(specId).get();
+        if (!specDoc.exists) {
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+        }
+
+        const specData = specDoc.data();
+        if (specData.userId !== userId) {
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
+        }
+
+        const sectionSnippet = sectionText ? sectionText.slice(0, 4000) : 'No direct section text was provided.';
+        const compactSpecContext = {
+            title: specData.title || '',
+            overview: specData.overview || '',
+            technical: specData.technical || '',
+            market: specData.market || '',
+            design: specData.design || '',
+            architecture: specData.architecture || ''
+        };
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                temperature: 0.3,
+                max_tokens: 700,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You explain product-spec content clearly and concisely. Answer in the same language as the user question. Prefer concrete explanations over vague text. If info is missing, say what is missing and suggest what to add.'
+                    },
+                    {
+                        role: 'user',
+                        content:
+`Spec title: ${compactSpecContext.title}
+Tab: ${tabName || 'unknown'}
+Section: ${sectionTitle}
+
+Section text:
+${sectionSnippet}
+
+Full spec context (may include JSON strings):
+${JSON.stringify(compactSpecContext)}
+
+Question:
+${question}
+
+Return a concise one-shot answer.`
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return next(createError('Failed to get clarification answer', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+                requestId,
+                details: errorText
+            }));
+        }
+
+        const completion = await response.json();
+        const answer = completion?.choices?.[0]?.message?.content?.trim();
+        if (!answer) {
+            return next(createError('No clarification answer returned', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, { requestId }));
+        }
+
+        const clarificationEntry = {
+            id: `clar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            userId,
+            tabName: tabName || null,
+            sectionTitle: sectionTitle || null,
+            sectionTextPreview: sectionSnippet.slice(0, 500),
+            question,
+            answer,
+            createdAt: new Date().toISOString()
+        };
+
+        await db.collection('specs').doc(specId).update({
+            clarifications: admin.firestore.FieldValue.arrayUnion(clarificationEntry),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        logger.info({
+            requestId,
+            specId,
+            userId,
+            sectionTitle,
+            duration: `${Date.now() - startTime}ms`
+        }, '[specs-routes] POST /clarify - Success');
+
+        res.json({
+            success: true,
+            clarification: clarificationEntry,
+            requestId
+        });
+    } catch (error) {
+        logger.error({
+            requestId,
+            specId,
+            userId,
+            error: error.message
+        }, '[specs-routes] POST /clarify - Error');
+        next(createError('Failed to clarify section', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+            details: error.message,
+            requestId
+        }));
+    }
+});
+
 // Helper function to trigger OpenAI upload
 // @param {string} specId
 // @param {{ forceReupload?: boolean }} [options] - forceReupload: re-upload even if openaiFileId exists (e.g. after manual architecture)
