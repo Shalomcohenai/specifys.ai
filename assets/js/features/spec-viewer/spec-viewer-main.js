@@ -354,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateEditButton();
         // Update mockup tab based on PRO access
         updateMockupTab();
+        updateVisibilityEngineTab();
         
         // Check if we need to show registration modal
         checkAuthenticationStatus(user);
@@ -386,8 +387,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (clickedInside) return;
         document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
             panel.classList.add('hidden');
-            const trigger = panel.closest('h3')?.querySelector('.clarify-trigger');
-            if (trigger) trigger.classList.remove('hidden');
         });
     });
 
@@ -395,8 +394,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key !== 'Escape') return;
         document.querySelectorAll('.clarify-inline-panel').forEach(function (panel) {
             panel.classList.add('hidden');
-            const trigger = panel.closest('h3')?.querySelector('.clarify-trigger');
-            if (trigger) trigger.classList.remove('hidden');
         });
     });
 });
@@ -1139,6 +1136,7 @@ function displaySpec(data) {
     displayMockup(data.mockups).catch(err => {
         // Error displaying mockup
     });
+    displayVisibilityEngine(data);
     displayArchitectureFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -1189,6 +1187,7 @@ function displaySpec(data) {
                 }
             });
         }
+        updateVisibilityEngineTab();
         
         // Architecture tab always enabled when spec is loaded (so Generate Architecture is always available for testing)
         if (data.id) {
@@ -2541,6 +2540,165 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+function getVisibilityEngineSignals(data) {
+    const overview = tryParseJsonField(data?.overview) || {};
+    const market = tryParseJsonField(data?.market) || {};
+    const hasCoreMessaging = !!(overview.ideaSummary || overview.problemStatement || overview.valueProposition);
+    const hasAudience = !!(overview.targetAudience || market.targetAudienceInsights);
+    const hasCompetition = Array.isArray(market.competitiveLandscape) && market.competitiveLandscape.length > 0;
+    const hasVisualStyle = !!(tryParseJsonField(data?.design)?.visualStyleGuide);
+
+    return {
+        hasCoreMessaging,
+        hasAudience,
+        hasCompetition,
+        hasVisualStyle
+    };
+}
+
+function renderVisibilityReadinessCards(signals) {
+    const cards = [
+        {
+            title: 'SEO readiness',
+            value: signals.hasCoreMessaging && signals.hasAudience ? 72 : 48,
+            rationale: signals.hasCoreMessaging ? 'Core positioning exists in your spec.' : 'Core messaging is still partial.'
+        },
+        {
+            title: 'AIO readiness',
+            value: signals.hasCoreMessaging && signals.hasCompetition ? 68 : 42,
+            rationale: signals.hasCompetition ? 'Competitor context can seed entity comparisons.' : 'Entity and comparison facts are still limited.'
+        },
+        {
+            title: 'Brand readiness',
+            value: signals.hasVisualStyle ? 64 : 40,
+            rationale: signals.hasVisualStyle ? 'Visual style exists and can seed a voice kit.' : 'Voice kit will rely on defaults until brand rules are provided.'
+        }
+    ];
+
+    return `<div class="visibility-readiness-grid">${cards.map((card) => `
+        <div class="visibility-readiness-card content-section">
+            <h3><i class="fa fa-signal"></i> ${escapeHtmlSpec(card.title)}</h3>
+            <div class="visibility-score-row">
+                <span class="visibility-score-value">${card.value}</span>
+                <span class="visibility-score-unit">/100</span>
+            </div>
+            <div class="visibility-score-bar"><div class="visibility-score-fill" style="width: ${card.value}%;"></div></div>
+            <p>${escapeHtmlSpec(card.rationale)}</p>
+        </div>
+    `).join('')}</div>`;
+}
+
+function createMermaidPlaceholderHtml(code) {
+    return `<div class="spec-mermaid-placeholder" data-spec-mermaid="${encodeURIComponent(code)}"></div>`;
+}
+
+function buildVisibilityEngineHtml(data) {
+    const overview = tryParseJsonField(data?.overview) || {};
+    const market = tryParseJsonField(data?.market) || {};
+    const design = tryParseJsonField(data?.design) || {};
+    const signals = getVisibilityEngineSignals(data);
+    const primaryAudience = market?.targetAudienceInsights?.primaryAudience?.description || overview?.targetAudience?.sector || 'Digital product teams and founders';
+    const brandTone = design?.visualStyleGuide ? 'Professional, clear, and technical.' : 'Professional and direct.';
+    const competitorName = market?.competitiveLandscape?.[0]?.name || 'Main competitor';
+
+    const lifecycleMermaid = [
+        'flowchart LR',
+        '  specData[SpecifysOutput] --> phase1[Phase1_PreBuildStrategy]',
+        '  phase1 --> readiness[ReadinessAndGaps]',
+        '  readiness --> phase2[Phase2_PostLaunchOptimization]',
+        '  phase2 --> impact[VisibilityImpactLoop]'
+    ].join('\n');
+
+    const entityMermaid = [
+        'flowchart TD',
+        '  org[Organization] --> product[Product]',
+        '  product --> problem[ProblemSolved]',
+        '  product --> audience[PrimaryAudience]',
+        '  product --> proof[ProofPoints]',
+        '  product --> competitor[CompetitorComparison]'
+    ].join('\n');
+
+    const programmaticMermaid = [
+        'flowchart LR',
+        '  dataSources[DataSources] --> templateEngine[TemplateEngine]',
+        '  templateEngine --> qualityChecks[QualityChecks]',
+        '  qualityChecks --> publishPlan[PublishPlan]',
+        '  publishPlan --> monitorLoop[MonitorAndRefresh]'
+    ].join('\n');
+
+    return `
+        <div class="content-section">
+            <h3><i class="fa fa-info-circle"></i> SEO vs AIO Foundations</h3>
+            <p><strong>SEO</strong> focuses on crawlability, indexation, structure, and ranking in traditional search engines.</p>
+            <p><strong>AIO</strong> focuses on making your product facts machine-readable so AI systems can cite your brand accurately.</p>
+            <p>This module combines both into one operational workflow with explicit pre-build and post-launch stages.</p>
+        </div>
+        ${renderVisibilityReadinessCards(signals)}
+        <div class="content-section">
+            <h3><i class="fa fa-random"></i> Product Lifecycle (Two Phases)</h3>
+            ${createMermaidPlaceholderHtml(lifecycleMermaid)}
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-rocket"></i> Phase 1: Before Build (Strategy Blueprint)</h3>
+            <p><span class="visibility-source-pill derived">Derived from your spec</span> Audience seed: ${escapeHtmlSpec(primaryAudience)}</p>
+            <p><span class="visibility-source-pill template">Best-practice template</span> Generate <code>llms.txt</code> and <code>ai-info.txt</code> starter files for AI agents.</p>
+            <p><span class="visibility-source-pill template">Best-practice template</span> Build a pillar/cluster map with intent tags (TOFU, MOFU, BOFU).</p>
+            <p><span class="visibility-source-pill live">Needs live data</span> Final URL-level title/H1/meta recommendations after launch.</p>
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-sitemap"></i> AI Knowledge Base Schema (AIO)</h3>
+            ${createMermaidPlaceholderHtml(entityMermaid)}
+            <pre class="visibility-jsonld-preview">{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "${escapeHtmlSpec(data?.title || 'Your Product')}",
+  "audience": "${escapeHtmlSpec(primaryAudience)}",
+  "description": "${escapeHtmlSpec((overview.ideaSummary || '').slice(0, 180))}",
+  "competitor": "${escapeHtmlSpec(competitorName)}"
+}</pre>
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-comments"></i> Voice of Brand Prompt Kit</h3>
+            <p><strong>Style guide prompt:</strong> Write in the brand voice of Specifys. Tone: ${escapeHtmlSpec(brandTone)} Prioritize precision over hype.</p>
+            <p><strong>Negative constraints:</strong> Avoid generic buzzwords, unverifiable claims, and inflated promises.</p>
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-cubes"></i> Programmatic SEO Blueprint</h3>
+            ${createMermaidPlaceholderHtml(programmaticMermaid)}
+            <p>Template family example: <code>[Product] vs [Competitor]</code> pages with mandatory unique evidence blocks.</p>
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-satellite-dish"></i> Phase 2: After Launch (Live Optimization)</h3>
+            <p>Upgrade from strategy to execution by connecting live URLs, crawl findings, and internal link graph signals.</p>
+            <p>Deliverables: page-level metadata fixes, sitemap checks, and AI-citation consistency validation.</p>
+        </div>
+        <div class="content-section">
+            <h3><i class="fa fa-lock"></i> Pro Access</h3>
+            <p>Non-Pro users see a preview. Pro users unlock full generation, copy-ready assets, and phase-by-phase action plans.</p>
+        </div>
+    `;
+}
+
+async function displayVisibilityEngine(data) {
+    const container = document.getElementById('visibility-engine-data');
+    if (!container) return;
+    const hasProAccess = await checkProAccess();
+    if (!hasProAccess) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-lock"></i> AIO &amp; SEO Visibility Engine</h3>
+                <p>This module is available for PRO users. Upgrade to unlock full SEO and AIO planning outputs.</p>
+                <p class="visibility-locked-preview">Preview includes readiness explanation, while export-ready assets remain locked.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = buildVisibilityEngineHtml(data || {});
+    renderSpecMermaidPlaceholders(container);
+    setTimeout(() => updateSubsections('visibility-engine'), 0);
+}
+
 function displayRaw(data) {
     // Display individual sections
     const rawOverview = document.getElementById('raw-overview');
@@ -2966,8 +3124,9 @@ async function submitClarification(panel, context) {
 
     submitBtn.disabled = true;
     submitBtn.classList.add('is-loading');
-    answerWrap.classList.add('hidden');
-    answerText.innerHTML = '';
+    answerWrap.classList.remove('hidden');
+    answerText.classList.remove('clarify-answer-placeholder');
+    answerText.innerHTML = '<span class="clarify-answer-loading">Getting answer…</span>';
 
     try {
         const result = await window.api.post(
@@ -2986,8 +3145,9 @@ async function submitClarification(panel, context) {
         }
 
         answerText.innerHTML = escapeHtmlSpec(answer).replace(/\n/g, '<br>');
-        answerWrap.classList.remove('hidden');
     } catch (error) {
+        answerText.classList.remove('clarify-answer-placeholder');
+        answerText.innerHTML = escapeHtmlSpec('Could not get an answer. ' + (error.message || 'Please try again.'));
         showNotification('Failed to get clarification: ' + (error.message || 'Unknown error'), 'error');
     } finally {
         submitBtn.disabled = false;
@@ -3011,6 +3171,8 @@ function createClarifyButton() {
 function createClarifyPanel(sectionTitle) {
     const panel = document.createElement('div');
     panel.className = 'clarify-inline-panel hidden';
+    panel.setAttribute('role', 'region');
+    panel.setAttribute('aria-label', 'Ask for clarification: ' + sectionTitle);
     panel.innerHTML = `
         <form class="clarify-form">
             <input class="clarify-input" type="text" maxlength="1200" placeholder="Ask for clarification" />
@@ -3020,9 +3182,9 @@ function createClarifyPanel(sectionTitle) {
             </button>
             <button type="button" class="clarify-cancel" aria-label="Close clarification input">×</button>
         </form>
-        <div class="clarify-answer hidden">
+        <div class="clarify-answer">
             <div class="clarify-answer-title">Answer</div>
-            <div class="clarify-answer-text"></div>
+            <div class="clarify-answer-text clarify-answer-placeholder">The response will appear here after you send your question.</div>
         </div>
     `;
     return panel;
@@ -3049,16 +3211,12 @@ function enhanceClarificationUI(container, tabName) {
             container.querySelectorAll('.clarify-inline-panel').forEach(function (otherPanel) {
                 if (otherPanel !== panel) {
                     otherPanel.classList.add('hidden');
-                    const otherTrigger = otherPanel.closest('h3')?.querySelector('.clarify-trigger');
-                    if (otherTrigger) otherTrigger.classList.remove('hidden');
                 }
             });
             if (isHidden) {
                 panel.classList.remove('hidden');
-                trigger.classList.add('hidden');
             } else {
                 panel.classList.add('hidden');
-                trigger.classList.remove('hidden');
             }
             if (isHidden) {
                 const input = panel.querySelector('.clarify-input');
@@ -3075,7 +3233,6 @@ function enhanceClarificationUI(container, tabName) {
             cancelBtn.addEventListener('click', function (event) {
                 event.preventDefault();
                 panel.classList.add('hidden');
-                trigger.classList.remove('hidden');
             });
         }
 
@@ -3092,7 +3249,7 @@ function enhanceClarificationUI(container, tabName) {
         }
 
         heading.appendChild(trigger);
-        heading.appendChild(panel);
+        sectionElement.insertBefore(panel, heading.nextSibling);
     });
 }
 
@@ -5509,7 +5666,8 @@ document.addEventListener('keydown', function(e) {
       '6': 'prompts',
       '7': 'chat',
       '8': 'mockup',
-      '9': 'export'
+      '9': 'visibility-engine',
+      '0': 'export'
     };
     
     const tabName = tabMap[e.key];
@@ -5558,11 +5716,12 @@ window.showTab = async function(tabName) {
             document.body.style.overflow = '';
         }
     }
-    // Check PRO access for mockup tab
-    if (tabName === 'mockup') {
+    // Check PRO access for PRO-only tabs
+    if (tabName === 'mockup' || tabName === 'visibility-engine') {
         const hasProAccess = await checkProAccess();
         if (!hasProAccess) {
-            showNotification('Mockup feature is available for PRO users only. Please upgrade to PRO to access mockups.', 'error');
+            const featureName = tabName === 'mockup' ? 'Mockup' : 'AIO & SEO Visibility Engine';
+            showNotification(`${featureName} is available for PRO users only. Please upgrade to PRO to access it.`, 'error');
             return;
         }
     }
@@ -5748,7 +5907,7 @@ function updateSubsections(tabName) {
 
 // Initialize all subsections when page loads
 function initializeAllSubsections() {
-    const tabs = ['overview', 'technical', 'market', 'design', 'architecture', 'prompts'];
+    const tabs = ['overview', 'technical', 'market', 'design', 'visibility-engine', 'architecture', 'prompts'];
     tabs.forEach(tabName => {
         const tabContent = document.getElementById(`${tabName}-content`);
         if (tabContent) {
@@ -6007,6 +6166,15 @@ async function updateMockupTab() {
     // If user has Pro access, tab will be enabled when design is ready (existing logic)
 }
 
+// Update visibility engine tab based on PRO access
+async function updateVisibilityEngineTab() {
+    const visibilityTab = document.getElementById('visibility-engineTab');
+    if (!visibilityTab) return;
+    const hasProAccess = await checkProAccess();
+    visibilityTab.disabled = false;
+    visibilityTab.title = hasProAccess ? '' : 'AIO & SEO Visibility Engine is available for PRO users only';
+}
+
 // Refresh tabs menu after Design spec is ready - enables Prompts tab if conditions are met
 function refreshTabsAfterDesignReady() {
     if (!currentSpecData) return;
@@ -6046,6 +6214,7 @@ function refreshTabsAfterDesignReady() {
             }
         });
     }
+    updateVisibilityEngineTab();
     
     // Enable Prompts tab only if both technical and design are ready
     if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.design === 'ready') {
