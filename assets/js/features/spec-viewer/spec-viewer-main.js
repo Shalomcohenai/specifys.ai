@@ -1335,9 +1335,12 @@ function displayOverview(overview) {
                 // Store original overview for editing
                 window.originalOverview = overview;
                 
-                // Format and display
+                // Append complexity with insertAdjacentHTML so we do not re-parse the container (would drop clarify listeners).
                 const formattedContent = formatTextContent(overview);
                 container.innerHTML = formattedContent;
+                const complexityScore = calculateComplexityScore(overview);
+                const complexityHTML = renderComplexityScore(complexityScore);
+                container.insertAdjacentHTML('beforeend', complexityHTML);
                 enhanceClarificationUI(container, 'overview');
                 
                 // Update subsections after content is loaded
@@ -1346,11 +1349,6 @@ function displayOverview(overview) {
                         updateSubsections('overview');
                     }
                 }, 100);
-                
-                // Calculate and display complexity score
-                const complexityScore = calculateComplexityScore(overview);
-                const complexityHTML = renderComplexityScore(complexityScore);
-                container.innerHTML += complexityHTML;
                 
                 // Update raw data
                 const rawOverview = document.getElementById('raw-overview');
@@ -1380,9 +1378,12 @@ function displayOverview(overview) {
     // Store original overview for editing
     window.originalOverview = overview;
     
-    // Format and display
+    // Append complexity with insertAdjacentHTML so we do not re-parse the container (would drop clarify listeners).
     const formattedContent = formatTextContent(overview);
     container.innerHTML = formattedContent;
+    const complexityScore = calculateComplexityScore(overview);
+    const complexityHTML = renderComplexityScore(complexityScore);
+    container.insertAdjacentHTML('beforeend', complexityHTML);
     enhanceClarificationUI(container, 'overview');
     
     // Update subsections after content is loaded
@@ -1391,11 +1392,6 @@ function displayOverview(overview) {
             updateSubsections('overview');
         }
     }, 100);
-    
-    // Calculate and display complexity score
-    const complexityScore = calculateComplexityScore(overview);
-    const complexityHTML = renderComplexityScore(complexityScore);
-    container.innerHTML += complexityHTML;
     
     // Update raw data
     const rawOverview = document.getElementById('raw-overview');
