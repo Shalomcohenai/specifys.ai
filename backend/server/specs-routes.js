@@ -892,7 +892,7 @@ router.post('/:id/clarify', verifyFirebaseToken, async (req, res, next) => {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You explain product-spec content clearly and concisely. Answer in the same language as the user question. Prefer concrete explanations over vague text. If info is missing, say what is missing and suggest what to add.'
+                        content: 'You explain product-spec content clearly and concisely. Always write your entire answer in English, even if the question or spec excerpts are in another language. Prefer concrete explanations over vague text. If info is missing, say what is missing and suggest what to add.'
                     },
                     {
                         role: 'user',
@@ -910,7 +910,7 @@ ${JSON.stringify(compactSpecContext)}
 Question:
 ${question}
 
-Return a concise one-shot answer.`
+Return a concise one-shot answer in English only.`
                     }
                 ]
             })
