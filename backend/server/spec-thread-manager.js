@@ -1,6 +1,7 @@
 /**
- * Manages OpenAI Threads per spec for v2 generation.
- * One thread per spec; getOrCreateThread ensures continuity across overview → technical → market → design → architecture.
+ * Manages OpenAI Assistants + spec generation for v2.
+ * Generation uses Chat Completions (structured outputs) via OpenAIStorageService.runSpecGeneration — no Threads API polling,
+ * so restricted keys without api.threads.read still work. Legacy specs may still have thread_id from older Assistants runs.
  * @see docs/architecture/ARCHITECTURE_REFRESH.md
  */
 
@@ -26,7 +27,8 @@ class SpecThreadManager {
   }
 
   /**
-   * Get or create OpenAI thread for this spec. Persists thread_id in Firestore.
+   * Resolve correlation id for v2 generation. Does not create OpenAI threads (generation is chat-completions-based).
+   * If Firestore already has thread_id from a legacy flow, returns it for logging/UI compatibility.
    *
    * Handles two failure modes:
    * 1. Race condition — spec document not yet committed when background job starts.
@@ -36,7 +38,7 @@ class SpecThreadManager {
    *    raise a clear error instead of letting the raw Firestore error bubble up.
    *
    * @param {string} specId - Spec document ID
-   * @returns {Promise<string>} thread_id
+   * @returns {Promise<string>} Placeholder or legacy thread_id
    */
   async getOrCreateThread(specId) {
     const ref = this.db.collection('specs').doc(specId);
@@ -62,31 +64,12 @@ class SpecThreadManager {
     const data = doc.data();
     const existing = data?.thread_id && typeof data.thread_id === 'string' ? data.thread_id.trim() : null;
     if (existing) {
-      logger.debug({ specId, threadId: existing }, '[SpecThreadManager] Using existing thread');
+      logger.debug({ specId, threadId: existing }, '[SpecThreadManager] Using stored thread_id (legacy)');
       return existing;
     }
 
-    const thread = await this.openaiStorage.createThread();
-    const threadId = thread.id;
-
-    try {
-      await ref.update({ thread_id: threadId, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
-      logger.info({ specId, threadId }, '[SpecThreadManager] Created and stored new thread');
-    } catch (updateErr) {
-      // Firestore gRPC code 5 = NOT_FOUND — the spec was deleted between our get() and update().
-      // We do NOT abort: the thread already exists in OpenAI and generation can still proceed.
-      // Subsequent writes (overview content, status) will also fail NOT_FOUND and be caught
-      // gracefully by the caller in specs-routes.js. We log WARN but return the threadId so
-      // the generation job continues rather than erroring out immediately.
-      const isNotFound = updateErr.code === 5 || String(updateErr.message).includes('NOT_FOUND');
-      if (isNotFound) {
-        logger.warn({ specId, threadId }, '[SpecThreadManager] Spec deleted during thread creation — thread_id not persisted, continuing generation');
-        return threadId;
-      }
-      throw updateErr;
-    }
-
-    return threadId;
+    logger.info({ specId }, '[SpecThreadManager] v2 uses Chat Completions — no OpenAI thread created or stored');
+    return 'chat-completions';
   }
 
   /**

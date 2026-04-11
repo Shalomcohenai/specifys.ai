@@ -1,5 +1,5 @@
 /**
- * Spec generation service v2 — OpenAI Assistants API, persistent threads, structured outputs.
+ * Spec generation service v2 — OpenAI Assistants (model + instructions) + Chat Completions structured outputs.
  * Replaces legacy Worker-based flow. All sections (overview, technical, market, design) use full structure.
  * @see docs/architecture/ARCHITECTURE_REFRESH.md
  */
@@ -120,7 +120,7 @@ Additional Details: ${additionalDetails}`;
   }
 
   /**
-   * Generate overview for a spec (v2). Uses thread; stores thread_id on spec.
+   * Generate overview for a spec (v2). Uses generator assistant + chat completions (strict JSON schema).
    * @param {string} specId - Spec ID
    * @param {string} userInput - User input / planning text
    * @returns {Promise<string>} Overview JSON string (full structure)

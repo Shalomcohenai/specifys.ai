@@ -411,73 +411,73 @@ Always reference specific parts of the spec when relevant.`,
   }
 
   /**
-   * Run spec generation: add message, create run (optional response_format), poll, return assistant text.
-   * Used by spec-generation-service-v2. No file_search or tool_resources required.
-   * @param {string} threadId - Thread ID
-   * @param {string} assistantId - Assistant ID (gpt-4o or o1)
+   * Run spec generation via Chat Completions + structured outputs (same json_schema as Assistants runs).
+   * Avoids Threads API read/poll (GET /threads/.../runs/...) so restricted API keys without api.threads.read work.
+   * threadId is ignored; kept in the signature for callers (SpecThreadManager) that still pass a correlation id.
+   * @param {string} _threadId - Unused (legacy Assistants thread id or placeholder)
+   * @param {string} assistantId - Assistant ID — model and instructions are read once via GET /assistants/{id}
    * @param {string} userMessage - User message content
    * @param {object} [responseFormat] - Optional OpenAI response_format (e.g. { type: 'json_schema', json_schema: { name, strict: true, schema } })
-   * @returns {Promise<string>} Assistant response text
+   * @returns {Promise<string>} Model response text (JSON string for strict schema stages)
    */
-  async runSpecGeneration(threadId, assistantId, userMessage, responseFormat) {
-    const requestId = `run-spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const messageResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2'
-      },
-      body: JSON.stringify({ role: 'user', content: userMessage })
-    });
-    if (!messageResponse.ok) {
-      const errorText = await messageResponse.text();
-      throw new Error(`Failed to add message: ${errorText}`);
+  async runSpecGeneration(_threadId, assistantId, userMessage, responseFormat) {
+    const assistant = await this.getAssistant(assistantId);
+    if (!assistant?.model) {
+      throw new Error(`Assistant ${assistantId} has no model configured`);
     }
 
-    const runBody = { assistant_id: assistantId };
-    if (responseFormat) runBody.response_format = responseFormat;
-    const runResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs`, {
+    const systemPrompt = (assistant.instructions && String(assistant.instructions).trim())
+      ? String(assistant.instructions).trim()
+      : 'You generate application specification sections. Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
+
+    const model = assistant.model;
+    const body = {
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ]
+    };
+
+    if (responseFormat) {
+      body.response_format = responseFormat;
+    }
+
+    const m = String(model).toLowerCase();
+    const usesCompletionTokens = /^o[0-9]/.test(m) || /^gpt-5/.test(m);
+    if (usesCompletionTokens) {
+      body.max_completion_tokens = 16384;
+    } else {
+      body.max_tokens = 16384;
+      if (typeof assistant.temperature === 'number' && !Number.isNaN(assistant.temperature)) {
+        body.temperature = assistant.temperature;
+      }
+    }
+
+    const chatResponse = await this._fetch(`${this.baseURL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2'
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(runBody)
+      body: JSON.stringify(body)
     });
-    if (!runResponse.ok) {
-      const errorText = await runResponse.text();
-      throw new Error(`Failed to create run: ${errorText}`);
+
+    if (!chatResponse.ok) {
+      const errorText = await chatResponse.text();
+      throw new Error(`Chat completions failed: ${errorText}`);
     }
-    const run = await runResponse.json();
-    let runStatus = run;
-    let attempts = 0;
-    const maxAttempts = 300;
-    while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && attempts < maxAttempts) {
-      await new Promise(r => setTimeout(r, 1000));
-      const statusResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs/${run.id}`, {
-        headers: { 'Authorization': `Bearer ${this.apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
-      });
-      if (!statusResponse.ok) throw new Error(`Failed to check run status: ${await statusResponse.text()}`);
-      runStatus = await statusResponse.json();
-      if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
-        const errMsg = runStatus.last_error?.message || runStatus.status;
-        throw new Error(`Run ${runStatus.status}: ${errMsg}`);
-      }
-      attempts++;
+
+    const chatData = await chatResponse.json();
+    const msg = chatData.choices?.[0]?.message;
+    if (msg?.refusal) {
+      throw new Error(`Model refused: ${msg.refusal}`);
     }
-    if (runStatus.status !== 'completed') {
-      throw new Error(`Run timeout: status ${runStatus.status}`);
+    const content = msg?.content;
+    if (!content || typeof content !== 'string') {
+      throw new Error('No assistant response content from chat completions');
     }
-    const messagesResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
-      headers: { 'Authorization': `Bearer ${this.apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
-    });
-    if (!messagesResponse.ok) throw new Error(`Failed to get messages: ${await messagesResponse.text()}`);
-    const messages = await messagesResponse.json();
-    const assistantMessage = (messages.data || []).find(m => m.role === 'assistant');
-    if (!assistantMessage?.content?.[0]?.text?.value) throw new Error('No assistant response');
-    return assistantMessage.content[0].text.value;
+    return content;
   }
 
   /**
