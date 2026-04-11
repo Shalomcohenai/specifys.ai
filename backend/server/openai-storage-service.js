@@ -412,25 +412,37 @@ Always reference specific parts of the spec when relevant.`,
 
   /**
    * Run spec generation via Chat Completions + structured outputs (same json_schema as Assistants runs).
-   * Avoids Threads API read/poll (GET /threads/.../runs/...) so restricted API keys without api.threads.read work.
-   * threadId is ignored; kept in the signature for callers (SpecThreadManager) that still pass a correlation id.
-   * @param {string} _threadId - Unused (legacy Assistants thread id or placeholder)
-   * @param {string} assistantId - Assistant ID — model and instructions are read once via GET /assistants/{id}
+   * Avoids Threads API and optional Assistants reads: pass `{ mode: 'direct', model, instructions }` for restricted keys.
+   * @param {string} _threadId - Unused (legacy correlation id)
+   * @param {{ mode: 'assistant', assistantId: string } | { mode: 'direct', model: string, instructions: string }} target - Assistant ref or direct model
    * @param {string} userMessage - User message content
    * @param {object} [responseFormat] - Optional OpenAI response_format (e.g. { type: 'json_schema', json_schema: { name, strict: true, schema } })
    * @returns {Promise<string>} Model response text (JSON string for strict schema stages)
    */
-  async runSpecGeneration(_threadId, assistantId, userMessage, responseFormat) {
-    const assistant = await this.getAssistant(assistantId);
-    if (!assistant?.model) {
-      throw new Error(`Assistant ${assistantId} has no model configured`);
+  async runSpecGeneration(_threadId, target, userMessage, responseFormat) {
+    let model;
+    let systemPrompt;
+    /** @type {number | null} */
+    let assistantTemperature = null;
+
+    if (target && target.mode === 'direct') {
+      model = target.model;
+      systemPrompt = target.instructions;
+    } else if (target && target.mode === 'assistant' && target.assistantId) {
+      const assistant = await this.getAssistant(target.assistantId);
+      if (!assistant?.model) {
+        throw new Error(`Assistant ${target.assistantId} has no model configured`);
+      }
+      model = assistant.model;
+      systemPrompt = (assistant.instructions && String(assistant.instructions).trim())
+        ? String(assistant.instructions).trim()
+        : 'You generate application specification sections. Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
+      if (typeof assistant.temperature === 'number' && !Number.isNaN(assistant.temperature)) {
+        assistantTemperature = assistant.temperature;
+      }
+    } else {
+      throw new Error('runSpecGeneration: invalid target (expected { mode: assistant|direct, ... })');
     }
-
-    const systemPrompt = (assistant.instructions && String(assistant.instructions).trim())
-      ? String(assistant.instructions).trim()
-      : 'You generate application specification sections. Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
-
-    const model = assistant.model;
     const body = {
       model,
       messages: [
@@ -449,8 +461,8 @@ Always reference specific parts of the spec when relevant.`,
       body.max_completion_tokens = 16384;
     } else {
       body.max_tokens = 16384;
-      if (typeof assistant.temperature === 'number' && !Number.isNaN(assistant.temperature)) {
-        body.temperature = assistant.temperature;
+      if (assistantTemperature !== null) {
+        body.temperature = assistantTemperature;
       }
     }
 
