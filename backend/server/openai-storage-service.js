@@ -477,6 +477,22 @@ Always reference specific parts of the spec when relevant.`,
 
     if (!chatResponse.ok) {
       const errorText = await chatResponse.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(errorText);
+      } catch (_) {}
+      const errObj = parsed?.error;
+      const missingScope =
+        errObj?.code === 'missing_scope' ||
+        /Missing scopes:\s*model\.request/i.test(errObj?.message || '') ||
+        /insufficient permissions.*model\.request/i.test(errObj?.message || '');
+      if (missingScope) {
+        throw new Error(
+          'OpenAI API key cannot run chat completions (missing model.request scope). ' +
+            'In the OpenAI dashboard, edit the API key and enable model.request, or set OPENAI_SPEC_API_KEY to a key that has model.request for spec generation only. ' +
+            `Original: ${errorText}`
+        );
+      }
       throw new Error(`Chat completions failed: ${errorText}`);
     }
 

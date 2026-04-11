@@ -9,6 +9,13 @@ const specEvents = require('./spec-events');
 const { getSpecThreadManager } = require('./spec-thread-manager');
 const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
 
+/** Prefer OPENAI_SPEC_API_KEY so spec generation can use a key with model.request while OPENAI_API_KEY stays minimal. */
+function getApiKeyForSpecOpenAI() {
+  const dedicated = process.env.OPENAI_SPEC_API_KEY?.trim();
+  if (dedicated) return dedicated;
+  return process.env.OPENAI_API_KEY?.trim() || '';
+}
+
 const OVERVIEW_USER_PROMPT_PREFIX = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. All output must be in English.
 Include: shortTitle (3-8 word display title for the spec), ideaSummary, problemStatement, targetAudience (object: ageRange, sector, interests, needs), valueProposition, coreFeaturesOverview (array of 6-8 features), userJourneySummary, detailedUserFlow.steps, screenDescriptions (screens array with name, description, uiComponents; navigationStructure), complexityScore (architecture, integrations, functionality, userSystem as numbers 0-100), suggestionsIdeaSummary and suggestionsCoreFeatures as { toInclude: [], notToInclude: [...] }.
 Generate a comprehensive overview from the user input below. Every required key must contain substantive content.
@@ -24,10 +31,11 @@ class SpecGenerationServiceV2 {
   _getThreadManager() {
     if (!this.threadManager) {
       const { db } = require('./firebase-admin');
-      const openaiStorage = process.env.OPENAI_API_KEY
-        ? new (require('./openai-storage-service'))(process.env.OPENAI_API_KEY)
-        : null;
-      if (!openaiStorage) throw new Error('OpenAI not configured');
+      const apiKey = getApiKeyForSpecOpenAI();
+      if (!apiKey) {
+        throw new Error('OpenAI not configured: set OPENAI_API_KEY or OPENAI_SPEC_API_KEY (spec generation needs model.request on the key used).');
+      }
+      const openaiStorage = new (require('./openai-storage-service'))(apiKey);
       this.threadManager = getSpecThreadManager(openaiStorage, db);
     }
     return this.threadManager;
