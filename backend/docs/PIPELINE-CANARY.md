@@ -15,6 +15,8 @@ End-to-end check of spec generation (overview → approve → queued advanced sp
 
 Canary specs are tagged `pipelineCanary: true` and deleted automatically after `expiresAt` (7 days) by the scheduled job cleanup.
 
+Admin routes share a per-IP rate limit (`rateLimiters.admin` in `security.js`). The limit is set high enough for long canary polls plus other dashboard calls.
+
 ## API (admin JWT)
 
 - `GET /api/admin/pipeline-canary/history?days=14`

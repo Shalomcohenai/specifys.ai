@@ -132,10 +132,11 @@ const rateLimiters = {
     legacyHeaders: false
   }),
 
-  // Strict rate limiting for admin endpoints
+  // Admin endpoints (dashboard + polling). Higher cap so pipeline canary polls
+  // (every few seconds for up to ~1h) and migrations/status do not hit 429 together.
   admin: rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20, // limit each IP to 20 requests per windowMs
+    max: 300, // per IP; was 20 and blocked long canary polls + parallel admin calls
     message: {
       error: 'Too many admin requests from this IP, please try again later.',
       retryAfter: '15 minutes'

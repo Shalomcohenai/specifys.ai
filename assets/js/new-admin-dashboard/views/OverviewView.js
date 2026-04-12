@@ -1738,22 +1738,37 @@ export class OverviewView {
   }
 
   /**
-   * Poll until run.traffic is set or timeout
+   * Poll until run.traffic is set or timeout (aligned with long server-side generation).
    */
-  async pollPipelineCanaryRun(runId, statusEl, maxMs = 2700000) {
+  async pollPipelineCanaryRun(runId, statusEl, maxMs = 3600000) {
     const start = Date.now();
+    const pollIntervalMs = 6000;
     while (Date.now() - start < maxMs) {
-      const data = await apiService.getPipelineCanaryRun(runId);
-      const run = data && data.run;
-      if (run && run.traffic) {
-        if (statusEl) {
-          const err = run.error ? ` — ${run.error}` : '';
-          statusEl.textContent = `Result: ${run.traffic}${err}`;
+      try {
+        const data = await apiService.getPipelineCanaryRun(runId);
+        const run = data && data.run;
+        if (run && run.traffic) {
+          if (statusEl) {
+            const err = run.error ? ` — ${run.error}` : '';
+            statusEl.textContent = `Result: ${run.traffic}${err}`;
+          }
+          return run;
         }
-        return run;
+        if (statusEl) {
+          const elapsedMin = Math.floor((Date.now() - start) / 60000);
+          statusEl.textContent = `Running… (${elapsedMin}m elapsed, poll every ${pollIntervalMs / 1000}s)`;
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+      } catch (err) {
+        const msg = (err && err.message) ? String(err.message) : '';
+        const isRateLimited = /429|Too many|rate limit/i.test(msg);
+        if (isRateLimited && Date.now() - start < maxMs) {
+          if (statusEl) statusEl.textContent = 'Temporary rate limit — retrying in 30s…';
+          await new Promise((resolve) => setTimeout(resolve, 30000));
+          continue;
+        }
+        throw err;
       }
-      if (statusEl) statusEl.textContent = 'Running… (poll every 4s)';
-      await new Promise((resolve) => setTimeout(resolve, 4000));
     }
     if (statusEl) statusEl.textContent = 'Stopped waiting (timeout). Refresh history for partial data.';
     return null;
