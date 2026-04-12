@@ -1,0 +1,67 @@
+{
+  "templates": [
+    {
+      "id": "team-habits",
+      "title": "Team Habit Tracker",
+      "answers": [
+        "A lightweight web application for small remote teams to track shared daily habits such as standups, code review, and learning time. Teams see a weekly scoreboard and streak counters. The product targets startups with 5–30 people.",
+        "Each morning users open the dashboard, mark habits done with one click, and optionally add a short note. Managers can view team progress but not edit individual entries. Notifications remind users before end of day.",
+        "Prefer React on the frontend, REST API, PostgreSQL, email-only notifications, no mobile native apps for v1."
+      ]
+    },
+    {
+      "id": "invoice-lite",
+      "title": "Freelancer Invoice Lite",
+      "answers": [
+        "A simple invoicing tool for freelancers to create branded PDF invoices, track paid vs unpaid, and send reminders. Supports one currency and basic tax line items.",
+        "User creates a client, adds line items, generates a PDF, emails it from the app, and marks payment received when the client pays. Dashboard shows overdue invoices.",
+        "Web only, Stripe for optional online payment links later, no accounting integrations in v1."
+      ]
+    },
+    {
+      "id": "recipe-box",
+      "title": "Family Recipe Box",
+      "answers": [
+        "A private recipe organizer for families: store recipes with photos, tags, and cooking times. Search by ingredient or tag. Share read-only links with relatives.",
+        "Users add recipes via a form, upload a photo, assign tags, and browse a grid. Clicking a recipe shows steps and a printable layout.",
+        "Static hosting friendly frontend, Firebase or similar backend acceptable, English UI only."
+      ]
+    },
+    {
+      "id": "event-rsvp",
+      "title": "Small Event RSVP",
+      "answers": [
+        "RSVP mini-site for weddings and parties: host creates an event, sets capacity, collects guest names plus meal choice. Guests respond without accounts via magic link.",
+        "Host dashboard shows headcount and meal tallies. Guests open link, confirm attendance, pick meal, submit once.",
+        "No payments in v1, GDPR-aware export of guest list CSV, mobile-first responsive layout."
+      ]
+    },
+    {
+      "id": "asset-loaner",
+      "title": "Office Equipment Loaner",
+      "answers": [
+        "Internal tool for IT to track laptops, monitors, and peripherals loaned to employees. Check-out and check-in with condition notes and due dates.",
+        "Staff request hardware from inventory; IT approves and assigns serial numbers. Return flow captures condition and clears assignment.",
+        "Single company deployment, LDAP or SSO later, barcode scanning optional, web dashboard for IT only."
+      ]
+    },
+    {
+      "id": "reading-list",
+      "title": "Developer Reading List",
+      "answers": [
+        "Personal reading list for developers: save articles and docs with URL, title auto-fetch, tags like 'frontend' or 'devops', and archive when read.",
+        "User pastes URL, app fetches Open Graph title, user edits tags, filters by unread, marks as read with timestamp.",
+        "Browser extension out of scope; simple CRUD web app with dark mode toggle."
+      ]
+    },
+    {
+      "id": "pet-vet-log",
+      "title": "Pet Vet Visit Log",
+      "answers": [
+        "Pet owners log vet visits, vaccinations, and medications for multiple pets. Reminder emails before next due vaccine.",
+        "Add pet profile, add visit with date and notes, upload optional PDF from vet, see timeline per pet.",
+        "Consumer web app, one household per account, no vet portal in v1, English only."
+      ]
+    }
+  ]
+}

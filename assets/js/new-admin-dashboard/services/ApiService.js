@@ -186,6 +186,27 @@ export class ApiService {
   async getUserSyncStatus() {
     return this.get('/api/admin/users/sync-status');
   }
+
+  /**
+   * Pipeline canary history (admin)
+   */
+  async getPipelineCanaryHistory(days = 14) {
+    return this.get(`/api/admin/pipeline-canary/history?days=${days}`);
+  }
+
+  /**
+   * Single pipeline canary run status
+   */
+  async getPipelineCanaryRun(runId) {
+    return this.get(`/api/admin/pipeline-canary/run/${encodeURIComponent(runId)}`);
+  }
+
+  /**
+   * Start pipeline canary (async on server; poll getPipelineCanaryRun)
+   */
+  async runPipelineCanary(body = {}) {
+    return this.post('/api/admin/pipeline-canary/run', body);
+  }
 }
 
 // Export singleton

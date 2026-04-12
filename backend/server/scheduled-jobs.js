@@ -22,6 +22,8 @@ let articleWriterInterval = null;
 let creditsSyncInterval = null;
 let dailyReportInterval = null;
 let weeklyReportInterval = null;
+let pipelineCanaryTimeout = null;
+let pipelineCanaryInterval = null;
 
 /**
  * Start all scheduled jobs
@@ -49,6 +51,9 @@ function startScheduledJobs() {
 
   // Weekly report (runs every Sunday at 9:00 AM)
   startWeeklyReportJob();
+
+  // Pipeline canary (optional — expensive full spec generation)
+  startPipelineCanaryScheduledJob();
 
   logger.info('[scheduled-jobs] All scheduled jobs started');
 }
@@ -92,6 +97,15 @@ function stopScheduledJobs() {
   if (weeklyReportInterval) {
     clearInterval(weeklyReportInterval);
     weeklyReportInterval = null;
+  }
+
+  if (pipelineCanaryTimeout) {
+    clearTimeout(pipelineCanaryTimeout);
+    pipelineCanaryTimeout = null;
+  }
+  if (pipelineCanaryInterval) {
+    clearInterval(pipelineCanaryInterval);
+    pipelineCanaryInterval = null;
   }
 
   logger.info('[scheduled-jobs] All scheduled jobs stopped');
@@ -833,6 +847,56 @@ async function runWeeklyReportJob(adminEmail) {
   }
 }
 
+/**
+ * Expire old canary specs and run scheduled pipeline canary once (if enabled).
+ */
+async function runPipelineCanaryAndCleanup() {
+  const requestId = `pipeline-canary-${Date.now()}`;
+  const pipelineCanary = require('./pipeline-canary-service');
+  try {
+    await pipelineCanary.deleteExpiredCanarySpecs();
+  } catch (error) {
+    logger.warn({ requestId, error: error.message }, '[scheduled-jobs] Pipeline canary cleanup failed');
+  }
+  try {
+    const result = await pipelineCanary.runScheduledPipelineCanaryOnce();
+    logger.info({ requestId, result }, '[scheduled-jobs] Pipeline canary run finished');
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[scheduled-jobs] Pipeline canary run failed');
+  }
+}
+
+/**
+ * Daily pipeline canary at PIPELINE_CANARY_HOUR (timezone PIPELINE_CANARY_TIMEZONE).
+ * Enable with PIPELINE_CANARY_ENABLED=true (default: off).
+ */
+function startPipelineCanaryScheduledJob() {
+  const enabled = process.env.PIPELINE_CANARY_ENABLED === 'true';
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Pipeline canary job not started — set PIPELINE_CANARY_ENABLED=true to enable');
+    return;
+  }
+
+  const hour = parseInt(process.env.PIPELINE_CANARY_HOUR || '4', 10);
+  const timezone = process.env.PIPELINE_CANARY_TIMEZONE || process.env.REPORT_TIMEZONE || 'UTC';
+  const hours24 = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const nextRun = getNextScheduledTime(Number.isFinite(hour) ? hour : 4, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
+
+  pipelineCanaryTimeout = setTimeout(() => {
+    runPipelineCanaryAndCleanup();
+    pipelineCanaryInterval = setInterval(runPipelineCanaryAndCleanup, hours24);
+  }, msUntilNext);
+
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    hour: Number.isFinite(hour) ? hour : 4,
+    timezone,
+    msUntilNext
+  }, '[scheduled-jobs] Pipeline canary job scheduled');
+}
+
 module.exports = {
   startScheduledJobs,
   stopScheduledJobs,
@@ -845,6 +909,9 @@ module.exports = {
   startDailyReportJob,
   runDailyReportJob,
   startWeeklyReportJob,
-  runWeeklyReportJob
+  runWeeklyReportJob,
+  getNextScheduledTime,
+  runPipelineCanaryAndCleanup,
+  startPipelineCanaryScheduledJob
 };
 

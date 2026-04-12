@@ -397,26 +397,27 @@ custom_js_modules:
           </div>
         </div>
 
-        <!-- System Health Check -->
-        <div class="overview-card">
+        <!-- Pipeline Canary -->
+        <div class="overview-card pipeline-canary-card">
           <div class="card-header">
-            <h2>System Health Check</h2>
+            <h2>Pipeline Canary</h2>
+            <div class="card-header-actions">
+              <button class="btn-modern btn-small" id="pipeline-canary-refresh-btn" type="button" title="Refresh history">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+              </button>
+            </div>
           </div>
           <div class="card-body">
-            <div class="health-check-simple">
-              <button class="btn-modern" id="api-health-check-btn" type="button" aria-label="Check API health status">
-                <i class="fas fa-heartbeat"></i>
-                <span>Check System Health</span>
+            <p class="pipeline-canary-desc">Runs the same path as users: overview, approve, then advanced specs (technical, market, design, architecture). Green = all ready; orange = partial; red = failed.</p>
+            <div class="pipeline-canary-today" id="pipeline-canary-today">Loading…</div>
+            <div class="pipeline-canary-chart" id="pipeline-canary-chart" role="img" aria-label="Canary status by day"></div>
+            <div class="pipeline-canary-actions">
+              <button class="btn-modern" id="pipeline-canary-run-btn" type="button">
+                <i class="fas fa-play"></i>
+                <span>Run check now</span>
               </button>
-              <div class="api-response-box">
-                <div class="api-response-header">
-                  <span class="api-response-label">Health Check Results</span>
-                  <button class="btn-icon-small" id="api-health-copy-btn" type="button" title="Copy logs" aria-label="Copy API health logs to clipboard">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-                <textarea id="api-response-text" readonly placeholder="Health check results will appear here..."></textarea>
-              </div>
+              <span class="pipeline-canary-run-status" id="pipeline-canary-run-status" aria-live="polite"></span>
             </div>
           </div>
         </div>

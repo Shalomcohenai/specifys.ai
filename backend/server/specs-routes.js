@@ -11,43 +11,12 @@ const specQueue = require('./spec-queue');
 const specEvents = require('./spec-events');
 const { recordSpecCreation } = require('./admin-activity-service');
 const emailService = require('./email-service');
+const { getTitleFromOverview } = require('./spec-overview-utils');
+const { attachSpecQueueFirestoreListeners } = require('./spec-queue-firestore-listeners');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
   : null;
-
-/**
- * Get display title from overview: use shortTitle from structured output when present,
- * otherwise fall back to extracting from ideaSummary (legacy / backward compatibility).
- * Used in profile cards and spec-viewer header.
- */
-function getTitleFromOverview(overviewContent) {
-    const MAX_WORDS = 5;
-    if (!overviewContent || typeof overviewContent !== 'string') return 'App Specification';
-    try {
-        const overviewObj = JSON.parse(overviewContent);
-        const o = overviewObj.overview && typeof overviewObj.overview === 'object' ? overviewObj.overview : overviewObj;
-        const shortTitle = o.shortTitle && typeof o.shortTitle === 'string' ? o.shortTitle.trim() : '';
-        if (shortTitle.length > 0) return shortTitle;
-        const ideaSummary = o.ideaSummary || overviewObj.ideaSummary;
-        if (ideaSummary && typeof ideaSummary === 'string' && ideaSummary.trim().length > 0) {
-            const trimmed = ideaSummary.trim();
-            const firstSentence = trimmed.split(/[.!?]/)[0].trim();
-            const words = firstSentence.split(/\s+/).filter(Boolean);
-            if (words.length >= 1) return words.slice(0, MAX_WORDS).join(' ');
-        }
-        if (overviewObj.applicationSummary && Array.isArray(overviewObj.applicationSummary.paragraphs) && overviewObj.applicationSummary.paragraphs[0]) {
-            const p = overviewObj.applicationSummary.paragraphs[0];
-            if (typeof p === 'string' && p.trim().length > 0) {
-                const words = p.trim().split(/\s+/).filter(Boolean);
-                if (words.length >= 1) return words.slice(0, MAX_WORDS).join(' ');
-            }
-        }
-    } catch (e) {
-        // ignore parse errors
-    }
-    return 'App Specification';
-}
 
 /**
  * Middleware to verify Firebase ID token
@@ -400,38 +369,11 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        // Add to queue for processing
-        const job = await specQueue.add(specId, overview, answers);
-
-        // Set up event listeners for this spec
-        const updateListener = (event) => {
-            if (event.specId === specId) {
-                // Update Firestore on each stage completion
-                const updateData = {
-                    [`status.${event.stage}`]: event.status,
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                };
-
-                if (event.status === 'ready' && event.content) {
-                    updateData[event.stage] = event.content;
-                }
-                updateData.generationVersion = 'v2';
-
-                db.collection('specs').doc(specId).update(updateData).catch(err => {
-                    logger.error({ requestId, specId, stage: event.stage, error: err.message }, 'Failed to update spec in Firestore');
-                });
-            }
-        };
-
-        const completeListener = async (event) => {
-            if (event.specId === specId) {
-                // Remove listeners
-                specEvents.removeListener('spec.update', updateListener);
-                specEvents.removeListener('spec.complete', completeListener);
-                specEvents.removeListener('spec.error', errorListener);
-
-                // Trigger OpenAI upload only after all Firestore writes (including architecture) have had time to complete.
-                // Upload runs with whatever is in Firestore: full spec on success, or partial (e.g. overview + technical + market + design) on partial failure.
+        // Register listeners before queue.add so early spec.update events are not missed.
+        attachSpecQueueFirestoreListeners({
+            specId,
+            requestId,
+            onGenerationComplete: () => {
                 if (openaiStorage) {
                     const uploadDelayMs = 3000;
                     setTimeout(() => {
@@ -441,24 +383,9 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
                     }, uploadDelayMs);
                 }
             }
-        };
+        });
 
-        const errorListener = (event) => {
-            if (event.specId === specId) {
-                logger.error({ requestId, specId, stage: event.stage, error: event.error }, 'Spec generation error');
-                // Persist error state so UI shows error + Retry instead of infinite loading
-                db.collection('specs').doc(specId).update({
-                    [`status.${event.stage}`]: 'error',
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                }).catch(err => {
-                    logger.error({ requestId, specId, stage: event.stage, error: err.message }, 'Failed to update spec error status in Firestore');
-                });
-            }
-        };
-
-        specEvents.on('spec.update', updateListener);
-        specEvents.on('spec.complete', completeListener);
-        specEvents.on('spec.error', errorListener);
+        const job = await specQueue.add(specId, overview, answers);
 
         const totalTime = Date.now() - startTime;
         logger.info({ requestId, specId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-all - Job queued');
@@ -982,6 +909,8 @@ async function triggerOpenAIUploadForSpec(specId, options = {}) {
         if (!specDoc.exists) return;
 
         const specData = specDoc.data();
+        if (specData.pipelineCanary === true) return;
+
         if (specData.openaiFileId && !options.forceReupload) return; // Already uploaded
 
         if (openaiStorage) {

@@ -45,6 +45,9 @@ export class OverviewView {
     
     // Load Buy Now clicks (pricing)
     this.loadBuyNowClicks();
+
+    // Pipeline canary chart + controls
+    this.loadPipelineCanaryHistory();
   }
   
   /**
@@ -169,8 +172,27 @@ export class OverviewView {
         }, 300); // Debounce 300ms
       });
     }
+
+    const pipelineRefresh = helpers.dom('#pipeline-canary-refresh-btn');
+    if (pipelineRefresh) {
+      pipelineRefresh.addEventListener('click', () => this.loadPipelineCanaryHistory());
+    }
+    const pipelineRun = helpers.dom('#pipeline-canary-run-btn');
+    if (pipelineRun) {
+      pipelineRun.addEventListener('click', () => this.runPipelineCanaryNow());
+    }
   }
-  
+
+  /**
+   * Local calendar date YYYY-MM-DD (browser timezone)
+   */
+  static formatLocalYMD(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   /**
    * Update metric descriptions based on selected range
    */
@@ -1620,7 +1642,146 @@ export class OverviewView {
       totalEl.className = 'buy-now-clicks-total';
     }
   }
-  
+
+  /**
+   * Load pipeline canary run history and render chart
+   */
+  async loadPipelineCanaryHistory() {
+    const chart = helpers.dom('#pipeline-canary-chart');
+    const todayEl = helpers.dom('#pipeline-canary-today');
+    if (!chart) return;
+
+    chart.innerHTML = '<div class="pipeline-canary-loading">Loading history…</div>';
+    if (todayEl) todayEl.textContent = '';
+
+    try {
+      const data = await apiService.getPipelineCanaryHistory(14);
+      const runs = (data && data.runs) || [];
+      this.renderPipelineCanaryChart(runs);
+    } catch (error) {
+      console.error('[OverviewView] Pipeline canary history:', error);
+      chart.innerHTML = '<div class="pipeline-canary-error">Could not load history.</div>';
+      if (todayEl) todayEl.textContent = '';
+    }
+  }
+
+  /**
+   * Render last 14 days as bars (best traffic per dateKey when multiple runs)
+   */
+  renderPipelineCanaryChart(runs) {
+    const chart = helpers.dom('#pipeline-canary-chart');
+    const todayEl = helpers.dom('#pipeline-canary-today');
+    if (!chart) return;
+
+    const rank = { green: 3, orange: 2, red: 1 };
+    const byDay = new Map();
+    runs.forEach((r) => {
+      const d = r.dateKey;
+      if (!d) return;
+      const score = rank[r.traffic] || 0;
+      const cur = byDay.get(d);
+      const curScore = cur ? (rank[cur.run.traffic] || 0) : -1;
+      const timeA = r.startedAt || '';
+      const timeB = cur ? (cur.run.startedAt || '') : '';
+      if (!cur || score > curScore || (score === curScore && timeA > timeB)) {
+        byDay.set(d, { run: r });
+      }
+    });
+
+    const keys = [];
+    for (let i = 13; i >= 0; i -= 1) {
+      const dt = new Date();
+      dt.setHours(0, 0, 0, 0);
+      dt.setDate(dt.getDate() - i);
+      keys.push(OverviewView.formatLocalYMD(dt));
+    }
+
+    chart.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'pipeline-canary-bars';
+
+    keys.forEach((dateKey) => {
+      const cell = document.createElement('div');
+      cell.className = 'pipeline-canary-day';
+      const bar = document.createElement('div');
+      bar.className = 'pipeline-canary-bar';
+      const entry = byDay.get(dateKey);
+      const traffic = entry && entry.run ? entry.run.traffic : null;
+      if (traffic === 'green') bar.classList.add('is-green');
+      else if (traffic === 'orange') bar.classList.add('is-orange');
+      else if (traffic === 'red') bar.classList.add('is-red');
+      else bar.classList.add('is-empty');
+
+      const label = traffic || 'none';
+      cell.title = `${dateKey}: ${label}`;
+
+      const lbl = document.createElement('span');
+      lbl.className = 'pipeline-canary-day-label';
+      lbl.textContent = dateKey.slice(8);
+      cell.appendChild(bar);
+      cell.appendChild(lbl);
+      row.appendChild(cell);
+    });
+    chart.appendChild(row);
+
+    const todayKey = OverviewView.formatLocalYMD(new Date());
+    const t = byDay.get(todayKey);
+    if (todayEl) {
+      if (!t || !t.run) {
+        todayEl.textContent = `Today (${todayKey}): no run recorded for this calendar day in history.`;
+      } else {
+        const tr = t.run.traffic || 'in progress';
+        const spec = t.run.specId ? ` spec ${t.run.specId}` : '';
+        todayEl.textContent = `Today (${todayKey}): ${tr} — ${t.run.templateId || 'template'}${spec}`;
+      }
+    }
+  }
+
+  /**
+   * Poll until run.traffic is set or timeout
+   */
+  async pollPipelineCanaryRun(runId, statusEl, maxMs = 2700000) {
+    const start = Date.now();
+    while (Date.now() - start < maxMs) {
+      const data = await apiService.getPipelineCanaryRun(runId);
+      const run = data && data.run;
+      if (run && run.traffic) {
+        if (statusEl) {
+          const err = run.error ? ` — ${run.error}` : '';
+          statusEl.textContent = `Result: ${run.traffic}${err}`;
+        }
+        return run;
+      }
+      if (statusEl) statusEl.textContent = 'Running… (poll every 4s)';
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+    }
+    if (statusEl) statusEl.textContent = 'Stopped waiting (timeout). Refresh history for partial data.';
+    return null;
+  }
+
+  /**
+   * POST canary run and poll to completion
+   */
+  async runPipelineCanaryNow() {
+    const btn = helpers.dom('#pipeline-canary-run-btn');
+    const statusEl = helpers.dom('#pipeline-canary-run-status');
+    if (btn) btn.disabled = true;
+    if (statusEl) statusEl.textContent = 'Starting…';
+
+    try {
+      const res = await apiService.runPipelineCanary({});
+      const runId = res && res.runId;
+      if (!runId) throw new Error('No runId returned');
+      await this.pollPipelineCanaryRun(runId, statusEl);
+      await this.loadPipelineCanaryHistory();
+    } catch (error) {
+      console.error('[OverviewView] Pipeline canary run:', error);
+      if (statusEl) statusEl.textContent = `Error: ${error.message || error}`;
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
   /**
    * Open test email modal
    */

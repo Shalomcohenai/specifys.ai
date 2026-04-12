@@ -2803,6 +2803,66 @@ router.post('/scheduled-jobs/tools-finder/test', requireAdmin, async (req, res, 
   }
 });
 
+/**
+ * Pipeline canary history (admin only)
+ * GET /api/admin/pipeline-canary/history?days=14
+ */
+router.get('/pipeline-canary/history', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /pipeline-canary/history');
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(req.query.days, 10) || 14));
+    const pipelineCanary = require('./pipeline-canary-service');
+    const runs = await pipelineCanary.getCanaryHistory(days);
+    res.json({ success: true, runs, requestId });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /pipeline-canary/history failed');
+    next(createError('Failed to load pipeline canary history', ERROR_CODES.INTERNAL_ERROR, 500, { details: error.message }));
+  }
+});
+
+/**
+ * Single pipeline canary run (admin only)
+ * GET /api/admin/pipeline-canary/run/:runId
+ */
+router.get('/pipeline-canary/run/:runId', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /pipeline-canary/run/:runId');
+  try {
+    const pipelineCanary = require('./pipeline-canary-service');
+    const run = await pipelineCanary.getCanaryRun(req.params.runId);
+    if (!run) {
+      return next(createError('Run not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+    }
+    res.json({ success: true, run, requestId });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /pipeline-canary/run failed');
+    next(createError('Failed to load pipeline canary run', ERROR_CODES.INTERNAL_ERROR, 500, { details: error.message }));
+  }
+});
+
+/**
+ * Trigger pipeline canary immediately (async; poll GET run/:runId)
+ * POST /api/admin/pipeline-canary/run
+ * Body (optional): { "templateIndex": 0 }
+ */
+router.post('/pipeline-canary/run', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /pipeline-canary/run');
+  try {
+    const pipelineCanary = require('./pipeline-canary-service');
+    const templateIndex = req.body && typeof req.body.templateIndex === 'number' ? req.body.templateIndex : undefined;
+    const { runId, dateKey } = await pipelineCanary.startManualCanaryRun({ templateIndex });
+    res.status(202).json({
+      success: true,
+      message: 'Pipeline canary started. Poll GET /api/admin/pipeline-canary/run/:runId until traffic is set.',
+      runId,
+      dateKey,
+      requestId
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /pipeline-canary/run failed');
+    next(createError('Failed to start pipeline canary', ERROR_CODES.INTERNAL_ERROR, 500, { details: error.message }));
+  }
+});
+
 // Debug: Log all registered routes (must be after all route definitions)
 logger.info('[admin-routes] Admin routes initialized. Registered routes:');
 router.stack.forEach((layer) => {

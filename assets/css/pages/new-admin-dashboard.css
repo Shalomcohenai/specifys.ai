@@ -1918,6 +1918,89 @@
   border-color: var(--primary);
 }
 
+/* Pipeline Canary */
+.pipeline-canary-desc {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.pipeline-canary-today {
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--text);
+}
+
+.pipeline-canary-chart {
+  min-height: 120px;
+  margin-bottom: var(--spacing-md);
+}
+
+.pipeline-canary-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 100px;
+  padding: var(--spacing-sm) 0;
+}
+
+.pipeline-canary-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pipeline-canary-bar {
+  width: 100%;
+  max-width: 28px;
+  min-height: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--border);
+}
+
+.pipeline-canary-bar.is-green {
+  background: #22c55e;
+  min-height: 72px;
+}
+
+.pipeline-canary-bar.is-orange {
+  background: #f97316;
+  min-height: 48px;
+}
+
+.pipeline-canary-bar.is-red {
+  background: #ef4444;
+  min-height: 32px;
+}
+
+.pipeline-canary-bar.is-empty {
+  min-height: 12px;
+  opacity: 0.45;
+}
+
+.pipeline-canary-day-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pipeline-canary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.pipeline-canary-run-status {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
 .btn-modern.success {
   background: var(--success);
   color: white;
