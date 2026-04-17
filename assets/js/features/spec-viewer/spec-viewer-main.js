@@ -2603,31 +2603,91 @@ function getVisibilityEngineSignals(data) {
     const hasAudience = !!(overview.targetAudience || market.targetAudienceInsights);
     const hasCompetition = Array.isArray(market.competitiveLandscape) && market.competitiveLandscape.length > 0;
     const hasVisualStyle = !!(tryParseJsonField(data?.design)?.visualStyleGuide);
+    const hasJourney = !!(overview.userJourneySummary || (overview.detailedUserFlow && Array.isArray(overview.detailedUserFlow.steps)));
+    const hasProofPoints = Array.isArray(overview.coreFeaturesOverview) && overview.coreFeaturesOverview.length > 1;
+    const hasArchitectureContext = !!(tryParseJsonField(data?.technical)?.architectureOverview || data?.architecture);
 
     return {
         hasCoreMessaging,
         hasAudience,
         hasCompetition,
-        hasVisualStyle
+        hasVisualStyle,
+        hasJourney,
+        hasProofPoints,
+        hasArchitectureContext
     };
 }
 
+function buildReadinessMetricRows(signals) {
+    return {
+        seo: [
+            { label: 'Messaging clarity', score: signals.hasCoreMessaging ? 95 : 40 },
+            { label: 'Audience definition', score: signals.hasAudience ? 90 : 35 },
+            { label: 'Content structure seed', score: signals.hasJourney ? 80 : 45 },
+            { label: 'Site architecture hints', score: signals.hasArchitectureContext ? 70 : 35 }
+        ],
+        aio: [
+            { label: 'Entity candidates', score: signals.hasCoreMessaging ? 90 : 35 },
+            { label: 'Comparison context', score: signals.hasCompetition ? 85 : 30 },
+            { label: 'Machine-readable facts', score: signals.hasProofPoints ? 65 : 25 },
+            { label: 'Evidence coverage', score: signals.hasProofPoints ? 60 : 20 }
+        ],
+        brand: [
+            { label: 'Voice baseline', score: signals.hasCoreMessaging ? 75 : 45 },
+            { label: 'Style system', score: signals.hasVisualStyle ? 82 : 35 },
+            { label: 'Consistency constraints', score: signals.hasCoreMessaging ? 68 : 30 },
+            { label: 'Editorial confidence', score: signals.hasAudience ? 70 : 35 }
+        ]
+    };
+}
+
+function averageMetricScore(rows) {
+    const total = rows.reduce((sum, row) => sum + row.score, 0);
+    return Math.round(total / rows.length);
+}
+
+function getReadinessLevel(score) {
+    if (score >= 75) return 'Strong';
+    if (score >= 55) return 'Good';
+    if (score >= 40) return 'Moderate';
+    return 'Low';
+}
+
+function renderReadinessBreakdown(rows) {
+    return `<ul class="visibility-breakdown-list">${rows.map((row) => `
+        <li>
+            <span class="visibility-breakdown-label">${escapeHtmlSpec(row.label)}</span>
+            <span class="visibility-breakdown-score">${row.score}</span>
+        </li>
+    `).join('')}</ul>`;
+}
+
 function renderVisibilityReadinessCards(signals) {
+    const metrics = buildReadinessMetricRows(signals);
+    const seoScore = averageMetricScore(metrics.seo);
+    const aioScore = averageMetricScore(metrics.aio);
+    const brandScore = averageMetricScore(metrics.brand);
     const cards = [
         {
             title: 'SEO readiness',
-            value: signals.hasCoreMessaging && signals.hasAudience ? 72 : 48,
-            rationale: signals.hasCoreMessaging ? 'Core positioning exists in your spec.' : 'Core messaging is still partial.'
+            value: seoScore,
+            level: getReadinessLevel(seoScore),
+            rationale: signals.hasCoreMessaging ? 'Core positioning exists and can seed information architecture.' : 'Core messaging is still partial.',
+            rows: metrics.seo
         },
         {
             title: 'AIO readiness',
-            value: signals.hasCoreMessaging && signals.hasCompetition ? 68 : 42,
-            rationale: signals.hasCompetition ? 'Competitor context can seed entity comparisons.' : 'Entity and comparison facts are still limited.'
+            value: aioScore,
+            level: getReadinessLevel(aioScore),
+            rationale: signals.hasCompetition ? 'Competitor context can seed entity comparisons.' : 'Entity and comparison facts are still limited.',
+            rows: metrics.aio
         },
         {
             title: 'Brand readiness',
-            value: signals.hasVisualStyle ? 64 : 40,
-            rationale: signals.hasVisualStyle ? 'Visual style exists and can seed a voice kit.' : 'Voice kit will rely on defaults until brand rules are provided.'
+            value: brandScore,
+            level: getReadinessLevel(brandScore),
+            rationale: signals.hasVisualStyle ? 'Visual style exists and can seed a voice kit.' : 'Voice kit will rely on defaults until brand rules are provided.',
+            rows: metrics.brand
         }
     ];
 
@@ -2637,9 +2697,11 @@ function renderVisibilityReadinessCards(signals) {
             <div class="visibility-score-row">
                 <span class="visibility-score-value">${card.value}</span>
                 <span class="visibility-score-unit">/100</span>
+                <span class="visibility-score-level">${escapeHtmlSpec(card.level)}</span>
             </div>
             <div class="visibility-score-bar"><div class="visibility-score-fill" style="width: ${card.value}%;"></div></div>
             <p>${escapeHtmlSpec(card.rationale)}</p>
+            ${renderReadinessBreakdown(card.rows)}
         </div>
     `).join('')}</div>`;
 }
@@ -2656,6 +2718,31 @@ function buildVisibilityEngineHtml(data) {
     const primaryAudience = market?.targetAudienceInsights?.primaryAudience?.description || overview?.targetAudience?.sector || 'Digital product teams and founders';
     const brandTone = design?.visualStyleGuide ? 'Professional, clear, and technical.' : 'Professional and direct.';
     const competitorName = market?.competitiveLandscape?.[0]?.name || 'Main competitor';
+    const competitorNames = (Array.isArray(market?.competitiveLandscape) ? market.competitiveLandscape : [])
+        .map((item) => item && item.name)
+        .filter(Boolean)
+        .slice(0, 3);
+    const topCompetitors = competitorNames.length ? competitorNames : [competitorName];
+    const productName = data?.title || 'Your Product';
+    const coreFeatures = Array.isArray(overview?.coreFeaturesOverview) ? overview.coreFeaturesOverview.slice(0, 4) : [];
+    const featureEvidence = coreFeatures.length ? coreFeatures : ['Core features and user outcomes from your spec'];
+    const topPainPoint = market?.targetAudienceInsights?.primaryAudience?.painPoints || overview?.problemStatement || 'Audience friction and unmet needs';
+    const industry = market?.industryOverview?.trends || 'Your category';
+    const longDescription = (overview.ideaSummary || overview.problemStatement || '').slice(0, 220);
+    const topicPillars = [
+        `${productName} use cases`,
+        `${productName} workflows`,
+        `${productName} vs alternatives`,
+        `Best practices for ${productName}`
+    ];
+    const clusterTitles = [
+        `How to get started with ${productName} in 10 minutes`,
+        `${productName} setup mistakes and how to avoid them`,
+        `${productName} for teams: workflow and collaboration guide`,
+        `${productName} vs ${topCompetitors[0]}: feature-by-feature comparison`,
+        `Advanced tips for power users of ${productName}`,
+        `The ultimate checklist before publishing with ${productName}`
+    ];
 
     const lifecycleMermaid = [
         'flowchart LR',
@@ -2702,26 +2789,95 @@ function buildVisibilityEngineHtml(data) {
             <p><span class="visibility-source-pill live">Needs live data</span> Final URL-level title/H1/meta recommendations after launch.</p>
         </div>
         <div class="content-section">
+            <h3><i class="fa fa-sitemap"></i> Topic Cluster &amp; Pillar Map (SEO)</h3>
+            <p><span class="visibility-source-pill derived">Derived from your spec</span> Industry context: ${escapeHtmlSpec(industry)}</p>
+            <div class="visibility-two-col">
+                <div>
+                    <h4>Pillar pages</h4>
+                    <ul>${topicPillars.map((pillar) => `<li>${escapeHtmlSpec(pillar)}</li>`).join('')}</ul>
+                </div>
+                <div>
+                    <h4>Long-tail clusters</h4>
+                    <ul>${clusterTitles.map((title) => `<li>${escapeHtmlSpec(title)}</li>`).join('')}</ul>
+                </div>
+            </div>
+            <p><strong>Internal linking logic:</strong> each cluster article links back to one pillar and one conversion page, while pillar pages cross-link to 2-3 related clusters.</p>
+        </div>
+        <div class="content-section">
             <h3><i class="fa fa-sitemap"></i> AI Knowledge Base Schema (AIO)</h3>
             ${createMermaidPlaceholderHtml(entityMermaid)}
             <pre class="visibility-jsonld-preview">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "${escapeHtmlSpec(data?.title || 'Your Product')}",
+  "name": "${escapeHtmlSpec(productName)}",
   "audience": "${escapeHtmlSpec(primaryAudience)}",
-  "description": "${escapeHtmlSpec((overview.ideaSummary || '').slice(0, 180))}",
-  "competitor": "${escapeHtmlSpec(competitorName)}"
+  "description": "${escapeHtmlSpec(longDescription)}",
+  "problemSolved": "${escapeHtmlSpec(topPainPoint)}",
+  "competitor": "${escapeHtmlSpec(topCompetitors.join(', '))}",
+  "evidence": [
+    ${featureEvidence.map((feature) => `"${escapeHtmlSpec(feature)}"`).join(',\n    ')}
+  ]
 }</pre>
         </div>
         <div class="content-section">
             <h3><i class="fa fa-comments"></i> Voice of Brand Prompt Kit</h3>
-            <p><strong>Style guide prompt:</strong> Write in the brand voice of Specifys. Tone: ${escapeHtmlSpec(brandTone)} Prioritize precision over hype.</p>
-            <p><strong>Negative constraints:</strong> Avoid generic buzzwords, unverifiable claims, and inflated promises.</p>
+            <p><strong>Style guide prompt:</strong> Write in the brand voice for ${escapeHtmlSpec(productName)}. Tone: ${escapeHtmlSpec(brandTone)} Explain concrete user outcomes and use specific examples from product workflows.</p>
+            <p><strong>Negative constraints:</strong> avoid hype phrases, avoid unverifiable superlatives, avoid words like "revolutionary", "game-changing", "unleash", and "best-in-class".</p>
+            <div class="visibility-two-col">
+                <div>
+                    <h4>Do use</h4>
+                    <ul>
+                        <li>Direct, short sentences</li>
+                        <li>Feature plus user outcome framing</li>
+                        <li>Clear calls to action</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Do not use</h4>
+                    <ul>
+                        <li>Generic AI marketing language</li>
+                        <li>Claims without evidence</li>
+                        <li>Long abstract paragraphs</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="content-section">
             <h3><i class="fa fa-cubes"></i> Programmatic SEO Blueprint</h3>
             ${createMermaidPlaceholderHtml(programmaticMermaid)}
             <p>Template family example: <code>[Product] vs [Competitor]</code> pages with mandatory unique evidence blocks.</p>
+            <div class="visibility-programmatic-table-wrap">
+                <table class="visibility-programmatic-table">
+                    <thead>
+                        <tr>
+                            <th>Template</th>
+                            <th>Data source</th>
+                            <th>Unique value rule</th>
+                            <th>Quality gate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${escapeHtmlSpec(productName)} vs ${escapeHtmlSpec(topCompetitors[0])}</td>
+                            <td>Feature matrix + user outcomes</td>
+                            <td>At least 3 differentiators per page</td>
+                            <td>No duplicated body sections over 40%</td>
+                        </tr>
+                        <tr>
+                            <td>${escapeHtmlSpec(productName)} for [UseCase]</td>
+                            <td>Audience pain points + workflow steps</td>
+                            <td>Use-case specific examples</td>
+                            <td>Minimum one concrete scenario per page</td>
+                        </tr>
+                        <tr>
+                            <td>[Problem] solved with ${escapeHtmlSpec(productName)}</td>
+                            <td>Support FAQs + product capabilities</td>
+                            <td>Problem-specific action checklist</td>
+                            <td>Clear CTA and non-generic conclusion</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="content-section">
             <h3><i class="fa fa-satellite-dish"></i> Phase 2: After Launch (Live Optimization)</h3>

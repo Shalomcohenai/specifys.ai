@@ -2881,6 +2881,16 @@ button[onclick*="openVisualizer"]:active {
   font-size: 13px;
 }
 
+.visibility-score-level {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6f4d3f;
+  background: #fff3ec;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
 .visibility-score-bar {
   width: 100%;
   height: 8px;
@@ -2932,4 +2942,71 @@ button[onclick*="openVisualizer"]:active {
 .visibility-locked-preview {
   color: #666;
   font-size: 14px;
+}
+
+.visibility-breakdown-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  border-top: 1px dashed #ececec;
+}
+
+.visibility-breakdown-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.visibility-breakdown-label {
+  color: #555;
+}
+
+.visibility-breakdown-score {
+  color: #222;
+  font-weight: 700;
+}
+
+.visibility-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.visibility-two-col h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.visibility-two-col ul {
+  margin: 0;
+}
+
+.visibility-programmatic-table-wrap {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.visibility-programmatic-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.visibility-programmatic-table th,
+.visibility-programmatic-table td {
+  border: 1px solid #e8e8e8;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.visibility-programmatic-table th {
+  background: #faf8f7;
+  font-weight: 700;
+  color: #333;
 }
