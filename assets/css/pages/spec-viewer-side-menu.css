@@ -514,6 +514,10 @@
     z-index: 1000;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
     overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
   
   /* Show text labels when menu is active on mobile */
@@ -547,10 +551,17 @@
     min-height: 16px;
   }
   
-  /* Disable hover effect on mobile - menu should only open via toggle button */
-  .side-menu:hover {
+  /* Keep menu collapsed only when not active (avoid hover/touch race) */
+  .side-menu:not(.active):hover {
     width: 0;
     transform: translateX(-100%);
+  }
+
+  /* Smooth scrolling inside the menu list on iOS/Android */
+  .side-menu-nav {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
   
   /* Content - No margin on mobile, always full width */
