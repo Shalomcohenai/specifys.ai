@@ -32,4 +32,4 @@ Brain Dump is a single-shot flow in the spec viewer: the user describes a featur
 
 ## API
 
-See [API – Brain Dump](../architecture/API.md#brain-dump-apibrain-dump) for `POST /api/brain-dump/generate` and `POST /api/brain-dump/apply-to-spec`.
+See [Architecture – Chat & Brain Dump](../architecture/ARCHITECTURE.md#46-chat--brain-dump) for `POST /api/brain-dump/generate` and `POST /api/brain-dump/apply-to-spec`.

@@ -167,6 +167,13 @@ custom_js_modules:
                 </button>
             </div>
             
+            <div class="side-menu-item" data-tab="visibility-engine">
+                <button class="side-menu-button" onclick="showTab('visibility-engine')" id="visibility-engineTab" aria-label="AIO and SEO Visibility Engine - Pro feature">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                    <span class="side-menu-text">AIO &amp; SEO <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="export">
                 <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export & Integration">
                     <i class="fa fa-download" aria-hidden="true"></i>
@@ -351,6 +358,18 @@ custom_js_modules:
                         </div>
                     </div>
                     <div id="mockup-viewer-section" class="hidden"></div>
+                </div>
+            </div>
+
+            <div id="visibility-engine-content" class="tab-content hidden">
+                <div class="content-header">
+                    <h2><i class="fa fa-globe"></i> AIO &amp; SEO Visibility Engine</h2>
+                </div>
+                <div id="visibility-engine-data" class="content-body">
+                    <div class="locked-tab-message">
+                        <h3><i class="fa fa-lock"></i> AIO &amp; SEO Visibility Engine</h3>
+                        <p>This module is available for PRO users. Upgrade to access SEO and AIO planning assets.</p>
+                    </div>
                 </div>
             </div>
             

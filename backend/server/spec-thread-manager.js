@@ -2,7 +2,7 @@
  * Manages OpenAI Assistants + spec generation for v2.
  * Generation uses Chat Completions (structured outputs) via OpenAIStorageService.runSpecGeneration — no Threads API polling,
  * so restricted keys without api.threads.read still work. Legacy specs may still have thread_id from older Assistants runs.
- * @see docs/architecture/ARCHITECTURE_REFRESH.md
+ * @see docs/architecture/ARCHITECTURE.md
  */
 
 const admin = require('firebase-admin');

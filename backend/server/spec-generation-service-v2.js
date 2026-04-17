@@ -1,7 +1,7 @@
 /**
  * Spec generation service v2 — OpenAI Assistants (model + instructions) + Chat Completions structured outputs.
  * Replaces legacy Worker-based flow. All sections (overview, technical, market, design) use full structure.
- * @see docs/architecture/ARCHITECTURE_REFRESH.md
+ * @see docs/architecture/ARCHITECTURE.md
  */
 
 const { logger } = require('./logger');

@@ -241,7 +241,7 @@ See `scripts/localhost/LOCALHOST-SETUP.md` for complete setup instructions (in H
 
 ### Backend API Endpoints
 
-See `docs/architecture/API.md` for full reference. Key endpoints:
+See `docs/architecture/ARCHITECTURE.md` for full reference. Key endpoints:
 
 - `GET /api/health` - Health check
 - `GET /api/users/me` - Current user

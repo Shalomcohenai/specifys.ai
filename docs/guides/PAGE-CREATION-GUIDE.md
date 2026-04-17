@@ -611,7 +611,7 @@ extra_js:
 
 ### תיעוד נוסף
 
-- [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) - Design System מלא
+- [ARCHITECTURE.md](../architecture/ARCHITECTURE.md) - מסמך ארכיטקטורה מלא (כולל Design System)
 - [CSS-IMPROVEMENT-STATUS.md](./CSS-IMPROVEMENT-STATUS.md) - סטטוס CSS
 - [SITE-MAPPING-HEBREW.md](./SITE-MAPPING-HEBREW.md) - מיפוי האתר
 

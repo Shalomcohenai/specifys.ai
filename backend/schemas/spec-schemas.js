@@ -10,7 +10,7 @@
  *  3. No z.union() mixing object with string — DatabaseTableSchema.fields uses
  *     a single object shape so array items have a consistent schema.
  *
- * @see docs/architecture/ARCHITECTURE_REFRESH.md
+ * @see docs/architecture/ARCHITECTURE.md
  */
 
 const { z } = require('zod');

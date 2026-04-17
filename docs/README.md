@@ -6,14 +6,7 @@
 
 | קובץ | תיאור |
 |------|--------|
-| [**SITE-ARCHITECTURE.md**](architecture/SITE-ARCHITECTURE.md) | **מפה מלאה של כל האתר**: כל קובץ, פונקציה, route, dependency. כולל רישום קוד מת, כפילויות, ובעיות מבנה |
-| [SPEC-SYSTEM-ARCHITECTURE.md](architecture/SPEC-SYSTEM-ARCHITECTURE.md) | ארכיטקטורת מערכת המפרטים (Spec Engine v2): Backend, Threads, Zod, API, Firestore, Frontend |
-| [ARCHITECTURE_REFRESH.md](architecture/ARCHITECTURE_REFRESH.md) | תוכנית רענון v2: מודלים, סכמות, פלואו |
-| [API.md](architecture/API.md) | תיעוד API: endpoints (כולל Tools Map, MCP), אימות, rate limits, דוגמאות |
-| [DATABASE_SCHEMA.md](architecture/DATABASE_SCHEMA.md) | סכמת Firestore: collections, שדות, קשרים, user_credits_v3 |
-| [DESIGN-SYSTEM.md](architecture/DESIGN-SYSTEM.md) | מערכת עיצוב: tokens, קומפוננטות, utilities, SCSS |
-| [MONOREPO.md](architecture/MONOREPO.md) | מבנה Monorepo: packages, backend, workspaces |
-| [JEKYLL-STYLE-SCSS-SOLUTION.md](architecture/JEKYLL-STYLE-SCSS-SOLUTION.md) | פתרון היסטורי ל-style.scss ב-Jekyll |
+| [**ARCHITECTURE.md**](architecture/ARCHITECTURE.md) | **מסמך הארכיטקטורה המרכזי** — תיאור מלא של כל המערכת: backend, frontend, Firestore, spec engine v2, credits, payments, chat, MCP, workers, deployment, flows מרכזיים, בעיות ידועות |
 
 ## הגדרות (`setup/`)
 
@@ -46,4 +39,4 @@
 
 ---
 
-**עדכון אחרון:** מרץ 2026
+**עדכון אחרון:** אפריל 2026
