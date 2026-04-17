@@ -193,36 +193,91 @@ export class AnalyticsView {
    * Load planning usage from analytics_events
    */
   async loadPlanningAnalytics(days = 30) {
-    const tbody = helpers.dom('#planning-analytics-table tbody');
-    if (!tbody) return;
+    const container = helpers.dom('#planning-usage-containers');
+    if (!container) return;
+
+    const sections = [
+      {
+        title: 'Pages',
+        openAction: 'section_pages',
+        useActions: ['add_custom_page', 'add_predefined_page', 'default_homepage_seeded']
+      },
+      {
+        title: 'Workflows',
+        openAction: 'section_workflow',
+        useActions: ['create_workflow', 'add_workflow_step']
+      },
+      {
+        title: 'Features',
+        openAction: 'section_features',
+        useActions: ['preset_feature_selected', 'add_custom_feature']
+      },
+      {
+        title: 'Design',
+        openAction: 'section_design',
+        useActions: ['design_selected']
+      },
+      {
+        title: 'Integrations',
+        openAction: 'section_integrations',
+        useActions: ['integration_selected']
+      },
+      {
+        title: 'Audience',
+        openAction: 'section_audience',
+        useActions: ['audience_interest_selected', 'audience_platform']
+      },
+      {
+        title: 'Screenshot',
+        openAction: 'section_screenshot',
+        useActions: ['screenshot_file_selected', 'screenshot_analyze_success', 'screenshot_confirmed']
+      }
+    ];
 
     try {
       const response = await apiService.getPlanningStats(days);
       if (response.success && Array.isArray(response.actions)) {
-        if (response.actions.length === 0) {
-          tbody.innerHTML =
-            '<tr><td colspan="3" class="table-empty-state">No planning events in this period</td></tr>';
-          return;
-        }
-        tbody.innerHTML = response.actions
-          .map((row) => {
-            const label = this.escapeHtml(this.formatPlanningActionLabel(row.id));
+        const totalsByAction = response.actions.reduce((acc, row) => {
+          acc[row.id] = row.totalEvents || 0;
+          return acc;
+        }, {});
+
+        const cardsHtml = sections
+          .map((section) => {
+            const openedCount = totalsByAction[section.openAction] || 0;
+            const usedCount = section.useActions.reduce((sum, actionId) => sum + (totalsByAction[actionId] || 0), 0);
             return `
-          <tr>
-            <td>${label}</td>
-            <td><strong>${row.uniqueUsers ?? 0}</strong></td>
-            <td><strong>${row.totalEvents ?? 0}</strong></td>
-          </tr>
-        `;
+              <div class="metric-card-small">
+                <div class="metric-label">${this.escapeHtml(section.title)} Section</div>
+                <div class="metric-description" style="margin-top: 8px;">Opened: <strong>${openedCount}</strong></div>
+                <div class="metric-description">Used: <strong>${usedCount}</strong></div>
+              </div>
+            `;
           })
           .join('');
+
+        container.innerHTML = cardsHtml || `
+          <div class="metric-card-small">
+            <div class="metric-label">No Planning Data</div>
+            <div class="metric-description">No events in this period</div>
+          </div>
+        `;
         return;
       }
-      tbody.innerHTML =
-        '<tr><td colspan="3" class="table-empty-state">No data</td></tr>';
+      container.innerHTML = `
+        <div class="metric-card-small">
+          <div class="metric-label">No Planning Data</div>
+          <div class="metric-description">No events in this period</div>
+        </div>
+      `;
     } catch (error) {
       console.error('[AnalyticsView] Planning analytics:', error);
-      tbody.innerHTML = `<tr><td colspan="3" class="table-empty-state">Error: ${this.escapeHtml(error.message || 'Unknown')}</td></tr>`;
+      container.innerHTML = `
+        <div class="metric-card-small">
+          <div class="metric-label">Error Loading Planning Usage</div>
+          <div class="metric-description">${this.escapeHtml(error.message || 'Unknown error')}</div>
+        </div>
+      `;
     }
   }
   
