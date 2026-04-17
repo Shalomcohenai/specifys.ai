@@ -11,7 +11,7 @@ const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-
 
 /** System instructions for spec JSON stages when not using OPENAI_SPEC_GENERATOR_ASSISTANT_ID. */
 const SPEC_GENERATOR_INSTRUCTIONS =
-  'You generate application specification sections (overview, technical, market, design, architecture). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
+  'You generate application specification sections (overview, technical, market, design, architecture, visibility, prompts). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
 
 class SpecThreadManager {
   constructor(openaiStorage, db) {
@@ -102,10 +102,10 @@ class SpecThreadManager {
   }
 
   /**
-   * Run a structured stage (overview, technical, market, design, architecture). Uses strict JSON schema; returns parsed object.
+   * Run a structured stage (overview, technical, market, design, architecture, visibility, prompts). Uses strict JSON schema; returns parsed object.
    * Logs the exact response_format schema on any OpenAI or parse failure for easier debugging.
    * @param {string} threadId - OpenAI thread ID
-   * @param {string} stage - overview | technical | market | design | architecture
+   * @param {string} stage - overview | technical | market | design | architecture | visibility | prompts
    * @param {string} userMessage - Full user prompt for this stage
    * @returns {Promise<object>} Parsed payload with single root key (e.g. { overview: {...} })
    */

@@ -40,7 +40,7 @@ Single source of truth for the system architecture. Describes every subsystem, s
 
 ## 1. System Overview
 
-Specifys.ai is an AI-powered specification generator. Users describe an app idea and the system produces a structured, five-stage specification: Overview, Technical, Market, Design, and Architecture. Additional features include an AI chat assistant per spec, brain-dump analysis, a vibe-coding tools map, an academy, blog, and article system.
+Specifys.ai is an AI-powered specification generator. Users describe an app idea and the system produces a dependency-driven specification pipeline: Overview -> Technical / Market / Design -> Architecture / AIO & SEO Visibility Engine -> Prompts. Additional features (AI Chat Assistant, Brain Dump, Export & Integration, MCP) consume these generated outputs.
 
 ### Communication Architecture
 
@@ -50,7 +50,7 @@ The system uses two distinct OpenAI integration patterns:
 
 2. **Chat & Brain Dump:** OpenAI **Assistants API** with threads, runs, and `file_search` (spec uploaded to vector store). Conversational context is maintained via real OpenAI threads.
 
-3. **Auxiliary features** (mockups, prompts, mindmap, jira export): Still use **Cloudflare Workers** directly from the frontend.
+3. **Auxiliary features** (mockups, mindmap, jira export): Still use **Cloudflare Workers** directly from the frontend. Prompts are now generated as a backend pipeline stage.
 
 ```
 ┌──────────────────┐     ┌──────────────────────┐     ┌────────────────────────┐
@@ -605,7 +605,7 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `spec-viewer-event-handlers.js` — Event handlers
 - `cursor-windsurf-export.js` — Export to Cursor/Windsurf
 
-Tabs: Overview, Technical, Market Research, Design & Branding, Architecture (Mermaid), Prompts, Brain Dump (Pro), AI Chat, Mockup (Pro), Export & Integration.
+Tabs: Overview, Technical, Market Research, Design & Branding, Architecture (Mermaid), AIO & SEO Visibility Engine (Pro), Prompts, AI Chat, Brain Dump (Pro), Mockup (Pro), Export & Integration, MCP.
 
 **Planning** (`features/planning/`): Multi-step planning interface (~1200 lines).
 
@@ -876,12 +876,16 @@ User approves overview → POST /api/specs/:id/generate-all {overview, answers} 
 
 Backend (specs-routes.js)
   │
-  ├─ Set status.technical='generating', market='pending', design='pending'
+  ├─ Set status:
+  │    technical='generating', market='pending', design='pending',
+  │    architecture='pending', visibility='pending', prompts='pending'
   ├─ attachSpecQueueFirestoreListeners(specId, requestId, onGenerationComplete)
   │    → registers spec.update / spec.complete / spec.error listeners
   └─ specQueue.add(specId, overview, answers) → queued
 
 specQueue.processJob → specGenerationServiceV2.generateAllSpecs:
+  │
+  ├─ Group A (overview-only)
   │
   ├─ generateSection('technical')
   │    ├─ _buildTechnicalPrompt(...)
@@ -897,12 +901,24 @@ specQueue.processJob → specGenerationServiceV2.generateAllSpecs:
   │    ├─ POST /v1/chat/completions (DesignPayloadSchema)
   │    └─ emitSpecUpdate → Firestore
   │
+  ├─ Group B (overview + technical dependency model)
+  │
   ├─ generateArchitecture(overview, technical, market, design)
   │    ├─ _buildArchitecturePrompt(...)
   │    ├─ POST /v1/chat/completions (ArchitecturePayloadSchema, strict JSON)
   │    ├─ Zod validation
   │    ├─ _architecturePayloadToMarkdown(payload) → Markdown with fenced Mermaid
   │    └─ emitSpecUpdate → Firestore (architecture=Markdown, status='ready')
+  │
+  ├─ generateVisibility(overview, technical)
+  │    ├─ POST /v1/chat/completions (VisibilityPayloadSchema, strict JSON)
+  │    ├─ Zod validation
+  │    └─ emitSpecUpdate → Firestore (visibility JSON, status='ready')
+  │
+  ├─ Group C (depends on all generated sections)
+  │
+  ├─ generatePromptsBundle(...)
+  │    └─ emitSpecUpdate → Firestore (prompts JSON, status='ready')
   │
   └─ emitSpecComplete
        → listener: remove event subscriptions

@@ -63,7 +63,7 @@ router.get('/specs', async (req, res, next) => {
 
 /**
  * GET /api/mcp/specs/:id
- * Get full spec document (including overview, technical, market, design).
+ * Get full spec document (including overview, technical, market, design, architecture, visibility, prompts).
  */
 router.get('/specs/:id', async (req, res, next) => {
   const requestId = req.requestId || `mcp-spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -92,7 +92,7 @@ router.get('/specs/:id', async (req, res, next) => {
 
 /**
  * PUT /api/mcp/specs/:id
- * Partial update: overview, technical, design, market, title only.
+ * Partial update: overview, technical, design, market, architecture, visibility, prompts, title.
  */
 router.put('/specs/:id', async (req, res, next) => {
   const requestId = req.requestId || `mcp-put-spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -111,7 +111,7 @@ router.put('/specs/:id', async (req, res, next) => {
       return next(createError(error, ERROR_CODES.VALIDATION_ERROR, 400));
     }
     if (Object.keys(updateData).length === 0) {
-      return next(createError('No allowed fields to update (overview, technical, design, market, title, architecture)', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+      return next(createError('No allowed fields to update (overview, technical, design, market, architecture, visibility, prompts, title)', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
     await db.collection('specs').doc(specId).update(updateData);
@@ -125,7 +125,7 @@ router.put('/specs/:id', async (req, res, next) => {
 
 /**
  * GET /api/mcp/prompt-templates
- * Return developer prompt descriptions for overview, technical, market, design.
+ * Return developer prompt descriptions for overview, technical, market, design, architecture, visibility, prompts.
  */
 router.get('/prompt-templates', async (req, res, next) => {
   const requestId = req.requestId || `mcp-prompts-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -140,9 +140,12 @@ router.get('/prompt-templates', async (req, res, next) => {
       design: specGenerationService.getSystemPrompt('design')
     };
     logger.info({ requestId }, '[mcp-routes] GET /prompt-templates');
+    const architecture = 'Generate architecture based on overview + technical. Include diagrams and integration boundaries.';
+    const visibility = 'Generate AIO & SEO visibility engine based on overview + technical. Return launch-ready assets.';
+    const prompts = 'Generate implementation prompts from all sections: overview, technical, market, design, architecture, visibility.';
     res.json({
       success: true,
-      prompts: { overview, technical, market, design },
+      prompts: { overview, technical, market, design, architecture, visibility, prompts },
       systemPrompts
     });
   } catch (err) {

@@ -323,6 +323,48 @@ const ArchitectureSchema = z.object({
 const ArchitecturePayloadSchema = z.object({ architecture: ArchitectureSchema });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Visibility (AIO & SEO)
+// ─────────────────────────────────────────────────────────────────────────────
+const VisibilitySchema = z.object({
+  strategySummary: z.string(),
+  seoFoundation: z.object({
+    positioning: z.string(),
+    pillarTopics: z.array(z.string()),
+    targetIntents: z.array(z.string())
+  }),
+  aioReadiness: z.object({
+    llmsTxt: z.string(),
+    aiInfoTxt: z.string(),
+    schemaGuidance: z.string()
+  }),
+  contentEngine: z.object({
+    editorialTracks: z.array(z.string()),
+    publishingCadence: z.string(),
+    authoritySignals: z.array(z.string())
+  }),
+  programmaticSeo: z.object({
+    templateFamilies: z.array(z.string()),
+    dataRequirements: z.array(z.string()),
+    qualityGuardrails: z.array(z.string())
+  }),
+  launchChecklist: z.array(z.string())
+});
+
+const VisibilityPayloadSchema = z.object({ visibility: VisibilitySchema });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Prompts
+// ─────────────────────────────────────────────────────────────────────────────
+const PromptsSchema = z.object({
+  generated: z.boolean(),
+  fullPrompt: z.string(),
+  contextSummary: z.string(),
+  integrationChecklist: z.array(z.string())
+});
+
+const PromptsPayloadSchema = z.object({ prompts: PromptsSchema });
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Stage maps
 // ─────────────────────────────────────────────────────────────────────────────
 const STAGE_PAYLOAD_SCHEMAS = {
@@ -330,7 +372,9 @@ const STAGE_PAYLOAD_SCHEMAS = {
   technical: TechnicalPayloadSchema,
   market: MarketPayloadSchema,
   design: DesignPayloadSchema,
-  architecture: ArchitecturePayloadSchema
+  architecture: ArchitecturePayloadSchema,
+  visibility: VisibilityPayloadSchema,
+  prompts: PromptsPayloadSchema
 };
 
 const STAGE_ROOT_KEYS = {
@@ -338,7 +382,9 @@ const STAGE_ROOT_KEYS = {
   technical: 'technical',
   market: 'market',
   design: 'design',
-  architecture: 'architecture'
+  architecture: 'architecture',
+  visibility: 'visibility',
+  prompts: 'prompts'
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -417,6 +463,10 @@ module.exports = {
   DesignPayloadSchema,
   ArchitectureSchema,
   ArchitecturePayloadSchema,
+  VisibilitySchema,
+  VisibilityPayloadSchema,
+  PromptsSchema,
+  PromptsPayloadSchema,
   ArchitectureNarrativeDiagramSchema,
   ArchitectureCoreFlowsSchema,
   DatabaseSchemaSchema,

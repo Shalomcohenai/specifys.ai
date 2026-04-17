@@ -551,6 +551,10 @@ function sectionExists(sectionName, specData) {
             return !!(specData.market && specData.market.trim() && specData.market !== 'error');
         case 'design':
             return !!(specData.design && specData.design.trim() && specData.design !== 'error');
+        case 'architecture':
+            return !!(specData.architecture && String(specData.architecture).trim() && specData.architecture !== 'error');
+        case 'visibility':
+            return !!(specData.visibility && String(specData.visibility).trim() && specData.visibility !== 'error');
         case 'diagrams':
             return !!(specData.diagrams && specData.diagrams.diagrams && Array.isArray(specData.diagrams.diagrams) && specData.diagrams.diagrams.length > 0);
         case 'prompts':
@@ -580,6 +584,8 @@ function updateExportCheckboxes() {
         { id: 'export-technical', name: 'technical' },
         { id: 'export-market', name: 'market' },
         { id: 'export-design', name: 'design' },
+        { id: 'export-architecture', name: 'architecture' },
+        { id: 'export-visibility', name: 'visibility' },
         { id: 'export-diagrams', name: 'diagrams' },
         { id: 'export-prompts', name: 'prompts' },
         { id: 'export-mockups', name: 'mockups' }
@@ -691,6 +697,10 @@ function getSectionContent(sectionName, specData) {
             return specData.market ? formatTextContent(specData.market) : null;
         case 'design':
             return specData.design ? formatTextContent(specData.design) : null;
+        case 'architecture':
+            return specData.architecture ? formatTextContent(specData.architecture) : null;
+        case 'visibility':
+            return specData.visibility ? formatTextContent(specData.visibility) : null;
         case 'diagrams':
             return specData.diagrams ? specData.diagrams : null;
         case 'prompts':
@@ -725,6 +735,8 @@ async function generateExport() {
     const technicalCheckbox = document.getElementById('export-technical');
     const marketCheckbox = document.getElementById('export-market');
     const designCheckbox = document.getElementById('export-design');
+    const architectureCheckbox = document.getElementById('export-architecture');
+    const visibilityCheckbox = document.getElementById('export-visibility');
     const diagramsCheckbox = document.getElementById('export-diagrams');
     const promptsCheckbox = document.getElementById('export-prompts');
     const mockupsCheckbox = document.getElementById('export-mockups');
@@ -733,6 +745,8 @@ async function generateExport() {
     if (technicalCheckbox?.checked && !technicalCheckbox.disabled) selectedSections.push('technical');
     if (marketCheckbox?.checked && !marketCheckbox.disabled) selectedSections.push('market');
     if (designCheckbox?.checked && !designCheckbox.disabled) selectedSections.push('design');
+    if (architectureCheckbox?.checked && !architectureCheckbox.disabled) selectedSections.push('architecture');
+    if (visibilityCheckbox?.checked && !visibilityCheckbox.disabled) selectedSections.push('visibility');
     if (diagramsCheckbox?.checked && !diagramsCheckbox.disabled) selectedSections.push('diagrams');
     if (promptsCheckbox?.checked && !promptsCheckbox.disabled) selectedSections.push('prompts');
     if (mockupsCheckbox?.checked && !mockupsCheckbox.disabled) selectedSections.push('mockups');
@@ -1065,6 +1079,22 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
         <div class="export-section">
             <h2 class="export-section-title"><i class="fa fa-paint-brush"></i> Design & Branding</h2>
             <div class="export-content">${sections.design}</div>
+        </div>`;
+    }
+
+    if (sections.architecture) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-building"></i> Architecture</h2>
+            <div class="export-content">${sections.architecture}</div>
+        </div>`;
+    }
+
+    if (sections.visibility) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-globe"></i> AIO & SEO Visibility Engine</h2>
+            <div class="export-content">${sections.visibility}</div>
         </div>`;
     }
     

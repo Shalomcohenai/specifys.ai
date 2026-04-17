@@ -6,7 +6,7 @@
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
-const ALLOWED_KEYS = new Set(['overview', 'technical', 'design', 'market', 'title', 'architecture']);
+const ALLOWED_KEYS = new Set(['overview', 'technical', 'design', 'market', 'title', 'architecture', 'visibility', 'prompts']);
 const MAX_FIELD_SIZE = 1024 * 1024; // 1MB per field
 
 /**
@@ -89,7 +89,8 @@ async function verifyApiKey(req, res, next) {
 
 /**
  * Build update payload for PUT /api/mcp/specs/:id from body.
- * Only allows overview, technical, design, market, title. Validates types and size.
+ * Only allows overview, technical, design, market, architecture, visibility, prompts, title.
+ * Validates types and size.
  * @param {object} body - req.body
  * @returns {{ updateData: object, error?: string }}
  */

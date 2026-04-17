@@ -187,17 +187,30 @@ Additional Details: ${additionalDetails}`;
   }
 
   /**
-   * Generate all specs sequentially: technical → market → design → architecture. Emits spec.update / spec.complete / spec.error.
+   * Generate all specs sequentially by dependency groups:
+   * Group A: technical -> market -> design (overview-only)
+   * Group B: architecture -> visibility (overview + technical)
+   * Group C: prompts (all generated specs)
+   * Emits spec.update / spec.complete / spec.error.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content string
    * @param {Array} answers - User answers
-   * @returns {Promise<object>} { technical, market, design, architecture, successes, errors }
+   * @returns {Promise<object>} { technical, market, design, architecture, visibility, prompts, successes, errors }
    */
   async generateAllSpecs(specId, overview, answers) {
     const requestId = `v2-all-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     logger.info({ requestId, specId }, '[SpecGenV2] Starting generateAllSpecs');
-    const processed = { technical: null, market: null, design: null, architecture: null, successes: [], errors: [] };
+    const processed = {
+      technical: null,
+      market: null,
+      design: null,
+      architecture: null,
+      visibility: null,
+      prompts: null,
+      successes: [],
+      errors: []
+    };
     const stages = ['technical', 'market', 'design'];
 
     for (const stage of stages) {
@@ -222,6 +235,41 @@ Additional Details: ${additionalDetails}`;
         logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Architecture failed');
         specEvents.emitSpecError(specId, 'architecture', err);
         processed.errors.push({ stage: 'architecture', error: err, retryable: false });
+      }
+    }
+
+    if (processed.technical && processed.architecture) {
+      specEvents.emitSpecUpdate(specId, 'visibility', 'generating', null);
+      try {
+        const visibility = await this.generateVisibility(specId, overview, processed.technical);
+        processed.visibility = visibility;
+        specEvents.emitSpecUpdate(specId, 'visibility', 'ready', visibility);
+        processed.successes.push({ stage: 'visibility', content: visibility });
+      } catch (err) {
+        logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Visibility failed');
+        specEvents.emitSpecError(specId, 'visibility', err);
+        processed.errors.push({ stage: 'visibility', error: err, retryable: false });
+      }
+    }
+
+    if (processed.technical && processed.market && processed.design && processed.architecture && processed.visibility) {
+      specEvents.emitSpecUpdate(specId, 'prompts', 'generating', null);
+      try {
+        const prompts = this.generatePromptsBundle({
+          overview,
+          technical: processed.technical,
+          market: processed.market,
+          design: processed.design,
+          architecture: processed.architecture,
+          visibility: processed.visibility
+        });
+        processed.prompts = prompts;
+        specEvents.emitSpecUpdate(specId, 'prompts', 'ready', prompts);
+        processed.successes.push({ stage: 'prompts', content: prompts });
+      } catch (err) {
+        logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Prompts failed');
+        specEvents.emitSpecError(specId, 'prompts', err);
+        processed.errors.push({ stage: 'prompts', error: err, retryable: false });
       }
     }
 
@@ -428,6 +476,64 @@ Output: single JSON object with key "architecture" and the fields above. No mark
     }
 
     return lines.join('\n').trim() || '';
+  }
+
+  async generateVisibility(specId, overview, technical) {
+    const requestId = `v2-visibility-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId, specId }, '[SpecGenV2] Starting visibility generation');
+    const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be visibility.
+Create an AIO & SEO visibility plan based only on Overview + Technical Specification.
+Required structure:
+- strategySummary (string)
+- seoFoundation: { positioning, pillarTopics[], targetIntents[] }
+- aioReadiness: { llmsTxt, aiInfoTxt, schemaGuidance }
+- contentEngine: { editorialTracks[], publishingCadence, authoritySignals[] }
+- programmaticSeo: { templateFamilies[], dataRequirements[], qualityGuardrails[] }
+- launchChecklist[].
+
+Overview:
+${(overview || '').slice(0, 12000)}
+
+Technical:
+${(technical || '').slice(0, 12000)}
+`;
+    const tm = this._getThreadManager();
+    const threadId = await tm.getOrCreateThread(specId);
+    const payload = await tm.runStage(threadId, 'visibility', prompt);
+    return JSON.stringify(payload.visibility, null, 2);
+  }
+
+  generatePromptsBundle({ overview, technical, market, design, architecture, visibility }) {
+    const sections = {
+      overview,
+      technical,
+      market,
+      design,
+      architecture,
+      visibility
+    };
+    const contextSummary = 'Unified implementation bundle generated from all available specification stages.';
+    const integrationChecklist = [
+      'Use Overview as product source of truth',
+      'Follow Technical architecture and API contracts',
+      'Apply market positioning and differentiators',
+      'Implement design system and UX constraints',
+      'Enforce architecture and integration boundaries',
+      'Apply visibility (AIO/SEO) assets in content and metadata'
+    ];
+    const fullPrompt = `Build the product end-to-end using the following specifications.\n\n${Object.entries(sections)
+      .map(([name, content]) => `## ${name}\n${typeof content === 'string' ? content : JSON.stringify(content, null, 2)}`)
+      .join('\n\n')}`;
+    return JSON.stringify(
+      {
+        generated: true,
+        fullPrompt,
+        contextSummary,
+        integrationChecklist
+      },
+      null,
+      2
+    );
   }
 }
 

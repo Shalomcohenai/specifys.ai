@@ -322,7 +322,8 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
 });
 
 /**
- * Generate all specs in parallel (Technical, Market, Design)
+ * Generate all specs by dependency order:
+ * technical -> market -> design -> architecture -> visibility -> prompts
  * POST /api/specs/:id/generate-all
  * Body: { overview: string, answers: Array }
  * Returns: 202 Accepted immediately, processes in background
@@ -361,11 +362,14 @@ router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => 
             return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
         }
 
-        // Update status: only technical generating initially (Market, Design run sequentially after)
+        // Initialize status contract for the full generation pipeline.
         await db.collection('specs').doc(specId).update({
             'status.technical': 'generating',
             'status.market': 'pending',
             'status.design': 'pending',
+            'status.architecture': 'pending',
+            'status.visibility': 'pending',
+            'status.prompts': 'pending',
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -501,7 +505,7 @@ router.post('/:id/generate-section', verifyFirebaseToken, async (req, res, next)
 });
 
 /**
- * Generate architecture section from overview + technical + market + design.
+ * Generate architecture section from overview + technical (market/design optional context).
  * POST /api/specs/:id/generate-architecture
  * Returns 202 immediately; generation runs in background and updates Firestore when done.
  * The frontend listens for status.architecture changes via Firestore real-time listener.
@@ -524,9 +528,9 @@ router.post('/:id/generate-architecture', verifyFirebaseToken, async (req, res, 
 
         const { overview, technical, market, design } = specData;
 
-        if (!overview || !technical || !market || !design) {
+        if (!overview || !technical) {
             return next(createError(
-                'Overview, technical, market, and design are required before generating architecture',
+                'Overview and technical are required before generating architecture',
                 ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }
             ));
         }

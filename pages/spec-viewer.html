@@ -132,6 +132,13 @@ custom_js_modules:
                 </button>
             </div>
             
+            <div class="side-menu-item" data-tab="visibility-engine">
+                <button class="side-menu-button" onclick="showTab('visibility-engine')" id="visibility-engineTab" disabled aria-label="AIO and SEO Visibility Engine - Pro feature">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                    <span class="side-menu-text">AIO &amp; SEO <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="prompts">
                 <button class="side-menu-button" onclick="showTab('prompts')" id="promptsTab" disabled aria-label="Prompts section" aria-expanded="false">
                     <i class="fa fa-terminal" aria-hidden="true"></i>
@@ -144,13 +151,6 @@ custom_js_modules:
                 <div class="side-menu-submenu" id="submenu-prompts" role="region" aria-label="Prompts subsections"></div>
             </div>
             
-            <div class="side-menu-item" data-tab="brain-dump">
-                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
-                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
-                    <span class="side-menu-text">Brain Dump</span>
-                </button>
-            </div>
-            
             <div class="side-menu-item" data-tab="chat">
                 <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
                     <i class="fa fa-comments" aria-hidden="true"></i>
@@ -159,18 +159,18 @@ custom_js_modules:
                 </button>
             </div>
             
+            <div class="side-menu-item" data-tab="brain-dump">
+                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
+                    <span class="side-menu-text">Brain Dump</span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="mockup">
                 <button class="side-menu-button" onclick="showTab('mockup')" id="mockupTab" disabled aria-label="Mockup section - Pro feature">
                     <i class="fa fa-desktop" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="mockupNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Mockup <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item" data-tab="visibility-engine">
-                <button class="side-menu-button" onclick="showTab('visibility-engine')" id="visibility-engineTab" aria-label="AIO and SEO Visibility Engine - Pro feature">
-                    <i class="fa fa-globe" aria-hidden="true"></i>
-                    <span class="side-menu-text">AIO &amp; SEO <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
                 </button>
             </div>
             
@@ -243,7 +243,7 @@ custom_js_modules:
             <div id="approval-container" class="approval-container">
                 <div class="approval-message">
                     <i class="fa fa-info-circle"></i>
-                    <span>Please review the Overview specification below. You can edit it if needed (PRO users only), then approve to generate Technical and Market specifications.</span>
+                    <span>Please review the Overview specification below. Approve to generate: Technical Specification, Market Research, Design & Branding, Architecture, AIO & SEO Visibility Engine, and Prompts.</span>
                 </div>
                 <div class="approval-actions" role="group" aria-label="Approval actions">
                     <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()" aria-label="Edit overview specification">
@@ -328,7 +328,7 @@ custom_js_modules:
                 <div id="prompts-data" class="content-body">
                     <div class="locked-tab-message">
                         <h3><i class="fa fa-lock"></i> Prompts</h3>
-                        <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
+                        <p>Prompts are generated automatically after Technical, Market, Design, Architecture, and AIO &amp; SEO Visibility Engine are ready.</p>
                     </div>
                 </div>
             </div>
@@ -515,6 +515,16 @@ custom_js_modules:
                                         <input type="checkbox" id="export-design" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-paint-brush"></i> Design & Branding</span>
                                     </label>
+
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-architecture" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-building"></i> Architecture</span>
+                                    </label>
+
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-visibility" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-globe"></i> AIO &amp; SEO Visibility Engine</span>
+                                    </label>
                                     
                                     <label class="export-checkbox-label">
                                         <input type="checkbox" id="export-diagrams" class="export-checkbox section-checkbox html-checkbox">
@@ -655,7 +665,7 @@ custom_js_modules:
                     <div id="export-admin-advanced-raw" class="export-admin-advanced-raw hidden" aria-hidden="true">
                         <div class="export-admin-advanced-raw-inner">
                             <h3 class="export-admin-advanced-raw-title"><i class="fa fa-shield" aria-hidden="true"></i> Admin — row data (debug)</h3>
-                            <p class="export-admin-advanced-raw-desc">View all advanced spec fields as stored, including Mermaid diagram strings (technical, architecture, diagrams, etc.). Use this to verify API output.</p>
+                            <p class="export-admin-advanced-raw-desc">View all row data across all disciplines as stored (overview, technical, market, design, architecture, visibility, prompts, mockups, diagrams, mind map, status, metadata). Use this to verify API output.</p>
                             <button type="button" class="btn btn-secondary export-admin-advanced-raw-btn" id="btn-open-advanced-raw-modal">
                                 <i class="fa fa-database" aria-hidden="true"></i> View advanced row data (JSON)
                             </button>
@@ -822,9 +832,10 @@ custom_js_modules:
             <span class="close" id="advanced-raw-modal-close" role="button" tabindex="0" aria-label="Close">&times;</span>
         </div>
         <div class="modal-body advanced-raw-modal-body">
-            <p class="advanced-raw-modal-hint">Includes overview, technical, market, design, architecture (full markdown with diagrams), diagrams, prompts, mockups, mind map, status, and metadata.</p>
+            <p class="advanced-raw-modal-hint">Includes all disciplines and metadata, plus the complete row snapshot for lossless debugging and export.</p>
             <div class="advanced-raw-modal-actions">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-advanced-raw"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-download-advanced-raw"><i class="fa fa-download" aria-hidden="true"></i> Download JSON</button>
             </div>
             <pre id="advanced-raw-json-pre" class="raw-display advanced-raw-json-pre" tabindex="0"></pre>
         </div>

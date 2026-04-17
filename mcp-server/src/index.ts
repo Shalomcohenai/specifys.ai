@@ -127,6 +127,24 @@ server.registerTool(
 );
 
 server.registerTool(
+  "get_spec_market",
+  {
+    description: "Get only the market research section of a spec by specId.",
+    inputSchema: { specId: z.string().describe("Spec document ID") },
+  },
+  async ({ specId }) => {
+    try {
+      const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
+      const text = normalizeSectionValue(data.spec.market, "(no market research)");
+      return { content: [{ type: "text" as const, text }] };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: "text" as const, text: `Error: ${msg}` }], isError: true };
+    }
+  }
+);
+
+server.registerTool(
   "get_spec_prompts",
   {
     description:
@@ -163,11 +181,29 @@ server.registerTool(
   }
 );
 
+server.registerTool(
+  "get_spec_visibility",
+  {
+    description: "Get the AIO & SEO Visibility Engine section of a spec by specId.",
+    inputSchema: { specId: z.string().describe("Spec document ID") },
+  },
+  async ({ specId }) => {
+    try {
+      const data = await apiGet<GetSpecResponse>(`/specs/${encodeURIComponent(specId)}`);
+      const text = normalizeSectionValue(data.spec.visibility, "(no visibility engine)");
+      return { content: [{ type: "text" as const, text }] };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { content: [{ type: "text" as const, text: `Error: ${msg}` }], isError: true };
+    }
+  }
+);
+
 // ---- Update tools ----
 function registerUpdateTool(
   name: string,
   description: string,
-  field: "overview" | "technical" | "design" | "market" | "architecture"
+  field: "overview" | "technical" | "design" | "market" | "architecture" | "visibility" | "prompts"
 ) {
   server.registerTool(
     name,
@@ -217,6 +253,16 @@ registerUpdateTool(
   "Update the architecture section of a spec (by specId) with new content.",
   "architecture"
 );
+registerUpdateTool(
+  "update_spec_visibility",
+  "Update the visibility engine section of a spec (by specId) with new content.",
+  "visibility"
+);
+registerUpdateTool(
+  "update_spec_prompts",
+  "Update the prompts section of a spec (by specId) with new content.",
+  "prompts"
+);
 
 // ---- Resources ----
 // spec://{specId} – full spec content
@@ -240,7 +286,7 @@ server.registerResource(
       }
     },
   }),
-  { description: "Spec document by ID (overview, technical, design, market)" },
+  { description: "Spec document by ID (overview, technical, market, design, architecture, visibility, prompts)" },
   async (uri, variables) => {
     const specId = typeof variables.specId === "string" ? variables.specId : Array.isArray(variables.specId) ? variables.specId[0] : undefined;
     if (!specId) {

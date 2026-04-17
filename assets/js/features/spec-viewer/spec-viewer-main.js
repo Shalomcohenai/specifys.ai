@@ -48,33 +48,62 @@ function serializeFirestoreFieldForDebug(v) {
     return v;
 }
 
+function serializeObjectForDebug(value) {
+    if (Array.isArray(value)) {
+        return value.map((item) => serializeObjectForDebug(item));
+    }
+    if (value && typeof value === 'object') {
+        // Firestore Timestamp / Date-like object support
+        const maybeSerialized = serializeFirestoreFieldForDebug(value);
+        if (typeof maybeSerialized !== 'object' || maybeSerialized == null) {
+            return maybeSerialized;
+        }
+        const out = {};
+        Object.keys(value).forEach((key) => {
+            out[key] = serializeObjectForDebug(value[key]);
+        });
+        return out;
+    }
+    return serializeFirestoreFieldForDebug(value);
+}
+
 /**
  * Build a JSON-serializable object of advanced spec fields (including diagram strings) for admin debugging.
  */
 function buildAdvancedSpecDebugPayload(data) {
     if (!data || typeof data !== 'object') return {};
-    return {
-        id: data.id,
-        title: data.title,
-        userId: data.userId,
-        generationVersion: data.generationVersion,
-        mode: data.mode,
-        status: data.status,
-        createdAt: serializeFirestoreFieldForDebug(data.createdAt),
-        overviewApproved: data.overviewApproved,
+    const normalizedSections = {
         overview: tryParseJsonField(data.overview),
         technical: tryParseJsonField(data.technical),
         market: tryParseJsonField(data.market),
         design: tryParseJsonField(data.design),
         architecture: data.architecture,
+        visibility: tryParseJsonField(data.visibility),
+        prompts: tryParseJsonField(data.prompts),
         diagrams: data.diagrams,
         mockups: data.mockups,
-        prompts: data.prompts,
         mindMap: data.mindMap || data.mindmap,
-        brainDump: data.brainDump,
-        openaiFileId: data.openaiFileId,
-        openaiUploadTimestamp: serializeFirestoreFieldForDebug(data.openaiUploadTimestamp),
-        thread_id: data.thread_id
+        brainDump: data.brainDump
+    };
+    return {
+        metadata: {
+            id: data.id,
+            title: data.title,
+            userId: data.userId,
+            generationVersion: data.generationVersion,
+            mode: data.mode,
+            status: data.status,
+            createdAt: serializeFirestoreFieldForDebug(data.createdAt),
+            updatedAt: serializeFirestoreFieldForDebug(data.updatedAt),
+            overviewApproved: data.overviewApproved,
+            answers: data.answers || [],
+            openaiFileId: data.openaiFileId,
+            openaiUploadTimestamp: serializeFirestoreFieldForDebug(data.openaiUploadTimestamp),
+            thread_id: data.thread_id
+        },
+        sections: normalizedSections,
+        // Keep the full row data for lossless debug/download (including future fields).
+        completeRowData: serializeObjectForDebug(data)
     };
 }
 
@@ -102,6 +131,22 @@ function openAdvancedRawModal() {
     document.documentElement.style.overflow = 'hidden';
 }
 
+function downloadAdvancedRawJson() {
+    const payload = buildAdvancedSpecDebugPayload(currentSpecData);
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const specId = currentSpecData?.id || 'spec';
+    const dateStr = new Date().toISOString().replace(/[:]/g, '-');
+    link.href = url;
+    link.download = `advanced-row-data-${specId}-${dateStr}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
 function closeAdvancedRawModal() {
     const modal = document.getElementById('advanced-raw-modal');
     if (!modal) return;
@@ -116,6 +161,7 @@ function initExportAdminAdvancedRaw() {
     const closeBtn = document.getElementById('advanced-raw-modal-close');
     const modal = document.getElementById('advanced-raw-modal');
     const copyBtn = document.getElementById('btn-copy-advanced-raw');
+    const downloadBtn = document.getElementById('btn-download-advanced-raw');
     if (openBtn) {
         openBtn.addEventListener('click', function () {
             openAdvancedRawModal();
@@ -142,6 +188,14 @@ function initExportAdminAdvancedRaw() {
                     showNotification('Copied to clipboard', 'success');
                 }
             }).catch(function () {});
+        });
+    }
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function () {
+            downloadAdvancedRawJson();
+            if (typeof showNotification === 'function') {
+                showNotification('Advanced row data downloaded', 'success');
+            }
         });
     }
     document.addEventListener('keydown', function (e) {
@@ -1136,7 +1190,7 @@ function displaySpec(data) {
     displayMockup(data.mockups).catch(err => {
         // Error displaying mockup
     });
-    displayVisibilityEngine(data);
+    displayVisibilityEngine(data.visibility, data);
     displayArchitectureFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -1189,8 +1243,8 @@ function displaySpec(data) {
         }
         updateVisibilityEngineTab();
         
-        // Architecture tab always enabled when spec is loaded (so Generate Architecture is always available for testing)
-        if (data.id) {
+        // Enable architecture only when technical is ready (overview+technical dependency model)
+        if (data.status?.technical === 'ready') {
             const architectureTab = document.getElementById('architectureTab');
             if (architectureTab) architectureTab.disabled = false;
         }
@@ -1213,14 +1267,20 @@ function displaySpec(data) {
             }
         }
         
-        // Enable prompts only if both technical and design are ready
-        if (data.status?.technical === 'ready' && data.status?.design === 'ready') {
+        // Enable prompts only after all spec stages are ready
+        const promptsPrerequisitesReady = data.status?.technical === 'ready'
+            && data.status?.market === 'ready'
+            && data.status?.design === 'ready'
+            && data.status?.architecture === 'ready'
+            && data.status?.visibility === 'ready';
+        if (promptsPrerequisitesReady) {
             const promptsTab = document.getElementById('promptsTab');
             if (promptsTab) {
                 promptsTab.disabled = false;
             }
             // Show Generate only if no prompts yet
-            const hasPrompts = !!(data.prompts && data.prompts.generated);
+            const parsedPrompts = typeof data.prompts === 'string' ? (() => { try { return JSON.parse(data.prompts); } catch (e) { return null; } })() : data.prompts;
+            const hasPrompts = !!(parsedPrompts && parsedPrompts.generated);
             const generatePromptsBtn = document.getElementById('generatePromptsBtn');
             if (generatePromptsBtn) {
                 generatePromptsBtn.style.display = hasPrompts ? 'none' : 'inline-block';
@@ -2675,7 +2735,7 @@ function buildVisibilityEngineHtml(data) {
     `;
 }
 
-async function displayVisibilityEngine(data) {
+async function displayVisibilityEngine(visibilityData, specContext = {}) {
     const container = document.getElementById('visibility-engine-data');
     if (!container) return;
     const hasProAccess = await checkProAccess();
@@ -2690,7 +2750,19 @@ async function displayVisibilityEngine(data) {
         return;
     }
 
-    container.innerHTML = buildVisibilityEngineHtml(data || {});
+    let resolvedData = visibilityData;
+    if (typeof resolvedData === 'string') {
+        try {
+            resolvedData = JSON.parse(resolvedData);
+        } catch (error) {
+            resolvedData = { strategySummary: visibilityData };
+        }
+    }
+    const mergedData = {
+        ...(specContext || {}),
+        ...(resolvedData && typeof resolvedData === 'object' ? resolvedData : {})
+    };
+    container.innerHTML = buildVisibilityEngineHtml(mergedData);
     renderSpecMermaidPlaceholders(container);
     setTimeout(() => updateSubsections('visibility-engine'), 0);
 }
@@ -3032,46 +3104,53 @@ function displayPromptsFromData(data) {
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-lock"></i> Prompts</h3>
-                <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
+                <p>Please approve the Overview and complete all specification stages first.</p>
             </div>
         `;
         return;
     }
     
-    // SECOND CHECK: Technical and Design must be ready
-    if (!data.technical || !data.design || 
+    // SECOND CHECK: All prerequisite specs must be ready
+    if (!data.technical || !data.market || !data.design || !data.architecture || !data.visibility ||
         data.status?.technical !== 'ready' || 
-        data.status?.design !== 'ready') {
+        data.status?.market !== 'ready' ||
+        data.status?.design !== 'ready' ||
+        data.status?.architecture !== 'ready' ||
+        data.status?.visibility !== 'ready') {
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-lock"></i> Prompts</h3>
-                <p>Please generate Technical & Design specifications first to create development prompts.</p>
+                <p>Prompts are generated automatically after Technical, Market, Design, Architecture, and Visibility are ready.</p>
             </div>
         `;
         return;
     }
+
+    const promptsData = typeof data.prompts === 'string' ? (() => {
+        try { return JSON.parse(data.prompts); } catch (e) { return null; }
+    })() : data.prompts;
     
     // THIRD CHECK: Prompts must be generated and valid
-    if (!data.prompts?.generated || 
-        !data.prompts?.fullPrompt || 
-        typeof data.prompts.fullPrompt !== 'string' ||
-        data.prompts.fullPrompt.trim().length === 0) {
+    if (!promptsData?.generated || 
+        !promptsData?.fullPrompt || 
+        typeof promptsData.fullPrompt !== 'string' ||
+        promptsData.fullPrompt.trim().length === 0) {
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-terminal"></i> Prompts</h3>
-                <p>Click "Generate Prompts" to create comprehensive development prompts and third-party integration instructions.</p>
+                <p>Prompts generation is in progress or failed. Retry generation if needed.</p>
             </div>
         `;
         return;
     }
     
     // ALL CHECKS PASSED - Display prompts
-    displayPrompts(data.prompts);
+    displayPrompts(promptsData);
     
     // Update raw data
     const rawPrompts = document.getElementById('raw-prompts');
     if (rawPrompts) {
-        rawPrompts.textContent = JSON.stringify(data.prompts, null, 2);
+        rawPrompts.textContent = JSON.stringify(promptsData, null, 2);
     }
 }
 
@@ -5659,10 +5738,10 @@ document.addEventListener('keydown', function(e) {
       '3': 'market',
       '4': 'design',
       '5': 'architecture',
-      '6': 'prompts',
-      '7': 'chat',
-      '8': 'mockup',
-      '9': 'visibility-engine',
+      '6': 'visibility-engine',
+      '7': 'prompts',
+      '8': 'chat',
+      '9': 'brain-dump',
       '0': 'export'
     };
     
@@ -5903,7 +5982,7 @@ function updateSubsections(tabName) {
 
 // Initialize all subsections when page loads
 function initializeAllSubsections() {
-    const tabs = ['overview', 'technical', 'market', 'design', 'visibility-engine', 'architecture', 'prompts'];
+    const tabs = ['overview', 'technical', 'market', 'design', 'architecture', 'visibility-engine', 'prompts'];
     tabs.forEach(tabName => {
         const tabContent = document.getElementById(`${tabName}-content`);
         if (tabContent) {
@@ -6167,8 +6246,15 @@ async function updateVisibilityEngineTab() {
     const visibilityTab = document.getElementById('visibility-engineTab');
     if (!visibilityTab) return;
     const hasProAccess = await checkProAccess();
-    visibilityTab.disabled = false;
-    visibilityTab.title = hasProAccess ? '' : 'AIO & SEO Visibility Engine is available for PRO users only';
+    const canOpenByStatus = !!(currentSpecData?.status?.architecture === 'ready' || currentSpecData?.visibility);
+    visibilityTab.disabled = !canOpenByStatus;
+    if (!hasProAccess) {
+        visibilityTab.title = 'AIO & SEO Visibility Engine is available for PRO users only';
+    } else if (!canOpenByStatus) {
+        visibilityTab.title = 'Visibility engine is generated after Architecture is ready';
+    } else {
+        visibilityTab.title = '';
+    }
 }
 
 // Refresh tabs menu after Design spec is ready - enables Prompts tab if conditions are met
@@ -6187,8 +6273,8 @@ function refreshTabsAfterDesignReady() {
             designTab.disabled = false;
         }
 
-        // Enable Architecture tab when technical, market, design are all ready
-        if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.market === 'ready') {
+        // Enable Architecture tab when technical is ready (depends on overview+technical)
+        if (currentSpecData.status?.technical === 'ready') {
             const architectureTab = document.getElementById('architectureTab');
             if (architectureTab) {
                 architectureTab.disabled = false;
@@ -6212,13 +6298,20 @@ function refreshTabsAfterDesignReady() {
     }
     updateVisibilityEngineTab();
     
-    // Enable Prompts tab only if both technical and design are ready
-    if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.design === 'ready') {
+    // Enable Prompts tab only after all upstream stages are ready
+    if (
+        currentSpecData.status?.technical === 'ready' &&
+        currentSpecData.status?.market === 'ready' &&
+        currentSpecData.status?.design === 'ready' &&
+        currentSpecData.status?.architecture === 'ready' &&
+        currentSpecData.status?.visibility === 'ready'
+    ) {
         const promptsTab = document.getElementById('promptsTab');
         if (promptsTab) {
             promptsTab.disabled = false;
             // Show Generate button only if no prompts yet
-            const hasPrompts = !!(currentSpecData.prompts && currentSpecData.prompts.generated);
+            const parsedPrompts = typeof currentSpecData.prompts === 'string' ? (() => { try { return JSON.parse(currentSpecData.prompts); } catch (e) { return null; } })() : currentSpecData.prompts;
+            const hasPrompts = !!(parsedPrompts && parsedPrompts.generated);
             const generatePromptsBtn = document.getElementById('generatePromptsBtn');
             if (generatePromptsBtn) {
                 generatePromptsBtn.style.display = hasPrompts ? 'none' : 'inline-block';
@@ -6583,7 +6676,10 @@ async function approveOverview() {
                         overview: "ready",
                         technical: "generating",
                         market: "generating",
-                        design: "generating"
+                        design: "generating",
+                        architecture: "pending",
+                        visibility: "pending",
+                        prompts: "pending"
                     },
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -6604,6 +6700,9 @@ async function approveOverview() {
         currentSpecData.status.technical = "generating";
         currentSpecData.status.market = "generating";
         currentSpecData.status.design = "generating";
+        currentSpecData.status.architecture = "pending";
+        currentSpecData.status.visibility = "pending";
+        currentSpecData.status.prompts = "pending";
         
         // Enable AI Chat immediately after overview approval
         enableChatTabOnly();
@@ -6619,7 +6718,7 @@ async function approveOverview() {
         updateNotificationDot('design', 'generating');
         
         // Start generation via server queue (runs in background, continues even if user closes window)
-        showNotification('Starting parallel generation of Technical, Market, and Design specifications...', 'info');
+        showNotification('Starting generation pipeline: Technical, Market, Design, Architecture, Visibility, then Prompts...', 'info');
         
         // Show email notification for advanced spec
         setTimeout(() => {
@@ -7245,7 +7344,7 @@ async function displayMockup(mockupData) {
             viewerSection.style.display = 'none';
         } else {
             // Design not ready, show locked message
-            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and generate Design specification first to create mockups. <strong>Note: Mockup feature is available for PRO users only.</strong></p></div>';
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and wait for Design & Branding to be ready before creating mockups.</p></div>';
         }
         return;
     }
@@ -8606,12 +8705,18 @@ async function generatePrompts() {
             console.log(`[${requestId}] [generatePrompts] Updated status to generating`);
         }
         
-        // Check if technical and design specs exist
+        // Check if all prerequisite specs exist
         console.log(`[${requestId}] [generatePrompts] Validating prerequisites`, {
             hasTechnical: !!currentSpecData?.technical,
             technicalIsError: currentSpecData?.technical === 'error',
+            hasMarket: !!currentSpecData?.market,
+            marketIsError: currentSpecData?.market === 'error',
             hasDesign: !!currentSpecData?.design,
             designIsError: currentSpecData?.design === 'error',
+            hasArchitecture: !!currentSpecData?.architecture,
+            architectureIsError: currentSpecData?.architecture === 'error',
+            hasVisibility: !!currentSpecData?.visibility,
+            visibilityIsError: currentSpecData?.visibility === 'error',
             hasOverview: !!currentSpecData?.overview
         });
         
@@ -8622,8 +8727,17 @@ async function generatePrompts() {
         if (!currentSpecData.technical || currentSpecData.technical === 'error') {
             throw new Error('Technical specification must be generated first');
         }
+        if (!currentSpecData.market || currentSpecData.market === 'error') {
+            throw new Error('Market research must be generated first');
+        }
         if (!currentSpecData.design || currentSpecData.design === 'error') {
             throw new Error('Design specification must be generated first');
+        }
+        if (!currentSpecData.architecture || currentSpecData.architecture === 'error') {
+            throw new Error('Architecture must be generated first');
+        }
+        if (!currentSpecData.visibility || currentSpecData.visibility === 'error') {
+            throw new Error('AIO & SEO Visibility Engine must be generated first');
         }
         
         console.log(`[${requestId}] [generatePrompts] Prerequisites validated successfully`);

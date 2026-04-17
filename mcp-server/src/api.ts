@@ -58,6 +58,8 @@ export interface SpecFull {
   market?: string;
   design?: string;
   architecture?: string;
+  visibility?: string;
+  prompts?: string;
   status?: Record<string, string>;
   [key: string]: unknown;
 }
@@ -74,7 +76,7 @@ export interface GetSpecResponse {
 
 export interface PromptTemplatesResponse {
   success: boolean;
-  prompts: { overview: string; technical: string; market: string; design: string };
+  prompts: { overview: string; technical: string; market: string; design: string; architecture: string; visibility: string; prompts: string };
   systemPrompts?: Record<string, string>;
 }
 
