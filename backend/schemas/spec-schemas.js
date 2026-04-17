@@ -311,12 +311,18 @@ const ArchitectureCoreFlowsSchema = z.object({
 
 const ArchitectureSchema = z.object({
   executiveSummary: z.string(),
+  systemBoundaries: z.string(),
   logicalSystemArchitecture: ArchitectureNarrativeDiagramSchema,
   informationArchitecture: ArchitectureNarrativeDiagramSchema,
   functionalArchitecture: ArchitectureNarrativeDiagramSchema,
+  repositoryStructure: z.string(),
   coreFlows: ArchitectureCoreFlowsSchema,
   integrationLandscape: ArchitectureNarrativeDiagramSchema,
+  deploymentTopology: ArchitectureNarrativeDiagramSchema,
   nonFunctionalQuality: z.string(),
+  observabilityOperability: z.string(),
+  securityArchitectureDeepDive: z.string(),
+  architectureDecisionLog: z.string(),
   risksAndOpenDecisions: z.string()
 });
 

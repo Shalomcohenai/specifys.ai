@@ -318,17 +318,29 @@ Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must 
 
 - executiveSummary: string (2–4 short paragraphs: product, scope, critical areas).
 
+- systemBoundaries: string (in-scope vs out-of-scope systems, trust boundaries, owned vs external concerns).
+
 - logicalSystemArchitecture: { narrative (logical layers, components, communication), diagramMermaid (flowchart/graph of system — use null only if impossible) }.
 
 - informationArchitecture: { narrative (business entities, domains, source of truth), diagramMermaid (erDiagram or flowchart of information domains — nullable) }.
 
 - functionalArchitecture: { narrative (capabilities, modules, bounded contexts), diagramMermaid (flowchart of major functions/modules — nullable) }.
 
+- repositoryStructure: string (how source code is organized: major folders/modules, responsibilities, ownership boundaries, and why this structure supports maintainability).
+
 - coreFlows: { narrative (critical user journeys and system reactions), primarySequenceDiagramMermaid (sequenceDiagram for one main flow — nullable; must use sequenceDiagram with at least two participants when non-null) }.
 
 - integrationLandscape: { narrative (external systems, protocols, failure points), diagramMermaid (flowchart/graph of integrations — nullable; align with Technical integrationExternalApis) }.
 
+- deploymentTopology: { narrative (runtime environments, network zones, rollout model, secrets/config boundaries), diagramMermaid (flowchart/graph of deployment topology — nullable) }.
+
 - nonFunctionalQuality: string (performance, availability, scalability, security posture at architecture level).
+
+- observabilityOperability: string (logs, metrics, traces, SLI/SLOs, alerting strategy, incident/readiness posture).
+
+- securityArchitectureDeepDive: string (authn/authz boundaries, data protection model, key management, security controls by layer).
+
+- architectureDecisionLog: string (ADR-style decisions: context, alternatives, chosen approach, trade-offs, revisit triggers).
 
 - risksAndOpenDecisions: string (open decisions, trade-offs, technical debt).
 
@@ -336,6 +348,13 @@ MERMAID RULES (strict):
 - Mermaid 10–compatible syntax only.
 - Do NOT wrap diagram code in markdown fences inside JSON; raw Mermaid only.
 - Avoid unescaped quotes or parentheses inside labels; use simple alphanumeric or hyphenated labels.
+- In flowcharts, prefer alphanumeric identifiers (e.g., API, DB, Cache, WorkerService) and avoid punctuation-heavy node ids.
+
+QUALITY BAR:
+- Each narrative/string field must be specific to the provided inputs and include concrete details (components, technologies, flows, constraints).
+- Avoid generic architecture boilerplate.
+- For repositoryStructure, include concrete path examples (e.g., backend/server, assets/js/features/spec-viewer, docs/architecture) when inferable from context.
+- For architectureDecisionLog, include at least 3 distinct decisions.
 
 Input context:
 
@@ -378,6 +397,13 @@ Output: single JSON object with key "architecture" and the fields above. No mark
       lines.push('');
     }
 
+    if (payload.systemBoundaries && String(payload.systemBoundaries).trim()) {
+      lines.push('## System boundaries');
+      lines.push('');
+      lines.push(String(payload.systemBoundaries).trim());
+      lines.push('');
+    }
+
     const nd = payload.logicalSystemArchitecture;
     if (nd && typeof nd === 'object') {
       pushSection('Logical system architecture', nd.narrative, nd.diagramMermaid);
@@ -393,6 +419,13 @@ Output: single JSON object with key "architecture" and the fields above. No mark
       pushSection('Functional architecture', fa.narrative, fa.diagramMermaid);
     }
 
+    if (payload.repositoryStructure && String(payload.repositoryStructure).trim()) {
+      lines.push('## Repository and file structure');
+      lines.push('');
+      lines.push(String(payload.repositoryStructure).trim());
+      lines.push('');
+    }
+
     const cf = payload.coreFlows;
     if (cf && typeof cf === 'object') {
       pushSection('Core user and system flows', cf.narrative, cf.primarySequenceDiagramMermaid);
@@ -403,10 +436,36 @@ Output: single JSON object with key "architecture" and the fields above. No mark
       pushSection('Integration landscape', il.narrative, il.diagramMermaid);
     }
 
+    const dt = payload.deploymentTopology;
+    if (dt && typeof dt === 'object') {
+      pushSection('Deployment topology', dt.narrative, dt.diagramMermaid);
+    }
+
     if (payload.nonFunctionalQuality && String(payload.nonFunctionalQuality).trim()) {
       lines.push('## Non-functional quality');
       lines.push('');
       lines.push(String(payload.nonFunctionalQuality).trim());
+      lines.push('');
+    }
+
+    if (payload.observabilityOperability && String(payload.observabilityOperability).trim()) {
+      lines.push('## Observability and operability');
+      lines.push('');
+      lines.push(String(payload.observabilityOperability).trim());
+      lines.push('');
+    }
+
+    if (payload.securityArchitectureDeepDive && String(payload.securityArchitectureDeepDive).trim()) {
+      lines.push('## Security architecture deep dive');
+      lines.push('');
+      lines.push(String(payload.securityArchitectureDeepDive).trim());
+      lines.push('');
+    }
+
+    if (payload.architectureDecisionLog && String(payload.architectureDecisionLog).trim()) {
+      lines.push('## Architecture decision log');
+      lines.push('');
+      lines.push(String(payload.architectureDecisionLog).trim());
       lines.push('');
     }
 

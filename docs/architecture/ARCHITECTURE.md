@@ -242,14 +242,14 @@ The core product engine. Replaced the legacy Cloudflare Worker–based flow with
 
 | File | Role |
 |------|------|
-| `spec-generation-service-v2.js` | Orchestrates generation for all 5 stages. Builds prompts, calls thread manager, emits events |
+| `spec-generation-service-v2.js` | Orchestrates generation for overview, technical, market, design, architecture, visibility, prompts. Builds prompts, calls thread manager, emits events |
 | `spec-thread-manager.js` | Model resolution (`resolveSpecGeneratorTarget`), calls `openaiStorage.runSpecGeneration`, Zod validation of response |
 | `openai-storage-service.js` | Low-level OpenAI HTTP: `runSpecGeneration` → `POST /v1/chat/completions`. Also has Assistants API methods for chat/brain-dump (separate from spec gen) |
 | `spec-queue.js` | In-memory queue (concurrency=1) for `generateAllSpecs` background jobs |
 | `spec-queue-firestore-listeners.js` | Attaches `spec.update`/`spec.complete`/`spec.error` listeners that sync generation status to Firestore |
 | `spec-events.js` | EventEmitter for generation progress (`spec.update`, `spec.complete`, `spec.error`) |
 | `spec-overview-utils.js` | Extracts title from overview content |
-| `schemas/spec-schemas.js` | Zod schemas for all 5 stages + `buildResponseFormat(stage)` + `parseAndValidateStage(stage, raw)` |
+| `schemas/spec-schemas.js` | Zod schemas for overview, technical, market, design, architecture, visibility, prompts + `buildResponseFormat(stage)` + `parseAndValidateStage(stage, raw)` |
 | `pipeline-canary-service.js` | Automated pipeline health test — creates a canary spec through the full v2 pipeline |
 
 #### How It Calls OpenAI (the key innovation)
@@ -284,7 +284,7 @@ The v2 engine uses **Chat Completions with Structured Outputs** — not the Assi
 | Technical | `TechnicalPayloadSchema` | `technical` | techStack, architectureOverview (with Mermaid), databaseSchema (with Mermaid), apiDesign (with Mermaid), dataFlow (with Mermaid), securityAuthentication, integrationExternalApis, devops, dataStorage, analytics |
 | Market | `MarketPayloadSchema` | `market` | industryOverview, targetAudienceInsights, competitiveLandscape, swotAnalysis, monetizationModel, marketingStrategy |
 | Design | `DesignPayloadSchema` | `design` | visualStyleGuide, logoIconography, uiLayout, uxPrinciples |
-| Architecture | `ArchitecturePayloadSchema` | `architecture` | coreFunctionalityLogic, thirdPartyIntegrations, webPerformanceStrategy, embeddedDiagrams (raw Mermaid strings) |
+| Architecture | `ArchitecturePayloadSchema` | `architecture` | executiveSummary, systemBoundaries, logicalSystemArchitecture (with Mermaid), informationArchitecture (with Mermaid), functionalArchitecture (with Mermaid), repositoryStructure, coreFlows (sequence Mermaid), integrationLandscape (with Mermaid), deploymentTopology (with Mermaid), nonFunctionalQuality, observabilityOperability, securityArchitectureDeepDive, architectureDecisionLog, risksAndOpenDecisions |
 
 Zod strict-mode rules: no `.optional()` (use `.nullable()`), no `z.record()`/`z.any()`, no mixed `z.union()`.
 
