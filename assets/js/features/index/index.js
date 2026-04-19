@@ -2453,7 +2453,17 @@ function triggerPlatformHint() {
       
       const mermaidElements = diagramsContainer.querySelectorAll('.mermaid:not(:has(svg))');
       if (mermaidElements.length === 0) return;
-      
+
+      if (typeof window.sanitizeMermaidSource === 'function') {
+        mermaidElements.forEach(function (el) {
+          var t = el.textContent || '';
+          var c = window.sanitizeMermaidSource(t);
+          if (c) {
+            el.textContent = c;
+          }
+        });
+      }
+
       // Initialize Mermaid if not already initialized
       if (!window.mermaidInitialized) {
         mermaid.initialize({ 
@@ -2473,9 +2483,9 @@ function triggerPlatformHint() {
       
       // Render diagrams
       if (mermaid.run) {
-        mermaid.run({ 
-          querySelector: '.browser-tab-content[data-tab-content="diagrams"] .mermaid:not(:has(svg))' 
-        });
+        Promise.resolve(mermaid.run({
+          querySelector: '.browser-tab-content[data-tab-content="diagrams"] .mermaid:not(:has(svg))'
+        })).catch(function () {});
       } else if (mermaid.contentLoaded) {
         mermaid.contentLoaded();
       }

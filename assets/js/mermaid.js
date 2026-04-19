@@ -160,20 +160,25 @@ class MermaidManager {
 
             // Simple approach - use mermaid.parse and mermaid.render
             try {
+                const definitionClean = typeof window.sanitizeMermaidSource === 'function'
+                    ? window.sanitizeMermaidSource(definition)
+                    : String(definition || '');
+                const toRender = definitionClean || definition;
+
                 // Parse the definition first
-                const parseResult = mermaid.parse(definition);
+                const parseResult = mermaid.parse(toRender);
                 if (!parseResult) {
                     throw new Error('Failed to parse chart definition');
                 }
 
                 // Render the chart
-                const { svg } = await mermaid.render(chartId, definition);
+                const { svg } = await mermaid.render(chartId, toRender);
                 chartElement.innerHTML = svg;
 
                 // Store chart info
                 this.charts.set(containerId, {
                     id: chartId,
-                    definition,
+                    definition: toRender,
                     options,
                     element: chartElement
                 });

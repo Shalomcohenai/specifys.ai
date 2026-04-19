@@ -65,7 +65,10 @@ const SimpleMermaidManager = {
             container.appendChild(chartDiv);
             
             // Render chart
-            const { svg } = await mermaid.render(chartId, definition);
+            const defClean = typeof window.sanitizeMermaidSource === 'function'
+                ? window.sanitizeMermaidSource(definition)
+                : definition;
+            const { svg } = await mermaid.render(chartId, defClean || definition);
             chartDiv.innerHTML = svg;
             
         } catch (error) {

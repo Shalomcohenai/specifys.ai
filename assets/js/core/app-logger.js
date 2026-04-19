@@ -147,8 +147,16 @@
     window.addEventListener('load', deferredLogPageLoad);
   }
 
-  // Log unhandled errors
+  // Log unhandled errors (skip cross-origin "Script error." — browser withholds filename/line)
   window.addEventListener('error', (event) => {
+    const msg = event.message || '';
+    const isCrossOriginScriptError =
+      (msg === 'Script error.' || msg === 'Script error') &&
+      (!event.filename || event.filename === '') &&
+      (!event.lineno || event.lineno === 0);
+    if (isCrossOriginScriptError) {
+      return;
+    }
     logError(event.error || new Error(event.message), {
       filename: event.filename,
       lineno: event.lineno,
@@ -171,12 +179,17 @@
     ];
     
     // Check if this is an ignored error
-    const shouldIgnore = ignoredErrors.some(ignored => 
+    let shouldIgnore = ignoredErrors.some(ignored =>
       errorMessage.includes(ignored)
     );
-    
+
     // Also ignore if it's a user-initiated database deletion
     if (errorName === 'UnknownError' && errorMessage.includes('Database deleted by request')) {
+      shouldIgnore = true;
+    }
+
+    // Mermaid: invalid user/AI diagram text (not an application defect)
+    if (errorMessage.includes('No diagram type detected matching given configuration')) {
       shouldIgnore = true;
     }
     

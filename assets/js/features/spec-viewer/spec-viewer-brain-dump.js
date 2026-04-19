@@ -53,7 +53,10 @@ function renderBrainDumpMermaid(container, mermaidCode) {
       return;
     }
     var uniqueId = 'brain-dump-mermaid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    return mermaid.render(uniqueId, mermaidCode).then(function (result) {
+    var brainDumpCode = (typeof window.sanitizeMermaidSource === 'function'
+      ? window.sanitizeMermaidSource(mermaidCode)
+      : mermaidCode) || mermaidCode;
+    return mermaid.render(uniqueId, brainDumpCode).then(function (result) {
       var wrap = document.createElement('div');
       wrap.className = 'brain-dump-mermaid-rendered';
       wrap.style.overflow = 'auto';

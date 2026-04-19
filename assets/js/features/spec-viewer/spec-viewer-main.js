@@ -3113,7 +3113,10 @@ function displayArchitecture(content, containerEl) {
         container.appendChild(wrap);
         const uniqueId = 'arch-mermaid-' + idx + '-' + Date.now();
         if (typeof mermaid !== 'undefined' && mermaid.render) {
-            mermaid.render(uniqueId, mermaidCode).then(function(result) {
+            var archMermaidCode = (typeof window.sanitizeMermaidSource === 'function'
+                ? window.sanitizeMermaidSource(mermaidCode)
+                : mermaidCode) || mermaidCode;
+            mermaid.render(uniqueId, archMermaidCode).then(function(result) {
                 wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
             }).catch(function() {
                 wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
@@ -3638,7 +3641,10 @@ function renderSpecMermaidPlaceholders(container) {
         wrap.innerHTML = '<div class="architecture-mermaid-loading">Rendering diagram...</div>';
         el.parentNode.replaceChild(wrap, el);
         const uniqueId = 'spec-mer-' + index + '-' + Date.now();
-        mermaid.render(uniqueId, code).then(function (result) {
+        var specMermaidCode = (typeof window.sanitizeMermaidSource === 'function'
+            ? window.sanitizeMermaidSource(code)
+            : code) || code;
+        mermaid.render(uniqueId, specMermaidCode).then(function (result) {
             wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
         }).catch(function () {
             wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(code) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
@@ -9781,8 +9787,11 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
         const uniqueId = `mermaid-render-${diagramData.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         try {
+            const diagramSource = (typeof window.sanitizeMermaidSource === 'function'
+                ? window.sanitizeMermaidSource(diagramData.mermaidCode)
+                : diagramData.mermaidCode) || diagramData.mermaidCode;
             // Render the diagram using mermaid.render()
-            const { svg } = await mermaid.render(uniqueId, diagramData.mermaidCode);
+            const { svg } = await mermaid.render(uniqueId, diagramSource);
             
             // Create container for the rendered SVG
             const mermaidContainer = document.createElement('div');
@@ -9857,7 +9866,10 @@ function openFullscreen(diagramId) {
     if (typeof mermaid !== 'undefined') {
         // Render the diagram for fullscreen using mermaid.render()
         const uniqueId = `mermaid-fullscreen-${diagramId}-${Date.now()}`;
-        mermaid.render(uniqueId, diagramData.mermaidCode)
+        const fullscreenSource = (typeof window.sanitizeMermaidSource === 'function'
+            ? window.sanitizeMermaidSource(diagramData.mermaidCode)
+            : diagramData.mermaidCode) || diagramData.mermaidCode;
+        mermaid.render(uniqueId, fullscreenSource)
             .then(({ svg }) => {
                 // Replace content with rendered SVG
                 content.innerHTML = `<div class="mermaid-fullscreen">${svg}</div>`;

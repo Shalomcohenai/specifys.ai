@@ -51,35 +51,63 @@ export class ApiService {
       return this.pendingRequests.get(requestKey);
     }
     
-    const token = await this.getAuthToken();
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    // Ensure endpoint starts with / and baseUrl doesn't end with /
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const cleanBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
-    const url = `${cleanBaseUrl}${cleanEndpoint}`;
-    
     // Create request promise
     const requestPromise = (async () => {
       try {
-        const response = await fetch(url, {
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        const cleanBaseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+        const url = `${cleanBaseUrl}${cleanEndpoint}`;
+
+        const buildHeaders = async (forceRefresh) => {
+          const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+          };
+          const token = await this.getAuthToken(forceRefresh);
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          return { headers };
+        };
+
+        let { headers } = await buildHeaders(false);
+        let response = await fetch(url, {
           ...options,
           headers
         });
-        
+
+        if (response.status === 401) {
+          const errBody = await response.json().catch(() => ({}));
+          const nested = errBody.error || errBody;
+          const code = nested.code || errBody.errorCode;
+          const detail = (nested.details && nested.details.message) || '';
+          const msg = `${nested.message || errBody.message || ''} ${detail}`.toLowerCase();
+          const looksLikeStaleFirebaseToken =
+            code === 'INVALID_TOKEN' ||
+            code === 'TOKEN_EXPIRED' ||
+            msg.includes('id-token-expired') ||
+            msg.includes('token has expired') ||
+            msg.includes('auth/id-token-expired');
+
+          if (looksLikeStaleFirebaseToken) {
+            const { headers: headersRetry } = await buildHeaders(true);
+            response = await fetch(url, {
+              ...options,
+              headers: headersRetry
+            });
+          } else {
+            const error = new Error(nested.message || errBody.message || response.statusText || `HTTP ${response.status}`);
+            error.status = 401;
+            error.code = code;
+            throw error;
+          }
+        }
+
         if (!response.ok) {
           const error = await response.json().catch(() => ({ message: response.statusText }));
           throw new Error(error.message || `HTTP ${response.status}`);
         }
-        
+
         return await response.json();
       } catch (error) {
         console.error(`[ApiService] Error in request to ${endpoint}:`, error);

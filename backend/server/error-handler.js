@@ -20,6 +20,14 @@ function isExpectedClientOrBotNoise(req, err) {
     if (p === '/favicon.png' || orig.includes('%7B%7B') || p.includes('{{')) return true;
   }
   if (status === 401 && req.method === 'GET' && p.startsWith('/api/admin/') && noAuth) return true;
+  const detailsMsg = (err.details && err.details.message) || '';
+  if (
+    status === 401 &&
+    p.startsWith('/api/admin/') &&
+    (detailsMsg.includes('auth/id-token-expired') || detailsMsg.includes('id-token-expired'))
+  ) {
+    return true;
+  }
   return false;
 }
 

@@ -402,14 +402,20 @@ async function requireAdmin(req, res, next) {
     next();
     
   } catch (error) {
-    logger.error({ 
+    const isExpiredIdToken = error?.code === 'auth/id-token-expired';
+    const logPayload = {
       path: req.path,
       error: {
         message: error?.message,
         code: error?.code,
-        stack: error?.stack
+        stack: isExpiredIdToken ? undefined : error?.stack
       }
-    }, '[security] Admin token verification failed');
+    };
+    if (isExpiredIdToken) {
+      logger.warn(logPayload, '[security] Admin ID token expired (refresh on client)');
+    } else {
+      logger.error(logPayload, '[security] Admin token verification failed');
+    }
     return next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401, {
       message: error?.message || 'Authentication failed'
     }));

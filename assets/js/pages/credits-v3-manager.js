@@ -56,35 +56,43 @@
       // Common network error patterns
       const networkErrorPatterns = [
         'fetch',
-        'Load failed',
-        'Failed to fetch',
-        'NetworkError',
-        'Network request failed',
+        'load failed',
+        'failed to fetch',
+        'networkerror',
+        'network request failed',
         'network',
         'timeout',
-        'ECONNREFUSED',
-        'ENOTFOUND',
-        'ETIMEDOUT',
-        'ERR_INTERNET_DISCONNECTED',
-        'ERR_NETWORK_CHANGED',
-        'TypeError' // "Load failed" is a TypeError in Safari iOS
+        'econnrefused',
+        'enotfound',
+        'etimedout',
+        'err_internet_disconnected',
+        'err_network_changed',
+        'aborted',
+        'the network connection was lost',
+        'could not connect to the server'
       ];
-      
-      // Check if error message or name matches network error patterns
+
       const lowerMessage = errorMessage.toLowerCase();
       const lowerName = errorName.toLowerCase();
-      
-      return networkErrorPatterns.some(pattern => 
-        lowerMessage.includes(pattern.toLowerCase()) || 
-        lowerName.includes(pattern.toLowerCase())
-      );
+
+      if (networkErrorPatterns.some(pattern => lowerMessage.includes(pattern))) {
+        return true;
+      }
+      // Safari iOS uses TypeError + "Load failed" without the word "fetch"
+      if (lowerName === 'typeerror' && (
+        lowerMessage.includes('load failed') ||
+        lowerMessage.includes('failed to fetch') ||
+        lowerMessage.includes('network')
+      )) {
+        return true;
+      }
+      return false;
     }
 
     /**
      * Make API request with fallback to old API
      */
     async apiRequest(method, path, body = null, retries = 2) {
-      const token = await this.getAuthToken();
       const apiBaseUrl = this.getApiBaseUrl();
       
       // Validate URL construction
@@ -119,11 +127,10 @@
         }
         throw error;
       }
-      
+
       const options = {
         method: method,
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       };
@@ -136,6 +143,9 @@
       let lastError;
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
+          const token = await this.getAuthToken();
+          options.headers['Authorization'] = `Bearer ${token}`;
+
           if (window.appLogger && attempt > 0) {
             window.appLogger.log('Info', `Retrying API request (attempt ${attempt + 1}/${retries + 1})`, {
               context: 'CreditsV3Manager.apiRequest',
@@ -146,7 +156,35 @@
           }
           
           const response = await fetch(url, options);
-          
+
+          if (response.status === 401) {
+            const errorData401 = await response.json().catch(() => ({ message: 'Unknown error' }));
+            const msg401 = `${errorData401.message || ''} ${JSON.stringify(errorData401)}`.toLowerCase();
+            const expired401 =
+              msg401.includes('id-token-expired') ||
+              msg401.includes('token has expired') ||
+              msg401.includes('auth/id-token-expired');
+            if (expired401 && attempt < retries) {
+              const auth401 = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
+              if (auth401 && auth401.currentUser) {
+                await auth401.currentUser.getIdToken(true);
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+                continue;
+              }
+            }
+            const err401 = new Error(errorData401.message || 'API error: 401');
+            if (window.appLogger) {
+              window.appLogger.logError(err401, {
+                context: 'CreditsV3Manager.apiRequest',
+                url,
+                method,
+                status: 401,
+                errorData: errorData401
+              });
+            }
+            throw err401;
+          }
+
           // Handle rate limiting (429) - wait and retry
           if (response.status === 429 && attempt < retries) {
             const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
@@ -196,7 +234,7 @@
           const isNetwork = this.isNetworkError(error);
           const shouldRetry = attempt < retries && (isNetwork || error.message.includes('429'));
           
-          if (window.appLogger) {
+          if (window.appLogger && !shouldRetry) {
             window.appLogger.logError(error, {
               context: 'CreditsV3Manager.apiRequest',
               url,
@@ -204,10 +242,20 @@
               attempt: attempt + 1,
               maxRetries: retries + 1,
               isNetworkError: isNetwork,
-              willRetry: shouldRetry
+              willRetry: false
+            });
+          } else if (window.appLogger && shouldRetry) {
+            window.appLogger.log('Info', 'API request failed, will retry', {
+              context: 'CreditsV3Manager.apiRequest',
+              url,
+              method,
+              attempt: attempt + 1,
+              maxRetries: retries + 1,
+              isNetworkError: isNetwork,
+              errorMessage: error?.message
             });
           }
-          
+
           if (shouldRetry) {
             const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff: 1s, 2s, 4s
             await new Promise(resolve => setTimeout(resolve, waitTime));

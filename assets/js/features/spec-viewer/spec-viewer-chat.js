@@ -666,7 +666,10 @@ async function renderMermaidToSVG(mermaidCode, diagramId) {
     
     try {
         const uniqueId = `mermaid-export-${diagramId}-${Date.now()}`;
-        const { svg } = await mermaid.render(uniqueId, mermaidCode);
+        const exportCode = (typeof window.sanitizeMermaidSource === 'function'
+            ? window.sanitizeMermaidSource(mermaidCode)
+            : mermaidCode) || mermaidCode;
+        const { svg } = await mermaid.render(uniqueId, exportCode);
         return svg;
     } catch (error) {
         // Error rendering Mermaid diagram
