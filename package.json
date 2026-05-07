@@ -18,6 +18,7 @@
     "build:css:min": "npx sass assets/css/main.scss assets/css/main-compiled.css --style=compressed --no-source-map",
     "watch:css": "sass --watch assets/css/main.scss:assets/css/main-compiled.css",
     "check:ports": "rg --pcre2 -n \"\\b(3000|3001|3002|5000)\\b\" assets backend pages scripts _includes _layouts _config.yml || true",
+    "test:e2e": "playwright test",
     "build:packages": "npm run build --workspaces --if-present",
     "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite"
   },
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^6.0.0",
+    "@playwright/test": "^1.59.1",
     "@vitejs/plugin-legacy": "^5.4.0",
     "autoprefixer": "^10.4.20",
     "cssnano": "^7.0.6",

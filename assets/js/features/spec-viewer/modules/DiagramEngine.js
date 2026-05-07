@@ -134,10 +134,10 @@ export async function renderSingleDiagram(diagramData, containerId) {
 }
 
 export async function generateDiagrams() {
-  if (window.dataService?.isLoading?.('diagrams')) return;
+  if (window.dataService?.isLoading?.('diagramLoading')) return;
   const spec = getSpec();
   try {
-    window.dataService?.setLoading?.('diagrams', true);
+    window.dataService?.setLoading?.('diagramLoading', true);
     const generateBtn = document.getElementById('generateDiagramsBtn');
     if (generateBtn) {
       generateBtn.disabled = true;
@@ -163,7 +163,7 @@ export async function generateDiagrams() {
   } catch (error) {
     showNotification(`Failed to generate diagrams: ${error.message}`, 'error');
   } finally {
-    window.dataService?.setLoading?.('diagrams', false);
+    window.dataService?.setLoading?.('diagramLoading', false);
     const generateBtn = document.getElementById('generateDiagramsBtn');
     if (generateBtn) {
       generateBtn.disabled = false;

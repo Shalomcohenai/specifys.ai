@@ -9,11 +9,11 @@ function ensureAuth() {
 }
 
 function setPromptsLoading(status) {
-  window.dataService?.setLoading?.('prompts', status);
+  window.dataService?.setLoading?.('promptLoading', status);
 }
 
 function isPromptsLoading() {
-  return !!window.dataService?.isLoading?.('prompts');
+  return !!window.dataService?.isLoading?.('promptLoading');
 }
 
 export async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
