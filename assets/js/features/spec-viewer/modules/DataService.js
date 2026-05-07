@@ -78,7 +78,12 @@ function buildSpecHash(spec) {
 }
 
 function resolveScope(scope) {
-  if (scope in _state.loadingStates) return scope;
+  const scopeAliases = {
+    promptLoading: 'prompts',
+    diagramLoading: 'diagrams'
+  };
+  const resolvedScope = scopeAliases[scope] || scope;
+  if (resolvedScope in _state.loadingStates) return resolvedScope;
   window.appLogger?.warn?.('Unknown loading scope; using general', { scope });
   return 'general';
 }

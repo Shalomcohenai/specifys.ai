@@ -311,3 +311,22 @@ Phase 2: Navigation, Scoped Loading & Event Bus
 - Replaced global `isLoading` usage in overview approval, diagrams generation, and prompts generation with scoped loading calls.
 - Started template isolation by adding `modules/UiRenderer.js` and delegating heavy Overview/Technical HTML rendering from `spec-viewer-main.js`.
 
+==================================================
+Execution Status Update — Phase 3-5 Completed
+==================================================
+
+Phase 3: DiagramEngine extraction
+- Added `modules/DiagramEngine.js` as the owner of diagram rendering/mindmap flows.
+- Moved Mermaid initialization concerns into lazy runtime loading (`ensureMermaid`) through the existing `mermaidManager` adapter.
+- Coordinator now exposes `window.diagramEngine` and bridges legacy `window.*` handlers (`generateDiagrams`, `repairDiagram`, `generateMindMap`, `retryMindMap`).
+
+Phase 4: PromptEngine extraction
+- Added `modules/PromptEngine.js` for prompt generation/display entry points and retry adapters.
+- Prompt flow now uses DataService scoped loading and supports alias scopes (`promptLoading`/`diagramLoading` via DataService aliases).
+- Coordinator now exposes `window.promptEngine` and bridges prompt-related `window.*` handlers.
+
+Phase 5: Cleanup and optimization
+- Removed eager Mermaid CDN script from `pages/spec-viewer.html`; Mermaid is loaded only on demand.
+- Updated tab renderer registrations to route prompt/diagram/mindmap rendering through module engines.
+- Added repository port scan guard `npm run check:ports` to detect legacy hardcoded ports.
+

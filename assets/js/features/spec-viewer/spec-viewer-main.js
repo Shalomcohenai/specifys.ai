@@ -385,31 +385,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize rename spec modal (pencil icon next to title)
     initRenameSpecModal();
     initExportAdminAdvancedRaw();
-    // Initialize Mermaid with custom theme
-    try {
-        if (typeof mermaid !== 'undefined') {
-            mermaid.initialize({
-                startOnLoad: false, // Prevent automatic rendering - we render diagrams manually
-                theme: 'base',
-                themeVariables: {
-                    primaryColor: '#FF6B35',
-                    primaryTextColor: '#333333',
-                    primaryBorderColor: '#FF6B35',
-                    lineColor: '#333333',
-                    secondaryColor: '#f5f5f5',
-                    tertiaryColor: '#ffffff',
-                    background: '#ffffff',
-                    mainBkg: '#ffffff',
-                    secondBkg: '#f5f5f5',
-                    tertiaryBkg: '#ffffff'
-                }
-            });
-
-        }
-    } catch (error) {
-
-    }
-    
     // Initialize Firebase auth state listener
     firebase.auth().onAuthStateChanged(function(user) {
         if (!user) {
@@ -1326,11 +1301,32 @@ function registerTabManagerRenderers() {
     tabManager.registerRenderer('design', (spec) => displayDesign(spec?.design));
     tabManager.registerRenderer('architecture', (spec) => displayArchitectureFromData(spec || currentSpecData));
     tabManager.registerRenderer('visibility-engine', (spec) => displayVisibilityEngine(spec?.visibility, spec || currentSpecData));
-    tabManager.registerRenderer('prompts', (spec) => displayPromptsFromData(spec || currentSpecData));
+    tabManager.registerRenderer('prompts', (spec) => {
+        if (window.promptEngine?.displayPromptsFromData) {
+            window.promptEngine.displayPromptsFromData(spec || currentSpecData);
+            return;
+        }
+        displayPromptsFromData(spec || currentSpecData);
+    });
+    tabManager.registerRenderer('diagrams', (spec) => {
+        if (window.diagramEngine?.displayDiagramsFromData) {
+            window.diagramEngine.displayDiagramsFromData(spec || currentSpecData);
+            return;
+        }
+        displayDiagramsFromData(spec || currentSpecData);
+    });
     tabManager.registerRenderer('mindmap', (spec) => {
         if (spec?.mindMap) {
+            if (window.diagramEngine?.displayMindMap) {
+                window.diagramEngine.displayMindMap(spec.mindMap);
+                return;
+            }
             displayMindMap(spec.mindMap);
         } else {
+            if (window.diagramEngine?.initializeMindMapTab) {
+                window.diagramEngine.initializeMindMapTab();
+                return;
+            }
             initializeMindMapTab();
         }
     });
@@ -1790,13 +1786,23 @@ function displayTechnical(technical) {
             technical,
             formatTextContent,
             enhanceClarificationUI,
-            renderSpecMermaidPlaceholders
+            renderSpecMermaidPlaceholders: (target) => {
+                if (window.diagramEngine?.renderSpecMermaidPlaceholders) {
+                    window.diagramEngine.renderSpecMermaidPlaceholders(target);
+                    return;
+                }
+                renderSpecMermaidPlaceholders(target);
+            }
         });
     } else {
         const formattedContent = formatTextContent(technical);
         container.innerHTML = formattedContent;
         enhanceClarificationUI(container, 'technical');
-        renderSpecMermaidPlaceholders(container);
+        if (window.diagramEngine?.renderSpecMermaidPlaceholders) {
+            window.diagramEngine.renderSpecMermaidPlaceholders(container);
+        } else {
+            renderSpecMermaidPlaceholders(container);
+        }
     }
 
     var technicalForMinimal = technical;
@@ -3139,7 +3145,13 @@ function displayArchitecture(content, containerEl) {
         wrap.innerHTML = '<div class="architecture-mermaid-loading">Rendering diagram...</div>';
         container.appendChild(wrap);
         const uniqueId = 'arch-mermaid-' + idx + '-' + Date.now();
-        if (typeof mermaid !== 'undefined' && mermaid.render) {
+        if (window.diagramEngine?.renderArchitectureMermaid) {
+            window.diagramEngine.renderArchitectureMermaid(wrap, mermaidCode).then(function(ok) {
+                if (!ok) {
+                    wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(mermaidCode) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
+                }
+            });
+        } else if (typeof mermaid !== 'undefined' && mermaid.render) {
             var archMermaidCode = (typeof window.sanitizeMermaidSource === 'function'
                 ? window.sanitizeMermaidSource(mermaidCode)
                 : mermaidCode) || mermaidCode;
@@ -6042,6 +6054,15 @@ window.markTabAsViewed = markTabAsViewed;
 window.updateNotificationDot = updateNotificationDot;
 window.updateSubsections = updateSubsections;
 window.initializeMindMapTab = initializeMindMapTab;
+window.generatePromptsLegacy = generatePrompts;
+window.generateSingleStageLegacy = generateSingleStage;
+window.generateTechnicalSpecLegacy = generateTechnicalSpec;
+window.generateMarketSpecLegacy = generateMarketSpec;
+window.generateDesignSpecLegacy = generateDesignSpec;
+window.displayPromptsLegacy = displayPrompts;
+window.retryTechnicalLegacy = retryTechnical;
+window.retryMarketLegacy = retryMarket;
+window.retryDesignLegacy = retryDesign;
 
 // Toggle submenu
 window.toggleSubmenu = function(tabName) {
