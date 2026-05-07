@@ -17,7 +17,8 @@
     "build:css": "sass assets/css/main.scss assets/css/main-compiled.css --style=expanded",
     "build:css:min": "npx sass assets/css/main.scss assets/css/main-compiled.css --style=compressed --no-source-map",
     "watch:css": "sass --watch assets/css/main.scss:assets/css/main-compiled.css",
-    "check:ports": "rg --pcre2 -n \"\\b(3000|3001|3002|5000)\\b\" assets backend pages scripts _includes _layouts _config.yml || true",
+    "check:env": "node scripts/check-env.mjs",
+    "check:ports": "npm run check:env",
     "test:e2e": "playwright test",
     "build:packages": "npm run build --workspaces --if-present",
     "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite"

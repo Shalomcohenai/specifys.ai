@@ -1,0 +1,5 @@
+# allowlist entries for npm run check:env
+# Add stable intentional matches as substring fragments.
+playwright.config.js:10
+_includes/head.html:30
+_includes/head.html:271

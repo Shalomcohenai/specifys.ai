@@ -7,28 +7,29 @@ robots: noindex, follow
 custom_firebase: true
 page_class: spec-viewer-page
 extra_css:
-  - /assets/css/pages/spec-viewer.css
-  - /assets/css/pages/spec-viewer-side-menu.css
+  - /assets/css/features/spec-viewer.css
+  - /assets/css/features/spec-viewer-side-menu.css
   - /assets/css/pages/mcp-modal.css
 extra_js:
   - /assets/js/script.js
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
-  - /assets/js/services/prompts.js
   - /assets/js/services/spec-cache.js
-  - /assets/js/services/spec-error-handler.js
   - /assets/js/services/spec-firestore-listener.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js
-  - https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
   - /assets/js/features/spec-viewer/spec-viewer-firebase.js
   - /assets/js/features/spec-viewer/spec-viewer-api-helper.js
   - /assets/js/features/spec-viewer/spec-viewer-scroll.js
   - /assets/js/features/spec-viewer/spec-viewer-auth.js
+  - /assets/js/features/spec-viewer/spec-viewer-main.js
+defer_js:
+  - /assets/js/services/prompts.js
+  - /assets/js/services/spec-error-handler.js
+  - https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
   - /assets/js/features/spec-viewer/spec-viewer-chat.js
   - /assets/js/features/spec-viewer/spec-viewer-brain-dump.js
   - /assets/js/mermaid.js
-  - /assets/js/features/spec-viewer/spec-viewer-main.js
   - /assets/js/features/share-prompt/share-prompt-modal.js
   - /assets/js/features/spec-viewer/cursor-windsurf-export.js
   - /assets/js/mcp-modal.js

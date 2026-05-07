@@ -255,6 +255,12 @@
       });
     </script>
     {% endif %}
+
+    {% if page.defer_js %}
+      {% for js in page.defer_js %}
+        <script defer src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
     
     {% include analytics.html %}
     {% include analytics-events.html %}
