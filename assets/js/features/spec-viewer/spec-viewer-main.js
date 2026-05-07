@@ -6054,15 +6054,6 @@ window.markTabAsViewed = markTabAsViewed;
 window.updateNotificationDot = updateNotificationDot;
 window.updateSubsections = updateSubsections;
 window.initializeMindMapTab = initializeMindMapTab;
-window.generatePromptsLegacy = generatePrompts;
-window.generateSingleStageLegacy = generateSingleStage;
-window.generateTechnicalSpecLegacy = generateTechnicalSpec;
-window.generateMarketSpecLegacy = generateMarketSpec;
-window.generateDesignSpecLegacy = generateDesignSpec;
-window.displayPromptsLegacy = displayPrompts;
-window.retryTechnicalLegacy = retryTechnical;
-window.retryMarketLegacy = retryMarket;
-window.retryDesignLegacy = retryDesign;
 
 // Toggle submenu
 window.toggleSubmenu = function(tabName) {

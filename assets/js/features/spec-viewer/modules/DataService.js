@@ -77,6 +77,25 @@ function buildSpecHash(spec) {
   });
 }
 
+function validateSpec(spec) {
+  if (!spec || typeof spec !== 'object') {
+    return { ok: false, reason: 'spec is not an object' };
+  }
+  if (spec.id != null && typeof spec.id !== 'string') {
+    return { ok: false, reason: 'id must be a string' };
+  }
+  if (spec.status != null && typeof spec.status !== 'object') {
+    return { ok: false, reason: 'status must be an object' };
+  }
+  for (const key of ['overview', 'technical', 'market', 'design', 'architecture']) {
+    const value = spec[key];
+    if (value != null && typeof value !== 'string' && typeof value !== 'object') {
+      return { ok: false, reason: `${key} must be string or object` };
+    }
+  }
+  return { ok: true };
+}
+
 function resolveScope(scope) {
   const scopeAliases = {
     promptLoading: 'prompts',
@@ -97,6 +116,14 @@ export function getSpec() {
 }
 
 export function setSpec(newData) {
+  const validation = validateSpec(newData);
+  if (!validation.ok) {
+    window.appLogger?.logError?.(new Error(validation.reason), {
+      context: 'DataService.setSpec',
+      spec: newData
+    });
+    return _state.spec;
+  }
   const nextHash = buildSpecHash(newData);
   const changed = nextHash !== _state.specHash;
   _state.spec = newData;

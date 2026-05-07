@@ -4,6 +4,7 @@ let mindMapGenerated = false;
 let mermaidReadyPromise = null;
 let specUnsubscribe = null;
 let lastSpecDigest = '';
+let retryClickBound = false;
 
 const MERMAID_THEME = {
   startOnLoad: false,
@@ -28,6 +29,23 @@ function getSpec() {
 
 function showNotification(message, type = 'info') {
   window.showNotification?.(message, type);
+}
+
+function buildRenderErrorCard({ message, retryType, diagramId, containerId }) {
+  const safeMessage = window.escapeHtmlSpec ? window.escapeHtmlSpec(message || 'Unknown render error') : (message || 'Unknown render error');
+  const attrs = [
+    `data-render-retry="true"`,
+    `data-retry-type="${retryType}"`,
+    diagramId ? `data-diagram-id="${diagramId}"` : '',
+    containerId ? `data-container-id="${containerId}"` : ''
+  ].filter(Boolean).join(' ');
+  return `
+    <div class="diagram-error render-error-card">
+      <h3><i class="fa fa-exclamation-triangle"></i> Render Error</h3>
+      <p>${safeMessage}</p>
+      <button type="button" class="btn btn-secondary render-retry-btn" ${attrs}>Retry</button>
+    </div>
+  `;
 }
 
 export async function ensureMermaid() {
@@ -127,7 +145,12 @@ export async function renderSingleDiagram(diagramData, containerId) {
     diagramData._isValid = true;
   } catch (error) {
     diagramData._isValid = false;
-    container.innerHTML = `<div class="diagram-error"><p>${error.message}</p></div>`;
+    container.innerHTML = buildRenderErrorCard({
+      message: error.message,
+      retryType: 'diagram',
+      diagramId: diagramData?.id,
+      containerId
+    });
     if (statusIndicator) statusIndicator.className = 'status-indicator error';
     if (statusText) statusText.textContent = 'Error';
   }
@@ -308,7 +331,10 @@ export async function displayMindMap(data) {
     const drawflowData = data?.drawflow ? data : convertToDrawflow(data);
     drawflowInstance.import(drawflowData);
   } catch (error) {
-    container.innerHTML = `<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Displaying Mind Map</h3><p>${error.message}</p></div>`;
+    container.innerHTML = buildRenderErrorCard({
+      message: `Error displaying mind map: ${error.message}`,
+      retryType: 'mindmap'
+    });
   }
 }
 
@@ -364,15 +390,41 @@ function onSpecUpdated(spec) {
   if (activeTab === 'diagrams') displayDiagramsFromData(spec);
 }
 
+function onRetryClick(event) {
+  const button = event.target.closest('[data-render-retry="true"]');
+  if (!button) return;
+  const retryType = button.getAttribute('data-retry-type');
+  if (retryType === 'diagram') {
+    const diagramId = button.getAttribute('data-diagram-id');
+    const containerId = button.getAttribute('data-container-id');
+    const diagram = diagramsData.find((d) => String(d.id) === String(diagramId));
+    if (diagram && containerId) {
+      renderSingleDiagram(diagram, containerId);
+    }
+    return;
+  }
+  if (retryType === 'mindmap') {
+    retryMindMap();
+  }
+}
+
 export function attach({ dataService } = {}) {
   if (!dataService?.on) return;
   teardown();
   specUnsubscribe = dataService.on('specUpdated', onSpecUpdated);
+  if (!retryClickBound) {
+    document.addEventListener('click', onRetryClick);
+    retryClickBound = true;
+  }
 }
 
 export function teardown() {
   if (specUnsubscribe) {
     specUnsubscribe();
     specUnsubscribe = null;
+  }
+  if (retryClickBound) {
+    document.removeEventListener('click', onRetryClick);
+    retryClickBound = false;
   }
 }

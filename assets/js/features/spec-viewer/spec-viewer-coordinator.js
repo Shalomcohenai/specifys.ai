@@ -37,17 +37,12 @@ window.addEventListener('load', () => {
   window.repairDiagram = DiagramEngine.repairDiagram;
   window.generateMindMap = DiagramEngine.generateMindMap;
   window.retryMindMap = DiagramEngine.retryMindMap;
-  window.displayDiagramsFromData = DiagramEngine.displayDiagramsFromData;
-  window.displayDiagrams = DiagramEngine.displayDiagrams;
   window.displayMindMap = DiagramEngine.displayMindMap;
-  window.renderSpecMermaidPlaceholders = DiagramEngine.renderSpecMermaidPlaceholders;
 
   window.generatePrompts = PromptEngine.generatePrompts;
   window.generateTechnicalSpec = PromptEngine.generateTechnicalSpec;
   window.generateMarketSpec = PromptEngine.generateMarketSpec;
   window.generateDesignSpec = PromptEngine.generateDesignSpec;
-  window.displayPromptsFromData = PromptEngine.displayPromptsFromData;
-  window.displayPrompts = PromptEngine.displayPrompts;
   window.retryTechnical = PromptEngine.retryTechnical;
   window.retryMarket = PromptEngine.retryMarket;
   window.retryDesign = PromptEngine.retryDesign;
