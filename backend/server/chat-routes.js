@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
-const { auth, db, admin } = require('./firebase-admin');
+const { db, admin } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
 const ChatService = require('./chat-service');
 const { createError, ERROR_CODES } = require('./error-handler');
@@ -57,27 +57,7 @@ const demoChatLimiter = rateLimit({
   legacyHeaders: false
 });
 
-/**
- * Middleware to verify Firebase token
- */
-async function verifyFirebaseToken(req, res, next) {
-  logger.debug({ path: req.path }, '[chat-routes] Verifying Firebase token');
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn({ path: req.path }, '[chat-routes] No valid authorization header');
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    logger.debug({ userId: decodedToken.uid, path: req.path }, '[chat-routes] Token verified successfully');
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    logger.error({ error: error.message, path: req.path }, '[chat-routes] Token verification failed');
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 /**
  * Initialize chat session for a spec

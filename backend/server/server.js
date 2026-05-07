@@ -35,6 +35,7 @@ const academyRoutes = require('./academy-routes');
 const adminRoutes = require('./admin-routes');
 const analyticsRoutes = require('./analytics-routes');
 const lemonRoutes = require('./lemon-routes');
+const auxiliaryRoutes = require('./auxiliary-routes');
 // Old credits routes removed - V3 is now the only active system
 const healthRoutes = require('./health-routes');
 const { requireAdmin, securityHeaders, rateLimiters } = require('./security');
@@ -45,6 +46,9 @@ const { logger, logRequest, logResponse } = require('./logger');
 const { syncAllUsers } = require('./user-management');
 const { startScheduledJobs } = require('./scheduled-jobs');
 const { initializeErrorCapture } = require('./render-error-capture');
+const { assertEnv } = require('./env-check');
+const { geoMiddleware } = require('./middleware/geo');
+const emailService = require('./email-service');
 
 if (loadedEnvPath) {
   logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded');
@@ -62,6 +66,7 @@ delete require.cache[require.resolve('./openai-storage-service')];
 
 const app = express();
 const port = config.port;
+assertEnv();
 
 logger.info({
   type: 'server_init',
@@ -136,6 +141,7 @@ app.use((req, res, next) => {
   next();
 });
 logger.info({ type: 'cors_applied' }, '[UNIFIED SERVER] ✅ CORS middleware applied');
+app.use(geoMiddleware);
 
 // Lemon Squeezy routes must be registered BEFORE express.json() and rate limiting
 // to allow webhook endpoint to access raw body for signature verification
@@ -385,6 +391,10 @@ const brainDumpRoutes = require('./brain-dump-routes');
 app.use('/api/brain-dump', brainDumpRoutes);
 logger.info({ type: 'route_mounted', path: '/api/brain-dump' }, '[UNIFIED SERVER] ✅ Brain Dump routes mounted');
 
+logger.info({ type: 'route_mount', path: '/api/auxiliary', route: 'auxiliaryRoutes' }, '[UNIFIED SERVER] 📌 Mounting auxiliary routes');
+app.use('/api/auxiliary', auxiliaryRoutes);
+logger.info({ type: 'route_mounted', path: '/api/auxiliary' }, '[UNIFIED SERVER] ✅ Auxiliary routes mounted');
+
 // Blog routes (must be before static files to avoid conflicts)
 // Public routes - no authentication required (returns only published posts)
 app.get('/api/blog/public/posts', blogRoutesPublic.listPublishedPosts);
@@ -509,6 +519,26 @@ logger.info({ type: 'route_register', method: 'GET', path: '/api/status' }, '[UN
 app.get('/api/status', (req, res) => {
   res.status(200).json({ message: 'Server is running' });
 });
+
+app.get('/api/geo/context', (req, res) => {
+  const country = req.geo?.country || 'US';
+  const locale = req.geo?.locale || 'en';
+  const recommendations = {
+    US: { recommendedCompetitors: ['Notion', 'Linear'], recommendedTechStacks: ['Next.js', 'Node.js'] },
+    IL: { recommendedCompetitors: ['Monday', 'Wix'], recommendedTechStacks: ['React', 'Node.js'] },
+    DE: { recommendedCompetitors: ['Celonis', 'SAP'], recommendedTechStacks: ['TypeScript', 'Java'] }
+  };
+  const picked = recommendations[country] || recommendations.US;
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json({
+    success: true,
+    country,
+    region: req.geo?.region || null,
+    locale,
+    source: req.geo?.source || 'fallback',
+    ...picked
+  });
+});
 logger.info({ type: 'route_registered', method: 'GET', path: '/api/status' }, '[UNIFIED SERVER] ✅ Server status endpoint registered');
 
 // Endpoint to sync users from Firebase Auth to Firestore (admin only)
@@ -545,7 +575,15 @@ app.post('/api/feedback', rateLimiters.feedback, async (req, res, next) => {
 
   try {
     // 1. Send email notification
-    await sendFeedbackEmail(email, feedback);
+    const emailResult = await emailService.sendFeedbackEmail({
+      userEmail: email,
+      feedback,
+      type,
+      source
+    });
+    if (!emailResult.success) {
+      logger.warn({ email, type, source, error: emailResult.error }, 'Feedback email sending failed');
+    }
     
     // 2. Save to Google Sheets via Google Apps Script
     await saveToGoogleSheets(email, feedback, type, source);
@@ -594,60 +632,6 @@ app.post('/api/contact', rateLimiters.feedback, async (req, res, next) => {
   }
 });
 
-// Function to send feedback email
-async function sendFeedbackEmail(email, feedback) {
-  try {
-    // Check if email configuration is available
-    const emailUser = process.env.EMAIL_USER;
-    const emailPassword = process.env.EMAIL_APP_PASSWORD;
-    const feedbackEmail = process.env.FEEDBACK_EMAIL;
-    
-    if (emailUser && emailPassword && feedbackEmail) {
-      // Use Nodemailer to send email
-      const nodemailer = require('nodemailer');
-      
-      const transporter = nodemailer.createTransporter({
-        service: 'gmail',
-        auth: {
-          user: emailUser,
-          pass: emailPassword
-        }
-      });
-      
-      const mailOptions = {
-        from: emailUser,
-        to: feedbackEmail,
-        subject: 'New Feedback from Specifys.ai',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #0078d4;">📝 New Feedback Received</h2>
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>📧 User Email:</strong> ${email || 'Not provided'}</p>
-              <p><strong>🕒 Time:</strong> ${new Date().toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}</p>
-              <p><strong>📱 Source:</strong> Specifys.ai Try Page</p>
-            </div>
-            <div style="background: #fff; padding: 20px; border-left: 4px solid #0078d4; margin: 20px 0;">
-              <h3 style="color: #333; margin-top: 0;">Feedback Content:</h3>
-              <p style="color: #555; line-height: 1.6; white-space: pre-wrap;">${feedback}</p>
-            </div>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="color: #666; font-size: 12px;">This email was automatically generated by the Specifys.ai feedback system.</p>
-          </div>
-        `
-      };
-      
-      const info = await transporter.sendMail(mailOptions);
-      
-    } else {
-      // Fallback: log to console
-    }
-    
-  } catch (error) {
-
-    // Don't fail the entire request if email fails
-  }
-}
-
 // Function to save feedback to Google Sheets via Google Apps Script
 async function saveToGoogleSheets(email, feedback, type, source) {
   try {
@@ -679,216 +663,6 @@ async function saveToGoogleSheets(email, feedback, type, source) {
     // Don't fail the entire request if Sheets fails
   }
 }
-
-// Endpoint for generating specifications via Cloudflare Worker
-app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) => {
-  const requestId = req.requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  const startTime = Date.now();
-
-  const { userInput } = req.body;
-
-  if (!userInput) {
-    logger.warn({ requestId }, 'Validation failed: userInput is missing');
-    return next(createError('User input is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
-  }
-
-  try {
-    // Convert userInput to Cloudflare Worker format
-    // Worker expects: { stage: "overview", prompt: { system, developer, user } }
-    const workerPayload = {
-      stage: 'overview',
-      locale: 'en-US',
-      prompt: {
-        system: 'You are an expert application specification generator. Generate detailed, comprehensive specifications based on user requirements.',
-        developer: 'Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. Follow the exact structure specified in the user prompt.',
-        user: userInput
-      }
-    };
-
-
-    const workerRequestStart = Date.now();
-
-    // Forward request to Cloudflare Worker
-    let response;
-    try {
-      response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(workerPayload),
-      });
-    } catch (fetchError) {
-      throw new Error(`Failed to connect to Cloudflare Worker: ${fetchError.message}`);
-    }
-
-    const workerRequestTime = Date.now() - workerRequestStart;
-
-    // Read response body first (before checking ok) to see what Worker returned
-    let responseBodyText = null;
-    let responseBodyJson = null;
-    try {
-      responseBodyText = await response.text();
-      try {
-        responseBodyJson = JSON.parse(responseBodyText);
-      } catch (jsonParseError) {
-        // Worker response is not valid JSON
-      }
-    } catch (readError) {
-      // Failed to read Worker response body
-    }
-
-    // Check if response is OK
-    if (!response.ok) {
-      let errorMessage = 'Failed to fetch specification';
-      let errorDetails = null;
-      
-      if (responseBodyJson) {
-        errorDetails = responseBodyJson;
-        // Worker returns errors in format: { error: { code, message, issues? }, correlationId? }
-        if (responseBodyJson.error) {
-          errorMessage = responseBodyJson.error.message || responseBodyJson.error.code || errorMessage;
-          if (responseBodyJson.error.issues && Array.isArray(responseBodyJson.error.issues)) {
-            errorMessage += ': ' + responseBodyJson.error.issues.join(', ');
-          }
-          if (responseBodyJson.error.code) {
-            errorMessage = `[${responseBodyJson.error.code}] ${errorMessage}`;
-          }
-        }
-      } else if (responseBodyText) {
-        errorMessage = responseBodyText.substring(0, 500) || `HTTP ${response.status}: ${response.statusText}`;
-        errorDetails = { text: responseBodyText };
-      } else {
-        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        errorDetails = { status: response.status, statusText: response.statusText };
-      }
-      
-      const totalTime = Date.now() - startTime;
-      throw new Error(errorMessage);
-    }
-
-    // Response is OK, use the parsed JSON
-    if (!responseBodyJson) {
-      const totalTime = Date.now() - startTime;
-      throw new Error('Worker returned invalid JSON response');
-    }
-    
-    const data = responseBodyJson;
-    
-    // Cloudflare Worker returns { overview: {...}, meta: {...} } format
-    // Convert to { specification: ... } format for backward compatibility
-    let specification;
-    if (data.overview) {
-      // Worker returned structured data
-      specification = JSON.stringify(data.overview);
-    } else if (data.specification) {
-      // Already in expected format
-      specification = data.specification;
-    } else {
-      // Fallback - stringify entire response
-      specification = JSON.stringify(data);
-    }
-    
-    const totalTime = Date.now() - startTime;
-    
-    res.json({ specification });
-  } catch (error) {
-    const totalTime = Date.now() - startTime;
-    logger.error({
-      requestId,
-      error: {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-        cause: error.cause
-      },
-      duration: `${totalTime}ms`
-    }, `Error in /api/generate-spec (${totalTime}ms)`);
-    
-    // Determine error code based on error type
-    let errorCode = ERROR_CODES.EXTERNAL_SERVICE_ERROR;
-    if (error.message.includes('connect') || error.message.includes('fetch')) {
-      errorCode = ERROR_CODES.EXTERNAL_SERVICE_ERROR;
-    } else if (error.message.includes('validation') || error.message.includes('required')) {
-      errorCode = ERROR_CODES.VALIDATION_ERROR;
-    }
-    
-    // Pass error to error handler with details
-    const enhancedError = createError(
-      `Failed to generate specification: ${error.message}`,
-      errorCode,
-      500,
-      { errorType: error.name, requestId }
-    );
-    next(enhancedError);
-  }
-});
-
-// Repair diagram endpoint (legacy - kept for backward compatibility)
-app.post('/api/diagrams/repair', async (req, res, next) => {
-  const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
-  
-  if (!brokenDiagramCode) {
-    return next(createError('Broken diagram code is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
-  }
-  
-  try {
-    const OpenAI = require('openai');
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    
-    // Build context from spec
-    const specContext = `
-## Specification Context:
-${overview ? `**Overview:**\n${overview}\n\n` : ''}
-${technical ? `**Technical Specs:**\n${technical}\n\n` : ''}
-${market ? `**Market Research:**\n${market}\n\n` : ''}
-`;
-    
-    // Create a prompt to repair the diagram
-    const systemPrompt = `You are a Mermaid diagram expert. Your task is to fix broken Mermaid diagrams.
-
-When given a broken Mermaid diagram code, analyze it and create a corrected version that:
-1. Follows proper Mermaid syntax
-2. Accurately represents the information from the specification context provided
-3. Is complete and renderable
-
-Return ONLY valid Mermaid code, nothing else.`;
-    
-    const userPrompt = `The following Mermaid diagram is broken:\n\n\`\`\`mermaid\n${brokenDiagramCode}\n\`\`\`\n\nContext:\n${specContext}\n\nTitle: ${diagramTitle}\n\nPlease provide a corrected version of this diagram.`;
-    
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 2000
-    });
-    
-    const repairedCode = completion.choices[0].message.content.trim();
-    
-    // Clean up the response (remove any markdown code blocks)
-    let cleanedCode = repairedCode;
-    if (repairedCode.startsWith('```mermaid')) {
-      cleanedCode = repairedCode.replace(/```mermaid\n?/, '').replace(/```\n?$/, '').trim();
-    } else if (repairedCode.startsWith('```')) {
-      cleanedCode = repairedCode.replace(/```\n?/, '').replace(/```\n?$/, '').trim();
-    }
-    
-
-    res.json({ 
-      success: true,
-      repairedDiagram: {
-        mermaidCode: cleanedCode
-      }
-    });
-    
-  } catch (error) {
-    logger.error({ error: error.message, stack: error.stack }, 'Error repairing diagram');
-    next(createError('Failed to repair diagram', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
-  }
-});
 
 // Import and mount stats routes
 logger.info({ type: 'route_mount', path: '/api/stats', route: 'statsRoutes' }, '[UNIFIED SERVER] 📌 Mounting stats routes');

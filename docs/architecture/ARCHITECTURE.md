@@ -2,7 +2,7 @@
 
 Single source of truth for the system architecture. Describes every subsystem, service, data store, and flow as they exist in production.
 
-**Last updated:** April 2026
+**Last updated:** May 2026 (Phase 2 stabilization: ports + feedback email + mockup extraction)
 
 ---
 
@@ -22,7 +22,7 @@ Single source of truth for the system architecture. Describes every subsystem, s
    - [Email — Resend Integration](#48-email--resend-integration)
    - [Admin, Analytics & Content](#49-admin-analytics--content)
    - [Automation & Scheduled Jobs](#410-automation--scheduled-jobs)
-   - [Cloudflare Workers](#411-cloudflare-workers)
+   - [Auxiliary API Migration](#411-auxiliary-api-migration)
 5. [Frontend](#5-frontend)
    - [Page Loading Model](#51-page-loading-model)
    - [Core Modules](#52-core-modules)
@@ -44,13 +44,13 @@ Specifys.ai is an AI-powered specification generator. Users describe an app idea
 
 ### Communication Architecture
 
-The system uses two distinct OpenAI integration patterns:
+The system uses three OpenAI integration patterns:
 
 1. **Spec Generation (v2):** Direct **Chat Completions API** with **Structured Outputs** (strict JSON schema via Zod). No threads, no assistants runs — a single `POST /v1/chat/completions` call per stage. This replaced the legacy Cloudflare Worker approach.
 
 2. **Chat & Brain Dump:** OpenAI **Assistants API** with threads, runs, and `file_search` (spec uploaded to vector store). Conversational context is maintained via real OpenAI threads.
 
-3. **Auxiliary features** (mockups, mindmap, jira export): Still use **Cloudflare Workers** directly from the frontend. Prompts are now generated as a backend pipeline stage.
+3. **Auxiliary features** (mockups, prompts, mindmap, jira export): now use backend `/api/auxiliary/*` endpoints on Express.
 
 ```
 ┌──────────────────┐     ┌──────────────────────┐     ┌────────────────────────┐
@@ -74,14 +74,11 @@ The system uses two distinct OpenAI integration patterns:
        │                 │                       │────▶ Resend (email)
        │                 └──────────────────────┘
        │
-       │  ┌──────────────────────────┐
-       └─▶│ Cloudflare Workers       │──▶ OpenAI (gpt-4o-mini)
-          │ (direct from frontend)   │
-          │  • mockup generation     │
-          │  • prompt generation     │
-          │  • mindmap generation    │
-          │  • jira export           │
-          └──────────────────────────┘
+       │                 │  ┌─────────────────┐  │
+       └────────────────▶│  │ Auxiliary API    │──│─────▶ Chat Completions
+                         │  │ /api/auxiliary/* │  │       (gpt-4o-mini)
+                         │  └─────────────────┘  │
+                         └──────────────────────┘
 
 ┌──────────────┐
 │  MCP Server  │───▶ Backend REST API (API key auth)
@@ -95,7 +92,7 @@ The system uses two distinct OpenAI integration patterns:
 |---------|---------|-----|
 | **Chat Completions + Structured Outputs** | Spec Engine v2, Live Brief summary, Clarify | `POST /v1/chat/completions` with `response_format: { type: 'json_schema', json_schema: { strict: true } }` |
 | **Assistants API (threads + runs + file_search)** | Chat with spec, Brain Dump, Diagram repair | `POST /v1/threads`, `POST /v1/threads/:id/messages`, `POST /v1/threads/:id/runs` |
-| **Cloudflare Workers (frontend → Worker → OpenAI)** | Mockups, Prompts, Mindmap, Jira | Frontend `fetch()` → `*.workers.dev` → Worker calls OpenAI internally |
+| **Auxiliary API (frontend → backend → OpenAI)** | Mockups, Prompts, Mindmap, Jira | Frontend `fetch()` → `/api/auxiliary/*` → backend `ai-service.js` |
 
 ---
 
@@ -112,11 +109,11 @@ The system uses two distinct OpenAI integration patterns:
 | Auth | Firebase Authentication (client SDK + server token verification) |
 | AI / LLM (spec gen) | OpenAI Chat Completions API with Structured Outputs (strict JSON schema via Zod) |
 | AI / LLM (chat, brain dump) | OpenAI Assistants API v2 (threads, runs, file_search with vector stores) |
-| AI / LLM (workers) | Cloudflare Workers calling OpenAI `gpt-4o-mini` (mockups, prompts, mindmap, jira) |
+| AI / LLM (auxiliary) | Express auxiliary routes + OpenAI Chat Completions (`gpt-4o-mini`) |
 | AI / LLM (live brief) | OpenAI Whisper (transcription) + Chat Completions (summary) |
 | Payments | Lemon Squeezy (checkout + webhooks) |
 | Email | Resend SDK |
-| Edge Functions | Cloudflare Workers (mockup, prompts, mindmap, jira export) |
+| Edge Functions | Deprecated (auxiliary worker runtime removed) |
 | MCP | TypeScript MCP server (`@modelcontextprotocol/sdk`) via stdio |
 | Deployment | Render (backend), GitHub Pages (Jekyll site) |
 | Monorepo | npm workspaces (`packages/*`) — packages exist but are not used at runtime |
@@ -137,7 +134,7 @@ specifys-ai/
 │   ├── dist/                    # Vite build output (not used at runtime)
 │   ├── icons/                   # SVG/PNG icons
 │   ├── images/                  # Site images
-│   └── js/                      # Frontend JavaScript (~111 files)
+│   └── js/                      # Frontend JavaScript
 │       ├── core/                # Config, logger, security, store
 │       ├── services/            # API client, caches, analytics, Firestore listeners
 │       ├── components/          # Base component, Modal
@@ -163,8 +160,6 @@ specifys-ai/
 ├── pages/                       # HTML pages (~29 files)
 ├── scripts/                     # Dev/deploy scripts
 ├── tools/                       # Vibe Coding Tools Map
-├── worker-mockup.js             # Cloudflare Worker source
-├── worker-promtmaker-updated.js # Cloudflare Worker source
 ├── index.html                   # Homepage
 ├── package.json                 # Root workspace config
 ├── render.yaml                  # Render deployment config
@@ -190,16 +185,19 @@ Middleware chain (in order):
 6. Rate limiters (general: 100/15min, auth: 5/15min, feedback: 10/15min)
 7. `express.json()`
 8. Request logging (Pino + Firestore)
-9. Route handlers
-10. Error handler middleware
+9. Geo enrichment middleware (`middleware/geo.js`)
+10. Route handlers
+11. Error handler middleware
 
-**Config** (`backend/server/config.js`): port (default 10000), CORS origins, backend base URL, Google Apps Script URL, credits V3 enabled flag.
+**Config** (`backend/server/config.js`): `BACKEND_BASE_URL`, `BACKEND_URL`, `API_VERSION`, port (default 10000), CORS origins, Google Apps Script URL, credits V3 enabled flag.
+**Startup validation:** `env-check.js` (`assertEnv`) validates required env vars before server boot.
 
 ### 4.2 Routes
 
 | Route File | Base Path | Purpose |
 |-----------|-----------|---------|
 | `specs-routes.js` | `/api/specs` | Spec CRUD, generation (v2), upload to OpenAI |
+| `auxiliary-routes.js` | `/api/auxiliary` | Mockup, prompts, mindmap, jira auxiliary generation |
 | `user-routes.js` | `/api/users` | User init, profile, MCP key management |
 | `credits-v3-routes.js` | `/api/v3/credits` | Credits: get, consume, share-prompt (mounted only when `CREDITS_V3_ENABLED=true`) |
 | `chat-routes.js` | `/api/chat` | Chat: init, message, diagrams, demo |
@@ -229,10 +227,9 @@ Middleware chain (in order):
 
 | Path | Purpose | Notes |
 |------|---------|-------|
-| `POST /api/generate-spec` | Proxies to Cloudflare Worker for overview generation | Legacy — v2 handles this via `specs-routes.js` |
-| `POST /api/feedback` | Feedback email via Gmail/nodemailer + Google Apps Script | Separate from Resend email service |
+| `POST /api/feedback` | Feedback email via `email-service.sendFeedbackEmail` (Resend) + Google Apps Script | Email now unified under Resend; Sheets write remains best-effort |
 | `POST /api/contact` | Contact form → Firestore `contactSubmissions` | |
-| `POST /api/diagrams/repair` | Mermaid diagram repair via OpenAI | Legacy, unauthenticated |
+| `GET /api/geo/context` | Lightweight region context for localized suggestions | Public, cache-control 1h |
 
 ### 4.3 Spec Engine v2
 
@@ -465,6 +462,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 | `sendWeeklyErrorSummary` | Error digest | `scheduled-jobs.js` |
 | `sendTestEmail` | Admin test | Admin API |
 | `addSignupToResendAudience` | New user | `user-routes.js` — adds contact to Resend audience |
+| `sendFeedbackEmail` | Feedback submissions | `server.js` `/api/feedback` |
 
 **Templates:** `email-templates.js` — HTML templates for each email type with `getBaseTemplate` wrapper.
 
@@ -480,7 +478,8 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 - Batches of 10, respects `emailPreferences.newsletter`
 - Public unsubscribe endpoint
 
-**Legacy:** `server.js` feedback handler uses nodemailer/Gmail (separate from Resend).
+**Legacy:** nodemailer/Gmail feedback path removed from runtime `server.js`.  
+**Note:** a duplicate `backend/server/package.json` still lists `nodemailer` and is tracked as follow-up cleanup (runtime uses `backend/package.json`).
 
 ### 4.9 Admin, Analytics & Content
 
@@ -532,29 +531,21 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 | Weekly report | Sundays | Collect weekly stats + email report |
 | Pipeline canary | Daily (if enabled) | Test spec generation pipeline health |
 
-### 4.11 Cloudflare Workers (Auxiliary Features)
+### 4.11 Auxiliary API Migration
 
-Workers are **not** part of the v2 spec generation pipeline. Spec generation moved to direct Chat Completions from the backend. Workers remain active for auxiliary features that are called **directly from the frontend** (not through the Express backend).
+Auxiliary generation moved from workers to Express routes.
 
-**Active Workers** (called from `spec-viewer-main.js` via `fetch()`):
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /api/auxiliary/mockup/analyze-screens` | Screen analysis for mockups |
+| `POST /api/auxiliary/mockup/generate-single` | Per-screen mockup generation |
+| `POST /api/auxiliary/prompts/generate` | Prompt generation |
+| `POST /api/auxiliary/prompts/fix-diagram` | Diagram fixing |
+| `POST /api/auxiliary/mindmap/generate` | Mind map generation |
+| `POST /api/auxiliary/jira/export` | Jira CSV export |
 
-| Worker | URL | Frontend Caller | Purpose |
-|--------|-----|-----------------|---------|
-| mockup | `mockup.../analyze-screens`, `mockup.../generate-single-mockup` | spec-viewer Mockup tab | Screen analysis + per-screen mockup generation (Pro) |
-| promtmaker | `promtmaker.../generate` | spec-viewer Prompts tab | 10-stage prompt generation + integrations |
-| generate-mindmap | `generate-mindmap.../` | spec-viewer Mind Map tab | Mind map JSON generation |
-| jiramaker | `jiramaker.../` | spec-viewer-chat.js | Jira export (CSV download) |
-| healthcheck | `healthcheck.../health` | health-routes.js (backend) | Worker health check |
-
-**Legacy Workers:**
-
-| Worker | URL | Status |
-|--------|-----|--------|
-| spspec | `spspec.../generate` | Used only in fallback path: `POST /api/generate-spec` without specId (server.js inline), and client-side fallback in `spec-viewer-main.js` for T/M/D generation when queue fails |
-
-Worker source files in repo root: `worker-mockup.js`, `worker-promtmaker-updated.js`. Both use `gpt-4o-mini`. Other workers are deployed externally (no source in repo).
-
-**Communication pattern:** Frontend → `fetch()` to `*.shalom-cohen-111.workers.dev` → Worker calls OpenAI API internally → returns result to frontend. No backend involvement.
+Worker runtime dependencies were removed from the main frontend flow.
+All auxiliary endpoints now pass through centralized auth middleware and backend rate limiting.
 
 ---
 
@@ -565,7 +556,7 @@ Worker source files in repo root: `worker-mockup.js`, `worker-promtmaker-updated
 Jekyll generates static HTML pages. Each page uses a Jekyll layout (`default.html`, `standalone.html`, `auth.html`, `post.html`, `dashboard.html`) that pulls in shared includes.
 
 **Loading chain:**
-1. `_includes/head.html` — meta tags, fonts, `main-compiled.css`, `config.js`, `api-client.js`, `focus-manager.js`, analytics
+1. `_includes/head.html` — meta tags, fonts, `main-compiled.css`, `core/config.js`, `core/api-client.js`, `core/focus-manager.js`, analytics
 2. `_includes/header.html` — navigation, auth buttons, credits display
 3. Page content (HTML + page-specific JS via `<script>` tags)
 4. `_includes/footer.html` — links, social, contact modal
@@ -578,8 +569,8 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 
 | File | Global | Purpose |
 |------|--------|---------|
-| `config.js` | `window.API_CONFIG`, `window.BACKEND_URL` | Backend URL, API config |
-| `api-client.js` | `window.api` | API client with auth, retry, caching |
+| `core/config.js` | `window.API_CONFIG`, `window.BACKEND_URL` | Backend URL, API config |
+| `core/api-client.js` | `window.api` | API client with auth, retry, caching |
 | `core/store.js` | `window.store` | Simple state store |
 | `core/security-utils.js` | `sanitizeHTML`, `escapeHTML` | XSS sanitization |
 | `core/app-logger.js` | `window.appLogger` | Client-side logger → backend |
@@ -596,8 +587,10 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `index-vanta.js` — Hero animation (Vanta.NET)
 - `index-demo-scroll.js` — Demo scroll phases
 
-**Spec Viewer** (`features/spec-viewer/`) — the largest feature (~9k lines in main file):
-- `spec-viewer-main.js` — Tab management, spec display, generation triggers, Mermaid rendering, Cloudflare Worker calls
+**Spec Viewer** (`features/spec-viewer/`) — the largest feature (main file still ~10k lines, with compatibility bridge):
+- `spec-viewer-main.js` — Primary orchestrator + state + backward-compatible `window.*` handlers
+- `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers and SEO hook
+- `modules/UiController.js`, `MockupService.js`, `PromptService.js`, `DiagramManager.js`, `MindMapService.js`, `SeoInjector.js` — extracted modular layer
 - `spec-viewer-firebase.js` — Firebase config
 - `spec-viewer-auth.js` — Auth UI
 - `spec-viewer-chat.js` — Chat feature
@@ -832,7 +825,7 @@ Jekyll builds the static site from root. `_config.yml` excludes `backend/`, `mcp
 
 - Site: `specifys-ai.com` (CNAME)
 - Backend: `specifys-ai-backend.onrender.com`
-- Workers: `*.shalom-cohen-111.workers.dev`
+- Workers: deprecated from runtime path (legacy deployment artifacts may still exist externally)
 
 ---
 
@@ -929,25 +922,30 @@ Spec Viewer
   └─ Firestore onSnapshot → updates each tab progressively as sections become ready
 ```
 
-### 9.3 Auxiliary Features (Worker-based, Frontend-Initiated)
+### 9.3 Auxiliary Features (Backend-based, Frontend-Initiated)
 
 ```
 Mockup Generation (Pro):
-  Frontend → fetch('https://mockup.../analyze-screens') {overview, design, technical}
-  Worker → OpenAI gpt-4o-mini → screen list
-  Frontend → fetch('https://mockup.../generate-single-mockup') per screen
-  Worker → OpenAI → HTML mockup
+  Frontend → POST /api/auxiliary/mockup/analyze-screens {overview, design, technical}
+  Backend ai-service → OpenAI gpt-4o-mini → screen list
+  Frontend → POST /api/auxiliary/mockup/generate-single per screen
+  Backend ai-service → OpenAI → HTML mockup
   Frontend → save to Firestore (specs/{id}.mockups)
 
 Prompt Generation:
-  Frontend → fetch('https://promtmaker.../generate') × 10 stages + integrations
-  Worker → OpenAI gpt-4o-mini → structured prompts
+  Frontend → POST /api/auxiliary/prompts/generate × stages + integrations
+  Backend ai-service → OpenAI gpt-4o-mini → structured prompts
   Frontend → save to Firestore (specs/{id}.prompts)
 
 Mind Map:
-  Frontend → fetch('https://generate-mindmap.../') {overview, technical}
-  Worker → OpenAI → mind map JSON
+  Frontend → POST /api/auxiliary/mindmap/generate {overview, technical}
+  Backend ai-service → OpenAI → mind map JSON
   Frontend → render with Drawflow library
+
+Jira Export:
+  Frontend → POST /api/auxiliary/jira/export
+  Backend ai-service → OpenAI → CSV content
+  Frontend → downloads CSV
 ```
 
 ### 9.4 Purchase Flow
@@ -1054,32 +1052,43 @@ Frontend → POST /api/live-brief/summarize {text}
 | Legacy viewer | `features/legacy-viewer/` | 3 files, kept for old URLs |
 | Vite bundles | `bundles/*.js` | Not used at runtime |
 | Monorepo packages | `packages/*` | Exist but not used at runtime — JS loaded directly via `<script>` |
-| `POST /api/generate-spec` | `server.js` inline | Legacy Worker proxy (forwards to `spspec.workers.dev`) |
-| `POST /api/diagrams/repair` | `server.js` inline | Legacy diagram repair (unauthenticated) |
+| `POST /api/generate-spec` | Removed | Replaced by v2 generation and `/api/auxiliary/*` |
+| `POST /api/diagrams/repair` | Removed | Replaced by authenticated repair routes |
 | `POST /api/chat/diagrams/generate` | `chat-routes.js` | Returns `{ deprecated: true }` stub |
 | `thread_id` on specs | Firestore field | Legacy — v2 sets `'chat-completions'` as value; real thread IDs from v1 still exist on old specs |
-| Client-side Worker fallback | `spec-viewer-main.js` | `generateTechnicalSpec`/`generateMarketSpec`/`generateDesignSpec` fall back to `spspec.workers.dev` if queue fails |
+| Client-side Worker fallback | Removed | Frontend now calls backend APIs directly |
 
-### Active Worker dependencies (not yet migrated to backend)
+### Geo & SEO updates
 
-| Feature | Worker | Called From | Notes |
-|---------|--------|-------------|-------|
-| Mockups | `mockup.workers.dev` | `spec-viewer-main.js` | Analyze screens + generate per screen |
-| Prompts | `promtmaker.workers.dev` | `spec-viewer-main.js` | 10-stage prompt generation |
-| Mind Map | `generate-mindmap.workers.dev` | `spec-viewer-main.js` | Mind map JSON |
-| Jira Export | `jiramaker.workers.dev` | `spec-viewer-chat.js` | Jira CSV export |
+| Item | Location | Status |
+|------|----------|--------|
+| Geo middleware | `backend/server/middleware/geo.js` | Active |
+| Geo context endpoint | `GET /api/geo/context` | Active |
+| Frontend geo context | `assets/js/core/geo-context.js` | Active |
+| Spec viewer dynamic SEO | `features/spec-viewer/modules/SeoInjector.js` | Active |
 
 ### Structural issues
 
 | Issue | Details |
 |-------|---------|
-| Duplicate files | `app-logger.js`, `config.js`, `focus-manager.js`, `web-vitals.js`, `api-client.js`, `analytics-schema.js` exist in multiple locations |
-| spec-viewer-main.js | ~9k lines, monolithic file with all tab logic, Worker calls, and UI rendering |
-| `verifyFirebaseToken` | Duplicated in 5+ route files instead of centralized middleware |
-| Worker URLs | Hardcoded personal `workers.dev` URLs in frontend (not configurable) |
+| Duplicate files | Resolved — canonical shared files are under `assets/js/core/` |
+| spec-viewer-main.js | Still large (~10k lines), but Mockup pipeline/viewer were extracted to `features/spec-viewer/modules/MockupService.js` and bridged via `spec-viewer-coordinator.js` |
+| `verifyFirebaseToken` | Resolved — centralized in `backend/server/middleware/auth.js` |
+| Worker URLs | Resolved — frontend uses `/api/auxiliary/*` |
 | `design-system` package | `package.json` declares exports that don't match actual file structure |
-| Scripts port mismatch | `start-server.sh` uses port 3001, backend uses 10000 |
-| Feedback email | `server.js` uses nodemailer/Gmail for feedback, separate from Resend email service |
+| Scripts port mismatch | Resolved — env/examples/scripts/swagger aligned to backend default `process.env.PORT || 10000` |
+| Feedback email | Resolved — `/api/feedback` now uses Resend `email-service.sendFeedbackEmail` |
+
+### Gaps & follow-ups after latest refactor
+
+| Area | Current state | Recommended completion |
+|------|---------------|------------------------|
+| Auxiliary contract parity | Worker-based behavior was replaced by backend `ai-service` JSON handlers; edge-case output parity may differ | Add endpoint-level contract tests for mockup/prompts/mindmap/jira payloads and error envelopes |
+| Auth propagation for auxiliary endpoints | Main spec-viewer flow now sends bearer tokens for auxiliary calls | Audit all non-spec-viewer callers to ensure they send Firebase bearer token as well |
+| Spec-viewer modularization depth | Mockup module extraction is complete (pipeline + viewer + window bridge), but additional areas are still monolithic | Continue phased extraction for prompts/diagrams/mindmap orchestration and shared state isolation |
+| Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
+| Manual smoke coverage | Mockup compatibility bridge was verified in-code, but no automated browser smoke test is enforced | Add Playwright smoke flow for create/retry/device-switch/view-code/download on spec viewer |
+| Port drift prevention | Runtime/default ports are aligned to 10000 across scripts and swagger | Add CI grep/guard to fail on new hardcoded legacy ports (`3000/3001/3002/5000`) outside allowlisted contexts |
 
 ---
 

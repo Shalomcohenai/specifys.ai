@@ -1,5 +1,8 @@
 // ToolPicker page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.loadGeoContext === 'function') {
+        window.loadGeoContext().catch(() => {});
+    }
     const searchInput = document.querySelector('.search-input') || document.querySelector('#ideaInput');
     const searchButton = document.querySelector('.search-button');
     const charCounter = document.querySelector('.char-counter');

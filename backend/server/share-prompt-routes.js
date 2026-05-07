@@ -1,29 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { auth } = require('./firebase-admin');
 const { db } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
-
-/**
- * Middleware to verify Firebase ID token
- */
-async function verifyFirebaseToken(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    logger.error({ error: error.message }, '[share-prompt-routes] Token verification failed');
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 /**
  * GET /api/share-prompt/check

@@ -1231,10 +1231,11 @@ async function generateJiraExport() {
         updateJiraProgress(30, 'Sending to Jira export service...');
         
         // Call worker endpoint
-        const response = await fetch('https://jiramaker.shalom-cohen-111.workers.dev/', {
+        const response = await fetch('/api/auxiliary/jira/export', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
             },
             body: JSON.stringify(specPayload)
         });

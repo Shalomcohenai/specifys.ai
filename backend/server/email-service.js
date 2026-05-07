@@ -382,6 +382,64 @@ class EmailService {
   }
 
   /**
+   * Send feedback notification email via Resend.
+   * @param {{userEmail?: string, feedback: string, type?: string, source?: string}} payload
+   * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+   */
+  async sendFeedbackEmail({ userEmail, feedback, type = 'general', source = 'website' }) {
+    if (!this.isConfigured()) {
+      logger.warn('[EmailService] sendFeedbackEmail - Email service not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    if (!feedback || !String(feedback).trim()) {
+      logger.warn('[EmailService] sendFeedbackEmail - Feedback content missing');
+      return { success: false, error: 'Feedback is required' };
+    }
+
+    const escapeHtml = (value) =>
+      String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const recipient = process.env.FEEDBACK_EMAIL || 'specifysai@gmail.com';
+    const safeEmail = userEmail && String(userEmail).trim() ? String(userEmail).trim() : 'Not provided';
+    const safeType = String(type || 'general').trim() || 'general';
+    const safeSource = String(source || 'website').trim() || 'website';
+    const safeFeedback = escapeHtml(String(feedback).trim());
+
+    try {
+      const html = emailTemplates.getBaseTemplate(
+        'New Feedback from Specifys.ai',
+        `
+          <p class="content-text"><strong>User Email:</strong> ${escapeHtml(safeEmail)}</p>
+          <p class="content-text"><strong>Type:</strong> ${escapeHtml(safeType)}</p>
+          <p class="content-text"><strong>Source:</strong> ${escapeHtml(safeSource)}</p>
+          <p class="content-text"><strong>Time:</strong> ${new Date().toISOString()}</p>
+          <div class="content-title">Feedback Content</div>
+          <p class="content-text" style="white-space: pre-wrap;">${safeFeedback}</p>
+        `
+      );
+
+      const result = await this.resend.emails.send({
+        from: this.fromEmail,
+        to: recipient,
+        subject: 'New Feedback from Specifys.ai',
+        html
+      });
+
+      logger.info({ recipient, userEmail: safeEmail, type: safeType, source: safeSource, messageId: result.id }, '[EmailService] Feedback email sent successfully');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ recipient, userEmail: safeEmail, error: error.message }, '[EmailService] Failed to send feedback email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Send inactive user email (after 30 days)
    * @param {string} userEmail - User's email address
    * @param {string} userName - User's display name

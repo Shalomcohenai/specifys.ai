@@ -11,7 +11,7 @@ if (typeof globalThis.fetch === 'function') {
 }
 // Lemon Squeezy official SDK
 const { lemonSqueezySetup, createCheckout } = require('@lemonsqueezy/lemonsqueezy.js');
-const { auth, db, admin } = require('./firebase-admin');
+const { db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
@@ -28,30 +28,7 @@ const {
   hasActiveStatus,
   hasCancelledStatus
 } = require('./lemon-subscription-resolver');
-
-/**
- * Middleware to verify Firebase ID token
- */
-async function verifyFirebaseToken(req, res, next) {
-  logger.debug({ path: req.path }, '[lemon-routes] Verifying Firebase token');
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn({ path: req.path }, '[lemon-routes] No valid authorization header');
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-
-    logger.debug({ userId: decodedToken.uid, path: req.path }, '[lemon-routes] Token verified successfully');
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    logger.error({ error: error.message, path: req.path }, '[lemon-routes] Token verification failed');
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 /**
  * POST /api/lemon/checkout

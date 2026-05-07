@@ -194,13 +194,14 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <script defer src="{{ '/assets/js/config.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/config.js' | relative_url }}"></script>
     
     <!-- API Client (must load after config.js) -->
-    <script defer src="{{ '/assets/js/api-client.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/api-client.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/geo-context.js' | relative_url }}"></script>
     
     <!-- Focus Manager (must load early for accessibility) -->
-    <script defer src="{{ '/assets/js/focus-manager.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/focus-manager.js' | relative_url }}"></script>
     
     <!-- Components (must load before page-specific JS) -->
     <script type="module" src="{{ '/assets/js/components/base.js' | relative_url }}"></script>
@@ -216,10 +217,10 @@
     <script src="{{ '/assets/js/utils/mermaid-sanitize.js' | relative_url }}"></script>
     
     <!-- Application Logger -->
-    <script defer src="{{ '/assets/js/app-logger.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/app-logger.js' | relative_url }}"></script>
     
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
-    <script defer src="{{ '/assets/js/web-vitals.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/web-vitals.js' | relative_url }}"></script>
     
     <!-- CSS Monitoring Script -->
     <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
@@ -257,7 +258,7 @@
     
     {% include analytics.html %}
     {% include analytics-events.html %}
-    <script src="{{ '/assets/js/analytics-schema.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/core/analytics-schema.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/ga4-wrapper.js' | relative_url }}"></script>
     {% include structured-data.html %}
     

@@ -7,10 +7,10 @@ echo "Waiting 2 seconds..."
 sleep 2
 
 echo "Checking if ports are free..."
-lsof -ti:3001 && echo "Port 3001 is still in use" || echo "Port 3001 is free"
-lsof -ti:3002 && echo "Port 3002 is still in use" || echo "Port 3002 is free"
+TARGET_PORT=${PORT:-10000}
+lsof -ti:${TARGET_PORT} && echo "Port ${TARGET_PORT} is still in use" || echo "Port ${TARGET_PORT} is free"
 
-echo "Starting server on port 3002 (background with logging)..."
+echo "Starting server (PORT from env, default ${TARGET_PORT}) in background with logging..."
 cd "$(dirname "$0")/../../backend"
 nohup node server/server.js > server.log 2>&1 &
 echo $! > server.pid

@@ -4,6 +4,22 @@ let isLoading = false;
 let specUnsubscribe = null; // Firestore listener unsubscribe function
 let specPollInterval = null; // Polling interval for spec status
 
+if (typeof window.loadGeoContext === 'function') {
+    window.loadGeoContext().catch(() => {});
+}
+
+async function getAuxHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    try {
+        const user = firebase?.auth?.().currentUser;
+        if (user) {
+            headers.Authorization = `Bearer ${await user.getIdToken()}`;
+        }
+    } catch (error) {}
+    return headers;
+}
+window.getAuxHeaders = getAuxHeaders;
+
 // Helper function to update currentSpecData and expose it to window
 function updateCurrentSpecData(newData) {
     currentSpecData = newData;
@@ -204,11 +220,6 @@ function initExportAdminAdvancedRaw() {
         }
     });
 }
-
-// Worker endpoints configuration
-const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
-const MOCKUPS_ANALYZE_URL = 'https://mockup.shalom-cohen-111.workers.dev/analyze-screens';
-const MOCKUPS_SINGLE_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate-single-mockup';
 
 // OpenAI Storage helper function
 async function triggerOpenAIUploadForSpec(specId) {
@@ -1187,7 +1198,7 @@ function displaySpec(data) {
     displayMarket(data.market);
     displayDesign(data.design);
     console.log('[displaySpec] All sections displayed');
-    displayMockup(data.mockups).catch(err => {
+    Promise.resolve(window.displayMockup?.(data.mockups)).catch(err => {
         // Error displaying mockup
     });
     displayVisibilityEngine(data.visibility, data);
@@ -1946,13 +1957,11 @@ async function generateMindMap() {
     
     try {
         // Worker URL
-        const WORKER_URL = 'https://generate-mindmap.shalom-cohen-111.workers.dev/';
+        const WORKER_URL = '/api/auxiliary/mindmap/generate';
         
         const response = await fetch(WORKER_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: await getAuxHeaders(),
             body: JSON.stringify({
                 overview: currentSpecData.overview,
                 technical: currentSpecData.technical
@@ -7155,11 +7164,9 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout (2 minutes)
     
     try {
-        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+        const response = await fetch('/api/auxiliary/prompts/generate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: await getAuxHeaders(),
             body: JSON.stringify(requestBody),
             signal: controller.signal
         });
@@ -7243,11 +7250,9 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout (2 minutes)
     
     try {
-        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+        const response = await fetch('/api/auxiliary/prompts/generate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: await getAuxHeaders(),
             body: JSON.stringify(requestBody),
             signal: controller.signal
         });
@@ -7332,11 +7337,9 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
     const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout (2 minutes)
     
     try {
-        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+        const response = await fetch('/api/auxiliary/prompts/generate', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: await getAuxHeaders(),
             body: JSON.stringify(requestBody),
             signal: controller.signal
         });
@@ -7449,671 +7452,6 @@ async function retryDesign() {
         }
         updateTabLoadingState('design', false);
         showNotification(`Failed to start design generation: ${error.message || 'Please try again.'}`, 'error');
-    }
-}
-
-// ---------- Mockup Functions ----------
-async function displayMockup(mockupData) {
-    const container = document.getElementById('mockup-data');
-    if (!container) return;
-    
-    // Check PRO access first - prevent unauthorized access
-    const hasProAccess = await checkProAccess();
-    if (!hasProAccess) {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Mockup feature is available for PRO users only. Please upgrade to PRO to access mockups.</p></div>';
-        return;
-    }
-    
-    let generateSection = document.getElementById('mockup-generate-section');
-    let viewerSection = document.getElementById('mockup-viewer-section');
-    
-    // If sections don't exist (e.g., were removed by innerHTML), recreate them
-    if (!generateSection || !viewerSection) {
-        // Restore the container structure
-        container.innerHTML = `
-            <div id="mockup-generate-section" class="hidden">
-                <div class="mockup-generate-content">
-                    <i class="fa fa-desktop mockup-icon"></i>
-                    <h3>Create Frontend Mockups</h3>
-                    <p class="mockup-description">Generate interactive HTML+CSS mockups based on your specifications</p>
-                    <div class="mockup-checkbox-container">
-                        <label class="mockup-checkbox-label">
-                            <input type="checkbox" id="useMockDataCheckbox" class="mockup-checkbox">
-                            <span>Use mock data (fill with realistic sample data)</span>
-                        </label>
-                    </div>
-                    <button id="generateMockupBtn" class="btn btn-primary mockup-generate-btn" onclick="generateMockupSpec()">
-                        <i class="fa fa-magic"></i> Create Mockups
-                    </button>
-                </div>
-            </div>
-            <div id="mockup-viewer-section" class="hidden"></div>
-        `;
-        generateSection = document.getElementById('mockup-generate-section');
-        viewerSection = document.getElementById('mockup-viewer-section');
-    }
-    
-    if (!generateSection || !viewerSection) {
-        // Failed to create mockup sections
-        return;
-    }
-    
-    if (!mockupData || !mockupData.mockups || mockupData.mockups.length === 0) {
-        // Check if design is ready
-        if (currentSpecData && currentSpecData.design && currentSpecData.status && currentSpecData.status.design === 'ready') {
-            // Design is ready, show generate section
-            generateSection.style.display = 'block';
-            viewerSection.style.display = 'none';
-        } else {
-            // Design not ready, show locked message
-            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and wait for Design & Branding to be ready before creating mockups.</p></div>';
-        }
-        return;
-    }
-    
-    // Hide generate section, show viewer
-    generateSection.style.display = 'none';
-    viewerSection.style.display = 'block';
-    
-    const mockups = mockupData.mockups || [];
-    let currentIndex = 0;
-    
-    // Build viewer HTML
-    let partialWarningHTML = '';
-    if (mockupData.meta && mockupData.meta.partial && mockupData.meta.total) {
-        partialWarningHTML = `
-            <div style="padding: 12px 20px; margin-bottom: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404; font-size: 14px;">
-                <i class="fa fa-info-circle"></i> Generating in progress: ${mockupData.meta.completed} of ${mockupData.meta.total} screens completed
-            </div>
-        `;
-    }
-    
-    let viewerHTML = `
-        ${partialWarningHTML}
-        <div class="mockup-viewer-container" style="display: flex; flex-direction: column; height: 100%;">
-            <!-- Screens List -->
-            <div class="mockup-screens-list" style="display: flex; gap: 10px; padding: 15px; background: #f5f5f5; border-bottom: 2px solid #ddd; overflow-x: auto; flex-wrap: wrap;">
-    `;
-    
-    mockups.forEach((mockup, index) => {
-        viewerHTML += `
-            <button class="mockup-screen-btn ${index === 0 ? 'active' : ''}" 
-                    onclick="switchMockupScreen(${index})" 
-                    data-index="${index}"
-                    style="padding: 10px 20px; border: 2px solid ${index === 0 ? '#FF6B35' : '#ddd'}; 
-                           background: ${index === 0 ? '#FF6B35' : 'white'}; 
-                           color: ${index === 0 ? 'white' : '#333'}; 
-                           border-radius: 8px; cursor: pointer; 
-                           font-size: 14px; font-weight: ${index === 0 ? '600' : '400'};
-                           transition: all 0.3s ease; white-space: nowrap;">
-                <i class="fa fa-${mockup.deviceType === 'mobile' ? 'mobile' : mockup.deviceType === 'web' ? 'desktop' : 'desktop'}"></i> ${mockup.name}
-            </button>
-        `;
-    });
-    
-    viewerHTML += `
-            </div>
-            
-            <!-- Controls Bar -->
-            <div class="mockup-controls" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: white; border-bottom: 1px solid #ddd;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button onclick="prevMockupScreen()" 
-                            class="btn btn-secondary" 
-                            style="padding: 8px 16px;">
-                        <i class="fa fa-chevron-left"></i> Prev
-                    </button>
-                    <span style="font-weight: 600; color: #333;">
-                        <span id="current-screen-index">1</span> / ${mockups.length}
-                    </span>
-                    <button onclick="nextMockupScreen()" 
-                            class="btn btn-secondary" 
-                            style="padding: 8px 16px;">
-                        Next <i class="fa fa-chevron-right"></i>
-                    </button>
-                </div>
-                
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div class="device-selector" style="display: flex; gap: 5px; background: #f5f5f5; padding: 5px; border-radius: 6px;">
-                        <button onclick="setMockupDevice('desktop')" 
-                                class="device-btn active" 
-                                data-device="desktop"
-                                style="padding: 6px 12px; border: none; background: #FF6B35; color: white; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                            <i class="fa fa-desktop"></i> Desktop
-                        </button>
-                        <button onclick="setMockupDevice('tablet')" 
-                                class="device-btn" 
-                                data-device="tablet"
-                                style="padding: 6px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                            <i class="fa fa-tablet"></i> Tablet
-                        </button>
-                        <button onclick="setMockupDevice('mobile')" 
-                                class="device-btn" 
-                                data-device="mobile"
-                                style="padding: 6px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                            <i class="fa fa-mobile"></i> Mobile
-                        </button>
-                    </div>
-                    <button onclick="viewMockupCode()" class="btn btn-secondary" style="padding: 8px 16px;">
-                        <i class="fa fa-code"></i> View Code
-                    </button>
-                    <button onclick="downloadMockup()" class="btn btn-secondary" style="padding: 8px 16px;">
-                        <i class="fa fa-download"></i> Download
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Preview Area -->
-            <div class="mockup-preview-area" style="flex: 1; overflow: auto; padding: 20px; background: #f0f0f0; display: flex; justify-content: center; align-items: flex-start; min-height: 600px;">
-                <div id="mockup-preview-container" style="background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; width: 100%; max-width: 1920px;">
-                    <iframe id="mockup-iframe" 
-                            sandbox="allow-scripts" 
-                            style="width: 100%; min-height: 600px; border: none; display: block;"></iframe>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    viewerSection.innerHTML = viewerHTML;
-    
-    // Store mockups globally
-    window.currentMockups = mockups;
-    window.currentMockupIndex = 0;
-    window.currentMockupDevice = 'desktop';
-    
-    // Load first mockup
-    loadMockupScreen(0, 'desktop');
-}
-
-function switchMockupScreen(index) {
-    window.currentMockupIndex = index;
-    loadMockupScreen(index, window.currentMockupDevice);
-    
-    // Update active button
-    document.querySelectorAll('.mockup-screen-btn').forEach((btn, i) => {
-        if (i === index) {
-            btn.classList.add('active');
-            btn.style.background = '#FF6B35';
-            btn.style.color = 'white';
-            btn.style.borderColor = '#FF6B35';
-            btn.style.fontWeight = '600';
-        } else {
-            btn.classList.remove('active');
-            btn.style.background = 'white';
-            btn.style.color = '#333';
-            btn.style.borderColor = '#ddd';
-            btn.style.fontWeight = '400';
-        }
-    });
-    
-    // Update index display
-    const currentScreenIndex = document.getElementById('current-screen-index');
-    if (currentScreenIndex) {
-        currentScreenIndex.textContent = index + 1;
-    }
-}
-
-function prevMockupScreen() {
-    if (!window.currentMockups) return;
-    const newIndex = window.currentMockupIndex > 0 ? window.currentMockupIndex - 1 : window.currentMockups.length - 1;
-    switchMockupScreen(newIndex);
-}
-
-function nextMockupScreen() {
-    if (!window.currentMockups) return;
-    const newIndex = window.currentMockupIndex < window.currentMockups.length - 1 ? window.currentMockupIndex + 1 : 0;
-    switchMockupScreen(newIndex);
-}
-
-function setMockupDevice(device) {
-    window.currentMockupDevice = device;
-    loadMockupScreen(window.currentMockupIndex, device);
-    
-    // Update active device button
-    document.querySelectorAll('.device-btn').forEach(btn => {
-        if (btn.dataset.device === device) {
-            btn.classList.add('active');
-            btn.style.background = '#FF6B35';
-            btn.style.color = 'white';
-        } else {
-            btn.classList.remove('active');
-            btn.style.background = 'transparent';
-            btn.style.color = '#666';
-        }
-    });
-    
-    // Update container width
-    const container = document.getElementById('mockup-preview-container');
-    if (device === 'desktop') {
-        container.style.width = '100%';
-        container.style.maxWidth = '1920px';
-    } else if (device === 'tablet') {
-        container.style.width = '768px';
-        container.style.maxWidth = '768px';
-    } else {
-        container.style.width = '375px';
-        container.style.maxWidth = '375px';
-    }
-}
-
-function loadMockupScreen(index, device) {
-    if (!window.currentMockups || !window.currentMockups[index]) return;
-    
-    const mockup = window.currentMockups[index];
-    const iframe = document.getElementById('mockup-iframe');
-    
-    if (!iframe) return;
-    
-    // Create blob URL from HTML
-    const blob = new Blob([mockup.html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    iframe.src = url;
-    
-    // Set container width based on device
-    const container = document.getElementById('mockup-preview-container');
-    if (!container) return;
-    
-    if (device === 'desktop') {
-        container.style.width = '100%';
-        container.style.maxWidth = '1920px';
-    } else if (device === 'tablet') {
-        container.style.width = '768px';
-        container.style.maxWidth = '768px';
-    } else {
-        container.style.width = '375px';
-        container.style.maxWidth = '375px';
-    }
-    
-    // Update iframe height after load
-    iframe.onload = function() {
-        try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const height = Math.max(iframeDoc.body.scrollHeight, iframeDoc.body.offsetHeight, 600);
-            iframe.style.height = height + 'px';
-        } catch (e) {
-            // Cross-origin or other error, use default
-            iframe.style.height = '600px';
-        }
-    };
-}
-
-function viewMockupCode() {
-    if (!window.currentMockups || !window.currentMockups[window.currentMockupIndex]) return;
-    
-    const mockup = window.currentMockups[window.currentMockupIndex];
-    const codeModal = document.getElementById('mockup-code-modal') || createCodeModal();
-    
-    const codeContent = document.getElementById('mockup-code-content');
-    codeContent.textContent = mockup.html;
-    
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    codeModal.style.display = 'flex';
-}
-
-function createCodeModal() {
-    const modal = document.createElement('div');
-    modal.id = 'mockup-code-modal';
-    modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;';
-    
-    modal.innerHTML = `
-        <div style="background: white; width: 90%; max-width: 1200px; height: 90%; border-radius: 8px; display: flex; flex-direction: column;">
-            <div style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0;">Mockup Code - ${window.currentMockups[window.currentMockupIndex].name}</h3>
-                <button onclick="closeMockupCodeModal()" style="background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                    <i class="fa fa-times"></i> Close
-                </button>
-            </div>
-            <pre id="mockup-code-content" style="flex: 1; overflow: auto; padding: 20px; margin: 0; background: #f5f5f5; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></pre>
-            <div style="padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px;">
-                <button onclick="copyMockupCode()" class="btn btn-primary" style="padding: 8px 16px;">
-                    <i class="fa fa-copy"></i> Copy Code
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    return modal;
-}
-
-function closeMockupCodeModal() {
-    const modal = document.getElementById('mockup-code-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-        document.documentElement.style.overflow = '';
-    }
-}
-
-function copyMockupCode() {
-    const codeContent = document.getElementById('mockup-code-content');
-    navigator.clipboard.writeText(codeContent.textContent).then(() => {
-        showNotification('Code copied to clipboard!', 'success');
-    }).catch(() => {
-        showNotification('Failed to copy code', 'error');
-    });
-}
-
-function downloadMockup() {
-    if (!window.currentMockups || !window.currentMockups[window.currentMockupIndex]) return;
-    
-    const mockup = window.currentMockups[window.currentMockupIndex];
-    const blob = new Blob([mockup.html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${mockup.id || 'mockup'}-${mockup.name.replace(/\s+/g, '-').toLowerCase()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification('Mockup downloaded!', 'success');
-}
-
-// Batch Mockup Generation Manager
-let mockupBatchManager = {
-    isRunning: false,
-    screens: [],
-    mockups: [],
-    failedScreens: [],
-    currentIndex: 0,
-    useMockData: false
-};
-
-async function generateMockupSpec() {
-    // Check PRO access first
-    const hasProAccess = await checkProAccess();
-    if (!hasProAccess) {
-        showNotification('Mockup feature is available for PRO users only. Please upgrade to PRO to generate mockups.', 'error');
-        return;
-    }
-    
-    if (!currentSpecData) {
-        showNotification('No specification data available', 'error');
-        return;
-    }
-    
-    if (!currentSpecData.design || currentSpecData.status?.design !== 'ready') {
-        showNotification('Please generate Design specification first', 'error');
-        return;
-    }
-    
-    // Prevent multiple simultaneous generations
-    if (mockupBatchManager.isRunning) {
-        showNotification('Mockup generation is already in progress', 'info');
-        return;
-    }
-    
-    const checkboxEl = document.getElementById('useMockDataCheckbox');
-    const useMockData = checkboxEl ? checkboxEl.checked : false;
-    const generateBtn = document.getElementById('generateMockupBtn');
-    
-    // Initialize batch manager
-    mockupBatchManager.isRunning = true;
-    mockupBatchManager.screens = [];
-    mockupBatchManager.mockups = [];
-    mockupBatchManager.failedScreens = [];
-    mockupBatchManager.currentIndex = 0;
-    mockupBatchManager.useMockData = useMockData;
-    
-    // Disable button and show loading
-    if (generateBtn) {
-        generateBtn.disabled = true;
-        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing Screens...';
-    }
-    updateTabLoadingState('mockup', true);
-    
-    const container = document.getElementById('mockup-data');
-    
-    try {
-        // Step 1: Analyze screens
-        updateMockupProgress(0, 0, 'Analyzing screens...');
-        
-        const analyzeResponse = await fetch(MOCKUPS_ANALYZE_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                overview: currentSpecData.overview,
-                design: currentSpecData.design,
-                technical: currentSpecData.technical || null
-            })
-        });
-        
-        if (!analyzeResponse.ok) {
-            const errorData = await analyzeResponse.json();
-            throw new Error(errorData.error?.message || 'Failed to analyze screens');
-        }
-        
-        const analyzeData = await analyzeResponse.json();
-        mockupBatchManager.screens = analyzeData.screens || [];
-        
-        if (mockupBatchManager.screens.length === 0) {
-            throw new Error('No screens identified for mockup generation');
-        }
-        
-        // Step 2: Generate mockups one by one
-        if (generateBtn) {
-            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
-        }
-        
-        for (let i = 0; i < mockupBatchManager.screens.length; i++) {
-            mockupBatchManager.currentIndex = i;
-            const screen = mockupBatchManager.screens[i];
-            
-            updateMockupProgress(i + 1, mockupBatchManager.screens.length, `Generating: ${screen.name}...`);
-            
-            // Try to generate with retry logic
-            const mockup = await generateSingleMockupWithRetry(screen, 3);
-            
-            if (mockup) {
-                mockupBatchManager.mockups.push(mockup);
-                // Update UI incrementally
-                updateMockupProgress(i + 1, mockupBatchManager.screens.length, `Completed: ${screen.name}`);
-                // Show partial results
-                await displayMockup({
-                    mockups: mockupBatchManager.mockups,
-                    meta: {
-                        partial: true,
-                        total: mockupBatchManager.screens.length,
-                        completed: mockupBatchManager.mockups.length
-                    }
-                });
-            } else {
-                mockupBatchManager.failedScreens.push(screen);
-                // Failed to generate mockup for screen
-            }
-            
-            // Small delay between requests to avoid rate limiting
-            if (i < mockupBatchManager.screens.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
-        
-        // Final update
-        if (mockupBatchManager.mockups.length === 0) {
-            throw new Error('Failed to generate any mockups');
-        }
-        
-        const finalMockupData = {
-            mockups: mockupBatchManager.mockups,
-            meta: {
-                version: '1.0',
-                generatedAt: new Date().toISOString(),
-                totalScreens: mockupBatchManager.mockups.length,
-                failedScreens: mockupBatchManager.failedScreens.length,
-                useMockData: useMockData
-            }
-        };
-        
-        // Update Firebase
-        const user = firebase.auth().currentUser;
-        if (user && currentSpecData) {
-            await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                mockups: finalMockupData,
-                'status.mockup': 'ready',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Upload updated spec to OpenAI API for chat purposes (non-blocking)
-            triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                console.warn('Failed to upload spec to OpenAI after mockups generation:', err);
-            });
-        }
-        
-        // Update local data
-        currentSpecData.mockups = finalMockupData;
-        if (!currentSpecData.status) currentSpecData.status = {};
-        currentSpecData.status.mockup = 'ready';
-        
-        // Update export checkboxes when mockups are ready
-        updateExportCheckboxes();
-        
-        // Update localStorage backup
-        localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-        
-        // Update UI
-        updateStatus('mockup', 'ready');
-        updateTabLoadingState('mockup', false);
-        await displayMockup(finalMockupData);
-        
-        // Mark tab as generated (only enable for PRO users)
-        const mockupTab = document.getElementById('mockupTab');
-        if (mockupTab) {
-            mockupTab.classList.add('generated');
-            checkProAccess().then(hasProAccess => {
-                if (hasProAccess) {
-                    mockupTab.disabled = false;
-                }
-            });
-        }
-        
-        const successMsg = mockupBatchManager.failedScreens.length > 0
-            ? `Generated ${mockupBatchManager.mockups.length} of ${mockupBatchManager.screens.length} mockups (${mockupBatchManager.failedScreens.length} failed)`
-            : 'Mockups generated successfully!';
-        showNotification(successMsg, mockupBatchManager.failedScreens.length > 0 ? 'warning' : 'success');
-        
-    } catch (error) {
-        // Error generating mockups
-        if (container) {
-            container.innerHTML = `
-                <div class="locked-tab-message">
-                    <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
-                    <p>${error.message}</p>
-                    ${mockupBatchManager.mockups.length > 0 ? `
-                        <p style="margin-top: 15px; color: #666;">
-                            Partial results: ${mockupBatchManager.mockups.length} mockups generated successfully.
-                        </p>
-                    ` : ''}
-                    <button onclick="generateMockupSpec()" class="btn btn-primary" style="margin-top: 15px;">
-                        <i class="fa fa-refresh"></i> Try Again
-                    </button>
-                </div>
-            `;
-        }
-        updateTabLoadingState('mockup', false);
-        showNotification(`Failed to generate mockups: ${error.message}`, 'error');
-    } finally {
-        mockupBatchManager.isRunning = false;
-        if (generateBtn) {
-            generateBtn.disabled = false;
-            generateBtn.innerHTML = '<i class="fa fa-magic"></i> Create Mockups';
-        }
-    }
-}
-
-// Generate single mockup with retry logic
-async function generateSingleMockupWithRetry(screen, maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const response = await fetch(MOCKUPS_SINGLE_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    overview: currentSpecData.overview,
-                    design: currentSpecData.design,
-                    technical: currentSpecData.technical || null,
-                    screen: screen,
-                    useMockData: mockupBatchManager.useMockData
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Failed to generate mockup');
-            }
-            
-            const data = await response.json();
-            return data.mockup;
-            
-        } catch (error) {
-            // Attempt failed for screen
-            
-            if (attempt === maxRetries) {
-                // Last attempt failed
-                return null;
-            }
-            
-            // Wait before retry (exponential backoff)
-            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
-    return null;
-}
-
-// Update progress UI
-function updateMockupProgress(current, total, status) {
-    const container = document.getElementById('mockup-data');
-    if (!container) return;
-    
-    const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
-    
-    container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-            <div class="spinner" style="margin: 0 auto 20px;"></div>
-            <h3>Generating Mockups...</h3>
-            <p style="color: #666; margin: 20px 0;">${status}</p>
-            <div style="width: 100%; max-width: 400px; margin: 20px auto; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
-                <div style="width: ${percentage}%; background: linear-gradient(90deg, #FF6B35, #FF8C42); height: 30px; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                    ${percentage}%
-                </div>
-            </div>
-            <p style="color: #999; font-size: 14px; margin-top: 15px;">
-                Screen ${current} of ${total}
-                ${mockupBatchManager.mockups.length > 0 ? ` • ${mockupBatchManager.mockups.length} completed` : ''}
-                ${mockupBatchManager.failedScreens.length > 0 ? ` • ${mockupBatchManager.failedScreens.length} failed` : ''}
-            </p>
-        </div>
-    `;
-}
-
-async function retryMockup() {
-    const retryMockupBtn = document.getElementById('retryMockupBtn');
-    if (retryMockupBtn) {
-        retryMockupBtn.disabled = true;
-        retryMockupBtn.textContent = '⏳ Retrying...';
-    }
-
-    updateTabLoadingState('mockup', true);
-
-    try {
-        await generateMockupSpec();
-        if (retryMockupBtn) {
-            retryMockupBtn.style.display = 'none';
-        }
-    } catch (error) {
-        if (retryMockupBtn) {
-            retryMockupBtn.disabled = false;
-            retryMockupBtn.textContent = 'Retry';
-        }
-        showNotification(`Failed to generate mockups: ${error.message}`, 'error');
-    } finally {
-        updateTabLoadingState('mockup', false);
     }
 }
 
@@ -8576,7 +7914,7 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
         controller.abort();
     }, STAGE_TIMEOUT_MS);
     
-    const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
+    const workerUrl = '/api/auxiliary/prompts/generate';
     const requestBodySize = JSON.stringify(requestBody).length;
     
     console.log(`[${requestId}] [generateSingleStage] Sending request for stage ${stageNumber}`, {
@@ -8591,9 +7929,7 @@ Return ONLY the content for STAGE ${stageNumber} (without the stage header - jus
         const fetchStartTime = Date.now();
         const response = await fetch(workerUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: await getAuxHeaders(),
             body: JSON.stringify(requestBody),
             signal: controller.signal
         });
@@ -8962,7 +8298,7 @@ async function generatePrompts() {
         console.log(`[${requestId}] [generatePrompts] Starting staged generation for ${TOTAL_STAGES} stages`);
         
         // Test worker connectivity first
-        const workerUrl = 'https://promtmaker.shalom-cohen-111.workers.dev/generate';
+        const workerUrl = '/api/auxiliary/prompts/generate';
         console.log(`[${requestId}] [generatePrompts] Worker URL: ${workerUrl}`);
         
         const generatedStages = [];
@@ -9161,9 +8497,9 @@ If no third-party integrations are needed, return an empty array.`;
                 }
             };
             
-            const integrationsResponse = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
+            const integrationsResponse = await fetch('/api/auxiliary/prompts/generate', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: await getAuxHeaders(),
                 body: JSON.stringify(integrationsRequestBody),
                 signal: AbortSignal.timeout(30000) // 30 seconds for integrations
             });

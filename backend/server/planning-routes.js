@@ -1,10 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
-const { auth } = require('./firebase-admin');
 const { createError, ERROR_CODES, asyncHandler } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 let fetch;
 if (typeof globalThis.fetch === 'function') {
@@ -27,22 +27,6 @@ const uploadMw = multer({
     cb(null, true);
   }
 }).single('image');
-
-async function verifyFirebaseToken(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    logger.warn({ path: req.path, message: error.message }, '[planning-routes] Token verification failed');
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
 
 function runUpload(req, res, next) {
   uploadMw(req, res, (err) => {

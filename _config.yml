@@ -58,6 +58,8 @@ exclude:
   - config/
   - backup-*
   - assets/css/main.scss
+  # Runtime JS source of truth is assets/js (exclude compiled Vite output)
+  - assets/dist/
 
 # Include files
 include:

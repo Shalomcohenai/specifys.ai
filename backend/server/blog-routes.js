@@ -2,6 +2,7 @@
 const { db } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
+const { generateAndSaveSitemap } = require('./sitemap-generator');
 
 // Collection name for blog posts
 const BLOG_COLLECTION = 'blogQueue';
@@ -112,6 +113,9 @@ async function createPost(req, res, next) {
         const docRef = await db.collection(BLOG_COLLECTION).add(queueDocument);
         
         logger.info({ requestId, postId: docRef.id, slug: postSlug }, '[blog-routes] POST created - Success');
+        generateAndSaveSitemap().catch((error) => {
+            logger.warn({ requestId, error: error.message }, '[blog-routes] Sitemap regeneration skipped after create');
+        });
         
         res.json({
             success: true,
@@ -375,6 +379,9 @@ async function updatePost(req, res, next) {
         };
 
         logger.info({ requestId, postId }, '[blog-routes] POST update - Success');
+        generateAndSaveSitemap().catch((error) => {
+            logger.warn({ requestId, error: error.message }, '[blog-routes] Sitemap regeneration skipped after update');
+        });
         
         res.json({
             success: true,
@@ -416,6 +423,9 @@ async function deletePost(req, res, next) {
         await docRef.delete();
 
         logger.info({ requestId, postId }, '[blog-routes] DELETE post - Success');
+        generateAndSaveSitemap().catch((error) => {
+            logger.warn({ requestId, error: error.message }, '[blog-routes] Sitemap regeneration skipped after delete');
+        });
         
         res.json({
             success: true,

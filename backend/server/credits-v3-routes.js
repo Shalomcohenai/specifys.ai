@@ -1,34 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { auth, db } = require('./firebase-admin');
-const { requireAdmin } = require('./security');
+const { db } = require('./firebase-admin');
 const creditsV3Service = require('./credits-v3-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
-
-/**
- * Middleware to verify Firebase ID token
- */
-async function verifyFirebaseToken(req, res, next) {
-  logger.debug({ path: req.path }, '[credits-v3-routes] Verifying Firebase token');
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn({ path: req.path }, '[credits-v3-routes] No valid authorization header');
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-
-    logger.debug({ userId: decodedToken.uid, path: req.path }, '[credits-v3-routes] Token verified successfully');
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    logger.error({ error: error.message, path: req.path }, '[credits-v3-routes] Token verification failed');
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
+const { verifyFirebaseToken, requireAdmin } = require('./middleware/auth');
 
 /**
  * GET /api/v3/credits

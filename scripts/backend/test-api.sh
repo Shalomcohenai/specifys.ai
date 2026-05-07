@@ -2,7 +2,7 @@
 # API Testing Script
 # Usage: ./test-api.sh [base-url]
 
-BASE_URL=${1:-"http://localhost:3000"}
+BASE_URL=${1:-"http://localhost:10000"}
 
 echo "🧪 Testing API endpoints at $BASE_URL"
 echo "=================================="

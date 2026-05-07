@@ -22,7 +22,7 @@ if [ ! -d "../../backend/server/node_modules" ]; then
 fi
 
 # Start the server
-echo "🌐 Server starting on port 3001..."
+echo "🌐 Server starting (PORT from env, default 10000)..."
 echo "📝 API endpoints:"
 echo "  - GET  /api/status - Server status"
 echo "  - GET  /api/specs/entitlements - Get user entitlements"

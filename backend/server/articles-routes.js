@@ -2,7 +2,7 @@
 const { db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
-const { generateAndSaveSitemap } = require('./sitemap-generator');
+const { generateAndSaveSitemap, generateSitemapXml } = require('./sitemap-generator');
 const { recordArticleView } = require('./analytics-service');
 
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
@@ -75,6 +75,12 @@ function validateArticleData(data) {
     if (!Array.isArray(data.tags)) {
         throw new Error('Tags must be an array');
     }
+    if (!/^#\s+/m.test(data.content_markdown || '')) {
+        throw new Error('Article must include an H1 heading');
+    }
+    if (!/^##\s+/m.test(data.content_markdown || '')) {
+        throw new Error('Article must include at least one H2 heading');
+    }
     
     return true;
 }
@@ -133,6 +139,7 @@ function formatArticleForFirebase(workerResponse, topic) {
         short_title: workerResponse.short_title,
         teaser_90: workerResponse.teaser_90,
         description_160: workerResponse.description_160,
+        metaDescription: workerResponse.description_160,
         content_markdown: workerResponse.content_markdown,
         tags: workerResponse.tags || [],
         slug: articleSlug,
@@ -688,72 +695,7 @@ async function generateSitemap(req, res, next) {
     
     try {
         const baseUrl = process.env.SITE_URL || 'https://specifys-ai.com';
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        
-        // Static URLs that should always be in sitemap
-        // Note: Pages with noindex, follow (auth, profile, demo-spec, spec-viewer, planning) are excluded
-        const staticUrls = [
-            { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'weekly' },
-            { loc: `${baseUrl}/blog/`, priority: '0.9', changefreq: 'weekly' },
-            { loc: `${baseUrl}/articles.html`, priority: '0.9', changefreq: 'weekly' },
-            { loc: `${baseUrl}/academy.html`, priority: '0.9', changefreq: 'weekly' },
-            { loc: `${baseUrl}/pages/about.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/how.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/ToolPicker.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/pricing.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/pages/why.html`, priority: '0.8', changefreq: 'monthly' },
-            { loc: `${baseUrl}/tools/map/vibe-coding-tools-map.html`, priority: '0.95', changefreq: 'weekly' }
-        ];
-        
-        // Get all published articles
-        const articlesSnapshot = await db.collection(ARTICLES_COLLECTION)
-            .where('status', '==', 'published')
-            .get();
-        
-        const articleUrls = articlesSnapshot.docs.map(doc => {
-            const data = doc.data();
-            const publishedAt = convertTimestamp(data.publishedAt || data.createdAt);
-            const lastmod = publishedAt ? publishedAt.toISOString().split('T')[0] : today;
-            
-            return {
-                loc: `${baseUrl}/article.html?slug=${data.slug}`,
-                lastmod: lastmod,
-                changefreq: 'monthly',
-                priority: '0.8'
-            };
-        });
-        
-        // Academy categories and guides are excluded from sitemap
-        // They have noindex, follow meta tags to prevent indexing while allowing link following
-        // Only the main academy.html page is included in staticUrls
-        
-        // Combine static and dynamic URLs
-        const allUrls = [...staticUrls, ...articleUrls];
-        
-        // Generate XML
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-        
-        allUrls.forEach(url => {
-            xml += '  <url>\n';
-            xml += `    <loc>${escapeXml(url.loc)}</loc>\n`;
-            if (url.lastmod) {
-                xml += `    <lastmod>${url.lastmod}</lastmod>\n`;
-            }
-            xml += `    <changefreq>${url.changefreq || 'monthly'}</changefreq>\n`;
-            xml += `    <priority>${url.priority || '0.8'}</priority>\n`;
-            xml += '  </url>\n';
-        });
-        
-        xml += '</urlset>';
-        
-        logger.info({
-            requestId,
-            urlCount: allUrls.length,
-            articleCount: articleUrls.length,
-            staticCount: staticUrls.length
-        }, '[articles-routes] Sitemap generated successfully');
-        
+        const xml = await generateSitemapXml(baseUrl);
         res.set('Content-Type', 'application/xml');
         res.send(xml);
         
@@ -762,20 +704,6 @@ async function generateSitemap(req, res, next) {
         next(createError(error.message || 'Failed to generate sitemap', ERROR_CODES.DATABASE_ERROR, 500));
     }
 }
-
-// Helper: Escape XML special characters
-function escapeXml(unsafe) {
-    return unsafe.replace(/[<>&'"]/g, function (c) {
-        switch (c) {
-            case '<': return '&lt;';
-            case '>': return '&gt;';
-            case '&': return '&amp;';
-            case '\'': return '&apos;';
-            case '"': return '&quot;';
-        }
-    });
-}
-
 
 module.exports = {
     generateArticle,

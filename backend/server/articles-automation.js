@@ -70,6 +70,12 @@ function validateArticleData(data) {
   if (!Array.isArray(data.tags)) {
     throw new Error('Tags must be an array');
   }
+  if (!/^#\s+/m.test(data.content_markdown || '')) {
+    throw new Error('Article must include an H1 heading');
+  }
+  if (!/^##\s+/m.test(data.content_markdown || '')) {
+    throw new Error('Article must include at least one H2 heading');
+  }
 
   return true;
 }
@@ -84,6 +90,7 @@ function formatArticleForFirebase(articleData, topic) {
     short_title: articleData.short_title,
     teaser_90: articleData.teaser_90,
     description_160: articleData.description_160,
+    metaDescription: articleData.description_160,
     content_markdown: articleData.content_markdown,
     tags: articleData.tags || [],
     slug: articleSlug,

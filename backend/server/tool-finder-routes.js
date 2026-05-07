@@ -4,29 +4,7 @@ const { db, auth } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const emailService = require('./email-service');
-
-/**
- * Middleware to verify Firebase ID token (optional - for authenticated users)
- */
-async function verifyFirebaseTokenOptional(req, res, next) {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            // No auth header - allow but don't set req.user
-            req.user = null;
-            return next();
-        }
-
-        const idToken = authHeader.split('Bearer ')[1];
-        const decodedToken = await auth.verifyIdToken(idToken);
-        req.user = decodedToken;
-        next();
-    } catch (error) {
-        // Invalid token - allow but don't set req.user
-        req.user = null;
-        next();
-    }
-}
+const { verifyFirebaseTokenOptional } = require('./middleware/auth');
 
 /**
  * Record Tool Finder usage and send email

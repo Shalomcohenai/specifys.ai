@@ -13,6 +13,7 @@ const { getAllTools, getToolById } = require('./tools-migration-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { jobRegistry } = require('./automation-service');
 const { exportToolsToJson } = require('./tools-export-service');
+const { generateAndSaveSitemap } = require('./sitemap-generator');
 
 /**
  * GET /api/tools
@@ -191,6 +192,11 @@ router.post('/export', requireAdmin, async (req, res, next) => {
     }
 
     logger.info({ requestId, count: result.count, dryRun }, '[tools-routes] POST /api/tools/export - Success');
+    if (!dryRun) {
+      generateAndSaveSitemap().catch((error) => {
+        logger.warn({ requestId, error: error.message }, '[tools-routes] Sitemap regeneration skipped after tools export');
+      });
+    }
 
     res.json({
       success: true,

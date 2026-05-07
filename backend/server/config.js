@@ -1,10 +1,14 @@
 // Configuration file for Specifys.ai server
 // ========== BACKEND BASE URL – change only here ==========
 const BACKEND_BASE_URL = process.env.PRODUCTION_SERVER_URL || 'https://specifys-ai-backend.onrender.com';
+const BACKEND_URL = process.env.BACKEND_URL || BACKEND_BASE_URL;
+const API_VERSION = process.env.API_VERSION || 'v1';
 // ==========================================================
 
 module.exports = {
   BACKEND_BASE_URL,
+  BACKEND_URL,
+  API_VERSION,
   // Server configuration
   port: process.env.PORT || 10000,
   

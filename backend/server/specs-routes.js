@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { db, admin, auth } = require('./firebase-admin');
+const { db, admin } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
@@ -13,34 +13,11 @@ const { recordSpecCreation } = require('./admin-activity-service');
 const emailService = require('./email-service');
 const { getTitleFromOverview } = require('./spec-overview-utils');
 const { attachSpecQueueFirestoreListeners } = require('./spec-queue-firestore-listeners');
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
   : null;
-
-/**
- * Middleware to verify Firebase ID token
- */
-async function verifyFirebaseToken(req, res, next) {
-    logger.debug({ path: req.path }, 'Verifying Firebase token');
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            logger.warn({ path: req.path }, 'No valid authorization header');
-            return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-        }
-
-        const idToken = authHeader.split('Bearer ')[1];
-        const decodedToken = await auth.verifyIdToken(idToken);
-
-        logger.debug({ userId: decodedToken.uid, path: req.path }, 'Token verified successfully');
-        req.user = decodedToken;
-        next();
-    } catch (error) {
-        logger.error({ error: error.message, path: req.path }, 'Token verification failed');
-        next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-    }
-}
 
 /**
  * Get all specs for current user

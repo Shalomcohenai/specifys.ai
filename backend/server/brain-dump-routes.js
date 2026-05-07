@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { db, admin, auth } = require('./firebase-admin');
+const { db, admin } = require('./firebase-admin');
 const ChatService = require('./chat-service');
 const OpenAIStorageService = require('./openai-storage-service');
 const { createError, ERROR_CODES } = require('./error-handler');
@@ -31,20 +31,7 @@ function getTodayKey() {
   return d.toISOString().slice(0, 10);
 }
 
-async function verifyFirebaseToken(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
-    }
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
-  }
-}
+const { verifyFirebaseToken } = require('./middleware/auth');
 
 /**
  * Check and consume one rate-limit slot for "Create personal prompt" (5 per day per user)
