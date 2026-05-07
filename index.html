@@ -18,8 +18,8 @@ extra_js:
   - /assets/js/features/index/index-mermaid.js
   - /assets/js/pages/why.js
   - /assets/js/features/index/index-vanta.js
-defer_vanta: true
   - /assets/js/features/index/index-access-code.js
+defer_vanta: true
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
 ---
 
@@ -689,12 +689,13 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
         <div class="content-image">
             <div class="planning-visual">
                 <div class="mermaid-diagram">
-                    <pre class="mermaid">
+                    <!-- div (not pre): Mermaid injects style+svg; inside <pre> that output shows as raw text and breaks layout -->
+                    <div class="mermaid" id="why-planning-flow-mermaid" aria-hidden="true">
 graph TD
     A[Data Structures] --> B[Functions]
     B --> C[Logic Flow]
     C --> D[UI Layout]
-                    </pre>
+                    </div>
                 </div>
                 <div class="variables-table">
                     <table>

@@ -2451,7 +2451,9 @@ function triggerPlatformHint() {
       const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
       if (!diagramsContainer) return;
       
-      const mermaidElements = diagramsContainer.querySelectorAll('.mermaid:not(:has(svg))');
+      const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
+        return !el.querySelector('svg');
+      });
       if (mermaidElements.length === 0) return;
 
       if (typeof window.sanitizeMermaidSource === 'function') {
@@ -2481,10 +2483,10 @@ function triggerPlatformHint() {
         window.mermaidInitialized = true;
       }
       
-      // Render diagrams
+      // Render diagrams (use explicit nodes — avoids :has() in querySelector, unsupported in some browsers)
       if (mermaid.run) {
         Promise.resolve(mermaid.run({
-          querySelector: '.browser-tab-content[data-tab-content="diagrams"] .mermaid:not(:has(svg))'
+          nodes: mermaidElements
         })).catch(function () {});
       } else if (mermaid.contentLoaded) {
         mermaid.contentLoaded();

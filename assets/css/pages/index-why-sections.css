@@ -114,15 +114,20 @@
   justify-content: center;
 }
 
-.mermaid-diagram pre {
+.mermaid-diagram .mermaid {
   margin: 0;
   padding: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #333;
+}
+
+.mermaid-diagram .mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 .variables-table {
@@ -345,7 +350,7 @@
     min-height: 150px;
   }
   
-  .mermaid-diagram pre {
+  .mermaid-diagram .mermaid {
     font-size: 12px;
   }
   

@@ -415,7 +415,7 @@
   justify-content: center;
 }
 
-.mermaid-diagram pre.mermaid {
+.mermaid-diagram .mermaid {
   margin: 0;
   background: transparent;
   border: none;
@@ -423,6 +423,12 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+
+.mermaid-diagram .mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 .variables-table {
