@@ -33,6 +33,14 @@ const checks = [
   {
     name: 'hardcoded secrets/tokens',
     pattern: '(sk_live_[0-9A-Za-z]+|sk_test_[0-9A-Za-z]+|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z\\-_]{35}|xox[baprs]-[0-9A-Za-z-]+|(?i)(api[_-]?key|secret|password|token)\\s*[:=]\\s*[\'"][^\'"]{16,}[\'"])'
+  },
+  {
+    name: 'feature/service development URLs',
+    pattern: '(localhost|127\\.0\\.0\\.1)'
+  },
+  {
+    name: 'local feature constants that should use config',
+    pattern: '^\\s*const\\s+(BASE_URL|API_HOST|TIMEOUT_MS)\\s*=\\s*[\'"]http'
   }
 ];
 
@@ -40,7 +48,13 @@ const allowlist = loadAllowlist();
 let failed = false;
 
 for (const check of checks) {
-  const result = runRg(check.pattern);
+  let result = runRg(check.pattern);
+  if (check.name === 'feature/service development URLs') {
+    result = spawnSync('rg', ['--pcre2', '-n', '-H', check.pattern, 'assets/js/features', 'assets/js/services'], { encoding: 'utf8' });
+  }
+  if (check.name === 'local feature constants that should use config') {
+    result = spawnSync('rg', ['--pcre2', '-n', '-H', check.pattern, 'assets/js/features'], { encoding: 'utf8' });
+  }
   const lines = `${result.stdout || ''}${result.stderr || ''}`
     .split('\n')
     .map((line) => line.trim())

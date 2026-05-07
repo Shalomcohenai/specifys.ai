@@ -1094,8 +1094,29 @@ Frontend → POST /api/live-brief/summarize {text}
 | Spec-viewer modularization depth | Mockup/Data Backbone/TabManager/Event Bus/Scoped Loading + DiagramEngine/PromptEngine extraction are in place with compatibility bridge; PromptEngine legacy shadow adapters were removed and schema guard/error-boundary/retry primitives were added | Continue migrating remaining prompt/diagram helper bodies from `spec-viewer-main.js` to engines until coordinator-only orchestration remains |
 | Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
 | Spec-viewer E2E coverage | Playwright smoke test added at `tests/e2e/spec-viewer.spec.js` (module boot, tab switch, lazy Mermaid load, bearer header assertion) | Expand to authenticated end-to-end flow against real Firebase test project and include retry/error-path assertions |
-| Environment guard | Runtime/default ports are aligned to 10000; repo guard now runs via `npm run check:env` (`check:ports` alias) for legacy ports, dev URLs, and token/key patterns with allowlist support (`scripts/check-env.allow.txt`) | Enforce `check:env` in CI and keep allowlist minimal/reviewed during PR |
+| Environment guard | Runtime/default ports are aligned to 10000; repo guard now runs via `npm run check:env` (`check:ports` alias) for legacy ports, dev URLs, token/key patterns, feature/service dev URL detection, and local constant anti-patterns with allowlist support (`scripts/check-env.allow.txt`) | Enforce `check:env` in CI and keep allowlist minimal/reviewed during PR |
 | Contracts visibility | Prompt/Diagram/DataService transport and event contracts are now documented in `assets/js/features/spec-viewer/modules/CONTRACTS.md` | Add API-level contract tests that assert documented request/response envelopes |
+
+### Modular Core (Specifys Standard)
+
+```mermaid
+flowchart LR
+  Config[assets/js/core/config.js] --> ApiClient[assets/js/core/api-client.js]
+  Config --> Logger[assets/js/core/app-logger.js]
+  ApiClient --> Features[assets/js/features/*]
+  Logger --> Features
+  Features --> Bridges[window.* compatibility bridge]
+```
+
+**Specifys Standard for new features**
+
+1. Place feature modules under `assets/js/features/<feature>/modules/`.
+2. Use `window.api.*` for HTTP calls and avoid direct `fetch()` in feature modules.
+3. Read environment constants and timeouts from `window.API_CONFIG` and `window.SPECIFYS_TIMEOUTS`.
+4. Subscribe to shared state updates via `DataService` events where relevant.
+5. Wrap renderer entry-points with defensive error UI fallback (similar to DiagramEngine render boundary).
+6. Expose only required `window.*` bridges and document compatibility surface in `modules/CONTRACTS.md`.
+7. Add or extend Playwright coverage under `tests/e2e/` for critical behavior.
 
 ---
 

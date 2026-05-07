@@ -335,6 +335,16 @@ Step 4: Reliability (Playwright)
 - Smoke test covers module bootstrap (`window.dataService`, `window.tabManager`), tab switching, Mermaid lazy-load trigger, and Bearer auth header propagation on auxiliary requests.
 
 ==================================================
+Execution Status Update — Phase 7 Core Alignment
+==================================================
+
+- Refined `assets/js/core/api-client.js` with silent 401 token refresh and unified unauthorized event flow (`api:unauthorized`), while preserving compatibility for existing bridges.
+- Standardized feature HTTP entrypoints to `window.api.*` in Prompt/Diagram supporting modules and spec-viewer chat Jira export path.
+- Centralized frontend timeout constants into `window.SPECIFYS_TIMEOUTS` in `assets/js/core/config.js` and wired polling timeout usage to config.
+- Extended guardrails in `scripts/check-env.mjs` to flag feature/service dev URL leakage and local HTTP constants outside the config source of truth.
+- Updated architecture docs with the new \"Modular Core (Specifys Standard)\" onboarding rules for future feature additions.
+
+==================================================
 Execution Status Update — Phase 6 Hardening
 ==================================================
 
