@@ -1072,13 +1072,13 @@ Frontend → POST /api/live-brief/summarize {text}
 | Geo context endpoint | `GET /api/geo/context` | Active |
 | Frontend geo context | `assets/js/core/geo-context.js` | Active |
 | Spec viewer dynamic SEO | `features/spec-viewer/modules/SeoInjector.js` | Active |
-| AI crawler policy | `robots.txt` + `llms.txt` | Active (explicit AI bot allow-list + key public surfaces) |
+| AI crawler policy | `robots.txt` + `llms.txt` + `ai.txt` + `pages/for-ai-assistants.html` | Active (explicit AI bot allow-list; llmstxt hub + optional pointer file + HTML retrieval hub) |
 | Sitemap breadth | `backend/server/sitemap-generator.js` | Expanded (Jekyll posts + static pages + x-default alternates + lastmod) |
 
 ### AI Search Optimization (GEO)
 
 - **AI bots allowed**: `GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `ClaudeBot`, `Claude-Web`, `PerplexityBot`, `Perplexity-User`, `Google-Extended`, `Applebot-Extended`, `CCBot`, `Bytespider`, and major search bots.
-- **Machine-readable entry file**: `llms.txt` at repo root with canonical product and content surfaces.
+- **Machine-readable entry files**: `llms.txt` at site root (see [llmstxt.org](https://llmstxt.org/) proposal), plus lightweight `ai.txt` pointers; indexed HTML hub at `pages/for-ai-assistants.html` for answer-engine summaries and FAQ extraction.
 - **JSON-LD coverage map**:
   - `_includes/structured-data.html`: `Organization`, `WebSite`, `SoftwareApplication`, `FAQPage` (home/how/pricing/toolpicker), `Article` with `Person` author, `BreadcrumbList`, `Product`, `HowTo`, `AboutPage`.
   - `assets/js/features/spec-viewer/modules/SeoInjector.js`: dynamic `WebApplication` metadata for spec-viewer context.

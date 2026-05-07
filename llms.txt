@@ -2,6 +2,13 @@
 
 > Specifys.ai helps teams turn app ideas into production-ready specifications with AI. The platform generates structured product documentation, technical architecture, prompts, and delivery assets from a single planning flow. Use this site for practical guidance on AI-assisted app planning, vibe coding workflows, and shipping readiness.
 
+Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
+
+## AI retrieval
+
+- [For AI assistants & answer engines](https://specifys-ai.com/pages/for-ai-assistants.html): Human-readable hub with entity facts, FAQ, and pointers to machine-readable files.
+- [ai.txt](https://specifys-ai.com/ai.txt): Short pointer file for assistants (llms.txt, sitemap, robots).
+
 ## Key pages
 
 - [Homepage](https://specifys-ai.com/)

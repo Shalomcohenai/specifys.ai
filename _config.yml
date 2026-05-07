@@ -64,6 +64,9 @@ exclude:
 # Include files
 include:
   - _redirects
+  - llms.txt
+  - ai.txt
+  - robots.txt
   - tools/
   - blog/  # Blog directory must be explicitly included
   # CSS files - must be explicitly listed (Jekyll doesn't support wildcards)

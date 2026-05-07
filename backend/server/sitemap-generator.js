@@ -41,6 +41,7 @@ function buildStaticUrls(baseUrl, today) {
         { loc: `${baseUrl}/pages/pricing.html`, source: 'pages/pricing.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/why.html`, source: 'pages/why.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/cursor-windsurf-integration.html`, source: 'pages/cursor-windsurf-integration.html', priority: '0.8', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/for-ai-assistants.html`, source: 'pages/for-ai-assistants.html', priority: '0.85', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/dynamic-post/`, source: 'pages/dynamic-post.html', priority: '0.7', changefreq: 'monthly' },
         { loc: `${baseUrl}/tools/map/vibe-coding-tools-map.html`, source: 'tools/map/vibe-coding-tools-map.html', priority: '0.95', changefreq: 'weekly' }
     ];
