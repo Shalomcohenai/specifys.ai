@@ -256,12 +256,10 @@ export async function generateMindMap() {
   generateBtn.disabled = true;
   generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
   try {
-    const response = await fetch('/api/auxiliary/mindmap/generate', {
-      method: 'POST',
-      headers: await window.getAuxHeaders(),
-      body: JSON.stringify({ overview: spec.overview, technical: spec.technical })
-    });
-    const result = await response.json();
+    const result = await window.api.post('/api/auxiliary/mindmap/generate', {
+      overview: spec.overview,
+      technical: spec.technical
+    }, { skipCache: true });
     await displayMindMap(result.mindMap);
     mindMapGenerated = true;
     generateBtn.style.display = 'none';

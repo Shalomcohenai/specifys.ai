@@ -65,6 +65,11 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
 
     window.api = {
       post: async (url) => {
+        if (url === '/api/auxiliary/prompts/generate') {
+          const headers = await window.getAuxHeaders();
+          window.__requests.push({ url, headers });
+          return { prompts: { fullPrompt: 'ok', thirdPartyIntegrations: [] } };
+        }
         if (url === '/api/chat/diagrams/generate') {
           return {
             diagrams: [{ id: 'd1', title: 'A', mermaidCode: 'graph TD;A-->B' }]

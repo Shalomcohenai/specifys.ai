@@ -31,6 +31,8 @@ const _listeners = {
   loadingChanged: new Set()
 };
 
+const POLL_INTERVAL_MS = window.SPECIFYS_TIMEOUTS?.apiPollMs || 5000;
+
 function mirrorLegacyWindowState() {
   if (typeof window !== 'undefined') {
     window.currentSpecData = _state.spec;
@@ -312,7 +314,7 @@ export function startStatusPolling(specId, callbacks = {}) {
       stopStatusPolling();
       console.log('Stopped polling after max attempts');
     }
-  }, 5000);
+  }, POLL_INTERVAL_MS);
 }
 
 export function teardown() {

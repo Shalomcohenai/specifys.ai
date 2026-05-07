@@ -53,6 +53,37 @@ async function retryFetch(url, init, { maxRetries = 2, baseDelay = 500 } = {}) {
   throw lastError;
 }
 
+function getPromptTimeoutMs() {
+  return window.SPECIFYS_TIMEOUTS?.apiPromptMs || 120000;
+}
+
+async function postAuxWithApi(path, body, { maxRetries = 2 } = {}) {
+  if (!window.api?.post) {
+    const response = await retryFetch(path, {
+      method: 'POST',
+      headers: await window.getAuxHeaders(),
+      body: JSON.stringify(body)
+    }, { maxRetries });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `HTTP ${response.status}`);
+    }
+    return payload;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), getPromptTimeoutMs());
+  try {
+    return await window.api.post(path, body, {
+      skipCache: true,
+      retryConfig: { maxRetries },
+      signal: controller.signal
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 export async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
   const spec = getSpec();
   if (!spec) return null;
@@ -73,15 +104,7 @@ export async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
       user: prompt
     }
   };
-  const response = await retryFetch('/api/auxiliary/prompts/generate', {
-    method: 'POST',
-    headers: await window.getAuxHeaders(),
-    body: JSON.stringify(requestBody)
-  }, { maxRetries });
-  if (!response.ok) {
-    throw new Error(`Technical API Error: ${response.status}`);
-  }
-  const data = await response.json();
+  const data = await postAuxWithApi('/api/auxiliary/prompts/generate', requestBody, { maxRetries });
   return data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical specification generated';
 }
 
@@ -105,15 +128,7 @@ export async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
       user: prompt
     }
   };
-  const response = await retryFetch('/api/auxiliary/prompts/generate', {
-    method: 'POST',
-    headers: await window.getAuxHeaders(),
-    body: JSON.stringify(requestBody)
-  }, { maxRetries });
-  if (!response.ok) {
-    throw new Error(`Market API Error: ${response.status}`);
-  }
-  const data = await response.json();
+  const data = await postAuxWithApi('/api/auxiliary/prompts/generate', requestBody, { maxRetries });
   return data.market ? JSON.stringify(data.market, null, 2) : 'No market research generated';
 }
 
@@ -137,15 +152,7 @@ export async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
       user: prompt
     }
   };
-  const response = await retryFetch('/api/auxiliary/prompts/generate', {
-    method: 'POST',
-    headers: await window.getAuxHeaders(),
-    body: JSON.stringify(requestBody)
-  }, { maxRetries });
-  if (!response.ok) {
-    throw new Error(`Design API Error: ${response.status}`);
-  }
-  const data = await response.json();
+  const data = await postAuxWithApi('/api/auxiliary/prompts/generate', requestBody, { maxRetries });
   return data.design ? JSON.stringify(data.design, null, 2) : 'No design specification generated';
 }
 
@@ -161,13 +168,7 @@ export async function generateSingleStage(stageNumber, requestId, overviewConten
       user: `Application Overview:\n${overviewContent || 'Not provided'}\n\nTechnical Specification:\n${technicalContent || 'Not provided'}\n\nDesign Specification:\n${designContent || 'Not provided'}\n\nPrevious Stages:\n${(previousStages || []).join('\n\n')}`
     }
   };
-  const response = await retryFetch('/api/auxiliary/prompts/generate', {
-    method: 'POST',
-    headers: await window.getAuxHeaders(),
-    body: JSON.stringify(requestBody)
-  });
-  if (!response.ok) throw new Error(`Stage ${stageNumber} failed: HTTP ${response.status}`);
-  const data = await response.json();
+  const data = await postAuxWithApi('/api/auxiliary/prompts/generate', requestBody, { maxRetries: 2 });
   if (!data?.prompts?.fullPrompt) throw new Error(`Stage ${stageNumber} invalid response: missing fullPrompt`);
   return data.prompts.fullPrompt;
 }
@@ -179,13 +180,7 @@ export async function generatePrompts() {
   try {
     const spec = getSpec();
     if (!spec?.id) throw new Error('Specification is not loaded');
-    const response = await retryFetch('/api/auxiliary/prompts/generate', {
-      method: 'POST',
-      headers: await window.getAuxHeaders(),
-      body: JSON.stringify({ specId: spec.id })
-    });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result?.error?.message || 'Failed to generate prompts');
+    const result = await postAuxWithApi('/api/auxiliary/prompts/generate', { specId: spec.id }, { maxRetries: 2 });
     displayPromptsFromData({ ...spec, prompts: result.prompts });
   } catch (error) {
     window.showNotification?.(`Failed to generate prompts: ${error.message}`, 'error');

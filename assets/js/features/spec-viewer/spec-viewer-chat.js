@@ -1231,24 +1231,13 @@ async function generateJiraExport() {
         updateJiraProgress(30, 'Sending to Jira export service...');
         
         // Call worker endpoint
-        const response = await fetch('/api/auxiliary/jira/export', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
-            },
-            body: JSON.stringify(specPayload)
+        const result = await window.api.post('/api/auxiliary/jira/export', specPayload, {
+            skipCache: true,
+            retryConfig: { maxRetries: 2 }
         });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
-            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-        }
-        
+
         updateJiraProgress(70, 'Processing Jira issues...');
-        
-        const result = await response.json();
-        
+
         if (result.error) {
             throw new Error(result.error.message || 'Failed to generate Jira export');
         }
