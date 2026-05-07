@@ -14,7 +14,21 @@
 const _state = {
   spec: null,
   specUnsubscribe: null,
-  pollInterval: null
+  pollInterval: null,
+  specHash: '',
+  loadingStates: {
+    overview: false,
+    diagrams: false,
+    prompts: false,
+    mockups: false,
+    mindmap: false,
+    general: false
+  }
+};
+
+const _listeners = {
+  specUpdated: new Set(),
+  loadingChanged: new Set()
 };
 
 function mirrorLegacyWindowState() {
@@ -34,6 +48,41 @@ function clearSubscription() {
   }
 }
 
+function emit(event, payload) {
+  const listeners = _listeners[event];
+  if (!listeners) return;
+  listeners.forEach((cb) => {
+    try {
+      cb(payload);
+    } catch (error) {
+      window.appLogger?.logError?.(error, { context: `DataService.emit:${event}` });
+    }
+  });
+}
+
+function buildSpecHash(spec) {
+  if (!spec) return '';
+  return JSON.stringify({
+    id: spec.id,
+    status: spec.status,
+    overview: spec.overview,
+    technical: spec.technical,
+    market: spec.market,
+    design: spec.design,
+    architecture: spec.architecture,
+    prompts: spec.prompts,
+    mindMap: spec.mindMap,
+    visibility: spec.visibility,
+    mockups: spec.mockups
+  });
+}
+
+function resolveScope(scope) {
+  if (scope in _state.loadingStates) return scope;
+  window.appLogger?.warn?.('Unknown loading scope; using general', { scope });
+  return 'general';
+}
+
 export function getState() {
   return _state.spec;
 }
@@ -43,8 +92,14 @@ export function getSpec() {
 }
 
 export function setSpec(newData) {
+  const nextHash = buildSpecHash(newData);
+  const changed = nextHash !== _state.specHash;
   _state.spec = newData;
+  _state.specHash = nextHash;
   mirrorLegacyWindowState();
+  if (changed) {
+    emit('specUpdated', _state.spec);
+  }
   return _state.spec;
 }
 
@@ -65,6 +120,35 @@ export async function patchSpec(partial, { firestore = true } = {}) {
 
 export async function patchState(partial, options = {}) {
   return patchSpec(partial, options);
+}
+
+export function on(event, cb) {
+  if (!_listeners[event] || typeof cb !== 'function') {
+    return () => {};
+  }
+  _listeners[event].add(cb);
+  return () => off(event, cb);
+}
+
+export function off(event, cb) {
+  if (!_listeners[event]) return;
+  _listeners[event].delete(cb);
+}
+
+export function setLoading(scope, status) {
+  const key = resolveScope(scope);
+  const next = Boolean(status);
+  if (_state.loadingStates[key] === next) return;
+  _state.loadingStates[key] = next;
+  emit('loadingChanged', { scope: key, status: next });
+}
+
+export function isLoading(scope = 'general') {
+  if (scope === 'any') {
+    return Object.values(_state.loadingStates).some(Boolean);
+  }
+  const key = resolveScope(scope);
+  return Boolean(_state.loadingStates[key]);
 }
 
 export async function loadSpec(specId, { isAdminCheck } = {}) {
@@ -202,5 +286,6 @@ export function startStatusPolling(specId, callbacks = {}) {
 export function teardown() {
   clearSubscription();
   stopStatusPolling();
+  Object.keys(_listeners).forEach((event) => _listeners[event].clear());
 }
 

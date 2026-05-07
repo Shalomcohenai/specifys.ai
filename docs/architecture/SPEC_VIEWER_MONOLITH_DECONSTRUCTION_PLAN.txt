@@ -300,3 +300,14 @@ Compatibility strategy throughout:
   - DataService emits events
   - feature modules render on event payloads.
 
+==================================================
+Execution Status Update — Phase 2 Completed
+==================================================
+
+Phase 2: Navigation, Scoped Loading & Event Bus
+- Added `modules/TabManager.js` and moved `showTab` orchestration behind compatibility bridge (`window.showTab`).
+- Added active-tab renderer registry and DataService event subscription so only the active tab re-renders on `specUpdated`.
+- Extended `modules/DataService.js` with scoped loading states (`setLoading/isLoading`) and internal event bus (`on/off`, `specUpdated`, `loadingChanged`).
+- Replaced global `isLoading` usage in overview approval, diagrams generation, and prompts generation with scoped loading calls.
+- Started template isolation by adding `modules/UiRenderer.js` and delegating heavy Overview/Technical HTML rendering from `spec-viewer-main.js`.
+

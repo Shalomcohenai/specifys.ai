@@ -1,6 +1,15 @@
 let currentSpecData = null;
-let currentTab = 'overview';
-let isLoading = false;
+window.currentTab = window.currentTab || 'overview';
+
+function isFeatureLoading(scope) {
+    return !!(window.dataService && typeof window.dataService.isLoading === 'function' && window.dataService.isLoading(scope));
+}
+
+function setFeatureLoading(scope, status) {
+    if (window.dataService && typeof window.dataService.setLoading === 'function') {
+        window.dataService.setLoading(scope, status);
+    }
+}
 
 if (typeof window.loadGeoContext === 'function') {
     window.loadGeoContext().catch(() => {});
@@ -372,6 +381,7 @@ function initMobileSideMenu() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile side menu
     initMobileSideMenu();
+    registerTabManagerRenderers();
     // Initialize rename spec modal (pencil icon next to title)
     initRenameSpecModal();
     initExportAdminAdvancedRaw();
@@ -810,7 +820,6 @@ async function loadSpec(specId) {
                     const newOverviewStatus = newStatus.overview;
                     if (newOverviewStatus === 'ready' && prevOverviewStatus !== 'ready' && updatedData.overview) {
                         console.log('[Firestore Listener] Overview became ready, displaying...');
-                        displayOverview(updatedData.overview);
                         // Hide progress bar and chat bubbles when overview is ready
                         stopProgressBar();
                         const bubblesContainer = document.getElementById('chat-bubbles-container');
@@ -820,7 +829,6 @@ async function loadSpec(specId) {
                         }
                     } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
                         console.log('[Firestore Listener] Overview started generating, showing skeleton...');
-                        displayOverview(null);
                         startProgressBar();
                         // Show chat bubbles during generation
                         const bubblesContainer = document.getElementById('chat-bubbles-container');
@@ -842,19 +850,16 @@ async function loadSpec(specId) {
                             updateNotificationDot(stage, 'ready');
                             updateTabLoadingState(stage, false);
                             
-                            // Display the content
+                            // Update tab states
                             if (stage === 'technical') {
-                                displayTechnical(updatedData.technical);
                                 const technicalTab = document.getElementById('technicalTab');
                                 const mindmapTab = document.getElementById('mindmapTab');
                                 if (technicalTab) technicalTab.disabled = false;
                                 if (mindmapTab) mindmapTab.disabled = false;
                             } else if (stage === 'market') {
-                                displayMarket(updatedData.market);
                                 const marketTab = document.getElementById('marketTab');
                                 if (marketTab) marketTab.disabled = false;
                             } else if (stage === 'design') {
-                                displayDesign(updatedData.design);
                                 const designTab = document.getElementById('designTab');
                                 if (designTab) designTab.disabled = false;
                                 refreshTabsAfterDesignReady();
@@ -897,27 +902,11 @@ async function loadSpec(specId) {
                             updateNotificationDot(stage, 'error');
                             updateTabLoadingState(stage, false);
                             showNotification(`Failed to generate ${stage} specification. You can retry using the retry buttons.`, 'error');
-                            if (stage === 'technical') {
-                                displayTechnical('error');
-                            } else if (stage === 'market') {
-                                displayMarket('error');
-                            } else if (stage === 'design') {
-                                displayDesign('error');
-                            }
                         } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
                             console.log('[Firestore Listener] Stage started generating:', stage);
                             updateNotificationDot(stage, 'generating');
                             updateTabLoadingState(stage, true);
-                            
-                            // Show skeleton for generating stage
-                            if (stage === 'technical') {
-                                displayTechnical(null);
-                            } else if (stage === 'market') {
-                                displayMarket(null);
-                            } else if (stage === 'design') {
-                                displayDesign(null);
-                            }
-                            
+
                             // Start progress bar if not already started
                             console.log('[Firestore Listener] Starting progress bar for stage:', stage);
                             startProgressBar();
@@ -930,18 +919,15 @@ async function loadSpec(specId) {
                     if (newArchStatus === 'ready' && prevArchStatus !== 'ready' && updatedData.architecture) {
                         updateNotificationDot('architecture', 'ready');
                         updateTabLoadingState('architecture', false);
-                        displayArchitectureFromData(updatedData);
                         const architectureTab = document.getElementById('architectureTab');
                         if (architectureTab) architectureTab.classList.add('generated');
                         updateExportCheckboxes();
                     } else if (newArchStatus === 'generating' && prevArchStatus !== 'generating') {
                         updateNotificationDot('architecture', 'generating');
                         updateTabLoadingState('architecture', true);
-                        displayArchitectureFromData(updatedData);
                     } else if (newArchStatus === 'error' && prevArchStatus !== 'error') {
                         updateNotificationDot('architecture', 'error');
                         updateTabLoadingState('architecture', false);
-                        displayArchitectureFromData(updatedData);
                     }
 
                     // Upload only after all stages (including architecture) are finished (ready or error). Enables manual retry/upload of missing parts.
@@ -1328,6 +1314,32 @@ function displaySpec(data) {
     // Spec is already saved to Firebase from processing page
 }
 
+function registerTabManagerRenderers() {
+    const tabManager = window.tabManager;
+    if (!tabManager || typeof tabManager.registerRenderer !== 'function') {
+        return;
+    }
+
+    tabManager.registerRenderer('overview', (spec) => displayOverview(spec?.overview));
+    tabManager.registerRenderer('technical', (spec) => displayTechnical(spec?.technical));
+    tabManager.registerRenderer('market', (spec) => displayMarket(spec?.market));
+    tabManager.registerRenderer('design', (spec) => displayDesign(spec?.design));
+    tabManager.registerRenderer('architecture', (spec) => displayArchitectureFromData(spec || currentSpecData));
+    tabManager.registerRenderer('visibility-engine', (spec) => displayVisibilityEngine(spec?.visibility, spec || currentSpecData));
+    tabManager.registerRenderer('prompts', (spec) => displayPromptsFromData(spec || currentSpecData));
+    tabManager.registerRenderer('mindmap', (spec) => {
+        if (spec?.mindMap) {
+            displayMindMap(spec.mindMap);
+        } else {
+            initializeMindMapTab();
+        }
+    });
+
+    ['chat', 'brain-dump', 'raw', 'export', 'mockup'].forEach((tab) => {
+        tabManager.registerRenderer(tab, () => {});
+    });
+}
+
 function displayOverview(overview) {
     console.log('[displayOverview] Called with:', {
         hasOverview: !!overview,
@@ -1380,17 +1392,28 @@ function displayOverview(overview) {
                 // Store original overview for editing
                 window.originalOverview = overview;
                 
-                // Append complexity with insertAdjacentHTML so we do not re-parse the container (would drop clarify listeners).
-                const formattedContent = formatTextContent(overview);
-                container.innerHTML = formattedContent;
-                const complexityScore = calculateComplexityScore(overview);
-                const complexityHTML = renderComplexityScore(complexityScore);
-                container.insertAdjacentHTML('beforeend', complexityHTML);
-                enhanceClarificationUI(container, 'overview');
+                const uiRenderer = window.uiRenderer;
+                if (uiRenderer && typeof uiRenderer.renderOverviewBody === 'function') {
+                    uiRenderer.renderOverviewBody({
+                        container,
+                        overview,
+                        formatTextContent,
+                        calculateComplexityScore,
+                        renderComplexityScore,
+                        enhanceClarificationUI
+                    });
+                } else {
+                    const formattedContent = formatTextContent(overview);
+                    container.innerHTML = formattedContent;
+                    const complexityScore = calculateComplexityScore(overview);
+                    const complexityHTML = renderComplexityScore(complexityScore);
+                    container.insertAdjacentHTML('beforeend', complexityHTML);
+                    enhanceClarificationUI(container, 'overview');
+                }
                 
                 // Update subsections after content is loaded
                 setTimeout(() => {
-                    if (currentTab === 'overview') {
+                    if (window.currentTab === 'overview') {
                         updateSubsections('overview');
                     }
                 }, 100);
@@ -1423,17 +1446,28 @@ function displayOverview(overview) {
     // Store original overview for editing
     window.originalOverview = overview;
     
-    // Append complexity with insertAdjacentHTML so we do not re-parse the container (would drop clarify listeners).
-    const formattedContent = formatTextContent(overview);
-    container.innerHTML = formattedContent;
-    const complexityScore = calculateComplexityScore(overview);
-    const complexityHTML = renderComplexityScore(complexityScore);
-    container.insertAdjacentHTML('beforeend', complexityHTML);
-    enhanceClarificationUI(container, 'overview');
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.renderOverviewBody === 'function') {
+        uiRenderer.renderOverviewBody({
+            container,
+            overview,
+            formatTextContent,
+            calculateComplexityScore,
+            renderComplexityScore,
+            enhanceClarificationUI
+        });
+    } else {
+        const formattedContent = formatTextContent(overview);
+        container.innerHTML = formattedContent;
+        const complexityScore = calculateComplexityScore(overview);
+        const complexityHTML = renderComplexityScore(complexityScore);
+        container.insertAdjacentHTML('beforeend', complexityHTML);
+        enhanceClarificationUI(container, 'overview');
+    }
     
     // Update subsections after content is loaded
     setTimeout(() => {
-        if (currentTab === 'overview') {
+        if (window.currentTab === 'overview') {
             updateSubsections('overview');
         }
     }, 100);
@@ -1749,11 +1783,21 @@ function displayTechnical(technical) {
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
-    // Format the technical content (string JSON or parsed object)
-    const formattedContent = formatTextContent(technical);
-    container.innerHTML = formattedContent;
-    enhanceClarificationUI(container, 'technical');
-    renderSpecMermaidPlaceholders(container);
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.renderTechnicalBody === 'function') {
+        uiRenderer.renderTechnicalBody({
+            container,
+            technical,
+            formatTextContent,
+            enhanceClarificationUI,
+            renderSpecMermaidPlaceholders
+        });
+    } else {
+        const formattedContent = formatTextContent(technical);
+        container.innerHTML = formattedContent;
+        enhanceClarificationUI(container, 'technical');
+        renderSpecMermaidPlaceholders(container);
+    }
 
     var technicalForMinimal = technical;
     if (typeof technical === 'string') {
@@ -1771,7 +1815,7 @@ function displayTechnical(technical) {
     
     // Update subsections after content is loaded
     setTimeout(() => {
-        if (currentTab === 'technical') {
+        if (window.currentTab === 'technical') {
             updateSubsections('technical');
         }
     }, 100);
@@ -1863,7 +1907,7 @@ function displayMarket(market) {
     
     // Update subsections after content is loaded
     setTimeout(() => {
-        if (currentTab === 'market') {
+        if (window.currentTab === 'market') {
             updateSubsections('market');
         }
     }, 100);
@@ -2233,7 +2277,7 @@ function displayDesign(design) {
     
     // Update subsections after content is loaded
     setTimeout(() => {
-        if (currentTab === 'design') {
+        if (window.currentTab === 'design') {
             updateSubsections('design');
         }
     }, 100);
@@ -5918,149 +5962,6 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-window.showTab = async function(tabName) {
-    // Close mobile menu if open
-    if (window.innerWidth <= 768) {
-        const sideMenu = document.getElementById('sideMenu');
-        const sideMenuToggle = document.getElementById('sideMenuToggle');
-        const overlay = document.querySelector('.side-menu-overlay');
-        
-        if (sideMenu && sideMenu.classList.contains('active')) {
-            sideMenu.classList.remove('active');
-            if (sideMenuToggle) {
-                sideMenuToggle.setAttribute('aria-expanded', 'false');
-            }
-            if (overlay) {
-                overlay.classList.remove('active');
-            }
-            document.body.style.overflow = '';
-        }
-    }
-    // Check PRO access for PRO-only tabs
-    if (tabName === 'mockup' || tabName === 'visibility-engine') {
-        const hasProAccess = await checkProAccess();
-        if (!hasProAccess) {
-            const featureName = tabName === 'mockup' ? 'Mockup' : 'AIO & SEO Visibility Engine';
-            showNotification(`${featureName} is available for PRO users only. Please upgrade to PRO to access it.`, 'error');
-            return;
-        }
-    }
-    
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.style.display = 'none';
-    });
-    
-    // Remove active class from all buttons
-    document.querySelectorAll('.side-menu-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab content
-    const tabContent = document.getElementById(`${tabName}-content`);
-    if (tabContent) {
-        tabContent.style.display = 'block';
-        
-        // Scroll to the tab content header (not the page title)
-        // Use requestAnimationFrame to ensure the element is rendered before scrolling
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                const contentHeader = tabContent.querySelector('.content-header');
-                if (contentHeader) {
-                    // Calculate absolute position from top of document
-                    let offsetTop = 0;
-                    let element = contentHeader;
-                    
-                    // Traverse up the DOM tree to calculate absolute position
-                    while (element) {
-                        offsetTop += element.offsetTop;
-                        element = element.offsetParent;
-                    }
-                    
-                    // Add small offset to account for any fixed headers
-                    const scrollOffset = 20;
-                    
-                    // Scroll to the header position
-                    window.scrollTo({ 
-                        top: Math.max(0, offsetTop - scrollOffset), 
-                        behavior: 'smooth' 
-                    });
-                } else {
-                    // Fallback: scroll to tab content
-                    let offsetTop = 0;
-                    let element = tabContent;
-                    
-                    while (element) {
-                        offsetTop += element.offsetTop;
-                        element = element.offsetParent;
-                    }
-                    
-                    const scrollOffset = 20;
-                    
-                    window.scrollTo({ 
-                        top: Math.max(0, offsetTop - scrollOffset), 
-                        behavior: 'smooth' 
-                    });
-                }
-            });
-        });
-    }
-    
-    // Add active class to selected button
-    const tabButton = document.getElementById(`${tabName}Tab`);
-    if (tabButton && !tabButton.disabled) {
-        tabButton.classList.add('active');
-        tabButton.setAttribute('aria-selected', 'true');
-        
-        // Update other tabs
-        document.querySelectorAll('.side-menu-button').forEach(btn => {
-            if (btn !== tabButton) {
-                btn.setAttribute('aria-selected', 'false');
-            }
-        });
-        
-        // Announce tab change to screen readers
-        if (window.focusManager) {
-            window.focusManager.announce(`Switched to ${tabName} tab`, 'polite');
-        }
-    }
-    
-    // Hide notification dot for active tab and mark as viewed (except chat which is one-time)
-    const notificationDot = document.getElementById(`${tabName}Notification`);
-    if (notificationDot) {
-        notificationDot.style.display = 'none';
-        notificationDot.classList.remove('generating', 'notification', 'chat-notification');
-    }
-    
-    // Mark tab as viewed (except chat - it's a one-time notification)
-    if (tabName !== 'chat') {
-        markTabAsViewed(tabName);
-        
-        // Mark button as viewed (icon turns orange)
-        if (tabButton) {
-            tabButton.classList.add('viewed');
-        }
-    }
-    
-    // Update notification dots after marking as viewed
-    if (currentSpecData && currentSpecData.status) {
-        const status = currentSpecData.status[tabName] || currentSpecData.status[tabName === 'mockup' ? 'mockup' : tabName];
-        if (status) {
-            updateNotificationDot(tabName, status);
-        }
-    }
-    
-    // Update subsections for the active tab (but don't close other submenus)
-    updateSubsections(tabName);
-    
-    // Show Mind Map container when tab is opened (but don't auto-generate)
-    if (tabName === 'mindmap') {
-        initializeMindMapTab();
-    }
-    
-    currentTab = tabName;
-}
-
 // Update subsections in side menu based on active tab
 function updateSubsections(tabName) {
     const submenuContainer = document.getElementById(`submenu-${tabName}`);
@@ -6135,6 +6036,12 @@ function initializeAllSubsections() {
         }
     });
 }
+
+window.showNotification = showNotification;
+window.markTabAsViewed = markTabAsViewed;
+window.updateNotificationDot = updateNotificationDot;
+window.updateSubsections = updateSubsections;
+window.initializeMindMapTab = initializeMindMapTab;
 
 // Toggle submenu
 window.toggleSubmenu = function(tabName) {
@@ -6249,7 +6156,7 @@ window.scrollToSection = function(sectionId) {
         }
         
         // Update currentTab
-        currentTab = tabName;
+        window.currentTab = tabName;
     }
     
     // Scroll to section - center it in the viewport
@@ -6347,6 +6254,7 @@ async function checkProAccess() {
         return false;
     }
 }
+window.checkProAccess = checkProAccess;
 
 // Update edit button based on PRO access
 async function updateEditButton() {
@@ -6758,7 +6666,7 @@ function checkContentSize(content, contentType) {
 }
 
 async function approveOverview() {
-    if (isLoading) return;
+    if (isFeatureLoading('overview')) return;
     
     try {
 
@@ -6766,7 +6674,7 @@ async function approveOverview() {
 
 
         
-        isLoading = true;
+        setFeatureLoading('overview', true);
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = true;
@@ -6983,7 +6891,7 @@ async function approveOverview() {
         }
         
         // Re-enable button
-        isLoading = false;
+        setFeatureLoading('overview', false);
         if (approveBtn) {
             approveBtn.disabled = false;
             approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
@@ -7001,7 +6909,7 @@ async function approveOverview() {
         displayMarket('error');
         displayDesign('error');
         hideApproveButton();
-        isLoading = false;
+        setFeatureLoading('overview', false);
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = false;
@@ -7565,10 +7473,10 @@ async function autoRepairBrokenDiagrams() {
 }
 
 async function generateDiagrams() {
-    if (isLoading) return;
+    if (isFeatureLoading('diagrams')) return;
     
     try {
-        isLoading = true;
+        setFeatureLoading('diagrams', true);
         const generateBtn = document.getElementById('generateDiagramsBtn');
         
         // Store original background color and styles
@@ -7713,7 +7621,7 @@ async function generateDiagrams() {
             generateBtn.style.cursor = 'pointer';
         }
     } finally {
-        isLoading = false;
+        setFeatureLoading('diagrams', false);
     }
 }
 
@@ -7927,7 +7835,7 @@ async function generatePrompts() {
     console.log(`[${requestId}] [generatePrompts] Starting staged prompts generation`, {
         timestamp: new Date().toISOString(),
         specId: currentSpecData?.id,
-        isLoading,
+        isLoading: isFeatureLoading('prompts'),
         totalStages: TOTAL_STAGES,
         stageTimeout: STAGE_TIMEOUT_MS
     });
@@ -7942,13 +7850,13 @@ async function generatePrompts() {
         });
     }
     
-    if (isLoading) {
+    if (isFeatureLoading('prompts')) {
         console.warn(`[${requestId}] [generatePrompts] Already loading, skipping request`);
         return;
     }
     
     try {
-        isLoading = true;
+        setFeatureLoading('prompts', true);
         const generateBtn = document.getElementById('generatePromptsBtn');
         
         if (!generateBtn) {
@@ -8624,7 +8532,7 @@ If no third-party integrations are needed, return an empty array.`;
             `;
         }
     } finally {
-        isLoading = false;
+        setFeatureLoading('prompts', false);
         const generateBtn = document.getElementById('generatePromptsBtn');
         if (generateBtn) {
             generateBtn.disabled = false;

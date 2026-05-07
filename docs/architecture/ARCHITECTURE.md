@@ -588,9 +588,11 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `index-demo-scroll.js` — Demo scroll phases
 
 **Spec Viewer** (`features/spec-viewer/`) — the largest feature (main file still ~10k lines, with compatibility bridge):
-- `spec-viewer-main.js` — Primary orchestrator + backward-compatible `window.*` handlers; now delegates spec state/subscription/polling/save flows to `window.dataService`
-- `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers, SEO hook, and exposes `window.dataService`
-- `modules/DataService.js` — canonical spec state module (`setSpec/getState/patchState`), Firestore `onSnapshot`, polling fallback, save helpers, legacy `window.currentSpecData` sync
+- `spec-viewer-main.js` — Primary orchestrator + backward-compatible `window.*` handlers; delegates state to `window.dataService`, tab routing to `window.showTab` (TabManager bridge), and partial HTML rendering to `window.uiRenderer`
+- `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers, SEO hook, and exposes `window.dataService`, `window.tabManager`, `window.uiRenderer`, and `window.showTab`
+- `modules/DataService.js` — canonical spec state module (`setSpec/getState/patchState`), scoped loading (`setLoading/isLoading`), Firestore `onSnapshot`, polling fallback, save helpers, internal pub/sub (`specUpdated`, `loadingChanged`), and legacy `window.currentSpecData` sync
+- `modules/TabManager.js` — centralized tab navigation/orchestration, active-tab renderer registry, and `specUpdated` subscription to re-render only current tab
+- `modules/UiRenderer.js` — partial template isolation for heavy Overview/Technical HTML rendering
 - `modules/UiController.js`, `MockupService.js`, `PromptService.js`, `DiagramManager.js`, `MindMapService.js`, `SeoInjector.js` — extracted modular layer
 - `spec-viewer-firebase.js` — Firebase config
 - `spec-viewer-auth.js` — Auth UI
@@ -1087,8 +1089,7 @@ Frontend → POST /api/live-brief/summarize {text}
 |------|---------------|------------------------|
 | Auxiliary contract parity | Worker-based behavior was replaced by backend `ai-service` JSON handlers; edge-case output parity may differ | Add endpoint-level contract tests for mockup/prompts/mindmap/jira payloads and error envelopes |
 | Auth propagation for auxiliary endpoints | Main spec-viewer flow now sends bearer tokens for auxiliary calls | Audit all non-spec-viewer callers to ensure they send Firebase bearer token as well |
-| Spec-viewer modularization depth | Mockup extraction and Data Backbone extraction are complete; prompts/diagrams/mindmap/tab orchestration are still mostly monolithic in `spec-viewer-main.js` | Continue phased extraction for `TabManager`, `DiagramEngine`, `PromptEngine`, then remove legacy orchestrator code paths |
-| Spec-viewer event architecture | Data updates now centralized through `DataService`, but propagation is still callback-based from main script | Introduce internal event bus in next phase so `DataService` publishes updates and feature engines subscribe independently |
+| Spec-viewer modularization depth | Mockup/Data Backbone/TabManager/Event Bus/Scoped Loading are extracted; diagram/prompt engines still mostly monolithic in `spec-viewer-main.js` | Continue phased extraction for `DiagramEngine`, `PromptEngine`, then remove legacy orchestrator code paths |
 | Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
 | Manual smoke coverage | Mockup compatibility bridge was verified in-code, but no automated browser smoke test is enforced | Add Playwright smoke flow for create/retry/device-switch/view-code/download on spec viewer |
 | Port drift prevention | Runtime/default ports are aligned to 10000 across scripts and swagger | Add CI grep/guard to fail on new hardcoded legacy ports (`3000/3001/3002/5000`) outside allowlisted contexts |
