@@ -1072,6 +1072,22 @@ Frontend → POST /api/live-brief/summarize {text}
 | Geo context endpoint | `GET /api/geo/context` | Active |
 | Frontend geo context | `assets/js/core/geo-context.js` | Active |
 | Spec viewer dynamic SEO | `features/spec-viewer/modules/SeoInjector.js` | Active |
+| AI crawler policy | `robots.txt` + `llms.txt` | Active (explicit AI bot allow-list + key public surfaces) |
+| Sitemap breadth | `backend/server/sitemap-generator.js` | Expanded (Jekyll posts + static pages + x-default alternates + lastmod) |
+
+### AI Search Optimization (GEO)
+
+- **AI bots allowed**: `GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `ClaudeBot`, `Claude-Web`, `PerplexityBot`, `Perplexity-User`, `Google-Extended`, `Applebot-Extended`, `CCBot`, `Bytespider`, and major search bots.
+- **Machine-readable entry file**: `llms.txt` at repo root with canonical product and content surfaces.
+- **JSON-LD coverage map**:
+  - `_includes/structured-data.html`: `Organization`, `WebSite`, `SoftwareApplication`, `FAQPage` (home/how/pricing/toolpicker), `Article` with `Person` author, `BreadcrumbList`, `Product`, `HowTo`, `AboutPage`.
+  - `assets/js/features/spec-viewer/modules/SeoInjector.js`: dynamic `WebApplication` metadata for spec-viewer context.
+- **IndexNow flow**:
+  - Generator: `backend/server/sitemap-generator.js` includes optional `pingIndexNow(urls)` when `INDEXNOW_KEY` exists.
+  - Workflow: `.github/workflows/update-sitemap.yml` passes `INDEXNOW_KEY` secret to sitemap generation.
+  - Key file: `INDEXNOW_KEY.txt` (replace placeholder with real key prior to production use).
+- **Content patterns required for AI answers**:
+  - Lead-with-answer intros (`TL;DR`), extractable FAQ blocks, comparison tables, and glossary-style term definitions.
 
 ### Structural issues
 
@@ -1096,6 +1112,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | Spec-viewer E2E coverage | Playwright smoke test added at `tests/e2e/spec-viewer.spec.js` (module boot, tab switch, lazy Mermaid load, bearer header assertion) | Expand to authenticated end-to-end flow against real Firebase test project and include retry/error-path assertions |
 | Environment guard | Runtime/default ports are aligned to 10000; repo guard now runs via `npm run check:env` (`check:ports` alias) for legacy ports, dev URLs, token/key patterns, feature/service dev URL detection, and local constant anti-patterns with allowlist support (`scripts/check-env.allow.txt`) | Enforce `check:env` in CI and keep allowlist minimal/reviewed during PR |
 | Contracts visibility | Prompt/Diagram/DataService transport and event contracts are now documented in `assets/js/features/spec-viewer/modules/CONTRACTS.md` | Add API-level contract tests that assert documented request/response envelopes |
+| GEO KPI observability | AI/SEO implementation is active across crawler policy, sitemap, JSON-LD, and compare/glossary pages | Track monthly: Search Console organic clicks, manual AI citation count (Perplexity/Bing/ChatGPT sample set), and top 10 organic entry pages |
 
 ### Modular Core (Specifys Standard)
 

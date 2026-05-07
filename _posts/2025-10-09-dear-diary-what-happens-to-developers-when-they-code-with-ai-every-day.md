@@ -10,6 +10,9 @@ author: "specifys.ai Team"
 ---
 # Dear Diary: What Happens to Developers When They Code With AI Every Day
 
+## TL;DR
+This study highlights a critical tension in AI-assisted development: measurable productivity gains can coexist with reduced creative ownership and team interaction quality. Sustainable adoption requires intentional rituals such as shared reviews and reasoning checkpoints, not just faster tooling. For planning-first workflows that preserve team alignment, see [How Specifys works](https://specifys-ai.com/pages/how.html).
+
 A groundbreaking RCT study followed developers for weeks as they worked with AI tools — revealing subtle emotional, cognitive, and creative shifts.
 
 
@@ -58,3 +61,17 @@ It’s a haunting summary of where Vibe Coding may lead — a world of limitless
 
 ---
 *Published on October 9, 2025*
+
+## FAQ
+
+### What did the study measure beyond productivity?
+It measured emotional state, sense of creative ownership, trust calibration, and social collaboration patterns in teams using AI coding tools.
+
+### Did AI improve output?
+Yes. Participants using AI generally completed more work, but reported lower fulfillment in some phases of the trial.
+
+### What risk should engineering leaders watch?
+Over-reliance and trust saturation can reduce code review rigor and long-term skill resilience if left unmanaged.
+
+### How can teams balance speed with meaning?
+Adopt lightweight reflection loops, peer review rituals, and explicit human ownership checkpoints during AI-assisted delivery.

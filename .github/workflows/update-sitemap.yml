@@ -59,6 +59,7 @@ jobs:
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           SITE_URL: https://specifys-ai.com
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
           if [ ! -f backend/firebase-service-account.json ]; then
             echo "⚠️ Firebase credentials not available. Skipping sitemap generation."

@@ -130,6 +130,14 @@
     {% assign canonical_href = canonical_base | append: canonical_path %}
     <link rel="canonical" href="{{ canonical_href }}">
     {% endif %}
+    <link rel="alternate" hreflang="en" href="{{ canonical_href }}">
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_href }}">
+    {% if site.search_console_verification %}
+    <meta name="google-site-verification" content="{{ site.search_console_verification }}">
+    {% endif %}
+    {% if site.bing_webmaster_verification %}
+    <meta name="msvalidate.01" content="{{ site.bing_webmaster_verification }}">
+    {% endif %}
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">

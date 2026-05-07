@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /pages/auth.html
+Disallow: /pages/profile.html
+Disallow: /pages/spec-viewer.html
+Disallow: /pages/unsubscribe.html
+Disallow: /pages/new-admin-dashboard.html
+Disallow: /pages/legacy-viewer.html
 
 # Sitemap
 Sitemap: https://specifys-ai.com/sitemap.xml
@@ -19,6 +25,40 @@ Crawl-delay: 1
 User-agent: Slurp
 Allow: /
 Crawl-delay: 1
+
+# AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
 
 # Social media bots
 User-agent: facebookexternalhit

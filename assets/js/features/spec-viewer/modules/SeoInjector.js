@@ -18,7 +18,7 @@ export function injectSpecSeo(specData = {}) {
   upsertMeta('name', 'description', description);
   upsertMeta('property', 'og:title', title);
   upsertMeta('property', 'og:description', description);
-  upsertMeta('property', 'og:type', 'article');
+  upsertMeta('property', 'og:type', 'website');
 
   const scriptId = 'spec-viewer-jsonld';
   let schemaTag = document.getElementById(scriptId);
@@ -30,8 +30,20 @@ export function injectSpecSeo(specData = {}) {
   }
   schemaTag.textContent = JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'CreativeWork',
+    '@type': 'WebApplication',
     name: title,
-    description
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description,
+    creator: {
+      '@type': 'Organization',
+      name: 'Specifys.ai',
+      url: 'https://specifys-ai.com'
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Specifys.ai',
+      url: 'https://specifys-ai.com'
+    }
   });
 }

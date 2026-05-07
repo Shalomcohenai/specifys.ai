@@ -12,6 +12,14 @@
       "sameAs": [
         "https://www.linkedin.com/company/specifys-ai/"
       ],
+      "founder": {
+        "@type": "Person",
+        "name": "{{ site.author | default: 'Specifys.ai Team' }}",
+        "jobTitle": "Founder",
+        "sameAs": [
+          "https://www.linkedin.com/company/specifys-ai/"
+        ]
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "specifysai@gmail.com",
@@ -38,11 +46,6 @@
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "250"
       },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
     }{% if page.url == '/' or page.url == '/index.html' %},
@@ -96,8 +99,13 @@
       "headline": "{{ page.title }}",
       "description": "{{ page.description | default: page.excerpt | strip_html | truncate: 160 }}",
       "author": {
-        "@type": "Organization",
-        "name": "Specifys.ai"
+        "@type": "Person",
+        "name": "{{ page.author | default: site.author | default: 'Specifys.ai Team' }}",
+        "url": "{{ site.url | default: 'https://specifys-ai.com' }}/pages/about.html",
+        "jobTitle": "AI Product Researcher",
+        "sameAs": [
+          "https://www.linkedin.com/company/specifys-ai/"
+        ]
       },
       "publisher": {
         "@type": "Organization",
@@ -209,6 +217,43 @@
           "text": "Generate a complete specification document with technical details, market research, and design guidelines."
         }
       ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long does it take to generate a full spec?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most projects complete initial structured output in minutes, depending on project complexity and review depth."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need technical skills to use Specifys.ai?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Non-technical founders can start from the guided brief and still receive technical architecture and implementation-ready prompts."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I edit the generated specification?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can iterate on sections, regenerate specific stages, and export outputs for collaboration."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Specifys.ai suitable for MVP planning?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The workflow is built to define MVP scope, technical direction, and market assumptions before development."
+          }
+        }
+      ]
     }{% endif %}{% if page.url == '/pages/about.html' %},
     {
       "@type": "AboutPage",
@@ -223,6 +268,80 @@
         },
         "description": "AI-powered app planning and specification generation platform built to help creators and developers start smarter, not faster."
       }
+    }{% endif %}{% if page.url == '/pages/pricing.html' %},
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is there a free plan?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Specifys.ai includes free capabilities for planning workflows, with additional paid bundles for expanded generation and exports."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is included in Pro?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pro plans unlock higher generation capacity, advanced outputs, and premium workflow surfaces such as deeper export and iteration support."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I switch between monthly and yearly billing?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can choose monthly or yearly options depending on your preferred billing cadence."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer plans for teams?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Teams can use multi-spec bundles and shared planning workflows to coordinate product discovery and execution."
+          }
+        }
+      ]
+    }{% endif %}{% if page.url == '/pages/ToolPicker.html' %},
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What does Tool Finder do?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tool Finder recommends AI development tools based on your product stage, stack preferences, and delivery goals."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use Tool Finder before creating a spec?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Tool Finder can be used independently to shortlist tools before starting a full specification workflow."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are recommendations updated regularly?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Recommendations are refreshed to reflect market changes and new AI-native development platforms."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Tool Finder support different use cases?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It supports SaaS, mobile apps, internal tools, and startup MVP use cases with tailored tool paths."
+          }
+        }
+      ]
     }{% endif %}
   ]
 }

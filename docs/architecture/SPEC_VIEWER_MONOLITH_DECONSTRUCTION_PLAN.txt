@@ -345,6 +345,16 @@ Execution Status Update — Phase 7 Core Alignment
 - Updated architecture docs with the new \"Modular Core (Specifys Standard)\" onboarding rules for future feature additions.
 
 ==================================================
+Execution Status Update — Phase 8 SEO + GEO Alignment
+==================================================
+
+- Added explicit AI crawler allow rules in `robots.txt` and introduced root-level `llms.txt` for machine-readable discovery context.
+- Expanded sitemap generation in `backend/server/sitemap-generator.js` to include Jekyll blog posts, file-based `lastmod`, x-default alternates, and broader public page coverage while excluding user/private pages.
+- Extended structured data and dynamic SEO layers (`_includes/structured-data.html`, `SeoInjector.js`) to improve citation extractability and entity clarity.
+- Added compare surfaces and glossary pages to support answer-first SEO/GEO content patterns.
+- Added optional IndexNow notification flow in sitemap generation and workflow-level environment wiring.
+
+==================================================
 Execution Status Update — Phase 6 Hardening
 ==================================================
 

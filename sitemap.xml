@@ -1,1218 +1,975 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://specifys-ai.com/</loc>
+    <lastmod>2026-04-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/blog/</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/blog/" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/articles.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/articles.html" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/academy.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy.html" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/academy/category.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/category.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guide.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guide.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/pages/about.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/about.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/pages/contact.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/contact.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/pages/how.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/how.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/ToolPicker.html</loc>
+    <lastmod>2026-01-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/ToolPicker.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/pricing.html</loc>
+    <lastmod>2026-03-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/pricing.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/why.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/why.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/pages/auth.html</loc>
+    <loc>https://specifys-ai.com/pages/cursor-windsurf-integration.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/cursor-windsurf-integration.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/dynamic-post/</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/dynamic-post/" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/pages/profile.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/pages/demo-spec.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/pages/spec-viewer.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/tools/map/vibe-coding-tools-map.html</loc>
+    <lastmod>2026-03-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/tools/map/vibe-coding-tools-map.html" />
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/2025/01/14/lovable-vibe-coding-2025/</loc>
+    <lastmod>2025-01-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/14/lovable-vibe-coding-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/ai-coding-assistants-2025/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/ai-coding-assistants-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/automating-devops-vibe-coding/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/automating-devops-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/base44-supabase-migration-sdk/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/base44-supabase-migration-sdk/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/gpt5-vibe-coding-revolution/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/gpt5-vibe-coding-revolution/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/no-code-ai-agent-builders/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/no-code-ai-agent-builders/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/open-source-vibe-coding-agents/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/open-source-vibe-coding-agents/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/prompt-coding-evolution-vibe-coding/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/prompt-coding-evolution-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/security-challenges-vibe-coding/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/security-challenges-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/vibe-coding-game-development/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/vibe-coding-game-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/01/19/vibe-coding-web3-dapps/</loc>
+    <lastmod>2025-01-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/01/19/vibe-coding-web3-dapps/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/07/12/article11/</loc>
+    <lastmod>2025-07-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/07/12/article11/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/07/14/article12/</loc>
+    <lastmod>2025-07-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/07/14/article12/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/08/06/chatgpt-5-app-development/</loc>
+    <lastmod>2025-08-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/08/06/chatgpt-5-app-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article1/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article1/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article2/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article2/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article3/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article3/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article4/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article4/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article5/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article5/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article6/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article6/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article7/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article7/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article8/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article8/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/article9/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/article9/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/base44-ai-powered-saas-builder/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/base44-ai-powered-saas-builder/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/cursor-ai-support-fiasco-insights/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/cursor-ai-support-fiasco-insights/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/lovable-new-features-2025/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/lovable-new-features-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/top-vibe-coding-tools-2025/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/top-vibe-coding-tools-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/vibe-coding-app-case-study-2025/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/vibe-coding-app-case-study-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/vibe-coding-revolution-2025-impact/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/vibe-coding-revolution-2025-impact/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/vibe-coding-vs-traditional-programming-2025/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/vibe-coding-vs-traditional-programming-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/09/26/windsurf-double-acquisition-impact/</loc>
+    <lastmod>2025-09-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/09/26/windsurf-double-acquisition-impact/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/</loc>
+    <lastmod>2025-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/</loc>
+    <lastmod>2025-11-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/</loc>
+    <lastmod>2025-11-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-platforms-revolutionize-development-with-claude-code-agents</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-platforms-revolutionize-development-with-claude-code-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=security-in-the-age-of-vibe-coding-who-holds-the-reins</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=security-in-the-age-of-vibe-coding-who-holds-the-reins" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-hits-mainstream-the-ai-revolution-transforming-github</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-hits-mainstream-the-ai-revolution-transforming-github" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=vibe-coding-the-revolutionary-force-reshaping-software-jobs</loc>
     <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-the-revolutionary-force-reshaping-software-jobs" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-death-of-the-blank-file-how-ai-ended-starting-from-scratch</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-death-of-the-blank-file-how-ai-ended-starting-from-scratch" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration</loc>
     <lastmod>2025-12-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing</loc>
     <lastmod>2025-12-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=google-antigravity-gains-momentum-amid-anthropics-downtime</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=google-antigravity-gains-momentum-amid-anthropics-downtime" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=qodo-21-update-transforming-developer-workflows-with-precision</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=qodo-21-update-transforming-developer-workflows-with-precision" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=ai-native-software-why-2025-is-the-year-apps-build-themselves</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=ai-native-software-why-2025-is-the-year-apps-build-themselves" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways</loc>
     <lastmod>2025-12-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-silent-revolution-ai-generated-code-in-production-systems</loc>
     <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-silent-revolution-ai-generated-code-in-production-systems" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers</loc>
     <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-ascendancy-of-planning-tools-over-traditional-coding-instruments</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-ascendancy-of-planning-tools-over-traditional-coding-instruments" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks</loc>
     <lastmod>2025-12-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claudes-code-voice-feature-transforms-programming-through-natural-language-conversations</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claudes-code-voice-feature-transforms-programming-through-natural-language-conversations" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=ai-generated-code-the-silent-revolution-in-production-systems</loc>
     <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=ai-generated-code-the-silent-revolution-in-production-systems" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype</loc>
     <lastmod>2025-12-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=how-google-antigravity-is-revolutionizing-agent-first-ides</loc>
     <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=how-google-antigravity-is-revolutionizing-agent-first-ides" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=replit-agents-20-the-dawn-of-autonomous-feature-development</loc>
     <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=replit-agents-20-the-dawn-of-autonomous-feature-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking</loc>
     <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development</loc>
     <lastmod>2025-12-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities</loc>
     <lastmod>2025-12-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/article.html?slug=googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape</loc>
     <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=AYUdMNmC81VxNFAmQTiC</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=Cppg8xnLwE3srltuH9rG</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=Dp00KSrd2VEjBIktgePG</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=Dxrbne7fiZYNY5WaMpPT</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=GgB3uKPEQXO9nuRblZbo</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=P9rjROetsUxUcHuETuIN</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=SpUsealSxp3teNwJJ73c</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=UkbaTihxKm7lKFlH6rII</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=W3NX3c5t4l4s6CDGEcMq</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=lNoJjOAG6IN7g611mIwX</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=le7shcB3ipHB6Ky12nbZ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=n34l57G8cNw1IB8TLnd8</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=nFqp9ZXtJHVi1vViJzc6</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=omwm7XoxnLIE2ontpakg</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=tQNF2zFlqYHwvaicdYfn</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=uQ9VxWwZe73yQfLnTn2A</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/category.html?category=wlLAbFIrCLOXzuxp63vg</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=08uWEEndFh3EKeRpqQ8g</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=0XwyeW0M3rHexJ8YuTDn</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=1KDNim3vehavBwdNHoUl</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=1vc28MLQFsCm2E4qR1Sb</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=2L11d9FF6DMu2md3q4U0</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=2NmFfCmBMe6qtmixclro</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=3XJX1h7r89p9akIagKiC</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=4WsN3kOdPfiQDB2QaAuk</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=5EsK3kjmlwgIYXU0AE1i</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=6T1DtRE3ASEAM2YxGcYT</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=6rRwS51hI5ttzzDXprpu</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=7ac6Kf5hOVfCBKtsNVQ9</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=7qtkMy8OCPQvCpJOGCeD</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=8KnRtThFfJI2EFQOEiv5</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=8M67KSCM7QgVB5zYKZVL</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=8Tg62pQSdhaue8g4GW72</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=8tPYOfrDldjokEhkzhfb</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=9pfM1ezuv08Bbuqgzmbv</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=AKntojtBuuWYYbAr2Cmm</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=AqT7tcK5Nt7kOUcgc7zc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=AtidAIsrBg5Vcu3Z2F20</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=B1w4QOvLRHupWMZrnYnZ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=B90IzDDoz619NFLCac17</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=CFis7gkLS5KGror6mOKy</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=CMTecEw59sw9KiIEJ0cP</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=CU7nTgcUF6ha1LGeSUkP</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=DORzC6j16EvgSn5KtyWC</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=DYAYbqnUBHeYtQGxKWM5</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=E2940EAWZ1MczIiWIVhR</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=FsP4JzNTyvTjqdyrwWkl</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=G1zRvWAGWq5yx7kpdH98</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=GpuBKrtC5f76IPKKWjWi</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=HB9mOwuZV29PFMPWYdpQ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=HknLbUePMmF1ADHtO9wi</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=IGunttfG4RqRgIUhIKsR</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=IpQArd56BsybAIFYtaIW</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Jb7Mem2DGZ0d0U0fzl9U</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=K3IxrUEq2FbrXJ0l9iQH</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=KOGPLncqdqhaytNvJhml</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=KnSy0jg6jU8miHK96dea</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=LMp4bXCxFB98CImZVjb3</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=LYs61iee8dWndputj0Bj</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=M7nHCXMh3xO12qQKlGS2</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=NBjXereyg91JGDBZMegT</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=NOAchhXT6AvosANQB5oz</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=NUrqlrJZjHm7n88ZohMa</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=OT9RxSHPyXhPplXBgL8d</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Oy05yydtJiXIgY6rVFqi</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=PyofHdEzfmn8Nc06vYPx</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Q4LCbwl76xSQPK0XvwNu</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Q4O5oieMzwsfmdVWDHI0</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Q9oAo7hfjh7dNmtqlf0f</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Qaw8GRlVZccohmVQTtIY</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=QjJWc9IIIIpFmVwhBpOd</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=QkCAeJ1FN26dMpWRBSyI</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=RNvpCNEt4mopWp3TNnyH</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Rv2A0fGLGcUriA979noP</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=SEwWTparXg93SqiEHth5</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=T3lL70P2N6cm3v4mDtWF</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=TZxUyCGinDg4OLUCvSdH</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=UEM16LxqWm0upgMDVFxk</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=UO7k9s9mGi5NwNEcx0T5</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=UTELX96WbqJQvTsbTYAj</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Uu1NOrFCw7tg8xzIphM1</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=V1S0epJeevhuNrf9BTBU</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=WKWk9trgxBwvUWZMAzv1</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=WrTznmGjIS56eoFLxe3F</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=X2SCsbgehnHvZcfULPnc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=XICxSG1EWhOc9FhH1yru</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=YaWC1gUJSn0GUT4VXZkn</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=Ye6mxCTJkx85l8XjAeXI</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=ZMf5geeNHyxblwiBuRBM</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=aIZ8nMSPB9LvbqcrjbLq</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=ae6HkPiUebuQa3AXQ8fK</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=cYd1rD7F8JUwd4t7d6k7</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=cavdj4DW6WlSy4a9UMp8</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=cg5ZJLddvQQYij8vw3mL</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=ciLTMcQ76i148aXx4xLi</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=d8RWlRbA0yR3fxXZSwSp</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=dNJUGN66sorGXPBFZrCY</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=fPpoKkJ00tNjSRQw0QHM</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=fYX5lj8Jz3C9fgkCsqew</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=fo1rhwOhqo0qGh5S7g9I</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=gNmji8oOe3nUESZ5H7D1</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=guuidx4eJxMAAT0zNH9b</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=h0oytrTUVzLwxMRO2HYc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=hQXKKJhteZdhmYbFWxZF</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=i1hPffexGqUCbsjtaMbC</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=i3IBcSOYWmw8wrp9BhwQ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=iT6RFOWHt2iirwhvM80j</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=iWoz2f2iXEEaExx005Lk</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=idUAuI8lthEzKP0EkEYn</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=iy3Oy0D6MHrU5aaoImP0</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=j66TKs3OFnnool6BB29l</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=jPbIkLjPmP9OHbMY1j1m</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=jTgvMLP0cshSZAoUUBvX</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=jklOqNSEp2Cqm29FBWz6</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=kGPJ3KLge0LgcOqon8ij</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=lThfdBIhxR2w5HfDCxmf</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=lXBANN8B1cHoFLFmli7R</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=lwaKB9f81ogkUjMWBcQ4</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=m7IS4O0tVmaxNIAfn8SQ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=nShrWsJEibtR5o71ZKp7</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=oG4PbEPf9bNn6isgtZbo</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=oGERmFip5gNgFOVOWCBn</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=oW8dibCDjL0GuSwMlhkc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=oiqlwQoVerBNYdIsOjiJ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=qjmsqqY4TM9SYZtjLC3b</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=r4PhDoKYl8Xvih0lG7s2</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=rgTGenlSoRba2CKMOh2a</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=sRj5gl8DiXSdQtNghvnx</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=shX9kGoDOLjxAOebYT6Z</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=tIHA7MNViiEtpWjaGw31</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=tg461StPsyCIqclT47QC</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=txfooqGP5Avb15iCjFcj</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=ukCwk5S0j8KlQeehDdcc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=vxFMIGzl7OAHRGaHpDpc</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=x5FIhw40AHfIEz3snSKW</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=xW4hTjeePfw27VY25GL8</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=y0dDJcXv97ymLaF68ESs</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=yDSSlTjEN3oZ8MmkPzVB</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=yzUuMgHo2GjUx7vTw5fJ</loc>
-    <lastmod>2025-11-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=z48rvXuDj39I2ROfcfwv</loc>
-    <lastmod>2025-11-25</lastmod>
+    <loc>https://specifys-ai.com/article.html?slug=the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/academy/guide.html?guide=zm5dpSXJ0gvrsMEVLYmg</loc>
-    <lastmod>2025-11-25</lastmod>
+    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

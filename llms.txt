@@ -1,0 +1,27 @@
+# Specifys.ai
+
+> Specifys.ai helps teams turn app ideas into production-ready specifications with AI. The platform generates structured product documentation, technical architecture, prompts, and delivery assets from a single planning flow. Use this site for practical guidance on AI-assisted app planning, vibe coding workflows, and shipping readiness.
+
+## Key pages
+
+- [Homepage](https://specifys-ai.com/)
+- [How It Works](https://specifys-ai.com/pages/how.html)
+- [Why Specifys](https://specifys-ai.com/pages/why.html)
+- [Pricing](https://specifys-ai.com/pages/pricing.html)
+- [Tool Finder](https://specifys-ai.com/pages/ToolPicker.html)
+- [MCP Integration](https://specifys-ai.com/pages/mcp.html)
+- [Blog](https://specifys-ai.com/blog/)
+- [Academy](https://specifys-ai.com/academy.html)
+
+## Product surfaces
+
+- [Spec Viewer](https://specifys-ai.com/pages/spec-viewer.html) - Interactive review workflow for generated specs.
+- [Demo Spec](https://specifys-ai.com/pages/demo-spec.html) - Public demo output and structure preview.
+- [Cursor and Windsurf Integration](https://specifys-ai.com/pages/cursor-windsurf-integration.html) - IDE export and handoff flow.
+- [Vibe Coding Tools Map](https://specifys-ai.com/tools/map/vibe-coding-tools-map.html) - Curated tools landscape for AI-native builders.
+
+## Optional reading
+
+- [Articles Index](https://specifys-ai.com/pages/articles.html)
+- [About Specifys](https://specifys-ai.com/pages/about.html)
+- [Contact](https://specifys-ai.com/pages/contact.html)
