@@ -1,0 +1,302 @@
+Spec-Viewer Monolith Deconstruction Planning
+Source analyzed: assets/js/features/spec-viewer/spec-viewer-main.js
+
+==================================================
+Execution Status
+==================================================
+
+Phase 1 (Data Backbone): Completed
+
+Implemented outcomes:
+- Added `assets/js/features/spec-viewer/modules/DataService.js` with centralized state APIs:
+  - `loadSpec`, `subscribeSpec`, `startStatusPolling`, `stopStatusPolling`, `saveSpec`, `setSpec`, `getState`, `getSpec`, `patchSpec`, `patchState`, `teardown`.
+- Moved Firestore subscription and polling ownership from `spec-viewer-main.js` into `DataService`.
+- Re-routed `updateCurrentSpecData(...)` to delegate through `window.dataService.setSpec(...)`.
+- Replaced local polling/save/cleanup implementations in `spec-viewer-main.js` with `DataService` calls.
+- Exposed `window.dataService` via `spec-viewer-coordinator.js` to keep classic-script compatibility.
+- Preserved legacy bridge behavior: every state mutation still syncs `window.currentSpecData` for existing consumers.
+
+Remaining roadmap:
+- Phase 2: TabManager + coordinator lazy init + event bus.
+- Phase 3: DiagramEngine + mindmap isolation + lazy asset loading.
+- Phase 4: PromptEngine staged pipeline extraction.
+- Phase 5: dead code removal, dependency audit, code-splitting optimization.
+
+==================================================
+1) State Analysis (Core Runtime State)
+==================================================
+
+Global state currently owned by spec-viewer-main.js:
+
+- currentSpecData
+  - Purpose: canonical spec object (id, title, overview/technical/market/design/architecture/visibility/prompts/diagrams/mockups/mindMap, status map, overviewApproved, metadata).
+  - Access pattern:
+    - Read/write across nearly all tabs.
+    - Updated by loadSpec(), Firestore onSnapshot, polling fallback, and generation/retry flows.
+    - Mirrored to window.currentSpecData via updateCurrentSpecData().
+
+- currentTab
+  - Purpose: current active tab name.
+  - Access pattern:
+    - Written in window.showTab().
+    - Read by displayOverview/displayTechnical/displayMarket/displayDesign for subsection refresh behavior.
+
+- isLoading
+  - Purpose: coarse lock for long-running actions.
+  - Access pattern:
+    - Used by approveOverview(), generateDiagrams(), generatePrompts(), and retry guards.
+    - Cross-cutting concern across prompt/diagram/general generation.
+
+- specUnsubscribe, specPollInterval
+  - Purpose: realtime lifecycle for spec updates (Firestore listener + polling backup).
+  - Access pattern:
+    - Set/cleared in loadSpec(), startSpecStatusPolling(), beforeunload/unload cleanup.
+    - Drives tab content/status updates indirectly through displaySpec/updateStatus/updateNotificationDot.
+
+- userHasProAccess
+  - Purpose: gate editable/pro features (edit, mockup, visibility-engine).
+  - Access pattern:
+    - Derived by checkProAccess() using /api/v3/credits + users.plan fallback.
+    - Used by edit and tab enable/disable flows.
+
+- diagramsData + fullscreen/pan-zoom state
+  - diagramsData, currentZoom, currentPanX, currentPanY, isDragging, dragStartX, dragStartY
+  - Purpose: legacy standalone diagrams rendering/repair/fullscreen interaction state.
+  - Access pattern:
+    - Used by displayDiagramsFromData(), displayDiagrams(), renderSingleDiagram(), refreshDiagram(), repairDiagram(), openFullscreen().
+
+- mind map state
+  - drawflowInstance, mindMapGenerated
+  - Purpose: mind map lifecycle and Drawflow rendering state.
+  - Access pattern:
+    - Used by initializeMindMapTab(), generateMindMap(), displayMindMap().
+
+- edit mode state
+  - isEditMode, originalHTML
+  - Purpose: overview inline edit flow.
+  - Access pattern:
+    - Used by toggleEditMode(), saveOverviewEdit().
+
+- auxiliary UI state
+  - currentProgressMessageIndex, window.fullPromptText, window.integrationsText
+  - Purpose: progress/prompt copy UX.
+
+Cross-tab state coupling (high):
+- status map inside currentSpecData.status is the main coupling mechanism:
+  - technical/market/design/architecture/visibility/prompts/diagrams/mockup/chat states gate tab availability and UI rendering.
+- updateNotificationDot(), updateTabLoadingState(), updateExportCheckboxes() are shared side-effect hubs.
+
+==================================================
+2) Proposed Module Boundaries
+==================================================
+
+----------------------------------
+A. TabManager.js
+----------------------------------
+Primary responsibility:
+- Tab routing, activation, accessibility behavior, subsection menu synchronization, notification hiding/mark-as-viewed.
+
+Move in:
+- window.showTab(tabName)
+- updateSubsections(tabName)
+- keyboard tab navigation handler (Alt+1..0, arrows)
+- viewed-tab helpers:
+  - getViewedTabs()
+  - markTabAsViewed()
+- notification helpers (if keeping in tab scope):
+  - updateNotificationDot()
+  - updateAllNotificationDots()
+- updateTabLoadingState() (or keep in shared UI module; currently tab-centric)
+
+Keep out (for now):
+- Actual content rendering (displayX).
+- Network/storage operations.
+
+Expected inputs/dependencies:
+- State reader/writer for currentTab/currentSpecData.
+- checkProAccess() gate function.
+- DOM IDs contract (tab buttons/content containers).
+- focusManager announce hook.
+
+Public surface (target):
+- showTab(tabName)
+- setCurrentTab(tabName)
+- getCurrentTab()
+- refreshTabBadges()
+- initTabKeyboardNavigation()
+
+----------------------------------
+B. PromptEngine.js
+----------------------------------
+Primary responsibility:
+- Prompt generation pipeline (including staged 10-stage flow), prompt rendering/copy UX, prompt-specific retries and persistence hooks.
+
+Move in:
+- generateSingleStage(...)
+- generatePrompts()
+- displayPromptsFromData(data)
+- displayPrompts(promptsData)
+- copyPromptToClipboard()
+- prompt progress rendering helpers used inside staged generation
+- generateTechnicalSpec(), generateMarketSpec(), generateDesignSpec() (legacy fallback stage generators)
+- retryTechnical(), retryMarket(), retryDesign() (or keep in a GenerationActions module if desired)
+
+Expected inputs/dependencies:
+- currentSpecData and status updater hooks.
+- window.api + getAuxHeaders().
+- notification hooks: showNotification(), updateStatus(), updateTabLoadingState(), updateNotificationDot().
+- persistence hooks: updateExportCheckboxes(), triggerOpenAIUploadForSpec().
+- escaping utility (escapeHtml).
+
+Public surface (target):
+- generatePrompts()
+- renderPromptsFromSpec(spec)
+- generateSection(sectionName) for technical/market/design fallback
+- retrySection(sectionName)
+
+----------------------------------
+C. DiagramEngine.js
+----------------------------------
+Primary responsibility:
+- Mermaid/diagram/mindmap rendering, validation, repair workflow, fullscreen interactions, and diagram status UX.
+
+Move in:
+- Legacy diagrams:
+  - displayDiagramsFromData()
+  - autoRepairBrokenDiagrams()
+  - generateDiagrams()
+  - displayDiagrams()
+  - renderSingleDiagram()
+  - refreshDiagram()
+  - repairDiagram()
+  - hideDiagramControls()/showDiagramControls()
+  - isSyntaxError()
+  - fullscreen + zoom/pan handlers
+- Mermaid helpers:
+  - createMermaidPlaceholderHtml()
+  - renderSpecMermaidPlaceholders()
+  - normalizeArchitectureMermaidFences()
+  - wrapRawMermaidBlocksInPlainText()
+- Mind map:
+  - initializeMindMapTab()
+  - generateMindMap()
+  - loadMindMap()
+  - ensureDrawflowLoaded()
+  - convertToDrawflow()
+  - displayMindMap()
+  - retryMindMap()
+
+Expected inputs/dependencies:
+- currentSpecData/specId access.
+- window.api, firebase, getAuxHeaders().
+- mermaid and optionally mermaidManager.
+- showNotification(), updateStatus()/updateNotificationDot(), updateExportCheckboxes(), triggerOpenAIUploadForSpec().
+
+Public surface (target):
+- renderDiagramsFromSpec(spec)
+- generateDiagrams()
+- repairDiagram(diagramId)
+- renderMindMapFromSpec(spec)
+- retryMindMap()
+
+----------------------------------
+D. DataService.js
+----------------------------------
+Primary responsibility:
+- Spec load/save/sync lifecycle with Firebase + backend API orchestration; listener/polling management; normalized state updates.
+
+Move in:
+- loadSpec(specId)
+- updateCurrentSpecData(newData)
+- saveSpecToFirebase(user, specData)
+- startSpecStatusPolling(specId)
+- retryLoad()
+- triggerOpenAIUploadForSpec(specId)
+- sendSpecReadyNotification(specId)
+- Firestore listener setup/teardown logic
+- backup persistence helpers (specBackup localStorage)
+
+Expected inputs/dependencies:
+- firebase auth/firestore.
+- window.api endpoints.
+- callbacks for UI orchestration (displaySpec, showLoading/hideLoading/showError, notifications).
+
+Public surface (target):
+- loadSpec(specId)
+- subscribeSpec(specId, handlers)
+- saveSpec(specPayload)
+- startGeneration(specId, payload)
+- retrySection(specId, section)
+- teardown()
+
+==================================================
+3) Prompt <-> Diagram Dependency Map
+==================================================
+
+Direct function-level calls (strict):
+- Prompt logic calling Diagram logic: none found.
+  - generatePrompts()/generateSingleStage()/displayPrompts* do not call displayDiagrams(), renderSingleDiagram(), repairDiagram(), etc.
+- Diagram logic calling Prompt logic: none found.
+  - generateDiagrams()/displayDiagrams*/repairDiagram* do not call generatePrompts()/displayPrompts*.
+
+Indirect coupling (shared orchestration/state):
+- Both depend on:
+  - currentSpecData (shared spec/status source)
+  - isLoading (global execution lock)
+  - updateTabLoadingState()
+  - updateNotificationDot()/updateStatus()
+  - showNotification()
+  - getAuxHeaders()/window.api
+- Both persist back into spec document and trigger downstream side effects:
+  - firebase.firestore().collection('specs').doc(...).update(...)
+  - triggerOpenAIUploadForSpec(specId)
+  - updateExportCheckboxes()
+
+Implication:
+- PromptEngine and DiagramEngine can be extracted independently if shared hooks/state adapter are introduced first (via DataService + small UI/status adapter).
+
+==================================================
+4) Migration Order (Minimize Breaking Changes)
+==================================================
+
+Recommended extraction order:
+
+1. DataService.js (first)
+   Why first:
+   - Highest fan-in for side effects (Firestore, API, polling, listener cleanup).
+   - Enables all later modules to call a stable adapter instead of touching firebase/window.api directly.
+   - Minimizes regression risk by centralizing lifecycle and state mutation first.
+
+2. TabManager.js
+   Why second:
+   - Behavior is mostly DOM routing; low backend coupling.
+   - Easy compatibility bridge: keep window.showTab pointing to TabManager.showTab.
+   - Reduces global state writes (currentTab) before moving feature engines.
+
+3. DiagramEngine.js
+   Why third:
+   - Large but relatively self-contained domain (diagrams + mermaid + mindmap).
+   - Already structured around explicit function cluster and internal state (diagramsData + fullscreen state).
+   - Benefits early from DataService abstraction for save/update/repair endpoints.
+
+4. PromptEngine.js (last among requested modules)
+   Why last:
+   - Touches widest orchestration surface (staged flow, retries, progress UI, status transitions, section generation fallbacks).
+   - Depends on stable status/tab/data contracts; extracting after DataService + TabManager + DiagramEngine reduces coupling churn.
+
+Compatibility strategy throughout:
+- Keep window.* function names stable in coordinator/bridge while delegating internals to new modules.
+- Migrate by facade first (forwarding calls), then move internals.
+- Preserve current DOM IDs and inline onclick contracts until all extractions are complete.
+
+==================================================
+5) Risk Notes (for implementation phase)
+==================================================
+
+- currentSpecData writes are scattered and not transactional; introduce a single state adapter (getState/setState/patchStatus) before deep extraction.
+- isLoading is global; split into scoped locks (promptLoading, diagramLoading, sectionGenerationLoading) to avoid cross-feature blocking.
+- Multiple modules currently call notification/status helpers directly; define a shared UI adapter contract to prevent circular dependencies.
+- Firestore listener currently triggers both state mutation and rendering; split to:
+  - DataService emits events
+  - feature modules render on event payloads.
+

@@ -2,6 +2,9 @@ import { attachUiBridge } from './modules/UiController.js';
 import { attachDiagramBridge } from './modules/DiagramManager.js';
 import { injectSpecSeo } from './modules/SeoInjector.js';
 import * as MockupService from './modules/MockupService.js';
+import * as DataService from './modules/DataService.js';
+
+window.dataService = DataService;
 
 // Compatibility bridge: keep inline onclick handlers functional.
 window.addEventListener('load', () => {

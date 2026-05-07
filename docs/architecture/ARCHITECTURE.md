@@ -2,7 +2,7 @@
 
 Single source of truth for the system architecture. Describes every subsystem, service, data store, and flow as they exist in production.
 
-**Last updated:** May 2026 (Phase 2 stabilization: ports + feedback email + mockup extraction)
+**Last updated:** May 2026 (Phase 2 stabilization + Phase 1 spec-viewer data backbone extraction)
 
 ---
 
@@ -588,8 +588,9 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `index-demo-scroll.js` — Demo scroll phases
 
 **Spec Viewer** (`features/spec-viewer/`) — the largest feature (main file still ~10k lines, with compatibility bridge):
-- `spec-viewer-main.js` — Primary orchestrator + state + backward-compatible `window.*` handlers
-- `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers and SEO hook
+- `spec-viewer-main.js` — Primary orchestrator + backward-compatible `window.*` handlers; now delegates spec state/subscription/polling/save flows to `window.dataService`
+- `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers, SEO hook, and exposes `window.dataService`
+- `modules/DataService.js` — canonical spec state module (`setSpec/getState/patchState`), Firestore `onSnapshot`, polling fallback, save helpers, legacy `window.currentSpecData` sync
 - `modules/UiController.js`, `MockupService.js`, `PromptService.js`, `DiagramManager.js`, `MindMapService.js`, `SeoInjector.js` — extracted modular layer
 - `spec-viewer-firebase.js` — Firebase config
 - `spec-viewer-auth.js` — Auth UI
@@ -854,12 +855,13 @@ Backend (specs-routes.js → generate-overview)
   │    └─ Firestore update: overview (JSON), status.overview='ready', title, generationVersion='v2'
   └─ emitSpecUpdate(specId, 'overview', 'ready', content)
 
-Spec Viewer (spec-viewer-main.js)
+Spec Viewer (spec-viewer-main.js + modules/DataService.js)
   │
-  └─ Firestore onSnapshot on specs/{specId}
+  └─ DataService.subscribeSpec(specId)
+       → Firestore onSnapshot on specs/{specId}
        → detects status.overview='ready'
        → renders overview tab
-       → (fallback: REST polling GET /api/specs/:id/generation-status if listener fails)
+       → (fallback: DataService.startStatusPolling → GET /api/specs/:id/generation-status if listener fails)
 ```
 
 ### 9.2 Generate All Sections (After Overview Approval)
@@ -1072,7 +1074,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | Issue | Details |
 |-------|---------|
 | Duplicate files | Resolved — canonical shared files are under `assets/js/core/` |
-| spec-viewer-main.js | Still large (~10k lines), but Mockup pipeline/viewer were extracted to `features/spec-viewer/modules/MockupService.js` and bridged via `spec-viewer-coordinator.js` |
+| spec-viewer-main.js | Still large (~10k lines), but Mockup pipeline/viewer were extracted and Phase 1 Data Backbone moved state/listener/polling/save concerns into `features/spec-viewer/modules/DataService.js` |
 | `verifyFirebaseToken` | Resolved — centralized in `backend/server/middleware/auth.js` |
 | Worker URLs | Resolved — frontend uses `/api/auxiliary/*` |
 | `design-system` package | `package.json` declares exports that don't match actual file structure |
@@ -1085,7 +1087,8 @@ Frontend → POST /api/live-brief/summarize {text}
 |------|---------------|------------------------|
 | Auxiliary contract parity | Worker-based behavior was replaced by backend `ai-service` JSON handlers; edge-case output parity may differ | Add endpoint-level contract tests for mockup/prompts/mindmap/jira payloads and error envelopes |
 | Auth propagation for auxiliary endpoints | Main spec-viewer flow now sends bearer tokens for auxiliary calls | Audit all non-spec-viewer callers to ensure they send Firebase bearer token as well |
-| Spec-viewer modularization depth | Mockup module extraction is complete (pipeline + viewer + window bridge), but additional areas are still monolithic | Continue phased extraction for prompts/diagrams/mindmap orchestration and shared state isolation |
+| Spec-viewer modularization depth | Mockup extraction and Data Backbone extraction are complete; prompts/diagrams/mindmap/tab orchestration are still mostly monolithic in `spec-viewer-main.js` | Continue phased extraction for `TabManager`, `DiagramEngine`, `PromptEngine`, then remove legacy orchestrator code paths |
+| Spec-viewer event architecture | Data updates now centralized through `DataService`, but propagation is still callback-based from main script | Introduce internal event bus in next phase so `DataService` publishes updates and feature engines subscribe independently |
 | Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
 | Manual smoke coverage | Mockup compatibility bridge was verified in-code, but no automated browser smoke test is enforced | Add Playwright smoke flow for create/retry/device-switch/view-code/download on spec viewer |
 | Port drift prevention | Runtime/default ports are aligned to 10000 across scripts and swagger | Add CI grep/guard to fail on new hardcoded legacy ports (`3000/3001/3002/5000`) outside allowlisted contexts |

@@ -1,8 +1,6 @@
 let currentSpecData = null;
 let currentTab = 'overview';
 let isLoading = false;
-let specUnsubscribe = null; // Firestore listener unsubscribe function
-let specPollInterval = null; // Polling interval for spec status
 
 if (typeof window.loadGeoContext === 'function') {
     window.loadGeoContext().catch(() => {});
@@ -22,10 +20,12 @@ window.getAuxHeaders = getAuxHeaders;
 
 // Helper function to update currentSpecData and expose it to window
 function updateCurrentSpecData(newData) {
-    currentSpecData = newData;
-    if (typeof window !== 'undefined') {
-        window.currentSpecData = currentSpecData;
+    if (window.dataService && typeof window.dataService.setSpec === 'function') {
+        currentSpecData = window.dataService.setSpec(newData);
+        return currentSpecData;
     }
+    currentSpecData = newData;
+    window.currentSpecData = currentSpecData;
     return currentSpecData;
 }
 
@@ -739,23 +739,17 @@ async function loadSpec(specId) {
             throw new Error('No specification ID provided');
         }
         
-        // Load from Firebase - user must be authenticated (checked in onAuthStateChanged)
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            console.error('[loadSpec] User not authenticated');
-            throw new Error('User must be authenticated to view specifications');
+        const dataService = window.dataService;
+        if (!dataService || typeof dataService.loadSpec !== 'function') {
+            throw new Error('DataService is not initialized');
         }
-        
-        console.log('[loadSpec] Fetching spec from Firestore...');
-        const doc = await firebase.firestore().collection('specs').doc(specId).get();
-        if (!doc.exists) {
-            console.error('[loadSpec] Spec document does not exist:', specId);
-            throw new Error('Specification not found');
-        }
-        
-        const specData = doc.data();
+
+        console.log('[loadSpec] Fetching spec from DataService...');
+        const { data: specData, isOwner, isAdmin } = await dataService.loadSpec(specId, {
+            isAdminCheck: isSpecViewerAdmin
+        });
         console.log('[loadSpec] Spec data loaded:', {
-            id: doc.id,
+            id: specData.id || specId,
             title: specData.title,
             status: specData.status,
             hasOverview: !!specData.overview,
@@ -766,15 +760,12 @@ async function loadSpec(specId) {
         
         // Check if user has permission to view this spec
         // spec-viewer.html only shows specs to their owner or admin (not public specs)
-        const isOwner = specData.userId === user.uid;
-        const isAdmin = isSpecViewerAdmin(user);
-        
         if (!isOwner && !isAdmin) {
             showError('You do not have permission to view this specification. You can only view specifications that you created.');
             return;
         }
         
-        updateCurrentSpecData({ id: doc.id, ...specData });
+        updateCurrentSpecData(specData);
         console.log('[loadSpec] Current spec data set, status:', currentSpecData.status);
         
         const technicalPreview = specData.technical ? specData.technical.substring(0, 200) + (specData.technical.length > 200 ? '...' : '') : 'null';
@@ -794,27 +785,11 @@ async function loadSpec(specId) {
 
         
 
-        // Clean up previous listener if exists
-        if (specUnsubscribe) {
-            specUnsubscribe();
-            specUnsubscribe = null;
-        }
-        
-        // Clean up previous polling if exists
-        if (specPollInterval) {
-            clearInterval(specPollInterval);
-            specPollInterval = null;
-        }
-        
         // Set up Firestore real-time listener for spec updates
         console.log('[loadSpec] Setting up Firestore listener...');
-        specUnsubscribe = firebase.firestore()
-            .collection('specs')
-            .doc(specId)
-            .onSnapshot((doc) => {
-                if (doc.exists) {
-                    const updatedData = { id: doc.id, ...doc.data() };
-                    const previousStatus = currentSpecData?.status || {};
+        dataService.subscribeSpec(specId, {
+            onUpdate: (updatedData, previousData) => {
+                    const previousStatus = previousData?.status || {};
                     const newStatus = updatedData.status || {};
                     
                     console.log('[Firestore Listener] Spec updated:', {
@@ -982,23 +957,22 @@ async function loadSpec(specId) {
                         stopProgressBar();
                         const bubblesContainer = document.getElementById('chat-bubbles-container');
                         if (bubblesContainer) bubblesContainer.style.display = 'none';
-                        if (specPollInterval) {
-                            clearInterval(specPollInterval);
-                            specPollInterval = null;
-                        }
+                        dataService.stopStatusPolling();
                         triggerOpenAIUploadForSpec(updatedData.id).catch(err => console.warn('Failed to upload spec to OpenAI:', err));
                     }
 
                     // Update all notification dots
                     updateAllNotificationDots();
                 }
-            }, (error) => {
+            },
+            onError: (error) => {
                 console.error('Firestore listener error:', error);
                 // Fallback to polling if listener fails
-                if (!specPollInterval) {
+                if (!dataService.isPolling()) {
                     startSpecStatusPolling(specId);
                 }
-            });
+            }
+        });
         
         // Start polling as backup (especially if generation is in progress)
         if (specData.status?.technical === 'generating' ||
@@ -6738,33 +6712,12 @@ function hideApproveButton() {
 // Function to save spec to Firebase
 async function saveSpecToFirebase(user, specData) {
     try {
-
-        
-        if (!user) {
-            throw new Error('User must be authenticated to save to Firebase');
+        const dataService = window.dataService;
+        if (!dataService || typeof dataService.saveSpec !== 'function') {
+            throw new Error('DataService is not initialized');
         }
-        
-        const specDoc = {
-            title: specData.title || 'App Specification',
-            overview: specData.overview,
-            technical: specData.technical,
-            market: specData.market,
-            status: specData.status || {
-                overview: "ready",
-                technical: "pending",
-                market: "pending"
-            },
-            overviewApproved: specData.overviewApproved || false,
-            answers: specData.answers || [],
-            userId: user.uid,
-            userName: user.displayName || user.email || 'Anonymous User',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
 
-        
-        const docRef = await firebase.firestore().collection('specs').add(specDoc);
+        const savedSpecId = await dataService.saveSpec({ user, spec: specData });
 
         
         // Show success notification
@@ -6773,7 +6726,7 @@ async function saveSpecToFirebase(user, specData) {
         // Update storage status
         updateStorageStatus();
         
-        return docRef.id;
+        return savedSpecId;
         
     } catch (error) {
 
@@ -7062,72 +7015,16 @@ async function approveOverview() {
  * Used when Firestore listener fails or when user closes and reopens window
  */
 function startSpecStatusPolling(specId) {
-    // Clear existing polling if any
-    if (specPollInterval) {
-        clearInterval(specPollInterval);
+    const dataService = window.dataService;
+    if (!dataService || typeof dataService.startStatusPolling !== 'function') {
+        return;
     }
-    
-    let pollCount = 0;
-    const maxPolls = 120; // Poll for up to 10 minutes (120 * 5 seconds)
-    
-    specPollInterval = setInterval(async () => {
-        pollCount++;
-        
-        try {
-            // Check generation status from API
-            const statusResponse = await window.api.get(`/api/specs/${specId}/generation-status`);
-            
-            if (statusResponse.job) {
-                const jobStatus = statusResponse.job.status;
-                
-                // If job is completed or failed, reload spec data
-                if (jobStatus === 'completed' || jobStatus === 'failed') {
-                    clearInterval(specPollInterval);
-                    specPollInterval = null;
-                    
-                    // Reload spec to get latest data
-                    if (currentSpecData && currentSpecData.id === specId) {
-                        const doc = await firebase.firestore().collection('specs').doc(specId).get();
-                        if (doc.exists) {
-                            const updatedData = { id: doc.id, ...doc.data() };
-                            updateCurrentSpecData(updatedData);
-                            displaySpec(updatedData);
-                        }
-                    }
-                }
-            }
-            
-            // Also check Firestore directly as backup
-            if (currentSpecData && currentSpecData.id === specId) {
-                const doc = await firebase.firestore().collection('specs').doc(specId).get();
-                if (doc.exists) {
-                    const specData = doc.data();
-                    const status = specData.status || {};
-                    
-                    // If all stages are done (ready or error), stop polling
-                    const allDone = ['technical', 'market', 'design'].every(stage => 
-                        status[stage] === 'ready' || status[stage] === 'error'
-                    );
-                    
-                    if (allDone) {
-                        clearInterval(specPollInterval);
-                        specPollInterval = null;
-                    }
-                }
-            }
-            
-        } catch (error) {
-            console.warn('Polling error:', error);
-            // Continue polling unless we've exceeded max attempts
+    dataService.startStatusPolling(specId, {
+        onSpecReloaded: async (updatedData) => {
+            updateCurrentSpecData(updatedData);
+            displaySpec(updatedData);
         }
-        
-        // Stop polling after max attempts
-        if (pollCount >= maxPolls) {
-            clearInterval(specPollInterval);
-            specPollInterval = null;
-            console.log('Stopped polling after max attempts');
-        }
-    }, 5000); // Poll every 5 seconds
+    });
 }
 
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
@@ -9512,14 +9409,9 @@ function updateDiagramsStatus(status) {
  * Called when leaving the page or switching specs
  */
 function cleanupSpecListeners() {
-    if (specUnsubscribe) {
-        specUnsubscribe();
-        specUnsubscribe = null;
-    }
-    
-    if (specPollInterval) {
-        clearInterval(specPollInterval);
-        specPollInterval = null;
+    const dataService = window.dataService;
+    if (dataService && typeof dataService.teardown === 'function') {
+        dataService.teardown();
     }
 }
 
