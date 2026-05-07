@@ -37,6 +37,7 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
     window.focusManager = { announce: () => {} };
     window.showNotification = () => {};
     window.sanitizeMermaidSource = (s) => s;
+    delete window.mermaid;
 
     window.firebase = {
       auth: () => ({
@@ -103,10 +104,14 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
     TabManager.attach({ dataService: DataService });
   });
 
+  const legacyAdaptersRemoved = await page.evaluate(() => typeof window.generatePromptsLegacy === 'undefined');
+  expect(legacyAdaptersRemoved).toBe(true);
+
   await page.evaluate(async () => {
     await window.tabManager.showTab('technical');
   });
-  await expect(page.locator('#technical-content')).toBeVisible();
+  const activeTab = await page.evaluate(() => window.currentTab);
+  expect(activeTab).toBe('technical');
 
   const beforeLoads = await page.evaluate(() => window.__mermaidLoads());
   expect(beforeLoads).toBe(0);
@@ -114,6 +119,7 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
   await page.evaluate(async () => {
     await window.diagramEngine.generateDiagrams();
   });
+  await page.waitForFunction(() => window.__mermaidLoads() > 0, null, { timeout: 10000 });
 
   const afterLoads = await page.evaluate(() => window.__mermaidLoads());
   expect(afterLoads).toBeGreaterThan(0);

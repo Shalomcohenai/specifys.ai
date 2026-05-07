@@ -1091,10 +1091,11 @@ Frontend → POST /api/live-brief/summarize {text}
 |------|---------------|------------------------|
 | Auxiliary contract parity | Worker-based behavior was replaced by backend `ai-service` JSON handlers; edge-case output parity may differ | Add endpoint-level contract tests for mockup/prompts/mindmap/jira payloads and error envelopes |
 | Auth propagation for auxiliary endpoints | Main spec-viewer flow now sends bearer tokens for auxiliary calls | Audit all non-spec-viewer callers to ensure they send Firebase bearer token as well |
-| Spec-viewer modularization depth | Mockup/Data Backbone/TabManager/Event Bus/Scoped Loading + DiagramEngine/PromptEngine extraction are in place with compatibility bridge; some legacy wrappers still exist in `spec-viewer-main.js` for safe rollout | Continue gradual removal of legacy wrappers after additional runtime validation in production-like env |
+| Spec-viewer modularization depth | Mockup/Data Backbone/TabManager/Event Bus/Scoped Loading + DiagramEngine/PromptEngine extraction are in place with compatibility bridge; PromptEngine legacy shadow adapters were removed and schema guard/error-boundary/retry primitives were added | Continue migrating remaining prompt/diagram helper bodies from `spec-viewer-main.js` to engines until coordinator-only orchestration remains |
 | Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
 | Spec-viewer E2E coverage | Playwright smoke test added at `tests/e2e/spec-viewer.spec.js` (module boot, tab switch, lazy Mermaid load, bearer header assertion) | Expand to authenticated end-to-end flow against real Firebase test project and include retry/error-path assertions |
-| Port drift prevention | Runtime/default ports are aligned to 10000 across scripts and swagger; repo now includes `npm run check:ports` as a guardrail scan | Enforce `check:ports` in CI and maintain an allowlist for non-port numeric literals (timeouts/sizes) |
+| Environment guard | Runtime/default ports are aligned to 10000; repo guard now runs via `npm run check:env` (`check:ports` alias) for legacy ports, dev URLs, and token/key patterns with allowlist support (`scripts/check-env.allow.txt`) | Enforce `check:env` in CI and keep allowlist minimal/reviewed during PR |
+| Contracts visibility | Prompt/Diagram/DataService transport and event contracts are now documented in `assets/js/features/spec-viewer/modules/CONTRACTS.md` | Add API-level contract tests that assert documented request/response envelopes |
 
 ---
 

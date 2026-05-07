@@ -334,3 +334,15 @@ Step 4: Reliability (Playwright)
 - Added Playwright configuration (`playwright.config.js`) and smoke test `tests/e2e/spec-viewer.spec.js`.
 - Smoke test covers module bootstrap (`window.dataService`, `window.tabManager`), tab switching, Mermaid lazy-load trigger, and Bearer auth header propagation on auxiliary requests.
 
+==================================================
+Execution Status Update — Phase 6 Hardening
+==================================================
+
+- Resource/performance: introduced deferred script loading path (`defer_js`) for non-critical spec-viewer assets and moved page CSS entrypoints to `assets/css/features/*`.
+- Prompt resilience: PromptEngine now retries auxiliary prompt calls with exponential backoff (`retryFetch`, max 2 retries).
+- Diagram UX hardening: DiagramEngine render failures now show a user-safe "Render Error" boundary with retry actions.
+- Data integrity: DataService now validates incoming spec payload shape before mutating state (Schema Guard) and logs malformed payloads via `appLogger`.
+- Legacy cleanup: removed Prompt `window.*Legacy` bridge assignments from `spec-viewer-main.js` and locked this in Playwright smoke with explicit undefined assertion.
+- Security/environment guard: `npm run check:env` added (with `check:ports` alias) to detect hardcoded legacy ports, dev URLs, and token/key patterns via `scripts/check-env.mjs`.
+- Contract docs: added `assets/js/features/spec-viewer/modules/CONTRACTS.md` documenting PromptEngine/DiagramEngine/DataService request-response and event contracts.
+
