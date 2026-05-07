@@ -330,3 +330,7 @@ Phase 5: Cleanup and optimization
 - Updated tab renderer registrations to route prompt/diagram/mindmap rendering through module engines.
 - Added repository port scan guard `npm run check:ports` to detect legacy hardcoded ports.
 
+Step 4: Reliability (Playwright)
+- Added Playwright configuration (`playwright.config.js`) and smoke test `tests/e2e/spec-viewer.spec.js`.
+- Smoke test covers module bootstrap (`window.dataService`, `window.tabManager`), tab switching, Mermaid lazy-load trigger, and Bearer auth header propagation on auxiliary requests.
+
