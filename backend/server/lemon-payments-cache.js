@@ -245,7 +245,12 @@ async function getCachedPaymentsData({ forceRefresh = false, apiKey, storeId, lo
         '[payments-cache] Cache expired or force refresh requested, syncing...');
       
       if (!apiKey || !storeId) {
-        throw new Error('API key and store ID required for sync');
+        if (cacheDoc.exists) {
+          log.warn({ requestId: reqId }, '[payments-cache] Cannot refresh without API credentials — returning stale cache');
+          return cacheDoc.data();
+        }
+        log.warn({ requestId: reqId }, '[payments-cache] Cannot sync without LEMON_SQUEEZY_API_KEY / STORE_ID');
+        return null;
       }
 
       await syncPaymentsData({ apiKey, storeId, logger: log, requestId: reqId });
@@ -291,7 +296,11 @@ async function getCachedPaymentsData({ forceRefresh = false, apiKey, storeId, lo
       return cacheDoc.data();
     }
 
-    throw error;
+    log.warn(
+      { requestId: reqId, errMsg: error.message },
+      '[payments-cache] Sync/read failed and no cache doc — returning null (caller should show empty state)'
+    );
+    return null;
   }
 }
 

@@ -2,7 +2,7 @@
 
 Single source of truth for the system architecture. Describes every subsystem, service, data store, and flow as they exist in production.
 
-**Last updated:** May 2026 (Phase 2 stabilization + Phase 1 spec-viewer data backbone extraction)
+**Last updated:** May 2026 (backend architecture map refresh + Phase 2 stabilization)
 
 ---
 
@@ -12,6 +12,7 @@ Single source of truth for the system architecture. Describes every subsystem, s
 2. [Technology Stack](#2-technology-stack)
 3. [Project Structure](#3-project-structure)
 4. [Backend](#4-backend)
+   - [Backend topology & module map](#40-backend-topology--module-map)
    - [Entry & Middleware](#41-entry--middleware)
    - [Routes](#42-routes)
    - [Spec Engine v2](#43-spec-engine-v2)
@@ -23,6 +24,7 @@ Single source of truth for the system architecture. Describes every subsystem, s
    - [Admin, Analytics & Content](#49-admin-analytics--content)
    - [Automation & Scheduled Jobs](#410-automation--scheduled-jobs)
    - [Auxiliary API Migration](#411-auxiliary-api-migration)
+   - [Architecture improvement directions](#412-architecture-improvement-directions)
 5. [Frontend](#5-frontend)
    - [Page Loading Model](#51-page-loading-model)
    - [Core Modules](#52-core-modules)
@@ -170,47 +172,148 @@ specifys-ai/
 
 ## 4. Backend
 
-All backend code lives in `backend/`. Entry point: `backend/server/server.js`. Deployed via Render.
+All backend code lives in `backend/`. Entry point: `backend/server/server.js`. Deployed on **Render** as a single Node process that serves both the REST API and (for convenience) selected static assets from the repo’s `_site` build output alongside dynamic blog routing.
+
+### 4.0 Backend topology & module map
+
+High-level layering (logical, not separate deployables):
+
+```mermaid
+flowchart TB
+  subgraph clients [Clients]
+    Web[Jekyll site + SPA admin]
+    MCP[MCP server stdio]
+  end
+
+  subgraph express [Express server.js]
+    MW[Middleware: security CORS geo rate-limit body]
+    RT[Routers + inline handlers]
+  end
+
+  subgraph services [Domain modules backend/server/*.js]
+    Spec[Spec generation v2 + queue + listeners]
+    User[user-management + Firebase auth glue]
+    Credits[credits-v3-service + sync]
+    Lemon[lemon-* purchase webhook subscription]
+    Chat[chat-service brain-dump OpenAI Assistants]
+    Aux[ai-service auxiliary Chat Completions]
+    Mail[email-service templates tracking]
+    Jobs[scheduled-jobs + automation jobs registry]
+  end
+
+  subgraph external [External systems]
+    FS[(Firestore)]
+    OAI[OpenAI API]
+    LS[Lemon Squeezy]
+    RS[Resend]
+    GA[Google Apps Script]
+  end
+
+  Web --> MW
+  MCP --> MW
+  MW --> RT
+  RT --> Spec
+  RT --> User
+  RT --> Credits
+  RT --> Lemon
+  RT --> Chat
+  RT --> Aux
+  RT --> Mail
+  RT --> Jobs
+  Spec --> FS
+  Spec --> OAI
+  User --> FS
+  User --> RS
+  Credits --> FS
+  Lemon --> LS
+  Lemon --> FS
+  Chat --> OAI
+  Chat --> FS
+  Aux --> OAI
+  Mail --> FS
+  Mail --> RS
+  Jobs --> FS
+  Jobs --> OAI
+  RT --> GA
+```
+
+**Directory roles**
+
+| Location | Responsibility |
+|---------|----------------|
+| `backend/server/server.js` | Process bootstrap: env load, middleware, route registration order, static fallbacks (`_site`), graceful shutdown hooks |
+| `backend/server/config.js` | Canonical URLs (`BACKEND_BASE_URL`, `BACKEND_URL`), port, **CORS allowlist**, `creditsV3.enabled` (production requires `CREDITS_V3_ENABLED=true`) |
+| `backend/server/firebase-admin.js` | Firebase Admin singleton; Firestore + Auth used across routes/services |
+| `backend/server/middleware/` | Shared HTTP concerns: `auth.js` (Firebase ID token → `req.user`), `geo.js`, `error-response.js` |
+| `backend/schemas/` | Zod spec schemas shared with generation (`spec-schemas.js`) |
+| `backend/server/*-routes.js` | Thin HTTP adapters: validate input, call services, shape JSON responses |
+| `backend/server/*-service.js` | Business logic, Firestore transactions, orchestration |
+
+**Heavy coupling points (today)** — intentional for velocity, targets for gradual refactors: `server.js` concentration (API + static + blog dynamic route), pervasive `require('./firebase-admin')`, and mixed **Chat Completions** vs **Assistants API** stacks inside `openai-storage-service.js`.
+
+**Route registration order (summary)** — order matters where paths overlap (`/:year/:month/:day/:slug/` vs static) or middleware must run first (Lemon webhook, body parsing):
+
+1. Lemon router at `/api/lemon` (**before** global JSON parsing on other paths; webhook signature uses raw elsewhere in lemon router stack).
+2. Rate limits: `/api/` general (excluding paths under `/api/lemon`), `/api/auth/`, `/api/feedback`.
+3. Body parsing: special-case `POST /api/analytics/web-vitals` (raw → JSON), then `express.json()` for remaining routes.
+4. Core routers: `/api/users`, `/api/specs`, `/api/mcp` (**`verifyApiKey`** then `mcpRoutes`).
+5. **Conditional:** when `config.creditsV3.enabled`: `/api/v3/credits`, `/api/share-prompt`.
+6. Chat / brain-dump / auxiliary.
+7. Blog + articles + academy: partly **inline** `app.get`/`app.post` on `server.js` (not all via `Router()` mounts).
+8. `/api/analytics`, then **`/api/admin`** with extra wrapper middleware (structured logging + `rateLimiters.admin` + `adminRoutes`).
+9. Health, Swagger `/api-docs`, `/api/status`, `/api/sync-users`, feedback/contact, stats, live-brief, planning, tool-finder, `/api/email` (preview + tracking mount **twice** on same prefix), newsletters, tools, automation.
+10. Static: built index, academy, `/blog/`, dynamic Firebase post matcher, repo-root `express.static`, 404 + global `errorHandler`.
 
 ### 4.1 Entry & Middleware
 
 **File:** `backend/server/server.js`
 
-Middleware chain (in order):
-1. Trust proxy
-2. Security headers (Helmet)
-3. Compression
-4. CORS (custom, reflects `allowedOrigins` from `config.js`)
-5. Lemon Squeezy webhook routes (mounted before JSON parser — needs raw body)
-6. Rate limiters (general: 100/15min, auth: 5/15min, feedback: 10/15min)
-7. `express.json()`
-8. Request logging (Pino + Firestore)
-9. Geo enrichment middleware (`middleware/geo.js`)
-10. Route handlers
-11. Error handler middleware
+Bootstrap (before middleware): optional dotenv (`backend/.env`, repo root `.env`, `server/.env`), `initializeErrorCapture()` (`render-error-capture.js`), `assertEnv()` (`env-check.js`).
 
-**Config** (`backend/server/config.js`): `BACKEND_BASE_URL`, `BACKEND_URL`, `API_VERSION`, port (default 10000), CORS origins, Google Apps Script URL, credits V3 enabled flag.
-**Startup validation:** `env-check.js` (`assertEnv`) validates required env vars before server boot.
+Middleware chain (**actual order relevant to Geo + parsers**):
+
+1. **Trust proxy** — `trust proxy` = `1` (Render)
+2. **Security headers** — `securityHeaders` from `security.js` (Helmet: CSP and related headers tuned for Firebase / analytics)
+3. **Compression**
+4. **CORS** — inline middleware; reflected allowlist from `config.allowedOrigins` (**plus** conditional `Origin` echo only when listed)
+5. **`geoMiddleware`** — `middleware/geo.js` attaches `req.geo` **before** JSON parsing (powers `/api/geo/context` and any handler that reads geo early)
+6. **`/api/lemon`** — Lemon router (**before** the global `/api/` rate-limit + default JSON parsing path described below; webhook stack handles raw body as defined in lemon routes)
+7. **Rate limiting:**
+   - `rateLimiters.general` on `/api/` **except** paths starting with `/lemon` (Lemon already mounted)
+   - `rateLimiters.auth` on `/api/auth/`
+   - `rateLimiters.feedback` on `/api/feedback`
+8. **Body parsing:** `POST /api/analytics/web-vitals` — `express.raw` then parse JSON (sendBeacon compatibility); all other routes — `express.json()`
+9. **Request logging** — assigns `req.requestId`; logs API requests and error responses (skips routine `/api/health`, `/api/status`)
+10. **Route handlers** — mix of inline admin/diagnostic routes and `app.use(...)` routers (see §4.0 mount summary)
+11. **`notFoundHandler` then `errorHandler`** — end of pipeline
+
+Rate limit reference (`security.js`): general **100 / 15 min** per IP; admin **300 / 15 min** (`rateLimiters.admin` on `/api/admin` stack); auth **5 / 15 min**; feedback **10 / hour** (separate bucket from general API).
+
+**Config** (`backend/server/config.js`): `BACKEND_BASE_URL`, `BACKEND_URL`, `API_VERSION`, port (default 10000), CORS origins, Google Apps Script URL (feedback Sheets bridge), **`creditsV3.enabled`** (production: only `true` when `CREDITS_V3_ENABLED=true`).
+
+**Startup validation:** `env-check.js` (`assertEnv`) validates required env vars before the HTTP server listens.
 
 ### 4.2 Routes
+
+Mounted routers (see §4.0 for ordering and edge cases). **`mcp-routes.js`** is always wrapped with **`verifyApiKey`** (`mcp-auth.js`) at mount time. **`admin-routes.js`** is mounted after **request logging + admin-only rate limiter** (`rateLimiters.admin`): stack is `loggingMiddleware → rateLimiters.admin → adminRoutes` on `/api/admin`.
 
 | Route File | Base Path | Purpose |
 |-----------|-----------|---------|
 | `specs-routes.js` | `/api/specs` | Spec CRUD, generation (v2), upload to OpenAI |
 | `auxiliary-routes.js` | `/api/auxiliary` | Mockup, prompts, mindmap, jira auxiliary generation |
 | `user-routes.js` | `/api/users` | User init, profile, MCP key management |
-| `credits-v3-routes.js` | `/api/v3/credits` | Credits: get, consume, share-prompt (mounted only when `CREDITS_V3_ENABLED=true`) |
+| `credits-v3-routes.js` | `/api/v3/credits` | Credits: get, consume, grant, refund, ledger (mounted only when `config.creditsV3.enabled`; production → `CREDITS_V3_ENABLED=true`) |
 | `chat-routes.js` | `/api/chat` | Chat: init, message, diagrams, demo |
 | `brain-dump-routes.js` | `/api/brain-dump` | Brain dump: generate, apply to spec, legacy chat endpoints |
-| `admin-routes.js` | `/api/admin` | Admin: users, specs, credits, payments, activity |
+| `admin-routes.js` | `/api/admin` | Admin: users, specs, credits, payments, activity (after admin rate limit middleware) |
 | `lemon-routes.js` | `/api/lemon` | Lemon Squeezy: checkout, webhooks, subscription status |
 | `health-routes.js` | `/api/health` | Health checks (general, DB, OpenAI, credits) |
 | `analytics-routes.js` | `/api/analytics` | Analytics event recording |
-| `blog-routes.js` | `/api/blog` | Blog CRUD (admin) |
-| `blog-routes-public.js` | `/api/blog/public` | Blog public listing |
-| `articles-routes.js` | `/api/articles` | Articles API + sitemap |
+| `blog-routes.js` | handlers only | Blog CRUD handlers; **wired inline** in `server.js` under `/api/blog/*` (not `app.use`) |
+| `blog-routes-public.js` | handlers only | Public list/get handlers; **`/api/blog/public/posts`** and **`/api/blog/public/post`** in `server.js` |
+| `articles-routes.js` | `/api/articles` + `GET /sitemap.xml` | Article CRUD-ish operations and **top-level** sitemap mounted **inline** in `server.js` |
 | `mcp-routes.js` | `/api/mcp` | MCP: specs list/get/update, tools (API key auth) |
-| `share-prompt-routes.js` | `/api/share-prompt` | Share prompt codes |
+| `share-prompt-routes.js` | `/api/share-prompt` | Share-prompt UX (check + record actions); **same gate as credits V3** (`config.creditsV3.enabled`) |
 | `live-brief-routes.js` | `/api/live-brief` | Voice input: Whisper transcription + GPT summary |
 | `planning-routes.js` | `/api/planning` | Planning flow API |
 | `tools-routes.js` | `/api/tools` | Vibe Coding Tools management + export |
@@ -220,16 +323,27 @@ Middleware chain (in order):
 | `email-preview-routes.js` | `/api/email` | Email template preview |
 | `email-tracking-routes.js` | `/api/email` | Email open/click tracking |
 | `automation-routes.js` | `/api/automation` | Automation job management |
-| `academy-routes.js` | `/api/academy` | Academy view tracking |
+| `academy-routes.js` | `POST …/guides/:guideId/view` only | Academy view counting; **single route** registered in `server.js` |
 | `api-docs-routes.js` | `/api-docs` | Swagger UI |
 
-**Inline routes in `server.js`:**
+**Inline routes & static behavior in `server.js`:**
 
 | Path | Purpose | Notes |
 |------|---------|-------|
-| `POST /api/feedback` | Feedback email via `email-service.sendFeedbackEmail` (Resend) + Google Apps Script | Email now unified under Resend; Sheets write remains best-effort |
-| `POST /api/contact` | Contact form → Firestore `contactSubmissions` | |
-| `GET /api/geo/context` | Lightweight region context for localized suggestions | Public, cache-control 1h |
+| `GET /api/admin/error-logs` | Paginated/error-typed logs | `requireAdmin`; `error-logger.js` |
+| `GET /api/admin/error-summary` | Aggregate error stats | `requireAdmin` |
+| `POST /api/admin/css-crash-logs` | Persist client CSS crash reports | Writes via `css-crash-logger.js` |
+| `GET /api/admin/css-crash-logs` | List CSS crash logs | `requireAdmin`; filters optional |
+| `GET /api/admin/css-crash-summary` | Crash summary | `requireAdmin` |
+| `POST /api/logs` | Client structured logs | Stdout/logger only (no Firestore persistence) |
+| `GET /api/logs` | — | Returns **405** (discourage crawlers) |
+| `POST /api/sync-users` | Firebase Auth → Firestore user sync | `requireAdmin`; `user-management.syncAllUsers` |
+| `POST /api/feedback` | Feedback email via `email-service.sendFeedbackEmail` (Resend) + Google Apps Script | Also `rateLimiters.feedback` on handler |
+| `POST /api/contact` | Contact form → Firestore `contactSubmissions` | Uses `rateLimiters.feedback` |
+| `GET /api/geo/context` | Lightweight region context for localized suggestions | Public, `Cache-Control: public, max-age=3600` |
+| `GET /api/status` | Liveness JSON | Lightweight; omitted from noisy request logs |
+
+**Static & HTML:** after API routes the process serves **`/` and `/index.html`** from `_site/index.html`, **`/academy.html`**, **`/blog/`** (built blog index), **`/blog/assets/*`**, dynamic **`/:year/:month/:day/:slug/`** resolving Firebase `blogQueue` → `pages/dynamic-post.html`, then broad **`express.static`** on repo root and **`/2025`** for archived posts. Keeps previews working on Render when API and site ship together; if you split deploys later, peel this layer out first.
 
 ### 4.3 Spec Engine v2
 
@@ -546,6 +660,18 @@ Auxiliary generation moved from workers to Express routes.
 
 Worker runtime dependencies were removed from the main frontend flow.
 All auxiliary endpoints now pass through centralized auth middleware and backend rate limiting.
+
+### 4.12 Architecture improvement directions
+
+Pointers for refactoring **without** changing product behavior — ordered roughly by payoff vs. risk.
+
+1. **Split the monolith bootstrap** — Move `server.js` toward `createApp()` + `routes/index.js`; keep one process on Render initially. Extract **diagnostics** (`/api/logs`, `/api/admin/error-*`, `/api/admin/css-crash-*`, `/api/sync-users`) into `diagnostics-routes.js` or similar so the root file stays a wiring-only surface.
+2. **Unify mounting style** — Blog and articles mix `app.use` routers with **`app.post`/`app.get` hand-wiring**. Collapsing onto `express.Router()` per domain simplifies testing and Swagger maintenance.
+3. **Separate concerns: API vs static** — Today the backend serves `_site`, dynamic blog HTML, and the API. Consider **CDN / GitHub Pages** for HTML + assets and **API-only** Node service when you want stricter isolation, smaller deploy artifacts, or different scaling.
+4. **OpenAI client boundaries** — `openai-storage-service.js` combines Chat Completions (spec / auxiliary glue) with Assistants API (chat / brain dump). Splitting modules (and shared HTTP helper) reduces cognitive load and eases mocking in tests.
+5. **Datastore access layer** — Many files call Firestore inline. A thin repository layer per bounded context (`usersRepo`, `specsRepo`) would localize index assumptions and transactions.
+6. **Observability** — Structured logs exist (`logger.js`), but client **`POST /api/logs`** is console-only. Optional: unify with Cloud Logging / persisted `client_logs` with sampling to avoid reinventing frontend telemetry twice.
+7. **Contract tests** — Golden tests for webhook payload shapes (Lemon), critical Firestore guards (credits consume idempotency), and one smoke test per mounted router reduce regressions when extracting routes.
 
 ---
 
@@ -1033,7 +1159,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` | Pre-created generator assistant (skips auto-creation) |
 | `OPENAI_SPEC_GENERATION_MODEL` | Model override (default: `gpt-4o-mini`) |
 | `OPENAI_SPEC_API_KEY` | Separate key for spec generation |
-| `CREDITS_V3_ENABLED` | Enable V3 credits routes (`true`/`false`) |
+| `CREDITS_V3_ENABLED` | Production: `true` required to mount `/api/v3/credits`. Non-production: V3 on unless set to `false`. |
 | `NODE_ENV` | `production` / `development` |
 | `PORT` | Server port (default: 10000) |
 | `GOOGLE_APPS_SCRIPT_URL` | Feedback/contact webhook |

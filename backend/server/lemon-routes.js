@@ -31,6 +31,29 @@ const {
 const { verifyFirebaseToken } = require('./middleware/auth');
 
 /**
+ * Billing/checkout unavailable locally or missing secrets — HTTP 200 so clients like pricing.js
+ * do not treat it as a transient server failure (avoids retry storms).
+ */
+function respondCheckoutUnavailable(res, { code, error, details } = {}) {
+  const body = {
+    success: false,
+    code: code || 'CHECKOUT_UNAVAILABLE',
+    error: error || 'Checkout is not available.'
+  };
+  if (details !== undefined) body.details = details;
+  return res.status(200).json(body);
+}
+
+function respondCheckoutClientError(res, message, extra = {}) {
+  return res.status(422).json({
+    success: false,
+    code: extra.code || 'LEMON_CHECKOUT_FAILED',
+    error: message,
+    ...extra
+  });
+}
+
+/**
  * POST /api/lemon/checkout
  * Creates a checkout session with Lemon Squeezy
  */
@@ -73,21 +96,21 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     }, '[lemon-routes] Environment variables check');
 
     if (!apiKey || !storeId) {
-      logger.error({ 
-        requestId, 
-        userId, 
-        missingApiKey: !apiKey, 
-        missingStoreId: !storeId,
-        apiKeyLength: apiKey ? apiKey.length : 0,
-        storeId: storeId
-      }, '[lemon-routes] Lemon Squeezy configuration missing');
-      return next(createError('Lemon Squeezy configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'Please configure LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID in Render environment variables',
-        missing: {
-          apiKey: !apiKey,
-          storeId: !storeId
+      logger.warn({
+        requestId,
+        userId,
+        missingApiKey: !apiKey,
+        missingStoreId: !storeId
+      }, '[lemon-routes] Lemon Squeezy configuration missing — returning graceful checkout unavailable response');
+      return respondCheckoutUnavailable(res, {
+        code: 'LEMON_NOT_CONFIGURED',
+        error:
+          'Checkout is not configured on this server. Add LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID to backend/.env for local development, or use production.',
+        details: {
+          missingApiKey: !apiKey,
+          missingStoreId: !storeId
         }
-      }));
+      });
     }
 
     logger.debug({ requestId, productKey }, '[lemon-routes] Looking up product config');
@@ -108,18 +131,20 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     }, '[lemon-routes] Variant ID resolution');
 
     if (!variantIdToUse) {
-      logger.error({ 
-        requestId, 
-        userId, 
-        productKey, 
+      logger.warn({
+        requestId,
+        userId,
+        productKey,
         hasProductConfig: !!productConfig,
         productConfigVariantId: productConfig?.variant_id,
-        defaultVariantId 
-      }, '[lemon-routes] Lemon Squeezy variant configuration missing');
-      return next(createError('Lemon Squeezy variant configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'No variant ID provided. Ensure LEMON_SQUEEZY_VARIANT_ID is set or supply a valid productKey.',
-        productKey
-      }));
+        defaultVariantId
+      }, '[lemon-routes] Lemon Squeezy variant missing — returning graceful checkout unavailable response');
+      return respondCheckoutUnavailable(res, {
+        code: 'LEMON_VARIANT_NOT_CONFIGURED',
+        error:
+          'No Lemon Squeezy variant ID is configured. Set LEMON_SQUEEZY_VARIANT_ID in backend/.env or use a valid productKey.',
+        details: { productKey: productKey || null }
+      });
     }
 
     if (productKey && !productConfig) {
@@ -311,7 +336,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
         }
       }
       
-      return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, errorDetails));
+      return respondCheckoutClientError(res, errorMessage, { details: errorDetails });
     }
 
     // SDK returns: { statusCode, error, data }
@@ -323,10 +348,10 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
         checkoutResult,
         statusCode: checkoutResult?.statusCode
       }, '[lemon-routes] No checkout data in SDK response');
-      return next(createError('No checkout data in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'Lemon Squeezy SDK response did not contain checkout data',
-        response: checkoutResult
-      }));
+      return respondCheckoutClientError(res, 'No checkout data from Lemon Squeezy.', {
+        code: 'LEMON_EMPTY_RESPONSE',
+        rawStatusCode: checkoutResult?.statusCode
+      });
     }
     
     // Extract nested data: checkoutResult.data.data.attributes.url
@@ -338,14 +363,14 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
         checkoutResult,
         dataKeys: checkoutResult.data ? Object.keys(checkoutResult.data) : []
       }, '[lemon-routes] No nested data in SDK response');
-      return next(createError('No checkout data in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'Lemon Squeezy SDK response structure is invalid',
+      return respondCheckoutClientError(res, 'Invalid checkout response structure from Lemon Squeezy.', {
+        code: 'LEMON_INVALID_RESPONSE',
         responseStructure: {
           hasData: !!checkoutResult.data,
           hasNestedData: !!checkoutResult.data.data,
           dataKeys: checkoutResult.data ? Object.keys(checkoutResult.data) : []
         }
-      }));
+      });
     }
     
     const checkoutUrlValue = checkoutData.attributes?.url;
@@ -369,15 +394,15 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
         dataKeys: checkoutData ? Object.keys(checkoutData) : [],
         attributesKeys: checkoutData.attributes ? Object.keys(checkoutData.attributes) : []
       }, '[lemon-routes] No checkout URL in SDK response');
-      return next(createError('No checkout URL in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'Lemon Squeezy SDK response did not contain checkout URL',
+      return respondCheckoutClientError(res, 'Lemon Squeezy did not return a checkout URL.', {
+        code: 'LEMON_NO_CHECKOUT_URL',
         responseStructure: {
           hasData: !!checkoutResult.data,
           hasNestedData: !!checkoutResult.data.data,
           hasAttributes: !!checkoutData.attributes,
           attributesKeys: checkoutData.attributes ? Object.keys(checkoutData.attributes) : []
         }
-      }));
+      });
     }
 
     logger.info({ 

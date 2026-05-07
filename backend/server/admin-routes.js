@@ -47,6 +47,19 @@ const logRouteCall = (req, routeName) => {
   return requestId;
 };
 
+/** Shown when Lemon Squeezy env is missing; dashboard still returns 200 + empty lists for localhost/testing */
+const LEMON_PAYMENTS_CONFIGURE_HINT =
+  'Set LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID to sync Lemon Squeezy data into this dashboard.';
+
+function lemonPaymentsIntegrationMeta({ configured, syncStatus, message } = {}) {
+  const cfg = Boolean(configured);
+  return {
+    configured: cfg,
+    syncStatus: syncStatus || (cfg ? 'unknown' : 'not_configured'),
+    ...(message || !cfg ? { message: message || LEMON_PAYMENTS_CONFIGURE_HINT } : {})
+  };
+}
+
 /**
  * Verify user has admin access
  * GET /api/admin/verify
@@ -1907,26 +1920,33 @@ router.get('/payments/summary', requireAdmin, async (req, res, next) => {
 router.get('/payments/orders', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /payments/orders');
   const { status, refunded, dateFrom, dateTo, limit = 100 } = req.query;
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+  const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+  const configured = Boolean(apiKey && storeId);
 
   logger.info({ requestId, status, refunded, dateFrom, dateTo, limit }, '[admin-routes] GET /payments/orders');
 
   try {
-    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
-    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
-
-    if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    if (!configured) {
+      logger.warn({ requestId }, '[admin-routes] GET /payments/orders — Lemon Squeezy env not set, returning empty list');
+      return res.json({
+        success: true,
+        data: { orders: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: false, syncStatus: 'not_configured' })
+      });
     }
 
     const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
 
-    if (!cacheData || !cacheData.orders) {
+    if (!cacheData || !Array.isArray(cacheData.orders)) {
       return res.json({
         success: true,
-        data: {
-          orders: [],
-          total: 0
-        }
+        data: { orders: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({
+          configured: true,
+          syncStatus: cacheData ? 'no_orders' : 'no_data',
+          message: cacheData ? undefined : 'Payments cache missing or sync failed; use Sync or check server logs.'
+        })
       });
     }
 
@@ -1975,13 +1995,23 @@ router.get('/payments/orders', requireAdmin, async (req, res, next) => {
         orders: limitedOrders,
         total: orders.length,
         filtered: limitedOrders.length
-      }
+      },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured: true,
+        syncStatus: cacheData.sync_status || 'ok'
+      })
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/orders - Error');
-    next(createError('Failed to get orders', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    return res.json({
+      success: true,
+      data: { orders: [], total: 0, filtered: 0 },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured,
+        syncStatus: 'error',
+        message: error.message
+      })
+    });
   }
 });
 
@@ -1992,26 +2022,33 @@ router.get('/payments/orders', requireAdmin, async (req, res, next) => {
 router.get('/payments/customers', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /payments/customers');
   const { search, limit = 100 } = req.query;
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+  const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+  const configured = Boolean(apiKey && storeId);
 
   logger.info({ requestId, search, limit }, '[admin-routes] GET /payments/customers');
 
   try {
-    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
-    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
-
-    if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    if (!configured) {
+      logger.warn({ requestId }, '[admin-routes] GET /payments/customers — Lemon Squeezy env not set');
+      return res.json({
+        success: true,
+        data: { customers: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: false, syncStatus: 'not_configured' })
+      });
     }
 
     const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
 
-    if (!cacheData || !cacheData.customers) {
+    if (!cacheData || !Array.isArray(cacheData.customers)) {
       return res.json({
         success: true,
-        data: {
-          customers: [],
-          total: 0
-        }
+        data: { customers: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({
+          configured: true,
+          syncStatus: cacheData ? 'no_customers' : 'no_data',
+          message: cacheData ? undefined : 'Payments cache missing or sync failed; use Sync or check server logs.'
+        })
       });
     }
 
@@ -2020,7 +2057,7 @@ router.get('/payments/customers', requireAdmin, async (req, res, next) => {
     // Apply search filter
     if (search) {
       const searchLower = search.toLowerCase();
-      customers = customers.filter(customer => 
+      customers = customers.filter(customer =>
         customer.email?.toLowerCase().includes(searchLower) ||
         customer.name?.toLowerCase().includes(searchLower)
       );
@@ -2038,13 +2075,23 @@ router.get('/payments/customers', requireAdmin, async (req, res, next) => {
         customers: limitedCustomers,
         total: customers.length,
         filtered: limitedCustomers.length
-      }
+      },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured: true,
+        syncStatus: cacheData.sync_status || 'ok'
+      })
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/customers - Error');
-    next(createError('Failed to get customers', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    return res.json({
+      success: true,
+      data: { customers: [], total: 0, filtered: 0 },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured,
+        syncStatus: 'error',
+        message: error.message
+      })
+    });
   }
 });
 
@@ -2055,15 +2102,36 @@ router.get('/payments/customers', requireAdmin, async (req, res, next) => {
 router.get('/payments/errors', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /payments/errors');
   const { type } = req.query; // cancelled, refunded, past_due, expired
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+  const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+  const configured = Boolean(apiKey && storeId);
 
   logger.info({ requestId, type }, '[admin-routes] GET /payments/errors');
 
-  try {
-    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
-    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+  const emptyErrorsData = () => ({
+    errors: {
+      cancelled: [],
+      refunded: [],
+      pastDue: [],
+      expired: []
+    },
+    total: 0,
+    counts: {
+      cancelled: 0,
+      refunded: 0,
+      pastDue: 0,
+      expired: 0
+    }
+  });
 
-    if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+  try {
+    if (!configured) {
+      logger.warn({ requestId }, '[admin-routes] GET /payments/errors — Lemon Squeezy env not set');
+      return res.json({
+        success: true,
+        data: emptyErrorsData(),
+        paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: false, syncStatus: 'not_configured' })
+      });
     }
 
     const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
@@ -2071,27 +2139,24 @@ router.get('/payments/errors', requireAdmin, async (req, res, next) => {
     if (!cacheData) {
       return res.json({
         success: true,
-        data: {
-          errors: {
-            cancelled: [],
-            refunded: [],
-            pastDue: [],
-            expired: []
-          },
-          total: 0
-        }
+        data: emptyErrorsData(),
+        paymentsIntegration: lemonPaymentsIntegrationMeta({
+          configured: true,
+          syncStatus: 'no_data',
+          message: 'Payments cache missing or sync failed; use Sync or check server logs.'
+        })
       });
     }
 
     const errors = {
-      cancelled: (cacheData.subscriptions || []).filter(sub => 
+      cancelled: (cacheData.subscriptions || []).filter(sub =>
         sub.status === 'cancelled' || sub.cancelled
       ),
       refunded: (cacheData.orders || []).filter(order => order.refunded),
-      pastDue: (cacheData.subscriptions || []).filter(sub => 
+      pastDue: (cacheData.subscriptions || []).filter(sub =>
         sub.status === 'past_due'
       ),
-      expired: (cacheData.subscriptions || []).filter(sub => 
+      expired: (cacheData.subscriptions || []).filter(sub =>
         sub.status === 'expired'
       )
     };
@@ -2139,13 +2204,23 @@ router.get('/payments/errors', requireAdmin, async (req, res, next) => {
           pastDue: errors.pastDue.length,
           expired: errors.expired.length
         }
-      }
+      },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured: true,
+        syncStatus: cacheData.sync_status || 'ok'
+      })
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/errors - Error');
-    next(createError('Failed to get errors', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    return res.json({
+      success: true,
+      data: emptyErrorsData(),
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured,
+        syncStatus: 'error',
+        message: error.message
+      })
+    });
   }
 });
 
@@ -2156,26 +2231,33 @@ router.get('/payments/errors', requireAdmin, async (req, res, next) => {
 router.get('/payments/new-subscribers', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /payments/new-subscribers');
   const { days = 30, limit = 100 } = req.query;
+  const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+  const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+  const configured = Boolean(apiKey && storeId);
 
   logger.info({ requestId, days, limit }, '[admin-routes] GET /payments/new-subscribers');
 
   try {
-    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
-    const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
-
-    if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    if (!configured) {
+      logger.warn({ requestId }, '[admin-routes] GET /payments/new-subscribers — Lemon Squeezy env not set');
+      return res.json({
+        success: true,
+        data: { subscribers: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: false, syncStatus: 'not_configured' })
+      });
     }
 
     const cacheData = await getCachedPaymentsData({ apiKey, storeId, logger, requestId });
 
-    if (!cacheData || !cacheData.subscriptions) {
+    if (!cacheData || !Array.isArray(cacheData.subscriptions)) {
       return res.json({
         success: true,
-        data: {
-          subscribers: [],
-          total: 0
-        }
+        data: { subscribers: [], total: 0, filtered: 0 },
+        paymentsIntegration: lemonPaymentsIntegrationMeta({
+          configured: true,
+          syncStatus: cacheData ? 'no_subscriptions' : 'no_data',
+          message: cacheData ? undefined : 'Payments cache missing or sync failed; use Sync or check server logs.'
+        })
       });
     }
 
@@ -2226,13 +2308,23 @@ router.get('/payments/new-subscribers', requireAdmin, async (req, res, next) => 
         subscribers: subscribersWithDetails,
         total: newSubscribers.length,
         filtered: limitedSubscribers.length
-      }
+      },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured: true,
+        syncStatus: cacheData.sync_status || 'ok'
+      })
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /payments/new-subscribers - Error');
-    next(createError('Failed to get new subscribers', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    return res.json({
+      success: true,
+      data: { subscribers: [], total: 0, filtered: 0 },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured,
+        syncStatus: 'error',
+        message: error.message
+      })
+    });
   }
 });
 
@@ -2249,13 +2341,18 @@ router.post('/payments/sync', requireAdmin, async (req, res, next) => {
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
 
     if (!apiKey || !storeId) {
-      return next(createError('Lemon Squeezy API key or store ID not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+      logger.warn({ requestId }, '[admin-routes] POST /payments/sync — Lemon Squeezy env not set');
+      return res.json({
+        success: false,
+        message: LEMON_PAYMENTS_CONFIGURE_HINT,
+        paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: false, syncStatus: 'not_configured' })
+      });
     }
 
     // Trigger sync
     const cacheData = await syncPaymentsData({ apiKey, storeId, logger, requestId });
 
-    logger.info({ 
+    logger.info({
       requestId,
       orders: cacheData?.orders?.length || 0,
       customers: cacheData?.customers?.length || 0,
@@ -2272,13 +2369,20 @@ router.post('/payments/sync', requireAdmin, async (req, res, next) => {
         invoices: cacheData?.invoices?.length || 0,
         lastSynced: cacheData?.last_synced_at,
         stats: cacheData?.stats
-      }
+      },
+      paymentsIntegration: lemonPaymentsIntegrationMeta({ configured: true, syncStatus: 'ok' })
     });
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /payments/sync - Error');
-    next(createError('Failed to sync payments data', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
-    }));
+    return res.json({
+      success: false,
+      message: error.message || 'Failed to sync payments data',
+      paymentsIntegration: lemonPaymentsIntegrationMeta({
+        configured: Boolean(process.env.LEMON_SQUEEZY_API_KEY && process.env.LEMON_SQUEEZY_STORE_ID),
+        syncStatus: 'error',
+        message: error.message
+      })
+    });
   }
 });
 

@@ -76,9 +76,10 @@ LEMON_WEBHOOK_SECRET=your_webhook_secret_here
 # Credits System V3 (Optional / Feature Flag)
 # ============================================
 # Enable the Credits V3 system (mounts /api/v3/credits and enables V3 sync in webhooks)
-# Options: true, false
-# Default: false
-CREDITS_V3_ENABLED=false
+# Production (NODE_ENV=production): requires CREDITS_V3_ENABLED=true explicitly.
+# Local / non-production: system is ON unless you set CREDITS_V3_ENABLED=false.
+# Recommended for full local testing: omit this line or set true.
+CREDITS_V3_ENABLED=true
 
 # Migration mode:
 # - parallel: V2 + V3 run together (recommended during rollout)

@@ -23,9 +23,13 @@ module.exports = {
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:5000',
+    'http://localhost:5173',
+    'http://localhost:8080',
     'http://localhost:10000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:4000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:8080',
     'http://127.0.0.1:10000',
     'https://specifys-ai.com',
     'https://www.specifys-ai.com',
@@ -35,7 +39,12 @@ module.exports = {
   
   // Credits V3 Configuration
   creditsV3: {
-    // Enable V3 system (default: false - disabled)
-    enabled: process.env.CREDITS_V3_ENABLED === 'true'
+    // Production: opt-in via CREDITS_V3_ENABLED=true (matches Render / prod env).
+    // Non-production: on by default so localhost and tests get /api/v3/credits without extra env;
+    // set CREDITS_V3_ENABLED=false to disable locally.
+    enabled:
+      process.env.NODE_ENV === 'production'
+        ? process.env.CREDITS_V3_ENABLED === 'true'
+        : process.env.CREDITS_V3_ENABLED !== 'false'
   }
 };

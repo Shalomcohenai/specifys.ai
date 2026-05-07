@@ -102,10 +102,7 @@ logger.info({ type: 'compression_enabled' }, '[UNIFIED SERVER] ✅ Compression m
 // CORS middleware to allow requests from your frontend
 // Must be before routes and rate limiting
 // Do not remove origins without verifying they are unused (removal can break auth/API/payments)
-const allowedOrigins = [
-  ...config.allowedOrigins,
-  'http://localhost:8080'
-].filter(Boolean);
+const allowedOrigins = [...config.allowedOrigins].filter(Boolean);
 
 logger.info({ 
   type: 'cors_setup',
@@ -163,8 +160,33 @@ app.use('/api/auth/', rateLimiters.auth);
 app.use('/api/feedback', rateLimiters.feedback);
 logger.info({ type: 'rate_limiting_applied' }, '[UNIFIED SERVER] ✅ Rate limiting applied');
 
-// Middleware to parse JSON bodies (registered after lemon routes)
-app.use(express.json());
+// Web Vitals: sendBeacon may use text/plain (string) or application/json (Blob). Parse raw here so legacy
+// clients and multipart edge cases never hit req.body {}; express.json skips this path afterward.
+function isPostApiAnalyticsWebVitals(req) {
+  if (req.method !== 'POST') return false;
+  const pathname = (req.path || '').replace(/\/+$/, '') || '/';
+  return pathname === '/api/analytics/web-vitals';
+}
+
+app.use((req, res, next) => {
+  if (!isPostApiAnalyticsWebVitals(req)) return next();
+  return express.raw({ type: '*/*', limit: '32kb' })(req, res, (err) => {
+    if (err) return next(err);
+    try {
+      const buf = req.body;
+      const raw = Buffer.isBuffer(buf) && buf.length ? buf.toString('utf8') : '';
+      req.body = raw ? JSON.parse(raw) : {};
+    } catch {
+      req.body = {};
+    }
+    next();
+  });
+});
+
+app.use((req, res, next) => {
+  if (isPostApiAnalyticsWebVitals(req)) return next();
+  express.json()(req, res, next);
+});
 logger.info({ type: 'json_parser_applied' }, '[UNIFIED SERVER] ✅ JSON body parser applied');
 
 // Request logging middleware (using structured logger)
@@ -377,7 +399,10 @@ if (config.creditsV3.enabled) {
   app.use('/api/share-prompt', sharePromptRoutes);
   logger.info({ type: 'route_mounted', path: '/api/share-prompt' }, '[UNIFIED SERVER] ✅ Share prompt routes mounted');
 } else {
-  logger.info({ type: 'route_skipped', path: '/api/v3/credits', reason: 'CREDITS_V3_ENABLED=false' }, '[UNIFIED SERVER] ⏭️  Credits V3 routes disabled (feature flag)');
+  logger.info(
+    { type: 'route_skipped', path: '/api/v3/credits', reason: 'credits_v3_disabled_by_env' },
+    '[UNIFIED SERVER] ⏭️  Credits V3 routes disabled (set CREDITS_V3_ENABLED=true for production)'
+  );
 }
 
 // Chat routes for AI chat functionality

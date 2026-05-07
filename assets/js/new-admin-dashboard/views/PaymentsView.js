@@ -313,7 +313,15 @@ export class PaymentsView {
       }
 
       if (orders.length === 0) {
-        table.innerHTML = '<tr><td colspan="7" class="table-empty-state">No orders found</td></tr>';
+        const hint =
+          response.paymentsIntegration && response.paymentsIntegration.configured === false
+            ? (response.paymentsIntegration.message ||
+              'Lemon Squeezy is not configured (missing API key or store ID).')
+            : response.paymentsIntegration?.syncStatus === 'no_data'
+              ? (response.paymentsIntegration.message ||
+                'No payments cache yet — click Sync after configuring Lemon Squeezy.')
+              : 'No orders found';
+        table.innerHTML = `<tr><td colspan="7" class="table-empty-state">${this.escapeHtml(hint)}</td></tr>`;
         return;
       }
 
@@ -629,7 +637,7 @@ export class PaymentsView {
       }
     } catch (error) {
       console.error('[PaymentsView] Error syncing payments data:', error);
-      this.showError('Failed to sync payments data. Please try again.');
+      this.showError(error.message || 'Failed to sync payments data. Please try again.');
     } finally {
       // Re-enable button
       syncBtn.disabled = false;

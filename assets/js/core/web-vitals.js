@@ -13,10 +13,17 @@
         delta: metric.delta,
         navigationType: metric.navigationType,
         url: window.location.href,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
         timestamp: Date.now()
       });
-      if (navigator.sendBeacon) navigator.sendBeacon(endpoint, data);
-      else fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: data, keepalive: true }).catch(() => {});
+      // sendBeacon with a string uses text/plain; Express JSON parser ignores it → 400.
+      // Blob with application/json matches express.json and ORB/CORS expectations.
+      if (navigator.sendBeacon) {
+        const blob = new Blob([data], { type: 'application/json' });
+        navigator.sendBeacon(endpoint, blob);
+      } else {
+        fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: data, keepalive: true }).catch(() => {});
+      }
     } catch (error) {}
   }
 

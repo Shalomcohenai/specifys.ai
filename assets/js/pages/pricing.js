@@ -33,12 +33,10 @@
     // Silent fetch wrapper for Lemon Squeezy API calls
     // Prevents console errors from appearing to users
     function silentFetch(url, options = {}) {
-        // Use regular fetch but handle errors silently
         return fetch(url, options).catch((error) => {
             // Silently handle network errors for Lemon endpoints
             // Return a response-like object so the calling code can handle it
             if (url.includes('lemon') || url.includes('lemonsqueezy') || url.includes('/api/lemon')) {
-                // Create a response-like object for error handling
                 return {
                     ok: false,
                     status: 0,
@@ -48,11 +46,21 @@
                     headers: new Headers()
                 };
             }
-            // For non-Lemon endpoints, re-throw the error
             throw error;
         });
     }
-    
+
+    /** Parses backend JSON error fields ({ error }, { error: { message } }, graceful success:false) */
+    function extractCheckoutErrorMessage(payload) {
+        if (!payload || typeof payload !== 'object') return '';
+        if (payload.success === false && typeof payload.error === 'string') return payload.error;
+        if (typeof payload.error === 'string') return payload.error;
+        if (payload.error && typeof payload.error === 'object' && typeof payload.error.message === 'string') {
+            return payload.error.message;
+        }
+        if (typeof payload.message === 'string') return payload.message;
+        return '';
+    }
     // Suppress console errors and unhandled rejections for Lemon Squeezy
     (function suppressLemonErrors() {
         if (typeof window === 'undefined' || typeof console === 'undefined') {
@@ -607,7 +615,11 @@ async function purchaseSpec(evt, productKey) {
                 });
 
                 if (response.ok) {
-                    break; // Success, exit retry loop
+                    const peek = await response.clone().json().catch(() => ({}));
+                    if (peek.success === false) {
+                        throw new Error(extractCheckoutErrorMessage(peek) || 'Checkout is unavailable.');
+                    }
+                    break;
                 }
                 
                 // Handle 404 as server sleeping (cold start) - retry
@@ -618,7 +630,7 @@ async function purchaseSpec(evt, productKey) {
                     }
                     // Last attempt - try to get error message
                     const errorPayload = await response.json().catch(() => ({}));
-                    throw new Error(errorPayload.error || 'Server endpoint not found. Please try again in a moment.');
+                    throw new Error(extractCheckoutErrorMessage(errorPayload) || 'Server endpoint not found. Please try again in a moment.');
                 }
                 
                 // If it's a server error (5xx) or network error, retry
@@ -629,12 +641,12 @@ async function purchaseSpec(evt, productKey) {
                     }
                     // Last attempt - try to get error message
                     const errorPayload = await response.json().catch(() => ({}));
-                    throw new Error(errorPayload.error || 'Server error. Please try again in a moment.');
+                    throw new Error(extractCheckoutErrorMessage(errorPayload) || 'Server error. Please try again in a moment.');
                 }
                 
-                // For other 4xx errors (401, 403, etc.), don't retry
+                // For other 4xx errors (401, 403, 422 Lemon validation, etc.), don't retry
                 const errorPayload = await response.json().catch(() => ({}));
-                throw new Error(errorPayload.error || `Request failed (${response.status}). Please try again.`);
+                throw new Error(extractCheckoutErrorMessage(errorPayload) || `Request failed (${response.status}). Please try again.`);
             } catch (error) {
                 lastError = error;
                 
@@ -676,8 +688,11 @@ async function purchaseSpec(evt, productKey) {
         }
 
         const data = await response.json();
+        if (data.success === false) {
+            throw new Error(extractCheckoutErrorMessage(data) || 'Checkout is unavailable.');
+        }
         if (!data.checkoutUrl) {
-            throw new Error('Checkout URL missing from server response');
+            throw new Error(extractCheckoutErrorMessage(data) || 'Checkout URL missing from server response.');
         }
 
         // Stop loading rotation and update text before opening checkout
