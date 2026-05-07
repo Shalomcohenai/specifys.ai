@@ -121,6 +121,13 @@
     });
   }
 
+  function captureApiError(error, context = {}) {
+    logError(error || new Error('Unknown API error'), {
+      type: 'apiClientError',
+      ...context
+    });
+  }
+
   // Export functions to window
   window.appLogger = {
     log: sendLog,
@@ -129,7 +136,8 @@
     logAuthEvent,
     logUserAction,
     logError,
-    logFeatureUsage
+    logFeatureUsage,
+    captureApiError
   };
 
   // Log page load when script loads - deferred until page is interactive

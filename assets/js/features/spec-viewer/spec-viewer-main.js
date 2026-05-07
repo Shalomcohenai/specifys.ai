@@ -16,12 +16,14 @@ if (typeof window.loadGeoContext === 'function') {
 }
 
 async function getAuxHeaders() {
+    // Deprecated path: prefer window.api.getAuthHeaders().
+    if (window.api && typeof window.api.getAuthHeaders === 'function') {
+        return window.api.getAuthHeaders();
+    }
     const headers = { 'Content-Type': 'application/json' };
     try {
         const user = firebase?.auth?.().currentUser;
-        if (user) {
-            headers.Authorization = `Bearer ${await user.getIdToken()}`;
-        }
+        if (user) headers.Authorization = `Bearer ${await user.getIdToken()}`;
     } catch (error) {}
     return headers;
 }

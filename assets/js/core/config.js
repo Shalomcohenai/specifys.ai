@@ -107,6 +107,13 @@ var BACKEND_URL = 'https://specifys-ai-backend.onrender.com';
   // Export for use in other scripts
   window.API_CONFIG = API_CONFIG;
   window.API_BASE_URL = API_CONFIG.baseUrl;
+  window.SPECIFYS_TIMEOUTS = Object.freeze({
+    apiDefaultMs: 30000,
+    apiPromptMs: 120000,
+    apiPollMs: 5000,
+    apiAnalyticsMs: 5000,
+    diagramRenderWaitMs: 2000
+  });
 
   // Global helper function to get API base URL
   window.getApiBaseUrl = function() {

@@ -3,6 +3,7 @@
  */
 (function () {
   'use strict';
+  let isRedirectingToAuth = false;
 
   class ApiClient {
     constructor(baseUrl) {
@@ -16,28 +17,34 @@
       this.cacheTTL = 5 * 60 * 1000;
     }
 
-    async getAuthHeaders() {
+    async getAuthHeaders({ forceRefresh = false } = {}) {
       const headers = { 'Content-Type': 'application/json' };
-      if (window.auth && window.auth.currentUser) {
+      const authUser = window.firebase?.auth?.().currentUser || window.auth?.currentUser;
+      if (authUser) {
         try {
-          const token = await window.auth.currentUser.getIdToken();
+          const token = await authUser.getIdToken(forceRefresh);
           headers.Authorization = `Bearer ${token}`;
+        } catch (error) {}
+      } else if (typeof window.getAuxHeaders === 'function' && !forceRefresh) {
+        try {
+          const legacyHeaders = await window.getAuxHeaders();
+          return { ...headers, ...legacyHeaders };
         } catch (error) {}
       }
       return headers;
     }
 
-    async retryRequest(fn, retryCount = 0) {
+    async retryRequest(fn, retryCount = 0, retryConfig = this.retryConfig) {
       try {
         return await fn();
       } catch (error) {
-        const shouldRetry = retryCount < this.retryConfig.maxRetries &&
+        const shouldRetry = retryCount < retryConfig.maxRetries &&
           error.status &&
-          this.retryConfig.retryableStatuses.includes(error.status);
+          retryConfig.retryableStatuses.includes(error.status);
         if (!shouldRetry) throw error;
-        const delay = this.retryConfig.retryDelay * Math.pow(2, retryCount);
+        const delay = retryConfig.retryDelay * Math.pow(2, retryCount);
         await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.retryRequest(fn, retryCount + 1);
+        return this.retryRequest(fn, retryCount + 1, retryConfig);
       }
     }
 
@@ -52,35 +59,62 @@
         this.cache.delete(cacheKey);
       }
 
-      const headers = { ...(await this.getAuthHeaders()), ...options.headers };
+      const headers = { ...(await this.getAuthHeaders({ forceRefresh: Boolean(options._forceRefreshToken) })), ...options.headers };
       const config = { method, headers, ...options };
+      delete config._authRetry;
+      delete config._forceRefreshToken;
+      delete config.retryConfig;
       if (options.body && typeof options.body === 'object') {
         config.body = JSON.stringify(options.body);
       }
 
-      return this.retryRequest(async () => {
-        const response = await fetch(url, config);
-        let payload = null;
-        const text = await response.text();
-        if (text) {
-          try { payload = JSON.parse(text); } catch (e) {}
-        }
+      const retryConfig = {
+        ...this.retryConfig,
+        ...(options.retryConfig || {})
+      };
 
-        if (!response.ok) {
-          const message = payload?.error?.message || payload?.message || `API Error: ${response.status} ${response.statusText}`;
-          const error = new Error(message);
-          error.status = response.status;
-          error.code = payload?.error?.code || null;
-          error.response = payload || response;
-          throw error;
-        }
+      try {
+        return await this.retryRequest(async () => {
+          const response = await fetch(url, config);
+          let payload = null;
+          const text = await response.text();
+          if (text) {
+            try { payload = JSON.parse(text); } catch (e) {}
+          }
 
-        const data = payload || {};
-        if (cacheKey && method === 'GET') {
-          this.cache.set(cacheKey, { data, timestamp: Date.now() });
-        }
-        return data;
-      });
+          if (!response.ok) {
+            if (response.status === 401 && !options._authRetry) {
+              await this.getAuthHeaders({ forceRefresh: true });
+              return this.request(endpoint, {
+                ...options,
+                _authRetry: true,
+                _forceRefreshToken: true
+              });
+            }
+            const message = payload?.error?.message || payload?.message || `API Error: ${response.status} ${response.statusText}`;
+            const error = new Error(message);
+            error.status = response.status;
+            error.code = payload?.error?.code || null;
+            error.response = payload || response;
+            error.endpoint = endpoint;
+            if (response.status === 401 || response.status === 403) {
+              window.dispatchEvent(new CustomEvent('api:unauthorized', {
+                detail: { status: response.status, endpoint }
+              }));
+            }
+            throw error;
+          }
+
+          const data = payload || {};
+          if (cacheKey && method === 'GET') {
+            this.cache.set(cacheKey, { data, timestamp: Date.now() });
+          }
+          return data;
+        }, 0, retryConfig);
+      } catch (error) {
+        window.appLogger?.captureApiError?.(error, { endpoint, method });
+        throw error;
+      }
     }
 
     get(endpoint, options = {}) { return this.request(endpoint, { ...options, method: 'GET' }); }
@@ -91,4 +125,14 @@
   }
 
   window.api = new ApiClient();
+
+  window.addEventListener('api:unauthorized', () => {
+    if (isRedirectingToAuth) return;
+    isRedirectingToAuth = true;
+    window.showNotification?.('Session expired - redirecting to sign in...', 'warning');
+    const nextUrl = `${window.location.pathname}${window.location.search}`;
+    window.setTimeout(() => {
+      window.location.href = `/pages/auth.html?next=${encodeURIComponent(nextUrl)}`;
+    }, 1500);
+  });
 })();
