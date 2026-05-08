@@ -6278,33 +6278,27 @@ async function checkProAccess() {
         if (!user) {
             return false;
         }
-        
-        // Use V3 credits API to check for unlimited access
-        try {
-            const data = await window.api.get('/api/v3/credits');
-            if (data && data.unlimited === true) {
-                return true;
-            }
-            // API returned but unlimited is not true - fallback to users.plan (e.g. Pro not yet synced to V3)
-            const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                if (userData.plan === 'pro') {
-                    return true;
-                }
-            }
-        } catch (apiError) {
-            // If API call fails, fallback to checking user plan
-            const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                if (userData.plan === 'pro') {
-                    return true;
-                }
-            }
+
+        // Use V3 credits API as single source of truth for paid access.
+        // Avoid users.plan fallback because stale Firestore values can unlock Pro modules by mistake.
+        const data = await window.api.get('/api/v3/credits');
+        if (!data || typeof data !== 'object') return false;
+        if (data.unlimited === true) return true;
+
+        const subscription = data.subscription && typeof data.subscription === 'object' ? data.subscription : null;
+        if (!subscription) return false;
+        if (subscription.type !== 'pro') return false;
+
+        const status = String(subscription.status || '').toLowerCase();
+        const isActiveStatus = status === 'active' || status === 'paid';
+        if (!isActiveStatus) return false;
+
+        if (!subscription.expiresAt) return true;
+        const expiresAt = new Date(subscription.expiresAt);
+        if (Number.isNaN(expiresAt.getTime())) {
+            return false;
         }
-        
-        return false;
+        return expiresAt > new Date();
     } catch (error) {
         return false;
     }
@@ -6355,7 +6349,7 @@ async function updateVisibilityEngineTab() {
     if (!visibilityTab) return;
     const hasProAccess = await checkProAccess();
     const canOpenByStatus = !!(currentSpecData?.status?.architecture === 'ready' || currentSpecData?.visibility);
-    visibilityTab.disabled = !canOpenByStatus;
+    visibilityTab.disabled = !hasProAccess || !canOpenByStatus;
     if (!hasProAccess) {
         visibilityTab.title = 'AIO & SEO Visibility Engine is available for PRO users only';
     } else if (!canOpenByStatus) {
