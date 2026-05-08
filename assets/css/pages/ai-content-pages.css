@@ -1,0 +1,194 @@
+.for-ai-page,
+.glossary-page,
+.compare-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.for-ai-page article,
+.glossary-page article,
+.compare-page article {
+  background: #ffffff;
+  border: 1px solid #e8ebf2;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(12, 24, 48, 0.06);
+  padding: clamp(1.25rem, 2vw, 2rem);
+}
+
+.for-ai-page h1,
+.glossary-page h1,
+.compare-page h1 {
+  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.9rem;
+  color: #0f172a;
+}
+
+.for-ai-page h2,
+.glossary-page h2,
+.compare-page h2 {
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  line-height: 1.3;
+  margin: 0 0 0.65rem;
+  color: #111827;
+}
+
+.for-ai-page p,
+.glossary-page p,
+.compare-page p,
+.for-ai-page li,
+.glossary-page li,
+.compare-page li,
+.for-ai-page dd {
+  color: #334155;
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.for-ai-page > article > p:first-of-type,
+.glossary-page > article > p:first-of-type,
+.compare-page > article > p:first-of-type {
+  font-size: 1.07rem;
+  color: #1e293b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.for-ai-page section,
+.glossary-page section,
+.compare-page section {
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eef2f7;
+}
+
+.for-ai-page ul,
+.compare-page ul {
+  margin: 0.4rem 0 0;
+  padding-inline-start: 1.2rem;
+}
+
+.for-ai-page li + li,
+.compare-page li + li {
+  margin-top: 0.45rem;
+}
+
+.for-ai-page code {
+  font-size: 0.92em;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #dbe3ee;
+  border-radius: 7px;
+  padding: 0.12rem 0.4rem;
+}
+
+.for-ai-page .for-ai-faq {
+  margin: 0;
+}
+
+.for-ai-page .for-ai-faq dt {
+  margin-top: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.for-ai-page .for-ai-faq dd {
+  margin: 0.4rem 0 0.2rem;
+}
+
+.compare-page table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.compare-page thead {
+  background: #f8fafc;
+}
+
+.compare-page th,
+.compare-page td {
+  border-bottom: 1px solid #eaf0f6;
+  text-align: left;
+  vertical-align: top;
+  padding: 0.75rem 0.85rem;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.compare-page th {
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.compare-page tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.glossary-page section {
+  background: #fbfdff;
+  border: 1px solid #e6edf5;
+  border-radius: 12px;
+  padding: 0.95rem 1rem;
+}
+
+.glossary-page section + section {
+  margin-top: 0.85rem;
+}
+
+.glossary-page section h2 {
+  margin-bottom: 0.3rem;
+}
+
+.for-ai-page a,
+.glossary-page a,
+.compare-page a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+@media (max-width: 768px) {
+  .for-ai-page,
+  .glossary-page,
+  .compare-page {
+    padding: 1.4rem 0.95rem 3rem;
+  }
+
+  .compare-page table,
+  .compare-page thead,
+  .compare-page tbody,
+  .compare-page tr,
+  .compare-page th,
+  .compare-page td {
+    display: block;
+  }
+
+  .compare-page thead {
+    position: absolute;
+    left: -9999px;
+  }
+
+  .compare-page tbody tr {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+  }
+
+  .compare-page td {
+    border: none;
+    border-bottom: 1px solid #eef2f7;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .compare-page tbody tr td:last-child {
+    border-bottom: none;
+  }
+}
