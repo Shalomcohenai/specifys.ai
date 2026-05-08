@@ -947,7 +947,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 }
             }
 
-            const planLabel = unlimited ? 'Pro' : (user.plan ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1) : 'Free');
+            // Never rely on users.plan for customer-facing plan status.
+            // users.plan can be stale; only active unlimited entitlement means Pro.
+            const planLabel = unlimited ? 'Pro' : 'Free';
 
             const specsRemainingEl = document.getElementById('specs-remaining-count');
             if (specsRemainingEl) {
