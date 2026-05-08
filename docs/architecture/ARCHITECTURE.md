@@ -353,14 +353,15 @@ The core product engine. Replaced the legacy Cloudflare Worker–based flow with
 
 | File | Role |
 |------|------|
-| `spec-generation-service-v2.js` | Orchestrates generation for overview, technical, market, design, architecture, visibility, prompts. Builds prompts, calls thread manager, emits events |
-| `spec-thread-manager.js` | Model resolution (`resolveSpecGeneratorTarget`), calls `openaiStorage.runSpecGeneration`, Zod validation of response |
+| `spec-generation-service-v2.js` | Orchestrates generation for overview, technical, market, design, architecture, visibility, prompts. Builds prompts, calls thread manager, runs the diagram QA pipeline (`_processDiagrams`), emits events |
+| `spec-thread-manager.js` | Model resolution (`resolveSpecGeneratorTarget`), calls `openaiStorage.runSpecGeneration`, Zod validation of response, single-diagram repair sub-call (`repairMermaidDiagram`) |
 | `openai-storage-service.js` | Low-level OpenAI HTTP: `runSpecGeneration` → `POST /v1/chat/completions`. Also has Assistants API methods for chat/brain-dump (separate from spec gen) |
 | `spec-queue.js` | In-memory queue (concurrency=1) for `generateAllSpecs` background jobs |
 | `spec-queue-firestore-listeners.js` | Attaches `spec.update`/`spec.complete`/`spec.error` listeners that sync generation status to Firestore |
 | `spec-events.js` | EventEmitter for generation progress (`spec.update`, `spec.complete`, `spec.error`) |
 | `spec-overview-utils.js` | Extracts title from overview content |
 | `schemas/spec-schemas.js` | Zod schemas for overview, technical, market, design, architecture, visibility, prompts + `buildResponseFormat(stage)` + `parseAndValidateStage(stage, raw)` |
+| `schemas/mermaid-validator.js` | Sanitizer (`sanitizeMermaid`), heuristic validator (`validateMermaid`), and per-stage diagram field map (`DIAGRAM_FIELDS`) used by the diagram QA pipeline |
 | `pipeline-canary-service.js` | Automated pipeline health test — creates a canary spec through the full v2 pipeline |
 
 #### How It Calls OpenAI (the key innovation)
@@ -409,16 +410,44 @@ generateOverview(specId, userInput)
   → Store JSON string in Firestore, set status.overview='ready'
 
 generateAllSpecs(specId, overview, answers)  [via specQueue]
-  → generateSection('technical', prompt) → POST /v1/chat/completions → Zod → emitSpecUpdate
+  → generateSection('technical', prompt) → POST /v1/chat/completions → Zod
+                                         → _processDiagrams('technical', payload)   ← Mermaid QA
+                                         → emitSpecUpdate
   → generateSection('market', prompt)    → POST /v1/chat/completions → Zod → emitSpecUpdate
   → generateSection('design', prompt)    → POST /v1/chat/completions → Zod → emitSpecUpdate
   → generateArchitecture(overview, technical, market, design)
       → POST /v1/chat/completions (ArchitecturePayloadSchema, strict JSON)
       → Zod validation
+      → _processDiagrams('architecture', payload)                                  ← Mermaid QA
       → _architecturePayloadToMarkdown(payload) → fenced Mermaid blocks
       → emitSpecUpdate (Markdown stored in Firestore)
   → emitSpecComplete
 ```
+
+#### Mermaid Diagram QA Pipeline
+
+Strict JSON schemas (`buildResponseFormat`) only guarantee that diagram fields are *strings* — not that the strings are valid Mermaid. Without this pipeline, ~25% of generated diagrams broke `mermaid.parse()` at render time (markdown fences, smart quotes, emoji labels, missing directives, unbalanced brackets), which made entire Technical / Architecture sections look empty.
+
+`_processDiagrams(stage, payload)` runs after Zod validation for the `technical` and `architecture` stages. It walks every Mermaid field listed in `DIAGRAM_FIELDS[stage]` and, for each:
+
+1. **Sanitize** — `sanitizeMermaid(src)` is idempotent. It strips ` ```mermaid `…` ``` ` fences, normalizes typography (smart quotes, em-dash, NBSP, ellipsis), drops emoji and bidi controls, rewrites foreign-language directives (`grafico TD` → `graph TD`), uppercases direction tokens, and collapses HTML to plain `<br>` only.
+2. **Validate** — `validateMermaid(src)` runs heuristics that mirror the failure modes seen in production logs:
+   - First non-empty line must match an `ALLOWED_DIRECTIVES` token (`flowchart`, `graph`, `erDiagram`, `sequenceDiagram`, `classDiagram`, `stateDiagram-v2`, `mindmap`, `pie`, `gantt`, `journey`, …).
+   - No leftover ` ``` ` fences or stray HTML other than `<br>`.
+   - Bracket / paren balance, ignoring quoted labels and `%%` comments. Skipped for `erDiagram` because cardinality tokens (`||--o{`, `}o--||`) reuse `{` `}` as part of the relationship symbol.
+   - Per-directive sanity: `sequenceDiagram` must contain at least one arrow; `erDiagram` needs a relationship or entity body; `flowchart` / `graph` need at least one edge; `mindmap` needs child nodes.
+3. **Repair** — if the sanitized source still fails validation, `tm.repairMermaidDiagram(src, errors, kind)` issues a small dedicated Chat Completions call:
+   - Tiny strict `response_format`: `{ type: 'json_schema', schema: { properties: { corrected: string }, required: ['corrected'], strict: true } }` so the model returns a single string, not a wrapped object.
+   - System prompt is repair-tuned (`MERMAID_REPAIR_SYSTEM` in `spec-thread-manager.js`); when the main flow goes through an Assistant we override `mode: 'direct'` for this sub-call so the assistant's full-spec instructions don't leak into the repair.
+   - User prompt feeds back the validator errors and a strict rules block.
+   - At most one repair attempt per field — the cost of failing here is small (set to null or kept as-is) compared to looping.
+4. **Degrade** — if repair still fails:
+   - For nullable fields (every diagram except `databaseSchema.erDiagramMermaid`): set to `null`. Frontend will simply not render anything in that slot.
+   - For non-nullable fields: keep the sanitized (still-broken) source. The frontend's inline diagram fallback (`buildInlineDiagramFallback` in `DiagramEngine.js` and the matching block in `spec-viewer-main.renderSpecMermaidPlaceholders`) shows a "Diagram preview unavailable" card with the source in a `<details>` block, so the rest of the section keeps rendering.
+
+A per-stage summary log (`[DiagramQA] Diagram pipeline summary`) records `{ sanitized, repaired, dropped, kept_invalid }` counts so we can monitor regression in production.
+
+The prompts in `spec-generation-service-v2.js` share a `MERMAID_RULES_BLOCK` constant (ASCII-only node IDs, quoted labels with spaces, no emoji, no HTML except `<br>`, exact ER cardinality tokens, ≤25 nodes). This keeps the model on the rails *before* QA runs and minimises the number of repair calls.
 
 #### Queue and Events
 
@@ -719,7 +748,7 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `modules/DataService.js` — canonical spec state module (`setSpec/getState/patchState`), scoped loading (`setLoading/isLoading`), Firestore `onSnapshot`, polling fallback, save helpers, internal pub/sub (`specUpdated`, `loadingChanged`), and legacy `window.currentSpecData` sync
 - `modules/TabManager.js` — centralized tab navigation/orchestration, active-tab renderer registry, and `specUpdated` subscription to re-render only current tab
 - `modules/UiRenderer.js` — partial template isolation for heavy Overview/Technical HTML rendering
-- `modules/DiagramEngine.js` — mind map + standalone diagram pipeline, Mermaid lazy-loading via `mermaidManager`, and architecture/spec Mermaid render helpers
+- `modules/DiagramEngine.js` — mind map + standalone diagram pipeline, Mermaid lazy-loading via `mermaidManager`, architecture/spec Mermaid render helpers, and an inline `buildInlineDiagramFallback` card that surfaces the diagram source when `mermaid.parse` / `mermaid.render` fails (matched by the same fallback in `spec-viewer-main.renderSpecMermaidPlaceholders` for the Technical tab)
 - `modules/PromptEngine.js` — staged prompt generation and retry/display adapters with scoped loading via `window.dataService`
 - `modules/UiController.js`, `MockupService.js`, `PromptService.js`, `DiagramManager.js`, `MindMapService.js`, `SeoInjector.js` — extracted modular layer
 - `spec-viewer-firebase.js` — Firebase config
@@ -1013,9 +1042,10 @@ specQueue.processJob → specGenerationServiceV2.generateAllSpecs:
   ├─ Group A (overview-only)
   │
   ├─ generateSection('technical')
-  │    ├─ _buildTechnicalPrompt(...)
+  │    ├─ _buildTechnicalPrompt(...)               (includes MERMAID_RULES_BLOCK)
   │    ├─ POST /v1/chat/completions (TechnicalPayloadSchema, strict JSON)
   │    ├─ Zod validation
+  │    ├─ _processDiagrams('technical', payload)   (sanitize → validate → repair → degrade)
   │    └─ emitSpecUpdate → listener writes to Firestore (status.technical='ready', content)
   │
   ├─ generateSection('market')
@@ -1029,9 +1059,10 @@ specQueue.processJob → specGenerationServiceV2.generateAllSpecs:
   ├─ Group B (overview + technical dependency model)
   │
   ├─ generateArchitecture(overview, technical, market, design)
-  │    ├─ _buildArchitecturePrompt(...)
+  │    ├─ _buildArchitecturePrompt(...)             (includes MERMAID_RULES_BLOCK)
   │    ├─ POST /v1/chat/completions (ArchitecturePayloadSchema, strict JSON)
   │    ├─ Zod validation
+  │    ├─ _processDiagrams('architecture', payload) (sanitize → validate → repair → degrade)
   │    ├─ _architecturePayloadToMarkdown(payload) → Markdown with fenced Mermaid
   │    └─ emitSpecUpdate → Firestore (architecture=Markdown, status='ready')
   │

@@ -366,3 +366,13 @@ Execution Status Update — Phase 6 Hardening
 - Security/environment guard: `npm run check:env` added (with `check:ports` alias) to detect hardcoded legacy ports, dev URLs, and token/key patterns via `scripts/check-env.mjs`.
 - Contract docs: added `assets/js/features/spec-viewer/modules/CONTRACTS.md` documenting PromptEngine/DiagramEngine/DataService request-response and event contracts.
 
+==================================================
+Execution Status Update — Phase 7 Mermaid QA
+==================================================
+
+- Server-side diagram QA: spec-generation-service-v2 now runs `_processDiagrams(stage, payload)` after Zod validation for `technical` and `architecture`. Each Mermaid field is sanitized (`schemas/mermaid-validator.sanitizeMermaid`), heuristically validated (`validateMermaid`), and — on failure — repaired via a dedicated single-field Chat Completions sub-call (`spec-thread-manager.repairMermaidDiagram`, strict `{ corrected: string }` schema). Nullable fields fall back to null; non-nullable fields keep the sanitized source for the frontend fallback.
+- Prompt hardening: shared `MERMAID_RULES_BLOCK` (ASCII IDs, quoted labels, no emoji/HTML) injected into both technical and architecture user prompts.
+- Frontend defensive fallback: `DiagramEngine.buildInlineDiagramFallback` and the matching block in `spec-viewer-main.renderSpecMermaidPlaceholders` now show a "Diagram preview unavailable" card with the source in `<details>` whenever `mermaid.parse` / `mermaid.render` throws, so a single broken diagram never collapses the surrounding section.
+- CSS hygiene: removed the over-broad `.mermaid-error-message { display: none }` rule that hid our own error wrappers; we now hide only Mermaid's native `svg text.error-text` / `svg g.error-icon` elements.
+- Defense in depth: `assets/js/utils/mermaid-sanitize.js` mirrors the backend cleanup so legacy specs already in Firestore render correctly without re-generation.
+
