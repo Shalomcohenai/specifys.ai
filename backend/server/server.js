@@ -158,6 +158,11 @@ app.use('/api/', (req, res, next) => {
 });
 app.use('/api/auth/', rateLimiters.auth);
 app.use('/api/feedback', rateLimiters.feedback);
+// Dedicated, more permissive limiter for fire-and-forget browser telemetry so
+// rapid page loads / error bursts do not exhaust the general budget.
+app.use('/api/logs', rateLimiters.monitoring);
+app.use('/api/admin/css-crash-logs', rateLimiters.monitoring);
+app.use('/api/analytics/web-vitals', rateLimiters.monitoring);
 logger.info({ type: 'rate_limiting_applied' }, '[UNIFIED SERVER] ✅ Rate limiting applied');
 
 // Web Vitals: sendBeacon may use text/plain (string) or application/json (Blob). Parse raw here so legacy

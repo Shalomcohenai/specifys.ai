@@ -220,9 +220,58 @@ custom_js_modules:
 <div class="container">
 
     <div class="content">
-        <div id="loading" class="loading" role="status" aria-live="polite" aria-label="Loading specification">
-            <div class="spinner" aria-hidden="true"></div>
-            <p>Loading specification...</p>
+        <div id="loading" class="loading spec-loading-rich" role="status" aria-live="polite" aria-label="Loading specification">
+            <!-- Live progress bar with rotating messages -->
+            <div class="spec-loading-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-message" id="spec-loading-message">Preparing your workspace...</div>
+            </div>
+
+            <!-- Skeleton preview of the spec layout (gives a sense of what's coming) -->
+            <div class="spec-loading-skeleton" aria-hidden="true">
+                <div class="spec-loading-skeleton-card">
+                    <div class="skeleton-header">
+                        <div class="skeleton-spinner"></div>
+                        <div class="skeleton-text"></div>
+                    </div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                </div>
+
+                <div class="spec-loading-skeleton-grid">
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-cog fa-spin" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-paint-brush" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-building" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="spec-loading-tip">
+                <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                <span>Tip: While we craft your spec, think about your top 3 must-have features.</span>
+            </p>
         </div>
         
         <div id="error" class="error hidden" role="alert" aria-live="assertive">

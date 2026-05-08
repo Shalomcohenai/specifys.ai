@@ -122,11 +122,46 @@ const rateLimiters = {
     skip: (req) => {
       const ip = req.ip || req.connection?.remoteAddress || '';
       const host = req.get('host') || '';
-      return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || host.startsWith('localhost:');
+      if (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || host.startsWith('localhost:')) {
+        return true;
+      }
+      // Fire-and-forget telemetry endpoints (browser monitoring + analytics):
+      // - they only INSERT logs, never read user data
+      // - they fire on every page load / error, so legitimate users behind shared
+      //   corporate IPs / mobile NATs were hitting 429 and losing useful telemetry.
+      // We skip them here and rely on the dedicated `monitoring` limiter below.
+      const path = req.path || '';
+      if (
+        path === '/logs' ||
+        path === '/admin/css-crash-logs' ||
+        path === '/analytics/web-vitals'
+      ) {
+        return true;
+      }
+      return false;
     },
     message: {
       error: 'Too many requests from this IP, please try again later.',
       retryAfter: '15 minutes'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+  }),
+
+  // Lightweight limiter for telemetry/monitoring endpoints. Higher cap so a single
+  // browser session (page loads, error events, web-vitals reports) does not exhaust
+  // the general budget. Still bounded so a malicious client can't spam.
+  monitoring: rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 600, // ~2 req/sec sustained per IP
+    skip: (req) => {
+      const ip = req.ip || req.connection?.remoteAddress || '';
+      const host = req.get('host') || '';
+      return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || host.startsWith('localhost:');
+    },
+    message: {
+      error: 'Too many telemetry requests, please slow down.',
+      retryAfter: '5 minutes'
     },
     standardHeaders: true,
     legacyHeaders: false

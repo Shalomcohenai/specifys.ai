@@ -926,7 +926,6 @@ async function loadSpec(specId) {
 
                     // Update all notification dots
                     updateAllNotificationDots();
-                }
             },
             onError: (error) => {
                 console.error('Firestore listener error:', error);
@@ -7274,6 +7273,14 @@ async function retryDesign() {
     }
 }
 
+let _specLoadingMessageInterval = null;
+const _specLoadingMessages = [
+    'Preparing your workspace...',
+    'Setting up your spec environment...',
+    'Loading AI engine...',
+    'Almost ready — fetching your specification...'
+];
+
 function showLoading() {
     const loading = document.getElementById('loading');
     const error = document.getElementById('error');
@@ -7281,12 +7288,28 @@ function showLoading() {
     if (loading) loading.style.display = 'block';
     if (error) error.style.display = 'none';
     if (content) content.style.display = 'none';
+
+    // Rotate the loading messages so the user feels progress while we fetch
+    const messageEl = document.getElementById('spec-loading-message');
+    if (messageEl) {
+        if (_specLoadingMessageInterval) clearInterval(_specLoadingMessageInterval);
+        let idx = 0;
+        messageEl.textContent = _specLoadingMessages[idx];
+        _specLoadingMessageInterval = setInterval(() => {
+            idx = (idx + 1) % _specLoadingMessages.length;
+            messageEl.textContent = _specLoadingMessages[idx];
+        }, 2200);
+    }
 }
 
 function hideLoading() {
     const loading = document.getElementById('loading');
     if (loading) {
         loading.style.display = 'none';
+    }
+    if (_specLoadingMessageInterval) {
+        clearInterval(_specLoadingMessageInterval);
+        _specLoadingMessageInterval = null;
     }
 }
 
@@ -7299,6 +7322,10 @@ function showError(message) {
     if (error) error.style.display = 'block';
     if (errorMessage) errorMessage.textContent = message;
     if (content) content.style.display = 'none';
+    if (_specLoadingMessageInterval) {
+        clearInterval(_specLoadingMessageInterval);
+        _specLoadingMessageInterval = null;
+    }
 }
 
 function hideError() {

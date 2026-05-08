@@ -10,11 +10,58 @@
   const MAX_RETRIES = 2;
   const RETRY_DELAY = 1000;
 
+  // Client-side throttling so a noisy page (e.g. error loops) cannot blast the
+  // backend and trigger a 429 cascade for the user. Same-signature logs are
+  // collapsed within DEDUP_WINDOW_MS, and we cap total sends per minute.
+  const DEDUP_WINDOW_MS = 30 * 1000;
+  const MAX_SENDS_PER_MIN = 30;
+  const _recentSignatures = new Map();
+  const _sendTimestamps = [];
+
+  function _signatureFor(logType, message, data) {
+    try {
+      const dataKey = data && data.error
+        ? `${data.error.name || ''}:${(data.error.message || '').slice(0, 120)}`
+        : '';
+      return `${logType}|${(message || '').slice(0, 120)}|${dataKey}`;
+    } catch (_e) {
+      return `${logType}|${message || ''}`;
+    }
+  }
+
+  function _shouldThrottle(signature) {
+    const now = Date.now();
+    const last = _recentSignatures.get(signature);
+    if (last && now - last < DEDUP_WINDOW_MS) {
+      return true;
+    }
+    _recentSignatures.set(signature, now);
+    if (_recentSignatures.size > 200) {
+      const cutoff = now - DEDUP_WINDOW_MS;
+      for (const [k, t] of _recentSignatures) {
+        if (t < cutoff) _recentSignatures.delete(k);
+      }
+    }
+    while (_sendTimestamps.length && now - _sendTimestamps[0] > 60 * 1000) {
+      _sendTimestamps.shift();
+    }
+    if (_sendTimestamps.length >= MAX_SENDS_PER_MIN) {
+      return true;
+    }
+    _sendTimestamps.push(now);
+    return false;
+  }
+
   /**
    * Send log to backend
    */
   async function sendLog(logType, message, data = {}) {
     try {
+      const signature = _signatureFor(logType, message, data);
+      if (_shouldThrottle(signature)) {
+        return;
+      }
+
       const pageInfo = {
         url: window.location.href,
         title: document.title,
