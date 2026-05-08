@@ -8,7 +8,7 @@ custom_firebase: true
 page_class: spec-viewer-page
 extra_css:
   - /assets/css/features/spec-viewer.css
-  - /assets/css/features/spec-viewer-side-menu.css
+  - /assets/css/features/spec-viewer-navigation.css
   - /assets/css/pages/mcp-modal.css
 extra_js:
   - /assets/js/script.js
@@ -38,38 +38,9 @@ custom_js_modules:
   - /assets/js/features/spec-viewer/spec-viewer-event-handlers.js
 ---
 
-<!-- Side Menu Toggle Button (Mobile Only) -->
-<button class="side-menu-toggle-mobile" id="sideMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sideMenu">
-    <i class="fa fa-chevron-right" aria-hidden="true"></i>
-</button>
-
-<!-- Overlay for mobile menu -->
-<div class="side-menu-overlay" id="sideMenuOverlay" aria-hidden="true"></div>
-
-<!-- Side Menu - Fixed Position -->
-    <aside class="side-menu" id="sideMenu" aria-label="Specification navigation menu" role="complementary">
-        <!-- User Section -->
-        <div class="side-menu-user">
-            <div class="side-menu-user-avatar" id="side-menu-user-avatar">
-                <span id="side-menu-user-initial">👤</span>
-            </div>
-            <span class="side-menu-user-name" id="side-menu-user-name">User</span>
-        </div>
-        
-        <div class="side-menu-divider"></div>
-        
-        <!-- Search Box -->
-        <div class="side-menu-search" role="search">
-            <label for="side-menu-search-input" class="visually-hidden">Search specification sections</label>
-            <input type="text" class="side-menu-search-input" id="side-menu-search-input" placeholder="Search..." aria-label="Search specification sections" aria-describedby="side-menu-search-help">
-            <span id="side-menu-search-help" class="visually-hidden">Type to search specification sections</span>
-            <i class="fa fa-search side-menu-search-icon" aria-hidden="true"></i>
-        </div>
-        
-        <div class="side-menu-divider"></div>
-        
-        <!-- Main Navigation -->
-        <nav class="side-menu-nav">
+<nav class="spec-nav spec-nav--top" id="specNavTop" aria-label="Specification navigation">
+    <div class="spec-nav-track">
+        <nav class="side-menu-nav spec-nav-list spec-nav-list--top" aria-label="Specification tabs">
             <div class="side-menu-item" data-tab="overview">
                 <button class="side-menu-button active" onclick="showTab('overview')" id="overviewTab" aria-label="Overview section" aria-expanded="false" aria-controls="submenu-overview">
                     <i class="fa fa-book" aria-hidden="true"></i>
@@ -151,22 +122,7 @@ custom_js_modules:
                 </button>
                 <div class="side-menu-submenu" id="submenu-prompts" role="region" aria-label="Prompts subsections"></div>
             </div>
-            
-            <div class="side-menu-item" data-tab="chat">
-                <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
-                    <i class="fa fa-comments" aria-hidden="true"></i>
-                    <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
-                    <span class="side-menu-text">AI Chat</span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item" data-tab="brain-dump">
-                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
-                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
-                    <span class="side-menu-text">Brain Dump</span>
-                </button>
-            </div>
-            
+
             <div class="side-menu-item" data-tab="mockup">
                 <button class="side-menu-button" onclick="showTab('mockup')" id="mockupTab" disabled aria-label="Mockup section - Pro feature">
                     <i class="fa fa-desktop" aria-hidden="true"></i>
@@ -174,21 +130,7 @@ custom_js_modules:
                     <span class="side-menu-text">Mockup <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
                 </button>
             </div>
-            
-            <div class="side-menu-item" data-tab="export">
-                <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export & Integration">
-                    <i class="fa fa-download" aria-hidden="true"></i>
-                    <span class="side-menu-text">Export & Integration</span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item">
-                <button type="button" class="side-menu-button" onclick="window.openMcpModal && window.openMcpModal()" id="sideMenuMcpBtn" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
-                    <i class="fa fa-plug" aria-hidden="true"></i>
-                    <span class="side-menu-text">MCP</span>
-                </button>
-            </div>
-            
+
             <div class="side-menu-item hidden" data-tab="raw">
                 <button class="side-menu-button" onclick="showTab('raw')" id="rawTab" aria-label="View raw data">
                     <i class="fa fa-code" aria-hidden="true"></i>
@@ -196,7 +138,43 @@ custom_js_modules:
                 </button>
             </div>
         </nav>
-    </aside>
+    </div>
+</nav>
+
+<nav class="spec-nav spec-nav--bottom" id="specNavBottom" aria-label="Spec viewer tools navigation">
+    <div class="spec-nav-track">
+        <nav class="side-menu-nav spec-nav-list spec-nav-list--bottom" aria-label="Tools">
+        <div class="side-menu-item" data-tab="chat">
+            <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
+                <i class="fa fa-comments" aria-hidden="true"></i>
+                <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
+                <span class="side-menu-text">AI Chat</span>
+            </button>
+        </div>
+        
+        <div class="side-menu-item" data-tab="brain-dump">
+            <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                <i class="fa fa-lightbulb" aria-hidden="true"></i>
+                <span class="side-menu-text">Brain Dump</span>
+            </button>
+        </div>
+
+        <div class="side-menu-item" data-tab="export">
+            <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export & Integration">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                <span class="side-menu-text">Export & Integration</span>
+            </button>
+        </div>
+        
+        <div class="side-menu-item">
+            <button type="button" class="side-menu-button" onclick="window.openMcpModal && window.openMcpModal()" id="sideMenuMcpBtn" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
+                <i class="fa fa-plug" aria-hidden="true"></i>
+                <span class="side-menu-text">MCP</span>
+            </button>
+        </div>
+        </nav>
+    </div>
+</nav>
 
 {% include mcp-connect-modal.html %}
 
@@ -204,10 +182,6 @@ custom_js_modules:
     <!-- Page Introduction Section -->
     <div class="page-intro-section">
         <h1 class="page-title"><span id="spec-title">Project Spec</span> <span id="spec-v2-badge" class="spec-v2-badge hidden" aria-label="Generated with Spec Engine v2">Spec Engine v2</span> <button type="button" class="btn-icon spec-title-edit" id="spec-title-edit-btn" aria-label="Edit spec title" title="Edit spec name"><i class="fas fa-pencil-alt" aria-hidden="true"></i></button></h1>
-        <p class="page-description">
-            Comprehensive specifications generated by AI to guide your development process. 
-            Review, edit, and approve each section to build a complete project blueprint.
-        </p>
     </div>
     
     <!-- Fallback content for SEO (hidden when JS loads) -->

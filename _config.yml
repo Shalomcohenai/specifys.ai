@@ -102,7 +102,7 @@ include:
   - assets/css/pages/pricing.css
   - assets/css/pages/profile.css
   - assets/css/pages/spec-viewer.css
-  - assets/css/pages/spec-viewer-side-menu.css
+  - assets/css/pages/spec-viewer-navigation.css
   - assets/css/pages/toolpicker.css
   - assets/css/pages/why.css
 

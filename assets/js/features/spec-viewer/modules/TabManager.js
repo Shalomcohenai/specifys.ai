@@ -62,6 +62,20 @@ function scrollToTabHeader(tabContent) {
   });
 }
 
+function updateActiveSpecTitle(tabName) {
+  const titleElement = document.getElementById('spec-nav-active-title') || document.getElementById('sideMenuActiveTitle');
+  if (!titleElement) return;
+
+  const tabButton = document.getElementById(`${tabName}Tab`);
+  if (!tabButton) return;
+
+  const textElement = tabButton.querySelector('.side-menu-text');
+  const cleanedTitle = (textElement?.textContent || tabName || '').replace(/\s+/g, ' ').trim();
+  if (cleanedTitle) {
+    titleElement.textContent = cleanedTitle;
+  }
+}
+
 export async function showTab(tabName) {
   closeMobileMenuIfOpen();
 
@@ -85,7 +99,6 @@ export async function showTab(tabName) {
   const tabContent = document.getElementById(`${tabName}-content`);
   if (tabContent) {
     tabContent.style.display = 'block';
-    scrollToTabHeader(tabContent);
   }
 
   const tabButton = document.getElementById(`${tabName}Tab`);
@@ -130,6 +143,7 @@ export async function showTab(tabName) {
 
   _state.currentTab = tabName;
   window.currentTab = tabName;
+  updateActiveSpecTitle(tabName);
   renderActive(currentSpecData);
 }
 
@@ -149,3 +163,9 @@ export function teardown() {
   }
   _state.currentTab = window.currentTab || 'overview';
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const activeButton = document.querySelector('.side-menu-item[data-tab] .side-menu-button.active');
+  const activeTabName = activeButton?.getAttribute('data-tab') || activeButton?.id?.replace('Tab', '') || 'overview';
+  updateActiveSpecTitle(activeTabName);
+});

@@ -599,8 +599,8 @@ button[onclick*="openVisualizer"]:active {
 
 /* Page intro section spacing and centering */
 .page-intro-section {
-  margin-top: 100px;
-  margin-bottom: 40px;
+  margin-top: 140px;
+  margin-bottom: 6px;
   text-align: center;
   width: 100%;
   max-width: 1200px;
@@ -614,7 +614,7 @@ button[onclick*="openVisualizer"]:active {
 
 .page-intro-section .page-description {
   max-width: 800px;
-  margin: 20px auto 0;
+  margin: 8px auto 0;
   text-align: center;
   width: 100%;
   box-sizing: border-box;

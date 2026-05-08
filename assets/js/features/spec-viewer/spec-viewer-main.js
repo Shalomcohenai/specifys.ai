@@ -1297,8 +1297,14 @@ function displaySpec(data) {
         }
     }
     
-    // Show overview tab by default
-    showTab('overview');
+    // Show overview tab by default without auto-scrolling on initial load/refresh
+    window.__specViewerSkipTabAutoScroll = true;
+    const showOverviewPromise = (typeof window.showTab === 'function')
+      ? window.showTab('overview')
+      : Promise.resolve();
+    Promise.resolve(showOverviewPromise).finally(() => {
+      window.__specViewerSkipTabAutoScroll = false;
+    });
     
     // Initialize all subsections after content is loaded
     setTimeout(() => {
@@ -5841,7 +5847,11 @@ function markTabAsViewed(type) {
 // Update notification dot visibility based on status
 function updateNotificationDot(type, status) {
     const notificationDot = document.getElementById(`${type}Notification`);
-    if (!notificationDot) return;
+    // Notification dot feature disabled by request.
+    if (notificationDot) {
+        notificationDot.style.display = 'none';
+        notificationDot.classList.remove('generating', 'notification', 'chat-notification');
+    }
     
     // Get tab button and check if active
     const tabButton = document.getElementById(`${type}Tab`);
@@ -5857,45 +5867,8 @@ function updateNotificationDot(type, status) {
     const viewedTabs = getViewedTabs();
     const wasViewed = viewedTabs.has(type);
     
-    // Remove all state classes
-    notificationDot.classList.remove('generating', 'notification', 'chat-notification');
     if (tabButton) {
         tabButton.classList.remove('viewed');
-    }
-    
-    // Handle different states
-    if (actualStatus === 'generating') {
-        // Generating state - blinking dot
-        notificationDot.classList.add('generating');
-        notificationDot.style.display = 'block';
-    } else if (actualStatus === 'ready') {
-        if (type === 'chat') {
-            // Chat - blinking notification if ready and not active
-            if (!isActive) {
-                notificationDot.classList.add('chat-notification');
-                notificationDot.style.display = 'block';
-            } else {
-                notificationDot.style.display = 'none';
-            }
-        } else {
-            // Other tabs - show notification dot if not viewed yet
-            if (!isActive && !wasViewed) {
-                notificationDot.classList.add('notification');
-                notificationDot.style.display = 'block';
-            } else {
-                notificationDot.style.display = 'none';
-            }
-            
-            // Mark as viewed if status is ready (spec exists)
-            if (wasViewed || isActive) {
-                if (tabButton) {
-                    tabButton.classList.add('viewed');
-                }
-            }
-        }
-    } else {
-        // No status or other status - hide dot
-        notificationDot.style.display = 'none';
     }
     
     // If status is ready and was viewed, mark button as viewed
@@ -6015,6 +5988,103 @@ document.addEventListener('keydown', function(e) {
       }
     }
   }
+});
+
+// Unified navigation controller for all screen sizes
+const SPEC_SCROLL_ORDER = [
+  'overview',
+  'technical',
+  'mindmap',
+  'market',
+  'design',
+  'architecture',
+  'visibility-engine',
+  'prompts',
+  'mockup',
+  'raw'
+];
+
+function getEnabledSpecTabButtonsInOrder() {
+  return SPEC_SCROLL_ORDER
+    .map((tabName) => document.getElementById(`${tabName}Tab`))
+    .filter((button) => button && !button.disabled && button.offsetParent !== null);
+}
+
+function getActiveTabScrollState() {
+  const activeTabButton = document.querySelector('.side-menu-item[data-tab] .side-menu-button.active');
+  if (!activeTabButton) return null;
+
+  const activeTabName = activeTabButton.getAttribute('data-tab') || activeTabButton.id.replace('Tab', '');
+  const activeTabContent = document.getElementById(`${activeTabName}-content`);
+  if (!activeTabContent) return null;
+
+  const rect = activeTabContent.getBoundingClientRect();
+  const threshold = 20;
+  const pageTopThreshold = 4;
+  const pageBottomThreshold = 4;
+  const atTopByContent = rect.top >= -threshold;
+  const atBottomByContent = rect.bottom <= (window.innerHeight + threshold);
+  const atTopByPage = window.scrollY <= pageTopThreshold;
+  const atBottomByPage = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - pageBottomThreshold);
+  const atTop = atTopByContent || atTopByPage;
+  const atBottom = atBottomByContent || atBottomByPage;
+  return { atTop, atBottom };
+}
+
+function setupSpecWheelTraversal() {
+  let lastSwitchAt = 0;
+  let isSwitching = false;
+
+  document.addEventListener('wheel', function(e) {
+    const target = e.target;
+    const isWithinInput = !!target.closest('input, textarea, select, [contenteditable="true"]');
+    if (isWithinInput) return;
+
+    const now = Date.now();
+    if (isSwitching || now - lastSwitchAt < 320) return;
+
+    const delta = e.deltaY;
+    if (Math.abs(delta) < 18) return;
+
+    const activeScrollState = getActiveTabScrollState();
+    if (!activeScrollState) return;
+    const { atBottom, atTop } = activeScrollState;
+    if ((delta > 0 && !atBottom) || (delta < 0 && !atTop)) return;
+
+    const buttons = getEnabledSpecTabButtonsInOrder();
+    if (buttons.length < 2) return;
+
+    const activeIndex = buttons.findIndex((button) => button.classList.contains('active'));
+    if (activeIndex === -1) return;
+
+    const nextIndex = delta > 0
+      ? (activeIndex + 1) % buttons.length
+      : (activeIndex - 1 + buttons.length) % buttons.length;
+
+    const nextButton = buttons[nextIndex];
+    const nextTabName = nextButton.getAttribute('data-tab') || nextButton.id.replace('Tab', '');
+    if (!nextTabName || typeof window.showTab !== 'function') return;
+
+    e.preventDefault();
+    isSwitching = true;
+    lastSwitchAt = now;
+    window.__specViewerSkipTabAutoScroll = true;
+    window.showTab(nextTabName).finally(() => {
+      requestAnimationFrame(() => {
+        window.__specViewerSkipTabAutoScroll = false;
+        isSwitching = false;
+      });
+    });
+  }, { passive: false });
+}
+
+function setupNavigationIdleFade() {
+  // Fade/scale behavior disabled by request.
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setupSpecWheelTraversal();
+  setupNavigationIdleFade();
 });
 
 // Update subsections in side menu based on active tab

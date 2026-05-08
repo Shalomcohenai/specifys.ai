@@ -1,0 +1,293 @@
+/* ============================================
+   Spec Viewer Unified Navigation
+   One interaction model for all screen sizes
+   ============================================ */
+
+.spec-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100vw - 24px));
+  z-index: 130;
+  transition: none;
+}
+
+.spec-nav--top {
+  top: 62px;
+  transform: translateX(-50%);
+  transform-origin: top center;
+}
+
+.spec-nav--bottom {
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 125;
+}
+
+.spec-nav-track {
+  width: 100%;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.spec-nav--top .spec-nav-track {
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.spec-nav--bottom .spec-nav-track {
+  width: fit-content;
+  max-width: min(94vw, 700px);
+  margin: 0 auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+.spec-nav-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1vw, 10px);
+  overflow-x: auto;
+  overflow-y: visible;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: clamp(8px, 1.5vw, 10px) clamp(10px, 2vw, 16px);
+  scrollbar-width: none;
+  width: fit-content;
+  max-width: min(94vw, 1120px);
+  margin-left: auto;
+  margin-right: auto;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.spec-nav-list::-webkit-scrollbar {
+  display: none;
+}
+
+.spec-nav-list--top {
+  border-radius: 12px;
+}
+
+.spec-nav-list--bottom {
+  padding: 7px 9px;
+}
+
+.spec-nav-active-title {
+  min-height: 36px;
+  padding: 28px 12px 6px;
+  font-size: clamp(15px, 2vw, 20px);
+  font-weight: 700;
+  text-align: center;
+  color: #0f172a;
+  letter-spacing: 0.01em;
+  border-radius: 0;
+  border-top: none;
+  background: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.side-menu-item {
+  margin: 0;
+  list-style: none;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.side-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(32px, 4vw, 40px);
+  min-height: clamp(32px, 4vw, 40px);
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background: #ffffff;
+  color: #FF6B35;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spec-nav-list--bottom .side-menu-button {
+  width: clamp(32px, 4vw, 40px);
+  min-height: clamp(32px, 4vw, 40px);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.side-menu-button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  border-color: transparent;
+  background: #ffffff;
+  color: #FF6B35;
+}
+
+.side-menu-button:hover:not(:disabled),
+.side-menu-item:hover .side-menu-button:not(:disabled),
+.side-menu-item:focus-within .side-menu-button:not(:disabled) {
+  background: #fff7ed;
+  border-color: transparent;
+}
+
+.side-menu-button.active {
+  background: #FF6B35;
+  border-color: rgba(255, 107, 53, 0.75);
+  box-shadow: none;
+}
+
+.side-menu-button.active:hover:not(:disabled),
+.side-menu-item:hover .side-menu-button.active:not(:disabled),
+.side-menu-item:focus-within .side-menu-button.active:not(:disabled) {
+  background: #FF6B35;
+  border-color: rgba(255, 107, 53, 0.75);
+}
+
+.side-menu-button i {
+  font-size: clamp(13px, 1.5vw, 16px);
+  min-width: clamp(13px, 1.5vw, 16px);
+  color: #FF6B35;
+}
+
+.spec-nav-list--bottom .side-menu-button i {
+  font-size: clamp(13px, 1.5vw, 16px);
+  min-width: clamp(13px, 1.5vw, 16px);
+}
+
+.side-menu-button.active i,
+.side-menu-button.active .fa,
+.side-menu-item:focus-within .side-menu-button i,
+.side-menu-item:focus-within .side-menu-button .fa {
+  color: #ffffff;
+}
+
+.side-menu-button.active.viewed i,
+.side-menu-button.active.viewed .fa {
+  color: #ffffff;
+}
+
+.side-menu-button.viewed i,
+.side-menu-button.viewed .fa,
+.side-menu-item.viewed .side-menu-button i,
+.side-menu-item.viewed .side-menu-button .fa {
+  color: #FF6B35;
+}
+
+.side-menu-button:disabled i,
+.side-menu-button:disabled .fa {
+  color: #FF6B35;
+}
+
+.side-menu-button .side-menu-text {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  max-width: none;
+  overflow: visible;
+  border-radius: 7px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 11px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  z-index: 30;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+}
+
+.spec-nav-list--bottom .side-menu-button .side-menu-text {
+  font-size: 10px;
+  padding: 4px 7px;
+}
+
+/* Remove top-nav hover tooltip line/label */
+.spec-nav-list--top .side-menu-button .side-menu-text {
+  display: none;
+}
+
+.side-menu-item:hover .side-menu-text,
+.side-menu-item:focus-within .side-menu-text {
+  opacity: 1;
+}
+
+.side-menu-expand-sub {
+  display: none;
+}
+
+.side-menu-submenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 220px;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  margin-top: 0;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #ffffff;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14);
+  z-index: 24;
+}
+
+.side-menu-item:hover .side-menu-submenu,
+.side-menu-item:focus-within .side-menu-submenu,
+.side-menu-submenu.expanded {
+  max-height: 320px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.side-menu-submenu .subsection-item {
+  padding: 7px 10px;
+  border-radius: 7px;
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.side-menu-submenu .subsection-item:hover {
+  background: #f8fafc;
+}
+
+/* Notification dot feature removed */
+.side-menu-notification-dot {
+  display: none;
+}
+
+@keyframes pulseBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+}
+
+.content {
+  margin-left: auto;
+  width: 100%;
+  max-width: 1200px;
+  padding-bottom: 92px;
+}
+
+.spec-viewer-page .container {
+  margin-top: 44px;
+}
+
