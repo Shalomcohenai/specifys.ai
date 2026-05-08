@@ -16,9 +16,9 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 async function resetUser(uid) {
-  const creditsRef = db.collection('user_credits').doc(uid);
+  const creditsRef = db.collection('user_credits_v3').doc(uid);
   const userRef = db.collection('users').doc(uid);
-  const subRef = db.collection('subscriptions').doc(uid);
+  const subRef = db.collection('subscriptions_v3').doc(uid);
 
   const creditsUpdate = {
     userId: uid,
@@ -27,11 +27,20 @@ async function resetUser(uid) {
       free: 1,
       bonus: 0
     },
+    total: 1,
     subscription: {
       type: 'none',
       status: 'none',
       expiresAt: null,
-      preservedCredits: 0
+      preservedCredits: 0,
+      lemonSubscriptionId: null,
+      lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
+      productKey: null,
+      productName: null,
+      billingInterval: null,
+      renewsAt: null,
+      endsAt: null,
+      cancelAtPeriodEnd: false
     },
     permissions: {
       canEdit: false,
@@ -62,10 +71,10 @@ async function resetUser(uid) {
 
 async function main() {
   try {
-    const snapshot = await db.collection('user_credits').get();
+    const snapshot = await db.collection('user_credits_v3').get();
     const userIds = snapshot.docs.map(doc => doc.id);
 
-    console.log(`Found ${userIds.length} users in user_credits collection.`);
+    console.log(`Found ${userIds.length} users in user_credits_v3 collection.`);
 
     for (const uid of userIds) {
       await resetUser(uid);

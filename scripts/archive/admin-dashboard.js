@@ -6061,11 +6061,9 @@ class AdminDashboardApp {
           this.dom.quickActions.modal.classList.add("hidden");
         }
         
-        // Clear CreditsV2Manager cache (new unified credits system)
+        // Clear credits cache (new unified credits system)
         // This ensures the user sees updated credits immediately
-        if (window.CreditsV2Manager) {
-          window.CreditsV2Manager.clearCache();
-        } else if (typeof window.clearCreditsCache === 'function') {
+        if (typeof window.clearCreditsCache === 'function') {
           window.clearCreditsCache();
         }
         

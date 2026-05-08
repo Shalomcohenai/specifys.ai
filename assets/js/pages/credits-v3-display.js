@@ -126,7 +126,7 @@
   async function updateCreditsDisplay(options = {}) {
     await waitForDependencies();
     
-    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager;
     if (!manager) {
       if (window.appLogger) {
         window.appLogger.log('Error', 'CreditsV3Manager not available', { context: 'CreditsV3Display.updateCreditsDisplay' });
@@ -219,7 +219,7 @@
   async function updateCreditsDisplayWithRetry(options = {}, maxRetries = 5, attempt = 0) {
     await waitForDependencies();
     
-    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager;
     if (!manager) {
       if (window.appLogger) {
         window.appLogger.log('Error', 'Manager not available for retry', { 
@@ -366,7 +366,7 @@
   async function init() {
     await waitForDependencies();
     
-    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager;
     if (!manager) {
       if (window.appLogger) {
         window.appLogger.log('Error', 'CreditsV3Manager not available', { context: 'CreditsV3Display.init' });
@@ -396,7 +396,7 @@
     }
 
     // Track if we've already initialized to prevent duplicate subscriptions
-    if (window.__creditsV3DisplayInitialized || window.__creditsV2DisplayInitialized) {
+    if (window.__creditsV3DisplayInitialized) {
       return;
     }
     window.__creditsV3DisplayInitialized = true;
@@ -457,7 +457,7 @@
   // Expose functions to window
   window.updateCreditsDisplay = updateCreditsDisplay;
   window.clearCreditsCache = function() {
-    const manager = window.CreditsV3Manager || window.CreditsV2Manager;
+    const manager = window.CreditsV3Manager;
     if (manager) {
       manager.clearCache();
     }

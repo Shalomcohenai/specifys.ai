@@ -697,16 +697,16 @@ router.delete('/users/:userId', requireAdmin, async (req, res, next) => {
       deletedCount++;
     }
 
-    // Delete subscriptions document
-    const subscriptionsRef = db.collection('subscriptions').doc(userId);
+    // Delete subscriptions document (V3)
+    const subscriptionsRef = db.collection('subscriptions_v3').doc(userId);
     const subscriptionsDoc = await subscriptionsRef.get();
     if (subscriptionsDoc.exists) {
       batch.delete(subscriptionsRef);
       deletedCount++;
     }
 
-    // Delete user_credits document
-    const userCreditsRef = db.collection('user_credits').doc(userId);
+    // Delete user_credits document (V3)
+    const userCreditsRef = db.collection('user_credits_v3').doc(userId);
     const userCreditsDoc = await userCreditsRef.get();
     if (userCreditsDoc.exists) {
       batch.delete(userCreditsRef);

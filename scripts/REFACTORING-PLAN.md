@@ -179,8 +179,8 @@ assets/js/
       ├── toolpicker.js
       ├── why.js
       ├── analytics-schema.js
-      ├── credits-v2-display.js
-      └── credits-v2-manager.js
+      ├── credits-v3-display.js
+      └── credits-v3-manager.js
 ```
 
 ### 2.2 קבצים להעביר

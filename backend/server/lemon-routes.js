@@ -474,7 +474,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       }));
     }
 
-    const subscriptionDocRef = db.collection('subscriptions').doc(userId);
+    const subscriptionDocRef = db.collection('subscriptions_v3').doc(userId);
     const subscriptionDoc = await subscriptionDocRef.get();
     if (!subscriptionDoc.exists) {
       logger.warn({ requestId, userId }, '[lemon-routes] No subscription doc found for user');

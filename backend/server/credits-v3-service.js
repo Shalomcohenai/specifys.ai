@@ -124,6 +124,15 @@ function calculateTotal(balances) {
 }
 
 /**
+ * Check whether a Pro subscription status should grant unlimited access.
+ * Keep this aligned with sync/service logic to avoid UI/backend mismatches.
+ */
+function isProStatusActive(status) {
+  const normalized = (status || '').toLowerCase();
+  return normalized === 'active' || normalized === 'paid' || normalized === 'on_trial';
+}
+
+/**
  * Select which credit type to consume based on priority
  * @param {Object} balances - Current balances
  * @param {Array<string>} priority - Priority order (default: ['free', 'bonus', 'paid'])
@@ -233,8 +242,8 @@ async function getAvailableCredits(userId) {
   
   // Check subscription first - ensure subscription exists and is valid
   // "paid" status also means active subscription
-  if (credits.subscription && credits.subscription.type === 'pro' && 
-      (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
+  if (credits.subscription && credits.subscription.type === 'pro' &&
+      isProStatusActive(credits.subscription.status)) {
     // Check if subscription expired
     if (credits.subscription.expiresAt) {
       let expiresAt;
@@ -509,8 +518,8 @@ async function consumeCredit(userId, specId, options = {}) {
       
       // Check subscription first - ensure subscription exists and is valid
       // "paid" status also means active subscription
-      if (credits.subscription && credits.subscription.type === 'pro' && 
-          (credits.subscription.status === 'active' || credits.subscription.status === 'paid')) {
+      if (credits.subscription && credits.subscription.type === 'pro' &&
+          isProStatusActive(credits.subscription.status)) {
         logger.debug({ requestId, expiresAt: credits.subscription.expiresAt }, '[CREDITS-V3] Pro subscription detected');
         
         let isExpired = false;
@@ -1234,8 +1243,8 @@ async function enableProSubscription(userId, options = {}) {
     
     const currentCredits = calculateTotal(credits.balances);
     // "paid" status also means active subscription
-    const alreadyUnlimited = credits.subscription.type === 'pro' && 
-      (credits.subscription.status === 'active' || credits.subscription.status === 'paid');
+    const alreadyUnlimited = credits.subscription.type === 'pro' &&
+      isProStatusActive(credits.subscription.status);
     
     // Preserve current credits
     const preservedCredits = currentCredits;

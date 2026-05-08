@@ -1208,9 +1208,7 @@ Frontend → POST /api/live-brief/summarize {text}
 
 | Item | Location | Status |
 |------|----------|--------|
-| Credits V2 routes | `credits-v2-routes.js` | Not mounted in server.js — dead code |
-| Credits V2 service | `credits-v2-service.js` | Referenced by migration scripts only |
-| Credits V2 UI | `pages/credits-v2-display.js` | Legacy |
+| Credits runtime | `credits-v3-routes.js` + `credits-v3-service.js` | Active source of truth for all credit flows |
 | Spec v1 service | `spec-generation-service.js` | Still imported in MCP routes; also used as fallback for overview generation without specId |
 | Legacy viewer | `features/legacy-viewer/` | 3 files, kept for old URLs |
 | Vite bundles | `bundles/*.js` | Not used at runtime |
