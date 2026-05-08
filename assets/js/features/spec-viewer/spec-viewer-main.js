@@ -827,20 +827,31 @@ async function loadSpec(specId) {
                             updateNotificationDot(stage, 'ready');
                             updateTabLoadingState(stage, false);
                             
-                            // Update tab states
+                            // Update tab states + render the section content into its tab body
+                            // (without this, the locked/skeleton content from the initial render
+                            // stays in place and the user sees "Please approve the Overview..."
+                            // until they refresh).
                             if (stage === 'technical') {
                                 const technicalTab = document.getElementById('technicalTab');
                                 const mindmapTab = document.getElementById('mindmapTab');
                                 if (technicalTab) technicalTab.disabled = false;
                                 if (mindmapTab) mindmapTab.disabled = false;
+                                setTabStatus('technicalTab', 'success');
+                                try { displayTechnical(updatedData.technical); } catch (e) { console.warn('[Listener] displayTechnical failed:', e); }
                             } else if (stage === 'market') {
                                 const marketTab = document.getElementById('marketTab');
                                 if (marketTab) marketTab.disabled = false;
+                                setTabStatus('marketTab', 'success');
+                                try { displayMarket(updatedData.market); } catch (e) { console.warn('[Listener] displayMarket failed:', e); }
                             } else if (stage === 'design') {
                                 const designTab = document.getElementById('designTab');
                                 if (designTab) designTab.disabled = false;
                                 refreshTabsAfterDesignReady();
+                                try { displayDesign(updatedData.design); } catch (e) { console.warn('[Listener] displayDesign failed:', e); }
                             }
+                            
+                            // Refresh raw JSON view for whatever changed
+                            try { displayRaw(updatedData); } catch (e) { /* no-op */ }
                             
                             // Update export checkboxes
                             updateExportCheckboxes();
@@ -897,7 +908,14 @@ async function loadSpec(specId) {
                         updateNotificationDot('architecture', 'ready');
                         updateTabLoadingState('architecture', false);
                         const architectureTab = document.getElementById('architectureTab');
-                        if (architectureTab) architectureTab.classList.add('generated');
+                        if (architectureTab) {
+                            architectureTab.disabled = false;
+                            architectureTab.classList.add('generated');
+                        }
+                        // Render the architecture body so the user does not need to refresh
+                        try { displayArchitectureFromData(updatedData); } catch (e) { console.warn('[Listener] displayArchitectureFromData failed:', e); }
+                        try { displayPromptsFromData(updatedData); } catch (e) { /* no-op */ }
+                        try { displayRaw(updatedData); } catch (e) { /* no-op */ }
                         updateExportCheckboxes();
                     } else if (newArchStatus === 'generating' && prevArchStatus !== 'generating') {
                         updateNotificationDot('architecture', 'generating');
