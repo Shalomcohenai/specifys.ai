@@ -13,6 +13,26 @@ const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-
 const SPEC_GENERATOR_INSTRUCTIONS =
   'You generate application specification sections (overview, technical, market, design, architecture, visibility, prompts). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
 
+/** Strict mini-schema used by the diagram repair sub-call. Single string output. */
+const MERMAID_REPAIR_RESPONSE_FORMAT = Object.freeze({
+  type: 'json_schema',
+  json_schema: {
+    name: 'mermaid_repair',
+    strict: true,
+    schema: {
+      type: 'object',
+      properties: {
+        corrected: { type: 'string' }
+      },
+      required: ['corrected'],
+      additionalProperties: false
+    }
+  }
+});
+
+const MERMAID_REPAIR_SYSTEM =
+  'You fix broken Mermaid diagrams. You always return JSON of shape { "corrected": "<mermaid source>" } with no markdown fences or surrounding text. Preserve the original intent and connections; only repair syntax.';
+
 class SpecThreadManager {
   constructor(openaiStorage, db) {
     this.openaiStorage = openaiStorage;
@@ -150,6 +170,82 @@ class SpecThreadManager {
       }, '[SpecThreadManager] Zod validation failed on OpenAI response');
       throw validationErr;
     }
+  }
+
+  /**
+   * Ask the model to repair a single broken Mermaid diagram. Used by
+   * spec-generation-service-v2 after the main payload comes back, when our
+   * heuristic validator catches problems mermaid.parse() would also reject.
+   *
+   * Uses a tiny strict response_format so we get a clean string back without
+   * the model wrapping it in extra fields, and bypasses the assistant
+   * instructions (which are tuned for full-spec JSON, not single-field repair).
+   *
+   * @param {string} brokenSource - Sanitized Mermaid source that still failed validation
+   * @param {string[]} errors - Validator messages to feed back to the model
+   * @param {string} diagramKind - e.g. "flowchart", "erDiagram", "sequenceDiagram" — directs the repair
+   * @returns {Promise<string|null>} Repaired Mermaid source, or null on failure
+   */
+  async repairMermaidDiagram(brokenSource, errors, diagramKind) {
+    const target = await this.resolveSpecGeneratorTarget();
+
+    // Use a direct (chat-completions) target with our repair-tuned system prompt,
+    // even when the main flow goes through an Assistant — the assistant's full
+    // spec instructions would otherwise pollute this single-field call.
+    const repairTarget =
+      target.mode === 'direct'
+        ? { ...target, instructions: MERMAID_REPAIR_SYSTEM }
+        : { mode: 'direct', model: process.env.OPENAI_SPEC_GENERATION_MODEL?.trim() || 'gpt-4o-mini', instructions: MERMAID_REPAIR_SYSTEM };
+
+    const userMessage = `Fix the following Mermaid diagram so it parses cleanly with Mermaid 10.
+
+Validator errors detected:
+${errors.map((e) => `- ${e}`).join('\n')}
+
+Diagram intent: ${diagramKind || 'flowchart'}.
+
+Strict rules for the corrected diagram:
+- Start with a valid directive (flowchart TD/LR, graph TD/LR, erDiagram, sequenceDiagram, classDiagram, stateDiagram-v2, mindmap, pie, gantt, journey).
+- Use only ASCII alphanumerics and underscore for node IDs (no spaces, dots, hyphens, parentheses, emojis).
+- For labels with spaces/punctuation, wrap them in quotes: A["Login Page"] -- not A[Login Page].
+- No markdown code fences inside the diagram.
+- No HTML other than <br> in labels; no smart quotes; no emoji.
+- Preserve the original connections and entities; only fix syntax.
+- For erDiagram, keep cardinality tokens like ||--o{ exactly as-is.
+
+Return ONLY JSON: { "corrected": "<mermaid source>" }.
+
+ORIGINAL DIAGRAM:
+${brokenSource}`;
+
+    let text;
+    try {
+      text = await this.openaiStorage.runSpecGeneration(
+        'chat-completions',
+        repairTarget,
+        userMessage,
+        MERMAID_REPAIR_RESPONSE_FORMAT
+      );
+    } catch (err) {
+      logger.warn({ err: err.message, diagramKind }, '[SpecThreadManager] Mermaid repair call failed');
+      return null;
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch (e2) {
+        logger.warn({ diagramKind, sample: text.slice(0, 200) }, '[SpecThreadManager] Mermaid repair returned non-JSON');
+        return null;
+      }
+    }
+
+    if (!parsed || typeof parsed.corrected !== 'string') return null;
+    return parsed.corrected;
   }
 }
 

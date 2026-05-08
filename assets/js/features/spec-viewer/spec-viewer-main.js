@@ -3681,7 +3681,9 @@ function escapeHtmlSpec(str) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/** Render Mermaid blocks produced by formatJSONContent (.spec-mermaid-placeholder). */
+/** Render Mermaid blocks produced by formatJSONContent (.spec-mermaid-placeholder).
+ *  On parse/render failure we surface a collapsible fallback (matching the
+ *  Architecture tab) so a single bad diagram never collapses the whole section. */
 function renderSpecMermaidPlaceholders(container) {
     if (!container || typeof mermaid === 'undefined' || !mermaid.render) return;
     const nodes = container.querySelectorAll('.spec-mermaid-placeholder[data-spec-mermaid]');
@@ -3702,10 +3704,32 @@ function renderSpecMermaidPlaceholders(container) {
         var specMermaidCode = (typeof window.sanitizeMermaidSource === 'function'
             ? window.sanitizeMermaidSource(code)
             : code) || code;
+
+        function renderFallback(errMsg) {
+            var safeMsg = escapeHtmlSpec(errMsg || 'Mermaid could not parse this diagram.');
+            var safeSrc = escapeHtmlSpec(specMermaidCode || code);
+            wrap.innerHTML =
+                '<div class="diagram-inline-fallback" role="note">' +
+                '<div class="diagram-inline-fallback-header"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i><span>Diagram preview unavailable</span></div>' +
+                '<p class="diagram-inline-fallback-msg">' + safeMsg + '</p>' +
+                '<details class="diagram-inline-fallback-source"><summary>Show diagram source</summary><pre><code>' + safeSrc + '</code></pre></details>' +
+                '</div>';
+        }
+
+        // Pre-validate via mermaid.parse so we don't paint half-rendered SVG.
+        try {
+            if (typeof mermaid.parse === 'function') {
+                mermaid.parse(specMermaidCode);
+            }
+        } catch (parseErr) {
+            renderFallback(parseErr && parseErr.message);
+            return;
+        }
+
         mermaid.render(uniqueId, specMermaidCode).then(function (result) {
             wrap.innerHTML = '<div class="mermaid-rendered">' + result.svg + '</div>';
-        }).catch(function () {
-            wrap.innerHTML = '<pre class="architecture-mermaid-fallback">' + escapeHtmlSpec(code) + '</pre><p class="architecture-mermaid-error">Diagram could not be rendered.</p>';
+        }).catch(function (err) {
+            renderFallback(err && err.message);
         });
     });
 }

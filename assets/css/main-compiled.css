@@ -857,6 +857,7 @@ pre code {
 .user-info:hover {
   background: rgba(102, 102, 102, 0.2);
   transform: translateY(-2px);
+  text-decoration: none;
 }
 
 .user-info span {
@@ -2324,12 +2325,11 @@ body.dark-mode .btn-secondary:hover {
    Styles for Mermaid diagrams and error handling
    This file extends the base mermaid styles from main-compiled.css
 */
-/* Hide Mermaid error logo/footer - target specific error elements only */
-/* Using higher specificity to override default mermaid error display */
-svg .mermaid-error,
-svg[aria-describedby*=error],
-svg + div[class*=error],
-.mermaid-error-message {
+/* Hide Mermaid's native error footer/logo only — DO NOT hide our custom
+   `.mermaid-error*` wrappers. */
+svg text.error-text,
+svg g.error-icon,
+svg[aria-describedby*=error] {
   display: none;
 }
 

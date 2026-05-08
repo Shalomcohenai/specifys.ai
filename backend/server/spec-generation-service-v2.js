@@ -8,6 +8,13 @@ const { logger } = require('./logger');
 const specEvents = require('./spec-events');
 const { getSpecThreadManager } = require('./spec-thread-manager');
 const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
+const {
+  DIAGRAM_FIELDS,
+  sanitizeMermaid,
+  validateMermaid,
+  getByPath,
+  setByPath
+} = require('../schemas/mermaid-validator');
 
 /** Prefer OPENAI_SPEC_API_KEY so spec generation can use a key with model.request while OPENAI_API_KEY stays minimal. */
 function getApiKeyForSpecOpenAI() {
@@ -23,9 +30,138 @@ Generate a comprehensive overview from the user input below. Every required key 
 User Input:
 `;
 
+/**
+ * Strict Mermaid rules block shared across stages that emit diagrams.
+ *
+ * The post-generation server-side validator (mermaid-validator.js) catches
+ * the high-volume failure modes; these rules in the prompt keep the model
+ * from hitting them in the first place. They mirror Mermaid 10 syntax that
+ * mermaid.parse() accepts.
+ */
+const MERMAID_RULES_BLOCK = `MERMAID DIAGRAM RULES (strict — apply to every *Mermaid field):
+- Output RAW Mermaid only. No \`\`\`mermaid fences, no surrounding prose, no comments outside the diagram.
+- The first non-empty line MUST be a directive: flowchart TD/LR, graph TD/LR, erDiagram, sequenceDiagram, classDiagram, stateDiagram-v2, mindmap, pie, gantt, journey.
+- Node IDs: ASCII letters, digits and underscore only. NO spaces, dots, hyphens, parentheses, slashes or non-ASCII characters in IDs.
+- Labels with spaces or punctuation MUST be quoted: A["Login Page"]-->B["Dashboard"]. Never write A[Login Page] -- mermaid will reject it.
+- No emoji, no smart quotes (use straight " and '), no HTML other than <br> inside labels.
+- Edges: --> for solid, --- for plain, ==> for thick. Sequence arrows: ->>, -->>, ->, -->.
+- erDiagram: keep cardinality tokens exact (||--o{, }o--||, |o--o|). Each entity body uses { } on its own lines.
+- Keep diagrams under ~25 nodes; collapse detail into sub-systems if needed.
+- Never repeat the same edge twice; never reference an undefined node ID.`;
+
 class SpecGenerationServiceV2 {
   constructor() {
     this.threadManager = null;
+  }
+
+  /**
+   * Walk a parsed stage payload, sanitize every Mermaid diagram field, and
+   * call the model to repair anything that still fails the heuristic validator.
+   *
+   * Mutates `payload` in place. Stages without a `DIAGRAM_FIELDS` entry
+   * (overview, market, design, visibility, prompts) are skipped — they have no
+   * embedded diagrams.
+   *
+   * Strategy per field:
+   *  1. Sanitize (idempotent cleanup of fences, smart quotes, emoji, etc.).
+   *  2. Validate. If clean, write back the sanitized value and continue.
+   *  3. If broken and nullable: try one repair call. If still broken, set to null.
+   *  4. If broken and non-nullable (e.g. erDiagramMermaid): try one repair call.
+   *     If still broken, leave the sanitized text in place so the frontend's
+   *     graceful-fallback can show the source even though it won't render.
+   *
+   * Repair failures never throw — we log and degrade so a single broken
+   * diagram cannot fail the entire spec stage.
+   */
+  async _processDiagrams(stage, payload, { specId, requestId } = {}) {
+    const fields = DIAGRAM_FIELDS[stage];
+    if (!fields || !payload || typeof payload !== 'object') return;
+
+    const tm = this._getThreadManager();
+    const stats = { sanitized: 0, repaired: 0, dropped: 0, kept_invalid: 0 };
+
+    for (const field of fields) {
+      const original = getByPath(payload, field.path);
+      if (original == null || original === '') {
+        if (!field.nullable) {
+          stats.dropped += 1;
+          logger.warn(
+            { specId, requestId, stage, field: field.path },
+            '[DiagramQA] Required diagram missing — leaving empty for retry by user'
+          );
+        }
+        continue;
+      }
+      if (typeof original !== 'string') {
+        // Schema should have rejected this already; defensive.
+        continue;
+      }
+
+      const sanitized = sanitizeMermaid(original);
+      const sanitizedChanged = sanitized !== original;
+      if (sanitizedChanged) stats.sanitized += 1;
+
+      const verdict = validateMermaid(sanitized, { allowEmpty: field.nullable });
+      if (verdict.ok) {
+        if (sanitizedChanged) setByPath(payload, field.path, sanitized);
+        continue;
+      }
+
+      // Try one repair pass.
+      logger.warn(
+        { specId, requestId, stage, field: field.path, errors: verdict.errors },
+        '[DiagramQA] Diagram failed validation — attempting repair'
+      );
+
+      let repaired = null;
+      try {
+        repaired = await tm.repairMermaidDiagram(sanitized, verdict.errors, field.kind || verdict.directive || 'flowchart');
+      } catch (err) {
+        logger.warn(
+          { specId, requestId, stage, field: field.path, err: err.message },
+          '[DiagramQA] Repair call threw — falling through'
+        );
+      }
+
+      if (repaired) {
+        const repairedClean = sanitizeMermaid(repaired);
+        const repairVerdict = validateMermaid(repairedClean, { allowEmpty: field.nullable });
+        if (repairVerdict.ok) {
+          setByPath(payload, field.path, repairedClean);
+          stats.repaired += 1;
+          continue;
+        }
+        logger.warn(
+          { specId, requestId, stage, field: field.path, repairErrors: repairVerdict.errors },
+          '[DiagramQA] Repair output still invalid'
+        );
+      }
+
+      if (field.nullable) {
+        setByPath(payload, field.path, null);
+        stats.dropped += 1;
+        logger.warn(
+          { specId, requestId, stage, field: field.path },
+          '[DiagramQA] Nullable diagram dropped after failed repair'
+        );
+      } else {
+        // Keep the sanitized version — frontend graceful fallback will surface
+        // the source instead of crashing the whole section.
+        setByPath(payload, field.path, sanitized);
+        stats.kept_invalid += 1;
+        logger.warn(
+          { specId, requestId, stage, field: field.path },
+          '[DiagramQA] Required diagram still invalid after repair — kept sanitized source for frontend fallback'
+        );
+      }
+    }
+
+    if (stats.sanitized || stats.repaired || stats.dropped || stats.kept_invalid) {
+      logger.info(
+        { specId, requestId, stage, ...stats },
+        '[DiagramQA] Diagram pipeline summary'
+      );
+    }
   }
 
   _getThreadManager() {
@@ -46,7 +182,11 @@ class SpecGenerationServiceV2 {
       ? `[SPEC_REFERENCE]\nSpec ID: ${specId}\nOverview Location: Firebase > specs collection > ${specId} > overview field\nNote: The system will retrieve the full overview content automatically.`
       : `Application Overview:\n${overviewContent}`;
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
-Create a comprehensive technical specification with Mermaid diagrams where indicated. All Mermaid strings must be RAW syntax only — no markdown fences inside JSON. Use Mermaid 10–compatible syntax; use simple node labels (alphanumeric, hyphens). Prefer flowchart/graph for system maps, erDiagram for data, sequenceDiagram for auth/integration flows.
+Create a comprehensive technical specification with Mermaid diagrams where indicated.
+
+${MERMAID_RULES_BLOCK}
+
+Use Mermaid 10–compatible syntax. Prefer flowchart/graph for system maps, erDiagram for data, sequenceDiagram for auth/integration flows.
 
 Required structure:
 - techStack: { frontend, backend, database, storage, authentication } — text only, no diagram.
@@ -167,7 +307,13 @@ Additional Details: ${additionalDetails}`;
     try {
       const payload = await tm.runStage(threadId, stage, userMessage);
       const rootKey = STAGE_ROOT_KEYS[stage];
-      const content = JSON.stringify(payload[rootKey], null, 2);
+      const stagePayload = payload[rootKey];
+
+      // Sanitize/validate/repair every Mermaid diagram in this stage so the
+      // frontend mermaid.parse() does not break sections at render time.
+      await this._processDiagrams(stage, stagePayload, { specId, requestId });
+
+      const content = JSON.stringify(stagePayload, null, 2);
       specEvents.emitSpecUpdate(specId, stage, 'ready', content);
       logger.info({ requestId, specId, stage, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Section completed');
       return content;
@@ -300,6 +446,11 @@ Additional Details: ${additionalDetails}`;
     const parsed = await tm.runStage(threadId, 'architecture', userPrompt);
     const rootKey = STAGE_ROOT_KEYS.architecture;
     const payload = parsed[rootKey];
+
+    // Sanitize/validate/repair architecture diagrams (logical/info/functional/
+    // coreFlows/integration/deployment) before serializing to Markdown.
+    await this._processDiagrams('architecture', payload, { specId, requestId });
+
     const markdown = this._architecturePayloadToMarkdown(payload);
 
     logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Architecture completed');
@@ -344,11 +495,7 @@ Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must 
 
 - risksAndOpenDecisions: string (open decisions, trade-offs, technical debt).
 
-MERMAID RULES (strict):
-- Mermaid 10–compatible syntax only.
-- Do NOT wrap diagram code in markdown fences inside JSON; raw Mermaid only.
-- Avoid unescaped quotes or parentheses inside labels; use simple alphanumeric or hyphenated labels.
-- In flowcharts, prefer alphanumeric identifiers (e.g., API, DB, Cache, WorkerService) and avoid punctuation-heavy node ids.
+${MERMAID_RULES_BLOCK}
 
 QUALITY BAR:
 - Each narrative/string field must be specific to the provided inputs and include concrete details (components, technologies, flows, constraints).

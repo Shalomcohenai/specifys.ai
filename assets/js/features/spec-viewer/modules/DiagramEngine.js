@@ -48,6 +48,32 @@ function buildRenderErrorCard({ message, retryType, diagramId, containerId }) {
   `;
 }
 
+/**
+ * Inline fallback card shown when mermaid.render() throws on a diagram embedded
+ * inside a Technical / Architecture section. We cannot retry from here (the
+ * source comes from the spec payload, not from a separate API), so we surface
+ * the raw Mermaid in a collapsible block instead of letting the placeholder
+ * disappear silently.
+ */
+function buildInlineDiagramFallback(source, errorMessage) {
+  const escape = window.escapeHtmlSpec || ((s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c])));
+  return `
+    <div class="diagram-inline-fallback" role="note">
+      <div class="diagram-inline-fallback-header">
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+        <span>Diagram preview unavailable</span>
+      </div>
+      <p class="diagram-inline-fallback-msg">${escape(errorMessage || 'Mermaid could not parse this diagram.')}</p>
+      <details class="diagram-inline-fallback-source">
+        <summary>Show diagram source</summary>
+        <pre><code>${escape(source || '')}</code></pre>
+      </details>
+    </div>
+  `;
+}
+
 export async function ensureMermaid() {
   if (typeof mermaid !== 'undefined' && mermaid.render) {
     return mermaid;
@@ -340,19 +366,37 @@ export function retryMindMap() {
   loadMindMap();
 }
 
+/**
+ * Render a single architecture-tab diagram into `targetElement`.
+ *
+ * Return contract:
+ *  - `true`  → diagram rendered successfully OR fallback card written by us.
+ *              Either way `targetElement` is fully populated; caller MUST NOT
+ *              overwrite it.
+ *  - `false` → we couldn't even start (no element / no code); caller should
+ *              render its own placeholder.
+ */
 export async function renderArchitectureMermaid(targetElement, mermaidCode) {
   if (!targetElement || !mermaidCode) return false;
+  let source = mermaidCode;
   try {
     await ensureMermaid();
-    const source = (typeof window.sanitizeMermaidSource === 'function'
+    source = (typeof window.sanitizeMermaidSource === 'function'
       ? window.sanitizeMermaidSource(mermaidCode)
       : mermaidCode) || mermaidCode;
+    // Validate first so a parse error does not leak DOM artifacts from mermaid.render.
+    if (typeof mermaid.parse === 'function') {
+      try { mermaid.parse(source); } catch (parseErr) { throw parseErr; }
+    }
     const uniqueId = `arch-mermaid-${Date.now()}`;
     const result = await mermaid.render(uniqueId, source);
     targetElement.innerHTML = result.svg;
     return true;
   } catch (error) {
-    return false;
+    // Inline fallback so the section keeps rendering. Returns true because we
+    // have populated `targetElement` and the caller should not overwrite us.
+    targetElement.innerHTML = buildInlineDiagramFallback(source, error?.message);
+    return true;
   }
 }
 
@@ -361,13 +405,22 @@ export async function renderSpecMermaidPlaceholders(container) {
   await ensureMermaid();
   const nodes = container.querySelectorAll('[data-spec-mermaid]');
   await Promise.all(Array.from(nodes).map(async (node, idx) => {
-    const source = node.getAttribute('data-spec-mermaid');
-    if (!source) return;
+    const raw = node.getAttribute('data-spec-mermaid');
+    if (!raw) return;
+    const source = (typeof window.sanitizeMermaidSource === 'function'
+      ? window.sanitizeMermaidSource(raw)
+      : raw) || raw;
     try {
+      if (typeof mermaid.parse === 'function') {
+        try { mermaid.parse(source); } catch (parseErr) { throw parseErr; }
+      }
       const id = `spec-mermaid-${Date.now()}-${idx}`;
       const result = await mermaid.render(id, source);
       node.innerHTML = result.svg;
-    } catch (error) {}
+    } catch (error) {
+      // Inline fallback: keep the surrounding section intact, surface source.
+      node.innerHTML = buildInlineDiagramFallback(source, error?.message);
+    }
   }));
 }
 
