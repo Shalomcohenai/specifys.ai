@@ -305,6 +305,16 @@ export class SpecUsageView {
   }
   
   /**
+   * Short numeric date for compact table (e.g. 5/12/26).
+   */
+  formatShortCreated(date) {
+    if (!date) return '—';
+    const d = date instanceof Date ? date : new Date(date);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+  }
+
+  /**
    * Render table
    */
   renderTable(specs) {
@@ -341,67 +351,66 @@ export class SpecUsageView {
       
       return `
         <tr>
-          <td>
+          <td class="spec-usage-col-spec">
             <div class="user-name">${this.escapeHtml(spec.title || 'Untitled Spec')}</div>
           </td>
-          <td>
+          <td class="spec-usage-col-user">
             <div class="user-email">${this.escapeHtml(userInfo)}</div>
           </td>
-          <td>${helpers.formatDate(spec.createdAt)}</td>
+          <td class="spec-usage-col-date">${this.formatShortCreated(spec.createdAt)}</td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasOverview ? 'active' : ''}" title="Overview">
-              <i class="fas fa-${hasOverview ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasOverview ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasTechnical ? 'active' : ''}" title="Technical">
-              <i class="fas fa-${hasTechnical ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasTechnical ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasMarket ? 'active' : ''}" title="Market Research">
-              <i class="fas fa-${hasMarket ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasMarket ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasDesign ? 'active' : ''}" title="Design">
-              <i class="fas fa-${hasDesign ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasDesign ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasDiagrams ? 'active' : ''}" title="Diagrams">
-              <i class="fas fa-${hasDiagrams ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasDiagrams ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasPrompts ? 'active' : ''}" title="Prompts">
-              <i class="fas fa-${hasPrompts ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasPrompts ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasMockups ? 'active' : ''}" title="Mockups">
-              <i class="fas fa-${hasMockups ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasMockups ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasAiChat ? 'active' : ''}" title="AI Chat">
-              <i class="fas fa-${hasAiChat ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasAiChat ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasBrainDump ? 'active' : ''}" title="Brain Dump">
-              <i class="fas fa-${hasBrainDump ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasBrainDump ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="feature-cell">
             <span class="feature-indicator ${hasArchitecture ? 'active' : ''}" title="Architecture">
-              <i class="fas fa-${hasArchitecture ? 'check-circle' : 'circle'}"></i>
+              <i class="fas fa-${hasArchitecture ? 'check' : 'circle'}"></i>
             </span>
           </td>
           <td class="spec-row-data-cell">
-            <button type="button" class="btn-spec-row-download" data-action="download-spec-row" data-spec-id="${this.escapeHtml(String(spec.id))}" title="Download full Firestore row (JSON)">
+            <button type="button" class="btn-spec-row-download" data-action="download-spec-row" data-spec-id="${this.escapeHtml(String(spec.id))}" title="Download full Firestore row (JSON)" aria-label="Download full Firestore row as JSON">
               <i class="fas fa-file-download" aria-hidden="true"></i>
-              <span class="btn-spec-row-download-label">JSON</span>
             </button>
           </td>
         </tr>

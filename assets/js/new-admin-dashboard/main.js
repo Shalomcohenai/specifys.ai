@@ -10,7 +10,6 @@ import { helpers } from './utils/helpers.js';
 import { apiService } from './services/ApiService.js';
 import { OverviewView } from './views/OverviewView.js';
 import { UsersView } from './views/UsersView.js';
-import { PaymentsView } from './views/PaymentsView.js';
 import { LogsView } from './views/LogsView.js';
 import { AnalyticsView } from './views/AnalyticsView.js';
 import { SpecUsageView } from './views/SpecUsageView.js';
@@ -290,12 +289,6 @@ class NewAdminDashboard {
     const view = this.views.get(sectionId);
     if (view && typeof view.show === 'function') {
       view.show();
-    } else if (sectionId === 'unsubscribe') {
-      // Unsubscribe section uses 'unsubscribe-section' as ID
-      const unsubscribeView = this.views.get('unsubscribe');
-      if (unsubscribeView && typeof unsubscribeView.show === 'function') {
-        unsubscribeView.show();
-      }
     } else if (sectionId === 'content') {
       // Handle content view with internal tabs
       const contentView = this.views.get('content');
@@ -385,9 +378,6 @@ class NewAdminDashboard {
       // MCP view
       this.views.set('mcp', new McpView(this.dataManager, this.stateManager));
       
-      // Payments view
-      this.views.set('payments', new PaymentsView(this.dataManager, this.stateManager));
-      
       // Logs view
       this.views.set('logs', new LogsView(this.dataManager, this.stateManager));
       
@@ -411,8 +401,7 @@ class NewAdminDashboard {
       
       // Unsubscribe view
       const unsubscribeView = new UnsubscribeView(this.dataManager, this.stateManager);
-      this.views.set('unsubscribe', unsubscribeView);
-      // Expose to window for onclick handlers
+      this.views.set('email', unsubscribeView);
       window.unsubscribeView = unsubscribeView;
       
     } catch (error) {

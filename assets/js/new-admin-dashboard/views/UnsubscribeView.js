@@ -25,6 +25,7 @@ export class UnsubscribeView {
    */
   init() {
     this.setupEventListeners();
+    this.setupEmailDraftAssistant();
     this.loadUnsubscribedUsers();
   }
   
@@ -60,6 +61,106 @@ export class UnsubscribeView {
     const exportBtn = helpers.dom('#export-unsubscribed-csv-btn');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => this.exportToCSV());
+    }
+  }
+
+  /**
+   * Admin-only: generate marketing email HTML (English) via OpenAI; copy/paste only.
+   */
+  setupEmailDraftAssistant() {
+    if (this._emailDraftAssistantBound) {
+      return;
+    }
+    const genBtn = helpers.dom('#email-draft-generate-btn');
+    const briefEl = helpers.dom('#email-draft-brief');
+    if (!genBtn || !briefEl) {
+      return;
+    }
+    this._emailDraftAssistantBound = true;
+
+    const statusEl = helpers.dom('#email-draft-status');
+    const errEl = helpers.dom('#email-draft-error');
+    const outEl = helpers.dom('#email-draft-output');
+    const subjectInput = helpers.dom('#email-draft-subject');
+    const htmlTa = helpers.dom('#email-draft-html');
+    const previewFrame = helpers.dom('#email-draft-preview-frame');
+    const copySubjectBtn = helpers.dom('#email-draft-copy-subject');
+    const copyHtmlBtn = helpers.dom('#email-draft-copy-html');
+
+    const setStatus = (text) => {
+      if (statusEl) statusEl.textContent = text || '';
+    };
+
+    const showError = (msg) => {
+      if (!errEl) return;
+      errEl.textContent = msg || 'Something went wrong.';
+      errEl.classList.remove('hidden');
+    };
+
+    const clearError = () => {
+      if (!errEl) return;
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+    };
+
+    const copyWithFeedback = async (text, button, doneLabel) => {
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        if (button) {
+          const prev = button.textContent;
+          button.textContent = doneLabel || 'Copied';
+          setTimeout(() => {
+            button.textContent = prev;
+          }, 1600);
+        }
+      } catch (e) {
+        window.alert('Clipboard not available. Select and copy manually.');
+      }
+    };
+
+    genBtn.addEventListener('click', async () => {
+      const brief = (briefEl.value || '').trim();
+      clearError();
+      if (!brief) {
+        showError('Please enter a brief describing the email you want.');
+        return;
+      }
+      genBtn.disabled = true;
+      setStatus('Generating…');
+      if (outEl) outEl.classList.add('hidden');
+      try {
+        const data = await apiService.post('/api/admin/email/draft', { brief });
+        if (!data.success || !data.html) {
+          throw new Error(data.message || 'Invalid response');
+        }
+        if (subjectInput) subjectInput.value = data.subject || '';
+        if (htmlTa) htmlTa.value = data.html;
+        if (previewFrame) {
+          previewFrame.srcdoc = data.html;
+        }
+        if (outEl) outEl.classList.remove('hidden');
+        setStatus('Done. Copy subject and HTML below.');
+      } catch (err) {
+        const msg = err.message || String(err);
+        showError(msg);
+        setStatus('');
+      } finally {
+        genBtn.disabled = false;
+      }
+    });
+
+    if (copySubjectBtn) {
+      copySubjectBtn.addEventListener('click', () => {
+        const t = subjectInput ? subjectInput.value : '';
+        copyWithFeedback(t, copySubjectBtn, 'Copied');
+      });
+    }
+    if (copyHtmlBtn) {
+      copyHtmlBtn.addEventListener('click', () => {
+        const t = htmlTa ? htmlTa.value : '';
+        copyWithFeedback(t, copyHtmlBtn, 'Copied');
+      });
     }
   }
   

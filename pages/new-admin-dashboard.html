@@ -44,10 +44,6 @@ custom_js_modules:
         <i class="fas fa-plug"></i>
         <span>MCP</span>
       </button>
-      <button class="nav-tab" data-section="payments" aria-label="Payments">
-        <i class="fas fa-credit-card"></i>
-        <span>Payments</span>
-      </button>
       <button class="nav-tab" data-section="logs" aria-label="Logs">
         <i class="fas fa-stream"></i>
         <span>Logs</span>
@@ -56,9 +52,9 @@ custom_js_modules:
         <i class="fas fa-file-alt"></i>
         <span>Content</span>
       </button>
-      <button class="nav-tab" data-section="unsubscribe" aria-label="Unsubscribed Users">
-        <i class="fas fa-ban"></i>
-        <span>Unsubscribed</span>
+      <button class="nav-tab" data-section="email" aria-label="Email">
+        <i class="fas fa-envelope"></i>
+        <span>Email</span>
       </button>
     </div>
     
@@ -909,350 +905,30 @@ custom_js_modules:
       </div>
 
       <!-- Specs Table -->
-      <div class="table-card">
-        <table class="modern-table" id="spec-usage-table">
-          <thead>
-            <tr>
-              <th>Spec</th>
-              <th>User</th>
-              <th>Created</th>
-              <th class="feature-column">Overview</th>
-              <th class="feature-column">Technical</th>
-              <th class="feature-column">Market</th>
-              <th class="feature-column">Design</th>
-              <th class="feature-column">Diagrams</th>
-              <th class="feature-column">Prompts</th>
-              <th class="feature-column">Mockups</th>
-              <th class="feature-column">AI Chat</th>
-              <th class="feature-column">Brain Dump</th>
-              <th class="feature-column">Architecture</th>
-              <th class="spec-row-data-column">Row data</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colspan="14" class="table-empty-state">Loading specs...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Payments Section -->
-    <section class="dashboard-content-section" id="payments-section">
-      <div class="section-header-modern">
-        <div>
-          <h1>
-            Payments
-            <span class="loading-spinner-inline" id="payments-loading-spinner" style="display: none;">
-              <i class="fas fa-spinner fa-spin"></i>
-            </span>
-          </h1>
-          <p>Transaction history, customers, and revenue tracking from Lemon Squeezy</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-modern" id="payments-sync-btn" title="Sync payments data from Lemon Squeezy">
-            <i class="fas fa-sync-alt"></i>
-            <span>Sync Now</span>
-          </button>
-          <select class="select-modern" id="payments-range-select">
-            <option value="all">All time</option>
-            <option value="week" selected>Last 7 days</option>
-            <option value="month">Last 30 days</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Summary Stats -->
-      <div class="quick-stats-grid">
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-            <i class="fas fa-dollar-sign"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Total Revenue</div>
-            <div class="stat-value" id="stat-total-revenue">$0.00</div>
-          </div>
-        </div>
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Total Orders</div>
-            <div class="stat-value" id="stat-total-orders">0</div>
-          </div>
-        </div>
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Total Customers</div>
-            <div class="stat-value" id="stat-total-customers">0</div>
-          </div>
-        </div>
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-            <i class="fas fa-sync"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Active Subscriptions</div>
-            <div class="stat-value" id="stat-active-subscriptions">0</div>
-          </div>
-        </div>
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">New Subscribers (30d)</div>
-            <div class="stat-value" id="stat-new-subscribers">0</div>
-          </div>
-        </div>
-        <div class="quick-stat-card">
-          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">Errors</div>
-            <div class="stat-value" id="stat-errors-count">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sync Status -->
-      <div class="payment-sync-status" id="payment-sync-status" style="display: none;">
-        <div class="sync-status-info">
-          <i class="fas fa-info-circle"></i>
-          <span>Last synced: <span id="last-sync-time">Never</span></span>
-        </div>
-      </div>
-
-      <!-- Tabs for different views -->
-      <div class="payments-tabs">
-        <button class="payments-tab active" data-tab="orders">
-          <i class="fas fa-shopping-cart"></i>
-          <span>Orders</span>
-        </button>
-        <button class="payments-tab" data-tab="customers">
-          <i class="fas fa-users"></i>
-          <span>Customers</span>
-        </button>
-        <button class="payments-tab" data-tab="credits-sync">
-          <i class="fas fa-sync-alt"></i>
-          <span>Credits Sync</span>
-        </button>
-        <button class="payments-tab" data-tab="errors">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span>Errors</span>
-          <span class="badge" id="errors-badge" style="display: none;">0</span>
-        </button>
-        <button class="payments-tab" data-tab="new-subscribers">
-          <i class="fas fa-user-plus"></i>
-          <span>New Subscribers</span>
-        </button>
-      </div>
-
-      <!-- Orders Tab -->
-      <div class="payments-tab-content active" id="payments-tab-orders">
-        <div class="filters-bar">
-          <div class="search-input-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="search" id="orders-search-input" placeholder="Search by order number, customer email...">
-          </div>
-          <select id="orders-status-filter">
-            <option value="all">All Status</option>
-            <option value="paid">Paid</option>
-            <option value="refunded">Refunded</option>
-            <option value="pending">Pending</option>
-            <option value="failed">Failed</option>
-          </select>
-          <input type="date" id="orders-date-from" placeholder="From">
-          <input type="date" id="orders-date-to" placeholder="To">
-        </div>
-
-        <div class="table-card">
-          <table class="modern-table" id="payments-orders-table">
+      <div class="table-card spec-usage-table-card">
+        <div class="spec-usage-table-wrap">
+          <table class="modern-table spec-usage-compact-table" id="spec-usage-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Order #</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Subscription</th>
+                <th class="spec-usage-col-spec">Spec</th>
+                <th class="spec-usage-col-user">User</th>
+                <th class="spec-usage-col-date">Created</th>
+                <th class="feature-column" title="Overview">Ov</th>
+                <th class="feature-column" title="Technical">Tk</th>
+                <th class="feature-column" title="Market">Mk</th>
+                <th class="feature-column" title="Design">Ds</th>
+                <th class="feature-column" title="Diagrams">Dg</th>
+                <th class="feature-column" title="Prompts">Pr</th>
+                <th class="feature-column" title="Mockups">Mc</th>
+                <th class="feature-column" title="AI Chat">AI</th>
+                <th class="feature-column" title="Brain Dump">Bd</th>
+                <th class="feature-column" title="Architecture">Ar</th>
+                <th class="spec-row-data-column" title="Download full row (JSON)">DL</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td colspan="7" class="table-empty-state">Loading orders...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Customers Tab -->
-      <div class="payments-tab-content" id="payments-tab-customers">
-        <div class="filters-bar">
-          <div class="search-input-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="search" id="customers-search-input" placeholder="Search by email or name...">
-          </div>
-        </div>
-
-        <div class="table-card">
-          <table class="modern-table" id="payments-customers-table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Email</th>
-                <th>Total Spent</th>
-                <th>Total Orders</th>
-                <th>Subscriptions</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="6" class="table-empty-state">Loading customers...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Errors Tab -->
-      <!-- Credits Sync Tab -->
-      <div class="payments-tab-content" id="payments-tab-credits-sync">
-        <div class="section-header-modern">
-          <div>
-            <h2>Credits Sync</h2>
-            <p>Daily sync to ensure credits match purchases and subscriptions</p>
-          </div>
-          <div class="header-actions">
-            <button class="btn-modern" id="refresh-credits-sync-btn">
-              <i class="fas fa-sync-alt"></i>
-              <span>Refresh Status</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Automation Status -->
-        <div class="form-card">
-          <div class="card-header">
-            <h3>Credits Sync Automation</h3>
-          </div>
-          <div class="card-body">
-            <div class="automation-status">
-              <div class="automation-info">
-                <div class="info-row">
-                  <span class="info-label">Status:</span>
-                  <span class="info-value" id="credits-sync-status">Checking...</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Frequency:</span>
-                  <span class="info-value">Daily (24 hours)</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Last Run:</span>
-                  <span class="info-value" id="credits-sync-last-run">-</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Next Run:</span>
-                  <span class="info-value" id="credits-sync-next-run">-</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Last Result:</span>
-                  <span class="info-value" id="credits-sync-last-result">-</span>
-                </div>
-              </div>
-              <div class="automation-actions">
-                <button class="btn-modern primary" id="run-credits-sync-btn">
-                  <i class="fas fa-play"></i>
-                  Run Now
-                </button>
-                <button class="btn-modern" id="view-credits-sync-logs-btn">
-                  <i class="fas fa-history"></i>
-                  View Logs
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sync Report -->
-        <div class="form-card">
-          <div class="card-header">
-            <h3>Last Sync Report</h3>
-          </div>
-          <div class="card-body">
-            <div id="credits-sync-report">
-              <p class="text-muted">No sync report available yet.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="payments-tab-content" id="payments-tab-errors">
-        <div class="filters-bar">
-          <select id="errors-type-filter">
-            <option value="all">All Errors</option>
-            <option value="cancelled">Cancelled Subscriptions</option>
-            <option value="refunded">Refunded Orders</option>
-            <option value="past_due">Past Due</option>
-            <option value="expired">Expired</option>
-          </select>
-        </div>
-
-        <div class="table-card">
-          <table class="modern-table" id="payments-errors-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Amount</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="6" class="table-empty-state">Loading errors...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- New Subscribers Tab -->
-      <div class="payments-tab-content" id="payments-tab-new-subscribers">
-        <div class="filters-bar">
-          <select id="new-subscribers-days-filter">
-            <option value="7">Last 7 days</option>
-            <option value="30" selected>Last 30 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
-        </div>
-
-        <div class="table-card">
-          <table class="modern-table" id="payments-new-subscribers-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Status</th>
-                <th>Renews At</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="6" class="table-empty-state">Loading new subscribers...</td>
+                <td colspan="14" class="table-empty-state">Loading specs...</td>
               </tr>
             </tbody>
           </table>
@@ -1901,12 +1577,12 @@ custom_js_modules:
       <div class="pagination-modern" id="contact-pagination"></div>
     </section>
 
-    <!-- Unsubscribe Users Section -->
-    <section class="dashboard-content-section" id="unsubscribe-section">
+    <!-- Email: unsubscribes + draft assistant -->
+    <section class="dashboard-content-section" id="email-section">
       <div class="section-header-modern">
         <div>
-          <h1>Unsubscribed Users</h1>
-          <p>Users who have unsubscribed from emails</p>
+          <h1>Email</h1>
+          <p>Unsubscribed users and tools for drafting marketing email HTML (copy only).</p>
         </div>
         <div class="header-actions">
           <button class="btn-modern" id="export-unsubscribed-csv-btn">
@@ -1982,6 +1658,45 @@ custom_js_modules:
 
       <!-- Pagination -->
       <div class="pagination-modern" id="unsubscribe-pagination"></div>
+
+      <!-- Email draft assistant (OpenAI + Resend-style template; copy only) -->
+      <div class="email-draft-section" style="margin-top: 40px;">
+        <div class="section-header-modern">
+          <div>
+            <h2 style="margin: 0; font-size: 1.5rem;">Email draft assistant</h2>
+            <p style="margin: 4px 0 0 0; color: #666;">Describe the email you want (English). The model uses Specifys.ai product context and returns subject line + full HTML using the same shell as system emails. Copy into Resend or your ESP—no send from here.</p>
+          </div>
+        </div>
+        <div class="email-draft-panel">
+          <label class="email-draft-label" for="email-draft-brief">Brief</label>
+          <textarea id="email-draft-brief" class="email-draft-textarea" rows="6" placeholder="Example: Short update for active users about the new architecture section in the spec viewer; primary CTA opens the spec viewer; friendly tone."></textarea>
+          <div class="email-draft-toolbar">
+            <button type="button" class="btn-modern btn-primary" id="email-draft-generate-btn">
+              <span class="btn-text">Generate draft</span>
+            </button>
+            <span id="email-draft-status" class="email-draft-status" aria-live="polite"></span>
+          </div>
+          <div id="email-draft-error" class="email-draft-error hidden" role="alert"></div>
+          <div id="email-draft-output" class="email-draft-output hidden">
+            <div class="email-draft-field">
+              <label class="email-draft-label" for="email-draft-subject">Subject line</label>
+              <div class="email-draft-inline-row">
+                <input type="text" id="email-draft-subject" class="email-draft-subject-input" readonly />
+                <button type="button" class="btn-modern btn-secondary" id="email-draft-copy-subject">Copy subject</button>
+              </div>
+            </div>
+            <div class="email-draft-field">
+              <span class="email-draft-label">Preview</span>
+              <iframe id="email-draft-preview-frame" class="email-draft-preview-frame" title="Email HTML preview" sandbox=""></iframe>
+            </div>
+            <div class="email-draft-field">
+              <label class="email-draft-label" for="email-draft-html">Full HTML</label>
+              <textarea id="email-draft-html" class="email-draft-html-area" rows="14" readonly></textarea>
+              <button type="button" class="btn-modern btn-primary" id="email-draft-copy-html">Copy HTML</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
   </main>

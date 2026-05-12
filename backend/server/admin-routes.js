@@ -2552,10 +2552,6 @@ router.get('/email/status', requireAdmin, async (req, res, next) => {
 });
 
 /**
- * POST /api/admin/email/test
- * Send a test email to verify Resend integration
- */
-/**
  * POST /api/admin/email/draft
  * Generate English marketing email HTML (Resend-style wrapper) for copy/paste. Admin only.
  */
@@ -2655,6 +2651,10 @@ Return ONLY a valid JSON object with exactly these keys:
   }
 });
 
+/**
+ * POST /api/admin/email/test
+ * Send a test email to verify Resend integration
+ */
 router.post('/email/test', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'POST /email/test');
   

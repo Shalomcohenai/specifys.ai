@@ -2367,6 +2367,99 @@
   line-height: 1;
 }
 
+/* Spec Usage table: fit many columns + download on typical laptop widths */
+#spec-usage-section .spec-usage-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 0.8125rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table th,
+#spec-usage-section #spec-usage-table.spec-usage-compact-table td {
+  padding: 0.35rem 0.2rem;
+  vertical-align: middle;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table thead th {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  line-height: 1.15;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-usage-col-spec {
+  width: 20%;
+  min-width: 0;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-usage-col-user {
+  width: 18%;
+  min-width: 0;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-usage-col-date {
+  width: 3.75rem;
+  white-space: nowrap;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .user-name,
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .user-email {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-column {
+  width: 1.85rem;
+  max-width: 1.85rem;
+  box-sizing: border-box;
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-cell {
+  text-align: center;
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-indicator {
+  width: 18px;
+  height: 18px;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-indicator i {
+  font-size: 0.65rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-row-data-column {
+  width: 2.25rem;
+  max-width: 2.25rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-row-data-cell {
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .btn-spec-row-download {
+  padding: 0.28rem 0.35rem;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .btn-spec-row-download-label {
+  display: none;
+}
+
 .feature-column {
   width: 80px;
   text-align: center;
@@ -2436,6 +2529,105 @@
 .btn-spec-row-download-label {
   font-size: 0.7rem;
   letter-spacing: 0.02em;
+}
+
+/* Admin email draft assistant (Analytics) */
+.email-draft-section .email-draft-panel {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.email-draft-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.email-draft-textarea,
+.email-draft-html-area,
+.email-draft-subject-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.email-draft-textarea,
+.email-draft-html-area {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.email-draft-html-area {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+.email-draft-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.email-draft-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.email-draft-error {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius);
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
+.email-draft-output {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.email-draft-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.email-draft-inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.email-draft-inline-row .email-draft-subject-input {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.email-draft-preview-frame {
+  width: 100%;
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #f5f5f5;
 }
 
 .search-input-modern {
