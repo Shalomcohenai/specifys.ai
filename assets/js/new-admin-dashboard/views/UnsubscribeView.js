@@ -73,8 +73,10 @@ export class UnsubscribeView {
     }
     const genBtn = helpers.dom('#email-draft-generate-btn');
     const briefEl = helpers.dom('#email-draft-brief');
-    const marketingCb = helpers.dom('#email-draft-marketing');
     const introEl = helpers.dom('#email-draft-intro');
+    const panelEl = briefEl.closest('.email-draft-panel');
+    const kindInputs = () =>
+      panelEl ? Array.from(panelEl.querySelectorAll('input[name="email-draft-kind"]')) : [];
     if (!genBtn || !briefEl) {
       return;
     }
@@ -89,21 +91,37 @@ export class UnsubscribeView {
     const copySubjectBtn = helpers.dom('#email-draft-copy-subject');
     const copyHtmlBtn = helpers.dom('#email-draft-copy-html');
 
-    const syncEmailDraftMarketingUi = () => {
-      const marketing = Boolean(marketingCb && marketingCb.checked);
+    const getSelectedDraftKind = () => {
+      const radios = kindInputs();
+      const hit = radios.find((r) => r.checked);
+      const v = hit && hit.value;
+      if (v === 'marketing' || v === 'general') return v;
+      return 'product';
+    };
+
+    const syncEmailDraftKindUi = () => {
+      const kind = getSelectedDraftKind();
       const phProduct = briefEl.getAttribute('data-placeholder-product') || '';
       const phMarketing = briefEl.getAttribute('data-placeholder-marketing') || phProduct;
-      briefEl.placeholder = marketing ? phMarketing : phProduct;
+      const phGeneral = briefEl.getAttribute('data-placeholder-general') || phProduct;
+      if (kind === 'marketing') briefEl.placeholder = phMarketing;
+      else if (kind === 'general') briefEl.placeholder = phGeneral;
+      else briefEl.placeholder = phProduct;
       if (introEl) {
-        introEl.textContent = marketing
-          ? 'Write a short creative brief in Hebrew or English (angle, audience, desired CTA). You get a conversion-focused marketing email in English in the same HTML layout—not tied to one product release. Copy into Resend or your ESP—nothing is sent from here.'
-          : 'Describe the update in English (a few bullet points are enough). You get a short subject line and full HTML in a compact dark layout suited for newsletters. Copy into Resend or your ESP—nothing is sent from here.';
+        if (kind === 'marketing') {
+          introEl.textContent =
+            'Write a short creative brief in Hebrew or English (angle, audience, desired CTA). You get a conversion-focused marketing email in English in the same HTML layout—not tied to one product release. Copy into Resend or your ESP—nothing is sent from here.';
+        } else if (kind === 'general') {
+          introEl.textContent =
+            'Describe what the Specifys.ai team should say to users (Hebrew or English is fine). You get a respectful, professional email in English in the same layout—thanks, heads-up, support note, or similar—not a sales blast. Copy into Resend or your ESP—nothing is sent from here.';
+        } else {
+          introEl.textContent =
+            'Describe the update in English (a few bullet points are enough). You get a short subject line and full HTML in a compact dark layout suited for newsletters. Copy into Resend or your ESP—nothing is sent from here.';
+        }
       }
     };
-    if (marketingCb) {
-      marketingCb.addEventListener('change', syncEmailDraftMarketingUi);
-    }
-    syncEmailDraftMarketingUi();
+    kindInputs().forEach((r) => r.addEventListener('change', syncEmailDraftKindUi));
+    syncEmailDraftKindUi();
 
     const setStatus = (text) => {
       if (statusEl) statusEl.textContent = text || '';
@@ -144,12 +162,12 @@ export class UnsubscribeView {
         showError('Please enter a brief describing the email you want.');
         return;
       }
-      const marketing = Boolean(marketingCb && marketingCb.checked);
+      const emailDraftKind = getSelectedDraftKind();
       genBtn.disabled = true;
       setStatus('Generating…');
       if (outEl) outEl.classList.add('hidden');
       try {
-        const data = await apiService.post('/api/admin/email/draft', { brief, marketing });
+        const data = await apiService.post('/api/admin/email/draft', { brief, emailDraftKind });
         if (!data.success || !data.html) {
           throw new Error(data.message || 'Invalid response');
         }

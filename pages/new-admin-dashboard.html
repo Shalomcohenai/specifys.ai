@@ -1518,9 +1518,20 @@ custom_js_modules:
           </div>
         </div>
         <div class="email-draft-panel">
-          <div class="email-draft-marketing-row">
-            <input type="checkbox" id="email-draft-marketing" name="email-draft-marketing" />
-            <label for="email-draft-marketing">Marketing (general site message, not a specific feature)</label>
+          <span class="email-draft-label" id="email-draft-kind-label">Email type</span>
+          <div class="email-draft-kind-row" role="radiogroup" aria-labelledby="email-draft-kind-label">
+            <label class="email-draft-kind-option">
+              <input type="radio" name="email-draft-kind" value="product" checked />
+              Product update (one feature or change)
+            </label>
+            <label class="email-draft-kind-option">
+              <input type="radio" name="email-draft-kind" value="marketing" />
+              Marketing (site message, not one feature)
+            </label>
+            <label class="email-draft-kind-option">
+              <input type="radio" name="email-draft-kind" value="general" />
+              General (from the Specifys.ai team to users)
+            </label>
           </div>
           <label class="email-draft-label" for="email-draft-brief">Brief</label>
           <textarea
@@ -1529,6 +1540,7 @@ custom_js_modules:
             rows="6"
             data-placeholder-product="Example: New SEO section in Spec Viewer for Pro users. CTA: open spec viewer. Keep tone simple."
             data-placeholder-marketing="Example (Hebrew or English): לשלוח מסר שמסביר שאפשר לבנות PRD טוב יותר ולחסוך טוקנים עם Specifys — CTA לפתיחת האתר."
+            data-placeholder-general="Example (Hebrew or English): להודיע בנימוס על עיכוב זמני בעיבוד ספק, להודות על המשוב, ולהפנות לדף העזרה."
             placeholder="Example: New SEO section in Spec Viewer for Pro users. CTA: open spec viewer. Keep tone simple."
           ></textarea>
           <div class="email-draft-toolbar">

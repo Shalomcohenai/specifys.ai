@@ -2635,7 +2635,8 @@ router.post('/email/resend-audience/sync-batch', requireAdmin, async (req, res, 
 
 /**
  * POST /api/admin/email/draft
- * Generate English marketing email HTML (dark-card layout) for copy/paste. Admin only.
+ * Generate English email HTML (dark-card layout) for copy/paste. Admin only.
+ * Body: { brief, emailDraftKind?: 'product'|'marketing'|'general' } — legacy { marketing: true } maps to marketing.
  */
 router.post('/email/draft', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'POST /email/draft');
@@ -2654,7 +2655,14 @@ router.post('/email/draft', requireAdmin, async (req, res, next) => {
     const client = new OpenAIClient(apiKey);
     const model = process.env.OPENAI_EMAIL_DRAFT_MODEL || 'gpt-4o-mini';
 
-    const marketing = Boolean(req.body?.marketing);
+    const rawKind = typeof req.body?.emailDraftKind === 'string' ? req.body.emailDraftKind.trim().toLowerCase() : '';
+    const marketingLegacy = Boolean(req.body?.marketing);
+    let draftKind = 'product';
+    if (rawKind === 'marketing' || rawKind === 'general') {
+      draftKind = rawKind;
+    } else if (marketingLegacy) {
+      draftKind = 'marketing';
+    }
 
     const productUserMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
 
@@ -2700,10 +2708,44 @@ Return ONLY a valid JSON object with exactly these keys:
   • Sign-off: <p style="margin:0;padding:0;">Thanks,<br />The Specifys.ai team</p>
   • No invented testimonials, awards, user counts, or discounts. No <script>, iframes, or event handlers. No tracking query params on URLs.`;
 
-    const userMessage = marketing ? marketingUserMessage : productUserMessage;
-    const systemContent = marketing
-      ? 'You write short, credible marketing emails for a B2B SaaS product. The admin brief may be in Hebrew or English—you interpret it and output ONLY English strings in JSON. Persuade with real benefits; never invent statistics, fake scarcity, or misleading claims. Reply with ONLY valid JSON (no markdown code fences).'
-      : 'You write very short, plain-English product update emails. Reply with ONLY valid JSON (no markdown code fences). Every string value must be in English.';
+    const generalUserMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
+
+The admin wants a **general team email** from Specifys.ai to **users** (one person or a broad audience). Examples: thank-you, incident or delay notice, policy or billing heads-up, support guidance, seasonal greeting with a light next step. This is **not** a product changelog, **not** a growth marketing blast, and **not** hard sales.
+
+The admin brief may be in **Hebrew, English, or mixed**. Read it, match the requested tone (apologetic, neutral, warm), then write **every JSON string value in polished English** (subject, headline, body—no Hebrew left in the output).
+
+Admin brief:
+"""
+${brief.trim()}
+"""
+
+Return ONLY a valid JSON object with exactly these keys:
+- "subject": string, plain text, no HTML. Short and clear (aim under ~70 characters). Professional, not clickbait.
+- "headerTitle": string, plain text, no HTML: one calm line for the card (e.g. "An update from Specifys.ai" or the core topic)—avoid shouty sales language.
+- "bodyHtml": string, HTML fragment only (no <html>, <head>, or <body>). Same dark-card styling (#c9cdd3 body text). Rules:
+  • Length: about 55–100 words total. Short paragraphs. Respectful, plain English; no fake cheer, no guilt-tripping, no invented facts or legal advice.
+  • Opening <p style="margin:0 0 12px 0;padding:0;">: state the situation clearly and courteously.
+  • Optional short second <p> for what happens next or how to get help.
+  • **Button:** include the orange primary button **only** if the brief clearly asks readers to take one concrete action (e.g. visit a page). If the email is purely informational, **omit** the orange button and use at most one discreet text link in a sentence if a URL truly helps: <a href="https://..." style="color:#067df7;text-decoration:underline;">...</a>
+  • If you include the orange button, use the same inline styles as product mode and only one such button.
+  • Sign-off: <p style="margin:16px 0 0 0;padding:0;">Best regards,<br />The Specifys.ai team</p> (adjust "Best regards" / "Thank you" to fit the situation).
+  • Use absolute https URLs only on specifys-ai.com when linking. No tracking query params, no <script>, no iframes, no event handler attributes.`;
+
+    let userMessage;
+    let systemContent;
+    if (draftKind === 'marketing') {
+      userMessage = marketingUserMessage;
+      systemContent =
+        'You write short, credible marketing emails for a B2B SaaS product. The admin brief may be in Hebrew or English—you interpret it and output ONLY English strings in JSON. Persuade with real benefits; never invent statistics, fake scarcity, or misleading claims. Reply with ONLY valid JSON (no markdown code fences).';
+    } else if (draftKind === 'general') {
+      userMessage = generalUserMessage;
+      systemContent =
+        'You draft concise, courteous emails from a product team to end users. The admin brief may be in Hebrew or English—you interpret it and output ONLY English strings in JSON. Professional and human; never condescending, never manipulative, no hard sell. Reply with ONLY valid JSON (no markdown code fences).';
+    } else {
+      userMessage = productUserMessage;
+      systemContent =
+        'You write very short, plain-English product update emails. Reply with ONLY valid JSON (no markdown code fences). Every string value must be in English.';
+    }
 
     const response = await client.chatCompletion({
       model,
@@ -2752,10 +2794,11 @@ Return ONLY a valid JSON object with exactly these keys:
     const safeDisplayDate = escapeHtmlForEmailHeader(displayDateRaw);
     const html = getAdminMarketingDraftTemplate(safeHeader, safeBody, safeDisplayDate);
 
-    logger.info({ requestId, model, subjectLen: subject.length, marketing }, '[admin-routes] POST /email/draft success');
+    logger.info({ requestId, model, subjectLen: subject.length, draftKind }, '[admin-routes] POST /email/draft success');
     res.json({
       success: true,
-      marketing,
+      draftKind,
+      marketing: draftKind === 'marketing',
       subject,
       headerTitle,
       bodyHtml: safeBody,

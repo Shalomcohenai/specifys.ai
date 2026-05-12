@@ -2847,24 +2847,27 @@
   box-shadow: var(--shadow);
 }
 
-.email-draft-marketing-row {
+.email-draft-kind-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.email-draft-kind-option {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
   font-size: 0.875rem;
   color: var(--text);
   line-height: 1.4;
-}
-
-.email-draft-marketing-row input[type='checkbox'] {
-  margin-top: 0.2em;
-  flex-shrink: 0;
-}
-
-.email-draft-marketing-row label {
   cursor: pointer;
   font-weight: 500;
+}
+
+.email-draft-kind-option input[type='radio'] {
+  margin-top: 0.2em;
+  flex-shrink: 0;
 }
 
 .email-draft-label {
