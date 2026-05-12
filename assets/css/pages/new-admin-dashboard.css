@@ -599,6 +599,207 @@
   gap: var(--spacing-lg);
 }
 
+.overview-engagement-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.overview-external-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.overview-external-link:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
+.overview-inline-link-btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.overview-inline-link-btn:hover {
+  color: var(--primary-hover);
+}
+
+.overview-home-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.overview-buy-now-only {
+  margin-top: var(--spacing-xl);
+  max-width: 32rem;
+}
+
+.overview-contact-card .card-header-top {
+  align-items: flex-start;
+}
+
+.overview-contact-card__subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  max-width: 40rem;
+}
+
+.overview-contact-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.overview-contact-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 3.25rem;
+}
+
+.overview-contact-stat__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.overview-contact-stat__label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.overview-contact-stat--new .overview-contact-stat__value {
+  color: var(--error);
+}
+
+.overview-contact-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.overview-contact-notification {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-alt);
+}
+
+.overview-contact-notification__remove {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.overview-contact-notification__remove:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.overview-contact-notification__body {
+  flex: 1;
+  min-width: 0;
+  padding-right: 2.5rem;
+}
+
+.overview-contact-notification__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: 0.35rem;
+}
+
+.overview-contact-notification__email {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.overview-contact-notification__badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.overview-contact-notification__badge--new {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--error);
+}
+
+.overview-contact-notification__badge--read {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--info);
+}
+
+.overview-contact-notification__badge--replied {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.overview-contact-notification__badge--archived {
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+.overview-contact-notification__preview {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.overview-contact-notification__time {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
 .overview-card {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -2339,32 +2540,61 @@
 /* Spec Usage Analytics */
 .spec-usage-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .spec-usage-summary-card {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  border-radius: var(--radius);
+  padding: var(--spacing-xs) var(--spacing-sm);
   text-align: center;
   box-shadow: var(--shadow);
 }
 
 .spec-usage-summary-card .summary-label {
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   color: var(--text-muted);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 0.2rem;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .spec-usage-summary-card .summary-value {
-  font-size: 1.75rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--text);
-  line-height: 1;
+  line-height: 1.1;
+}
+
+.spec-usage-feature-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  text-align: center;
+  min-height: 2.5rem;
+}
+
+.spec-usage-feature-head__title {
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-muted);
+  max-width: 4.25rem;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.spec-usage-feature-head__abbr {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  cursor: default;
 }
 
 /* Spec Usage table: fit many columns + download on typical laptop widths */
@@ -2392,6 +2622,16 @@
   letter-spacing: 0.02em;
   text-transform: none;
   line-height: 1.15;
+  vertical-align: bottom;
+  padding-bottom: 0.25rem;
+}
+
+#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-column {
+  width: 2.85rem;
+  max-width: 2.85rem;
+  box-sizing: border-box;
+  padding-left: 0.08rem;
+  padding-right: 0.08rem;
 }
 
 #spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-usage-col-spec {
@@ -2417,14 +2657,6 @@
   white-space: nowrap;
 }
 
-#spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-column {
-  width: 1.85rem;
-  max-width: 1.85rem;
-  box-sizing: border-box;
-  padding-left: 0.1rem;
-  padding-right: 0.1rem;
-}
-
 #spec-usage-section #spec-usage-table.spec-usage-compact-table .feature-cell {
   text-align: center;
   padding-left: 0.1rem;
@@ -2441,8 +2673,8 @@
 }
 
 #spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-row-data-column {
-  width: 2.25rem;
-  max-width: 2.25rem;
+  width: 2.65rem;
+  max-width: 2.65rem;
 }
 
 #spec-usage-section #spec-usage-table.spec-usage-compact-table .spec-row-data-cell {

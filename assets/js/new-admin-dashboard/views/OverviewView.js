@@ -40,11 +40,11 @@ export class OverviewView {
     // Load contact submissions
     this.loadContactSubmissions();
     
-    // Load Resend status
-    this.checkResendStatus();
-    
     // Load Buy Now clicks (pricing)
     this.loadBuyNowClicks();
+
+    const planningDays = parseInt(helpers.dom('#overview-planning-range-select')?.value, 10) || 30;
+    this.loadOverviewPlanningAnalytics(planningDays);
 
     // Pipeline canary chart + controls
     this.loadPipelineCanaryHistory();
@@ -77,6 +77,23 @@ export class OverviewView {
     const sendTestEmailBtn = helpers.dom('#send-test-email-btn');
     if (sendTestEmailBtn) {
       sendTestEmailBtn.addEventListener('click', () => this.openTestEmailModal());
+    }
+
+    const overviewPlanningRange = helpers.dom('#overview-planning-range-select');
+    if (overviewPlanningRange) {
+      overviewPlanningRange.addEventListener('change', (e) => {
+        const days = parseInt(e.target.value, 10) || 30;
+        this.loadOverviewPlanningAnalytics(days);
+      });
+    }
+
+    const overviewContactFullBtn = helpers.dom('#overview-contact-full-btn');
+    if (overviewContactFullBtn) {
+      overviewContactFullBtn.addEventListener('click', () => {
+        if (window.newAdminDashboard && typeof window.newAdminDashboard.navigateToSection === 'function') {
+          window.newAdminDashboard.navigateToSection('contact');
+        }
+      });
     }
     
     // Test email modal handlers
@@ -319,35 +336,12 @@ export class OverviewView {
   setupDataSubscriptions() {
     // Subscribe to all data sources
     ['users', 'specs', 'purchases', 'activityLogs', 'articles', 'academyGuides'].forEach(source => {
-      // Listen to data events
       this.dataManager.on('data', ({ source: dataSource }) => {
         if (dataSource === source) {
           this.updateMetrics();
           if (dataSource === 'activityLogs' || dataSource === 'adminActivityLogs' || dataSource === 'users' || dataSource === 'purchases' || dataSource === 'specs') {
             this.renderActivityFeed();
           }
-          this.renderSystemStatus(); // Update status when data loads
-        }
-      });
-      
-      // Listen to loading events
-      this.dataManager.on('loading', ({ source: dataSource, loading }) => {
-        if (dataSource === source) {
-          this.renderSystemStatus(); // Update status when loading state changes
-        }
-      });
-      
-      // Listen to error events
-      this.dataManager.on('error', ({ source: dataSource }) => {
-        if (dataSource === source) {
-          this.renderSystemStatus(); // Update status when error occurs
-        }
-      });
-      
-      // Listen to restricted events
-      this.dataManager.on('restricted', ({ source: dataSource }) => {
-        if (dataSource === source) {
-          this.renderSystemStatus(); // Update status when restricted
         }
       });
     });
@@ -388,8 +382,6 @@ export class OverviewView {
       this.updateActivityConnectionStatus('connecting');
     }
     
-    // Initial render
-    this.renderSystemStatus();
   }
   
   /**
@@ -1014,332 +1006,101 @@ export class OverviewView {
       day: 'numeric'
     });
   }
-  
-  /**
-   * Render system status
-   */
-  renderSystemStatus() {
-    const statusList = helpers.dom('#status-list');
-    if (!statusList) return;
 
-    const sources = [
-      { key: 'users', label: 'Users', icon: 'fas fa-users' },
-      { key: 'specs', label: 'Specs', icon: 'fas fa-file-alt' },
-      { key: 'purchases', label: 'Purchases', icon: 'fas fa-credit-card' },
-      { key: 'activityLogs', label: 'Activity Logs', icon: 'fas fa-stream' },
-      { key: 'subscriptionRefresh', label: 'Subscription Refresh', icon: 'fas fa-sync-alt' }
+  /**
+   * Planning usage on Live Overview (same API as former Analytics block).
+   */
+  async loadOverviewPlanningAnalytics(days = 30) {
+    const container = helpers.dom('#overview-planning-usage-containers');
+    if (!container) return;
+
+    const sections = [
+      {
+        title: 'Pages',
+        openAction: 'section_pages',
+        useActions: ['add_custom_page', 'add_predefined_page', 'default_homepage_seeded']
+      },
+      {
+        title: 'Workflows',
+        openAction: 'section_workflow',
+        useActions: ['create_workflow', 'add_workflow_step']
+      },
+      {
+        title: 'Features',
+        openAction: 'section_features',
+        useActions: ['preset_feature_selected', 'add_custom_feature']
+      },
+      {
+        title: 'Design',
+        openAction: 'section_design',
+        useActions: ['design_selected']
+      },
+      {
+        title: 'Integrations',
+        openAction: 'section_integrations',
+        useActions: ['integration_selected']
+      },
+      {
+        title: 'Audience',
+        openAction: 'section_audience',
+        useActions: ['audience_interest_selected', 'audience_platform']
+      },
+      {
+        title: 'Screenshot',
+        openAction: 'section_screenshot',
+        useActions: ['screenshot_file_selected', 'screenshot_analyze_success', 'screenshot_confirmed']
+      }
     ];
-    
-    const html = sources.map(({ key, label, icon }) => {
-      // Special handling for subscriptionRefresh
-      if (key === 'subscriptionRefresh') {
-        const isRefreshing = this.stateManager.getState('subscriptionRefresh.active') === true;
-        const lastRefresh = this.stateManager.getState('subscriptionRefresh.lastRefresh');
-        
-        let status = 'Ready';
-        let statusClass = 'ready';
-        
-        if (isRefreshing) {
-          status = 'Refreshing...';
-          statusClass = 'pending';
-        } else if (lastRefresh) {
-          status = 'Ready';
-          statusClass = 'ready';
-        }
-        
-        return `
-          <div class="status-item">
-            <div class="status-info">
-              <i class="${icon} status-icon"></i>
-              <span class="status-label">${label}</span>
-            </div>
-            <span class="status-badge ${statusClass}" data-source="${key}">${status}</span>
+
+    try {
+      const response = await apiService.getPlanningStats(days);
+      if (response.success && Array.isArray(response.actions)) {
+        const totalsByAction = response.actions.reduce((acc, row) => {
+          acc[row.id] = row.totalEvents || 0;
+          return acc;
+        }, {});
+
+        const cardsHtml = sections
+          .map((section) => {
+            const openedCount = totalsByAction[section.openAction] || 0;
+            const usedCount = section.useActions.reduce((sum, actionId) => sum + (totalsByAction[actionId] || 0), 0);
+            return `
+              <div class="metric-card-small">
+                <div class="metric-label">${this.escapeHtml(section.title)} Section</div>
+                <div class="metric-description" style="margin-top: 8px;">Opened: <strong>${openedCount}</strong></div>
+                <div class="metric-description">Used: <strong>${usedCount}</strong></div>
+              </div>
+            `;
+          })
+          .join('');
+
+        container.innerHTML =
+          cardsHtml ||
+          `
+          <div class="metric-card-small">
+            <div class="metric-label">No Planning Data</div>
+            <div class="metric-description">No events in this period</div>
           </div>
         `;
+        return;
       }
-      
-      // Check loading state - if key doesn't exist, assume not loading
-      const loading = this.dataManager.loadingStates[key] === true;
-      const error = this.dataManager.errors.has(key);
-      const restricted = this.stateManager.getState(`restricted.${key}`);
-      
-      let status = 'Ready';
-      let statusClass = 'ready';
-      
-      if (loading) {
-        status = 'Pending';
-        statusClass = 'pending';
-      } else if (error) {
-        status = 'Error';
-        statusClass = 'error';
-      } else if (restricted) {
-        status = 'Restricted';
-        statusClass = 'restricted';
-      }
-
-      return `
-        <div class="status-item">
-          <div class="status-info">
-            <i class="${icon} status-icon"></i>
-            <span class="status-label">${label}</span>
-          </div>
-          <span class="status-badge ${statusClass}" data-source="${key}">${status}</span>
+      container.innerHTML = `
+        <div class="metric-card-small">
+          <div class="metric-label">No Planning Data</div>
+          <div class="metric-description">No events in this period</div>
         </div>
       `;
-    }).join('');
-
-    statusList.innerHTML = html;
-    
-    // Update last sync time
-    const lastSyncTimeEl = helpers.dom('#last-sync-time');
-    if (lastSyncTimeEl) {
-      const now = new Date();
-      lastSyncTimeEl.textContent = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }
-    
-    // Load migrations status
-    this.loadMigrationsStatus();
-    
-    // Setup migration test buttons
-    this.setupMigrationButtons();
-    
-    // Setup scheduled jobs test buttons
-    this.setupScheduledJobsButtons();
-  }
-  
-  /**
-   * Load migrations status
-   */
-  async loadMigrationsStatus() {
-    try {
-      const response = await apiService.get('/api/admin/migrations/status');
-      
-      if (response.success && response.migrations) {
-        // Update articles migration status
-        const articlesStatus = helpers.dom('#articles-migration-status');
-        if (articlesStatus) {
-          if (response.migrations.articles.working) {
-            articlesStatus.textContent = response.migrations.articles.lastCreated 
-              ? `Last: ${new Date(response.migrations.articles.lastCreated.createdAt).toLocaleDateString()}`
-              : 'Working';
-            articlesStatus.className = 'migration-status working';
-          } else {
-            articlesStatus.textContent = 'Not Working';
-            articlesStatus.className = 'migration-status error';
-          }
-        }
-        
-        // Update apps migration status
-        const appsStatus = helpers.dom('#apps-migration-status');
-        if (appsStatus) {
-          if (response.migrations.apps.working) {
-            appsStatus.textContent = response.migrations.apps.lastCreated 
-              ? `Last: ${new Date(response.migrations.apps.lastCreated.createdAt).toLocaleDateString()}`
-              : 'Working';
-            appsStatus.className = 'migration-status working';
-          } else {
-            appsStatus.textContent = 'Not Working';
-            appsStatus.className = 'migration-status error';
-          }
-        }
-      }
     } catch (error) {
-      console.error('[OverviewView] Error loading migrations status:', error);
-      const articlesStatus = helpers.dom('#articles-migration-status');
-      const appsStatus = helpers.dom('#apps-migration-status');
-      if (articlesStatus) {
-        articlesStatus.textContent = 'Error';
-        articlesStatus.className = 'migration-status error';
-      }
-      if (appsStatus) {
-        appsStatus.textContent = 'Error';
-        appsStatus.className = 'migration-status error';
-      }
+      console.error('[OverviewView] Planning analytics:', error);
+      container.innerHTML = `
+        <div class="metric-card-small">
+          <div class="metric-label">Error Loading Planning Usage</div>
+          <div class="metric-description">${this.escapeHtml(error.message || 'Unknown error')}</div>
+        </div>
+      `;
     }
   }
-  
-  /**
-   * Setup migration test buttons
-   */
-  setupMigrationButtons() {
-    const testArticlesBtn = helpers.dom('#test-articles-migration-btn');
-    const testAppsBtn = helpers.dom('#test-apps-migration-btn');
-    
-    if (testArticlesBtn && !testArticlesBtn.dataset.listenerAdded) {
-      testArticlesBtn.dataset.listenerAdded = 'true';
-      testArticlesBtn.addEventListener('click', async () => {
-        testArticlesBtn.disabled = true;
-        testArticlesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
-        
-        try {
-          const response = await apiService.post('/api/admin/migrations/articles/test');
-          
-          if (response.success) {
-            alert('Article created successfully!');
-            this.loadMigrationsStatus();
-          } else {
-            alert('Failed to create article: ' + (response.error || 'Unknown error'));
-          }
-        } catch (error) {
-          alert('Error testing articles migration: ' + error.message);
-        } finally {
-          testArticlesBtn.disabled = false;
-          testArticlesBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
-        }
-      });
-    }
-    
-    if (testAppsBtn && !testAppsBtn.dataset.listenerAdded) {
-      testAppsBtn.dataset.listenerAdded = 'true';
-      testAppsBtn.addEventListener('click', async () => {
-        testAppsBtn.disabled = true;
-        testAppsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
-        
-        try {
-          const response = await apiService.post('/api/admin/migrations/apps/test');
-          
-          if (response.success) {
-            alert('Test app created successfully!');
-            this.loadMigrationsStatus();
-          } else {
-            alert('Failed to create app: ' + (response.error || 'Unknown error'));
-          }
-        } catch (error) {
-          alert('Error testing apps migration: ' + error.message);
-        } finally {
-          testAppsBtn.disabled = false;
-          testAppsBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
-        }
-      });
-    }
-  }
-  
-  /**
-   * Setup scheduled jobs test buttons
-   */
-  setupScheduledJobsButtons() {
-    const testDailyReportBtn = helpers.dom('#test-daily-report-btn');
-    const testArticleWriterBtn = helpers.dom('#test-article-writer-btn');
-    const testToolsFinderBtn = helpers.dom('#test-tools-finder-btn');
-    
-    if (testDailyReportBtn && !testDailyReportBtn.dataset.listenerAdded) {
-      testDailyReportBtn.dataset.listenerAdded = 'true';
-      testDailyReportBtn.addEventListener('click', async () => {
-        testDailyReportBtn.disabled = true;
-        testDailyReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
-        
-        try {
-          const response = await apiService.post('/api/admin/scheduled-jobs/daily-report/test');
-          
-          if (response.success) {
-            alert('Daily report job executed successfully! Check Render logs for details.');
-            const statusEl = helpers.dom('#daily-report-status');
-            if (statusEl) {
-              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
-              statusEl.className = 'migration-status working';
-            }
-          } else {
-            alert('Failed to run daily report job: ' + (response.error || 'Unknown error'));
-            const statusEl = helpers.dom('#daily-report-status');
-            if (statusEl) {
-              statusEl.textContent = 'Error';
-              statusEl.className = 'migration-status error';
-            }
-          }
-        } catch (error) {
-          alert('Error testing daily report job: ' + error.message);
-          const statusEl = helpers.dom('#daily-report-status');
-          if (statusEl) {
-            statusEl.textContent = 'Error';
-            statusEl.className = 'migration-status error';
-          }
-        } finally {
-          testDailyReportBtn.disabled = false;
-          testDailyReportBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
-        }
-      });
-    }
-    
-    if (testArticleWriterBtn && !testArticleWriterBtn.dataset.listenerAdded) {
-      testArticleWriterBtn.dataset.listenerAdded = 'true';
-      testArticleWriterBtn.addEventListener('click', async () => {
-        testArticleWriterBtn.disabled = true;
-        testArticleWriterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
-        
-        try {
-          const response = await apiService.post('/api/admin/scheduled-jobs/article-writer/test');
-          
-          if (response.success) {
-            alert('Article writer job executed successfully! Check Render logs for details.');
-            const statusEl = helpers.dom('#article-writer-status');
-            if (statusEl) {
-              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
-              statusEl.className = 'migration-status working';
-            }
-          } else {
-            alert('Failed to run article writer job: ' + (response.error || 'Unknown error'));
-            const statusEl = helpers.dom('#article-writer-status');
-            if (statusEl) {
-              statusEl.textContent = 'Error';
-              statusEl.className = 'migration-status error';
-            }
-          }
-        } catch (error) {
-          alert('Error testing article writer job: ' + error.message);
-          const statusEl = helpers.dom('#article-writer-status');
-          if (statusEl) {
-            statusEl.textContent = 'Error';
-            statusEl.className = 'migration-status error';
-          }
-        } finally {
-          testArticleWriterBtn.disabled = false;
-          testArticleWriterBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
-        }
-      });
-    }
-    
-    if (testToolsFinderBtn && !testToolsFinderBtn.dataset.listenerAdded) {
-      testToolsFinderBtn.dataset.listenerAdded = 'true';
-      testToolsFinderBtn.addEventListener('click', async () => {
-        testToolsFinderBtn.disabled = true;
-        testToolsFinderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Testing...</span>';
-        
-        try {
-          const response = await apiService.post('/api/admin/scheduled-jobs/tools-finder/test');
-          
-          if (response.success) {
-            alert('Tools finder job executed successfully! Check Render logs for details.');
-            const statusEl = helpers.dom('#tools-finder-status');
-            if (statusEl) {
-              statusEl.textContent = 'Tested ' + new Date().toLocaleTimeString();
-              statusEl.className = 'migration-status working';
-            }
-          } else {
-            alert('Failed to run tools finder job: ' + (response.error || 'Unknown error'));
-            const statusEl = helpers.dom('#tools-finder-status');
-            if (statusEl) {
-              statusEl.textContent = 'Error';
-              statusEl.className = 'migration-status error';
-            }
-          }
-        } catch (error) {
-          alert('Error testing tools finder job: ' + error.message);
-          const statusEl = helpers.dom('#tools-finder-status');
-          if (statusEl) {
-            statusEl.textContent = 'Error';
-            statusEl.className = 'migration-status error';
-          }
-        } finally {
-          testToolsFinderBtn.disabled = false;
-          testToolsFinderBtn.innerHTML = '<i class="fas fa-vial"></i> <span>Test</span>';
-        }
-      });
-    }
-  }
-  
+
   /**
    * Escape HTML
    */
@@ -1420,113 +1181,110 @@ export class OverviewView {
   renderContactList() {
     const container = helpers.dom('#contact-list-overview');
     if (!container) return;
-    
-    // Show recent 5 submissions
-    const recentSubmissions = this.contactSubmissions.slice(0, 5);
-    
+
+    const recentSubmissions = this.contactSubmissions.slice(0, 8);
+
     if (recentSubmissions.length === 0) {
       container.innerHTML = '<div class="activity-empty">No submissions yet</div>';
       return;
     }
-    
-    const html = recentSubmissions.map(sub => {
+
+    const html = recentSubmissions.map((sub) => {
       const statusClass = sub.status === 'new' || !sub.status ? 'new' : sub.status;
-      const statusLabel = sub.status === 'new' || !sub.status ? 'New' : 
-                          sub.status === 'read' ? 'Read' : 
-                          sub.status === 'replied' ? 'Replied' : 
-                          sub.status === 'archived' ? 'Archived' : 'New';
-      
+      const statusLabel =
+        sub.status === 'new' || !sub.status
+          ? 'New'
+          : sub.status === 'read'
+            ? 'Read'
+            : sub.status === 'replied'
+              ? 'Replied'
+              : sub.status === 'archived'
+                ? 'Archived'
+                : 'New';
+
       const date = sub.createdAt ? new Date(sub.createdAt) : new Date();
-      const dateStr = date.toLocaleDateString('en-US', { 
-        month: 'short', 
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       });
-      
+
       const email = sub.email || sub.userEmail || 'No email';
       const message = sub.message || sub.feedback || '';
-      const messagePreview = message.length > 100 ? message.substring(0, 100) + '...' : message;
-      
-      const bgColor = statusClass === 'new' ? 'rgba(239, 68, 68, 0.1)' : statusClass === 'read' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)';
-      const iconColor = statusClass === 'new' ? '#ef4444' : statusClass === 'read' ? '#3b82f6' : '#10b981';
-      
+      const messagePreview = message.length > 160 ? `${message.substring(0, 160)}…` : message;
+
       return `
-        <div class="activity-item" data-contact-id="${sub.id}">
-          <div class="activity-icon" style="background: ${bgColor};">
-            <i class="fas fa-envelope" style="color: ${iconColor};"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-header">
-              <span class="activity-title">${this.escapeHtml(email)}</span>
-              <span class="activity-badge ${statusClass}">${statusLabel}</span>
-              <button class="contact-dismiss-btn" data-contact-id="${sub.id}" title="Mark as read" aria-label="Mark as read">
-                <i class="fas fa-times"></i>
-              </button>
+        <article class="overview-contact-notification" data-contact-id="${this.escapeHtml(String(sub.id))}">
+          <button type="button" class="overview-contact-notification__remove" data-contact-id="${this.escapeHtml(String(sub.id))}" title="Delete this submission permanently" aria-label="Delete submission">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+          <div class="overview-contact-notification__body">
+            <div class="overview-contact-notification__row">
+              <span class="overview-contact-notification__email">${this.escapeHtml(email)}</span>
+              <span class="overview-contact-notification__badge overview-contact-notification__badge--${statusClass}">${statusLabel}</span>
             </div>
-            <p class="activity-description">${this.escapeHtml(messagePreview)}</p>
-            <span class="activity-time">${dateStr}</span>
+            <p class="overview-contact-notification__preview">${this.escapeHtml(messagePreview)}</p>
+            <time class="overview-contact-notification__time">${this.escapeHtml(dateStr)}</time>
           </div>
-        </div>
+        </article>
       `;
     }).join('');
-    
+
     container.innerHTML = html;
-    
-    // Add event listeners for dismiss buttons
-    container.querySelectorAll('.contact-dismiss-btn').forEach(btn => {
+
+    container.querySelectorAll('.overview-contact-notification__remove').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        const contactId = btn.dataset.contactId;
+        const contactId = btn.getAttribute('data-contact-id');
         if (contactId) {
-          await this.markContactAsRead(contactId);
+          await this.deleteContactSubmission(contactId);
         }
       });
     });
   }
-  
+
   /**
-   * Mark contact submission as read
+   * Permanently delete a contact submission (Firestore + overview list).
    */
-  async markContactAsRead(contactId) {
+  async deleteContactSubmission(contactId) {
+    if (!window.confirm('Delete this contact submission permanently? This cannot be undone.')) {
+      return;
+    }
     try {
-      const response = await apiService.put(`/api/admin/contact-submissions/${contactId}/status`, {
-        status: 'read'
-      });
-      
+      const response = await apiService.delete(`/api/admin/contact-submissions/${encodeURIComponent(contactId)}`);
       if (response.success) {
-        // Update local data
-        const submission = this.contactSubmissions.find(s => s.id === contactId);
-        if (submission) {
-          submission.status = 'read';
-          this.updateContactStats();
-          this.renderContactList();
-        }
+        this.contactSubmissions = this.contactSubmissions.filter((s) => s.id !== contactId);
+        this.updateContactStats();
+        this.renderContactList();
+      } else {
+        window.alert(response.error || 'Failed to delete submission');
       }
     } catch (error) {
-      console.error('[OverviewView] Error marking contact as read:', error);
+      console.error('[OverviewView] Error deleting contact submission:', error);
+      window.alert(error.message || 'Failed to delete submission');
     }
   }
-  
+
   /**
    * Show view
    */
   show() {
-    // Showing overview view
     this.updateMetrics();
     this.renderActivityFeed();
-    this.renderSystemStatus(); // Render status on show
-    
-    // Update contact submissions
+
+    const planningDays = parseInt(helpers.dom('#overview-planning-range-select')?.value, 10);
+    this.loadOverviewPlanningAnalytics(Number.isFinite(planningDays) ? planningDays : 30);
+
     this.loadContactSubmissions();
-    
-    // Force update after a short delay
+
     setTimeout(() => {
       this.updateMetrics();
       this.renderActivityFeed();
-      this.renderSystemStatus(); // Update status again
-      this.checkResendStatus(); // Check Resend status
+      const days = parseInt(helpers.dom('#overview-planning-range-select')?.value, 10);
+      this.loadOverviewPlanningAnalytics(Number.isFinite(days) ? days : 30);
     }, 500);
   }
   
@@ -1543,44 +1301,6 @@ export class OverviewView {
   update() {
     this.updateMetrics();
     this.renderActivityFeed();
-  }
-  
-  /**
-   * Check Resend email service status
-   */
-  async checkResendStatus() {
-    try {
-      const response = await apiService.get('/api/admin/email/status');
-      
-      if (response.success && response.status) {
-        const status = response.status;
-        const badge = helpers.dom('#resend-status-badge');
-        
-        if (badge) {
-          if (status.configured && status.success) {
-            badge.textContent = 'Operational';
-            badge.className = 'status-badge success';
-            badge.title = `From: ${status.fromEmail || 'N/A'}\nLast checked: ${new Date(status.lastChecked).toLocaleString()}`;
-          } else if (status.configured && !status.success) {
-            badge.textContent = 'Error';
-            badge.className = 'status-badge error';
-            badge.title = status.error || 'Unknown error';
-          } else {
-            badge.textContent = 'Not Configured';
-            badge.className = 'status-badge error';
-            badge.title = 'Resend API key not configured';
-          }
-        }
-      }
-    } catch (error) {
-      console.error('[OverviewView] Error checking Resend status:', error);
-      const badge = helpers.dom('#resend-status-badge');
-      if (badge) {
-        badge.textContent = 'Error';
-        badge.className = 'status-badge error';
-        badge.title = 'Failed to check status';
-      }
-    }
   }
   
   /**

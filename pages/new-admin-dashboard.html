@@ -78,10 +78,6 @@ custom_js_modules:
             <i class="fas fa-coins"></i>
             <span>Sync Credits</span>
           </button>
-          <button class="sync-dropdown-item" id="refresh-status-btn" title="Refresh system status">
-            <i class="fas fa-server"></i>
-            <span>System Status</span>
-          </button>
         </div>
       </div>
       
@@ -112,6 +108,10 @@ custom_js_modules:
             <option value="week" selected>Last 7 days</option>
             <option value="month">Last 30 days</option>
           </select>
+          <button class="btn-modern btn-small" type="button" id="send-test-email-btn" title="Send test email">
+            <i class="fas fa-paper-plane"></i>
+            <span>Test email</span>
+          </button>
         </div>
       </div>
 
@@ -203,12 +203,13 @@ custom_js_modules:
         </div>
       </div>
 
-      <!-- Two Column Layout -->
-      <div class="overview-columns">
+      <span id="last-sync-time" hidden aria-hidden="true"></span>
+
+      <div class="overview-home-stack">
+
         <!-- Recent Activity -->
         <div class="overview-card">
           <div class="card-header">
-            <!-- Top row: Title + Status + Search Icon -->
             <div class="card-header-top">
               <h2>Recent Activity</h2>
               <div class="card-header-actions">
@@ -221,7 +222,6 @@ custom_js_modules:
                 </button>
               </div>
             </div>
-            <!-- Bottom row: Filter buttons -->
             <div class="activity-filters">
               <button class="filter-chip active" data-filter="all">All</button>
               <button class="filter-chip" data-filter="user">Users</button>
@@ -230,7 +230,6 @@ custom_js_modules:
             </div>
           </div>
           <div class="card-body">
-            <!-- Activity Search and Date Range - Hidden by default -->
             <div class="activity-controls" id="activity-controls" style="display: none;">
               <div class="activity-search-wrapper">
                 <i class="fas fa-search"></i>
@@ -242,154 +241,10 @@ custom_js_modules:
                 <input type="date" id="activity-date-to" class="activity-date-input" placeholder="To">
               </div>
             </div>
-            
-            <!-- Activity List -->
             <div class="activity-list" id="activity-list">
               <div class="activity-empty">Loading activity...</div>
             </div>
-            
-            <!-- Activity Pagination -->
             <div class="activity-pagination" id="activity-pagination"></div>
-          </div>
-        </div>
-
-        <!-- System Status & Migrations -->
-        <div class="overview-card">
-          <div class="card-header">
-            <h2>System Status & Migrations</h2>
-          </div>
-          <div class="card-body">
-            <!-- System Status Section -->
-            <div class="status-section">
-              <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: #666;">System Status</h3>
-              <div class="status-list" id="status-list">
-                <div class="status-item">
-                  <div class="status-info">
-                    <i class="fas fa-users status-icon"></i>
-                    <span class="status-label">Users</span>
-                  </div>
-                  <span class="status-badge pending" data-source="users">Pending</span>
-                </div>
-                <div class="status-item">
-                  <div class="status-info">
-                    <i class="fas fa-file-alt status-icon"></i>
-                    <span class="status-label">Specs</span>
-                  </div>
-                  <span class="status-badge pending" data-source="specs">Pending</span>
-                </div>
-                <div class="status-item">
-                  <div class="status-info">
-                    <i class="fas fa-credit-card status-icon"></i>
-                    <span class="status-label">Purchases</span>
-                  </div>
-                  <span class="status-badge pending" data-source="purchases">Pending</span>
-                </div>
-                <div class="status-item">
-                  <div class="status-info">
-                    <i class="fas fa-stream status-icon"></i>
-                    <span class="status-label">Activity Logs</span>
-                  </div>
-                  <span class="status-badge pending" data-source="activityLogs">Pending</span>
-                </div>
-                <div class="status-item">
-                  <div class="status-info">
-                    <i class="fas fa-envelope status-icon"></i>
-                    <span class="status-label">Resend Email Service</span>
-                  </div>
-                  <span class="status-badge pending" id="resend-status-badge" data-source="resend">Checking...</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Scheduled Jobs Section -->
-            <div class="status-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee;">
-              <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: #666;">Scheduled Jobs</h3>
-              <div class="migrations-list" id="scheduled-jobs-list">
-                <div class="migration-item">
-                  <div class="migration-info">
-                    <i class="fas fa-envelope migration-icon"></i>
-                    <div class="migration-details">
-                      <span class="migration-label">Daily Report</span>
-                      <span class="migration-status" id="daily-report-status">-</span>
-                    </div>
-                  </div>
-                  <button class="btn-modern btn-small" id="test-daily-report-btn" title="Test daily report job">
-                    <i class="fas fa-vial"></i>
-                    <span>Test</span>
-                  </button>
-                </div>
-                <div class="migration-item">
-                  <div class="migration-info">
-                    <i class="fas fa-file-alt migration-icon"></i>
-                    <div class="migration-details">
-                      <span class="migration-label">Article Writer</span>
-                      <span class="migration-status" id="article-writer-status">-</span>
-                    </div>
-                  </div>
-                  <button class="btn-modern btn-small" id="test-article-writer-btn" title="Test article writer job">
-                    <i class="fas fa-vial"></i>
-                    <span>Test</span>
-                  </button>
-                </div>
-                <div class="migration-item">
-                  <div class="migration-info">
-                    <i class="fas fa-tools migration-icon"></i>
-                    <div class="migration-details">
-                      <span class="migration-label">Tools Finder</span>
-                      <span class="migration-status" id="tools-finder-status">-</span>
-                    </div>
-                  </div>
-                  <button class="btn-modern btn-small" id="test-tools-finder-btn" title="Test tools finder job">
-                    <i class="fas fa-vial"></i>
-                    <span>Test</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Migrations Section -->
-            <div class="status-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee;">
-              <h3 style="margin: 0 0 16px 0; font-size: 1rem; color: #666;">Migrations Status</h3>
-              <div class="migrations-list" id="migrations-list">
-                <div class="migration-item">
-                  <div class="migration-info">
-                    <i class="fas fa-file-alt migration-icon"></i>
-                    <div class="migration-details">
-                      <span class="migration-label">Articles Migration</span>
-                      <span class="migration-status" id="articles-migration-status">Checking...</span>
-                    </div>
-                  </div>
-                  <button class="btn-modern btn-small" id="test-articles-migration-btn" title="Test articles migration">
-                    <i class="fas fa-vial"></i>
-                    <span>Test</span>
-                  </button>
-                </div>
-                <div class="migration-item">
-                  <div class="migration-info">
-                    <i class="fas fa-mobile-alt migration-icon"></i>
-                    <div class="migration-details">
-                      <span class="migration-label">Apps Migration</span>
-                      <span class="migration-status" id="apps-migration-status">Checking...</span>
-                    </div>
-                  </div>
-                  <button class="btn-modern btn-small" id="test-apps-migration-btn" title="Test apps migration">
-                    <i class="fas fa-vial"></i>
-                    <span>Test</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div class="status-footer">
-              <div>
-                <i class="fas fa-clock"></i>
-                <span>Last sync: <span id="last-sync-time">Never</span></span>
-              </div>
-              <button class="btn-modern btn-small" id="send-test-email-btn" style="margin-top: 10px;" title="Send test email">
-                <i class="fas fa-paper-plane"></i>
-                <span>Send Test Email</span>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -418,17 +273,85 @@ custom_js_modules:
           </div>
         </div>
 
-        <!-- Buy Now Clicks (Pricing) -->
+        <!-- Contact Submissions (X removes submission permanently) -->
+        <div class="overview-card overview-contact-card">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <h2>Contact Submissions</h2>
+                <p class="overview-contact-card__subtitle">Recent messages from the site. The ✕ button permanently deletes a submission after you confirm.</p>
+              </div>
+              <div class="card-header-actions">
+                <button type="button" class="btn-modern btn-small" id="overview-contact-full-btn">All submissions</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="overview-contact-stats">
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-total-contact">0</span>
+                <span class="overview-contact-stat__label">Total</span>
+              </div>
+              <div class="overview-contact-stat overview-contact-stat--new">
+                <span class="overview-contact-stat__value" id="overview-stat-new-contact">0</span>
+                <span class="overview-contact-stat__label">New</span>
+              </div>
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-read-contact">0</span>
+                <span class="overview-contact-stat__label">Read</span>
+              </div>
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-replied-contact">0</span>
+                <span class="overview-contact-stat__label">Replied</span>
+              </div>
+            </div>
+            <div class="overview-contact-notifications" id="contact-list-overview">
+              <div class="activity-empty">Loading submissions...</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Planning usage (planning UI analytics) -->
+      <div class="overview-planning-block" style="margin-top: var(--spacing-xl);">
+        <div class="section-header-modern">
+          <div>
+            <h2 style="margin: 0; font-size: 1.5rem;">Planning usage</h2>
+            <p style="margin: 4px 0 0 0; color: #666;">Actions in the planning UI (pages, workflows, features, etc.)</p>
+          </div>
+          <div class="header-actions">
+            <select class="select-modern" id="overview-planning-range-select">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+        </div>
+        <div id="overview-planning-usage-containers" class="analytics-metrics-grid" style="margin-top: 24px;">
+          <div class="metric-card-small">
+            <div class="metric-label">Loading Planning Usage...</div>
+            <div class="metric-description">Fetching data</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-engagement-row overview-buy-now-only">
         <div class="overview-card buy-now-clicks-card" id="buy-now-clicks-card">
           <div class="card-header">
-            <h2>Buy Now Clicks (Pricing)</h2>
-            <div class="card-header-actions">
-              <select class="select-modern select-compact" id="buy-now-clicks-range">
-                <option value="all">All time</option>
-                <option value="month">Last 30 days</option>
-                <option value="week" selected>Last 7 days</option>
-                <option value="day">Today</option>
-              </select>
+            <div class="card-header-top">
+              <div class="card-header-title">
+                <h2>Buy Now Clicks (Pricing)</h2>
+                <a href="/pages/pricing.html" class="overview-external-link" target="_blank" rel="noopener noreferrer">Open pricing page</a>
+              </div>
+              <div class="card-header-actions">
+                <select class="select-modern select-compact" id="buy-now-clicks-range">
+                  <option value="all">All time</option>
+                  <option value="month">Last 30 days</option>
+                  <option value="week" selected>Last 7 days</option>
+                  <option value="day">Today</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="card-body">
@@ -436,59 +359,6 @@ custom_js_modules:
               <div class="buy-now-clicks-loading">Loading...</div>
             </div>
             <div class="buy-now-clicks-total" id="buy-now-clicks-total"></div>
-          </div>
-        </div>
-
-        <!-- Contact Submissions -->
-        <div class="overview-card">
-          <div class="card-header">
-            <h2>Contact Submissions</h2>
-          </div>
-          <div class="card-body">
-            <!-- Contact Stats -->
-            <div class="quick-stats-grid" style="margin-bottom: 1.5rem;">
-              <div class="quick-stat-card">
-                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                  <i class="fas fa-envelope"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-label">Total</div>
-                  <div class="stat-value" id="overview-stat-total-contact">0</div>
-                </div>
-              </div>
-              <div class="quick-stat-card">
-                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                  <i class="fas fa-circle"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-label">New</div>
-                  <div class="stat-value" id="overview-stat-new-contact">0</div>
-                </div>
-              </div>
-              <div class="quick-stat-card">
-                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                  <i class="fas fa-eye"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-label">Read</div>
-                  <div class="stat-value" id="overview-stat-read-contact">0</div>
-                </div>
-              </div>
-              <div class="quick-stat-card">
-                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                  <i class="fas fa-reply"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-label">Replied</div>
-                  <div class="stat-value" id="overview-stat-replied-contact">0</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Recent Contact Submissions -->
-            <div class="contact-list-overview" id="contact-list-overview">
-              <div class="activity-empty">Loading submissions...</div>
-            </div>
           </div>
         </div>
       </div>
@@ -665,29 +535,6 @@ custom_js_modules:
         </div>
       </div>
 
-      <!-- Planning tool usage -->
-      <div class="analytics-email-section" style="margin-top: 40px;">
-        <div class="section-header-modern">
-          <div>
-            <h2 style="margin: 0; font-size: 1.5rem;">Planning usage</h2>
-            <p style="margin: 4px 0 0 0; color: #666;">Actions in the planning UI (pages, workflows, features, etc.)</p>
-          </div>
-          <div class="header-actions">
-            <select class="select-modern" id="planning-analytics-range-select">
-              <option value="7">Last 7 days</option>
-              <option value="30" selected>Last 30 days</option>
-              <option value="90">Last 90 days</option>
-            </select>
-          </div>
-        </div>
-        <div id="planning-usage-containers" class="analytics-metrics-grid" style="margin-top: 24px;">
-          <div class="metric-card-small">
-            <div class="metric-label">Loading Planning Usage...</div>
-            <div class="metric-description">Fetching data</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Key Metrics Cards -->
       <div class="analytics-metrics-grid">
         <div class="metric-card-small">
@@ -860,10 +707,10 @@ custom_js_modules:
         </div>
       </div>
 
-      <!-- Summary Statistics -->
+      <!-- Summary Statistics (compact grid — headings match spec viewer sections) -->
       <div class="spec-usage-summary-grid">
         <div class="spec-usage-summary-card">
-          <div class="summary-label">Overview Only</div>
+          <div class="summary-label">Overview only</div>
           <div class="summary-value" id="spec-usage-overview-only">0</div>
         </div>
         <div class="spec-usage-summary-card">
@@ -871,64 +718,51 @@ custom_js_modules:
           <div class="summary-value" id="spec-usage-overview-technical">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">Overview + Technical + Market</div>
+          <div class="summary-label">Overview + Tech + Market</div>
           <div class="summary-value" id="spec-usage-overview-technical-market">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With Diagrams</div>
-          <div class="summary-value" id="spec-usage-with-diagrams">0</div>
+          <div class="summary-label">With mind map</div>
+          <div class="summary-value" id="spec-usage-with-mind-map">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With Design</div>
+          <div class="summary-label">With design</div>
           <div class="summary-value" id="spec-usage-with-design">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With Prompts</div>
+          <div class="summary-label">With architecture</div>
+          <div class="summary-value" id="spec-usage-with-architecture">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With visibility (AIO+SEO)</div>
+          <div class="summary-value" id="spec-usage-with-visibility">0</div>
+        </div>
+        <div class="spec-usage-summary-card">
+          <div class="summary-label">With prompts</div>
           <div class="summary-value" id="spec-usage-with-prompts">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With Mockups</div>
-          <div class="summary-value" id="spec-usage-with-mockups">0</div>
+          <div class="summary-label">With mockup</div>
+          <div class="summary-value" id="spec-usage-with-mockup">0</div>
         </div>
         <div class="spec-usage-summary-card">
           <div class="summary-label">With AI Chat</div>
           <div class="summary-value" id="spec-usage-with-aichat">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With Brain Dump</div>
+          <div class="summary-label">With brain dump</div>
           <div class="summary-value" id="spec-usage-with-brain-dump">0</div>
-        </div>
-        <div class="spec-usage-summary-card">
-          <div class="summary-label">With Architecture</div>
-          <div class="summary-value" id="spec-usage-with-architecture">0</div>
         </div>
       </div>
 
-      <!-- Specs Table -->
+      <!-- Specs Table (thead injected by SpecUsageView for two-line headers) -->
       <div class="table-card spec-usage-table-card">
         <div class="spec-usage-table-wrap">
           <table class="modern-table spec-usage-compact-table" id="spec-usage-table">
-            <thead>
-              <tr>
-                <th class="spec-usage-col-spec">Spec</th>
-                <th class="spec-usage-col-user">User</th>
-                <th class="spec-usage-col-date">Created</th>
-                <th class="feature-column" title="Overview">Ov</th>
-                <th class="feature-column" title="Technical">Tk</th>
-                <th class="feature-column" title="Market">Mk</th>
-                <th class="feature-column" title="Design">Ds</th>
-                <th class="feature-column" title="Diagrams">Dg</th>
-                <th class="feature-column" title="Prompts">Pr</th>
-                <th class="feature-column" title="Mockups">Mc</th>
-                <th class="feature-column" title="AI Chat">AI</th>
-                <th class="feature-column" title="Brain Dump">Bd</th>
-                <th class="feature-column" title="Architecture">Ar</th>
-                <th class="spec-row-data-column" title="Download full row (JSON)">DL</th>
-              </tr>
-            </thead>
+            <thead></thead>
             <tbody>
               <tr>
-                <td colspan="14" class="table-empty-state">Loading specs...</td>
+                <td colspan="15" class="table-empty-state">Loading specs...</td>
               </tr>
             </tbody>
           </table>

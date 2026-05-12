@@ -186,40 +186,19 @@ class NewAdminDashboard {
       });
     }
     
-    // Refresh status button
-    const refreshStatusBtn = helpers.dom('#refresh-status-btn');
-    if (refreshStatusBtn) {
-      refreshStatusBtn.addEventListener('click', () => {
-        this.refreshSystemStatus();
-        this.closeSyncDropdown();
-      });
-    }
-    
     // Subscription refresh event listeners
     window.addEventListener('subscriptionRefreshStart', () => {
       this.stateManager.setState('subscriptionRefresh.active', true);
       this.stateManager.setState('subscriptionRefresh.lastRefresh', null);
-      // Trigger status update
-      if (this.views.has('overview')) {
-        this.views.get('overview').renderSystemStatus();
-      }
     });
-    
+
     window.addEventListener('subscriptionRefreshSuccess', () => {
       this.stateManager.setState('subscriptionRefresh.active', false);
       this.stateManager.setState('subscriptionRefresh.lastRefresh', new Date().toISOString());
-      // Trigger status update
-      if (this.views.has('overview')) {
-        this.views.get('overview').renderSystemStatus();
-      }
     });
-    
+
     window.addEventListener('subscriptionRefreshError', () => {
       this.stateManager.setState('subscriptionRefresh.active', false);
-      // Trigger status update
-      if (this.views.has('overview')) {
-        this.views.get('overview').renderSystemStatus();
-      }
     });
     
     // Sign out button
@@ -612,61 +591,6 @@ class NewAdminDashboard {
       }, 2000);
     } catch (error) {
       console.error('[NewAdminDashboard] Sync credits error:', error);
-      
-      btn.innerHTML = '<i class="fas fa-times"></i> <span>Failed</span>';
-      btn.classList.remove('loading');
-      btn.classList.add('error');
-      setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('error');
-        btn.disabled = false;
-      }, 2000);
-    }
-  }
-  
-  /**
-   * Refresh system status
-   */
-  async refreshSystemStatus() {
-    const btn = helpers.dom('#refresh-status-btn');
-    if (!btn) return;
-    
-    const originalHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Checking...</span>';
-    
-    try {
-      // Refresh all source statuses
-      const sources = ['users', 'specs', 'purchases', 'activityLogs', 'articles', 'academyGuides'];
-      sources.forEach(source => {
-        const loading = this.dataManager.loadingStates[source];
-        const error = this.dataManager.errors.has(source);
-        const restricted = this.stateManager.getState(`restricted.${source}`);
-        
-        if (loading) {
-          this.updateSourceStatus(source, 'pending');
-        } else if (error) {
-          this.updateSourceStatus(source, 'error');
-        } else if (restricted) {
-          this.updateSourceStatus(source, 'restricted');
-        } else {
-          this.updateSourceStatus(source, 'ready');
-        }
-      });
-      
-      this.updateLastSync();
-      
-      btn.innerHTML = '<i class="fas fa-check"></i> <span>Updated</span>';
-      btn.classList.remove('loading');
-      btn.classList.add('success');
-      setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove('success');
-        btn.disabled = false;
-      }, 2000);
-    } catch (error) {
-      console.error('[NewAdminDashboard] Refresh status error:', error);
       
       btn.innerHTML = '<i class="fas fa-times"></i> <span>Failed</span>';
       btn.classList.remove('loading');

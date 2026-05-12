@@ -1090,6 +1090,42 @@ router.put('/contact-submissions/:id/status', requireAdmin, async (req, res, nex
 });
 
 /**
+ * Delete a contact submission (admin only)
+ * DELETE /api/admin/contact-submissions/:id
+ */
+router.delete('/contact-submissions/:id', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'DELETE /contact-submissions/:id');
+  const { id } = req.params;
+
+  logger.info(
+    {
+      requestId,
+      id,
+      adminEmail: req.adminUser?.email,
+      adminUserId: req.adminUser?.uid
+    },
+    '[admin-routes] DELETE /contact-submissions/:id - Deleting contact submission'
+  );
+
+  try {
+    const submissionRef = db.collection('contactSubmissions').doc(id);
+    const snap = await submissionRef.get();
+    if (!snap.exists) {
+      return next(createError('Contact submission not found', ERROR_CODES.NOT_FOUND, 404));
+    }
+    await submissionRef.delete();
+    logger.info({ requestId, id }, '[admin-routes] DELETE /contact-submissions/:id - Success');
+    res.json({ success: true, id });
+  } catch (error) {
+    logger.error(
+      { requestId, id, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] DELETE /contact-submissions/:id - Error'
+    );
+    next(createError('Failed to delete contact submission', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
  * Sync credits for all users (admin only)
  * POST /api/admin/credits/sync-all
  * This endpoint migrates and syncs credits from old system (entitlements) to new system (user_credits)
