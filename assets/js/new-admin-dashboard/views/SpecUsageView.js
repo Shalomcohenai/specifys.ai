@@ -20,6 +20,7 @@ export class SpecUsageView {
    */
   init() {
     this.setupEventListeners();
+    this.setupSpecRowDownloadTable();
     this.setupDataSubscriptions();
   }
   
@@ -44,6 +45,93 @@ export class SpecUsageView {
         this.render();
       }, 300));
     }
+  }
+
+  /**
+   * Delegated clicks: download full Firestore row as JSON (admin research).
+   */
+  setupSpecRowDownloadTable() {
+    const table = helpers.dom('#spec-usage-table');
+    if (!table || table.dataset.rowDownloadBound === '1') {
+      return;
+    }
+    table.dataset.rowDownloadBound = '1';
+    table.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action="download-spec-row"]');
+      if (!btn || !table.contains(btn)) {
+        return;
+      }
+      e.preventDefault();
+      const specId = btn.getAttribute('data-spec-id');
+      if (!specId) {
+        return;
+      }
+      const spec = this.dataManager.getAllData().specs.find((s) => s.id === specId);
+      if (!spec) {
+        window.alert('Spec not found in the current dashboard cache. Refresh the page or widen the date filter.');
+        return;
+      }
+      this.downloadCompleteSpecRow(spec);
+    });
+  }
+
+  serializeFirestoreFieldForDebug(v) {
+    if (v == null) {
+      return v;
+    }
+    if (typeof v.toDate === 'function') {
+      try {
+        return v.toDate().toISOString();
+      } catch (err) {
+        return String(v);
+      }
+    }
+    if (typeof v === 'object' && typeof v._seconds === 'number') {
+      return new Date(v._seconds * 1000).toISOString();
+    }
+    if (typeof v === 'object' && typeof v.seconds === 'number') {
+      return new Date(v.seconds * 1000).toISOString();
+    }
+    return v;
+  }
+
+  serializeObjectForDebug(value) {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.serializeObjectForDebug(item));
+    }
+    if (value && typeof value === 'object') {
+      const maybeSerialized = this.serializeFirestoreFieldForDebug(value);
+      if (typeof maybeSerialized !== 'object' || maybeSerialized == null) {
+        return maybeSerialized;
+      }
+      const out = {};
+      Object.keys(value).forEach((key) => {
+        out[key] = this.serializeObjectForDebug(value[key]);
+      });
+      return out;
+    }
+    return this.serializeFirestoreFieldForDebug(value);
+  }
+
+  buildCompleteSpecRowPayload(spec) {
+    const meta = spec.metadata && typeof spec.metadata === 'object' ? spec.metadata : {};
+    const merged = { ...meta, id: spec.id };
+    return this.serializeObjectForDebug(merged);
+  }
+
+  downloadCompleteSpecRow(spec) {
+    const payload = this.buildCompleteSpecRowPayload(spec);
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().replace(/[:]/g, '-');
+    link.href = url;
+    link.download = `spec-row-${spec.id}-${dateStr}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
   
   /**
@@ -224,7 +312,7 @@ export class SpecUsageView {
     if (!tbody) return;
     
     if (specs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="13" class="table-empty-state">No specs found for selected criteria.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="14" class="table-empty-state">No specs found for selected criteria.</td></tr>';
       return;
     }
     
@@ -309,6 +397,12 @@ export class SpecUsageView {
             <span class="feature-indicator ${hasArchitecture ? 'active' : ''}" title="Architecture">
               <i class="fas fa-${hasArchitecture ? 'check-circle' : 'circle'}"></i>
             </span>
+          </td>
+          <td class="spec-row-data-cell">
+            <button type="button" class="btn-spec-row-download" data-action="download-spec-row" data-spec-id="${this.escapeHtml(String(spec.id))}" title="Download full Firestore row (JSON)">
+              <i class="fas fa-file-download" aria-hidden="true"></i>
+              <span class="btn-spec-row-download-label">JSON</span>
+            </button>
           </td>
         </tr>
       `;

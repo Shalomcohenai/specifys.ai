@@ -16,11 +16,15 @@
   top: 62px;
   transform: translateX(-50%);
   transform-origin: top center;
+  overflow: visible;
+  /* Below fullscreen/rename modals (10000+) but above header, bubbles, brain-dump overlay (<=2000) */
+  z-index: 9999;
 }
 
 .spec-nav--bottom {
   bottom: calc(12px + env(safe-area-inset-bottom));
   z-index: 125;
+  overflow: visible;
 }
 
 .spec-nav-track {
@@ -33,10 +37,15 @@
 }
 
 .spec-nav--top .spec-nav-track {
-  border: none;
-  background: transparent;
-  backdrop-filter: none;
-  box-shadow: none;
+  overflow: visible;
+  width: fit-content;
+  max-width: min(94vw, 1120px);
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  padding: clamp(8px, 1.5vw, 10px) clamp(10px, 2vw, 16px);
 }
 
 .spec-nav--bottom .spec-nav-track {
@@ -74,27 +83,21 @@
 }
 
 .spec-nav-list--top {
-  border-radius: 12px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  max-width: none;
+  width: auto;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .spec-nav-list--bottom {
   padding: 7px 9px;
-}
-
-.spec-nav-active-title {
-  min-height: 36px;
-  padding: 28px 12px 6px;
-  font-size: clamp(15px, 2vw, 20px);
-  font-weight: 700;
-  text-align: center;
-  color: #0f172a;
-  letter-spacing: 0.01em;
-  border-radius: 0;
-  border-top: none;
-  background: transparent;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
 .side-menu-item {
@@ -208,14 +211,57 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
 }
 
-.spec-nav-list--bottom .side-menu-button .side-menu-text {
-  font-size: 10px;
-  padding: 4px 7px;
+/* Top nav: hover labels stack above neighbors; protrude below the white pill */
+.spec-nav-list--top .side-menu-item:hover,
+.spec-nav-list--top .side-menu-item:focus-within {
+  z-index: 100000;
 }
 
-/* Remove top-nav hover tooltip line/label */
 .spec-nav-list--top .side-menu-button .side-menu-text {
-  display: none;
+  display: block;
+  background: #ffffff;
+  color: #FF6B35;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  z-index: 100001;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.spec-nav-list--top .side-menu-button.active .side-menu-text {
+  color: #FF6B35;
+}
+
+.spec-nav-list--top .side-menu-button:disabled .side-menu-text {
+  color: #FF6B35;
+}
+
+/* Bottom nav: same hover card as top, protruding upward above the pill */
+.spec-nav-list--bottom .side-menu-item:hover,
+.spec-nav-list--bottom .side-menu-item:focus-within {
+  z-index: 100000;
+}
+
+.spec-nav-list--bottom .side-menu-button .side-menu-text {
+  top: auto;
+  bottom: calc(100% + 7px);
+  display: block;
+  background: #ffffff;
+  color: #FF6B35;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  z-index: 100001;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+.spec-nav-list--bottom .side-menu-button.active .side-menu-text,
+.spec-nav-list--bottom .side-menu-button:disabled .side-menu-text {
+  color: #FF6B35;
 }
 
 .side-menu-item:hover .side-menu-text,
@@ -227,41 +273,9 @@
   display: none;
 }
 
+/* Subsection dropdowns removed from spec viewer top nav */
 .side-menu-submenu {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 0;
-  min-width: 220px;
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  margin-top: 0;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: #ffffff;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14);
-  z-index: 24;
-}
-
-.side-menu-item:hover .side-menu-submenu,
-.side-menu-item:focus-within .side-menu-submenu,
-.side-menu-submenu.expanded {
-  max-height: 320px;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.side-menu-submenu .subsection-item {
-  padding: 7px 10px;
-  border-radius: 7px;
-  margin-bottom: 3px;
-  font-size: 12px;
-}
-
-.side-menu-submenu .subsection-item:hover {
-  background: #f8fafc;
+  display: none;
 }
 
 /* Notification dot feature removed */
@@ -289,5 +303,48 @@
 
 .spec-viewer-page .container {
   margin-top: 44px;
+}
+
+/* Previous / Next between top-bar spec sections */
+.spec-top-tab-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.spec-top-tab-pager.hidden {
+  display: none;
+}
+
+.spec-top-tab-pager__btn {
+  flex: 1 1 200px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  color: #FF6B35;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.spec-top-tab-pager__btn:hover:not(:disabled) {
+  background: #fff7ed;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+}
+
+.spec-top-tab-pager__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 

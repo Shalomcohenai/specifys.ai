@@ -15,10 +15,31 @@ const { syncPaymentsData, getCachedPaymentsData, getPaymentsSummary } = require(
 const emailTracking = require('./email-tracking-service');
 const emailService = require('./email-service');
 const { syncAllUsersCredits, syncUserCredits } = require('./credits-sync-service');
-const { JobRegistry } = require('./automation-service');
+const { JobRegistry, OpenAIClient } = require('./automation-service');
+const { getBaseTemplate } = require('./email-templates');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
+
+/** English context for admin email-draft assistant (OpenAI). */
+const SITE_CONTEXT_EMAIL_DRAFT = `Specifys.ai is an AI-powered product that helps founders, product managers, and developers turn app ideas into structured specifications. Users describe an app; the platform generates overview, technical requirements, market research, design direction, diagrams, and related assets so teams can plan and build with clarity. The primary site is https://specifys-ai.com . Tone for outbound emails: clear, credible, helpful, and respectful of the reader's time—no hype or misleading claims.`;
+
+function escapeHtmlForEmailHeader(text) {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function sanitizeAdminDraftBodyHtml(html) {
+  if (typeof html !== 'string') {
+    return '';
+  }
+  let out = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  out = out.replace(/\sjavascript:/gi, ' blocked:');
+  return out.trim();
+}
 
 // Enhanced logging helper for all admin routes
 const logRouteCall = (req, routeName) => {
@@ -2534,6 +2555,106 @@ router.get('/email/status', requireAdmin, async (req, res, next) => {
  * POST /api/admin/email/test
  * Send a test email to verify Resend integration
  */
+/**
+ * POST /api/admin/email/draft
+ * Generate English marketing email HTML (Resend-style wrapper) for copy/paste. Admin only.
+ */
+router.post('/email/draft', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /email/draft');
+
+  try {
+    const brief = req.body?.brief;
+    if (!brief || typeof brief !== 'string' || !brief.trim()) {
+      return next(createError('Brief is required (non-empty string)', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return next(createError('OPENAI_API_KEY not configured', ERROR_CODES.CONFIGURATION_ERROR, 500));
+    }
+
+    const client = new OpenAIClient(apiKey);
+    const model = process.env.OPENAI_EMAIL_DRAFT_MODEL || 'gpt-4o-mini';
+
+    const userMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
+
+The admin wants an email draft. Write in English only.
+
+Admin brief (intent, audience, key points, desired CTA if any):
+"""
+${brief.trim()}
+"""
+
+Return ONLY a valid JSON object with exactly these keys:
+- "subject": string, email subject line (plain text, no HTML).
+- "headerTitle": string, short headline shown in the orange header band (plain text, no HTML).
+- "bodyHtml": string, HTML fragment ONLY for the white body area (inside .email-body). Requirements:
+  • Use the existing template classes: <p class="content-text"> for paragraphs, <div class="content-title"> for section titles, <div class="btn-container"><a href="https://..." class="btn">Label</a></div> for primary CTAs.
+  • Use absolute https URLs for links (specifys-ai.com or paths you infer).
+  • No tracking parameters, no pixel scripts, no <script>, no inline event handlers.
+  • Professional, scannable structure; optional bullet list with simple <ul><li> if helpful.
+  • Sign off as "The Specifys.ai Team" or similar.`;
+
+    const response = await client.chatCompletion({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are an expert B2B SaaS email copywriter. You respond with ONLY valid JSON (no markdown fences). All copy must be in English.'
+        },
+        { role: 'user', content: userMessage }
+      ],
+      temperature: 0.65,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' }
+    });
+
+    const raw = response.choices[0]?.message?.content;
+    if (!raw) {
+      return next(createError('Empty response from model', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 502));
+    }
+
+    let parsed;
+    try {
+      parsed = client.parseJSONResponse(raw);
+    } catch (parseErr) {
+      logger.warn({ requestId, parseErr: parseErr.message }, '[admin-routes] email/draft JSON parse failed');
+      return next(createError('Model returned invalid JSON', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 502));
+    }
+
+    const subject = typeof parsed.subject === 'string' ? parsed.subject.trim() : '';
+    const headerTitle = typeof parsed.headerTitle === 'string' ? parsed.headerTitle.trim() : '';
+    const bodyHtml = typeof parsed.bodyHtml === 'string' ? parsed.bodyHtml : '';
+
+    if (!subject || !headerTitle || !bodyHtml) {
+      return next(
+        createError('Model response missing subject, headerTitle, or bodyHtml', ERROR_CODES.INVALID_INPUT, 422)
+      );
+    }
+
+    const safeHeader = escapeHtmlForEmailHeader(headerTitle);
+    const safeBody = sanitizeAdminDraftBodyHtml(bodyHtml);
+    const html = getBaseTemplate(safeHeader, safeBody, false, null);
+
+    logger.info({ requestId, model, subjectLen: subject.length }, '[admin-routes] POST /email/draft success');
+    res.json({
+      success: true,
+      subject,
+      headerTitle,
+      bodyHtml: safeBody,
+      html
+    });
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] POST /email/draft failed');
+    next(
+      createError('Failed to generate email draft', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+        details: error.message
+      })
+    );
+  }
+});
+
 router.post('/email/test', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'POST /email/test');
   

@@ -476,8 +476,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Update showTab to handle chat initialization (must run after showTab is defined)
 if (typeof showTab !== 'undefined') {
     const originalShowTab = showTab;
-    showTab = function(tabName) {
-        originalShowTab(tabName);
+    showTab = function(tabName, opts) {
+        originalShowTab(tabName, opts);
         
         if (tabName === 'chat' && !chatInitialized && currentSpecData) {
             initializeChat();
@@ -489,8 +489,8 @@ if (typeof showTab !== 'undefined') {
         if (typeof showTab !== 'undefined') {
             clearInterval(checkShowTab);
             const originalShowTab = showTab;
-            showTab = function(tabName) {
-                originalShowTab(tabName);
+            showTab = function(tabName, opts) {
+                originalShowTab(tabName, opts);
                 
                 if (tabName === 'chat' && !chatInitialized && currentSpecData) {
                     initializeChat();

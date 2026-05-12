@@ -1,6 +1,7 @@
 import { attachUiBridge } from './modules/UiController.js';
 import { attachDiagramBridge } from './modules/DiagramManager.js';
 import { injectSpecSeo } from './modules/SeoInjector.js';
+import { SPEC_SCROLL_ORDER } from './modules/specScrollOrder.js';
 import * as MockupService from './modules/MockupService.js';
 import * as DataService from './modules/DataService.js';
 import * as TabManager from './modules/TabManager.js';
@@ -8,13 +9,15 @@ import * as UiRenderer from './modules/UiRenderer.js';
 import * as DiagramEngine from './modules/DiagramEngine.js';
 import * as PromptEngine from './modules/PromptEngine.js';
 
+window.SPEC_SCROLL_ORDER = SPEC_SCROLL_ORDER;
+
 window.dataService = DataService;
 window.tabManager = TabManager;
 window.uiRenderer = UiRenderer;
 window.diagramEngine = DiagramEngine;
 window.promptEngine = PromptEngine;
 
-// Compatibility bridge: keep inline onclick handlers functional.
+// Global bridge: TabManager.showTab for programmatic callers; nav clicks use delegation in spec-viewer-event-handlers.js.
 window.addEventListener('load', () => {
   attachUiBridge(window);
   attachDiagramBridge(window);

@@ -25,33 +25,38 @@
             });
         }
 
-        // Tab buttons - use event delegation
-        const sideMenuNav = document.querySelector('.side-menu-nav');
-        if (sideMenuNav) {
-            sideMenuNav.addEventListener('click', function(e) {
-                const button = e.target.closest('.side-menu-button');
-                if (button && button.id && typeof showTab === 'function') {
-                    const tabId = button.getAttribute('data-tab') || 
-                                 button.id.replace('Tab', '');
-                    if (tabId && !button.disabled) {
-                        showTab(tabId);
-                    }
+        // Spec viewer top + bottom nav: single delegation path (querySelector('.side-menu-nav') only matched the first bar).
+        function handleSpecNavClick(e) {
+            const button = e.target.closest('.side-menu-button');
+            if (!button) return;
+
+            if (button.id === 'sideMenuMcpBtn' || button.getAttribute('data-nav-action') === 'mcp') {
+                e.preventDefault();
+                if (typeof window.openMcpModal === 'function') {
+                    window.openMcpModal();
                 }
-                
-                // Handle submenu toggle
-                const expandSub = e.target.closest('.side-menu-expand-sub');
-                if (expandSub && typeof toggleSubmenu === 'function') {
-                    e.stopPropagation();
-                    const parentItem = expandSub.closest('.side-menu-item');
-                    if (parentItem) {
-                        const tabId = parentItem.getAttribute('data-tab');
-                        if (tabId) {
-                            toggleSubmenu(tabId);
-                        }
-                    }
-                }
-            });
+                return;
+            }
+
+            if (button.disabled) return;
+
+            const item = button.closest('.side-menu-item');
+            const tabId = item && item.getAttribute('data-tab');
+            if (!tabId) return;
+
+            var st = typeof window.showTab === 'function' ? window.showTab : (typeof showTab === 'function' ? showTab : null);
+            if (st) {
+                e.preventDefault();
+                st(tabId, { scrollToTop: true });
+            }
         }
+
+        ['specNavTop', 'specNavBottom'].forEach(function(navId) {
+            var root = document.getElementById(navId);
+            if (root) {
+                root.addEventListener('click', handleSpecNavClick);
+            }
+        });
 
         // Content section buttons - use event delegation
         const contentArea = document.querySelector('.content-area');

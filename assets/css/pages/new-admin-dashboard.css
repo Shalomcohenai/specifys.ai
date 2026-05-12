@@ -2395,6 +2395,49 @@
   font-size: 0.875rem;
 }
 
+.spec-row-data-column {
+  width: 100px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.spec-row-data-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.btn-spec-row-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.btn-spec-row-download:hover {
+  background: var(--bg-muted, rgba(0, 0, 0, 0.04));
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.btn-spec-row-download:focus-visible {
+  outline: 2px solid var(--primary, #6366f1);
+  outline-offset: 2px;
+}
+
+.btn-spec-row-download-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
 .search-input-modern {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--border);

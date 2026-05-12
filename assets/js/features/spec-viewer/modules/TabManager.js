@@ -43,40 +43,18 @@ function closeMobileMenuIfOpen() {
   }
 }
 
-function scrollToTabHeader(tabContent) {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const contentHeader = tabContent.querySelector('.content-header');
-      const anchor = contentHeader || tabContent;
-      let offsetTop = 0;
-      let element = anchor;
-      while (element) {
-        offsetTop += element.offsetTop;
-        element = element.offsetParent;
-      }
-      window.scrollTo({
-        top: Math.max(0, offsetTop - 20),
-        behavior: 'smooth'
-      });
-    });
+function scrollPageToTop() {
+  const reduce = typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: reduce ? 'auto' : 'smooth'
   });
 }
 
-function updateActiveSpecTitle(tabName) {
-  const titleElement = document.getElementById('spec-nav-active-title') || document.getElementById('sideMenuActiveTitle');
-  if (!titleElement) return;
-
-  const tabButton = document.getElementById(`${tabName}Tab`);
-  if (!tabButton) return;
-
-  const textElement = tabButton.querySelector('.side-menu-text');
-  const cleanedTitle = (textElement?.textContent || tabName || '').replace(/\s+/g, ' ').trim();
-  if (cleanedTitle) {
-    titleElement.textContent = cleanedTitle;
-  }
-}
-
-export async function showTab(tabName) {
+export async function showTab(tabName, opts = {}) {
+  const scrollToTop = !!(opts && opts.scrollToTop);
   closeMobileMenuIfOpen();
 
   if (tabName === 'mockup' || tabName === 'visibility-engine') {
@@ -110,7 +88,7 @@ export async function showTab(tabName) {
         btn.setAttribute('aria-selected', 'false');
       }
     });
-    if (window.focusManager) {
+    if (typeof window.focusManager?.announce === 'function') {
       window.focusManager.announce(`Switched to ${tabName} tab`, 'polite');
     }
   }
@@ -143,8 +121,15 @@ export async function showTab(tabName) {
 
   _state.currentTab = tabName;
   window.currentTab = tabName;
-  updateActiveSpecTitle(tabName);
   renderActive(currentSpecData);
+  if (scrollToTop) {
+    requestAnimationFrame(() => {
+      scrollPageToTop();
+    });
+  }
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('specViewerTabChange', { detail: { tabName } }));
+  }
 }
 
 export function attach({ dataService } = {}) {
@@ -164,8 +149,3 @@ export function teardown() {
   _state.currentTab = window.currentTab || 'overview';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const activeButton = document.querySelector('.side-menu-item[data-tab] .side-menu-button.active');
-  const activeTabName = activeButton?.getAttribute('data-tab') || activeButton?.id?.replace('Tab', '') || 'overview';
-  updateActiveSpecTitle(activeTabName);
-});

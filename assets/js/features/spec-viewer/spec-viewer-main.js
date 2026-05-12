@@ -448,6 +448,9 @@ document.addEventListener('DOMContentLoaded', function() {
             panel.classList.add('hidden');
         });
     });
+
+    setupSpecTopTabPager();
+    setupNavigationIdleFade();
 });
 
 // Check authentication status and show modal if needed
@@ -1297,14 +1300,10 @@ function displaySpec(data) {
         }
     }
     
-    // Show overview tab by default without auto-scrolling on initial load/refresh
-    window.__specViewerSkipTabAutoScroll = true;
-    const showOverviewPromise = (typeof window.showTab === 'function')
-      ? window.showTab('overview')
-      : Promise.resolve();
-    Promise.resolve(showOverviewPromise).finally(() => {
-      window.__specViewerSkipTabAutoScroll = false;
-    });
+    // Show overview tab by default (no auto-scroll; use Previous/Next for scroll-to-top)
+    if (typeof window.showTab === 'function') {
+      window.showTab('overview');
+    }
     
     // Initialize all subsections after content is loaded
     setTimeout(() => {
@@ -5967,7 +5966,7 @@ document.addEventListener('keydown', function(e) {
       e.preventDefault();
       const tabButton = document.getElementById(`${tabName}Tab`);
       if (tabButton && !tabButton.disabled) {
-        window.showTab(tabName);
+        window.showTab(tabName, { scrollToTop: true });
         tabButton.focus();
       }
     }
@@ -5990,102 +5989,95 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Unified navigation controller for all screen sizes
-const SPEC_SCROLL_ORDER = [
-  'overview',
-  'technical',
-  'mindmap',
-  'market',
-  'design',
-  'architecture',
-  'visibility-engine',
-  'prompts',
-  'mockup',
-  'raw'
-];
+// Unified navigation controller for all screen sizes (order from window.SPEC_SCROLL_ORDER, set by spec-viewer-coordinator.js from modules/specScrollOrder.js)
+function getSpecScrollOrder() {
+  const o = window.SPEC_SCROLL_ORDER;
+  return Array.isArray(o) && o.length ? o : [];
+}
 
 function getEnabledSpecTabButtonsInOrder() {
-  return SPEC_SCROLL_ORDER
+  return getSpecScrollOrder()
     .map((tabName) => document.getElementById(`${tabName}Tab`))
     .filter((button) => button && !button.disabled && button.offsetParent !== null);
 }
 
-function getActiveTabScrollState() {
-  const activeTabButton = document.querySelector('.side-menu-item[data-tab] .side-menu-button.active');
-  if (!activeTabButton) return null;
-
-  const activeTabName = activeTabButton.getAttribute('data-tab') || activeTabButton.id.replace('Tab', '');
-  const activeTabContent = document.getElementById(`${activeTabName}-content`);
-  if (!activeTabContent) return null;
-
-  const rect = activeTabContent.getBoundingClientRect();
-  const threshold = 20;
-  const pageTopThreshold = 4;
-  const pageBottomThreshold = 4;
-  const atTopByContent = rect.top >= -threshold;
-  const atBottomByContent = rect.bottom <= (window.innerHeight + threshold);
-  const atTopByPage = window.scrollY <= pageTopThreshold;
-  const atBottomByPage = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - pageBottomThreshold);
-  const atTop = atTopByContent || atTopByPage;
-  const atBottom = atBottomByContent || atBottomByPage;
-  return { atTop, atBottom };
+function isTopBarSpecSection(tabName) {
+  return !!(tabName && getSpecScrollOrder().indexOf(tabName) !== -1);
 }
 
-function setupSpecWheelTraversal() {
-  let lastSwitchAt = 0;
-  let isSwitching = false;
+function pagerLabelForTabId(tabId) {
+  const btn = document.getElementById(`${tabId}Tab`);
+  if (!btn) return tabId;
+  const span = btn.querySelector('.side-menu-text');
+  if (!span) return tabId;
+  const t = (span.textContent || '').replace(/\s+/g, ' ').trim();
+  return t || tabId;
+}
 
-  document.addEventListener('wheel', function(e) {
-    const target = e.target;
-    const isWithinInput = !!target.closest('input, textarea, select, [contenteditable="true"]');
-    if (isWithinInput) return;
+function setupSpecTopTabPager() {
+  const bar = document.getElementById('specTopTabPager');
+  const prevBtn = document.getElementById('specTopTabPagerPrev');
+  const nextBtn = document.getElementById('specTopTabPagerNext');
+  if (!bar || !prevBtn || !nextBtn) return;
 
-    const now = Date.now();
-    if (isSwitching || now - lastSwitchAt < 320) return;
+  function refreshSpecTopTabPager() {
+    const current = window.currentTab || 'overview';
+    if (!isTopBarSpecSection(current)) {
+      bar.classList.add('hidden');
+      return;
+    }
+    bar.classList.remove('hidden');
+    const ids = getEnabledSpecTabButtonsInOrder().map(function(btn) {
+      let id = btn.getAttribute('data-tab');
+      if (id) return id;
+      id = btn.id || '';
+      return id.replace(/Tab$/, '');
+    }).filter(Boolean);
+    const idx = ids.indexOf(current);
+    if (idx === -1) {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      prevBtn.textContent = 'Previous';
+      nextBtn.textContent = 'Next';
+      prevBtn.onclick = null;
+      nextBtn.onclick = null;
+      return;
+    }
+    const prevId = idx > 0 ? ids[idx - 1] : null;
+    const nextId = idx < ids.length - 1 ? ids[idx + 1] : null;
+    if (prevId) {
+      prevBtn.disabled = false;
+      prevBtn.textContent = 'Previous: ' + pagerLabelForTabId(prevId);
+      prevBtn.onclick = function() {
+        if (typeof window.showTab !== 'function') return;
+        window.showTab(prevId, { scrollToTop: true });
+      };
+    } else {
+      prevBtn.disabled = true;
+      prevBtn.textContent = 'Previous';
+      prevBtn.onclick = null;
+    }
+    if (nextId) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Next: ' + pagerLabelForTabId(nextId);
+      nextBtn.onclick = function() {
+        if (typeof window.showTab !== 'function') return;
+        window.showTab(nextId, { scrollToTop: true });
+      };
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Next';
+      nextBtn.onclick = null;
+    }
+  }
 
-    const delta = e.deltaY;
-    if (Math.abs(delta) < 18) return;
-
-    const activeScrollState = getActiveTabScrollState();
-    if (!activeScrollState) return;
-    const { atBottom, atTop } = activeScrollState;
-    if ((delta > 0 && !atBottom) || (delta < 0 && !atTop)) return;
-
-    const buttons = getEnabledSpecTabButtonsInOrder();
-    if (buttons.length < 2) return;
-
-    const activeIndex = buttons.findIndex((button) => button.classList.contains('active'));
-    if (activeIndex === -1) return;
-
-    const nextIndex = delta > 0
-      ? (activeIndex + 1) % buttons.length
-      : (activeIndex - 1 + buttons.length) % buttons.length;
-
-    const nextButton = buttons[nextIndex];
-    const nextTabName = nextButton.getAttribute('data-tab') || nextButton.id.replace('Tab', '');
-    if (!nextTabName || typeof window.showTab !== 'function') return;
-
-    e.preventDefault();
-    isSwitching = true;
-    lastSwitchAt = now;
-    window.__specViewerSkipTabAutoScroll = true;
-    window.showTab(nextTabName).finally(() => {
-      requestAnimationFrame(() => {
-        window.__specViewerSkipTabAutoScroll = false;
-        isSwitching = false;
-      });
-    });
-  }, { passive: false });
+  window.addEventListener('specViewerTabChange', refreshSpecTopTabPager);
+  refreshSpecTopTabPager();
 }
 
 function setupNavigationIdleFade() {
   // Fade/scale behavior disabled by request.
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  setupSpecWheelTraversal();
-  setupNavigationIdleFade();
-});
 
 // Update subsections in side menu based on active tab
 function updateSubsections(tabName) {
@@ -6168,29 +6160,8 @@ window.updateNotificationDot = updateNotificationDot;
 window.updateSubsections = updateSubsections;
 window.initializeMindMapTab = initializeMindMapTab;
 
-// Toggle submenu
-window.toggleSubmenu = function(tabName) {
-    const submenu = document.getElementById(`submenu-${tabName}`);
-    const expandButton = document.querySelector(`[onclick*="toggleSubmenu('${tabName}')"]`);
-    
-    if (submenu) {
-        const isExpanded = submenu.classList.contains('expanded');
-        submenu.classList.toggle('expanded');
-        
-        // Update aria-expanded
-        if (expandButton) {
-            expandButton.setAttribute('aria-expanded', !isExpanded);
-        }
-        
-        // Announce state change to screen readers
-        if (window.focusManager) {
-            window.focusManager.announce(
-                isExpanded ? `${tabName} submenu collapsed` : `${tabName} submenu expanded`,
-                'polite'
-            );
-        }
-    }
-};
+// Toggle submenu — subsection dropdowns removed from spec viewer nav (no-op for legacy callers)
+window.toggleSubmenu = function() {};
 
 // Filter menu items based on search
 window.filterMenuItems = function(searchTerm) {

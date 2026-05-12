@@ -693,6 +693,7 @@ button[onclick*="openVisualizer"]:active {
   margin-right: auto;
   box-sizing: border-box;
   overflow-x: hidden;
+  scroll-margin-top: 140px;
 }
 
 .tab-content .content-header {
@@ -1959,7 +1960,7 @@ button[onclick*="openVisualizer"]:active {
   flex-direction: column; /* אנכי */
   align-items: center;
   width: 100%;
-  max-width: 100%;
+  max-width: min(100%, 360px);
   gap: 10px;
 }
 
@@ -1970,7 +1971,8 @@ button[onclick*="openVisualizer"]:active {
   padding: 15px 20px;
   border-radius: 8px;
   width: 100%;
-  max-width: 100%;
+  max-width: min(100%, 360px);
+  box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -2008,7 +2010,12 @@ button[onclick*="openVisualizer"]:active {
     gap: 15px;
   }
   
+  .flow-item {
+    max-width: min(100%, 320px);
+  }
+
   .flow-box {
+    max-width: min(100%, 320px);
     padding: 12px 16px;
   }
   

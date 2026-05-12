@@ -4,8 +4,14 @@
     if (!authButtons) return;
     
     if (user) {
-      // User is logged in - username is now in side menu, so hide from header
-      authButtons.innerHTML = '';
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info no-underline">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
       updateSideMenuUser(user);
     } else {
       // User is not logged in
