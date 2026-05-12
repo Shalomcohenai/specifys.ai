@@ -149,6 +149,15 @@ export class AnalyticsView {
     
     // Load email analytics on init
     this.loadEmailAnalytics(30);
+
+    const resendSyncBtn = helpers.dom('#resend-audience-sync-run-btn');
+    if (resendSyncBtn && !resendSyncBtn.dataset.bound) {
+      resendSyncBtn.dataset.bound = '1';
+      resendSyncBtn.addEventListener('click', () => {
+        this.runResendAudienceSyncAllBatches();
+      });
+    }
+    this.refreshResendAudienceSyncStatusText();
   }
   
   /**
@@ -220,6 +229,79 @@ export class AnalyticsView {
       if (uniqueClicksEl) uniqueClicksEl.textContent = '0';
       if (clickRateEl) clickRateEl.textContent = '0%';
       if (totalSentEl) totalSentEl.textContent = '0';
+    }
+  }
+
+  formatResendAudienceStateSummary(state) {
+    if (!state || typeof state !== 'object') {
+      return 'No saved state.';
+    }
+    const mode = state.fullSyncComplete
+      ? 'Incremental (users created after watermark)'
+      : 'Full migration (paging all users by createdAt)';
+    let sinceText = 'watermark: not set';
+    if (state.incrementalSince) {
+      sinceText = `watermark: ${state.incrementalSince}`;
+    }
+    const cursor =
+      state.cursorCreatedAt != null || state.cursorUserId
+        ? `cursor: createdAt=${state.cursorCreatedAt ?? '—'}, docId=${state.cursorUserId ?? '—'}`
+        : 'cursor: none';
+    return `${mode}. ${sinceText}. ${cursor}.`;
+  }
+
+  async refreshResendAudienceSyncStatusText() {
+    const el = helpers.dom('#resend-audience-sync-status');
+    if (!el) return;
+    try {
+      const r = await apiService.getResendAudienceSyncState();
+      if (!r || !r.success || !r.state) {
+        el.textContent = (r && r.error) || 'Could not load sync state.';
+        return;
+      }
+      el.textContent = this.formatResendAudienceStateSummary(r.state);
+    } catch (e) {
+      el.textContent = 'Sync state unavailable. Sign in as admin and ensure Resend audience env is set.';
+    }
+  }
+
+  async runResendAudienceSyncAllBatches() {
+    const btn = helpers.dom('#resend-audience-sync-run-btn');
+    const statusEl = helpers.dom('#resend-audience-sync-status');
+    if (btn?.disabled) return;
+    if (btn) btn.disabled = true;
+    let totalProcessed = 0;
+    let batches = 0;
+    const maxBatches = 2000;
+    const yieldMs = () => new Promise((resolve) => setTimeout(resolve, 0));
+    try {
+      let hasMore = true;
+      while (hasMore && batches < maxBatches) {
+        const res = await apiService.postResendAudienceSyncBatch({ batchSize: 6 });
+        if (!res || !res.success) {
+          if (statusEl) {
+            statusEl.textContent = (res && res.error) || (res && res.message) || 'Batch failed (check server logs).';
+          }
+          break;
+        }
+        batches += 1;
+        totalProcessed += res.processed || 0;
+        if (statusEl) {
+          statusEl.textContent = `Batch ${batches} (${res.phase || '?'}): +${res.processed ?? 0} users, hasMore=${!!res.hasMore} | total this run: ${totalProcessed}`;
+        }
+        hasMore = !!res.hasMore;
+        await yieldMs();
+      }
+      if (batches >= maxBatches && hasMore && statusEl) {
+        statusEl.textContent += ' (stopped at safety cap — click again to continue)';
+      }
+      await this.refreshResendAudienceSyncStatusText();
+    } catch (e) {
+      if (statusEl) {
+        statusEl.textContent = `Error: ${e.message || String(e)}`;
+      }
+    } finally {
+      if (btn) btn.disabled = false;
     }
   }
   
@@ -1093,6 +1175,7 @@ export class AnalyticsView {
     const planningSelect = helpers.dom('#planning-analytics-range-select');
     const planningDays = planningSelect ? parseInt(planningSelect.value, 10) || 30 : 30;
     this.loadPlanningAnalytics(planningDays);
+    this.refreshResendAudienceSyncStatusText();
   }
   
   /**

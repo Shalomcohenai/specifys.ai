@@ -230,6 +230,20 @@ export class ApiService {
   }
 
   /**
+   * Resend audience bulk sync state (admin)
+   */
+  async getResendAudienceSyncState() {
+    return this.get('/api/admin/email/resend-audience/sync-state');
+  }
+
+  /**
+   * Process one batch (5–7 users) toward Resend audience (admin)
+   */
+  async postResendAudienceSyncBatch(body = {}) {
+    return this.post('/api/admin/email/resend-audience/sync-batch', body);
+  }
+
+  /**
    * Start pipeline canary (async on server; poll getPipelineCanaryRun)
    */
   async runPipelineCanary(body = {}) {

@@ -73,6 +73,8 @@ export class UnsubscribeView {
     }
     const genBtn = helpers.dom('#email-draft-generate-btn');
     const briefEl = helpers.dom('#email-draft-brief');
+    const marketingCb = helpers.dom('#email-draft-marketing');
+    const introEl = helpers.dom('#email-draft-intro');
     if (!genBtn || !briefEl) {
       return;
     }
@@ -86,6 +88,22 @@ export class UnsubscribeView {
     const previewFrame = helpers.dom('#email-draft-preview-frame');
     const copySubjectBtn = helpers.dom('#email-draft-copy-subject');
     const copyHtmlBtn = helpers.dom('#email-draft-copy-html');
+
+    const syncEmailDraftMarketingUi = () => {
+      const marketing = Boolean(marketingCb && marketingCb.checked);
+      const phProduct = briefEl.getAttribute('data-placeholder-product') || '';
+      const phMarketing = briefEl.getAttribute('data-placeholder-marketing') || phProduct;
+      briefEl.placeholder = marketing ? phMarketing : phProduct;
+      if (introEl) {
+        introEl.textContent = marketing
+          ? 'Write a short creative brief in Hebrew or English (angle, audience, desired CTA). You get a conversion-focused marketing email in English in the same HTML layout—not tied to one product release. Copy into Resend or your ESP—nothing is sent from here.'
+          : 'Describe the update in English (a few bullet points are enough). You get a short subject line and full HTML in a compact dark layout suited for newsletters. Copy into Resend or your ESP—nothing is sent from here.';
+      }
+    };
+    if (marketingCb) {
+      marketingCb.addEventListener('change', syncEmailDraftMarketingUi);
+    }
+    syncEmailDraftMarketingUi();
 
     const setStatus = (text) => {
       if (statusEl) statusEl.textContent = text || '';
@@ -126,11 +144,12 @@ export class UnsubscribeView {
         showError('Please enter a brief describing the email you want.');
         return;
       }
+      const marketing = Boolean(marketingCb && marketingCb.checked);
       genBtn.disabled = true;
       setStatus('Generating…');
       if (outEl) outEl.classList.add('hidden');
       try {
-        const data = await apiService.post('/api/admin/email/draft', { brief });
+        const data = await apiService.post('/api/admin/email/draft', { brief, marketing });
         if (!data.success || !data.html) {
           throw new Error(data.message || 'Invalid response');
         }

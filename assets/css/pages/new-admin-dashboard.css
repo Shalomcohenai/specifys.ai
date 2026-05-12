@@ -2847,6 +2847,26 @@
   box-shadow: var(--shadow);
 }
 
+.email-draft-marketing-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.email-draft-marketing-row input[type='checkbox'] {
+  margin-top: 0.2em;
+  flex-shrink: 0;
+}
+
+.email-draft-marketing-row label {
+  cursor: pointer;
+  font-weight: 500;
+}
+
 .email-draft-label {
   display: block;
   font-size: 0.8rem;

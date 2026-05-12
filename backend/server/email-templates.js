@@ -158,6 +158,77 @@ function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsu
 }
 
 /**
+ * Dark-card marketing layout for admin OpenAI email drafts (copy/paste to ESP).
+ * @param {string} headlineEscaped - HTML-escaped plain headline (main title in card)
+ * @param {string} bodyHtml - sanitized inner HTML (paragraphs, CTA, etc.)
+ * @param {string} displayDateEscaped - HTML-escaped human date, e.g. May 12, 2026
+ */
+function getAdminMarketingDraftTemplate(headlineEscaped, bodyHtml, displayDateEscaped) {
+  const year = new Date().getFullYear();
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no" />
+  <title>Specifys.ai</title>
+</head>
+<body style="background-color:#ffffff;margin:0;padding:0;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#ffffff;">
+    <tr>
+      <td align="center" style="padding:20px 12px;background-color:#ffffff;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:640px;margin:0 auto;">
+          <tr>
+            <td style="background-color:#151517;border:1px solid #2a2a2d;border-radius:16px;overflow:hidden;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="padding:22px 22px 10px 22px;background-color:#151517;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="left" valign="middle" style="vertical-align:middle;">
+                          <a href="https://specifys-ai.com/" target="_blank" rel="noopener noreferrer" style="color:#067df7;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:24px;font-weight:700;">Specifys-ai.com</a>
+                        </td>
+                        <td align="right" valign="middle" style="vertical-align:middle;">
+                          <span style="color:#9aa0a6;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;">${displayDateEscaped}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 22px 18px 22px;background-color:#151517;">
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;color:#f2f2f2;font-size:24px;line-height:32px;font-weight:800;">${headlineEscaped}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 22px 22px 22px;background-color:#151517;">
+                    <div style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#c9cdd3;">
+                      ${bodyHtml}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 22px 18px 22px;border-top:1px solid #2a2a2d;background-color:#121214;">
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#9aa0a6;">
+                      You are receiving this email because you subscribed to Specifys.ai updates.<br />
+                      © ${year} Specifys.ai
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
  * Welcome email template for new users
  */
 function welcomeEmail(userName, getStartedUrl, creditsCount = 1) {
@@ -382,6 +453,7 @@ function toolFinderUsageEmail(userName, toolFinderUrl, createSpecUrl) {
 
 module.exports = {
   getBaseTemplate,
+  getAdminMarketingDraftTemplate,
   welcomeEmail,
   specReadyEmail,
   specReadyEmailSubsequent,

@@ -607,6 +607,8 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 | `addSignupToResendAudience` | New user | `user-routes.js` — adds contact to Resend audience |
 | `sendFeedbackEmail` | Feedback submissions | `server.js` `/api/feedback` |
 
+**Resend audience bulk sync (admin):** `resend-audience-bulk-sync.js` — `GET /api/admin/email/resend-audience/sync-state`, `POST /api/admin/email/resend-audience/sync-batch` with optional body `{ batchSize?: number }` (clamped 5–7 per request). Persists cursor and watermark in Firestore `admin_config/resend_audience_sync`: first run pages all `users` ordered by `createdAt` then document id; after completion, later runs only query users with `createdAt` greater than the saved watermark. New Admin Dashboard → Analytics → Email Analytics exposes the control. Same env as audience signup (`RESEND_API_KEY`, `RESEND_AUDIENCE_ID` or `RESEND_SEGMENT_ID`). Deploy the composite index on collection group `users`: `createdAt` ASC, `__name__` ASC (`backend/firestore.indexes.json`). Users without `createdAt` are not returned by this query and are skipped until backfilled.
+
 **Templates:** `email-templates.js` — HTML templates for each email type with `getBaseTemplate` wrapper.
 
 **Tracking** (`email-tracking-service.js`):
@@ -628,7 +630,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 
 **Admin dashboard:** SPA at `/pages/new-admin-dashboard.html` with views for overview, users, payments, logs, analytics, spec usage, MCP, articles, academy, tools, contact, unsubscribe.
 
-**Admin API** (`admin-routes.js`): users management, spec listing, credit operations, payment history, activity log. Protected by `requireAdmin` middleware (checks email against `ADMIN_EMAILS` list).
+**Admin API** (`admin-routes.js`): users management, spec listing, credit operations, payment history, activity log, Resend audience batch sync (`/api/admin/email/resend-audience/*`). Protected by `requireAdmin` middleware (checks email against `ADMIN_EMAILS` list).
 
 **Analytics** (`analytics-routes.js`, base `/api/analytics`):
 - Public: `POST /page-view`, `POST /event`, `POST /web-vitals`

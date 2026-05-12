@@ -142,6 +142,9 @@ RESEND_FROM_EMAIL=Specifys-Ai-Team@specifys-ai.com
 # ניתן גם RESEND_SEGMENT_ID כאותו ערך (ממשק Segments ב-Resend).
 # RESEND_AUDIENCE_ID=
 # RESEND_SEGMENT_ID=
+#
+# Admin bulk sync (Analytics → Email): POST /api/admin/email/resend-audience/sync-batch uses the same
+# Resend audience settings. Firestore composite index: users createdAt ASC + __name__ ASC (see firestore.indexes.json).
 
 # Feedback Email Address
 FEEDBACK_EMAIL=feedback@yourdomain.com

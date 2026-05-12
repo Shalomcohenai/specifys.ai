@@ -14,15 +14,16 @@ const creditsV3Service = require('./credits-v3-service');
 const { syncPaymentsData, getCachedPaymentsData, getPaymentsSummary } = require('./lemon-payments-cache');
 const emailTracking = require('./email-tracking-service');
 const emailService = require('./email-service');
+const resendAudienceBulkSync = require('./resend-audience-bulk-sync');
 const { syncAllUsersCredits, syncUserCredits } = require('./credits-sync-service');
 const { JobRegistry, OpenAIClient } = require('./automation-service');
-const { getBaseTemplate } = require('./email-templates');
+const { getAdminMarketingDraftTemplate } = require('./email-templates');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
 
 /** English context for admin email-draft assistant (OpenAI). */
-const SITE_CONTEXT_EMAIL_DRAFT = `Specifys.ai is an AI-powered product that helps founders, product managers, and developers turn app ideas into structured specifications. Users describe an app; the platform generates overview, technical requirements, market research, design direction, diagrams, and related assets so teams can plan and build with clarity. The primary site is https://specifys-ai.com . Tone for outbound emails: clear, credible, helpful, and respectful of the reader's time—no hype or misleading claims.`;
+const SITE_CONTEXT_EMAIL_DRAFT = `Specifys.ai helps teams turn app ideas into structured specs (requirements, research, diagrams). Main site: https://specifys-ai.com . Emails must be honest and easy to read: short sentences, plain words, no fake urgency, no hype, no misleading claims.`;
 
 function escapeHtmlForEmailHeader(text) {
   return String(text ?? '')
@@ -37,7 +38,10 @@ function sanitizeAdminDraftBodyHtml(html) {
     return '';
   }
   let out = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  out = out.replace(/<\/script/gi, '');
+  out = out.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
   out = out.replace(/\sjavascript:/gi, ' blocked:');
+  out = out.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
   return out.trim();
 }
 
@@ -2588,8 +2592,50 @@ router.get('/email/status', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * GET /api/admin/email/resend-audience/sync-state
+ * Stored cursor / watermark for bulk Resend audience sync (admin only).
+ */
+router.get('/email/resend-audience/sync-state', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /email/resend-audience/sync-state');
+  try {
+    const payload = await resendAudienceBulkSync.getResendAudienceSyncState();
+    logger.debug({ requestId }, '[admin-routes] GET /email/resend-audience/sync-state ok');
+    res.json(payload);
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[admin-routes] GET /email/resend-audience/sync-state failed');
+    next(createError('Failed to read Resend audience sync state', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/email/resend-audience/sync-batch
+ * Process up to 5–7 users (sequential Resend calls). Admin only.
+ */
+router.post('/email/resend-audience/sync-batch', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /email/resend-audience/sync-batch');
+  try {
+    const payload = await resendAudienceBulkSync.processResendAudienceSyncBatch(req.body || {});
+    logger.info(
+      { requestId, processed: payload.processed, hasMore: payload.hasMore, phase: payload.phase },
+      '[admin-routes] POST /email/resend-audience/sync-batch ok'
+    );
+    res.json(payload);
+  } catch (error) {
+    if (error.code === 'RESEND_NOT_CONFIGURED' || error.code === 'RESEND_AUDIENCE_MISSING') {
+      return next(createError(error.message, ERROR_CODES.INVALID_INPUT, 400));
+    }
+    logger.error({ requestId, error: error.message }, '[admin-routes] POST /email/resend-audience/sync-batch failed');
+    next(createError('Resend audience sync batch failed', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * POST /api/admin/email/draft
- * Generate English marketing email HTML (Resend-style wrapper) for copy/paste. Admin only.
+ * Generate English marketing email HTML (dark-card layout) for copy/paste. Admin only.
  */
 router.post('/email/draft', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'POST /email/draft');
@@ -2608,36 +2654,67 @@ router.post('/email/draft', requireAdmin, async (req, res, next) => {
     const client = new OpenAIClient(apiKey);
     const model = process.env.OPENAI_EMAIL_DRAFT_MODEL || 'gpt-4o-mini';
 
-    const userMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
+    const marketing = Boolean(req.body?.marketing);
 
-The admin wants an email draft. Write in English only.
+    const productUserMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
 
-Admin brief (intent, audience, key points, desired CTA if any):
+The admin wants one product-update email draft. English only.
+
+Admin brief:
 """
 ${brief.trim()}
 """
 
 Return ONLY a valid JSON object with exactly these keys:
-- "subject": string, email subject line (plain text, no HTML).
-- "headerTitle": string, short headline shown in the orange header band (plain text, no HTML).
-- "bodyHtml": string, HTML fragment ONLY for the white body area (inside .email-body). Requirements:
-  • Use the existing template classes: <p class="content-text"> for paragraphs, <div class="content-title"> for section titles, <div class="btn-container"><a href="https://..." class="btn">Label</a></div> for primary CTAs.
-  • Use absolute https URLs for links (specifys-ai.com or paths you infer).
-  • No tracking parameters, no pixel scripts, no <script>, no inline event handlers.
-  • Professional, scannable structure; optional bullet list with simple <ul><li> if helpful.
-  • Sign off as "The Specifys.ai Team" or similar.`;
+- "subject": string, plain text, no HTML. Keep it short (aim under ~65 characters). Simple words.
+- "headerTitle": string, plain text, no HTML: the one big title inside the email card (e.g. "New: SEO tips in your spec"). One short line; do not paste the whole subject again unless it truly fits.
+- "bodyHtml": string, HTML fragment only (no <html>, <head>, or <body>). This sits on a dark gray background (#c9cdd3 text). Rules:
+  • Length: about 55–95 words total for all copy in bodyHtml. Short paragraphs (2–4 sentences each). No walls of text. No buzzword stacks ("leverage", "synergy", "revolutionary", "cutting-edge").
+  • Opening: one <p style="margin:0 0 12px 0;padding:0;"> that states what changed in plain language. Optional: one mini section title <p style="margin:16px 0 8px 0;padding:0;color:#f2f2f2;font-weight:700;font-size:14px;line-height:22px;">Short label</p> then at most three bullets: <ul style="margin:0 0 12px 0;padding-left:20px;"><li style="margin:0 0 6px 0;">...</li></ul>
+  • Optional short "How to try it" <p> with bold product names in <strong>...</strong> where helpful.
+  • Exactly one primary button CTA at the end (before sign-off), centered: <p style="margin:18px 0 12px 0;padding:0;text-align:center"><a href="https://..." style="color:#0f0f10;text-decoration:none;background:#FF6A00;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:800;line-height:18px;padding:12px 16px;border-radius:12px;display:inline-block">Short button text</a></p>
+  • Other in-body links (not the orange button): <a href="https://..." style="color:#067df7;text-decoration:underline;">...</a>
+  • Sign-off: brief <p style="margin:0;padding:0;">Thanks,<br />The Specifys.ai team</p> (match capitalization).
+  • Use absolute https URLs only (specifys-ai.com or paths you infer). No tracking query params, no <script>, no iframes, no event handler attributes.`;
+
+    const marketingUserMessage = `${SITE_CONTEXT_EMAIL_DRAFT}
+
+The admin wants a **general marketing** email for Specifys.ai: why someone should visit the site, try the product, or click through. This is **not** a single-feature changelog or release note.
+
+The admin brief may be in **Hebrew, English, or mixed**. Read it, infer tone and CTA, then write **every JSON string value in polished English** (subject, headline, body—no Hebrew left in the output).
+
+Admin brief / idea:
+"""
+${brief.trim()}
+"""
+
+Return ONLY a valid JSON object with exactly these keys:
+- "subject": string, plain text, no HTML. Short (aim under ~70 characters). Benefit-led; honest curiosity, not clickbait lies.
+- "headerTitle": string, plain text, no HTML: one strong card headline (value or outcome), not a duplicate of the subject unless it still works as a display title.
+- "bodyHtml": string, HTML fragment only (no <html>, <head>, or <body>). Same dark-card styling assumptions as product emails (#c9cdd3 body text). Rules:
+  • Length: about 70–115 words total in bodyHtml. Short paragraphs. Plain English; persuasive through clarity, not jargon or fake urgency ("last chance", invented deadlines).
+  • Opening <p style="margin:0 0 12px 0;padding:0;">: relatable hook or outcome tied to the brief (e.g. clearer specs, fewer wasted tokens, faster alignment).
+  • Optional one mini section title <p style="margin:16px 0 8px 0;padding:0;color:#f2f2f2;font-weight:700;font-size:14px;line-height:22px;">Short label</p> then up to three benefit bullets: <ul style="margin:0 0 12px 0;padding-left:20px;"><li style="margin:0 0 6px 0;">...</li></ul>
+  • Exactly one primary orange CTA button (same inline styles as product mode) pointing to https://specifys-ai.com/ unless the brief clearly names another path on that domain.
+  • Other in-body links: <a href="https://..." style="color:#067df7;text-decoration:underline;">...</a>
+  • Sign-off: <p style="margin:0;padding:0;">Thanks,<br />The Specifys.ai team</p>
+  • No invented testimonials, awards, user counts, or discounts. No <script>, iframes, or event handlers. No tracking query params on URLs.`;
+
+    const userMessage = marketing ? marketingUserMessage : productUserMessage;
+    const systemContent = marketing
+      ? 'You write short, credible marketing emails for a B2B SaaS product. The admin brief may be in Hebrew or English—you interpret it and output ONLY English strings in JSON. Persuade with real benefits; never invent statistics, fake scarcity, or misleading claims. Reply with ONLY valid JSON (no markdown code fences).'
+      : 'You write very short, plain-English product update emails. Reply with ONLY valid JSON (no markdown code fences). Every string value must be in English.';
 
     const response = await client.chatCompletion({
       model,
       messages: [
         {
           role: 'system',
-          content:
-            'You are an expert B2B SaaS email copywriter. You respond with ONLY valid JSON (no markdown fences). All copy must be in English.'
+          content: systemContent
         },
         { role: 'user', content: userMessage }
       ],
-      temperature: 0.65,
+      temperature: 0.55,
       max_tokens: 4000,
       response_format: { type: 'json_object' }
     });
@@ -2667,11 +2744,18 @@ Return ONLY a valid JSON object with exactly these keys:
 
     const safeHeader = escapeHtmlForEmailHeader(headerTitle);
     const safeBody = sanitizeAdminDraftBodyHtml(bodyHtml);
-    const html = getBaseTemplate(safeHeader, safeBody, false, null);
+    const displayDateRaw = new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const safeDisplayDate = escapeHtmlForEmailHeader(displayDateRaw);
+    const html = getAdminMarketingDraftTemplate(safeHeader, safeBody, safeDisplayDate);
 
-    logger.info({ requestId, model, subjectLen: subject.length }, '[admin-routes] POST /email/draft success');
+    logger.info({ requestId, model, subjectLen: subject.length, marketing }, '[admin-routes] POST /email/draft success');
     res.json({
       success: true,
+      marketing,
       subject,
       headerTitle,
       bodyHtml: safeBody,

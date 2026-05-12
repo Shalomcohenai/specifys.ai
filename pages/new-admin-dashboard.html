@@ -599,6 +599,22 @@ custom_js_modules:
           </div>
         </div>
 
+        <div class="analytics-resend-audience-sync" style="margin-top: var(--spacing-lg); padding: var(--spacing-md); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-alt);">
+          <div class="section-header-modern" style="margin-bottom: var(--spacing-sm);">
+            <div>
+              <h3 style="margin: 0; font-size: 1.125rem;">Resend audience</h3>
+              <p style="margin: 4px 0 0 0; color: #666; font-size: 0.875rem;">Sync Firestore users into the configured Resend audience (batches of 5–7, sequential). First run walks all users with <code>createdAt</code>; later runs only users created after the saved watermark.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn-modern" id="resend-audience-sync-run-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Sync users to Resend</span>
+              </button>
+            </div>
+          </div>
+          <p class="resend-audience-sync-status" id="resend-audience-sync-status" style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Loading sync state…</p>
+        </div>
+
         <!-- Email Charts -->
         <div class="analytics-charts-grid" style="margin-top: 24px;">
           <div class="chart-card">
@@ -1493,17 +1509,28 @@ custom_js_modules:
       <!-- Pagination -->
       <div class="pagination-modern" id="unsubscribe-pagination"></div>
 
-      <!-- Email draft assistant (OpenAI + Resend-style template; copy only) -->
+      <!-- Email draft assistant (OpenAI + dark-card HTML template; copy only) -->
       <div class="email-draft-section" style="margin-top: 40px;">
         <div class="section-header-modern">
           <div>
             <h2 style="margin: 0; font-size: 1.5rem;">Email draft assistant</h2>
-            <p style="margin: 4px 0 0 0; color: #666;">Describe the email you want (English). The model uses Specifys.ai product context and returns subject line + full HTML using the same shell as system emails. Copy into Resend or your ESP—no send from here.</p>
+            <p id="email-draft-intro" style="margin: 4px 0 0 0; color: #666;">Describe the update in English (a few bullet points are enough). You get a short subject line and full HTML in a compact dark layout suited for newsletters. Copy into Resend or your ESP—nothing is sent from here.</p>
           </div>
         </div>
         <div class="email-draft-panel">
+          <div class="email-draft-marketing-row">
+            <input type="checkbox" id="email-draft-marketing" name="email-draft-marketing" />
+            <label for="email-draft-marketing">Marketing (general site message, not a specific feature)</label>
+          </div>
           <label class="email-draft-label" for="email-draft-brief">Brief</label>
-          <textarea id="email-draft-brief" class="email-draft-textarea" rows="6" placeholder="Example: Short update for active users about the new architecture section in the spec viewer; primary CTA opens the spec viewer; friendly tone."></textarea>
+          <textarea
+            id="email-draft-brief"
+            class="email-draft-textarea"
+            rows="6"
+            data-placeholder-product="Example: New SEO section in Spec Viewer for Pro users. CTA: open spec viewer. Keep tone simple."
+            data-placeholder-marketing="Example (Hebrew or English): לשלוח מסר שמסביר שאפשר לבנות PRD טוב יותר ולחסוך טוקנים עם Specifys — CTA לפתיחת האתר."
+            placeholder="Example: New SEO section in Spec Viewer for Pro users. CTA: open spec viewer. Keep tone simple."
+          ></textarea>
           <div class="email-draft-toolbar">
             <button type="button" class="btn-modern btn-primary" id="email-draft-generate-btn">
               <span class="btn-text">Generate draft</span>
