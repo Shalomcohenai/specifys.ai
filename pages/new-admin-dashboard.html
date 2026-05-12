@@ -207,6 +207,69 @@ custom_js_modules:
 
       <div class="overview-home-stack">
 
+        <!-- Contact Submissions (X removes submission permanently) -->
+        <div class="overview-card overview-contact-card">
+          <div class="card-header">
+            <div class="card-header-top">
+              <div>
+                <h2>Contact Submissions</h2>
+                <p class="overview-contact-card__subtitle">Recent messages from the site. The ✕ button permanently deletes a submission after you confirm.</p>
+              </div>
+              <div class="card-header-actions">
+                <button type="button" class="btn-modern btn-small" id="overview-contact-full-btn">All submissions</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="overview-contact-stats">
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-total-contact">0</span>
+                <span class="overview-contact-stat__label">Total</span>
+              </div>
+              <div class="overview-contact-stat overview-contact-stat--new">
+                <span class="overview-contact-stat__value" id="overview-stat-new-contact">0</span>
+                <span class="overview-contact-stat__label">New</span>
+              </div>
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-read-contact">0</span>
+                <span class="overview-contact-stat__label">Read</span>
+              </div>
+              <div class="overview-contact-stat">
+                <span class="overview-contact-stat__value" id="overview-stat-replied-contact">0</span>
+                <span class="overview-contact-stat__label">Replied</span>
+              </div>
+            </div>
+            <div class="overview-contact-notifications" id="contact-list-overview">
+              <div class="activity-empty">Loading submissions...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline Canary -->
+        <div class="overview-card pipeline-canary-card">
+          <div class="card-header">
+            <h2>Pipeline Canary</h2>
+            <div class="card-header-actions">
+              <button class="btn-modern btn-small" id="pipeline-canary-refresh-btn" type="button" title="Refresh history">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="pipeline-canary-desc">Runs the same path as users: overview, approve, then advanced specs (technical, market, design, architecture). Green = all ready; orange = partial; red = failed.</p>
+            <div class="pipeline-canary-today" id="pipeline-canary-today">Loading…</div>
+            <div class="pipeline-canary-chart" id="pipeline-canary-chart" role="img" aria-label="Canary status by day"></div>
+            <div class="pipeline-canary-actions">
+              <button class="btn-modern" id="pipeline-canary-run-btn" type="button">
+                <i class="fas fa-play"></i>
+                <span>Run check now</span>
+              </button>
+              <span class="pipeline-canary-run-status" id="pipeline-canary-run-status" aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+
         <!-- Recent Activity -->
         <div class="overview-card">
           <div class="card-header">
@@ -245,69 +308,6 @@ custom_js_modules:
               <div class="activity-empty">Loading activity...</div>
             </div>
             <div class="activity-pagination" id="activity-pagination"></div>
-          </div>
-        </div>
-
-        <!-- Pipeline Canary -->
-        <div class="overview-card pipeline-canary-card">
-          <div class="card-header">
-            <h2>Pipeline Canary</h2>
-            <div class="card-header-actions">
-              <button class="btn-modern btn-small" id="pipeline-canary-refresh-btn" type="button" title="Refresh history">
-                <i class="fas fa-sync-alt"></i>
-                <span>Refresh</span>
-              </button>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="pipeline-canary-desc">Runs the same path as users: overview, approve, then advanced specs (technical, market, design, architecture). Green = all ready; orange = partial; red = failed.</p>
-            <div class="pipeline-canary-today" id="pipeline-canary-today">Loading…</div>
-            <div class="pipeline-canary-chart" id="pipeline-canary-chart" role="img" aria-label="Canary status by day"></div>
-            <div class="pipeline-canary-actions">
-              <button class="btn-modern" id="pipeline-canary-run-btn" type="button">
-                <i class="fas fa-play"></i>
-                <span>Run check now</span>
-              </button>
-              <span class="pipeline-canary-run-status" id="pipeline-canary-run-status" aria-live="polite"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contact Submissions (X removes submission permanently) -->
-        <div class="overview-card overview-contact-card">
-          <div class="card-header">
-            <div class="card-header-top">
-              <div>
-                <h2>Contact Submissions</h2>
-                <p class="overview-contact-card__subtitle">Recent messages from the site. The ✕ button permanently deletes a submission after you confirm.</p>
-              </div>
-              <div class="card-header-actions">
-                <button type="button" class="btn-modern btn-small" id="overview-contact-full-btn">All submissions</button>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="overview-contact-stats">
-              <div class="overview-contact-stat">
-                <span class="overview-contact-stat__value" id="overview-stat-total-contact">0</span>
-                <span class="overview-contact-stat__label">Total</span>
-              </div>
-              <div class="overview-contact-stat overview-contact-stat--new">
-                <span class="overview-contact-stat__value" id="overview-stat-new-contact">0</span>
-                <span class="overview-contact-stat__label">New</span>
-              </div>
-              <div class="overview-contact-stat">
-                <span class="overview-contact-stat__value" id="overview-stat-read-contact">0</span>
-                <span class="overview-contact-stat__label">Read</span>
-              </div>
-              <div class="overview-contact-stat">
-                <span class="overview-contact-stat__value" id="overview-stat-replied-contact">0</span>
-                <span class="overview-contact-stat__label">Replied</span>
-              </div>
-            </div>
-            <div class="overview-contact-notifications" id="contact-list-overview">
-              <div class="activity-empty">Loading submissions...</div>
-            </div>
           </div>
         </div>
 
