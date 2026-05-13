@@ -8,6 +8,7 @@ const { logger } = require('./logger');
 const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
 const { getActivityEvents } = require('./admin-activity-service');
 const { getUserAnalytics } = require('./user-analytics-service');
+const { queryPageViews, aggregatePageViews } = require('./analytics-service');
 const { fetchSubscriptionById, listSubscriptions, buildSubscriptionUpdateFromRecord } = require('./lemon-subscription-resolver');
 const { getProductKeyByVariantId, getProductByKey } = require('./lemon-products-config');
 const creditsV3Service = require('./credits-v3-service');
@@ -1421,6 +1422,184 @@ router.get('/users/:userId/analytics', requireAdmin, async (req, res, next) => {
     next(createError('Failed to fetch user analytics', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
+  }
+});
+
+/**
+ * Parse an ISO date string from a query param; returns null if missing/blank,
+ * or throws an Error('invalid-date') if non-empty but unparseable.
+ */
+function parsePageViewsDate(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const d = new Date(value);
+  if (isNaN(d.getTime())) {
+    const err = new Error('invalid-date');
+    err.code = 'INVALID_DATE';
+    throw err;
+  }
+  return d;
+}
+
+/**
+ * Page views (admin): paginated, filterable, sortable list of recent page_views entries.
+ * GET /api/admin/analytics/page-views
+ * Query params:
+ *   - page         exact page identifier (e.g. "pricing")
+ *   - pageContains substring match on page/pagePath (post-filter)
+ *   - userId       exact user UID
+ *   - username     substring match on resolved username or email (post-filter)
+ *   - referrer     substring match on referrer (post-filter)
+ *   - from         ISO date lower bound for viewedAt (inclusive)
+ *   - to           ISO date upper bound for viewedAt (inclusive)
+ *   - sort         "recent" (default) | "oldest"
+ *   - limit        default 50, max 200
+ *   - cursor       document id of the last row of the previous page
+ */
+router.get('/analytics/page-views', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /analytics/page-views');
+  try {
+    const {
+      page: pageEquals,
+      pageContains,
+      userId,
+      username,
+      referrer,
+      from,
+      to,
+      sort,
+      limit,
+      cursor
+    } = req.query;
+
+    let fromDate = null;
+    let toDate = null;
+    try {
+      fromDate = parsePageViewsDate(from);
+      toDate = parsePageViewsDate(to);
+    } catch (_) {
+      return next(createError('Invalid from/to date. Use ISO 8601 format.', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    const result = await queryPageViews({
+      pageEquals: pageEquals || null,
+      pageContains: pageContains || null,
+      userId: userId || null,
+      usernameContains: username || null,
+      referrerContains: referrer || null,
+      from: fromDate,
+      to: toDate,
+      sort: sort === 'oldest' ? 'oldest' : 'recent',
+      limit: limit ? parseInt(limit, 10) : 50,
+      cursor: cursor || null
+    });
+
+    logger.info(
+      { requestId, count: result.rows.length, scanned: result.scanned, hasMore: !!result.nextCursor },
+      '[admin-routes] GET /analytics/page-views - Success'
+    );
+
+    res.json({
+      success: true,
+      rows: result.rows,
+      nextCursor: result.nextCursor,
+      scanned: result.scanned
+    });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET /analytics/page-views - Error'
+    );
+    next(createError('Failed to fetch page views', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Page views aggregated by page (admin).
+ * GET /api/admin/analytics/page-views/by-page
+ * Query params: from, to, limit, groupBy ("page" | "pagePath")
+ */
+router.get('/analytics/page-views/by-page', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /analytics/page-views/by-page');
+  try {
+    const { from, to, limit, groupBy } = req.query;
+    let fromDate = null;
+    let toDate = null;
+    try {
+      fromDate = parsePageViewsDate(from);
+      toDate = parsePageViewsDate(to);
+    } catch (_) {
+      return next(createError('Invalid from/to date. Use ISO 8601 format.', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    const result = await aggregatePageViews({
+      groupBy: groupBy === 'pagePath' ? 'pagePath' : 'page',
+      from: fromDate,
+      to: toDate,
+      limit: limit ? parseInt(limit, 10) : 50
+    });
+
+    logger.info(
+      { requestId, count: result.rows.length, scanned: result.scanned, truncated: result.truncated },
+      '[admin-routes] GET /analytics/page-views/by-page - Success'
+    );
+
+    res.json({
+      success: true,
+      rows: result.rows,
+      scanned: result.scanned,
+      truncated: result.truncated
+    });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET /analytics/page-views/by-page - Error'
+    );
+    next(createError('Failed to aggregate page views by page', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Page views aggregated by referrer (admin).
+ * GET /api/admin/analytics/page-views/by-referrer
+ * Query params: from, to, limit
+ */
+router.get('/analytics/page-views/by-referrer', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /analytics/page-views/by-referrer');
+  try {
+    const { from, to, limit } = req.query;
+    let fromDate = null;
+    let toDate = null;
+    try {
+      fromDate = parsePageViewsDate(from);
+      toDate = parsePageViewsDate(to);
+    } catch (_) {
+      return next(createError('Invalid from/to date. Use ISO 8601 format.', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    const result = await aggregatePageViews({
+      groupBy: 'referrer',
+      from: fromDate,
+      to: toDate,
+      limit: limit ? parseInt(limit, 10) : 50
+    });
+
+    logger.info(
+      { requestId, count: result.rows.length, scanned: result.scanned, truncated: result.truncated },
+      '[admin-routes] GET /analytics/page-views/by-referrer - Success'
+    );
+
+    res.json({
+      success: true,
+      rows: result.rows,
+      scanned: result.scanned,
+      truncated: result.truncated
+    });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET /analytics/page-views/by-referrer - Error'
+    );
+    next(createError('Failed to aggregate page views by referrer', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 

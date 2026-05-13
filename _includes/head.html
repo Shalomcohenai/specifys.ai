@@ -281,6 +281,8 @@
     {% include analytics.html %}
     {% include analytics-events.html %}
     <script src="{{ '/assets/js/core/analytics-schema.js' | relative_url }}"></script>
+    <!-- Backend analytics beacon (must load before ga4-wrapper so window.analyticsTracker is available when init() fires) -->
+    <script src="{{ '/assets/js/services/analytics-tracker.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/ga4-wrapper.js' | relative_url }}"></script>
     {% include structured-data.html %}
     

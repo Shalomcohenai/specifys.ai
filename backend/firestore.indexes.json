@@ -124,6 +124,22 @@
       ]
     },
     {
+      "collectionGroup": "page_views",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "page", "order": "ASCENDING" },
+        { "fieldPath": "viewedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "page_views",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "page", "order": "ASCENDING" },
+        { "fieldPath": "viewedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "appMilestones",
       "queryScope": "COLLECTION",
       "fields": [

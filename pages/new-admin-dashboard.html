@@ -7,6 +7,7 @@ page_class: admin-dashboard-page
 custom_firebase: true
 hide_header: true
 hide_footer: true
+no_track: true
 extra_css:
   - /assets/css/pages/new-admin-dashboard.css
 custom_js_modules:
@@ -35,6 +36,10 @@ custom_js_modules:
       <button class="nav-tab" data-section="analytics" aria-label="Analytics">
         <i class="fas fa-chart-pie"></i>
         <span>Analytics</span>
+      </button>
+      <button class="nav-tab" data-section="page-views" aria-label="Page Views">
+        <i class="fas fa-eye"></i>
+        <span>Page Views</span>
       </button>
       <button class="nav-tab" data-section="spec-usage" aria-label="Spec Usage">
         <i class="fas fa-file-code"></i>
@@ -699,6 +704,184 @@ custom_js_modules:
             <tbody>
               <tr>
                 <td colspan="3" class="table-empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page Views Section -->
+    <section class="dashboard-content-section" id="page-views-section">
+      <div class="section-header-modern">
+        <div>
+          <h1>Page Views</h1>
+          <p>Pages visited by users, with referrer and username — filterable and sortable</p>
+        </div>
+        <div class="header-actions">
+          <select class="select-modern" id="page-views-range-select">
+            <option value="1">Last 24 hours</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="all">All time</option>
+          </select>
+          <button class="btn-modern" id="page-views-refresh-btn" title="Refresh">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats-grid" style="margin-bottom: 24px;">
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Page views in range</div>
+            <div class="stat-value" id="page-views-stat-total">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Unique pages</div>
+            <div class="stat-value" id="page-views-stat-unique-pages">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Unique users</div>
+            <div class="stat-value" id="page-views-stat-unique-users">—</div>
+          </div>
+        </div>
+        <div class="quick-stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fas fa-globe"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Unique referrers</div>
+            <div class="stat-value" id="page-views-stat-unique-referrers">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-tabs (Recent / Top Pages / Top Referrers) -->
+      <div class="page-views-tabs" role="tablist">
+        <button class="page-views-tab active" data-pv-tab="recent" role="tab" aria-selected="true">
+          <i class="fas fa-stream"></i>
+          <span>Recent</span>
+        </button>
+        <button class="page-views-tab" data-pv-tab="by-page" role="tab" aria-selected="false">
+          <i class="fas fa-sort-amount-down"></i>
+          <span>Top Pages</span>
+        </button>
+        <button class="page-views-tab" data-pv-tab="by-referrer" role="tab" aria-selected="false">
+          <i class="fas fa-external-link-alt"></i>
+          <span>Top Referrers</span>
+        </button>
+      </div>
+
+      <!-- Filters bar (visible on all sub-tabs; sub-tabs decide which filters apply) -->
+      <div class="filters-bar page-views-filters">
+        <div class="search-input-wrapper">
+          <i class="fas fa-link"></i>
+          <input type="search" id="page-views-filter-page" placeholder="Filter by page URL...">
+        </div>
+        <div class="search-input-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="search" id="page-views-filter-username" placeholder="Filter by username/email...">
+        </div>
+        <div class="search-input-wrapper">
+          <i class="fas fa-globe"></i>
+          <input type="search" id="page-views-filter-referrer" placeholder="Filter by referrer...">
+        </div>
+        <select class="select-modern" id="page-views-sort-select" title="Sort order (Recent tab)">
+          <option value="recent" selected>Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+        <button class="btn-modern btn-small" id="page-views-apply-filters-btn">
+          <i class="fas fa-filter"></i>
+          <span>Apply</span>
+        </button>
+        <button class="btn-modern btn-small btn-ghost" id="page-views-clear-filters-btn">
+          <i class="fas fa-times"></i>
+          <span>Clear</span>
+        </button>
+      </div>
+
+      <!-- Recent sub-tab content -->
+      <div class="page-views-tab-content active" data-pv-tab-content="recent">
+        <div class="table-card">
+          <table class="modern-table" id="page-views-recent-table">
+            <thead>
+              <tr>
+                <th style="width: 160px;">Viewed at</th>
+                <th>Page</th>
+                <th style="width: 180px;">User</th>
+                <th>Referrer</th>
+                <th style="width: 110px;">Device</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5" class="table-empty-state">Loading page views...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="page-views-pagination">
+          <button class="btn-modern btn-small" id="page-views-load-more-btn" style="display: none;">
+            <i class="fas fa-chevron-down"></i>
+            <span>Load more</span>
+          </button>
+          <span class="page-views-loaded-count" id="page-views-loaded-count" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <!-- Top Pages sub-tab content -->
+      <div class="page-views-tab-content" data-pv-tab-content="by-page" style="display: none;">
+        <div class="table-card">
+          <table class="modern-table" id="page-views-by-page-table">
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th style="width: 120px;">Views</th>
+                <th style="width: 140px;">Unique users</th>
+                <th style="width: 180px;">Last seen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4" class="table-empty-state">Loading top pages...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Referrers sub-tab content -->
+      <div class="page-views-tab-content" data-pv-tab-content="by-referrer" style="display: none;">
+        <div class="table-card">
+          <table class="modern-table" id="page-views-by-referrer-table">
+            <thead>
+              <tr>
+                <th>Referrer</th>
+                <th style="width: 120px;">Views</th>
+                <th style="width: 140px;">Unique users</th>
+                <th style="width: 180px;">Last seen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4" class="table-empty-state">Loading top referrers...</td>
               </tr>
             </tbody>
           </table>

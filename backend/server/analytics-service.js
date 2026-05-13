@@ -303,6 +303,251 @@ async function getGuideViewsCount(startDate, endDate, guideId = null) {
   }
 }
 
+/**
+ * Resolve userIds in a list of rows into a username/email by batch-fetching the users collection.
+ * Falls back to the userId itself if no user document is found.
+ */
+async function enrichWithUsers(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return rows || [];
+  try {
+    const userIds = Array.from(new Set(rows.map((r) => r.userId).filter(Boolean)));
+    if (userIds.length === 0) {
+      return rows.map((r) => ({ ...r, username: '(anonymous)', email: null }));
+    }
+    const userRefs = userIds.map((id) => db.collection('users').doc(id));
+    const userDocs = await db.getAll(...userRefs);
+    const userMap = new Map();
+    userDocs.forEach((doc) => {
+      if (doc.exists) {
+        const u = doc.data() || {};
+        const displayName =
+          u.displayName ||
+          u.name ||
+          (u.email ? String(u.email).split('@')[0] : null) ||
+          doc.id;
+        userMap.set(doc.id, { username: displayName, email: u.email || null });
+      }
+    });
+    return rows.map((r) => {
+      if (!r.userId) return { ...r, username: '(anonymous)', email: null };
+      const u = userMap.get(r.userId);
+      if (!u) return { ...r, username: r.userId, email: null };
+      return { ...r, username: u.username, email: u.email };
+    });
+  } catch (error) {
+    logger.warn({ error: error.message }, '[analytics-service] enrichWithUsers fallback');
+    return rows.map((r) => ({ ...r, username: r.userId || '(anonymous)', email: null }));
+  }
+}
+
+/**
+ * Paginated query of page_views with filters, sort, and cursor pagination.
+ *
+ * Filters supported server-side (Firestore where): page (exact), userId, viewedAt range.
+ * Filters applied client-side after fetch (substring match): referrerContains, usernameContains, pageContains.
+ * Sort: 'recent' (viewedAt desc, default) | 'oldest' (viewedAt asc).
+ * Pagination: cursor is the document id of the last row of the previous page.
+ *
+ * Returns { rows, nextCursor, scanned }.
+ */
+async function queryPageViews(filters = {}) {
+  const {
+    pageEquals = null,
+    pageContains = null,
+    userId = null,
+    referrerContains = null,
+    usernameContains = null,
+    from = null,
+    to = null,
+    sort = 'recent',
+    limit = 50,
+    cursor = null
+  } = filters;
+
+  const requestId = `qpv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  try {
+    const cappedLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+    const direction = sort === 'oldest' ? 'asc' : 'desc';
+    const hasPostFilter = !!referrerContains || !!usernameContains || !!pageContains;
+    const fetchLimit = hasPostFilter ? Math.min(cappedLimit * 4, 800) : cappedLimit + 1;
+
+    let query = db.collection(COLLECTIONS.PAGE_VIEWS);
+    if (pageEquals) query = query.where('page', '==', pageEquals);
+    if (userId) query = query.where('userId', '==', userId);
+    if (from instanceof Date) {
+      query = query.where('viewedAt', '>=', admin.firestore.Timestamp.fromDate(from));
+    }
+    if (to instanceof Date) {
+      query = query.where('viewedAt', '<=', admin.firestore.Timestamp.fromDate(to));
+    }
+    query = query.orderBy('viewedAt', direction);
+
+    if (cursor) {
+      const cursorDoc = await db.collection(COLLECTIONS.PAGE_VIEWS).doc(cursor).get();
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc);
+      }
+    }
+
+    query = query.limit(fetchLimit);
+
+    const snapshot = await query.get();
+    let rows = snapshot.docs.map((doc) => {
+      const data = doc.data() || {};
+      const viewedAtRaw = data.viewedAt;
+      const viewedAt =
+        viewedAtRaw && typeof viewedAtRaw.toDate === 'function'
+          ? viewedAtRaw.toDate()
+          : viewedAtRaw instanceof Date
+            ? viewedAtRaw
+            : null;
+      return {
+        id: doc.id,
+        page: data.page || null,
+        pagePath: data.pagePath || null,
+        pageTitle: data.pageTitle || null,
+        userId: data.userId || null,
+        referrer: data.referrer || null,
+        sessionId: data.sessionId || null,
+        device: data.device || null,
+        utm_source: data.utm_source || null,
+        utm_medium: data.utm_medium || null,
+        utm_campaign: data.utm_campaign || null,
+        viewedAt: viewedAt ? viewedAt.toISOString() : null
+      };
+    });
+
+    rows = await enrichWithUsers(rows);
+
+    if (pageContains) {
+      const needle = String(pageContains).toLowerCase();
+      rows = rows.filter((r) => {
+        const hay = `${r.page || ''} ${r.pagePath || ''}`.toLowerCase();
+        return hay.includes(needle);
+      });
+    }
+    if (referrerContains) {
+      const needle = String(referrerContains).toLowerCase();
+      rows = rows.filter((r) => (r.referrer || '').toLowerCase().includes(needle));
+    }
+    if (usernameContains) {
+      const needle = String(usernameContains).toLowerCase();
+      rows = rows.filter((r) => {
+        const hay = `${r.username || ''} ${r.email || ''}`.toLowerCase();
+        return hay.includes(needle);
+      });
+    }
+
+    let nextCursor = null;
+    if (rows.length > cappedLimit) {
+      rows = rows.slice(0, cappedLimit);
+      nextCursor = rows[rows.length - 1].id;
+    } else if (snapshot.size === fetchLimit && rows.length > 0) {
+      nextCursor = rows[rows.length - 1].id;
+    }
+
+    return { rows, nextCursor, scanned: snapshot.size };
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[analytics-service] queryPageViews failed'
+    );
+    throw error;
+  }
+}
+
+/**
+ * Aggregate page_views grouped by page, pagePath, or referrer.
+ * Scans up to maxScan rows within the optional viewedAt window and groups in memory.
+ *
+ * Returns { rows: [{ key, count, uniqueUsers, lastSeen }], scanned, truncated }.
+ */
+async function aggregatePageViews(options = {}) {
+  const {
+    groupBy = 'page',
+    from = null,
+    to = null,
+    limit = 50,
+    maxScan = 10000
+  } = options;
+
+  const requestId = `agg-pv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  try {
+    const cappedLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 200);
+    const cappedScan = Math.min(Math.max(parseInt(maxScan, 10) || 10000, 100), 50000);
+
+    let query = db.collection(COLLECTIONS.PAGE_VIEWS);
+    if (from instanceof Date) {
+      query = query.where('viewedAt', '>=', admin.firestore.Timestamp.fromDate(from));
+    }
+    if (to instanceof Date) {
+      query = query.where('viewedAt', '<=', admin.firestore.Timestamp.fromDate(to));
+    }
+    query = query.orderBy('viewedAt', 'desc').limit(cappedScan);
+
+    const snapshot = await query.get();
+    const buckets = new Map();
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data() || {};
+      let key;
+      if (groupBy === 'referrer') {
+        const ref = (data.referrer || '').trim();
+        key = ref || '(direct)';
+      } else if (groupBy === 'pagePath') {
+        key = data.pagePath || data.page || '(unknown)';
+      } else {
+        key = data.page || data.pagePath || '(unknown)';
+      }
+
+      const viewedAtRaw = data.viewedAt;
+      const viewedAt =
+        viewedAtRaw && typeof viewedAtRaw.toDate === 'function'
+          ? viewedAtRaw.toDate()
+          : viewedAtRaw instanceof Date
+            ? viewedAtRaw
+            : null;
+
+      if (!buckets.has(key)) {
+        buckets.set(key, {
+          key,
+          count: 0,
+          uniqueUserIds: new Set(),
+          lastSeen: viewedAt
+        });
+      }
+      const bucket = buckets.get(key);
+      bucket.count += 1;
+      if (data.userId) bucket.uniqueUserIds.add(data.userId);
+      if (viewedAt && (!bucket.lastSeen || viewedAt > bucket.lastSeen)) {
+        bucket.lastSeen = viewedAt;
+      }
+    });
+
+    const rows = Array.from(buckets.values())
+      .map((b) => ({
+        key: b.key,
+        count: b.count,
+        uniqueUsers: b.uniqueUserIds.size,
+        lastSeen: b.lastSeen ? b.lastSeen.toISOString() : null
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, cappedLimit);
+
+    return {
+      rows,
+      scanned: snapshot.size,
+      truncated: snapshot.size >= cappedScan
+    };
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[analytics-service] aggregatePageViews failed'
+    );
+    throw error;
+  }
+}
+
 module.exports = {
   recordArticleView,
   recordGuideView,
@@ -311,6 +556,9 @@ module.exports = {
   getArticleViewsCount,
   getGuideViewsCount,
   getOrCreateSession,
+  queryPageViews,
+  aggregatePageViews,
+  enrichWithUsers,
   COLLECTIONS
 };
 

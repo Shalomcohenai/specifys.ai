@@ -3436,3 +3436,118 @@
 .hidden {
   display: none !important;
 }
+
+/* ============================================
+   Page Views section
+   ============================================ */
+
+.page-views-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  border-bottom: 2px solid var(--border);
+  margin-bottom: var(--spacing-lg);
+  padding: 0 var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.page-views-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.page-views-tab:hover {
+  color: var(--text);
+  background: var(--bg-alt);
+}
+
+.page-views-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.page-views-tab-content {
+  display: none;
+}
+
+.page-views-tab-content.active {
+  display: block;
+}
+
+/* Filters bar tuned for Page Views (4 search inputs + sort + 2 buttons) */
+.page-views-filters .search-input-wrapper {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.page-views-filters .select-modern {
+  min-width: 140px;
+}
+
+/* Cell content inside the recent table */
+.page-views-link {
+  color: var(--primary);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.page-views-link:hover {
+  text-decoration: underline;
+}
+
+.page-views-subtle {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.page-views-user-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-views-user-name {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+
+/* Pagination footer */
+.page-views-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.page-views-loaded-count {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+/* Ghost button variant for the Clear filters action */
+.btn-modern.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.btn-modern.btn-ghost:hover {
+  background: var(--bg-alt);
+  color: var(--text);
+}

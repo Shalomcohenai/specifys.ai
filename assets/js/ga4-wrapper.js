@@ -105,12 +105,69 @@
     window.gtag('event', eventName, payload);
   }
 
+  function fireBackendPageView(pageName, context) {
+    try {
+      if (document.body && document.body.dataset && document.body.dataset.noTrack === 'true') return;
+      if (!window.analyticsTracker || typeof window.analyticsTracker.trackPageView !== 'function') return;
+
+      const metadata = {
+        pagePath: context.page_path,
+        pageTitle: document.title || undefined,
+        referrer: context.referrer,
+        locale: context.locale,
+        device: context.device,
+        sessionId: context.session_id,
+        anonId: context.anon_id,
+        pageType: context.page_type
+      };
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach((k) => {
+        if (context[k]) metadata[k] = context[k];
+      });
+
+      let sent = false;
+      const send = () => {
+        if (sent) return;
+        sent = true;
+        try { window.analyticsTracker.trackPageView(pageName, metadata); } catch (_) {}
+      };
+
+      // Wait briefly for Firebase auth to restore so logged-in users get attributed
+      const waitForAuthThenSend = () => {
+        try {
+          if (window.firebase && window.firebase.auth) {
+            const unsubscribe = window.firebase.auth().onAuthStateChanged(() => {
+              send();
+              if (typeof unsubscribe === 'function') setTimeout(unsubscribe, 0);
+            });
+          } else {
+            send();
+          }
+        } catch (_) {
+          send();
+        }
+      };
+
+      if (window.firebase && window.firebase.auth) {
+        waitForAuthThenSend();
+      } else {
+        window.addEventListener('firebase-ready', waitForAuthThenSend, { once: true });
+      }
+
+      // Safety fallback: send even if Firebase never loads (anon page view)
+      setTimeout(send, 2000);
+    } catch (_) {
+      // Never let analytics throw and break the page
+    }
+  }
+
   function page(pageName, props = {}) {
     const context = baseContext();
     const path = props.page_path || context.page_path;
     if (lastPagePath === path) return;
     lastPagePath = path;
-    sendEvent('page_view', { page_name: pageName || context.page_name, ...props, page_path: path });
+    const resolvedName = pageName || context.page_name;
+    sendEvent('page_view', { page_name: resolvedName, ...props, page_path: path });
+    fireBackendPageView(resolvedName, context);
   }
 
   function identify(userId, traits = {}) {

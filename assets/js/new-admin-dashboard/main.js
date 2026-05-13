@@ -12,6 +12,7 @@ import { OverviewView } from './views/OverviewView.js';
 import { UsersView } from './views/UsersView.js';
 import { LogsView } from './views/LogsView.js';
 import { AnalyticsView } from './views/AnalyticsView.js';
+import { PageViewsView } from './views/PageViewsView.js';
 import { SpecUsageView } from './views/SpecUsageView.js';
 import { McpView } from './views/McpView.js';
 import { ArticlesView } from './views/ArticlesView.js';
@@ -350,6 +351,9 @@ class NewAdminDashboard {
       
       // Analytics view
       this.views.set('analytics', new AnalyticsView(this.dataManager, this.stateManager));
+      
+      // Page Views view
+      this.views.set('page-views', new PageViewsView(this.dataManager, this.stateManager));
       
       // Spec Usage view
       this.views.set('spec-usage', new SpecUsageView(this.dataManager, this.stateManager));

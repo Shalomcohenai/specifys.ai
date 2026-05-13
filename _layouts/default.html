@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include head.html %}
-<body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}>
+<body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}{% if page.no_track %} data-no-track="true"{% endif %}>
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Header -->
     {% unless page.hide_header %}
