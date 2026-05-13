@@ -45,7 +45,8 @@
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-  padding: clamp(8px, 1.5vw, 10px) clamp(10px, 2vw, 16px);
+  /* Extra top padding leaves room for the PRO / NEW! mini-badges sitting above each icon */
+  padding: clamp(18px, 2.4vw, 22px) clamp(10px, 2vw, 16px) clamp(8px, 1.5vw, 10px);
 }
 
 .spec-nav--bottom .spec-nav-track {
@@ -105,6 +106,47 @@
   list-style: none;
   position: relative;
   flex: 0 0 auto;
+}
+
+/* Mini-badges (PRO / New!) sitting above each top-nav icon */
+.spec-nav-list--top .side-menu-item .nav-badge {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%);
+  font-size: 9px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.spec-nav-list--top .side-menu-item .nav-badge--pro {
+  text-transform: uppercase;
+}
+
+.spec-nav-list--top .side-menu-item .nav-badge.hidden {
+  display: none;
+}
+
+.spec-nav-list--top .side-menu-item .nav-badge--pro {
+  color: #FF6B35;
+  background: transparent;
+  font-weight: 600;
+}
+
+.spec-nav-list--top .side-menu-item .nav-badge--new {
+  color: #FF6B35;
+  background: transparent;
+  font-weight: 800;
+}
+
+/* When NEW! is visible on a Pro tab, hide PRO so the labels don't overlap */
+.spec-nav-list--top .side-menu-item.has-new .nav-badge--pro {
+  display: none;
 }
 
 .side-menu-button {

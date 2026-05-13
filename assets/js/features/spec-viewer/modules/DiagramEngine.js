@@ -407,9 +407,19 @@ export async function renderSpecMermaidPlaceholders(container) {
   await Promise.all(Array.from(nodes).map(async (node, idx) => {
     const raw = node.getAttribute('data-spec-mermaid');
     if (!raw) return;
+    // The placeholder attribute is produced via encodeURIComponent() in
+    // spec-formatter.js / spec-viewer-main.js so it can live inside an HTML
+    // attribute. Decode here before handing off to mermaid; fall back to the
+    // raw value if the attribute happens to be un-encoded (defensive).
+    let decoded;
+    try {
+      decoded = decodeURIComponent(raw);
+    } catch (e) {
+      decoded = raw;
+    }
     const source = (typeof window.sanitizeMermaidSource === 'function'
-      ? window.sanitizeMermaidSource(raw)
-      : raw) || raw;
+      ? window.sanitizeMermaidSource(decoded)
+      : decoded) || decoded;
     try {
       if (typeof mermaid.parse === 'function') {
         try { mermaid.parse(source); } catch (parseErr) { throw parseErr; }

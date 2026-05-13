@@ -104,6 +104,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Specifys.ai">
@@ -124,7 +125,11 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/blog/">
+    <link rel="canonical" href="http://localhost:4000/blog/">
+    
+    <link rel="alternate" hreflang="en" href="http://localhost:4000/blog/">
+    <link rel="alternate" hreflang="x-default" href="http://localhost:4000/blog/">
+    
     
     
     <!-- Open Graph -->
@@ -132,8 +137,8 @@
     <meta property="og:title" content="AI App Spec Blog | Insights, Tips & Updates">
     <meta property="og:description" content="Stay ahead in the world of AI development. Explore insights on Vibe Coding, app specification trends, and expert tips for modern software planning.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://0.0.0.0:4000/blog/">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/blog/">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="AI App Spec Blog | Insights, Tips & Updates - Specifys.ai">
@@ -146,11 +151,17 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="AI App Spec Blog | Insights, Tips & Updates">
     <meta name="twitter:description" content="Stay ahead in the world of AI development. Explore insights on Vibe Coding, app specification trends, and expert tips for modern software planning.">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="AI App Spec Blog | Insights, Tips & Updates - Specifys.ai">
     
-    <!-- Favicon -->
+    <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+    <link rel="mask-icon" href="/favicon.svg" color="#FF6B35">
+    <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="/site.webmanifest">
     
     <!-- CSS - Unified compiled CSS file -->
@@ -176,13 +187,16 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <script defer src="/assets/js/config.js"></script>
+    <link rel="preload" as="script" href="/assets/js/core/config.js">
+    <script defer src="/assets/js/core/config.js"></script>
     
     <!-- API Client (must load after config.js) -->
-    <script defer src="/assets/js/api-client.js"></script>
+    <link rel="preload" as="script" href="/assets/js/core/api-client.js">
+    <script defer src="/assets/js/core/api-client.js"></script>
+    <script defer src="/assets/js/core/geo-context.js"></script>
     
     <!-- Focus Manager (must load early for accessibility) -->
-    <script defer src="/assets/js/focus-manager.js"></script>
+    <script defer src="/assets/js/core/focus-manager.js"></script>
     
     <!-- Components (must load before page-specific JS) -->
     <script type="module" src="/assets/js/components/base.js"></script>
@@ -194,11 +208,14 @@
     <!-- Safe localStorage utilities (must load early) -->
     <script src="/assets/js/utils/localStorage-safe.js"></script>
     
+    <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
+    <script src="/assets/js/utils/mermaid-sanitize.js"></script>
+    
     <!-- Application Logger -->
-    <script defer src="/assets/js/app-logger.js"></script>
+    <script defer src="/assets/js/core/app-logger.js"></script>
     
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
-    <script defer src="/assets/js/web-vitals.js"></script>
+    <script defer src="/assets/js/core/web-vitals.js"></script>
     
     <!-- CSS Monitoring Script -->
     <script defer src="/assets/js/css-monitor.js"></script>
@@ -213,12 +230,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <!-- Preload the stylesheet (not individual woff2 URLs): Google Fonts serves subset files that rarely match hard-coded font URLs, which triggers unused-preload warnings. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Library Loader - for conditional loading of external libraries -->
     <script src="/assets/js/lib-loader.js"></script>
     
     <!-- Conditional library loading based on page requirements -->
+    
+
     
     
     <!-- Google Analytics -->
@@ -408,7 +429,9 @@ function trackPreference(preferenceName, preferenceValue) {
 </script>
 
 
-    <script src="/assets/js/analytics-schema.js"></script>
+    <script src="/assets/js/core/analytics-schema.js"></script>
+    <!-- Backend analytics beacon (must load before ga4-wrapper so window.analyticsTracker is available when init() fires) -->
+    <script src="/assets/js/services/analytics-tracker.js"></script>
     <script src="/assets/js/ga4-wrapper.js"></script>
     <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
@@ -424,6 +447,14 @@ function trackPreference(preferenceName, preferenceValue) {
       "sameAs": [
         "https://www.linkedin.com/company/specifys-ai/"
       ],
+      "founder": {
+        "@type": "Person",
+        "name": "Specifys.ai",
+        "jobTitle": "Founder",
+        "sameAs": [
+          "https://www.linkedin.com/company/specifys-ai/"
+        ]
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "specifysai@gmail.com",
@@ -451,11 +482,6 @@ function trackPreference(preferenceName, preferenceValue) {
         "price": "0",
         "priceCurrency": "USD"
       },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "250"
-      },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
     },
     {
@@ -465,13 +491,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://0.0.0.0:4000/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "AI App Spec Blog | Insights, Tips & Updates",
-          "item": "http://0.0.0.0:4000/blog/"
+          "item": "http://localhost:4000/blog/"
         }
       ]
     }
@@ -604,23 +630,6 @@ function trackPreference(preferenceName, preferenceValue) {
       </div>
       
       <a href="/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': 'The Rise of Multi-Agent Coding: How GitHub’s “Agent HQ” Is Powering the Next Wave of Vibe Coding'})">Read More</a>
-    </div>
-    
-    <div class="article-preview">
-      <h2 class="article-title">
-        <a href="/2025/11/12/feefwe/">feefwe</a>
-      </h2>
-      <div class="article-date">
-        November 12, 2025
-      </div>
-      
-      <div class="article-intro">
-        feefwe
-
-
-      </div>
-      
-      <a href="/2025/11/12/feefwe/" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': 'feefwe'})">Read More</a>
     </div>
     
     <div class="article-preview">
@@ -1389,6 +1398,9 @@ function trackPreference(preferenceName, preferenceValue) {
         <a href="/pages/how.html" role="listitem">How It Works</a>
         <a href="/pages/why.html" role="listitem">Why?</a>
         <a href="/pages/articles.html" role="listitem">Articles</a>
+        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Compare</a>
+        <a href="/pages/glossary/index.html" role="listitem">Glossary</a>
+        <a href="/pages/for-ai-assistants.html" role="listitem">For AI assistants</a>
       </div>
       <div class="footer-sitemap-group">
         <span class="footer-sitemap-title">Legal</span>
@@ -1638,10 +1650,15 @@ function trackPreference(preferenceName, preferenceValue) {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
       
-      // Check if user is new based on sessionStorage flag (set in auth.html during registration)
-      // This helps the server correctly identify new users even if documents were created by race condition
+      // Check if user is new based on sessionStorage flags (set in auth.html during registration)
+      // This helps the server correctly identify new users even if documents were created by race condition.
+      // We treat ANY of these flags as a strong signal that the user just registered, so that the
+      // popup-removal timeout (1s) cannot accidentally hide the new-user signal before the API responds.
       const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
-      const isNewUser = showCreditPopup; // If showCreditPopup is set, user is likely new
+      const refreshCreditsOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
+      const welcomeCreditsCountRaw = sessionStorage.getItem('welcomeCreditsCount');
+      const hasWelcomeCount = welcomeCreditsCountRaw !== null && welcomeCreditsCountRaw !== '' && parseInt(welcomeCreditsCountRaw, 10) > 0;
+      const isNewUser = showCreditPopup || refreshCreditsOnLoad || hasWelcomeCount;
       
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
@@ -1680,21 +1697,25 @@ function trackPreference(preferenceName, preferenceValue) {
       if (response.ok) {
         const result = await response.json();
         
-        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist
-        // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
-        // The flag should be set in auth.html using getAdditionalUserInfo or for registration
-        const existingFlag = sessionStorage.getItem('showCreditPopup');
-        if (!existingFlag && result && result.isNewUser) {
+        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist.
+        // Decide whether to refresh credits using a broader signal: any welcome-related flag, OR an
+        // optimistic count that hasn't been consumed yet, OR the server explicitly reporting isNewUser.
+        // This avoids a race where index.js's 1s popup-removal timer wipes `showCreditPopup` before
+        // /api/users/initialize finishes — previously that race blocked the refresh entirely.
+        const popupFlag = sessionStorage.getItem('showCreditPopup');
+        const refreshFlag = sessionStorage.getItem('refreshCreditsOnLoad');
+        const welcomeCount = sessionStorage.getItem('welcomeCreditsCount');
+        const hasPendingWelcomeUI = popupFlag === 'true' || refreshFlag === 'true' || (welcomeCount && parseInt(welcomeCount, 10) > 0);
+
+        if (!hasPendingWelcomeUI && result && result.isNewUser) {
           sessionStorage.setItem('showCreditPopup', 'true');
-          
-          // Note: checkForCreditPopup will be called from index.js after credit initialization
-          // No need to call it here to avoid duplicate calls
-        } else if (existingFlag) {
-          // נקה cache
+          if (result && typeof result.creditsGranted === 'number' && result.creditsGranted > 0) {
+            sessionStorage.setItem('welcomeCreditsCount', String(result.creditsGranted));
+          }
+        } else if (hasPendingWelcomeUI) {
           if (typeof window.clearCreditsCache === 'function') {
             window.clearCreditsCache();
           }
-          // עדכן תצוגה עם forceRefresh
           if (typeof window.updateCreditsDisplay === 'function') {
             window.updateCreditsDisplay({ forceRefresh: true });
           }

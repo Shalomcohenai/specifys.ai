@@ -13,9 +13,10 @@
 
 .why-section {
   width: 100%;
-  padding: 80px 20px;
+  padding: 80px 20px 100px;
   max-width: 1400px;
   margin: 0 auto;
+  position: relative;
 }
 
 /* Center section title and subtitle in all why-sections */
@@ -744,15 +745,10 @@
 
 .spec-card-square-orange:hover .spec-icon-orange,
 .spec-card-square-orange.active .spec-icon-orange {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.spec-card-square-orange:hover .spec-icon-orange i,
-.spec-card-square-orange.active .spec-icon-orange i {
-  color: #FF6B35;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%) scale(0.85);
+  z-index: 1;
 }
 
 .spec-content-orange {
@@ -798,6 +794,95 @@
   text-align: center;
   line-height: 1.4;
   font-family: "Inter", sans-serif;
+}
+
+/* ============================================
+   Scroll Down Indicator (between sections)
+   ============================================
+*/
+
+.scroll-down-indicator {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: #FF6B35;
+  font-size: 1.6rem;
+  line-height: 1;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 0.6s ease 1.8s, color 0.2s ease;
+  pointer-events: none;
+  z-index: 3;
+  text-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.scroll-down-indicator:focus {
+  outline: none;
+}
+
+.scroll-down-indicator::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+.why-section.section-revealed .scroll-down-indicator {
+  opacity: 0.85;
+  pointer-events: auto;
+  animation: scrollDownBounce 1.8s ease-in-out 1.8s infinite;
+}
+
+.why-section.section-revealed .scroll-down-indicator:hover,
+.why-section.section-revealed .scroll-down-indicator:focus-visible {
+  opacity: 1;
+  color: #FF8551;
+}
+
+.why-section.section-revealed .scroll-down-indicator:focus-visible {
+  outline: 2px solid rgba(255, 107, 53, 0.45);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+.why-section.section-revealed.arrow-dismissed .scroll-down-indicator {
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+  transition: opacity 0.35s ease;
+}
+
+@keyframes scrollDownBounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+
+@media (max-width: 768px) {
+  .scroll-down-indicator {
+    bottom: 10px;
+    font-size: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-section.section-revealed .scroll-down-indicator {
+    animation: none;
+  }
 }
 
 /* ============================================

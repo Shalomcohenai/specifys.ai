@@ -794,7 +794,12 @@ async function loadSpec(specId) {
                     
                     // Update current spec data
                     updateCurrentSpecData(updatedData);
-                    
+
+                    // Recompute the progress bar percentage on every Firestore tick. This is the
+                    // single source of truth for real-time progress: it picks up every status
+                    // transition (pending → generating → ready/error) across all stages.
+                    try { renderSpecGenerationProgress(updatedData); } catch (e) { /* no-op */ }
+
                     // Check if overview status changed
                     const prevOverviewStatus = previousStatus.overview;
                     const newOverviewStatus = newStatus.overview;
@@ -1120,6 +1125,9 @@ function displaySpec(data) {
         setTimeout(() => {
             console.log('[displaySpec] Starting progress bar');
             startProgressBar();
+            // startProgressBar already paints the initial percentage from currentSpecData,
+            // but re-render here with the fresh `data` argument in case it differs (e.g. polling reload).
+            try { renderSpecGenerationProgress(data); } catch (e) { /* no-op */ }
         }, 100);
         // Show chat bubbles during generation
         const bubblesContainer = document.getElementById('chat-bubbles-container');
@@ -1261,33 +1269,30 @@ function displaySpec(data) {
             refreshTabsAfterDesignReady();
         }
         
-        // Check if advanced specs were actually created
-        // Only hide approval button if at least one advanced spec is ready or error
-        // This ensures the modal stays visible if generation failed or was interrupted
+        // Hide the approval banner whenever the approval has been accepted by the server,
+        // i.e. at least one advanced section is generating, ready, or error. The banner is
+        // only re-shown when the spec is in a pristine pre-approval state (no generation ever
+        // started), which covers the rare recovery case where the network was cut before the
+        // server accepted the request.
         const technicalStatus = data.status?.technical;
         const marketStatus = data.status?.market;
         const designStatus = data.status?.design;
-        
-        const hasAtLeastOneSpecReady = 
-            technicalStatus === 'ready' || 
-            marketStatus === 'ready' || 
-            designStatus === 'ready' ||
-            technicalStatus === 'error' || 
-            marketStatus === 'error' || 
-            designStatus === 'error';
-        
-        if (hasAtLeastOneSpecReady) {
-            // At least one spec was created, safe to hide the approval modal
+
+        const inFlightOrTerminal = (s) => s === 'ready' || s === 'error' || s === 'generating';
+
+        const approvalAlreadyRegistered =
+            inFlightOrTerminal(technicalStatus) ||
+            inFlightOrTerminal(marketStatus) ||
+            inFlightOrTerminal(designStatus);
+
+        if (approvalAlreadyRegistered) {
             hideApproveButton();
         } else {
-            // Specs are still generating or never started - keep modal visible
-            // This handles the case where internet was cut during generation
             showApproveButton();
             const approvalContainer = document.getElementById('approval-container');
             if (approvalContainer) {
                 approvalContainer.style.display = 'flex';
             }
-            // Show a message that generation is in progress or needs to be restarted
             showNotification('Advanced specifications are still being generated. Please wait or click Approve again if generation was interrupted.', 'info');
         }
     } else {
@@ -5841,6 +5846,34 @@ function markTabAsViewed(type) {
     const viewed = getViewedTabs();
     viewed.add(type);
     localStorage.setItem(key, JSON.stringify(Array.from(viewed)));
+    updateNewBadge(type);
+}
+
+// Tabs eligible to display a NEW! badge once their content is ready
+const NEW_BADGE_TAB_KEYS = [
+    'technical', 'mindmap', 'market', 'design',
+    'architecture', 'visibility-engine', 'prompts', 'mockup'
+];
+
+function shouldShowNewBadge(type) {
+    const tabButton = document.getElementById(`${type}Tab`);
+    if (!tabButton) return false;
+    if (tabButton.disabled) return false;
+    return !getViewedTabs().has(type);
+}
+
+function updateNewBadge(type) {
+    const item = document.querySelector(`.spec-nav-list--top .side-menu-item[data-tab="${type}"]`);
+    if (!item) return;
+    const badge = item.querySelector('.nav-badge--new');
+    if (!badge) return;
+    const show = shouldShowNewBadge(type);
+    badge.classList.toggle('hidden', !show);
+    item.classList.toggle('has-new', show);
+}
+
+function updateAllNewBadges() {
+    NEW_BADGE_TAB_KEYS.forEach(updateNewBadge);
 }
 
 // Update notification dot visibility based on status
@@ -5876,6 +5909,8 @@ function updateNotificationDot(type, status) {
             tabButton.classList.add('viewed');
         }
     }
+
+    updateNewBadge(type);
 }
 
 // Update all notification dots based on current spec data
@@ -5898,6 +5933,8 @@ function updateAllNotificationDots() {
             updateNotificationDot(type, statusMap[type]);
         }
     });
+
+    updateAllNewBadges();
 }
 
 function updateTabLoadingState(type, isLoading) {
@@ -5954,8 +5991,8 @@ document.addEventListener('keydown', function(e) {
       '3': 'market',
       '4': 'design',
       '5': 'architecture',
-      '6': 'visibility-engine',
-      '7': 'prompts',
+      '6': 'prompts',
+      '7': 'visibility-engine',
       '8': 'chat',
       '9': 'brain-dump',
       '0': 'export'
@@ -6157,6 +6194,8 @@ function initializeAllSubsections() {
 window.showNotification = showNotification;
 window.markTabAsViewed = markTabAsViewed;
 window.updateNotificationDot = updateNotificationDot;
+window.updateNewBadge = updateNewBadge;
+window.updateAllNewBadges = updateAllNewBadges;
 window.updateSubsections = updateSubsections;
 window.initializeMindMapTab = initializeMindMapTab;
 
@@ -6676,22 +6715,23 @@ function showApproveButton() {
 }
 
 function hideApproveButton() {
-    // Double check that specs were actually created before hiding
+    // Defensive guard: only refuse to hide when the approval clearly never reached the server.
+    // If any advanced section is generating/ready/error, the approval was already accepted and
+    // the banner must stay hidden to prevent confusion and double-clicks.
     if (currentSpecData && currentSpecData.overviewApproved) {
         const technicalStatus = currentSpecData.status?.technical;
         const marketStatus = currentSpecData.status?.market;
         const designStatus = currentSpecData.status?.design;
-        
-        const hasAtLeastOneSpecReady = 
-            technicalStatus === 'ready' || 
-            marketStatus === 'ready' || 
-            designStatus === 'ready' ||
-            technicalStatus === 'error' || 
-            marketStatus === 'error' || 
-            designStatus === 'error';
-        
-        if (!hasAtLeastOneSpecReady) {
-            // Don't hide if specs weren't created yet
+
+        const inFlightOrTerminal = (s) => s === 'ready' || s === 'error' || s === 'generating';
+
+        const approvalAlreadyRegistered =
+            inFlightOrTerminal(technicalStatus) ||
+            inFlightOrTerminal(marketStatus) ||
+            inFlightOrTerminal(designStatus);
+
+        if (!approvalAlreadyRegistered) {
+            // Don't hide if generation never started (e.g. network was cut before the server accepted)
             return;
         }
     }
@@ -6857,7 +6897,27 @@ async function approveOverview() {
             
             if (response.success) {
                 showNotification('Specification generation started in background. You can close this window - we\'ll notify you when it\'s ready!', 'info');
-                
+
+                // The approval has been accepted by the server and generation is now running
+                // in the background. Hide the approval banner immediately to avoid double-clicks
+                // and confusion — the user has already approved and the request is in flight.
+                const approvalContainer = document.getElementById('approval-container');
+                if (approvalContainer) {
+                    approvalContainer.style.display = 'none';
+                }
+                if (approveBtn) {
+                    approveBtn.style.display = 'none';
+                }
+
+                // Show the real-progress bar straight away so the user never sees a gap between
+                // the approval banner disappearing and the listener catching up.
+                startProgressBar();
+                const bubblesContainer = document.getElementById('chat-bubbles-container');
+                if (bubblesContainer) {
+                    bubblesContainer.style.display = 'flex';
+                }
+                try { renderSpecGenerationProgress(currentSpecData); } catch (e) { /* no-op */ }
+
                 // Start polling as backup (in case Firestore listener doesn't work)
                 startSpecStatusPolling(currentSpecData.id);
             } else {
@@ -7021,6 +7081,7 @@ function startSpecStatusPolling(specId) {
         onSpecReloaded: async (updatedData) => {
             updateCurrentSpecData(updatedData);
             displaySpec(updatedData);
+            try { renderSpecGenerationProgress(updatedData); } catch (e) { /* no-op */ }
         }
     });
 }
@@ -9522,6 +9583,96 @@ const progressMessages = [
     'Finalizing specification...'
 ];
 
+// Pipeline stages displayed in the progress bar. Weights reflect typical generation
+// time so the percentage moves at a roughly steady pace as each section completes.
+// Total of weights MUST equal 100.
+const SPEC_PROGRESS_STAGES = [
+    { key: 'overview',     weight: 5,  label: 'Overview' },
+    { key: 'technical',    weight: 25, label: 'Technical Specification' },
+    { key: 'market',       weight: 20, label: 'Market Research' },
+    { key: 'design',       weight: 20, label: 'Design & Branding' },
+    { key: 'architecture', weight: 15, label: 'Architecture' },
+    { key: 'visibility',   weight: 8,  label: 'Visibility Engine' },
+    { key: 'prompts',      weight: 7,  label: 'Prompts' },
+];
+
+/**
+ * Compute a percentage and contextual label from spec.status.
+ * - ready / error counts as fully done (terminal)
+ * - generating counts as half done (so the bar moves the moment a stage starts)
+ * - pending / undefined counts as not started
+ */
+function computeSpecGenerationProgress(spec) {
+    const status = spec?.status || {};
+    let earned = 0;
+    let totalWeight = 0;
+    let currentStage = null;
+    let completed = 0;
+
+    for (const stage of SPEC_PROGRESS_STAGES) {
+        totalWeight += stage.weight;
+        const s = status[stage.key];
+        if (s === 'ready' || s === 'error') {
+            earned += stage.weight;
+            completed += 1;
+        } else if (s === 'generating') {
+            earned += stage.weight * 0.5;
+            if (!currentStage) currentStage = stage;
+        }
+    }
+
+    if (!currentStage) {
+        // No stage is actively generating; pick the first non-terminal stage as "next up"
+        currentStage = SPEC_PROGRESS_STAGES.find(s => {
+            const st = status[s.key];
+            return st !== 'ready' && st !== 'error';
+        }) || SPEC_PROGRESS_STAGES[SPEC_PROGRESS_STAGES.length - 1];
+    }
+
+    const percent = totalWeight > 0
+        ? Math.max(0, Math.min(100, Math.round((earned / totalWeight) * 100)))
+        : 0;
+
+    return {
+        percent,
+        currentStage,
+        completed,
+        total: SPEC_PROGRESS_STAGES.length,
+        allDone: SPEC_PROGRESS_STAGES.every(s => {
+            const st = status[s.key];
+            return st === 'ready' || st === 'error';
+        }),
+    };
+}
+
+/**
+ * Render the percentage, stage label, and bar width into #spec-generation-progress.
+ * Safe to call even when the container is hidden; values are still kept in sync so the
+ * next time the bar becomes visible it shows the right state.
+ */
+function renderSpecGenerationProgress(spec) {
+    const fill = document.getElementById('progress-bar-fill');
+    const percentLabel = document.getElementById('progress-percent-label');
+    const stageLabel = document.getElementById('progress-stage-label');
+    if (!fill || !percentLabel || !stageLabel) return;
+
+    const { percent, currentStage, completed, total, allDone } = computeSpecGenerationProgress(spec);
+
+    fill.style.width = `${percent}%`;
+    percentLabel.textContent = `${percent}%`;
+
+    if (allDone) {
+        stageLabel.textContent = `All specifications ready · ${total}/${total}`;
+        return;
+    }
+
+    const status = spec?.status || {};
+    const stageStatus = currentStage ? status[currentStage.key] : undefined;
+    const verb = stageStatus === 'generating' ? 'Generating' : 'Queued';
+    const safeLabel = currentStage?.label || 'Next stage';
+    stageLabel.textContent = `${verb}: ${safeLabel} · ${completed}/${total} done`;
+}
+
 /**
  * Start progress bar with rotating messages
  */
@@ -9542,7 +9693,15 @@ function startProgressBar() {
     
     progressContainer.classList.remove('hidden');
     console.log('[startProgressBar] Progress bar container is now visible');
-    
+
+    // Render the real percentage as soon as the bar appears so the user never sees a 0% flash
+    // before the first listener tick.
+    try {
+        renderSpecGenerationProgress(currentSpecData);
+    } catch (e) {
+        console.warn('[startProgressBar] renderSpecGenerationProgress failed:', e);
+    }
+
     const messageElement = document.getElementById('progress-message');
     if (!messageElement) {
         console.error('[startProgressBar] Progress message element not found!');

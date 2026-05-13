@@ -70,7 +70,7 @@
     <script defer src="/assets/js/css-monitor.js"></script>
     
     <!-- API base URL - required for POST /api/users/initialize after Google sign-in -->
-    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/core/config.js"></script>
     <!-- Credits Configuration - Must load before auth scripts -->
     <script src="/assets/js/credits-config.js"></script>
     
@@ -352,6 +352,37 @@
         const _hostname = window.location.hostname;
         const _apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
         console.log('[Auth] [ENV] origin=', _origin, 'hostname=', _hostname, 'apiBaseUrl=', _apiBaseUrl);
+
+        /**
+         * Persist the welcome-credit signal for the next page (index.html header).
+         * Stores both the legacy boolean flags AND the actual credits count when known,
+         * so the header can render "Credits: N" optimistically before Firebase Auth has
+         * rehydrated and before the next API round-trip completes.
+         *
+         * @param {object|null} initResult - response from createUserDocument (may be null on 404/network)
+         */
+        function persistWelcomeCreditSignal(initResult) {
+            try {
+                const grantedFromServer = initResult && typeof initResult.creditsGranted === 'number'
+                    ? initResult.creditsGranted
+                    : null;
+                const totalFromServer = initResult && initResult.credits && typeof initResult.credits.total === 'number'
+                    ? initResult.credits.total
+                    : null;
+                const optimisticCount = (grantedFromServer && grantedFromServer > 0)
+                    ? grantedFromServer
+                    : (totalFromServer && totalFromServer > 0 ? totalFromServer : 1);
+
+                sessionStorage.setItem('welcomeCreditsCount', String(optimisticCount));
+                sessionStorage.setItem('showCreditPopup', 'true');
+                sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                if (typeof window.clearCreditsCache === 'function') {
+                    window.clearCreditsCache();
+                }
+            } catch (e) {
+                // sessionStorage might be unavailable in private mode; fall through silently.
+            }
+        }
         
         // Track if we're processing a redirect
         let isProcessingRedirect = false;
@@ -381,13 +412,7 @@
                             const result = await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
                             // Only set flag if server says it's a new user AND no flag exists
                             if (result && (result.isNewUser || result.created)) {
-                                sessionStorage.setItem('showCreditPopup', 'true');
-                                // נקה cache
-                                if (typeof window.clearCreditsCache === 'function') {
-                                    window.clearCreditsCache();
-                                }
-                                // שמור flag לעדכון תצוגה ב-index.html
-                                sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                                persistWelcomeCreditSignal(result);
                             }
                         } else {
                             await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
@@ -431,12 +456,10 @@
                     console.log('[Auth] checkRedirectResult: has user, creating document');
                     const additionalUserInfo = getAdditionalUserInfo(result);
                     const isNewUser = additionalUserInfo?.isNewUser === true;
-                    await createUserDocument(result.user, isNewUser);
+                    const initResult = await createUserDocument(result.user, isNewUser);
                     console.log('[Auth] checkRedirectResult: createUserDocument done, redirecting in 1.5s');
                     if (isNewUser) {
-                        sessionStorage.setItem('showCreditPopup', 'true');
-                        if (typeof window.clearCreditsCache === 'function') window.clearCreditsCache();
-                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                        persistWelcomeCreditSignal(initResult);
                     }
                     showSuccess('Login successful! Redirecting to homepage...');
                     setTimeout(() => { window.location.href = '../index.html'; }, 1500);
@@ -712,22 +735,14 @@
         async function registerWithEmail(email, password) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
+
                 // createUserWithEmailAndPassword always creates a new user, so this is always a new user
-                const isNewUser = true;
-                
-                // Create user document (but don't rely on its response for isNewUser)
-                await createUserDocument(userCredential.user, true); // תמיד true ל-registration
-                
-                // Set popup flag - registration always means new user
-                sessionStorage.setItem('showCreditPopup', 'true');
-                // נקה cache
-                if (typeof window.clearCreditsCache === 'function') {
-                    window.clearCreditsCache();
-                }
-                // שמור flag לעדכון תצוגה ב-index.html
-                sessionStorage.setItem('refreshCreditsOnLoad', 'true');
-                
+                const initResult = await createUserDocument(userCredential.user, true);
+
+                // Persist welcome-credit signal for the next page using the server-reported count
+                // (falls back to 1 when initResult is null, e.g. on 404/network).
+                persistWelcomeCreditSignal(initResult);
+
                 return userCredential.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -772,19 +787,13 @@
                 // Check if this is a new user using Firebase Auth's additionalUserInfo
                 const additionalUserInfo = getAdditionalUserInfo(result);
                 const isNewUser = additionalUserInfo?.isNewUser === true;
-                
+
                 // Create user document (but don't rely on its response for isNewUser)
-                await createUserDocument(result.user, isNewUser);
-                
-                // Set popup flag based on Firebase Auth's isNewUser
+                const initResult = await createUserDocument(result.user, isNewUser);
+
+                // Persist welcome-credit signal with the server-reported count
                 if (isNewUser) {
-                    sessionStorage.setItem('showCreditPopup', 'true');
-                    // נקה cache
-                    if (typeof window.clearCreditsCache === 'function') {
-                        window.clearCreditsCache();
-                    }
-                    // שמור flag לעדכון תצוגה ב-index.html
-                    sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                    persistWelcomeCreditSignal(initResult);
                 }
 
                 
@@ -928,9 +937,7 @@
                     const createResult = await createUserDocument(result.user, isNewUser);
                     console.log('[Auth] signInWithPopup: createUserDocument done, redirecting in 1.5s');
                     if (isNewUser || (createResult && createResult.isNewUser)) {
-                        sessionStorage.setItem('showCreditPopup', 'true');
-                        if (typeof window.clearCreditsCache === 'function') window.clearCreditsCache();
-                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
+                        persistWelcomeCreditSignal(createResult);
                     }
                     showSuccess('Login successful! Redirecting to homepage...');
                     setTimeout(() => { window.location.href = '../index.html'; }, 1500);

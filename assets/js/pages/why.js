@@ -6,9 +6,79 @@
   // Initialize when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
     initScrollReveal();
+    initScrollDownIndicators();
     // initPromptAnimation(); // Disabled - removed background animations (dollars and prompts)
     initLogoJumpAnimation();
   });
+
+  // Manages the scroll-down indicators: reveals each section once visible
+  // (so its arrow can fade in via CSS), wires click-to-scroll to the next
+  // section, and dismisses the visible arrow as soon as the user scrolls.
+  function initScrollDownIndicators() {
+    const sections = Array.from(document.querySelectorAll('.why-section'));
+    if (sections.length === 0) return;
+
+    const revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('section-revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '0px 0px -120px 0px',
+      threshold: 0.15
+    });
+
+    sections.forEach(function(section) {
+      revealObserver.observe(section);
+    });
+
+    // Wire each arrow to smooth-scroll to the next section on click.
+    const indicators = document.querySelectorAll('.scroll-down-indicator');
+    indicators.forEach(function(indicator) {
+      indicator.addEventListener('click', function() {
+        const section = indicator.closest('.why-section');
+        if (!section) return;
+        const idx = sections.indexOf(section);
+        const next = sections[idx + 1];
+        if (!next) return;
+
+        section.classList.add('arrow-dismissed');
+        next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Dismiss any visible arrow as soon as a real scroll happens.
+    // Ignored on page load (no scroll event); user clicks trigger their own
+    // dismiss above and the smooth-scroll afterward keeps things consistent.
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function dismissVisibleArrows() {
+      const viewportHeight = window.innerHeight;
+      sections.forEach(function(section) {
+        if (!section.classList.contains('section-revealed')) return;
+        if (section.classList.contains('arrow-dismissed')) return;
+        const rect = section.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < viewportHeight) {
+          section.classList.add('arrow-dismissed');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      if (window.scrollY === lastScrollY) return;
+      lastScrollY = window.scrollY;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function() {
+        dismissVisibleArrows();
+        ticking = false;
+      });
+    }, { passive: true });
+  }
 
   // Scroll Reveal - Staggered reveal: title first, then subtitle, then container content
   function initScrollReveal() {

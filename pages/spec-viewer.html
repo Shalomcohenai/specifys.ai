@@ -120,9 +120,13 @@ custom_js_modules:
         
         <div id="content" class="hidden">
             <!-- Progress Bar with Rotating Messages -->
-            <div id="spec-generation-progress" class="spec-generation-progress hidden">
+            <div id="spec-generation-progress" class="spec-generation-progress hidden" role="status" aria-live="polite">
+                <div class="progress-bar-header">
+                    <span class="progress-bar-stage" id="progress-stage-label">Preparing your specifications...</span>
+                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Progress percentage">0%</span>
+                </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar-fill"></div>
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
                 </div>
                 <div class="progress-message" id="progress-message">Understanding your idea...</div>
             </div>

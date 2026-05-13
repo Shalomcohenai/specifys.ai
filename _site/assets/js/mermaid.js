@@ -159,32 +159,38 @@ class MermaidManager {
             container.appendChild(chartElement);
 
             // Simple approach - use mermaid.parse and mermaid.render
+            const definitionClean = typeof window.sanitizeMermaidSource === 'function'
+                ? window.sanitizeMermaidSource(definition)
+                : String(definition || '');
+            const toRender = definitionClean || definition;
             try {
                 // Parse the definition first
-                const parseResult = mermaid.parse(definition);
+                const parseResult = mermaid.parse(toRender);
                 if (!parseResult) {
                     throw new Error('Failed to parse chart definition');
                 }
 
                 // Render the chart
-                const { svg } = await mermaid.render(chartId, definition);
+                const { svg } = await mermaid.render(chartId, toRender);
                 chartElement.innerHTML = svg;
 
                 // Store chart info
                 this.charts.set(containerId, {
                     id: chartId,
-                    definition,
+                    definition: toRender,
                     options,
                     element: chartElement
                 });
 
                 return chartId;
             } catch (parseError) {
-
-                throw new Error(`Chart parsing failed: ${parseError.message}`);
+                // Pass the original (sanitized) source so showError can include it
+                // in the collapsible fallback. Without this the user just sees a
+                // generic error and the diagram disappears.
+                this.showError(containerId, parseError.message, toRender);
+                return null;
             }
         } catch (error) {
-
             this.showError(containerId, error.message);
         }
     }
@@ -203,18 +209,30 @@ class MermaidManager {
     }
 
     /**
-     * Show error message in chart container
+     * Show error message in chart container.
+     * When `source` is provided, embed it in a <details> so the user can read
+     * (and copy) the broken Mermaid instead of being left with just a stack
+     * trace. Keeps the rest of the page intact.
      */
-    showError(containerId, message) {
+    showError(containerId, message, source) {
         const container = document.getElementById(containerId);
         if (!container) return;
+
+        const escape = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+
+        const sourceBlock = source
+            ? `<details class="mermaid-error-source"><summary>Show diagram source</summary><pre><code>${escape(source)}</code></pre></details>`
+            : '';
 
         container.innerHTML = `
             <div class="mermaid-error">
                 <div class="mermaid-error-icon">⚠️</div>
-                <div class="mermaid-error-title">Chart Error</div>
-                <div class="mermaid-error-message">Failed to render Mermaid chart</div>
-                <div class="mermaid-error-code">${message}</div>
+                <div class="mermaid-error-title">Diagram preview unavailable</div>
+                <div class="mermaid-error-message">Mermaid could not parse this chart.</div>
+                <div class="mermaid-error-code">${escape(message)}</div>
+                ${sourceBlock}
             </div>
         `;
     }

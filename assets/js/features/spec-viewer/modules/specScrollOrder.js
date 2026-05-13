@@ -9,8 +9,8 @@ export const SPEC_SCROLL_ORDER = [
   'market',
   'design',
   'architecture',
-  'visibility-engine',
   'prompts',
+  'visibility-engine',
   'mockup',
   'raw'
 ];

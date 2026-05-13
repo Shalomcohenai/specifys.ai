@@ -104,6 +104,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Specifys.ai">
@@ -124,7 +125,11 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/pages/spec-viewer.html">
+    <link rel="canonical" href="http://localhost:4000/pages/spec-viewer.html">
+    
+    <link rel="alternate" hreflang="en" href="http://localhost:4000/pages/spec-viewer.html">
+    <link rel="alternate" hreflang="x-default" href="http://localhost:4000/pages/spec-viewer.html">
+    
     
     
     <!-- Open Graph -->
@@ -132,8 +137,8 @@
     <meta property="og:title" content="Spec Viewer">
     <meta property="og:description" content="View your app spec after creation. Personal, dynamic content.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://0.0.0.0:4000/pages/spec-viewer.html">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/pages/spec-viewer.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Spec Viewer - Specifys.ai">
@@ -146,11 +151,17 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Spec Viewer">
     <meta name="twitter:description" content="View your app spec after creation. Personal, dynamic content.">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Spec Viewer - Specifys.ai">
     
-    <!-- Favicon -->
+    <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+    <link rel="mask-icon" href="/favicon.svg" color="#FF6B35">
+    <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="/site.webmanifest">
     
     <!-- CSS - Unified compiled CSS file -->
@@ -167,9 +178,9 @@
     <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
     
       
-        <link rel="stylesheet" href="/assets/css/pages/spec-viewer.css">
+        <link rel="stylesheet" href="/assets/css/features/spec-viewer.css">
       
-        <link rel="stylesheet" href="/assets/css/pages/spec-viewer-side-menu.css">
+        <link rel="stylesheet" href="/assets/css/features/spec-viewer-navigation.css">
       
         <link rel="stylesheet" href="/assets/css/pages/mcp-modal.css">
       
@@ -180,13 +191,16 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <script defer src="/assets/js/config.js"></script>
+    <link rel="preload" as="script" href="/assets/js/core/config.js">
+    <script defer src="/assets/js/core/config.js"></script>
     
     <!-- API Client (must load after config.js) -->
-    <script defer src="/assets/js/api-client.js"></script>
+    <link rel="preload" as="script" href="/assets/js/core/api-client.js">
+    <script defer src="/assets/js/core/api-client.js"></script>
+    <script defer src="/assets/js/core/geo-context.js"></script>
     
     <!-- Focus Manager (must load early for accessibility) -->
-    <script defer src="/assets/js/focus-manager.js"></script>
+    <script defer src="/assets/js/core/focus-manager.js"></script>
     
     <!-- Components (must load before page-specific JS) -->
     <script type="module" src="/assets/js/components/base.js"></script>
@@ -198,11 +212,14 @@
     <!-- Safe localStorage utilities (must load early) -->
     <script src="/assets/js/utils/localStorage-safe.js"></script>
     
+    <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
+    <script src="/assets/js/utils/mermaid-sanitize.js"></script>
+    
     <!-- Application Logger -->
-    <script defer src="/assets/js/app-logger.js"></script>
+    <script defer src="/assets/js/core/app-logger.js"></script>
     
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
-    <script defer src="/assets/js/web-vitals.js"></script>
+    <script defer src="/assets/js/core/web-vitals.js"></script>
     
     <!-- CSS Monitoring Script -->
     <script defer src="/assets/js/css-monitor.js"></script>
@@ -217,12 +234,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <!-- Preload the stylesheet (not individual woff2 URLs): Google Fonts serves subset files that rarely match hard-coded font URLs, which triggers unused-preload warnings. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Library Loader - for conditional loading of external libraries -->
     <script src="/assets/js/lib-loader.js"></script>
     
     <!-- Conditional library loading based on page requirements -->
+    
+
+    
+      
+        <script defer src="/assets/js/services/prompts.js"></script>
+      
+        <script defer src="/assets/js/services/spec-error-handler.js"></script>
+      
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-chat.js"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-brain-dump.js"></script>
+      
+        <script defer src="/assets/js/mermaid.js"></script>
+      
+        <script defer src="/assets/js/features/share-prompt/share-prompt-modal.js"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/cursor-windsurf-export.js"></script>
+      
+        <script defer src="/assets/js/mcp-modal.js"></script>
+      
     
     
     <!-- Google Analytics -->
@@ -412,7 +453,9 @@ function trackPreference(preferenceName, preferenceValue) {
 </script>
 
 
-    <script src="/assets/js/analytics-schema.js"></script>
+    <script src="/assets/js/core/analytics-schema.js"></script>
+    <!-- Backend analytics beacon (must load before ga4-wrapper so window.analyticsTracker is available when init() fires) -->
+    <script src="/assets/js/services/analytics-tracker.js"></script>
     <script src="/assets/js/ga4-wrapper.js"></script>
     <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
@@ -428,6 +471,14 @@ function trackPreference(preferenceName, preferenceValue) {
       "sameAs": [
         "https://www.linkedin.com/company/specifys-ai/"
       ],
+      "founder": {
+        "@type": "Person",
+        "name": "Specifys.ai",
+        "jobTitle": "Founder",
+        "sameAs": [
+          "https://www.linkedin.com/company/specifys-ai/"
+        ]
+      },
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "specifysai@gmail.com",
@@ -455,11 +506,6 @@ function trackPreference(preferenceName, preferenceValue) {
         "price": "0",
         "priceCurrency": "USD"
       },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "250"
-      },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
     },
     {
@@ -469,13 +515,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://0.0.0.0:4000/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Spec Viewer",
-          "item": "http://0.0.0.0:4000/pages/spec-viewer.html"
+          "item": "http://localhost:4000/pages/spec-viewer.html"
         }
       ]
     }
@@ -581,165 +627,134 @@ function trackPreference(preferenceName, preferenceValue) {
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <!-- Side Menu Toggle Button (Mobile Only) -->
-<button class="side-menu-toggle-mobile" id="sideMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sideMenu">
-    <i class="fa fa-chevron-right" aria-hidden="true"></i>
-</button>
-
-<!-- Overlay for mobile menu -->
-<div class="side-menu-overlay" id="sideMenuOverlay" aria-hidden="true"></div>
-
-<!-- Side Menu - Fixed Position -->
-    <aside class="side-menu" id="sideMenu" aria-label="Specification navigation menu" role="complementary">
-        <!-- User Section -->
-        <div class="side-menu-user">
-            <div class="side-menu-user-avatar" id="side-menu-user-avatar">
-                <span id="side-menu-user-initial">👤</span>
-            </div>
-            <span class="side-menu-user-name" id="side-menu-user-name">User</span>
-        </div>
-        
-        <div class="side-menu-divider"></div>
-        
-        <!-- Search Box -->
-        <div class="side-menu-search" role="search">
-            <label for="side-menu-search-input" class="visually-hidden">Search specification sections</label>
-            <input type="text" class="side-menu-search-input" id="side-menu-search-input" placeholder="Search..." aria-label="Search specification sections" aria-describedby="side-menu-search-help">
-            <span id="side-menu-search-help" class="visually-hidden">Type to search specification sections</span>
-            <i class="fa fa-search side-menu-search-icon" aria-hidden="true"></i>
-        </div>
-        
-        <div class="side-menu-divider"></div>
-        
-        <!-- Main Navigation -->
-        <nav class="side-menu-nav">
+        <nav class="spec-nav spec-nav--top" id="specNavTop" aria-label="Specification navigation">
+    <div class="spec-nav-track">
+        <nav class="side-menu-nav spec-nav-list spec-nav-list--top" aria-label="Specification tabs">
             <div class="side-menu-item" data-tab="overview">
-                <button class="side-menu-button active" onclick="showTab('overview')" id="overviewTab" aria-label="Overview section" aria-expanded="false" aria-controls="submenu-overview">
+                <button type="button" class="side-menu-button active" id="overviewTab" aria-label="Overview section">
                     <i class="fa fa-book" aria-hidden="true"></i>
                     <span class="side-menu-text">Overview</span>
-                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('overview')" title="Toggle subsections" aria-label="Toggle overview subsections" aria-expanded="false">
-                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                    </span>
                 </button>
-                <div class="side-menu-submenu" id="submenu-overview" role="region" aria-label="Overview subsections"></div>
             </div>
-            
+
             <div class="side-menu-item" data-tab="technical">
-                <button class="side-menu-button" onclick="showTab('technical')" id="technicalTab" disabled aria-label="Technical section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="technicalTab" disabled aria-label="Technical section">
                     <i class="fa fa-cog" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="technicalNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Technical</span>
-                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('technical')" title="Toggle subsections" aria-label="Toggle technical subsections" aria-expanded="false">
-                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                    </span>
                 </button>
-                <div class="side-menu-submenu" id="submenu-technical" role="region" aria-label="Technical subsections"></div>
             </div>
-            
+
             <div class="side-menu-item hidden" data-tab="mindmap">
-                <button class="side-menu-button" onclick="showTab('mindmap')" id="mindmapTab" disabled aria-label="Mind Map section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="mindmapTab" disabled aria-label="Mind Map section">
                     <i class="fa fa-project-diagram" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="mindmapNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Mind Map</span>
                 </button>
             </div>
-            
+
             <div class="side-menu-item" data-tab="market">
-                <button class="side-menu-button" onclick="showTab('market')" id="marketTab" disabled aria-label="Market Research section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="marketTab" disabled aria-label="Market Research section">
                     <i class="fa fa-bar-chart" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="marketNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Market Research</span>
-                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('market')" title="Toggle subsections" aria-label="Toggle market research subsections" aria-expanded="false">
-                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                    </span>
                 </button>
-                <div class="side-menu-submenu" id="submenu-market" role="region" aria-label="Market research subsections"></div>
             </div>
-            
+
             <div class="side-menu-item" data-tab="design">
-                <button class="side-menu-button" onclick="showTab('design')" id="designTab" disabled aria-label="Design & Branding section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="designTab" disabled aria-label="Design & Branding section">
                     <i class="fa fa-paint-brush" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="designNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Design & Branding</span>
-                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('design')" title="Toggle subsections" aria-label="Toggle design subsections" aria-expanded="false">
-                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                    </span>
                 </button>
-                <div class="side-menu-submenu" id="submenu-design" role="region" aria-label="Design subsections"></div>
             </div>
-            
+
             <div class="side-menu-item" data-tab="architecture">
-                <button class="side-menu-button" onclick="showTab('architecture')" id="architectureTab" disabled aria-label="Architecture section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="architectureTab" disabled aria-label="Architecture section">
                     <i class="fa fa-building" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="architectureNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Architecture</span>
                 </button>
             </div>
-            
+
             <div class="side-menu-item" data-tab="prompts">
-                <button class="side-menu-button" onclick="showTab('prompts')" id="promptsTab" disabled aria-label="Prompts section" aria-expanded="false">
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="promptsTab" disabled aria-label="Prompts section">
                     <i class="fa fa-terminal" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="promptsNotification" aria-label="New content available"></span>
                     <span class="side-menu-text">Prompts</span>
-                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('prompts')" title="Toggle subsections" aria-label="Toggle prompts subsections" aria-expanded="false">
-                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                    </span>
-                </button>
-                <div class="side-menu-submenu" id="submenu-prompts" role="region" aria-label="Prompts subsections"></div>
-            </div>
-            
-            <div class="side-menu-item" data-tab="brain-dump">
-                <button class="side-menu-button" onclick="showTab('brain-dump')" id="brain-dumpTab" disabled aria-label="Brain Dump section">
-                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
-                    <span class="side-menu-text">Brain Dump</span>
                 </button>
             </div>
-            
-            <div class="side-menu-item" data-tab="chat">
-                <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled aria-label="AI Chat section">
-                    <i class="fa fa-comments" aria-hidden="true"></i>
-                    <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
-                    <span class="side-menu-text">AI Chat</span>
+
+            <div class="side-menu-item" data-tab="visibility-engine">
+                <span class="nav-badge nav-badge--pro" aria-label="Pro feature">PRO</span>
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="visibility-engineTab" disabled aria-label="AIO and SEO Visibility Engine - Pro feature">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                    <span class="side-menu-text">AIO &amp; SEO</span>
                 </button>
             </div>
-            
+
             <div class="side-menu-item" data-tab="mockup">
-                <button class="side-menu-button" onclick="showTab('mockup')" id="mockupTab" disabled aria-label="Mockup section - Pro feature">
+                <span class="nav-badge nav-badge--pro" aria-label="Pro feature">PRO</span>
+                <span class="nav-badge nav-badge--new hidden" aria-hidden="true">New!</span>
+                <button type="button" class="side-menu-button" id="mockupTab" disabled aria-label="Mockup section - Pro feature">
                     <i class="fa fa-desktop" aria-hidden="true"></i>
                     <span class="side-menu-notification-dot hidden" id="mockupNotification" aria-label="New content available"></span>
-                    <span class="side-menu-text">Mockup <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
+                    <span class="side-menu-text">Mockup</span>
                 </button>
             </div>
-            
-            <div class="side-menu-item" data-tab="visibility-engine">
-                <button class="side-menu-button" onclick="showTab('visibility-engine')" id="visibility-engineTab" aria-label="AIO and SEO Visibility Engine - Pro feature">
-                    <i class="fa fa-globe" aria-hidden="true"></i>
-                    <span class="side-menu-text">AIO &amp; SEO <span class="pro-badge" aria-label="Pro feature">(Pro)</span></span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item" data-tab="export">
-                <button class="side-menu-button" onclick="showTab('export')" id="exportTab" aria-label="Export & Integration">
-                    <i class="fa fa-download" aria-hidden="true"></i>
-                    <span class="side-menu-text">Export & Integration</span>
-                </button>
-            </div>
-            
-            <div class="side-menu-item">
-                <button type="button" class="side-menu-button" onclick="window.openMcpModal && window.openMcpModal()" id="sideMenuMcpBtn" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
-                    <i class="fa fa-plug" aria-hidden="true"></i>
-                    <span class="side-menu-text">MCP</span>
-                </button>
-            </div>
-            
+
             <div class="side-menu-item hidden" data-tab="raw">
-                <button class="side-menu-button" onclick="showTab('raw')" id="rawTab" aria-label="View raw data">
+                <button type="button" class="side-menu-button" id="rawTab" aria-label="View raw data">
                     <i class="fa fa-code" aria-hidden="true"></i>
                     <span class="side-menu-text">Raw Data</span>
                 </button>
             </div>
         </nav>
-    </aside>
+    </div>
+</nav>
+
+<nav class="spec-nav spec-nav--bottom" id="specNavBottom" aria-label="Spec viewer tools navigation">
+    <div class="spec-nav-track">
+        <nav class="side-menu-nav spec-nav-list spec-nav-list--bottom" aria-label="Tools">
+            <div class="side-menu-item" data-tab="chat">
+                <button type="button" class="side-menu-button" id="chatTab" disabled aria-label="AI Chat section">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    <span class="side-menu-notification-dot hidden" id="chatNotification" aria-label="New messages available"></span>
+                    <span class="side-menu-text">AI Chat</span>
+                </button>
+            </div>
+
+            <div class="side-menu-item" data-tab="brain-dump">
+                <button type="button" class="side-menu-button" id="brain-dumpTab" disabled aria-label="Brain Dump section">
+                    <i class="fa fa-lightbulb" aria-hidden="true"></i>
+                    <span class="side-menu-text">Brain Dump</span>
+                </button>
+            </div>
+
+            <div class="side-menu-item" data-tab="export">
+                <button type="button" class="side-menu-button" id="exportTab" aria-label="Export & Integration">
+                    <i class="fa fa-download" aria-hidden="true"></i>
+                    <span class="side-menu-text">Export & Integration</span>
+                </button>
+            </div>
+
+            <div class="side-menu-item">
+                <button type="button" class="side-menu-button" id="sideMenuMcpBtn" data-nav-action="mcp" aria-label="Connect MCP (Cursor / Claude)" title="Setup MCP for Cursor or Claude">
+                    <i class="fa fa-plug" aria-hidden="true"></i>
+                    <span class="side-menu-text">MCP</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+</nav>
+
 
 <!-- MCP Connect Modal: shared markup for Profile and Spec Viewer -->
 <div id="mcpModal" class="modal-overlay hidden" aria-hidden="true" aria-label="Connect MCP">
@@ -804,11 +819,7 @@ function trackPreference(preferenceName, preferenceValue) {
 <!-- Main Content -->
     <!-- Page Introduction Section -->
     <div class="page-intro-section">
-        <h1 class="page-title"><span id="spec-title">Project Spec</span> <span id="spec-v2-badge" class="spec-v2-badge hidden" aria-label="Generated with Spec Engine v2">Spec Engine v2</span> <button type="button" class="btn-icon spec-title-edit" id="spec-title-edit-btn" aria-label="Edit spec title" title="Edit spec name"><i class="fas fa-pencil-alt" aria-hidden="true"></i></button></h1>
-        <p class="page-description">
-            Comprehensive specifications generated by AI to guide your development process. 
-            Review, edit, and approve each section to build a complete project blueprint.
-        </p>
+        <h1 class="page-title"><span id="spec-title">Project Spec</span> <button type="button" class="btn-icon spec-title-edit" id="spec-title-edit-btn" aria-label="Edit spec title" title="Edit spec name"><i class="fas fa-pencil-alt" aria-hidden="true"></i></button> <span id="spec-v2-badge" class="spec-v2-badge hidden" aria-label="Generated with Spec Engine v2">Spec Engine v2</span></h1>
     </div>
     
     <!-- Fallback content for SEO (hidden when JS loads) -->
@@ -821,9 +832,58 @@ function trackPreference(preferenceName, preferenceValue) {
 <div class="container">
 
     <div class="content">
-        <div id="loading" class="loading" role="status" aria-live="polite" aria-label="Loading specification">
-            <div class="spinner" aria-hidden="true"></div>
-            <p>Loading specification...</p>
+        <div id="loading" class="loading spec-loading-rich" role="status" aria-live="polite" aria-label="Loading specification">
+            <!-- Live progress bar with rotating messages -->
+            <div class="spec-loading-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-message" id="spec-loading-message">Preparing your workspace...</div>
+            </div>
+
+            <!-- Skeleton preview of the spec layout (gives a sense of what's coming) -->
+            <div class="spec-loading-skeleton" aria-hidden="true">
+                <div class="spec-loading-skeleton-card">
+                    <div class="skeleton-header">
+                        <div class="skeleton-spinner"></div>
+                        <div class="skeleton-text"></div>
+                    </div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                </div>
+
+                <div class="spec-loading-skeleton-grid">
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-cog fa-spin" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-paint-brush" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="spec-loading-skeleton-tile">
+                        <div class="spec-loading-skeleton-tile-icon"><i class="fa fa-building" aria-hidden="true"></i></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="spec-loading-tip">
+                <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                <span>Tip: While we craft your spec, think about your top 3 must-have features.</span>
+            </p>
         </div>
         
         <div id="error" class="error hidden" role="alert" aria-live="assertive">
@@ -834,9 +894,13 @@ function trackPreference(preferenceName, preferenceValue) {
         
         <div id="content" class="hidden">
             <!-- Progress Bar with Rotating Messages -->
-            <div id="spec-generation-progress" class="spec-generation-progress hidden">
+            <div id="spec-generation-progress" class="spec-generation-progress hidden" role="status" aria-live="polite">
+                <div class="progress-bar-header">
+                    <span class="progress-bar-stage" id="progress-stage-label">Preparing your specifications...</span>
+                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Progress percentage">0%</span>
+                </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar-fill"></div>
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
                 </div>
                 <div class="progress-message" id="progress-message">Understanding your idea...</div>
             </div>
@@ -845,7 +909,7 @@ function trackPreference(preferenceName, preferenceValue) {
             <div id="approval-container" class="approval-container">
                 <div class="approval-message">
                     <i class="fa fa-info-circle"></i>
-                    <span>Please review the Overview specification below. You can edit it if needed (PRO users only), then approve to generate Technical and Market specifications.</span>
+                    <span>Please review the Overview specification below. Approve to generate: Technical Specification, Market Research, Design & Branding, Architecture, AIO & SEO Visibility Engine, and Prompts.</span>
                 </div>
                 <div class="approval-actions" role="group" aria-label="Approval actions">
                     <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()" aria-label="Edit overview specification">
@@ -930,7 +994,7 @@ function trackPreference(preferenceName, preferenceValue) {
                 <div id="prompts-data" class="content-body">
                     <div class="locked-tab-message">
                         <h3><i class="fa fa-lock"></i> Prompts</h3>
-                        <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
+                        <p>Prompts are generated automatically after Technical, Market, Design, Architecture, and AIO &amp; SEO Visibility Engine are ready.</p>
                     </div>
                 </div>
             </div>
@@ -1117,6 +1181,16 @@ function trackPreference(preferenceName, preferenceValue) {
                                         <input type="checkbox" id="export-design" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-paint-brush"></i> Design & Branding</span>
                                     </label>
+
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-architecture" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-building"></i> Architecture</span>
+                                    </label>
+
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-visibility" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-globe"></i> AIO &amp; SEO Visibility Engine</span>
+                                    </label>
                                     
                                     <label class="export-checkbox-label">
                                         <input type="checkbox" id="export-diagrams" class="export-checkbox section-checkbox html-checkbox">
@@ -1257,7 +1331,7 @@ function trackPreference(preferenceName, preferenceValue) {
                     <div id="export-admin-advanced-raw" class="export-admin-advanced-raw hidden" aria-hidden="true">
                         <div class="export-admin-advanced-raw-inner">
                             <h3 class="export-admin-advanced-raw-title"><i class="fa fa-shield" aria-hidden="true"></i> Admin — row data (debug)</h3>
-                            <p class="export-admin-advanced-raw-desc">View all advanced spec fields as stored, including Mermaid diagram strings (technical, architecture, diagrams, etc.). Use this to verify API output.</p>
+                            <p class="export-admin-advanced-raw-desc">View all row data across all disciplines as stored (overview, technical, market, design, architecture, visibility, prompts, mockups, diagrams, mind map, status, metadata). Use this to verify API output.</p>
                             <button type="button" class="btn btn-secondary export-admin-advanced-raw-btn" id="btn-open-advanced-raw-modal">
                                 <i class="fa fa-database" aria-hidden="true"></i> View advanced row data (JSON)
                             </button>
@@ -1314,6 +1388,11 @@ function trackPreference(preferenceName, preferenceValue) {
                     </div>
                 </div>
             </div>
+
+            <nav id="specTopTabPager" class="spec-top-tab-pager hidden" aria-label="Previous and next specification section">
+                <button type="button" id="specTopTabPagerPrev" class="spec-top-tab-pager__btn" disabled aria-label="Previous specification section">Previous</button>
+                <button type="button" id="specTopTabPagerNext" class="spec-top-tab-pager__btn" disabled aria-label="Next specification section">Next</button>
+            </nav>
         </div>
     </div>
 </div>
@@ -1424,9 +1503,10 @@ function trackPreference(preferenceName, preferenceValue) {
             <span class="close" id="advanced-raw-modal-close" role="button" tabindex="0" aria-label="Close">&times;</span>
         </div>
         <div class="modal-body advanced-raw-modal-body">
-            <p class="advanced-raw-modal-hint">Includes overview, technical, market, design, architecture (full markdown with diagrams), diagrams, prompts, mockups, mind map, status, and metadata.</p>
+            <p class="advanced-raw-modal-hint">Includes all disciplines and metadata, plus the complete row snapshot for lossless debugging and export.</p>
             <div class="advanced-raw-modal-actions">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-advanced-raw"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-download-advanced-raw"><i class="fa fa-download" aria-hidden="true"></i> Download JSON</button>
             </div>
             <pre id="advanced-raw-json-pre" class="raw-display advanced-raw-json-pre" tabindex="0"></pre>
         </div>
@@ -1531,6 +1611,9 @@ function trackPreference(preferenceName, preferenceValue) {
         <a href="/pages/how.html" role="listitem">How It Works</a>
         <a href="/pages/why.html" role="listitem">Why?</a>
         <a href="/pages/articles.html" role="listitem">Articles</a>
+        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Compare</a>
+        <a href="/pages/glossary/index.html" role="listitem">Glossary</a>
+        <a href="/pages/for-ai-assistants.html" role="listitem">For AI assistants</a>
       </div>
       <div class="footer-sitemap-group">
         <span class="footer-sitemap-title">Legal</span>
@@ -1612,11 +1695,7 @@ function trackPreference(preferenceName, preferenceValue) {
       
         <script defer src="/assets/js/script.js"></script>
       
-        <script defer src="/assets/js/services/prompts.js"></script>
-      
         <script defer src="/assets/js/services/spec-cache.js"></script>
-      
-        <script defer src="/assets/js/services/spec-error-handler.js"></script>
       
         <script defer src="/assets/js/services/spec-firestore-listener.js"></script>
       
@@ -1626,8 +1705,6 @@ function trackPreference(preferenceName, preferenceValue) {
       
         <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
       
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-      
         <script defer src="/assets/js/features/spec-viewer/spec-viewer-firebase.js"></script>
       
         <script defer src="/assets/js/features/spec-viewer/spec-viewer-api-helper.js"></script>
@@ -1636,26 +1713,14 @@ function trackPreference(preferenceName, preferenceValue) {
       
         <script defer src="/assets/js/features/spec-viewer/spec-viewer-auth.js"></script>
       
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-chat.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-brain-dump.js"></script>
-      
-        <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-      
-        <script defer src="/assets/js/mermaid.js"></script>
-      
         <script defer src="/assets/js/features/spec-viewer/spec-viewer-main.js"></script>
-      
-        <script defer src="/assets/js/features/share-prompt/share-prompt-modal.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/cursor-windsurf-export.js"></script>
-      
-        <script defer src="/assets/js/mcp-modal.js"></script>
       
     
     
     <!-- Custom JavaScript Modules -->
     
+      
+        <script type="module" src="/assets/js/features/spec-viewer/spec-viewer-coordinator.js"></script>
       
         <script type="module" src="/assets/js/features/spec-viewer/spec-viewer-event-handlers.js"></script>
       
