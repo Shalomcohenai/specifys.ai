@@ -4872,3 +4872,258 @@ body .user-details-modal-overlay,
   }
 }
 
+/* ============================================================
+   Brand Kit (Admin → Brand tab)
+   ============================================================ */
+
+#brand-section .brand-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#brand-section .brand-toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--admin-muted-bg);
+  border-radius: 999px;
+}
+
+#brand-section .brand-toolbar-label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-right: 4px;
+}
+
+#brand-section .brand-backdrop-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--admin-text);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+#brand-section .brand-backdrop-btn:hover {
+  background: var(--admin-hover-bg);
+}
+
+#brand-section .brand-backdrop-btn[aria-pressed="true"] {
+  background: var(--admin-accent);
+  color: #fff;
+  border-color: var(--admin-accent);
+}
+
+#brand-section .brand-type-tabs {
+  margin-bottom: 24px;
+}
+
+#brand-section .brand-asset-pane[hidden] {
+  display: none;
+}
+
+#brand-section .brand-asset-intro {
+  margin-bottom: 16px;
+}
+
+#brand-section .brand-asset-intro h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+
+#brand-section .brand-asset-intro p {
+  margin: 0;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+}
+
+#brand-section .brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+#brand-section .brand-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-card-radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+#brand-section .brand-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+#brand-section .brand-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+#brand-section .brand-card-titles h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+
+#brand-section .brand-card-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  color: var(--admin-text-muted);
+  word-break: break-all;
+}
+
+#brand-section .brand-card-preview {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--admin-border-light);
+  background: #fafbfd;
+  min-height: 120px;
+}
+
+#brand-section .brand-card-preview-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#brand-section .brand-card-preview svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* Transparent variations: show a checkered backdrop so the user can verify edges */
+#brand-section .brand-card--transparent .brand-card-preview {
+  background-image:
+    linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+    linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-color: #fafbfd;
+}
+
+#brand-section .brand-card--transparent[data-backdrop="light"] .brand-card-preview {
+  background-image: none;
+  background-color: #ffffff;
+}
+
+#brand-section .brand-card--transparent[data-backdrop="dark"] .brand-card-preview {
+  background-image: none;
+  background-color: #1f2937;
+}
+
+#brand-section .brand-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#brand-section .brand-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#brand-section .brand-action-row--custom {
+  border-top: 1px dashed var(--admin-border-light);
+  padding-top: 8px;
+}
+
+#brand-section .brand-action-label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+}
+
+#brand-section .brand-size-select,
+#brand-section .brand-custom-size {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+#brand-section .brand-size-select:focus,
+#brand-section .brand-custom-size:focus {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 1px;
+  border-color: var(--admin-accent);
+}
+
+#brand-section .brand-action-row .btn-modern {
+  flex: 0 1 auto;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+#brand-section .brand-action-row .btn-modern i {
+  margin-right: 6px;
+}
+
+#brand-section .brand-card-status {
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
+
+#brand-section .brand-status-success {
+  color: var(--admin-success);
+}
+
+#brand-section .brand-status-error {
+  color: var(--admin-critical);
+}
+
+#brand-section .brand-status-info {
+  color: var(--admin-text-muted);
+}
+
+@media (max-width: 720px) {
+  #brand-section .brand-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #brand-section .brand-action-row {
+    gap: 6px;
+  }
+
+  #brand-section .brand-action-row .btn-modern {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+

@@ -20,6 +20,7 @@ import { AcademyView } from './views/AcademyView.js';
 import { ToolsView } from './views/ToolsView.js';
 import { ContactView } from './views/ContactView.js';
 import { UnsubscribeView } from './views/UnsubscribeView.js';
+import { BrandView } from './views/BrandView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -386,7 +387,12 @@ class NewAdminDashboard {
       const unsubscribeView = new UnsubscribeView(this.dataManager, this.stateManager);
       this.views.set('email', unsubscribeView);
       window.unsubscribeView = unsubscribeView;
-      
+
+      // Brand kit view — static, lazily renders on first show()
+      const brandView = new BrandView(this.dataManager, this.stateManager);
+      this.views.set('brand', brandView);
+      window.brandView = brandView;
+
     } catch (error) {
       console.error('[NewAdminDashboard] Error initializing views:', error);
     }
