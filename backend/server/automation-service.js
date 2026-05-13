@@ -31,24 +31,42 @@ class OpenAIClient {
    */
   async chatCompletion(params, retries = 0) {
     const requestId = `openai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
+    // OpenAI's web-search-enabled chat models (e.g. gpt-4o-mini-search-preview)
+    // reject `temperature` and `response_format: json_object`. Strip those when the caller picks such a model.
+    const requestParams = {
+      model: 'gpt-4o-mini',
+      messages: [],
+      ...params
+    };
+    const modelName = String(requestParams.model || '');
+    const isSearchModel = modelName.includes('search-preview');
+
+    if (requestParams.max_tokens == null) {
+      requestParams.max_tokens = 2000;
+    }
+
+    if (isSearchModel) {
+      delete requestParams.temperature;
+      // json_object is not supported on search-preview models.
+      if (requestParams.response_format && requestParams.response_format.type === 'json_object') {
+        delete requestParams.response_format;
+      }
+    } else {
+      if (requestParams.temperature == null) requestParams.temperature = 0.7;
+      if (requestParams.response_format == null) requestParams.response_format = { type: 'text' };
+    }
+
     try {
-      logger.debug({ requestId, model: params.model }, '[automation-service] OpenAI chat completion request');
-      
-      const response = await this.client.chat.completions.create({
-        model: params.model || 'gpt-4',
-        messages: params.messages || [],
-        temperature: params.temperature || 0.7,
-        max_tokens: params.max_tokens || 2000,
-        response_format: params.response_format || { type: 'text' },
-        ...params
-      });
+      logger.debug({ requestId, model: requestParams.model, isSearchModel }, '[automation-service] OpenAI chat completion request');
+
+      const response = await this.client.chat.completions.create(requestParams);
 
       logger.debug({ requestId, usage: response.usage }, '[automation-service] OpenAI chat completion success');
-      
+
       // Rate limiting delay
       await this.delay(this.rateLimitDelay);
-      
+
       return response;
     } catch (error) {
       // Handle rate limiting

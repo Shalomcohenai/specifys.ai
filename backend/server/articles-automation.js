@@ -14,15 +14,23 @@ const AUTOMATION_STATE_DOC = 'automation_state/weekly_articles';
 
 // Article generation prompt (same shape as articles-routes.js)
 const articleGenerationPrompt = {
-  system: `You are a no-BS dev-tools writer in 2025.
+  system: `You are a no-BS dev-tools writer in ${new Date().getFullYear()}.
 
 Your readers are senior developers and indie hackers who hate fluff, love concrete examples, benchmarks, prompts, before/after code, and real numbers.
 
 Write like swyx, levelsio or addy osmani – short sentences, zero corporate speak, maximum value per word.
 
-Write everything in English only (titles, body, tags, SEO fields).`,
+Write everything in English only (titles, body, tags, SEO fields).
 
-  developer: `Return ONLY a valid JSON object with this exact structure:
+MANDATORY RESEARCH RULES (do not skip):
+1. You MUST search the web before writing. Do not rely on training data alone.
+2. Every concrete claim — tool name, version, pricing, benchmark, news event, release — MUST be grounded in a source published within the last 30 days (prefer the last 7 days).
+3. If a fact is older than 30 days, drop it or replace it with something current. Do not say "in 2023..." or use stale data.
+4. Inline link to the freshest source you used for each major claim (Markdown link format).
+5. If you cannot find anything fresh on a sub-topic, change the angle — do not invent.
+6. End the article with a "Sources" section listing the URLs you actually used, with their publish dates.`,
+
+  developer: `Return ONLY a valid JSON object with this exact structure (no prose around it, no markdown fences):
 
 {
   "title": "Clickbait-but-honest title, 55-70 chars, primary keyword first",
@@ -38,13 +46,20 @@ Write everything in English only (titles, body, tags, SEO fields).`,
     • Include exact prompts used
     • Before/after comparisons when relevant
     • Real numbers (time saved, tokens used, success rate)
+    • Inline Markdown links to fresh sources (past 30 days) for every concrete claim
     • Zero philosophical rambling
-    • Ends with 'TL;DR' section + actionable next steps
-    • Tone: direct, slightly sarcastic when something sucks",
-  "tags": ["array", "of", "5-8", "hyper-specific", "2025-relevant", "tags"]
+    • Ends with a 'TL;DR' section + actionable next steps, then a 'Sources' section listing URLs you actually used with publish dates",
+  "tags": ["array", "of", "5-8", "hyper-specific", "current-year-relevant", "tags"]
 }`,
 
-  user: (topic) => `Write a 2025-style, zero-fluff, example-heavy article about: ${topic}
+  user: (topic) => `Write a current, zero-fluff, example-heavy article about: ${topic}
+
+Before writing, SEARCH THE WEB for:
+- News, launches, releases, version bumps, or blog posts on this topic from the past 7-30 days.
+- Recent benchmarks, pricing changes, or user reports.
+- What practitioners on X/Twitter, Hacker News, Reddit, or Dev.to said in the past 30 days.
+
+Then ground the entire article in those sources. Reject anything older than 30 days.
 
 Target audience: developers who already know what vibe coding is and just want the new hotness, benchmarks, and copy-paste prompts.
 
@@ -151,48 +166,50 @@ class ArticleWriterJob extends AutomationJob {
 
       const recentTools = recentToolsSnapshot.docs.map(doc => doc.data().name);
 
-      const topicPrompt = `Generate a compelling article topic for a developer tools blog. The topic should be:
-- Relevant to developers and indie hackers in 2025
-- Focused on practical tools, techniques, or trends (vibe coding, AI-assisted development)
-- Specific enough to be actionable
-- Not covered in recent articles
+      const topicPrompt = `SEARCH THE WEB right now for the freshest news in developer tools, vibe coding, AI-assisted development, agentic workflows, and AI coding agents from the last 7-30 days.
 
-${recentTools.length > 0 ? `Recent tools we've covered: ${recentTools.join(', ')}` : ''}
+Then propose ONE article topic anchored in an actual launch, release, version bump, benchmark, controversy, or trend from that window.
 
-Return ONLY a single topic string in English (no JSON, no quotes, just the topic text). The topic should be 5-10 words and be specific enough to write a detailed article about.
+Hard rules:
+- The topic MUST be tied to a real event published within the last 30 days. No evergreen / generic topics.
+- Do NOT invent or paraphrase events that don't exist.
+- Specific enough to write a detailed, example-heavy article around (5-12 words).
 
-Examples of good topics:
-- "Building a SaaS MVP with Bolt.new in 30 minutes"
-- "5 AI coding assistants that actually save time in 2025"
-- "How to deploy a Next.js app to Vercel with zero config"
+${recentTools.length > 0 ? `Recent tools we already covered (avoid duplicates): ${recentTools.join(', ')}` : ''}
 
-Generate a topic now:`;
+Return ONLY the topic string in English (no JSON, no quotes, no prefix). One line only.`;
 
       const response = await openaiClient.chatCompletion({
-        model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
+        model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini-search-preview',
         messages: [
           {
             role: 'system',
-            content: 'You are a content strategist for a developer tools blog. You generate compelling, specific article topics in English only.'
+            content: 'You are a content strategist for a developer tools blog. You MUST use the web search tool to ground every suggestion in events from the past 7-30 days. Output English only.'
           },
           {
             role: 'user',
             content: topicPrompt
           }
         ],
-        temperature: 0.8,
-        max_tokens: 100
+        max_tokens: 200,
+        web_search_options: {}
       });
 
-      const topic = response.choices[0]?.message?.content?.trim();
+      const rawTopic = response.choices[0]?.message?.content?.trim();
 
-      if (!topic) {
+      if (!rawTopic) {
         throw new Error('No topic generated');
       }
 
-      const cleanTopic = topic.replace(/^["']|["']$/g, '').trim();
+      // Search-preview models may prefix the topic with a sentence (e.g. "Based on recent news: 'X'.").
+      // Take the first non-empty line and strip wrapping quotes / trailing punctuation.
+      const firstLine = rawTopic.split(/\r?\n/).map(l => l.trim()).find(Boolean) || rawTopic;
+      const cleanTopic = firstLine
+        .replace(/^(?:topic\s*[:\-]\s*|here(?:'s| is) (?:a |the )?topic\s*[:\-]\s*)/i, '')
+        .replace(/^["'`“”‘’]+|["'`“”‘’.!?\s]+$/g, '')
+        .trim();
 
-      logger.info({ requestId, topic: cleanTopic }, '[articles-automation] Topic generated');
+      logger.info({ requestId, topic: cleanTopic, raw: rawTopic.substring(0, 200) }, '[articles-automation] Topic generated');
 
       return cleanTopic;
     } catch (error) {
@@ -212,38 +229,42 @@ Generate a topic now:`;
       ? `Recent article titles to avoid duplicating themes:\n${recentTitles.map(t => `- ${t}`).join('\n')}`
       : 'No recent titles available.';
 
-    const userPrompt = `You are planning ${count} distinct blog posts for the coming week.
+    const userPrompt = `You are planning ${count} distinct blog posts.
 
-Focus: **vibe coding**, **AI-assisted development**, agentic tools, editors, CLI assistants, workflows, and what practitioners care about right now.
+MANDATORY: SEARCH THE WEB right now. Every topic must be grounded in something real that happened in the last 7-30 days — a launch, release, version bump, benchmark, controversy, blog post, or trend in:
+- vibe coding / AI-assisted development
+- AI coding agents, agentic workflows, CLI assistants
+- IDE integrations (Cursor, Windsurf, Copilot, Zed, etc.)
+- Spec-driven dev, prompt engineering, RAG, evals
 
 ${titlesBlock}
 
-Return ONLY valid JSON with this exact shape:
+Return ONLY a valid JSON object (no prose, no markdown fences) of the form:
 {"topics":["Topic one in English","Topic two", ...]}
 
-Rules:
-- Exactly ${count} topics in the array
-- Each topic: one line, 6-14 words, specific and article-ready (English only)
-- Topics should feel timely and relevant to "this week in the ecosystem" (use your knowledge; you cannot browse the web)
-- No overlap with each other or with the recent titles above`;
+Hard rules:
+- Exactly ${count} topics in the array.
+- Each topic: 6-14 words, specific, article-ready, English only.
+- Each topic MUST tie to an actual event from the past 30 days. No evergreen / generic topics.
+- Do NOT fabricate events. If you can't find ${count} fresh angles, repeat-search; if still short, return as many real ones as you found.
+- No overlap with each other or with the recent titles above.`;
 
-    logger.info({ requestId, count }, '[articles-automation] Generating weekly topic list');
+    logger.info({ requestId, count }, '[articles-automation] Generating fresh topic list');
 
     const response = await openaiClient.chatCompletion({
-      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
+      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini-search-preview',
       messages: [
         {
           role: 'system',
-          content: 'You output only valid JSON. All topic strings must be English.'
+          content: 'You output only valid JSON. All topic strings must be English and grounded in events from the past 7-30 days. Use the web search tool.'
         },
         {
           role: 'user',
           content: userPrompt
         }
       ],
-      temperature: 0.75,
-      max_tokens: 800,
-      response_format: { type: 'json_object' }
+      max_tokens: 1200,
+      web_search_options: {}
     });
 
     const content = response.choices[0]?.message?.content;
@@ -251,15 +272,23 @@ Rules:
       throw new Error('No content in OpenAI response for weekly topics');
     }
 
+    // Search-preview models may add prose around the JSON. Try multiple strategies.
     let parsed;
     try {
       parsed = JSON.parse(content);
     } catch (e) {
-      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[1]);
-      } else {
-        throw new Error(`Failed to parse weekly topics JSON: ${e.message}`);
+      const codeBlock = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+      if (codeBlock) {
+        try { parsed = JSON.parse(codeBlock[1]); } catch (e2) { /* fallthrough */ }
+      }
+      if (!parsed) {
+        const greedyObject = content.match(/\{[\s\S]*\}/);
+        if (greedyObject) {
+          try { parsed = JSON.parse(greedyObject[0]); } catch (e3) { /* fallthrough */ }
+        }
+      }
+      if (!parsed) {
+        throw new Error(`Failed to parse topics JSON: ${e.message}`);
       }
     }
 
@@ -323,14 +352,13 @@ Rules:
     logger.info({ requestId, topic }, '[articles-automation] Calling OpenAI API for article generation');
 
     const response = await openaiClient.chatCompletion({
-      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
+      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini-search-preview',
       messages: [
         { role: 'system', content: prompt.system },
         { role: 'user', content: `${prompt.developer}\n\n${prompt.user}` }
       ],
-      temperature: 0.7,
       max_tokens: 4000,
-      response_format: { type: 'json_object' }
+      web_search_options: {}
     });
 
     const content = response.choices[0]?.message?.content;
@@ -338,16 +366,36 @@ Rules:
       throw new Error('No content in OpenAI response');
     }
 
+    // Search-preview models may add prose/citation footnotes around the JSON.
+    // Try several extraction strategies before giving up.
     let articleData;
+    const parseAttempts = [];
+
     try {
       articleData = JSON.parse(content);
-    } catch (parseError) {
-      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (jsonMatch) {
-        articleData = JSON.parse(jsonMatch[1]);
-      } else {
-        throw new Error(`Failed to parse JSON: ${parseError.message}`);
+    } catch (e) {
+      parseAttempts.push({ stage: 'direct', error: e.message });
+    }
+
+    if (!articleData) {
+      const codeBlock = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+      if (codeBlock) {
+        try { articleData = JSON.parse(codeBlock[1]); }
+        catch (e) { parseAttempts.push({ stage: 'code-block', error: e.message }); }
       }
+    }
+
+    if (!articleData) {
+      const greedyObject = content.match(/\{[\s\S]*\}/);
+      if (greedyObject) {
+        try { articleData = JSON.parse(greedyObject[0]); }
+        catch (e) { parseAttempts.push({ stage: 'greedy-object', error: e.message }); }
+      }
+    }
+
+    if (!articleData) {
+      logger.error({ requestId, parseAttempts, contentPreview: content.substring(0, 500) }, '[articles-automation] Failed to extract article JSON');
+      throw new Error('Failed to parse article JSON from OpenAI response');
     }
 
     validateArticleData(articleData);

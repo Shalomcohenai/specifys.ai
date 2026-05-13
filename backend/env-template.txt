@@ -115,8 +115,17 @@ DAILY_ARTICLES_ENABLED=true
 DAILY_ARTICLES_HOUR=9
 # אזור זמן IANA (אם ריק: נופל ל-REPORT_TIMEZONE או UTC).
 DAILY_ARTICLES_TIMEZONE=UTC
-# (אופציונלי) דגם OpenAI לכתיבת הכתבות. ברירת מחדל: gpt-4o-mini.
-# ARTICLES_OPENAI_MODEL=gpt-4o-mini
+#
+# דגם OpenAI לכתיבת הכתבות.
+# ברירת מחדל: gpt-4o-mini-search-preview (מודל chat-completions שיש לו web search מובנה,
+# כך שהפרומפט "חפש ברשת ב-7-30 הימים האחרונים" באמת מתבצע ולא מומצא).
+# חלופות אפשריות:
+#   - gpt-4o-search-preview    (חזק יותר, יקר יותר)
+#   - gpt-4o-mini              (זול / מהיר, אבל ללא גלישה אמיתית — יסתמך רק על training data)
+#   - gpt-4o                   (חזק, ללא גלישה)
+# שים לב: מודלי *-search-preview לא תומכים ב-temperature ולא ב-response_format=json_object;
+# ה-wrapper שלנו (automation-service.chatCompletion) מסיר אוטומטית פרמטרים לא נתמכים.
+# ARTICLES_OPENAI_MODEL=gpt-4o-mini-search-preview
 
 # --- Legacy weekly batch mode (deprecated) ---
 # WEEKLY_ARTICLES_* כבר לא נצרך עבור המתזמן (עברנו ליומי), אך עדיין אפשר להפעיל
@@ -127,14 +136,17 @@ DAILY_ARTICLES_TIMEZONE=UTC
 # ============================================
 # Daily tools finder (Firestore `tools`)
 # ============================================
-# דורש OPENAI_API_KEY. אוטומציה: סריקה יומית לכלים חדשים שהושקו בשבוע האחרון.
+# דורש OPENAI_API_KEY. אוטומציה: סריקה יומית לכלים חדשים שהושקו ב-7-30 הימים האחרונים.
 TOOLS_AUTOMATION_ENABLED=true
 # שעה 0–23 בה תרוץ הסריקה (ברירת מחדל: 10)
 TOOLS_FINDER_HOUR=10
 # אזור זמן IANA (אם ריק: נופל ל-REPORT_TIMEZONE או UTC).
 TOOLS_FINDER_TIMEZONE=UTC
-# (אופציונלי) דגם OpenAI לסריקה. ברירת מחדל: gpt-4o-mini.
-# TOOLS_OPENAI_MODEL=gpt-4o-mini
+#
+# דגם OpenAI לסריקה. ברירת מחדל: gpt-4o-mini-search-preview (chat-completions עם web search מובנה).
+# אם תחליף ל-gpt-4o-mini רגיל — הסריקה תסתמך רק על ידע ה-training של המודל ולא תחפש באמת ברשת,
+# מה שיכול לגרום להמצאות. מומלץ להישאר על המודל עם ה-search-preview.
+# TOOLS_OPENAI_MODEL=gpt-4o-mini-search-preview
 
 # Spec Generation V2 (optional – assistants are created on first use if not set)
 # If set, the backend reuses these assistants instead of creating new ones each deploy.

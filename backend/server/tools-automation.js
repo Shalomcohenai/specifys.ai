@@ -54,46 +54,48 @@ class ToolsFinderJob extends AutomationJob {
    */
   buildPrompt(categories) {
     const categoriesList = categories.map(cat => `- ${cat}`).join('\n');
-    
-    return `You are a tool discovery assistant. Find NEW tools that were LAUNCHED in the past week (last 7 days) in the following categories:
 
+    return `You are a tool discovery assistant. Your job is to find brand-new dev tools that LAUNCHED in the past 7-30 days.
+
+CATEGORIES (you must map every tool to exactly one of these):
 ${categoriesList}
 
-IMPORTANT REQUIREMENTS:
-1. Only return tools that were ACTUALLY LAUNCHED in the past week - do not include existing tools or tools from previous weeks
-2. If no new tools were launched this week, return an empty array
-3. Do NOT invent or make up tools - only include tools that you can verify exist
-4. Each tool must have a real, working URL
-5. Only include tools that match the categories above
+MANDATORY RESEARCH RULES (do not skip — failure to follow returns 0 tools):
+1. You MUST use the web search tool. Do NOT rely on training data alone.
+2. Search for launches, releases, Show HN / Hacker News posts, Product Hunt launches, Reddit r/SideProject / r/programming highlights, Twitter/X announcements, blog posts — all dated within the past 30 days (prefer the past 7 days).
+3. Every tool you return MUST have a verifiable real URL that you actually found in a fresh source. If the URL is older than 30 days, drop the tool.
+4. Do NOT invent tools, do NOT include established tools (Cursor, Copilot, Bolt, v0, Lovable, etc.) unless they shipped a *new major version* in the past 30 days — in that case "special" must say "major-release-YYYY-MM" or similar.
+5. If, after honest searching, you cannot find any genuinely new tools in a category, skip that category.
+6. If, after honest searching, you cannot find ANY new tools at all, return { "tools": [] }. An empty result is better than fabricated data.
 
 For each tool, return a JSON object with this EXACT structure:
 {
-  "name": "Tool Name (required, must be exact name)",
-  "category": "One of the categories from the list above (required)",
+  "name": "Tool Name (required, must be the exact official name)",
+  "category": "One of the categories above (required)",
   "description": "Brief description of what the tool does (required, 1-2 sentences)",
-  "link": "Full URL to the tool's website (required, must be valid URL)",
+  "link": "Full URL to the tool's website (required, must be a real verified URL)",
   "rating": null or number between 1-5 (only if you have real rating data, otherwise null),
-  "pros": [] or array of strings (only if you have real information, otherwise empty array),
-  "cons": [] or array of strings (only if you have real information, otherwise empty array),
-  "stats": null or object with users/globalRating/monthlyUsage/ARR (only if you have real data, otherwise null),
-  "special": null or string like "new version" or "popular" (only if applicable, otherwise null)
+  "pros": [] or array of short strings (only with real evidence, otherwise empty),
+  "cons": [] or array of short strings (only with real evidence, otherwise empty),
+  "stats": null or { "users": ..., "globalRating": ..., "monthlyUsage": ..., "ARR": ... } (only real data, otherwise null),
+  "special": null or string like "launched-YYYY-MM-DD", "new version", "trending-this-week"
 }
 
-Return ONLY a valid JSON object of the form { "tools": [ ... ] }. If no new tools were found, return { "tools": [] }.
+Return ONLY a valid JSON object of the form { "tools": [ ... ] }. No prose. No markdown fences.
 
-Example format:
+Example shape (NOT actual tools — do not return these):
 {
   "tools": [
     {
       "name": "Example Tool",
       "category": "Prompt-to-App Builders",
-      "description": "A tool that does X",
+      "description": "A tool that does X.",
       "link": "https://example.com",
       "rating": null,
       "pros": [],
       "cons": [],
       "stats": null,
-      "special": null
+      "special": "launched-YYYY-MM-DD"
     }
   ]
 }`;
@@ -205,23 +207,22 @@ Example format:
       // Build prompt
       const prompt = this.buildPrompt(categories);
       
-      // Call OpenAI
+      // Call OpenAI (search-preview model is web-enabled; falls back to plain gpt-4o-mini via env override)
       logger.info({ requestId }, '[tools-automation] Calling OpenAI API');
       const response = await openaiClient.chatCompletion({
-        model: process.env.TOOLS_OPENAI_MODEL || 'gpt-4o-mini',
+        model: process.env.TOOLS_OPENAI_MODEL || 'gpt-4o-mini-search-preview',
         messages: [
           {
             role: 'system',
-            content: 'You are a tool discovery assistant. You help find new developer tools that were recently launched. Always return valid JSON wrapping the tools array as { "tools": [ ... ] }.'
+            content: 'You are a tool discovery assistant. You MUST use the web search tool to ground every result in fresh sources from the past 7-30 days. Return only a valid JSON object of the shape { "tools": [ ... ] }. Empty list ({ "tools": [] }) is acceptable when nothing genuinely new was launched.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.3, // Lower temperature for more consistent results
         max_tokens: 4000,
-        response_format: { type: 'json_object' }
+        web_search_options: {}
       });
       
       // Parse response
@@ -232,30 +233,73 @@ Example format:
       
       logger.debug({ requestId, contentLength: content.length }, '[tools-automation] Received OpenAI response');
       
-      // Parse JSON
+      // Parse JSON — search-preview models may wrap prose around the JSON.
       let tools;
-      try {
-        // Try to parse as JSON object first (if wrapped)
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed)) {
-          tools = parsed;
-        } else if (parsed.tools && Array.isArray(parsed.tools)) {
-          tools = parsed.tools;
-        } else if (parsed.data && Array.isArray(parsed.data)) {
-          tools = parsed.data;
-        } else {
-          // Try to extract array from any property
+      const extractToolsFromParsed = (parsed) => {
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && Array.isArray(parsed.tools)) return parsed.tools;
+        if (parsed && Array.isArray(parsed.data)) return parsed.data;
+        if (parsed && typeof parsed === 'object') {
           const arrayKey = Object.keys(parsed).find(key => Array.isArray(parsed[key]));
-          tools = arrayKey ? parsed[arrayKey] : [];
+          if (arrayKey) return parsed[arrayKey];
         }
-      } catch (parseError) {
-        // Try to extract JSON from markdown code blocks
-        const jsonMatch = content.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/);
-        if (jsonMatch) {
-          tools = JSON.parse(jsonMatch[1]);
-        } else {
-          throw new Error(`Failed to parse JSON: ${parseError.message}`);
+        return null;
+      };
+
+      const parseAttempts = [];
+      // 1. Direct parse
+      try {
+        const parsed = JSON.parse(content);
+        const extracted = extractToolsFromParsed(parsed);
+        if (extracted) tools = extracted;
+      } catch (e) {
+        parseAttempts.push({ stage: 'direct', error: e.message });
+      }
+
+      // 2. JSON inside ```json``` code block (object or array)
+      if (!tools) {
+        const codeBlock = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (codeBlock) {
+          try {
+            const parsed = JSON.parse(codeBlock[1]);
+            const extracted = extractToolsFromParsed(parsed);
+            if (extracted) tools = extracted;
+          } catch (e) {
+            parseAttempts.push({ stage: 'code-block', error: e.message });
+          }
         }
+      }
+
+      // 3. First balanced { ... } object found in prose
+      if (!tools) {
+        const firstObjectMatch = content.match(/\{[\s\S]*\}/);
+        if (firstObjectMatch) {
+          try {
+            const parsed = JSON.parse(firstObjectMatch[0]);
+            const extracted = extractToolsFromParsed(parsed);
+            if (extracted) tools = extracted;
+          } catch (e) {
+            parseAttempts.push({ stage: 'first-object', error: e.message });
+          }
+        }
+      }
+
+      // 4. First bare array found in prose
+      if (!tools) {
+        const firstArrayMatch = content.match(/\[[\s\S]*\]/);
+        if (firstArrayMatch) {
+          try {
+            const parsed = JSON.parse(firstArrayMatch[0]);
+            if (Array.isArray(parsed)) tools = parsed;
+          } catch (e) {
+            parseAttempts.push({ stage: 'first-array', error: e.message });
+          }
+        }
+      }
+
+      if (!tools) {
+        logger.error({ requestId, parseAttempts, contentPreview: content.substring(0, 500) }, '[tools-automation] Failed to extract tools JSON');
+        throw new Error('Failed to parse tools JSON from OpenAI response');
       }
       
       if (!Array.isArray(tools)) {
