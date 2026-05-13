@@ -19,6 +19,7 @@
     "watch:css": "sass --watch assets/css/main.scss:assets/css/main-compiled.css",
     "check:env": "node scripts/check-env.mjs",
     "check:ports": "npm run check:env",
+    "build:favicon": "node scripts/generate-favicon.mjs",
     "test:e2e": "playwright test",
     "build:packages": "npm run build --workspaces --if-present",
     "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite"
@@ -44,9 +45,11 @@
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^6.0.0",
     "@playwright/test": "^1.59.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@vitejs/plugin-legacy": "^5.4.0",
     "autoprefixer": "^10.4.20",
     "cssnano": "^7.0.6",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.4.47",
     "postcss-import": "^16.1.0",
     "sass": "^1.94.2",

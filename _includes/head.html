@@ -172,8 +172,14 @@
     <meta name="twitter:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
     <meta name="twitter:image:alt" content="{% if page.title %}{{ page.title }} - Specifys.ai{% else %}Specifys.ai - AI-powered app planning platform{% endif %}">
     
-    <!-- Favicon -->
+    <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
+    <link rel="icon" type="image/svg+xml" href="{{ '/favicon.svg' | relative_url }}">
     <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32.png' | relative_url }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ '/assets/images/favicon-16.png' | relative_url }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+    <link rel="mask-icon" href="{{ '/favicon.svg' | relative_url }}" color="#FF6B35">
+    <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
     
     <!-- CSS - Unified compiled CSS file -->
