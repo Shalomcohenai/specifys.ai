@@ -195,29 +195,48 @@ async function getUserCredits(userId, autoCreate = true) {
     logger.warn({ userId }, '[CREDITS-V3] getUserCredits - Credits document does NOT exist');
     
     if (autoCreate) {
+      // Determine whether this is a brand-new auth user that hasn't been initialized yet.
+      // If so, the welcome credit must be granted here too, otherwise a race between
+      // GET /api/v3/credits and POST /api/users/initialize would persist a 0-credit
+      // document and the header would render "Credits: 0" for a just-registered user.
+      const recentlyCreatedThresholdMs = 10 * 60 * 1000; // 10 minutes
+      let isRecentlyCreatedAuthUser = false;
+      try {
+        const authUser = await admin.auth().getUser(userId);
+        const creationTime = authUser?.metadata?.creationTime
+          ? new Date(authUser.metadata.creationTime)
+          : null;
+        if (creationTime && !isNaN(creationTime.getTime())) {
+          isRecentlyCreatedAuthUser = (Date.now() - creationTime.getTime()) <= recentlyCreatedThresholdMs;
+        }
+      } catch (authLookupError) {
+        logger.warn({ userId, error: authLookupError?.message }, '[CREDITS-V3] getUserCredits - Could not look up auth user for new-user detection (treating as not new)');
+      }
+
       // Check if user document exists
-      logger.info({ userId }, '[CREDITS-V3] getUserCredits - Checking if user is initialized...');
+      logger.info({ userId, isRecentlyCreatedAuthUser }, '[CREDITS-V3] getUserCredits - Checking if user is initialized...');
       const userRef = db.collection(USERS_COLLECTION).doc(userId);
       const userDoc = await userRef.get();
       
+      const initialCredits = isRecentlyCreatedAuthUser
+        ? getInitialCreditsForNewUser(userId)
+        : getDefaultCredits(userId);
+
       if (!userDoc.exists) {
-        // User doesn't exist in Firestore - still create default credits
-        // This handles cases where user was created in Auth but initialize failed
-        logger.warn({ userId }, '[CREDITS-V3] getUserCredits - ⚠️ User not initialized in Firestore, but autoCreate=true - creating default credits anyway');
-        const defaultCredits = getDefaultCredits(userId);
-        logger.info({ userId }, '[CREDITS-V3] getUserCredits - Saving default credits to Firestore...');
-        await creditsRef.set(defaultCredits);
-        logger.info({ userId }, '[CREDITS-V3] getUserCredits - ✅ Default credits saved to Firestore (user not in Firestore yet)');
-        return defaultCredits;
+        // User doesn't exist in Firestore - still create credits.
+        // For a recently-created auth user this includes the welcome credit so that
+        // a GET arriving before /api/users/initialize does not strand them at 0.
+        logger.warn({ userId, isRecentlyCreatedAuthUser }, '[CREDITS-V3] getUserCredits - ⚠️ User not initialized in Firestore, autoCreate=true');
+        await creditsRef.set(initialCredits);
+        logger.info({ userId, isRecentlyCreatedAuthUser, total: initialCredits.total }, '[CREDITS-V3] getUserCredits - ✅ Credits saved to Firestore (user not in Firestore yet)');
+        return initialCredits;
       }
       
-      // User exists - create default credits
-      logger.warn({ userId }, '[CREDITS-V3] getUserCredits - ⚠️ autoCreate=true, user exists but credits do not exist, creating default credits (0)');
-      const defaultCredits = getDefaultCredits(userId);
-      logger.info({ userId }, '[CREDITS-V3] getUserCredits - Saving default credits to Firestore...');
-      await creditsRef.set(defaultCredits);
-      logger.info({ userId }, '[CREDITS-V3] getUserCredits - ✅ Default credits saved to Firestore');
-      return defaultCredits;
+      // User exists - create credits
+      logger.warn({ userId, isRecentlyCreatedAuthUser }, '[CREDITS-V3] getUserCredits - ⚠️ autoCreate=true, user exists but credits do not exist, creating credits');
+      await creditsRef.set(initialCredits);
+      logger.info({ userId, isRecentlyCreatedAuthUser, total: initialCredits.total }, '[CREDITS-V3] getUserCredits - ✅ Credits saved to Firestore');
+      return initialCredits;
     } else {
       logger.error({ userId }, '[CREDITS-V3] getUserCredits - ❌ autoCreate=false, throwing error');
       throw new Error(`User credits not found for user ${userId}. User must be initialized first via /api/users/initialize`);

@@ -109,10 +109,15 @@
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
       
-      // Check if user is new based on sessionStorage flag (set in auth.html during registration)
-      // This helps the server correctly identify new users even if documents were created by race condition
+      // Check if user is new based on sessionStorage flags (set in auth.html during registration)
+      // This helps the server correctly identify new users even if documents were created by race condition.
+      // We treat ANY of these flags as a strong signal that the user just registered, so that the
+      // popup-removal timeout (1s) cannot accidentally hide the new-user signal before the API responds.
       const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
-      const isNewUser = showCreditPopup; // If showCreditPopup is set, user is likely new
+      const refreshCreditsOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
+      const welcomeCreditsCountRaw = sessionStorage.getItem('welcomeCreditsCount');
+      const hasWelcomeCount = welcomeCreditsCountRaw !== null && welcomeCreditsCountRaw !== '' && parseInt(welcomeCreditsCountRaw, 10) > 0;
+      const isNewUser = showCreditPopup || refreshCreditsOnLoad || hasWelcomeCount;
       
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
@@ -151,21 +156,25 @@
       if (response.ok) {
         const result = await response.json();
         
-        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist
-        // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
-        // The flag should be set in auth.html using getAdditionalUserInfo or for registration
-        const existingFlag = sessionStorage.getItem('showCreditPopup');
-        if (!existingFlag && result && result.isNewUser) {
+        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist.
+        // Decide whether to refresh credits using a broader signal: any welcome-related flag, OR an
+        // optimistic count that hasn't been consumed yet, OR the server explicitly reporting isNewUser.
+        // This avoids a race where index.js's 1s popup-removal timer wipes `showCreditPopup` before
+        // /api/users/initialize finishes — previously that race blocked the refresh entirely.
+        const popupFlag = sessionStorage.getItem('showCreditPopup');
+        const refreshFlag = sessionStorage.getItem('refreshCreditsOnLoad');
+        const welcomeCount = sessionStorage.getItem('welcomeCreditsCount');
+        const hasPendingWelcomeUI = popupFlag === 'true' || refreshFlag === 'true' || (welcomeCount && parseInt(welcomeCount, 10) > 0);
+
+        if (!hasPendingWelcomeUI && result && result.isNewUser) {
           sessionStorage.setItem('showCreditPopup', 'true');
-          
-          // Note: checkForCreditPopup will be called from index.js after credit initialization
-          // No need to call it here to avoid duplicate calls
-        } else if (existingFlag) {
-          // נקה cache
+          if (result && typeof result.creditsGranted === 'number' && result.creditsGranted > 0) {
+            sessionStorage.setItem('welcomeCreditsCount', String(result.creditsGranted));
+          }
+        } else if (hasPendingWelcomeUI) {
           if (typeof window.clearCreditsCache === 'function') {
             window.clearCreditsCache();
           }
-          // עדכן תצוגה עם forceRefresh
           if (typeof window.updateCreditsDisplay === 'function') {
             window.updateCreditsDisplay({ forceRefresh: true });
           }

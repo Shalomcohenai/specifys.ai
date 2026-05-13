@@ -92,16 +92,64 @@
   let isUpdating = false;
 
   /**
-   * Check if user is authenticated and show loading state immediately
-   * This runs early, before waiting for dependencies, to provide instant feedback
+   * Read the count of welcome credits granted during the most recent signup.
+   * Falls back to legacy boolean flags so older sessions still get the welcome UI.
+   * @returns {number} - Optimistic credit count (0 means "no optimistic state").
+   */
+  function getOptimisticWelcomeCount() {
+    try {
+      const raw = sessionStorage.getItem('welcomeCreditsCount');
+      if (raw !== null && raw !== '') {
+        const parsed = parseInt(raw, 10);
+        if (!Number.isNaN(parsed) && parsed > 0) {
+          return parsed;
+        }
+      }
+      const refreshOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
+      const showPopup = sessionStorage.getItem('showCreditPopup') === 'true';
+      if (refreshOnLoad || showPopup) {
+        return 1;
+      }
+    } catch (e) {
+      // sessionStorage may be unavailable (e.g. SSR/private mode); ignore.
+    }
+    return 0;
+  }
+
+  /**
+   * Render the optimistic "Credits: N" state if a welcome grant is pending.
+   * Safe to call before Firebase has restored the auth session.
+   * @returns {boolean} - true if optimistic state was applied.
+   */
+  function applyOptimisticWelcomeCreditsIfNeeded() {
+    const total = getOptimisticWelcomeCount();
+    if (total <= 0) return false;
+    applyCreditsState({
+      text: `Credits: ${total}`,
+      variant: 'credits',
+      title: `${total} specification credit${total !== 1 ? 's' : ''} remaining`
+    });
+    return true;
+  }
+
+  /**
+   * Show the earliest possible state for the credits widget:
+   *  - If a welcome grant is pending (just registered), render "Credits: N" optimistically.
+   *    This must NOT depend on auth.currentUser, because Firebase's IndexedDB hydration
+   *    is async and `currentUser` is typically null for the first ~100-500ms after redirect.
+   *  - Otherwise, if Firebase already exposes an authenticated user, show the loading state.
+   *  - Otherwise, leave the element hidden (guest UI is decided later in init()).
    */
   function checkAndShowLoadingEarly() {
-    // Try to check if user is authenticated without waiting
+    // Highest priority: a brand-new user that we already know was granted N credits.
+    if (applyOptimisticWelcomeCreditsIfNeeded()) {
+      return;
+    }
+
     let auth = null;
     try {
       auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
     } catch (e) {
-      // Firebase might not be ready yet, that's okay
       return;
     }
 
@@ -109,10 +157,8 @@
       return;
     }
 
-    // Check if user is already authenticated
     const user = auth.currentUser;
     if (user) {
-      // Show loading state immediately
       applyCreditsState(LOADING_STATE);
     }
   }
@@ -137,13 +183,19 @@
     // Check if user is authenticated
     const auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
     if (!auth) {
-      applyCreditsState(GUEST_PRICING_STATE);
+      // If we're mid-welcome-grant the absence of auth is almost certainly transient
+      // (Firebase compat still hydrating from IndexedDB). Don't trash the optimistic UI.
+      if (!applyOptimisticWelcomeCreditsIfNeeded()) {
+        applyCreditsState(GUEST_PRICING_STATE);
+      }
       return;
     }
 
     const user = auth.currentUser;
     if (!user) {
-      applyCreditsState(GUEST_PRICING_STATE);
+      if (!applyOptimisticWelcomeCreditsIfNeeded()) {
+        applyCreditsState(GUEST_PRICING_STATE);
+      }
       return;
     }
 
@@ -163,12 +215,40 @@
 
       // Get credits from manager
       const credits = await manager.getCredits(options.forceRefresh);
-      
-      // Format for display
-      const displayState = manager.formatCredits(credits);
-      
-      // Apply to UI
-      applyCreditsState(displayState);
+
+      // Guard: if a welcome grant is still pending and the API hasn't caught up
+      // (returns less than the optimistic count), keep the optimistic state on
+      // screen instead of regressing to "Credits: 0".
+      const optimisticTotal = getOptimisticWelcomeCount();
+      const apiTotal = (credits && typeof credits.total === 'number') ? credits.total : null;
+      const apiIsBehindOptimistic = optimisticTotal > 0
+        && !(credits && credits.unlimited)
+        && apiTotal !== null
+        && apiTotal < optimisticTotal;
+
+      if (apiIsBehindOptimistic) {
+        applyOptimisticWelcomeCreditsIfNeeded();
+        if (window.appLogger) {
+          window.appLogger.log('Debug', 'API total behind optimistic, keeping optimistic UI', {
+            context: 'CreditsV3Display.updateCreditsDisplay',
+            apiTotal,
+            optimisticTotal
+          });
+        }
+      } else {
+        // Format for display and apply to UI
+        const displayState = manager.formatCredits(credits);
+        applyCreditsState(displayState);
+
+        // API matches/exceeds optimistic — clear the optimistic flags so future loads
+        // don't keep retrying.
+        if (optimisticTotal > 0 && (credits?.unlimited || (apiTotal !== null && apiTotal >= optimisticTotal))) {
+          try {
+            sessionStorage.removeItem('welcomeCreditsCount');
+            sessionStorage.removeItem('refreshCreditsOnLoad');
+          } catch (e) { /* sessionStorage unavailable */ }
+        }
+      }
     } catch (error) {
       // Enhanced error logging with more context
       if (window.appLogger) {
@@ -235,9 +315,18 @@
     try {
       await updateCreditsDisplay(options);
       const credits = await manager.getCredits(options.forceRefresh);
-      
-      // If we got credits (even 0) or unlimited, we're done
-      if (credits && (credits.total !== undefined || credits.unlimited)) {
+
+      // For brand-new users we showed an optimistic Credits: N. If the API returns 0
+      // it usually means the welcome grant hasn't propagated yet — keep retrying so we
+      // don't end up flashing "Credits: 0" over our optimistic UI.
+      const optimisticTotal = getOptimisticWelcomeCount();
+      const apiTotal = (credits && typeof credits.total === 'number') ? credits.total : null;
+      const hasReachedOptimistic = credits && (
+        credits.unlimited ||
+        (apiTotal !== null && (optimisticTotal <= 0 || apiTotal >= optimisticTotal))
+      );
+
+      if (hasReachedOptimistic) {
         if (window.appLogger && attempt > 0) {
           window.appLogger.log('Info', 'Credits loaded successfully after retry', {
             context: 'CreditsV3Display.updateCreditsDisplayWithRetry',
@@ -245,6 +334,11 @@
             credits: credits.unlimited ? 'unlimited' : credits.total
           });
         }
+        // Welcome grant has materialised; we no longer need the optimistic flag.
+        try {
+          sessionStorage.removeItem('welcomeCreditsCount');
+          sessionStorage.removeItem('refreshCreditsOnLoad');
+        } catch (e) { /* sessionStorage unavailable */ }
         return; // Success!
       }
       
@@ -374,6 +468,10 @@
       return;
     }
 
+    // Apply optimistic Credits: N before any auth check. Safe to repeat — applies only
+    // when sessionStorage holds a pending welcome grant.
+    applyOptimisticWelcomeCreditsIfNeeded();
+
     // Wait for Firebase auth
     const auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
     if (!auth) {
@@ -381,17 +479,24 @@
       if (typeof firebase !== 'undefined' && firebase.auth) {
         firebase.auth().onAuthStateChanged((user) => {
           if (user) {
-            // Show loading state immediately when user logs in
-            applyCreditsState(LOADING_STATE);
-            // Then update with actual credits
-            updateCreditsDisplay();
-          } else {
+            // Respect a pending welcome grant here too (mirrors the main path below).
+            if (getOptimisticWelcomeCount() > 0) {
+              applyOptimisticWelcomeCreditsIfNeeded();
+              updateCreditsDisplayWithRetry({ forceRefresh: true }, 5);
+              showWelcomeCreditMessage();
+            } else {
+              applyCreditsState(LOADING_STATE);
+              updateCreditsDisplay();
+            }
+          } else if (getOptimisticWelcomeCount() <= 0) {
             applyCreditsState(GUEST_PRICING_STATE);
           }
         });
       }
-      // Show Pricing for guests while auth loads
-      applyCreditsState(GUEST_PRICING_STATE);
+      // Show Pricing for guests while auth loads — only if we're not in the welcome flow.
+      if (getOptimisticWelcomeCount() <= 0) {
+        applyCreditsState(GUEST_PRICING_STATE);
+      }
       return;
     }
 
@@ -401,16 +506,43 @@
     }
     window.__creditsV3DisplayInitialized = true;
 
-    // Subscribe to auth state changes (only once)
+    // Helper: handle the "new-user landing on homepage right after registration" path.
+    // Must be safe to call multiple times (e.g. once from init's eager check, once
+    // from onAuthStateChanged once Firebase finishes restoring the session).
+    let welcomeFlowStarted = false;
+    function startWelcomeFlow() {
+      if (welcomeFlowStarted) return;
+      welcomeFlowStarted = true;
+      // Optimistic UI is also applied in checkAndShowLoadingEarly, but reapply
+      // here in case some other code path (e.g. LOADING_STATE) just overwrote it.
+      applyOptimisticWelcomeCreditsIfNeeded();
+      updateCreditsDisplayWithRetry({ forceRefresh: true }, 5);
+      showWelcomeCreditMessage();
+    }
+
+    // Subscribe to auth state changes (only once).
+    // IMPORTANT: this listener must respect a pending welcome grant. If we just landed
+    // here after register, currentUser is typically null when init() runs, so the
+    // optimistic/new-user path below cannot trigger synchronously. We therefore mirror
+    // the new-user handling inside this callback for when auth eventually hydrates.
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        // Show loading state immediately when user logs in
-        applyCreditsState(LOADING_STATE);
-        // Then update with actual credits
-        updateCreditsDisplay();
-      } else {
-        applyCreditsState(GUEST_PRICING_STATE);
+      if (!user) {
+        // Don't overwrite an optimistic Credits: N with "Pricing" — that would happen
+        // briefly during initial hydration if we trusted the first (null) fire.
+        if (getOptimisticWelcomeCount() <= 0) {
+          applyCreditsState(GUEST_PRICING_STATE);
+        }
+        return;
       }
+
+      if (getOptimisticWelcomeCount() > 0) {
+        startWelcomeFlow();
+        return;
+      }
+
+      // Established user — show loading then refresh from API.
+      applyCreditsState(LOADING_STATE);
+      updateCreditsDisplay();
     });
 
     // Subscribe to credit updates from manager
@@ -419,37 +551,20 @@
       applyCreditsState(displayState);
     });
 
-    // Check if we need to refresh credits on load (for new users)
-    const needsRefreshOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
-    const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
-    const isNewUser = needsRefreshOnLoad || showCreditPopup;
-    
-    if (needsRefreshOnLoad) {
-      sessionStorage.removeItem('refreshCreditsOnLoad');
+    // Eager path: if we ALREADY know we're a freshly-registered user (sessionStorage
+    // flag from auth.html), kick off the welcome flow immediately, regardless of
+    // whether Firebase has restored the session yet. This is the key fix for the
+    // "Credits: 0 until refresh" bug.
+    if (getOptimisticWelcomeCount() > 0) {
+      startWelcomeFlow();
+      return;
     }
-    
-    // Initial update - only if user is authenticated
+
+    // Otherwise, take the normal path based on the (possibly transient) currentUser.
     const currentUser = auth.currentUser;
     if (currentUser) {
-      if (isNewUser) {
-        // SOLUTION 1: Optimistic UI - Show 1 credit immediately for new users
-        applyCreditsState({
-          text: 'Credits: 1',
-          variant: 'credits',
-          title: '1 specification credit remaining'
-        });
-        
-        // SOLUTION 2: Polling with retry - Load real credits in background
-        // This will update the display when credits are ready
-        updateCreditsDisplayWithRetry({ forceRefresh: true }, 5);
-        
-        // Show welcome message for new users
-        showWelcomeCreditMessage();
-      } else {
-        updateCreditsDisplay();
-      }
+      updateCreditsDisplay();
     } else {
-      // Show Pricing for guests (not authenticated)
       applyCreditsState(GUEST_PRICING_STATE);
     }
   }
