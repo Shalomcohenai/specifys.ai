@@ -302,7 +302,12 @@ async function checkInactiveUsers() {
 }
 
 /**
- * Start tools finder job (runs weekly - every 7 days)
+ * Start tools finder job (runs daily at a configurable hour)
+ *
+ * Env:
+ * - TOOLS_AUTOMATION_ENABLED — master switch (default on)
+ * - TOOLS_FINDER_HOUR — 0–23 (default: 10)
+ * - TOOLS_FINDER_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC)
  */
 function startToolsFinderJob() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -327,15 +332,31 @@ function startToolsFinderJob() {
     logger.info('[scheduled-jobs] Tools finder job registered');
   }
 
-  // Calculate milliseconds in 7 days
-  const days7 = 7 * 24 * 60 * 60 * 1000;
+  const timezone = process.env.TOOLS_FINDER_TIMEZONE
+    || process.env.REPORT_TIMEZONE
+    || 'UTC';
 
-  // Run job every 7 days
-  toolsFinderInterval = setInterval(() => {
+  let reportHour = parseInt(process.env.TOOLS_FINDER_HOUR, 10);
+  if (Number.isNaN(reportHour) || reportHour < 0 || reportHour > 23) {
+    reportHour = 10;
+  }
+
+  const hours24 = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const nextRun = getNextScheduledTime(reportHour, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
+
+  setTimeout(() => {
     runToolsFinderJob();
-  }, days7);
+    toolsFinderInterval = setInterval(runToolsFinderJob, hours24);
+  }, msUntilNext);
 
-  logger.info('[scheduled-jobs] Tools finder job started - will run every 7 days');
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    reportHour,
+    timezone,
+    msUntilNext
+  }, '[scheduled-jobs] Tools finder job scheduled (daily)');
 }
 
 /**
@@ -374,28 +395,27 @@ async function runToolsFinderJob() {
 }
 
 /**
- * Start weekly article writer job (vibe coding / AI topics + N articles per run)
+ * Start daily article writer job (one article per day, auto-generated topic).
  *
  * Env:
- * - WEEKLY_ARTICLES_ENABLED — default true when articles automation is on (set 'false' to disable schedule only)
- * - WEEKLY_ARTICLES_DAY — 0–6, Sunday–Saturday (default: 1 = Monday)
- * - WEEKLY_ARTICLES_HOUR — 0–23 (default: 9)
- * - WEEKLY_ARTICLES_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC)
- * - WEEKLY_ARTICLES_COUNT — articles per run (default: 3, max 10)
  * - ARTICLES_AUTOMATION_ENABLED — master switch (default on)
+ * - DAILY_ARTICLES_ENABLED — daily schedule switch (default on; falls back to WEEKLY_ARTICLES_ENABLED for backward compat)
+ * - DAILY_ARTICLES_HOUR — 0–23 (default: 9; falls back to WEEKLY_ARTICLES_HOUR for backward compat)
+ * - DAILY_ARTICLES_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC; falls back to WEEKLY_ARTICLES_TIMEZONE)
  */
 function startArticleWriterJob() {
   const apiKey = process.env.OPENAI_API_KEY;
   const masterEnabled = process.env.ARTICLES_AUTOMATION_ENABLED !== 'false';
-  const weeklyEnabled = process.env.WEEKLY_ARTICLES_ENABLED !== 'false';
+  const dailyEnabledRaw = process.env.DAILY_ARTICLES_ENABLED ?? process.env.WEEKLY_ARTICLES_ENABLED;
+  const dailyEnabled = dailyEnabledRaw !== 'false';
 
   if (!masterEnabled) {
     logger.info('[scheduled-jobs] Article writer job disabled via ARTICLES_AUTOMATION_ENABLED');
     return;
   }
 
-  if (!weeklyEnabled) {
-    logger.info('[scheduled-jobs] Weekly article writer schedule disabled via WEEKLY_ARTICLES_ENABLED');
+  if (!dailyEnabled) {
+    logger.info('[scheduled-jobs] Daily article writer schedule disabled via DAILY_ARTICLES_ENABLED');
     return;
   }
 
@@ -412,63 +432,48 @@ function startArticleWriterJob() {
     logger.info('[scheduled-jobs] Article writer job registered');
   }
 
-  const timezone = process.env.WEEKLY_ARTICLES_TIMEZONE || process.env.REPORT_TIMEZONE || 'UTC';
-  let reportHour = parseInt(process.env.WEEKLY_ARTICLES_HOUR, 10);
+  const timezone = process.env.DAILY_ARTICLES_TIMEZONE
+    || process.env.WEEKLY_ARTICLES_TIMEZONE
+    || process.env.REPORT_TIMEZONE
+    || 'UTC';
+
+  const hourRaw = process.env.DAILY_ARTICLES_HOUR ?? process.env.WEEKLY_ARTICLES_HOUR;
+  let reportHour = parseInt(hourRaw, 10);
   if (Number.isNaN(reportHour) || reportHour < 0 || reportHour > 23) {
     reportHour = 9;
   }
 
-  let targetDay = parseInt(process.env.WEEKLY_ARTICLES_DAY, 10);
-  if (Number.isNaN(targetDay) || targetDay < 0 || targetDay > 6) {
-    targetDay = 1;
-  }
-
-  const days7 = 7 * 24 * 60 * 60 * 1000;
+  const hours24 = 24 * 60 * 60 * 1000;
   const now = new Date();
-  const tzNow = toZonedTime(now, timezone);
-
-  let daysUntil = (targetDay - tzNow.getDay() + 7) % 7;
-  if (daysUntil === 0 && tzNow.getHours() >= reportHour) {
-    daysUntil = 7;
-  }
-
-  const nextRunLocal = new Date(tzNow);
-  nextRunLocal.setDate(tzNow.getDate() + daysUntil);
-  nextRunLocal.setHours(reportHour, 0, 0, 0);
-  nextRunLocal.setSeconds(0, 0);
-  nextRunLocal.setMilliseconds(0);
-
-  const nextRun = fromZonedTime(nextRunLocal, timezone);
+  const nextRun = getNextScheduledTime(reportHour, timezone);
   const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
 
   setTimeout(() => {
     runArticleWriterJob();
-    articleWriterInterval = setInterval(() => {
-      runArticleWriterJob();
-    }, days7);
+    articleWriterInterval = setInterval(runArticleWriterJob, hours24);
   }, msUntilNext);
 
   logger.info({
     nextRun: nextRun.toISOString(),
     reportHour,
-    targetDay,
     timezone,
     msUntilNext
-  }, '[scheduled-jobs] Weekly article writer scheduled');
+  }, '[scheduled-jobs] Daily article writer scheduled');
 }
 
 /**
- * Run weekly article batch once (topic list + one article per topic)
+ * Run one daily article (auto-generated topic + sitemap refresh).
+ * Set overrides.weeklyBatch=true (with optional articleCount) to fall back to the legacy multi-article batch.
  */
 async function runArticleWriterJob(overrides = {}) {
   const requestId = `scheduled-article-writer-${Date.now()}`;
 
   try {
-    logger.info({ requestId }, '[scheduled-jobs] Starting scheduled weekly article writer job');
+    logger.info({ requestId, overrides }, '[scheduled-jobs] Starting scheduled daily article writer job');
 
     const execResult = await jobRegistry.executeJob('article-writer', {
       dryRun: false,
-      weeklyBatch: true,
+      weeklyBatch: false,
       ...overrides
     });
 
@@ -481,17 +486,23 @@ async function runArticleWriterJob(overrides = {}) {
     }
 
     const r = execResult.result;
-    if (r?.skipped) {
-      logger.info({ requestId, weekKey: r.weekKey, reason: r.reason }, '[scheduled-jobs] Weekly article batch skipped');
+
+    if (r?.weeklyBatch) {
+      logger.info({
+        requestId,
+        weekKey: r?.weekKey,
+        articleCount: r?.articles?.length,
+        errors: r?.errors?.length || 0
+      }, '[scheduled-jobs] Article writer batch run completed');
       return execResult;
     }
 
     logger.info({
       requestId,
-      weekKey: r?.weekKey,
-      articleCount: r?.articles?.length,
-      errors: r?.errors?.length || 0
-    }, '[scheduled-jobs] Scheduled weekly article writer job completed');
+      articleId: r?.article?.id,
+      title: r?.article?.title,
+      slug: r?.article?.slug
+    }, '[scheduled-jobs] Daily article writer job completed');
     return execResult;
   } catch (error) {
     logger.error({

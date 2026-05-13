@@ -1,58 +1,14 @@
-// Articles Routes - Firebase-based articles management with Cloudflare Worker integration
+// Articles Routes - Firebase-based articles management
 const { db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { generateAndSaveSitemap, generateSitemapXml } = require('./sitemap-generator');
 const { recordArticleView } = require('./analytics-service');
-
-// Use built-in fetch for Node.js 18+ or fallback to node-fetch
-let fetch;
-if (typeof globalThis.fetch === 'function') {
-  fetch = globalThis.fetch;
-} else {
-  fetch = require('node-fetch');
-}
+const { jobRegistry } = require('./automation-service');
+const { ArticleWriterJob } = require('./articles-automation');
 
 // Collection name for articles
 const ARTICLES_COLLECTION = 'articles';
-
-// Worker URL
-const WORKER_URL = 'https://articles.shalom-cohen-111.workers.dev/';
-
-// Article generation prompt
-const articleGenerationPrompt = {
-    system: `You are a no-BS dev-tools writer in 2025. 
-
-Your readers are senior developers and indie hackers who hate fluff, love concrete examples, benchmarks, prompts, before/after code, and real numbers. 
-
-Write like swyx, levelsio or addy osmani – short sentences, zero corporate speak, maximum value per word.`,
-
-    developer: `Return ONLY a valid JSON object with this exact structure:
-
-{
-  "title": "Clickbait-but-honest title, 55-70 chars, primary keyword first",
-  "seo_title": "SEO title, 50-60 chars, keyword front-loaded",
-  "short_title": "Short punchy title for previews, 35-50 chars",
-  "teaser_90": "Exactly 90 characters teaser that makes people click",
-  "description_160": "Meta description exactly 160 characters, includes main keyword + promise",
-  "content_markdown": "Full article in clean Markdown. Requirements:
-    • 800-1200 words max (brevity = respect)
-    • H2/H3 only, no fluff intros
-    • First H2 must appear in first 100 words
-    • Every section has at least one real code block, prompt example, or screenshot-worthy result
-    • Include exact prompts used
-    • Before/after comparisons when relevant
-    • Real numbers (time saved, tokens used, success rate)
-    • Zero philosophical rambling
-    • Ends with 'TL;DR' section + actionable next steps
-    • Tone: direct, slightly sarcastic when something sucks",
-  "tags": ["array", "of", "5-8", "hyper-specific", "2025-relevant", "tags"]
-}`,
-
-    user: (topic) => `Write a 2025-style, zero-fluff, example-heavy article about: ${topic}
-
-Target audience: developers who already know what vibe coding is and just want the new hotness, benchmarks, and copy-paste prompts.`
-};
 
 // Helper: Slugify text for URL-friendly slugs
 function slugify(text) {
@@ -61,28 +17,6 @@ function slugify(text) {
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '');
-}
-
-// Helper: Validate article data from worker
-function validateArticleData(data) {
-    const requiredFields = ['title', 'seo_title', 'short_title', 'teaser_90', 'description_160', 'content_markdown', 'tags'];
-    const missingFields = requiredFields.filter(field => !data[field]);
-    
-    if (missingFields.length > 0) {
-        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
-    }
-    
-    if (!Array.isArray(data.tags)) {
-        throw new Error('Tags must be an array');
-    }
-    if (!/^#\s+/m.test(data.content_markdown || '')) {
-        throw new Error('Article must include an H1 heading');
-    }
-    if (!/^##\s+/m.test(data.content_markdown || '')) {
-        throw new Error('Article must include at least one H2 heading');
-    }
-    
-    return true;
 }
 
 // Helper: Safely convert Firestore Timestamp to Date
@@ -128,191 +62,88 @@ function convertTimestamp(timestamp) {
     return null;
 }
 
-// Helper: Format article data for Firebase
-function formatArticleForFirebase(workerResponse, topic) {
-    const articleSlug = slugify(workerResponse.title);
-    
-    return {
-        topic: topic.trim(),
-        title: workerResponse.title,
-        seo_title: workerResponse.seo_title,
-        short_title: workerResponse.short_title,
-        teaser_90: workerResponse.teaser_90,
-        description_160: workerResponse.description_160,
-        metaDescription: workerResponse.description_160,
-        content_markdown: workerResponse.content_markdown,
-        tags: workerResponse.tags || [],
-        slug: articleSlug,
-        status: 'published', // Default to published after successful generation
-        views: 0,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        publishedAt: admin.firestore.FieldValue.serverTimestamp()
-    };
-}
-
-// Route: Generate new article
+// Route: Generate new article (admin manual trigger)
+// Uses the same ArticleWriterJob as the daily scheduler — no external worker.
 async function generateArticle(req, res, next) {
     const requestId = req.requestId || `article-generate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    logger.info({ requestId }, '[articles-routes] Generating article');
-    
+    logger.info({ requestId }, '[articles-routes] Generating article via ArticleWriterJob');
+
     try {
         const { topic } = req.body;
-        
+
         if (!topic || typeof topic !== 'string' || topic.trim().length === 0) {
             return next(createError('Topic is required and must be a non-empty string', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
-        
-        // Create initial document with status "generating"
-        const initialDoc = {
-            topic: topic.trim(),
-            status: 'generating',
-            views: 0,
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
-        };
-        
-        const docRef = db.collection(ARTICLES_COLLECTION).doc();
-        await docRef.set(initialDoc);
-        
-        logger.info({ requestId, articleId: docRef.id, topic }, '[articles-routes] Initial document created with status "generating"');
-        
-        // Call Cloudflare Worker
-        let workerResponse;
+
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+            return next(createError('OPENAI_API_KEY is not configured on the server', ERROR_CODES.CONFIGURATION_ERROR, 500));
+        }
+
+        // Ensure the job is registered (the scheduler registers it too; this is a fallback for admin triggers).
         try {
-            logger.info({ requestId, workerUrl: WORKER_URL }, '[articles-routes] Calling Cloudflare Worker');
-            
-            // Prepare prompt with topic
-            const prompt = {
-                system: articleGenerationPrompt.system,
-                developer: articleGenerationPrompt.developer,
-                user: articleGenerationPrompt.user(topic.trim())
-            };
-            
-            const workerRequestStart = Date.now();
-            const fetchResponse = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    topic: topic.trim(),
-                    prompt: prompt
-                })
-            });
-            
-            const workerRequestTime = Date.now() - workerRequestStart;
-            logger.info({ requestId, status: fetchResponse.status, duration: `${workerRequestTime}ms` }, '[articles-routes] Worker response received');
-            
-            if (!fetchResponse.ok) {
-                const errorText = await fetchResponse.text();
-                let errorData;
-                try {
-                    errorData = JSON.parse(errorText);
-                } catch (e) {
-                    errorData = { error: errorText };
-                }
-                
-                logger.error({ requestId, status: fetchResponse.status, error: errorData }, '[articles-routes] Worker returned error');
-                
-                // Update document with error status
-                await docRef.update({
-                    status: 'generating', // Keep as generating for retry
-                    error: errorData.error || `Worker returned status ${fetchResponse.status}`,
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                });
-                
-                return next(createError(
-                    errorData.error || `Failed to generate article: HTTP ${fetchResponse.status}`,
-                    ERROR_CODES.EXTERNAL_SERVICE_ERROR,
-                    500
-                ));
-            }
-            
-            workerResponse = await fetchResponse.json();
-            logger.info({ requestId, hasTitle: !!workerResponse.title }, '[articles-routes] Worker response parsed');
-            
-        } catch (fetchError) {
-            logger.error({ requestId, error: { message: fetchError.message, stack: fetchError.stack } }, '[articles-routes] Worker fetch error');
-            
-            // Update document with error status
-            await docRef.update({
-                status: 'generating', // Keep as generating for retry
-                error: fetchError.message,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            
-            return next(createError(
-                `Failed to connect to article generation service: ${fetchError.message}`,
-                ERROR_CODES.EXTERNAL_SERVICE_ERROR,
-                500
-            ));
+            jobRegistry.getJob('article-writer');
+        } catch (notRegistered) {
+            const job = new ArticleWriterJob({ openaiApiKey: apiKey });
+            jobRegistry.registerJob('article-writer', job);
+            logger.info({ requestId }, '[articles-routes] Article writer job registered on-demand');
         }
-        
-        // Validate worker response
-        try {
-            validateArticleData(workerResponse);
-        } catch (validationError) {
-            logger.error({ requestId, error: validationError.message }, '[articles-routes] Worker response validation failed');
-            
-            await docRef.update({
-                status: 'generating',
-                error: validationError.message,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            
-            return next(createError(validationError.message, ERROR_CODES.VALIDATION_ERROR, 400));
-        }
-        
-        // Format and save article data
-        const articleData = formatArticleForFirebase(workerResponse, topic);
-        
-        // Check if slug already exists
-        const snapshot = await db.collection(ARTICLES_COLLECTION).get();
-        const existingArticle = snapshot.docs.find(doc => {
-            if (doc.id === docRef.id) return false; // Skip current document
-            const data = doc.data();
-            return data.slug === articleData.slug;
+
+        const execResult = await jobRegistry.executeJob('article-writer', {
+            dryRun: false,
+            weeklyBatch: false,
+            topic: topic.trim()
         });
-        
-        if (existingArticle) {
-            // Append timestamp to slug to make it unique
-            articleData.slug = `${articleData.slug}-${Date.now()}`;
-            logger.warn({ requestId, originalSlug: slugify(workerResponse.title), newSlug: articleData.slug }, '[articles-routes] Slug conflict resolved');
+
+        if (!execResult.success) {
+            const errorMessage = execResult.error?.message || 'Article generation failed';
+            logger.error({ requestId, topic, error: execResult.error }, '[articles-routes] Article generation failed');
+            return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
         }
-        
-        // Update document with article data
-        await docRef.update({
-            ...articleData,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+
+        const article = execResult.result?.article || null;
+
+        if (!article || !article.id) {
+            logger.error({ requestId, topic, result: execResult.result }, '[articles-routes] Article generation returned no article');
+            return next(createError('Article generation returned no article', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+        }
+
+        logger.info({
+            requestId,
+            articleId: article.id,
+            slug: article.slug,
+            duration: execResult.result?.duration
+        }, '[articles-routes] Article generated successfully');
+
+        // Sitemap regen is already triggered inside generateAndSaveArticle (skipSitemap=false),
+        // but we run it again here defensively in case the underlying call failed silently.
+        generateAndSaveSitemap().catch(err => {
+            logger.warn({ requestId, error: err.message }, '[articles-routes] Sitemap refresh failed (non-critical)');
         });
-        
-        logger.info({ requestId, articleId: docRef.id, slug: articleData.slug }, '[articles-routes] Article generated successfully');
-        
-        // Fetch updated document
-        const updatedDoc = await docRef.get();
-        const finalData = updatedDoc.data();
-        
-        // Update sitemap if article was published
-        if (finalData.status === 'published') {
-            generateAndSaveSitemap().catch(err => {
-                logger.warn({ requestId, error: err.message }, '[articles-routes] Failed to update sitemap (non-critical)');
-            });
-        }
-        
+
         res.json({
             success: true,
             message: 'Article generated successfully',
             article: {
-                id: updatedDoc.id,
-                ...finalData,
-                createdAt: convertTimestamp(finalData.createdAt),
-                publishedAt: convertTimestamp(finalData.publishedAt),
-                updatedAt: convertTimestamp(finalData.updatedAt)
+                id: article.id,
+                topic: article.topic,
+                title: article.title,
+                slug: article.slug,
+                status: article.status || 'published',
+                seo_title: article.seo_title,
+                short_title: article.short_title,
+                teaser_90: article.teaser_90,
+                description_160: article.description_160,
+                metaDescription: article.metaDescription,
+                tags: article.tags || [],
+                views: 0,
+                source: article.source || 'manual'
             }
         });
-        
+
     } catch (error) {
         logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[articles-routes] Generate article error');
-        next(createError(error.message || 'Failed to generate article', ERROR_CODES.DATABASE_ERROR, 500));
+        next(createError(error.message || 'Failed to generate article', ERROR_CODES.INTERNAL_ERROR, 500));
     }
 }
 
@@ -705,6 +536,61 @@ async function generateSitemap(req, res, next) {
     }
 }
 
+// Route: Cleanup articles stuck in `generating` status (admin only)
+// Old worker-based flow could leave articles stuck in 'generating' if the worker timed out.
+// This endpoint deletes (or marks as failed) any article that has been "generating" for too long.
+async function cleanupStuckArticles(req, res, next) {
+    const requestId = req.requestId || `articles-cleanup-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId, body: req.body }, '[articles-routes] Cleaning up stuck articles');
+
+    try {
+        // Default: anything stuck for 10+ minutes is considered dead
+        const maxAgeMinutes = Number.isFinite(req.body?.maxAgeMinutes) ? req.body.maxAgeMinutes : 10;
+        const action = (req.body?.action === 'mark-failed') ? 'mark-failed' : 'delete';
+
+        const cutoff = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
+
+        const snapshot = await db.collection(ARTICLES_COLLECTION)
+            .where('status', '==', 'generating')
+            .get();
+
+        const matched = [];
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            const created = convertTimestamp(data.createdAt);
+            if (!created || created < cutoff) {
+                matched.push({ id: doc.id, ref: doc.ref, title: data.title || data.topic || '(no title)' });
+            }
+        }
+
+        let processed = 0;
+        for (const item of matched) {
+            if (action === 'delete') {
+                await item.ref.delete();
+            } else {
+                await item.ref.update({
+                    status: 'failed',
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            processed++;
+        }
+
+        logger.info({ requestId, processed, action, maxAgeMinutes }, '[articles-routes] Cleanup completed');
+
+        res.json({
+            success: true,
+            processed,
+            action,
+            maxAgeMinutes,
+            items: matched.map(m => ({ id: m.id, title: m.title }))
+        });
+    } catch (error) {
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[articles-routes] Cleanup error');
+        next(createError(error.message || 'Failed to clean up stuck articles', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+}
+
 module.exports = {
     generateArticle,
     listArticles,
@@ -713,6 +599,7 @@ module.exports = {
     updateArticle,
     deleteArticle,
     incrementViewCount,
-    generateSitemap
+    generateSitemap,
+    cleanupStuckArticles
 };
 

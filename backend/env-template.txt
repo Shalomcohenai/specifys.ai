@@ -105,21 +105,36 @@ OPENAI_API_KEY=sk-your-openai-api-key-here
 ENABLE_OPENAI_STORAGE=false
 
 # ============================================
-# Weekly blog articles (Firestore `articles` + sitemap)
+# Daily blog articles (Firestore `articles` + sitemap refresh)
 # ============================================
-# דורש OPENAI_API_KEY. אוטומציה: רשימת נושאים (vibe coding / AI) ואז כתבה לכל נושא.
+# דורש OPENAI_API_KEY. אוטומציה: כתבה חדשה אחת בכל יום בשעה קבועה, נושא מיוצר אוטומטית מ-OpenAI.
+# סיטמאפ מתרענן אוטומטית אחרי כל פרסום מוצלח (`articles-automation.js` → generateAndSaveSitemap).
 ARTICLES_AUTOMATION_ENABLED=true
-WEEKLY_ARTICLES_ENABLED=true
-# יום בשבוע: 0=ראשון … 6=שבת (ברירת מחדל: 1 = שני)
-WEEKLY_ARTICLES_DAY=1
-# שעה 0–23 (ברירת מחדל: 9)
-WEEKLY_ARTICLES_HOUR=9
-# אזור זמן IANA (אם ריק: נופל ל-REPORT_TIMEZONE או UTC)
-WEEKLY_ARTICLES_TIMEZONE=UTC
-# כמה כתבות בהרצה (מקסימום 10)
-WEEKLY_ARTICLES_COUNT=3
-# true = לא להריץ שוב באותו שבוע ISO אם כבר הושלם בהצלחה
-WEEKLY_ARTICLES_SKIP_DUPLICATE_WEEK=true
+DAILY_ARTICLES_ENABLED=true
+# שעה 0–23 בה תרוץ הכתבה היומית (ברירת מחדל: 9). תאימות לאחור: גם WEEKLY_ARTICLES_HOUR נתמך.
+DAILY_ARTICLES_HOUR=9
+# אזור זמן IANA (אם ריק: נופל ל-REPORT_TIMEZONE או UTC).
+DAILY_ARTICLES_TIMEZONE=UTC
+# (אופציונלי) דגם OpenAI לכתיבת הכתבות. ברירת מחדל: gpt-4o-mini.
+# ARTICLES_OPENAI_MODEL=gpt-4o-mini
+
+# --- Legacy weekly batch mode (deprecated) ---
+# WEEKLY_ARTICLES_* כבר לא נצרך עבור המתזמן (עברנו ליומי), אך עדיין אפשר להפעיל
+# כתיבה באצוות שבועית דרך API: POST /api/automation/jobs/article-writer/run עם { "weeklyBatch": true, "articleCount": 3 }.
+# WEEKLY_ARTICLES_COUNT=3
+# WEEKLY_ARTICLES_SKIP_DUPLICATE_WEEK=true
+
+# ============================================
+# Daily tools finder (Firestore `tools`)
+# ============================================
+# דורש OPENAI_API_KEY. אוטומציה: סריקה יומית לכלים חדשים שהושקו בשבוע האחרון.
+TOOLS_AUTOMATION_ENABLED=true
+# שעה 0–23 בה תרוץ הסריקה (ברירת מחדל: 10)
+TOOLS_FINDER_HOUR=10
+# אזור זמן IANA (אם ריק: נופל ל-REPORT_TIMEZONE או UTC).
+TOOLS_FINDER_TIMEZONE=UTC
+# (אופציונלי) דגם OpenAI לסריקה. ברירת מחדל: gpt-4o-mini.
+# TOOLS_OPENAI_MODEL=gpt-4o-mini
 
 # Spec Generation V2 (optional – assistants are created on first use if not set)
 # If set, the backend reuses these assistants instead of creating new ones each deploy.

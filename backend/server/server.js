@@ -441,6 +441,7 @@ logger.info({ type: 'route_mount', path: '/api/articles', route: 'articlesRoutes
 app.post('/api/articles/generate', requireAdmin, articlesRoutes.generateArticle);
 app.get('/api/articles/list', articlesRoutes.listArticles);
 app.get('/api/articles/featured', articlesRoutes.getFeaturedArticles);
+app.post('/api/articles/cleanup-stuck', requireAdmin, articlesRoutes.cleanupStuckArticles);
 app.get('/api/articles/:slug', articlesRoutes.getArticleBySlug);
 app.post('/api/articles/:slug/view', articlesRoutes.incrementViewCount);
 app.get('/sitemap.xml', articlesRoutes.generateSitemap);

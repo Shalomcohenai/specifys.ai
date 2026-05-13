@@ -169,7 +169,7 @@ Examples of good topics:
 Generate a topic now:`;
 
       const response = await openaiClient.chatCompletion({
-        model: 'gpt-4',
+        model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -230,7 +230,7 @@ Rules:
     logger.info({ requestId, count }, '[articles-automation] Generating weekly topic list');
 
     const response = await openaiClient.chatCompletion({
-      model: 'gpt-4',
+      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -323,7 +323,7 @@ Rules:
     logger.info({ requestId, topic }, '[articles-automation] Calling OpenAI API for article generation');
 
     const response = await openaiClient.chatCompletion({
-      model: 'gpt-4',
+      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
         { role: 'system', content: prompt.system },
         { role: 'user', content: `${prompt.developer}\n\n${prompt.user}` }

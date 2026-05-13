@@ -79,22 +79,24 @@ For each tool, return a JSON object with this EXACT structure:
   "special": null or string like "new version" or "popular" (only if applicable, otherwise null)
 }
 
-Return ONLY a valid JSON array of tool objects. If no new tools were found, return an empty array: []
+Return ONLY a valid JSON object of the form { "tools": [ ... ] }. If no new tools were found, return { "tools": [] }.
 
 Example format:
-[
-  {
-    "name": "Example Tool",
-    "category": "Prompt-to-App Builders",
-    "description": "A tool that does X",
-    "link": "https://example.com",
-    "rating": null,
-    "pros": [],
-    "cons": [],
-    "stats": null,
-    "special": null
-  }
-]`;
+{
+  "tools": [
+    {
+      "name": "Example Tool",
+      "category": "Prompt-to-App Builders",
+      "description": "A tool that does X",
+      "link": "https://example.com",
+      "rating": null,
+      "pros": [],
+      "cons": [],
+      "stats": null,
+      "special": null
+    }
+  ]
+}`;
   }
 
   /**
@@ -206,11 +208,11 @@ Example format:
       // Call OpenAI
       logger.info({ requestId }, '[tools-automation] Calling OpenAI API');
       const response = await openaiClient.chatCompletion({
-        model: 'gpt-4',
+        model: process.env.TOOLS_OPENAI_MODEL || 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: 'You are a tool discovery assistant. You help find new developer tools that were recently launched. Always return valid JSON arrays.'
+            content: 'You are a tool discovery assistant. You help find new developer tools that were recently launched. Always return valid JSON wrapping the tools array as { "tools": [ ... ] }.'
           },
           {
             role: 'user',
@@ -218,8 +220,8 @@ Example format:
           }
         ],
         temperature: 0.3, // Lower temperature for more consistent results
-        max_tokens: 4000
-        // Note: Not using response_format: json_object because we need an array, not an object
+        max_tokens: 4000,
+        response_format: { type: 'json_object' }
       });
       
       // Parse response

@@ -3303,19 +3303,40 @@ router.post('/scheduled-jobs/daily-report/test', requireAdmin, async (req, res, 
 /**
  * Test article writer job (admin only)
  * POST /api/admin/scheduled-jobs/article-writer/test
+ *
+ * Default behaviour: run the daily writer once (one auto-generated article + sitemap refresh).
+ * Body options:
+ *   - dryRun (boolean) — generate without saving
+ *   - topic (string) — override the auto-generated topic for this run
+ *   - weeklyBatch (boolean) — fall back to the legacy multi-article batch mode
+ *   - articleCount (number) — only with weeklyBatch=true
+ *   - skipWeekCheck (boolean) — only with weeklyBatch=true (force a second run in the same ISO week)
  */
 router.post('/scheduled-jobs/article-writer/test', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'POST /scheduled-jobs/article-writer/test');
-  
+
   try {
     const { runArticleWriterJob } = require('./scheduled-jobs');
-    
-    const skipWeekCheck = req.body?.skipWeekCheck === true;
-    const dryRun = req.body?.dryRun === true;
 
-    logger.info({ requestId, skipWeekCheck, dryRun }, '[admin-routes] Testing weekly article writer job');
-    
-    const execResult = await runArticleWriterJob({ skipWeekCheck, dryRun });
+    const dryRun = req.body?.dryRun === true;
+    const weeklyBatch = req.body?.weeklyBatch === true;
+    const topic = typeof req.body?.topic === 'string' && req.body.topic.trim()
+      ? req.body.topic.trim()
+      : undefined;
+    const articleCount = req.body?.articleCount;
+    const skipWeekCheck = req.body?.skipWeekCheck === true;
+
+    logger.info({ requestId, dryRun, weeklyBatch, hasTopic: !!topic }, '[admin-routes] Testing article writer job');
+
+    const overrides = { dryRun };
+    if (topic) overrides.topic = topic;
+    if (weeklyBatch) {
+      overrides.weeklyBatch = true;
+      if (articleCount != null) overrides.articleCount = articleCount;
+      if (skipWeekCheck) overrides.skipWeekCheck = true;
+    }
+
+    const execResult = await runArticleWriterJob(overrides);
 
     if (!execResult?.success) {
       return next(createError(
@@ -3329,7 +3350,9 @@ router.post('/scheduled-jobs/article-writer/test', requireAdmin, async (req, res
     logger.info({ requestId }, '[admin-routes] Article writer job test completed');
     res.json({
       success: true,
-      message: 'Weekly article batch executed (topic list + articles). Check logs. Use body { "skipWeekCheck": true } to force another run the same ISO week; { "dryRun": true } to simulate without saving.',
+      message: weeklyBatch
+        ? 'Article writer ran in legacy weekly batch mode.'
+        : 'Article writer ran a single daily article (auto-generated topic unless overridden). Sitemap refreshed.',
       requestId,
       result: execResult.result
     });
