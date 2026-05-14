@@ -40,7 +40,8 @@ MANDATORY RESEARCH RULES (do not skip):
   "description_160": "Meta description exactly 160 characters, includes main keyword + promise",
   "content_markdown": "Full article in clean Markdown. Requirements:
     • 800-1200 words max (brevity = respect)
-    • H2/H3 only, no fluff intros
+    • DO NOT include an H1 / top-level heading. The page renders the JSON title field as the H1 already, so any line starting with a single hash + space in this body would produce a duplicate H1 and break SEO.
+    • Use H2 (two hashes + space) and H3 (three hashes + space) only, no fluff intros
     • First H2 must appear in first 100 words
     • Every section has at least one real code block, prompt example, or screenshot-worthy result
     • Include exact prompts used
@@ -85,10 +86,22 @@ function validateArticleData(data) {
   if (!Array.isArray(data.tags)) {
     throw new Error('Tags must be an array');
   }
-  if (!/^#\s+/m.test(data.content_markdown || '')) {
-    throw new Error('Article must include an H1 heading');
+
+  // The frontend renders `data.title` as the page's <h1> (see assets/js/pages/article.js).
+  // The Markdown body must therefore start at H2 — an H1 inside content_markdown would
+  // create a duplicate H1 and break heading hierarchy / SEO.
+  //
+  // Strip fenced code blocks before the H1 check so legitimate bash/shell comments
+  // (e.g. `# install`) inside ```bash``` blocks don't trigger a false rejection.
+  const markdown = String(data.content_markdown || '');
+  const markdownWithoutCode = markdown
+    .replace(/```[\s\S]*?```/g, '')   // fenced code blocks
+    .replace(/`[^`\n]*`/g, '');       // inline code spans
+
+  if (/^#\s+/m.test(markdownWithoutCode)) {
+    throw new Error('content_markdown must NOT contain an H1 heading — the `title` field is rendered as the page H1. Use H2/H3 inside the body.');
   }
-  if (!/^##\s+/m.test(data.content_markdown || '')) {
+  if (!/^##\s+/m.test(markdownWithoutCode)) {
     throw new Error('Article must include at least one H2 heading');
   }
 
