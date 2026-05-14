@@ -8,6 +8,53 @@
 
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
   const API_BASE_PATH = '/api/v3/credits';
+  // How long getAuthToken will wait for Firebase to hydrate currentUser
+  // before giving up. Covers the race right after a redirect from auth.html,
+  // where IndexedDB rehydration takes ~100-500ms in Safari/iOS.
+  const AUTH_READY_TIMEOUT_MS = 1500;
+
+  /**
+   * Marker error thrown when Firebase Auth has not yet hydrated a user.
+   * Treated as a transient, retryable condition (not a real ERROR) by callers.
+   */
+  function createAuthNotReadyError(message) {
+    const err = new Error(message || 'Auth not ready');
+    err.name = 'AuthNotReadyError';
+    return err;
+  }
+
+  /**
+   * Wait up to `timeoutMs` for `auth.currentUser` to become non-null via
+   * onAuthStateChanged. Resolves with the user (or null on timeout).
+   * Used only as a one-shot fallback inside getAuthToken.
+   */
+  function waitForAuthUser(auth, timeoutMs) {
+    return new Promise((resolve) => {
+      if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+        resolve(null);
+        return;
+      }
+      let settled = false;
+      let unsubscribe = null;
+      const finish = (user) => {
+        if (settled) return;
+        settled = true;
+        if (typeof unsubscribe === 'function') {
+          try { unsubscribe(); } catch (_) { /* noop */ }
+        }
+        resolve(user || null);
+      };
+      try {
+        unsubscribe = auth.onAuthStateChanged((user) => {
+          if (user) finish(user);
+        });
+      } catch (_) {
+        resolve(null);
+        return;
+      }
+      setTimeout(() => finish(null), timeoutMs);
+    });
+  }
 
   class CreditManager {
     constructor() {
@@ -30,16 +77,25 @@
     }
 
     /**
-     * Get Firebase auth token
+     * Get Firebase auth token.
+     *
+     * If `auth.currentUser` is not yet available (common immediately after a
+     * redirect from auth.html — Firebase compat hydrates IndexedDB async),
+     * we wait briefly for `onAuthStateChanged` to fire before declaring the
+     * user unauthenticated. The eventual failure throws an AuthNotReadyError
+     * so callers can classify it as transient instead of a hard error.
      */
     async getAuthToken() {
       const auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
       if (!auth) {
-        throw new Error('Firebase auth not available');
+        throw createAuthNotReadyError('Firebase auth not available');
       }
-      const user = auth.currentUser;
+      let user = auth.currentUser;
       if (!user) {
-        throw new Error('User not authenticated');
+        user = await waitForAuthUser(auth, AUTH_READY_TIMEOUT_MS);
+      }
+      if (!user) {
+        throw createAuthNotReadyError('User not authenticated');
       }
       return await user.getIdToken();
     }
@@ -229,21 +285,39 @@
           return data;
         } catch (error) {
           lastError = error;
-          
-          // Check if this is a network error that should be retried
+
+          // Classify the error so we can decide whether to retry and at what
+          // log level to surface it. "AuthNotReadyError" is a transient race
+          // (Firebase rehydrating right after redirect from auth.html) and
+          // should be retried like a network error, then logged at Info — not
+          // as an ERROR — if it ultimately fails.
           const isNetwork = this.isNetworkError(error);
-          const shouldRetry = attempt < retries && (isNetwork || error.message.includes('429'));
-          
+          const isAuthNotReady = error?.name === 'AuthNotReadyError';
+          const shouldRetry = attempt < retries && (isNetwork || isAuthNotReady || error.message.includes('429'));
+
           if (window.appLogger && !shouldRetry) {
-            window.appLogger.logError(error, {
-              context: 'CreditsV3Manager.apiRequest',
-              url,
-              method,
-              attempt: attempt + 1,
-              maxRetries: retries + 1,
-              isNetworkError: isNetwork,
-              willRetry: false
-            });
+            if (isAuthNotReady) {
+              window.appLogger.log('Info', 'API request aborted: auth not ready', {
+                context: 'CreditsV3Manager.apiRequest',
+                url,
+                method,
+                attempt: attempt + 1,
+                maxRetries: retries + 1,
+                isAuthNotReady: true,
+                willRetry: false,
+                errorMessage: error?.message
+              });
+            } else {
+              window.appLogger.logError(error, {
+                context: 'CreditsV3Manager.apiRequest',
+                url,
+                method,
+                attempt: attempt + 1,
+                maxRetries: retries + 1,
+                isNetworkError: isNetwork,
+                willRetry: false
+              });
+            }
           } else if (window.appLogger && shouldRetry) {
             window.appLogger.log('Info', 'API request failed, will retry', {
               context: 'CreditsV3Manager.apiRequest',
@@ -252,6 +326,7 @@
               attempt: attempt + 1,
               maxRetries: retries + 1,
               isNetworkError: isNetwork,
+              isAuthNotReady,
               errorMessage: error?.message
             });
           }
