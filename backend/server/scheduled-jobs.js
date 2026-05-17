@@ -10,7 +10,7 @@ const emailService = require('./email-service');
 const { jobRegistry } = require('./automation-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { exportToolsToJson } = require('./tools-export-service');
-const { ArticleWriterJob } = require('./articles-automation');
+const { ArticleWriterJob, classifyArticleJobError } = require('./articles-automation');
 const { CreditsSyncJob } = require('./credits-sync-job');
 const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
 const { fromZonedTime, toZonedTime } = require('date-fns-tz');
@@ -478,8 +478,10 @@ async function runArticleWriterJob(overrides = {}) {
     });
 
     if (!execResult.success) {
+      const errMessage = execResult.error?.message || String(execResult.error || '');
       logger.error({
         requestId,
+        failureKind: classifyArticleJobError(errMessage),
         error: execResult.error
       }, '[scheduled-jobs] Scheduled article writer job reported failure');
       return execResult;
@@ -507,6 +509,7 @@ async function runArticleWriterJob(overrides = {}) {
   } catch (error) {
     logger.error({
       requestId,
+      failureKind: classifyArticleJobError(error.message),
       error: {
         message: error.message,
         stack: error.stack

@@ -75,9 +75,228 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
+const ARTICLE_REQUIRED_FIELDS = [
+  'title', 'seo_title', 'short_title', 'teaser_90', 'description_160', 'content_markdown', 'tags'
+];
+
+const ARTICLE_GEN_MAX_ATTEMPTS = Math.min(
+  Math.max(parseInt(process.env.ARTICLES_GEN_MAX_ATTEMPTS || '3', 10) || 3, 1),
+  5
+);
+
+function classifyArticleJobError(message = '') {
+  if (message.includes('Failed to parse article JSON')) return 'openai_json_parse';
+  if (message.includes('Missing required fields')) return 'article_validation_missing';
+  if (message.includes('Tags must be an array')) return 'article_validation_tags';
+  if (message.includes('H1 heading')) return 'article_validation_h1';
+  if (message.includes('at least one H2')) return 'article_validation_h2';
+  if (message.includes('No content in OpenAI')) return 'openai_empty_response';
+  return 'article_generation_other';
+}
+
+/**
+ * Extract the first balanced {...} JSON object from model text (handles strings/escapes).
+ */
+function extractBalancedJsonObject(text) {
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escape) escape = false;
+      else if (ch === '\\') escape = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
+/**
+ * Parse JSON from LLM output (prose, fences, citations). Returns { data, parseAttempts }.
+ */
+function extractJsonFromLlmContent(content) {
+  const parseAttempts = [];
+
+  if (!content || typeof content !== 'string') {
+    parseAttempts.push({ stage: 'empty', error: 'No content string' });
+    return { data: null, parseAttempts };
+  }
+
+  const trimmed = content.trim();
+
+  const tryParse = (raw, stage) => {
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      parseAttempts.push({ stage, error: e.message });
+      return null;
+    }
+  };
+
+  let data = tryParse(trimmed, 'direct');
+  if (data) return { data, parseAttempts };
+
+  const codeBlocks = [...trimmed.matchAll(/```(?:json)?\s*([\s\S]*?)\s*```/gi)];
+  for (let i = 0; i < codeBlocks.length; i++) {
+    data = tryParse(codeBlocks[i][1].trim(), `code-block-${i}`);
+    if (data) return { data, parseAttempts };
+  }
+
+  const balanced = extractBalancedJsonObject(trimmed);
+  if (balanced) {
+    data = tryParse(balanced, 'balanced-braces');
+    if (data) return { data, parseAttempts };
+  }
+
+  const greedyObject = trimmed.match(/\{[\s\S]*\}/);
+  if (greedyObject) {
+    data = tryParse(greedyObject[0], 'greedy-object');
+    if (data) return { data, parseAttempts };
+  }
+
+  return { data: null, parseAttempts };
+}
+
+function deriveTagsFromText(title, topic) {
+  const stopWords = new Set([
+    'the', 'a', 'an', 'and', 'or', 'for', 'to', 'in', 'on', 'with', 'your', 'how', 'what', 'why',
+    'from', 'by', 'is', 'are', 'was', 'were', 'of', 'at', 'as', 'it', 'this', 'that', 'new', 'latest'
+  ]);
+  const text = `${title || ''} ${topic || ''}`.toLowerCase();
+  const words = text
+    .replace(/[^\w\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !stopWords.has(w));
+  const unique = [...new Set(words)];
+  const year = String(new Date().getFullYear());
+  const tags = unique.slice(0, 6);
+  if (!tags.includes('vibe-coding')) tags.push('vibe-coding');
+  if (!tags.includes('ai-coding')) tags.push('ai-coding');
+  if (!tags.some(t => t.includes(year))) tags.push(year);
+  return tags.slice(0, 8);
+}
+
+/**
+ * Coerce / fill optional gaps before validation (logs what was auto-fixed).
+ */
+function normalizeArticleData(data, topic) {
+  const applied = [];
+  if (!data || typeof data !== 'object') {
+    return { data, applied };
+  }
+
+  for (const field of ['title', 'seo_title', 'short_title', 'teaser_90', 'description_160', 'content_markdown']) {
+    if (typeof data[field] === 'string') {
+      const trimmed = data[field].trim();
+      if (trimmed !== data[field]) {
+        data[field] = trimmed;
+        applied.push(`${field}:trimmed`);
+      }
+    }
+  }
+
+  if (typeof data.tags === 'string') {
+    data.tags = data.tags.split(/[,;|]/).map(t => t.trim()).filter(Boolean);
+    applied.push('tags:coerced_from_string');
+  }
+
+  if (!Array.isArray(data.tags) || data.tags.length === 0) {
+    data.tags = deriveTagsFromText(data.title, topic);
+    applied.push('tags:derived_from_title');
+  } else {
+    data.tags = data.tags
+      .map(t => (typeof t === 'string' ? t.trim() : String(t)))
+      .filter(Boolean)
+      .slice(0, 8);
+    if (data.tags.length < 3) {
+      const extra = deriveTagsFromText(data.title, topic).filter(t => !data.tags.includes(t));
+      data.tags = [...data.tags, ...extra].slice(0, 8);
+      applied.push('tags:padded_from_title');
+    }
+  }
+
+  return { data, applied };
+}
+
+function summarizeArticlePayload(data) {
+  if (!data || typeof data !== 'object') {
+    return { keys: [], fieldLengths: {} };
+  }
+  const fieldLengths = {};
+  for (const key of Object.keys(data)) {
+    const val = data[key];
+    if (typeof val === 'string') fieldLengths[key] = val.length;
+    else if (Array.isArray(val)) fieldLengths[key] = val.length;
+    else fieldLengths[key] = typeof val;
+  }
+  return { keys: Object.keys(data), fieldLengths };
+}
+
+function getArticleValidationIssues(data) {
+  const issues = [];
+  if (!data || typeof data !== 'object') {
+    return [{ code: 'invalid_payload', message: 'Response is not a JSON object' }];
+  }
+
+  for (const field of ARTICLE_REQUIRED_FIELDS) {
+    if (!data[field]) {
+      issues.push({ code: 'missing', field });
+    }
+  }
+
+  if (data.tags != null && !Array.isArray(data.tags)) {
+    issues.push({ code: 'invalid_type', field: 'tags', actual: typeof data.tags });
+  }
+
+  if (data.tags && Array.isArray(data.tags) && data.tags.length === 0) {
+    issues.push({ code: 'empty_array', field: 'tags' });
+  }
+
+  const markdown = String(data.content_markdown || '');
+  const markdownWithoutCode = markdown
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]*`/g, '');
+
+  if (/^#\s+/m.test(markdownWithoutCode)) {
+    issues.push({ code: 'h1_in_body', field: 'content_markdown' });
+  }
+  if (data.content_markdown && !/^##\s+/m.test(markdownWithoutCode)) {
+    issues.push({ code: 'missing_h2', field: 'content_markdown' });
+  }
+
+  return issues;
+}
+
+function buildArticleRetryUserMessage(issues) {
+  const parts = issues.map((issue) => {
+    if (issue.code === 'missing') return `missing "${issue.field}"`;
+    if (issue.code === 'empty_array') return `"${issue.field}" must be a non-empty array`;
+    if (issue.code === 'invalid_type') return `"${issue.field}" must be an array (got ${issue.actual})`;
+    if (issue.code === 'h1_in_body') return 'content_markdown must not contain H1 (# heading); use H2/H3 only';
+    if (issue.code === 'missing_h2') return 'content_markdown must include at least one H2 (## heading)';
+    return issue.message || issue.code;
+  });
+  return `Your previous reply was invalid. Fix and return ONLY the complete JSON object (no markdown fences, no prose). Problems: ${parts.join('; ')}. Required top-level keys: ${ARTICLE_REQUIRED_FIELDS.join(', ')}. tags must be an array of 5-8 English strings.`;
+}
+
 function validateArticleData(data) {
-  const requiredFields = ['title', 'seo_title', 'short_title', 'teaser_90', 'description_160', 'content_markdown', 'tags'];
-  const missingFields = requiredFields.filter(field => !data[field]);
+  const issues = getArticleValidationIssues(data);
+  const missingFields = issues.filter(i => i.code === 'missing').map(i => i.field);
 
   if (missingFields.length > 0) {
     throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
@@ -87,21 +306,13 @@ function validateArticleData(data) {
     throw new Error('Tags must be an array');
   }
 
-  // The frontend renders `data.title` as the page's <h1> (see assets/js/pages/article.js).
-  // The Markdown body must therefore start at H2 — an H1 inside content_markdown would
-  // create a duplicate H1 and break heading hierarchy / SEO.
-  //
-  // Strip fenced code blocks before the H1 check so legitimate bash/shell comments
-  // (e.g. `# install`) inside ```bash``` blocks don't trigger a false rejection.
-  const markdown = String(data.content_markdown || '');
-  const markdownWithoutCode = markdown
-    .replace(/```[\s\S]*?```/g, '')   // fenced code blocks
-    .replace(/`[^`\n]*`/g, '');       // inline code spans
-
-  if (/^#\s+/m.test(markdownWithoutCode)) {
+  const h1Issue = issues.find(i => i.code === 'h1_in_body');
+  if (h1Issue) {
     throw new Error('content_markdown must NOT contain an H1 heading — the `title` field is rendered as the page H1. Use H2/H3 inside the body.');
   }
-  if (!/^##\s+/m.test(markdownWithoutCode)) {
+
+  const h2Issue = issues.find(i => i.code === 'missing_h2');
+  if (h2Issue) {
     throw new Error('Article must include at least one H2 heading');
   }
 
@@ -285,24 +496,15 @@ Hard rules:
       throw new Error('No content in OpenAI response for weekly topics');
     }
 
-    // Search-preview models may add prose around the JSON. Try multiple strategies.
-    let parsed;
-    try {
-      parsed = JSON.parse(content);
-    } catch (e) {
-      const codeBlock = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (codeBlock) {
-        try { parsed = JSON.parse(codeBlock[1]); } catch (e2) { /* fallthrough */ }
-      }
-      if (!parsed) {
-        const greedyObject = content.match(/\{[\s\S]*\}/);
-        if (greedyObject) {
-          try { parsed = JSON.parse(greedyObject[0]); } catch (e3) { /* fallthrough */ }
-        }
-      }
-      if (!parsed) {
-        throw new Error(`Failed to parse topics JSON: ${e.message}`);
-      }
+    const { data: parsed, parseAttempts } = extractJsonFromLlmContent(content);
+    if (!parsed) {
+      logger.error({
+        requestId,
+        parseAttempts,
+        contentLength: content.length,
+        contentPreview: content.substring(0, 600)
+      }, '[articles-automation] Failed to extract weekly topics JSON');
+      throw new Error(`Failed to parse topics JSON (${parseAttempts.map(a => a.stage).join(', ')})`);
     }
 
     const topics = Array.isArray(parsed.topics) ? parsed.topics : null;
@@ -355,6 +557,7 @@ Hard rules:
    */
   async generateAndSaveArticle(requestId, topic, dryRun, skipSitemap) {
     const openaiClient = this.getOpenAIClient();
+    const model = process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini-search-preview';
 
     const prompt = {
       system: articleGenerationPrompt.system,
@@ -362,56 +565,157 @@ Hard rules:
       user: articleGenerationPrompt.user(topic)
     };
 
-    logger.info({ requestId, topic }, '[articles-automation] Calling OpenAI API for article generation');
+    const baseUserContent = `${prompt.developer}\n\n${prompt.user}`;
+    let messages = [
+      { role: 'system', content: prompt.system },
+      { role: 'user', content: baseUserContent }
+    ];
 
-    const response = await openaiClient.chatCompletion({
-      model: process.env.ARTICLES_OPENAI_MODEL || 'gpt-4o-mini-search-preview',
-      messages: [
-        { role: 'system', content: prompt.system },
-        { role: 'user', content: `${prompt.developer}\n\n${prompt.user}` }
-      ],
-      max_tokens: 4000,
-      web_search_options: {}
-    });
+    let articleData = null;
+    let lastContent = null;
+    let lastParseAttempts = [];
+    let lastValidationIssues = [];
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error('No content in OpenAI response');
-    }
+    for (let attempt = 1; attempt <= ARTICLE_GEN_MAX_ATTEMPTS; attempt++) {
+      logger.info({
+        requestId,
+        topic,
+        attempt,
+        maxAttempts: ARTICLE_GEN_MAX_ATTEMPTS,
+        model
+      }, '[articles-automation] Calling OpenAI API for article generation');
 
-    // Search-preview models may add prose/citation footnotes around the JSON.
-    // Try several extraction strategies before giving up.
-    let articleData;
-    const parseAttempts = [];
+      const response = await openaiClient.chatCompletion({
+        model,
+        messages,
+        max_tokens: 4000,
+        web_search_options: {}
+      });
 
-    try {
-      articleData = JSON.parse(content);
-    } catch (e) {
-      parseAttempts.push({ stage: 'direct', error: e.message });
-    }
+      const content = response.choices[0]?.message?.content;
+      lastContent = content;
 
-    if (!articleData) {
-      const codeBlock = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-      if (codeBlock) {
-        try { articleData = JSON.parse(codeBlock[1]); }
-        catch (e) { parseAttempts.push({ stage: 'code-block', error: e.message }); }
+      if (!content) {
+        logger.warn({
+          requestId,
+          attempt,
+          model,
+          finishReason: response.choices[0]?.finish_reason,
+          usage: response.usage
+        }, '[articles-automation] OpenAI returned empty article content');
+
+        if (attempt < ARTICLE_GEN_MAX_ATTEMPTS) {
+          messages = [
+            ...messages,
+            { role: 'user', content: 'Your previous response was empty. Return ONLY the full JSON object for the article (all required keys).' }
+          ];
+          continue;
+        }
+        throw new Error('No content in OpenAI response');
       }
-    }
 
-    if (!articleData) {
-      const greedyObject = content.match(/\{[\s\S]*\}/);
-      if (greedyObject) {
-        try { articleData = JSON.parse(greedyObject[0]); }
-        catch (e) { parseAttempts.push({ stage: 'greedy-object', error: e.message }); }
+      const { data, parseAttempts } = extractJsonFromLlmContent(content);
+      lastParseAttempts = parseAttempts;
+
+      if (!data) {
+        logger.warn({
+          requestId,
+          attempt,
+          model,
+          parseAttempts,
+          contentLength: content.length,
+          contentPreview: content.substring(0, 800),
+          finishReason: response.choices[0]?.finish_reason
+        }, '[articles-automation] Could not extract article JSON from model response');
+
+        if (attempt < ARTICLE_GEN_MAX_ATTEMPTS) {
+          messages = [
+            ...messages,
+            { role: 'assistant', content },
+            {
+              role: 'user',
+              content: 'Return ONLY a single valid JSON object matching the required schema. No markdown fences, no prose before or after the JSON.'
+            }
+          ];
+          continue;
+        }
+
+        logger.error({
+          requestId,
+          attempt,
+          model,
+          parseAttempts,
+          contentLength: content.length,
+          contentPreview: content.substring(0, 1200),
+          contentTail: content.length > 400 ? content.substring(content.length - 400) : undefined
+        }, '[articles-automation] Failed to extract article JSON after all attempts');
+
+        throw new Error('Failed to parse article JSON from OpenAI response');
       }
+
+      const { data: normalized, applied } = normalizeArticleData(data, topic);
+      if (applied.length > 0) {
+        logger.warn({
+          requestId,
+          attempt,
+          applied,
+          payloadSummary: summarizeArticlePayload(normalized)
+        }, '[articles-automation] Applied article field fallbacks before validation');
+      }
+
+      const validationIssues = getArticleValidationIssues(normalized);
+      lastValidationIssues = validationIssues;
+
+      if (validationIssues.length > 0) {
+        logger.warn({
+          requestId,
+          attempt,
+          model,
+          validationIssues,
+          payloadSummary: summarizeArticlePayload(normalized),
+          parseAttempts
+        }, '[articles-automation] Article JSON failed validation');
+
+        if (attempt < ARTICLE_GEN_MAX_ATTEMPTS) {
+          messages = [
+            ...messages,
+            { role: 'assistant', content },
+            { role: 'user', content: buildArticleRetryUserMessage(validationIssues) }
+          ];
+          continue;
+        }
+
+        logger.error({
+          requestId,
+          attempt,
+          model,
+          validationIssues,
+          payloadSummary: summarizeArticlePayload(normalized),
+          parseAttempts,
+          contentPreview: content.substring(0, 800)
+        }, '[articles-automation] Article validation failed after all attempts');
+
+        validateArticleData(normalized);
+      }
+
+      articleData = normalized;
+      if (attempt > 1) {
+        logger.info({ requestId, attempt, topic }, '[articles-automation] Article generation succeeded after retry');
+      }
+      break;
     }
 
     if (!articleData) {
-      logger.error({ requestId, parseAttempts, contentPreview: content.substring(0, 500) }, '[articles-automation] Failed to extract article JSON');
+      logger.error({
+        requestId,
+        model,
+        lastParseAttempts,
+        lastValidationIssues,
+        contentLength: lastContent ? lastContent.length : 0,
+        contentPreview: lastContent ? lastContent.substring(0, 1200) : null
+      }, '[articles-automation] Article generation exhausted retries without valid payload');
       throw new Error('Failed to parse article JSON from OpenAI response');
     }
-
-    validateArticleData(articleData);
 
     const articleFirebase = formatArticleForFirebase(articleData, topic);
 
@@ -508,8 +812,13 @@ Hard rules:
         const one = await this.generateAndSaveArticle(subId, topic, dryRun, true);
         results.push(one);
       } catch (err) {
-        logger.error({ requestId: subId, topic, error: err.message }, '[articles-automation] Weekly batch article failed');
-        errors.push({ topic, message: err.message });
+        logger.error({
+          requestId: subId,
+          topic,
+          failureKind: classifyArticleJobError(err.message),
+          error: { message: err.message, stack: err.stack }
+        }, '[articles-automation] Weekly batch article failed');
+        errors.push({ topic, message: err.message, failureKind: classifyArticleJobError(err.message) });
       }
     }
 
@@ -618,6 +927,9 @@ Hard rules:
     } catch (error) {
       logger.error({
         requestId,
+        topic: providedTopic,
+        dryRun,
+        failureKind: classifyArticleJobError(error.message),
         error: {
           message: error.message,
           stack: error.stack
@@ -631,5 +943,9 @@ Hard rules:
 
 module.exports = {
   ArticleWriterJob,
-  getIsoWeekKeyForTimezone
+  getIsoWeekKeyForTimezone,
+  extractJsonFromLlmContent,
+  normalizeArticleData,
+  getArticleValidationIssues,
+  classifyArticleJobError
 };
