@@ -19,7 +19,6 @@ const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-se
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
 const creditsV3Service = require('./credits-v3-service');
-const { recordSubscriptionChange } = require('./admin-activity-service');
 const config = require('./config');
 const {
   resolveSubscription,
@@ -1345,33 +1344,12 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             }
           };
           
-          // Update V3 subscription
+          // Update V3 subscription.
+          // Note: enableProSubscription is the single source of truth for activity logging;
+          // do NOT re-record here or we'll write duplicate rows to admin_activity_log
+          // (Lemon Squeezy fires multiple subscription_* webhooks per real state change).
           await creditsV3Service.enableProSubscription(subscriptionUserId, enableProOptions);
           logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription enabled from webhook');
-          
-          // Record activity (already done in enableProSubscription, but adding here for webhook context)
-          try {
-            const userDoc = await db.collection('users').doc(subscriptionUserId).get();
-            const userEmail = userDoc.exists ? userDoc.data().email : subscriptionData.customerId || null;
-            
-            recordSubscriptionChange(
-              subscriptionUserId,
-              userEmail,
-              'pro',
-              subscriptionData.status || 'active',
-              {
-                subscriptionId: subscriptionData.subscriptionId,
-                productKey: resolvedProductKey,
-                productName: productConfig?.name,
-                source: 'webhook',
-                webhookRequestId
-              }
-            ).catch(err => {
-              logger.warn({ webhookRequestId, userId: subscriptionUserId, error: err.message }, '[lemon-routes] Failed to record subscription activation activity');
-            });
-          } catch (err) {
-            // Ignore - activity recording is non-critical
-          }
         } catch (enableErr) {
         }
       } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
@@ -1382,33 +1360,13 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             restoreCredits: null
           };
           
-          // Update V3 subscription
+          // Update V3 subscription.
+          // Note: disableProSubscription is the single source of truth for activity logging;
+          // do NOT re-record here. Lemon fires subscription_updated + subscription_cancelled
+          // + subscription_expired for one cancellation and we want one log row per logical
+          // cancellation, deduped via the idempotency key in admin-activity-service.
           await creditsV3Service.disableProSubscription(subscriptionUserId, disableProOptions);
           logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription disabled from webhook');
-          
-          // Record activity (already done in disableProSubscription, but adding here for webhook context)
-          try {
-            const userDoc = await db.collection('users').doc(subscriptionUserId).get();
-            const userEmail = userDoc.exists ? userDoc.data().email : subscriptionData.customerId || null;
-            
-            recordSubscriptionChange(
-              subscriptionUserId,
-              userEmail,
-              'pro',
-              'cancelled',
-              {
-                subscriptionId: subscriptionData.subscriptionId,
-                cancelReason: 'webhook',
-                cancelMode: subscriptionData.cancelAtPeriodEnd ? 'period_end' : 'immediate',
-                source: 'webhook',
-                webhookRequestId
-              }
-            ).catch(err => {
-              logger.warn({ webhookRequestId, userId: subscriptionUserId, error: err.message }, '[lemon-routes] Failed to record subscription cancellation activity');
-            });
-          } catch (err) {
-            // Ignore - activity recording is non-critical
-          }
         } catch (disableErr) {
         }
       }

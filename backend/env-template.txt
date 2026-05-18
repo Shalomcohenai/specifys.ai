@@ -109,7 +109,15 @@ ENABLE_OPENAI_STORAGE=false
 # ============================================
 # דורש OPENAI_API_KEY. אוטומציה: כתבה חדשה אחת בכל יום בשעה קבועה, נושא מיוצר אוטומטית מ-OpenAI.
 # סיטמאפ מתרענן אוטומטית אחרי כל פרסום מוצלח (`articles-automation.js` → generateAndSaveSitemap).
+# כתבות נשמרות גם כ-Jekyll `_posts/` (ראה jekyll-post-writer.js) — דורש GitHub למטה ב-Render.
 ARTICLES_AUTOMATION_ENABLED=true
+# GitHub — commit static posts from Render (owner/repo, PAT with contents:write)
+# GITHUB_REPO=your-org/specifys-ai
+# GITHUB_TOKEN=ghp_...  (or use existing Render secret GITHUB_TOKEN)
+# GITHUB_BRANCH=main
+#
+# Google Search Console — paste token into _config.yml search_console_verification
+# GSC_VERIFICATION_TOKEN=
 DAILY_ARTICLES_ENABLED=true
 # שעה 0–23 בה תרוץ הכתבה היומית (ברירת מחדל: 9). תאימות לאחור: גם WEEKLY_ARTICLES_HOUR נתמך.
 DAILY_ARTICLES_HOUR=9

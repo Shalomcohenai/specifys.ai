@@ -1,6 +1,18 @@
 // Articles JavaScript - List page functionality
 
 class ArticlesPage {
+    getArticleHref(article) {
+        if (!article) return '/pages/articles.html';
+        if (article.jekyll_permalink) {
+            try {
+                return new URL(article.jekyll_permalink, window.location.origin).pathname;
+            } catch (e) {
+                return article.jekyll_permalink;
+            }
+        }
+        return `/article.html?slug=${encodeURIComponent(article.slug)}`;
+    }
+
     constructor() {
         this.currentPage = 1;
         this.pageSize = 12;
@@ -101,10 +113,10 @@ class ArticlesPage {
                                 ` : ''}
                             </div>
                             <h3 class="carousel-slide-title">
-                                <a href="/article.html?slug=${article.slug}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
+                                <a href="${this.getArticleHref(article)}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
                             </h3>
                             ${teaser ? `<p class="carousel-slide-teaser">${this.escapeHTML(teaser)}</p>` : ''}
-                            <a href="/article.html?slug=${article.slug}" class="carousel-slide-link">
+                            <a href="${this.getArticleHref(article)}" class="carousel-slide-link">
                                 Read More <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
@@ -236,10 +248,10 @@ class ArticlesPage {
                         ` : ''}
                     </div>
                     <h3 class="article-card-title">
-                        <a href="/article.html?slug=${article.slug}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
+                        <a href="${this.getArticleHref(article)}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
                     </h3>
                     ${teaser ? `<p class="article-card-teaser">${this.escapeHTML(teaser)}</p>` : ''}
-                    <a href="/article.html?slug=${article.slug}" class="article-card-link">
+                    <a href="${this.getArticleHref(article)}" class="article-card-link">
                         Read More <i class="fas fa-arrow-right"></i>
                     </a>
                 </article>
@@ -331,7 +343,11 @@ class ArticlesPage {
 
     // Navigate to article
     navigateToArticle(slug) {
-        window.location.href = `/article.html?slug=${slug}`;
+        const article = this.allArticles.find((a) => a.slug === slug)
+            || this.featuredArticles.find((a) => a.slug === slug);
+        window.location.href = article
+            ? this.getArticleHref(article)
+            : `/article.html?slug=${encodeURIComponent(slug)}`;
     }
 
     // Utility: Escape HTML

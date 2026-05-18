@@ -135,6 +135,8 @@ linkedin:
 
 # Google Analytics
 google_analytics: G-RWBT69JCM7
+# Google Search Console — paste token from Search Console > Settings > Ownership verification
+# Or inject at build time via env GSC_VERIFICATION_TOKEN (see docs/setup/seo-geo-guardrails.md)
 search_console_verification: ""
 bing_webmaster_verification: ""
 

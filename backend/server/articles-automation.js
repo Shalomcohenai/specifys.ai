@@ -8,6 +8,7 @@ const { AutomationJob } = require('./automation-service');
 const { db, admin } = require('./firebase-admin');
 const { logger } = require('./logger');
 const { generateAndSaveSitemap } = require('./sitemap-generator');
+const { writeJekyllPostForArticle } = require('./jekyll-post-writer');
 
 const ARTICLES_COLLECTION = 'articles';
 const AUTOMATION_STATE_DOC = 'automation_state/weekly_articles';
@@ -736,6 +737,25 @@ Hard rules:
       articleId = docRef.id;
 
       logger.info({ requestId, articleId, slug: articleFirebase.slug, title: articleData.title }, '[articles-automation] Article saved');
+
+      try {
+        const jekyllResult = await writeJekyllPostForArticle(articleFirebase);
+        await docRef.update({
+          jekyll_permalink: jekyllResult.jekyll_permalink,
+          jekyll_post_path: jekyllResult.jekyll_post_path
+        });
+        logger.info({
+          requestId,
+          slug: articleFirebase.slug,
+          jekyll_permalink: jekyllResult.jekyll_permalink
+        }, '[articles-automation] Jekyll post published');
+      } catch (jekyllError) {
+        logger.warn({
+          requestId,
+          slug: articleFirebase.slug,
+          error: jekyllError.message
+        }, '[articles-automation] Jekyll post write failed (non-critical)');
+      }
 
       if (!skipSitemap) {
         try {

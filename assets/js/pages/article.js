@@ -43,6 +43,13 @@ class ArticlePage {
 
             if (result.success && result.article) {
                 this.article = result.article;
+                if (this.article.jekyll_permalink) {
+                    const target = this.article.jekyll_permalink.startsWith('http')
+                        ? this.article.jekyll_permalink
+                        : `${window.location.origin}${this.article.jekyll_permalink}`;
+                    window.location.replace(target);
+                    return;
+                }
                 this.renderArticle(this.article);
                 this.updateViewCount();
                 this.loadRelatedArticles();
@@ -61,9 +68,18 @@ class ArticlePage {
     }
 
     // Update SEO meta tags
+    getArticlePublicUrl(article) {
+        if (article.jekyll_permalink) {
+            return article.jekyll_permalink.startsWith('http')
+                ? article.jekyll_permalink
+                : `${window.location.origin}${article.jekyll_permalink}`;
+        }
+        return `${window.location.origin}/article.html?slug=${encodeURIComponent(article.slug)}`;
+    }
+
     updateSEOTags(article) {
         const baseUrl = window.location.origin;
-        const articleUrl = `${baseUrl}/article.html?slug=${article.slug}`;
+        const articleUrl = this.getArticlePublicUrl(article);
         const articleTitle = article.seo_title || article.title || article.short_title || 'Article';
         const articleDescription = article.description_160 || article.teaser_90 || '';
         const articleImage = `${baseUrl}/assets/images/og-image.png`; // Default OG image
@@ -327,21 +343,14 @@ class ArticlePage {
         if (!this.slug) return;
 
         try {
-            await window.api.post(`/api/articles/${this.slug}/view`).catch(() => {});
-            
-            // Also track with analytics tracker if available
-            if (typeof window.analyticsTracker !== 'undefined' && this.article) {
-                window.analyticsTracker.trackPageView(`article_${this.slug}`, {
-                    articleId: this.article.id,
-                    articleTitle: this.article.title,
-                    slug: this.slug,
-                    timestamp: new Date().toISOString()
-                });
+            const result = await window.api.post(`/api/articles/${this.slug}/view`);
+            if (result?.success && this.article) {
+                this.article.views = (this.article.views || 0) + 1;
             }
-            // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
-            // Silently fail - view tracking is not critical
-            // View count update failed
+            if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+                console.warn('[ArticleApp] Article open count failed:', error);
+            }
         }
     }
 

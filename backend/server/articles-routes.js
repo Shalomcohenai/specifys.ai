@@ -6,9 +6,15 @@ const { generateAndSaveSitemap, generateSitemapXml } = require('./sitemap-genera
 const { recordArticleView } = require('./analytics-service');
 const { jobRegistry } = require('./automation-service');
 const { ArticleWriterJob } = require('./articles-automation');
+const { enrichArticleWithJekyllPermalink } = require('./jekyll-post-writer');
 
 // Collection name for articles
 const ARTICLES_COLLECTION = 'articles';
+const SITE_URL = process.env.SITE_URL || 'https://specifys-ai.com';
+
+function withJekyllPermalink(article) {
+    return enrichArticleWithJekyllPermalink(article, SITE_URL);
+}
 
 // Helper: Slugify text for URL-friendly slugs
 function slugify(text) {
@@ -209,7 +215,7 @@ async function listArticles(req, res, next) {
         
         res.json({
             success: true,
-            articles: paginatedArticles,
+            articles: paginatedArticles.map(withJekyllPermalink),
             pagination: {
                 page,
                 limit,
@@ -280,7 +286,7 @@ async function getFeaturedArticles(req, res, next) {
         
         res.json({
             success: true,
-            articles
+            articles: articles.map(withJekyllPermalink)
         });
         
     } catch (error) {
@@ -326,7 +332,7 @@ async function getArticleBySlug(req, res, next) {
         
         res.json({
             success: true,
-            article: result
+            article: withJekyllPermalink(result)
         });
         
     } catch (error) {

@@ -1438,20 +1438,11 @@ class AcademyApp {
         if (!guideId) return;
 
         try {
-            await window.api.post(`/api/academy/guides/${guideId}/view`).catch(() => {});
-            
-            // Also track with analytics tracker if available
-            if (typeof window.analyticsTracker !== 'undefined') {
-                window.analyticsTracker.trackPageView(`academy_guide_${guideId}`, {
-                    guideId,
-                    guideTitle,
-                    timestamp: new Date().toISOString()
-                });
-            }
-            // Don't wait for response or show errors - view tracking is non-critical
+            await window.api.post(`/api/academy/guides/${guideId}/view`);
         } catch (error) {
-            // Silently fail - view tracking is not critical
-            // View count update failed
+            if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+                console.warn('[AcademyApp] Guide open count failed:', error);
+            }
         }
     }
 }

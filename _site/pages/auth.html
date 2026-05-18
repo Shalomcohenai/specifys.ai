@@ -71,6 +71,10 @@
     
     <!-- API base URL - required for POST /api/users/initialize after Google sign-in -->
     <script src="/assets/js/core/config.js"></script>
+    <!-- Page view beacon (config must load first; auth page has no shared head.html include) -->
+    <script src="/assets/js/core/analytics-schema.js"></script>
+    <script src="/assets/js/services/analytics-tracker.js"></script>
+    <script src="/assets/js/ga4-wrapper.js"></script>
     <!-- Credits Configuration - Must load before auth scripts -->
     <script src="/assets/js/credits-config.js"></script>
     

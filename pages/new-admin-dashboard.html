@@ -737,6 +737,12 @@ custom_js_modules:
         </div>
       </div>
 
+      <p class="analytics-metric-note" id="page-views-metric-note">
+        <strong>Site traffic:</strong> every page load on the site (including homepage, spec viewer, pricing).
+        This is separate from <strong>Content → Articles / Academy</strong>, which count article and guide opens only.
+        Jekyll blog posts (<code>/blog/…</code>) appear here but are not listed under Articles.
+      </p>
+
       <!-- Quick Stats -->
       <div class="quick-stats-grid" style="margin-bottom: 24px;">
         <div class="quick-stat-card">
@@ -1154,6 +1160,11 @@ custom_js_modules:
           </div>
         </div>
 
+        <p class="analytics-metric-note">
+          <strong>Article opens:</strong> counted when someone loads an article page (<code>/pages/article.html</code>).
+          Not the same as <strong>Page Views</strong> (all site pages). Numbers use the view log and the article counter (whichever is higher).
+        </p>
+
         <div class="articles-grid">
           <!-- Article Stats -->
           <div class="quick-stats-grid">
@@ -1180,7 +1191,7 @@ custom_js_modules:
                 <i class="fas fa-eye"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Total Views</div>
+                <div class="stat-label">Total Opens</div>
                 <div class="stat-value" id="stat-article-views">0</div>
               </div>
             </div>
@@ -1278,7 +1289,7 @@ custom_js_modules:
                     <th>Title</th>
                     <th>Status</th>
                     <th>Created</th>
-                    <th>Views</th>
+                    <th>Opens</th>
                     <th style="width: 120px;">Actions</th>
                   </tr>
                 </thead>
@@ -1440,9 +1451,14 @@ custom_js_modules:
             <button class="btn-modern" id="refresh-academy-btn">
               <i class="fas fa-sync-alt"></i>
               <span>Refresh Guides</span>
-            </button>
-          </div>
+          </button>
         </div>
+      </div>
+
+        <p class="analytics-metric-note">
+          <strong>Guide opens:</strong> counted when someone loads a guide in the academy.
+          Not the same as <strong>Page Views</strong>. Numbers use the view log and the guide counter (whichever is higher).
+        </p>
 
         <div class="academy-grid">
           <!-- Academy Stats -->
@@ -1470,7 +1486,7 @@ custom_js_modules:
                 <i class="fas fa-chart-line"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Views (7d)</div>
+                <div class="stat-label">Opens (7d)</div>
                 <div class="stat-value" id="stat-academy-views-7d">0</div>
               </div>
             </div>
@@ -1503,7 +1519,7 @@ custom_js_modules:
                   <tr>
                     <th>Title</th>
                     <th>Category</th>
-                    <th>Views</th>
+                    <th>Opens</th>
                     <th>Created</th>
                     <th style="width: 80px;">Actions</th>
                   </tr>

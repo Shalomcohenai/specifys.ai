@@ -2,63 +2,49 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://specifys-ai.com/</loc>
-    <lastmod>2026-04-05</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/blog/</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-07</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/blog/" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/articles.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/articles.html" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/academy.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy.html" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/academy/category.html</loc>
-    <lastmod>2026-03-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/category.html" />
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/academy/guide.html</loc>
-    <lastmod>2026-03-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guide.html" />
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://specifys-ai.com/pages/about.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-07</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/about.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/contact.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-07</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/contact.html" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/how.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/how.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -72,42 +58,70 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/pricing.html</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/pricing.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/why.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/why.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/cursor-windsurf-integration.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-07</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/cursor-windsurf-integration.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/for-ai-assistants.html</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/for-ai-assistants.html" />
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/pages/dynamic-post/</loc>
-    <lastmod>2026-03-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/dynamic-post/" />
+    <loc>https://specifys-ai.com/pages/compare/specifys-vs-lovable.html</loc>
+    <lastmod>2026-05-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-lovable.html" />
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/compare/specifys-vs-bolt.html</loc>
+    <lastmod>2026-05-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-bolt.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html</loc>
+    <lastmod>2026-05-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/glossary/index.html</loc>
+    <lastmod>2026-05-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/glossary/index.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/mcp.html</loc>
+    <lastmod>2026-05-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/mcp.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/tools/map/vibe-coding-tools-map.html</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-05-07</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/tools/map/vibe-coding-tools-map.html" />
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
@@ -421,563 +435,584 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-platforms-revolutionize-development-with-claude-code-agents</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-platforms-revolutionize-development-with-claude-code-agents" />
+    <loc>https://specifys-ai.com/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=security-in-the-age-of-vibe-coding-who-holds-the-reins</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=security-in-the-age-of-vibe-coding-who-holds-the-reins" />
+    <loc>https://specifys-ai.com/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development" />
+    <loc>https://specifys-ai.com/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-hits-mainstream-the-ai-revolution-transforming-github</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-hits-mainstream-the-ai-revolution-transforming-github" />
+    <loc>https://specifys-ai.com/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool" />
+    <loc>https://specifys-ai.com/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future</loc>
+    <loc>https://specifys-ai.com/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/</loc>
+    <lastmod>2025-11-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/</loc>
     <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power</loc>
+    <loc>https://specifys-ai.com/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/</loc>
     <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-the-revolutionary-force-reshaping-software-jobs</loc>
-    <lastmod>2025-12-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-the-revolutionary-force-reshaping-software-jobs" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-death-of-the-blank-file-how-ai-ended-starting-from-scratch</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-death-of-the-blank-file-how-ai-ended-starting-from-scratch" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration</loc>
-    <lastmod>2025-12-15</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing</loc>
-    <lastmod>2025-12-15</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=google-antigravity-gains-momentum-amid-anthropics-downtime</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=google-antigravity-gains-momentum-amid-anthropics-downtime" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=qodo-21-update-transforming-developer-workflows-with-precision</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=qodo-21-update-transforming-developer-workflows-with-precision" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=ai-native-software-why-2025-is-the-year-apps-build-themselves</loc>
+    <loc>https://specifys-ai.com/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/</loc>
     <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=ai-native-software-why-2025-is-the-year-apps-build-themselves" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways</loc>
+    <loc>https://specifys-ai.com/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/</loc>
+    <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/</loc>
+    <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/</loc>
+    <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/</loc>
+    <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/</loc>
+    <lastmod>2025-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/</loc>
     <lastmod>2025-12-02</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-silent-revolution-ai-generated-code-in-production-systems</loc>
-    <lastmod>2025-12-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-silent-revolution-ai-generated-code-in-production-systems" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development</loc>
-    <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation</loc>
-    <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces</loc>
-    <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers</loc>
-    <lastmod>2025-12-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-ascendancy-of-planning-tools-over-traditional-coding-instruments</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-ascendancy-of-planning-tools-over-traditional-coding-instruments" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks</loc>
-    <lastmod>2025-12-15</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding</loc>
-    <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claudes-code-voice-feature-transforms-programming-through-natural-language-conversations</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claudes-code-voice-feature-transforms-programming-through-natural-language-conversations" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world</loc>
-    <lastmod>2026-02-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=ai-generated-code-the-silent-revolution-in-production-systems</loc>
-    <lastmod>2025-12-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=ai-generated-code-the-silent-revolution-in-production-systems" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills</loc>
-    <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds</loc>
-    <lastmod>2026-03-03</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype</loc>
-    <lastmod>2025-12-15</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=how-google-antigravity-is-revolutionizing-agent-first-ides</loc>
-    <lastmod>2025-11-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=how-google-antigravity-is-revolutionizing-agent-first-ides" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=replit-agents-20-the-dawn-of-autonomous-feature-development</loc>
-    <lastmod>2025-11-28</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=replit-agents-20-the-dawn-of-autonomous-feature-development" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking</loc>
-    <lastmod>2026-01-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development</loc>
+    <loc>https://specifys-ai.com/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/</loc>
     <lastmod>2025-12-02</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities</loc>
-    <lastmod>2025-12-15</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities" />
+    <loc>https://specifys-ai.com/2025/12/16/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/</loc>
+    <lastmod>2025-12-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/16/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape</loc>
+    <loc>https://specifys-ai.com/2025/12/16/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/</loc>
+    <lastmod>2025-12-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/16/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/16/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/</loc>
+    <lastmod>2025-12-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/16/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/16/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/</loc>
+    <lastmod>2025-12-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/16/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/16/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/</loc>
+    <lastmod>2025-12-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/16/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/</loc>
+    <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/</loc>
+    <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/</loc>
+    <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/</loc>
+    <lastmod>2025-12-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/</loc>
+    <lastmod>2026-01-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/</loc>
     <lastmod>2026-02-01</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding" />
+    <loc>https://specifys-ai.com/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/article.html?slug=anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation</loc>
-    <lastmod>2026-02-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation" />
+    <loc>https://specifys-ai.com/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/" />
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/</loc>
+    <lastmod>2026-02-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/</loc>
+    <lastmod>2026-02-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/</loc>
+    <lastmod>2026-05-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/</loc>
+    <lastmod>2026-05-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

@@ -545,27 +545,7 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
           adminUserId: req.adminUser?.uid
         }
       });
-      
-      // Record activity for admin-enabled subscription
-      try {
-        const userDoc = await db.collection('users').doc(userId).get();
-        const userEmail = userDoc.exists ? userDoc.data().email : null;
-        
-        recordSubscriptionChange(
-          userId,
-          userEmail,
-          'pro',
-          'active',
-          {
-            source: 'admin',
-            adminUserId: req.adminUser?.uid
-          }
-        ).catch(err => {
-          logger.warn({ requestId, userId, error: err.message }, '[admin-routes] Failed to record subscription activation activity');
-        });
-      } catch (err) {
-        // Ignore - activity recording is non-critical
-      }
+      // Activity logging is handled inside enableProSubscription (single source of truth).
     } else if (plan === 'free') {
       logger.debug({ requestId, userId }, '[admin-routes] Disabling pro plan');
       const creditsV3Service = require('./credits-v3-service');
@@ -573,28 +553,7 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
         cancelReason: 'admin_requested',
         restoreCredits: null
       });
-      
-      // Record activity for admin-disabled subscription (already done in disableProSubscription, but adding here for admin context)
-      try {
-        const userDoc = await db.collection('users').doc(userId).get();
-        const userEmail = userDoc.exists ? userDoc.data().email : null;
-        
-        recordSubscriptionChange(
-          userId,
-          userEmail,
-          'pro',
-          'cancelled',
-          {
-            source: 'admin',
-            adminUserId: req.adminUser?.uid,
-            cancelReason: 'admin_requested'
-          }
-        ).catch(err => {
-          logger.warn({ requestId, userId, error: err.message }, '[admin-routes] Failed to record subscription cancellation activity');
-        });
-      } catch (err) {
-        // Ignore - activity recording is non-critical
-      }
+      // Activity logging is handled inside disableProSubscription (single source of truth).
     }
 
     logger.info({ requestId, userId, plan }, '[admin-routes] PUT /users/:userId/plan - Success');
@@ -1547,7 +1506,8 @@ router.get('/analytics/page-views/by-page', requireAdmin, async (req, res, next)
       success: true,
       rows: result.rows,
       scanned: result.scanned,
-      truncated: result.truncated
+      truncated: result.truncated,
+      totals: result.totals || { views: 0, uniqueUsers: 0 }
     });
   } catch (error) {
     logger.error(

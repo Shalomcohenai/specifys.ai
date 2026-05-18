@@ -191,7 +191,7 @@ export class ArticlesView {
             description: article.description || article.description_160 || ''
           }));
         
-        // Articles loaded
+        await this.mergeArticleViewCounts();
         this.updateSummary();
         this.render();
       } else {
@@ -207,6 +207,7 @@ export class ArticlesView {
             slug: article.slug || '',
             description: article.description || article.description_160 || ''
           }));
+          await this.mergeArticleViewCounts();
           this.updateSummary();
           this.render();
         } else {
@@ -216,6 +217,38 @@ export class ArticlesView {
     } catch (error) {
       console.error('[ArticlesView] Error loading articles:', error);
       this.table.innerHTML = '<tr><td colspan="5" class="table-empty-state">Error loading articles</td></tr>';
+    }
+  }
+
+  /**
+   * Merge open counts from article_views log (authoritative for "article opens").
+   * articles.views counter can lag if POST /view failed historically.
+   */
+  async mergeArticleViewCounts() {
+    try {
+      const result = await apiService.get('/api/analytics/top-articles?limit=1000&range=all');
+      if (!result?.success || !Array.isArray(result.articles)) return;
+
+      const byId = new Map();
+      const bySlug = new Map();
+      result.articles.forEach((row) => {
+        const count = row.views || 0;
+        if (row.id) byId.set(row.id, count);
+        if (row.slug) bySlug.set(row.slug, count);
+      });
+
+      this.articles = this.articles.map((article) => {
+        const logged = byId.get(article.id) ?? bySlug.get(article.slug) ?? 0;
+        const counter = article.views || 0;
+        return {
+          ...article,
+          viewsCounter: counter,
+          viewsLogged: logged,
+          views: Math.max(counter, logged)
+        };
+      });
+    } catch (error) {
+      console.warn('[ArticlesView] Could not merge article view counts:', error);
     }
   }
   
@@ -231,7 +264,7 @@ export class ArticlesView {
     this.updateSummaryValue('stat-total-articles', totalArticles);
     this.updateSummaryValue('stat-published-articles', publishedArticles);
     this.updateSummaryValue('stat-draft-articles', draftArticles);
-    this.updateSummaryValue('stat-articles-views', totalViews);
+    this.updateSummaryValue('stat-article-views', totalViews);
   }
   
   /**
@@ -273,12 +306,8 @@ export class ArticlesView {
       filteredArticles = filteredArticles.filter(article => article.status === this.currentFilter);
     }
     
-    // Sort by date (newest first)
-    filteredArticles.sort((a, b) => {
-      const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-      const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
-      return timeB - timeA;
-    });
+    // Sort by opens (highest first) for content planning
+    filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
     
     if (filteredArticles.length === 0) {
       this.table.innerHTML = '<tr><td colspan="5" class="table-empty-state">No articles found</td></tr>';
@@ -303,7 +332,7 @@ export class ArticlesView {
           </td>
           <td><span class="status-badge ${statusClass}">${article.status}</span></td>
           <td>${helpers.formatDate(article.createdAt)}</td>
-          <td>${(article.views || 0).toLocaleString()}</td>
+          <td title="${this.formatViewsTooltip(article)}">${(article.views || 0).toLocaleString()}</td>
           <td>
             <div class="action-buttons">
               <button class="action-btn small" data-article-id="${article.id}" data-action="edit" title="Edit article">
@@ -487,6 +516,15 @@ export class ArticlesView {
     }
   }
   
+  formatViewsTooltip(article) {
+    const logged = article.viewsLogged;
+    const counter = article.viewsCounter;
+    if (logged == null || counter == null || logged === counter) {
+      return 'Article opens (logged when the article page loads)';
+    }
+    return `Opens: ${Math.max(logged, counter)} (counter ${counter}, log ${logged})`;
+  }
+
   /**
    * Hide view
    */

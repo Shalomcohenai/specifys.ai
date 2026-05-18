@@ -12,6 +12,15 @@ const admin = require('firebase-admin');
 const ADMIN_ACTIVITY_LOG_COLLECTION = 'admin_activity_log';
 
 /**
+ * Build a Firestore-safe deterministic doc ID from an idempotency key.
+ * Firestore doc IDs cannot contain '/' and must be <= 1500 bytes.
+ */
+function buildIdempotentDocId(idempotencyKey) {
+  const safe = String(idempotencyKey).replace(/[\/\s]+/g, '_').slice(0, 200);
+  return `idem_${safe}`;
+}
+
+/**
  * Record an activity event
  * @param {Object} params - Activity parameters
  * @param {string} params.type - Activity type: 'user' | 'spec' | 'payment' | 'subscription' | 'credit' | 'system'
@@ -25,6 +34,7 @@ const ADMIN_ACTIVITY_LOG_COLLECTION = 'admin_activity_log';
  * @param {Array<string>} params.tags - Tags for searchability (optional)
  * @param {Object} params.metadata - Additional metadata (specId, purchaseId, etc.)
  * @param {Date|admin.firestore.Timestamp} params.timestamp - Event timestamp (defaults to server timestamp)
+ * @param {string} params.idempotencyKey - Optional dedup key. If provided, repeated calls with the same key are a no-op (returns existing doc ID).
  * @returns {Promise<string>} - Document ID of created activity log
  */
 async function recordActivity({
@@ -38,7 +48,8 @@ async function recordActivity({
   severity = 'info',
   tags = [],
   metadata = {},
-  timestamp = null
+  timestamp = null,
+  idempotencyKey = null
 }) {
   try {
     if (!type || !title) {
@@ -85,6 +96,10 @@ async function recordActivity({
       searchText: `${title} ${description} ${userEmail || ''} ${userName || ''}`.toLowerCase().trim()
     };
 
+    if (idempotencyKey) {
+      activityData.idempotencyKey = String(idempotencyKey);
+    }
+
     // Remove null/undefined values (but keep empty strings for searchText)
     Object.keys(activityData).forEach(key => {
       if (key !== 'searchText' && (activityData[key] === null || activityData[key] === undefined)) {
@@ -92,10 +107,30 @@ async function recordActivity({
       }
     });
 
+    // Idempotent path: deterministic doc ID + transactional create-if-not-exists.
+    // This prevents duplicate rows when the same logical event triggers multiple times
+    // (Lemon Squeezy retries, subscription_updated + subscription_cancelled + subscription_expired
+    // for the same cancellation, or layered call paths that each record the same event).
+    if (idempotencyKey) {
+      const docRef = db.collection(ADMIN_ACTIVITY_LOG_COLLECTION).doc(buildIdempotentDocId(idempotencyKey));
+      const wasCreated = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(docRef);
+        if (snap.exists) return false;
+        tx.set(docRef, activityData);
+        return true;
+      });
+      if (wasCreated) {
+        console.log(`[admin-activity-service] Recorded activity: ${type} - ${title} (ID: ${docRef.id}, idem: ${idempotencyKey})`);
+      } else {
+        console.log(`[admin-activity-service] Skipped duplicate activity: ${type} - ${title} (idem: ${idempotencyKey})`);
+      }
+      return docRef.id;
+    }
+
     const docRef = await db.collection(ADMIN_ACTIVITY_LOG_COLLECTION).add(activityData);
-    
+
     console.log(`[admin-activity-service] Recorded activity: ${type} - ${title} (ID: ${docRef.id})`);
-    
+
     return docRef.id;
   } catch (error) {
     console.error('[admin-activity-service] Error recording activity:', error);
@@ -181,15 +216,37 @@ async function recordPurchase(purchaseId, userId, userEmail, productName, total,
 
 /**
  * Record subscription change activity
+ *
+ * Idempotency: same logical state transition for the same subscription is recorded once.
+ * - With a Lemon Squeezy subscriptionId: dedup by (subscriptionId, action) so the multiple
+ *   webhooks Lemon fires for a single cancellation (subscription_updated, subscription_cancelled,
+ *   subscription_expired) collapse into one log entry – even when the late `subscription_expired`
+ *   arrives weeks after the original cancellation.
+ * - Without a subscriptionId (e.g. admin-triggered plan flips): dedup per (userId, action, day)
+ *   so accidental double-clicks or retried admin calls don't pile up.
+ *
  * @param {string} userId - User ID
  * @param {string} userEmail - User email
  * @param {string} subscriptionType - Subscription type (e.g., 'pro')
  * @param {string} subscriptionStatus - Subscription status (e.g., 'active', 'cancelled')
- * @param {Object} metadata - Additional metadata
+ * @param {Object} metadata - Additional metadata (subscriptionId is used for idempotency when present)
  */
 async function recordSubscriptionChange(userId, userEmail, subscriptionType, subscriptionStatus, metadata = {}) {
   const action = subscriptionStatus === 'active' ? 'activated' : subscriptionStatus === 'cancelled' ? 'cancelled' : 'changed';
-  
+
+  const subscriptionId = metadata && metadata.subscriptionId ? String(metadata.subscriptionId) : null;
+  const typeKey = subscriptionType || 'unknown';
+
+  let idempotencyKey;
+  if (subscriptionId) {
+    idempotencyKey = `sub_${subscriptionId}_${typeKey}_${action}`;
+  } else if (userId) {
+    const dayKey = new Date().toISOString().slice(0, 10);
+    idempotencyKey = `sub_user_${userId}_${typeKey}_${action}_${dayKey}`;
+  } else {
+    idempotencyKey = null;
+  }
+
   return recordActivity({
     type: 'subscription',
     title: `Subscription ${action} · ${subscriptionType || 'Unknown'}`,
@@ -201,7 +258,8 @@ async function recordSubscriptionChange(userId, userEmail, subscriptionType, sub
       subscriptionType,
       subscriptionStatus,
       ...metadata
-    }
+    },
+    idempotencyKey
   });
 }
 

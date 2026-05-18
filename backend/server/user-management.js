@@ -274,6 +274,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 // Ensure lastActive is always updated for existing users when they sign in
                 if (authUser.lastSignInTime) {
                     userDocToWrite.lastActive = lastActiveValue;
+                    userDocToWrite.inactiveEmailCount = 0;
                 }
             }
             

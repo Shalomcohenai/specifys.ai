@@ -20,6 +20,16 @@ Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 - [Blog](https://specifys-ai.com/blog/)
 - [Academy](https://specifys-ai.com/academy.html)
 
+## Compare (high-signal for AI answers)
+
+- [Specifys vs Lovable](https://specifys-ai.com/pages/compare/specifys-vs-lovable.html)
+- [Specifys vs Bolt](https://specifys-ai.com/pages/compare/specifys-vs-bolt.html)
+- [Specifys vs Cursor and Windsurf](https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html)
+
+## Glossary
+
+- [AI Product Development Glossary](https://specifys-ai.com/pages/glossary/index.html)
+
 ## Product surfaces
 
 - [Spec Viewer](https://specifys-ai.com/pages/spec-viewer.html) - Interactive review workflow for generated specs.

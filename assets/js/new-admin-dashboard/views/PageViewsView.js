@@ -436,10 +436,11 @@ export class PageViewsView {
       const pageRows = Array.isArray(byPage.rows) ? byPage.rows : [];
       const refRows = Array.isArray(byRef.rows) ? byRef.rows : [];
 
-      const totalViews = pageRows.reduce((acc, r) => acc + (r.count || 0), 0);
+      const totals = byPage.totals || {};
+      const totalViews = totals.views ?? pageRows.reduce((acc, r) => acc + (r.count || 0), 0);
       const uniquePages = pageRows.length;
       const uniqueRefs = refRows.length;
-      const uniqueUsers = pageRows.reduce((acc, r) => Math.max(acc, r.uniqueUsers || 0), 0);
+      const uniqueUsers = totals.uniqueUsers ?? 0;
 
       const setStat = (id, value) => {
         const el = helpers.dom(id);

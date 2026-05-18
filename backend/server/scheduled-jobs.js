@@ -6,7 +6,15 @@
 const { logger } = require('./logger');
 const { syncPaymentsData } = require('./lemon-payments-cache');
 const { db } = require('./firebase-admin');
+const admin = require('firebase-admin');
 const emailService = require('./email-service');
+const {
+  parseUserLastActive,
+  getInactiveEmailCount,
+  daysSinceDate,
+  shouldSendInactiveReminder,
+  INACTIVE_EMAIL_MAX_COUNT
+} = require('./inactive-user-email');
 const { jobRegistry } = require('./automation-service');
 const { ToolsFinderJob } = require('./tools-automation');
 const { exportToolsToJson } = require('./tools-export-service');
@@ -17,6 +25,7 @@ const { fromZonedTime, toZonedTime } = require('date-fns-tz');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
+let inactiveUsersCheckTimeout = null;
 let toolsFinderInterval = null;
 let articleWriterInterval = null;
 let creditsSyncInterval = null;
@@ -69,6 +78,11 @@ function stopScheduledJobs() {
     paymentsSyncInterval = null;
   }
   
+  if (inactiveUsersCheckTimeout) {
+    clearTimeout(inactiveUsersCheckTimeout);
+    inactiveUsersCheckTimeout = null;
+  }
+
   if (inactiveUsersCheckInterval) {
     clearInterval(inactiveUsersCheckInterval);
     inactiveUsersCheckInterval = null;
@@ -160,143 +174,172 @@ async function syncPaymentsDataOnce(apiKey, storeId) {
   }
 }
 
-/**
- * Start inactive users check job (runs daily)
- * Checks for users who haven't logged in for 30 days and sends reminder email (once per user)
- */
-function startInactiveUsersCheckJob() {
-  // Calculate milliseconds in 24 hours
-  const hours24 = 24 * 60 * 60 * 1000;
+const INACTIVE_EMAIL_SEND_DELAY_MS = 100;
 
-  // Run check every 24 hours
-  inactiveUsersCheckInterval = setInterval(() => {
-    checkInactiveUsers();
-  }, hours24);
-
-  logger.info('[scheduled-jobs] Inactive users check job started - will run every 24 hours');
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
- * Check for inactive users and send reminder emails
- * Sends email to users who haven't logged in for 30 days (one-time per user)
+ * Start inactive users check job (runs daily at a configured hour).
+ * Sends up to 3 "We Miss You" emails per inactivity cycle (30 / 60 / 90 days since lastActive).
+ * At most one email per user per daily run.
+ *
+ * Env:
+ * - INACTIVE_USERS_EMAIL_ENABLED — default on
+ * - INACTIVE_USERS_HOUR — 0–23 (default: 10)
+ * - INACTIVE_USERS_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC)
+ */
+function startInactiveUsersCheckJob() {
+  const enabled = process.env.INACTIVE_USERS_EMAIL_ENABLED !== 'false';
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Inactive users email job disabled via INACTIVE_USERS_EMAIL_ENABLED');
+    return;
+  }
+
+  const timezone = process.env.INACTIVE_USERS_TIMEZONE
+    || process.env.REPORT_TIMEZONE
+    || 'UTC';
+
+  let reportHour = parseInt(process.env.INACTIVE_USERS_HOUR, 10);
+  if (Number.isNaN(reportHour) || reportHour < 0 || reportHour > 23) {
+    reportHour = 10;
+  }
+
+  const hours24 = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const nextRun = getNextScheduledTime(reportHour, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
+
+  inactiveUsersCheckTimeout = setTimeout(() => {
+    checkInactiveUsers().catch((error) => {
+      logger.error({ error: error.message }, '[scheduled-jobs] Inactive users check failed');
+    });
+    inactiveUsersCheckInterval = setInterval(() => {
+      checkInactiveUsers().catch((error) => {
+        logger.error({ error: error.message }, '[scheduled-jobs] Inactive users check failed');
+      });
+    }, hours24);
+  }, msUntilNext);
+
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    reportHour,
+    timezone,
+    msUntilNext
+  }, '[scheduled-jobs] Inactive users email job scheduled (daily, max 3 per cycle)');
+}
+
+/**
+ * Check for inactive users and send the next reminder email when due.
  */
 async function checkInactiveUsers() {
   const requestId = `inactive-users-check-${Date.now()}`;
-  
+
   try {
     logger.info({ requestId }, '[scheduled-jobs] Starting inactive users check');
-    
+
     const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    // Get all users
     const usersSnapshot = await db.collection('users').get();
-    
+    const now = new Date();
+
     let emailsSent = 0;
     let skipped = 0;
     let errors = 0;
-    
+
     for (const userDoc of usersSnapshot.docs) {
       const userId = userDoc.id;
       const userData = userDoc.data();
-      
-      // Skip if user already received inactive email
-      if (userData.inactiveEmailSent === true) {
-        skipped++;
-        continue;
-      }
-      
-      // Get lastActive date
-      let lastActive = null;
-      if (userData.lastActive) {
-        // Handle Firestore Timestamp
-        if (userData.lastActive.toDate) {
-          lastActive = userData.lastActive.toDate();
-        } else if (userData.lastActive instanceof Date) {
-          lastActive = userData.lastActive;
-        } else {
-          lastActive = new Date(userData.lastActive);
-        }
-      } else if (userData.createdAt) {
-        // Fallback to createdAt if lastActive doesn't exist
-        if (userData.createdAt.toDate) {
-          lastActive = userData.createdAt.toDate();
-        } else {
-          lastActive = new Date(userData.createdAt);
-        }
-      }
-      
+
+      const lastActive = parseUserLastActive(userData);
       if (!lastActive) {
         skipped++;
         continue;
       }
-      
-      // Check if user is inactive (30 days or more)
-      if (lastActive < thirtyDaysAgo) {
-        const userEmail = userData.email;
-        const userName = userData.displayName || userEmail?.split('@')[0] || 'User';
-        
-        if (userEmail) {
-          try {
-            // Check user email preferences for updates/inactive user emails
-            // Inactive user email is considered "updates" category
-            const emailPrefs = userData.emailPreferences || {
-              newsletter: true,
-              operational: true,
-              marketing: true,
-              specNotifications: true,
-              updates: true
-            };
-            
-            // Only send if user wants updates emails
-            if (emailPrefs.updates === false) {
-              skipped++;
-              continue;
-            }
-            
-            // Send inactive user email
-            const emailResult = await emailService.sendInactiveUserEmail(userEmail, userName, userId, baseUrl);
-            
-            if (emailResult.success) {
-              // Mark that email was sent (one-time)
-              await db.collection('users').doc(userId).update({
-                inactiveEmailSent: true,
-                inactiveEmailSentAt: new Date().toISOString()
-              });
-              
-              emailsSent++;
-              logger.info({ requestId, userId, userEmail }, '[scheduled-jobs] Inactive user email sent');
-            } else {
-              errors++;
-              logger.warn({ requestId, userId, userEmail, error: emailResult.error }, '[scheduled-jobs] Failed to send inactive user email');
-            }
-          } catch (error) {
-            errors++;
-            logger.error({ requestId, userId, userEmail, error: error.message }, '[scheduled-jobs] Error sending inactive user email');
+
+      const inactiveEmailCount = getInactiveEmailCount(userData);
+      if (inactiveEmailCount >= INACTIVE_EMAIL_MAX_COUNT) {
+        skipped++;
+        continue;
+      }
+
+      const daysSinceActive = daysSinceDate(lastActive, now);
+      if (!shouldSendInactiveReminder(daysSinceActive, inactiveEmailCount)) {
+        skipped++;
+        continue;
+      }
+
+      const userEmail = userData.email;
+      const userName = userData.displayName || userEmail?.split('@')[0] || 'User';
+
+      if (!userEmail) {
+        skipped++;
+        logger.warn({ requestId, userId }, '[scheduled-jobs] User has no email, skipping');
+        continue;
+      }
+
+      const emailPrefs = userData.emailPreferences || {
+        newsletter: true,
+        operational: true,
+        marketing: true,
+        specNotifications: true,
+        updates: true
+      };
+
+      if (emailPrefs.updates === false) {
+        skipped++;
+        continue;
+      }
+
+      try {
+        const emailResult = await emailService.sendInactiveUserEmail(userEmail, userName, userId, baseUrl);
+
+        if (emailResult.success) {
+          const newCount = inactiveEmailCount + 1;
+          await db.collection('users').doc(userId).update({
+            inactiveEmailCount: newCount,
+            lastInactiveEmailSentAt: now.toISOString(),
+            inactiveEmailSent: admin.firestore.FieldValue.delete(),
+            inactiveEmailSentAt: admin.firestore.FieldValue.delete()
+          });
+
+          emailsSent++;
+          logger.info({
+            requestId,
+            userId,
+            userEmail,
+            inactiveEmailCount: newCount,
+            daysSinceActive
+          }, '[scheduled-jobs] Inactive user email sent');
+
+          if (INACTIVE_EMAIL_SEND_DELAY_MS > 0) {
+            await delay(INACTIVE_EMAIL_SEND_DELAY_MS);
           }
         } else {
-          skipped++;
-          logger.warn({ requestId, userId }, '[scheduled-jobs] User has no email, skipping');
+          errors++;
+          logger.warn({ requestId, userId, userEmail, error: emailResult.error }, '[scheduled-jobs] Failed to send inactive user email');
         }
+      } catch (error) {
+        errors++;
+        logger.error({ requestId, userId, userEmail, error: error.message }, '[scheduled-jobs] Error sending inactive user email');
       }
     }
-    
-    logger.info({ 
-      requestId, 
-      emailsSent, 
-      skipped, 
+
+    logger.info({
+      requestId,
+      emailsSent,
+      skipped,
       errors,
-      totalUsers: usersSnapshot.size 
+      totalUsers: usersSnapshot.size
     }, '[scheduled-jobs] Inactive users check completed');
-    
   } catch (error) {
-    logger.error({ 
-      requestId, 
-      error: { 
-        message: error.message, 
-        stack: error.stack 
-      } 
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
     }, '[scheduled-jobs] Inactive users check failed');
   }
 }

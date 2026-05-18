@@ -32,8 +32,6 @@ function buildStaticUrls(baseUrl, today) {
         { loc: `${baseUrl}/blog/`, source: 'blog/index.html', priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/pages/articles.html`, source: 'pages/articles.html', priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/academy.html`, source: 'pages/academy/index.html', priority: '0.9', changefreq: 'weekly' },
-        { loc: `${baseUrl}/academy/category.html`, source: 'pages/academy/category.html', priority: '0.7', changefreq: 'monthly' },
-        { loc: `${baseUrl}/academy/guide.html`, source: 'pages/academy/guide.html', priority: '0.7', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/about.html`, source: 'pages/about.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/contact.html`, source: 'pages/contact.html', priority: '0.7', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/how.html`, source: 'pages/how.html', priority: '0.8', changefreq: 'monthly' },
@@ -42,7 +40,11 @@ function buildStaticUrls(baseUrl, today) {
         { loc: `${baseUrl}/pages/why.html`, source: 'pages/why.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/cursor-windsurf-integration.html`, source: 'pages/cursor-windsurf-integration.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/for-ai-assistants.html`, source: 'pages/for-ai-assistants.html', priority: '0.85', changefreq: 'monthly' },
-        { loc: `${baseUrl}/pages/dynamic-post/`, source: 'pages/dynamic-post.html', priority: '0.7', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/compare/specifys-vs-lovable.html`, source: 'pages/compare/specifys-vs-lovable.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/compare/specifys-vs-bolt.html`, source: 'pages/compare/specifys-vs-bolt.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/compare/specifys-vs-cursor-windsurf.html`, source: 'pages/compare/specifys-vs-cursor-windsurf.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/glossary/index.html`, source: 'pages/glossary/index.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/mcp.html`, source: 'pages/mcp.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/tools/map/vibe-coding-tools-map.html`, source: 'tools/map/vibe-coding-tools-map.html', priority: '0.95', changefreq: 'weekly' }
     ];
 
@@ -71,6 +73,20 @@ function getJekyllPostUrls(baseUrl, today) {
             priority: '0.6'
         };
     }).filter(Boolean);
+}
+
+/** Slugs from `_posts/YYYY-MM-DD-slug.md` for deduping Firestore article URLs */
+function getJekyllPostSlugSet() {
+    const postsDir = path.join(ROOT_DIR, '_posts');
+    if (!fs.existsSync(postsDir)) return new Set();
+
+    const slugs = new Set();
+    const files = fs.readdirSync(postsDir).filter((name) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(name));
+    for (const fileName of files) {
+        const match = fileName.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/);
+        if (match) slugs.add(match[1]);
+    }
+    return slugs;
 }
 
 async function pingIndexNow(urls, baseUrl) {
@@ -147,23 +163,25 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
 
     const staticUrls = buildStaticUrls(baseUrl, today);
     const jekyllPostUrls = getJekyllPostUrls(baseUrl, today);
+    const jekyllSlugs = getJekyllPostSlugSet();
 
-    // Get published articles
+    // Legacy Firebase article URLs only when no static Jekyll post exists for that slug
     const articlesSnapshot = await db.collection('articles')
         .where('status', '==', 'published')
         .get();
-    
-    const articleUrls = articlesSnapshot.docs.map(doc => {
-        const data = doc.data();
-        const lastmod = toIsoDate(data.publishedAt || data.createdAt) || today;
-        
-        return {
-            loc: `${baseUrl}/article.html?slug=${data.slug}`,
-            lastmod: lastmod,
-            changefreq: 'monthly',
-            priority: '0.8'
-        };
-    });
+
+    const articleUrls = articlesSnapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((data) => data.slug && !jekyllSlugs.has(data.slug))
+        .map((data) => {
+            const lastmod = toIsoDate(data.publishedAt || data.createdAt) || today;
+            return {
+                loc: `${baseUrl}/article.html?slug=${data.slug}`,
+                lastmod,
+                changefreq: 'monthly',
+                priority: '0.8'
+            };
+        });
 
     const allUrls = [...staticUrls, ...jekyllPostUrls, ...articleUrls];
 
@@ -197,7 +215,7 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
  * Coverage summary:
  * - Public static marketing/product URLs
  * - Jekyll posts from `_posts/*.md` with permalink-style URLs
- * - Published Firebase article routes (`article.html?slug=...`)
+ * - Published Firebase articles only when no matching `_posts/` slug exists
  */
 async function generateAndSaveSitemap(outputPath = null, baseUrl = null) {
     try {
@@ -234,6 +252,8 @@ async function generateAndSaveSitemap(outputPath = null, baseUrl = null) {
 module.exports = {
     generateSitemapXml,
     generateAndSaveSitemap,
-    pingIndexNow
+    pingIndexNow,
+    getJekyllPostSlugSet,
+    getJekyllPostUrls
 };
 

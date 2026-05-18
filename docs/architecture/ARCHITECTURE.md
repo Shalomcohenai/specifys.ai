@@ -597,7 +597,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 | `sendSpecReadyEmailSubsequent` | Later specs completed | `specs-routes.js` |
 | `sendAdvancedSpecReadyEmail` | Advanced spec sections ready | `specs-routes.js` |
 | `sendPurchaseConfirmationEmail` | After purchase | `lemon-routes.js` webhook |
-| `sendInactiveUserEmail` | 30+ days inactive | `scheduled-jobs.js` daily |
+| `sendInactiveUserEmail` | 30 / 60 / 90 days inactive (max 3 per cycle; resets on sign-in) | `scheduled-jobs.js` daily |
 | `sendNewsletterEmail` | Newsletter send | `newsletter-routes.js` |
 | `sendToolFinderUsageEmail` | Tool finder follow-up | `tools-automation.js` |
 | `sendDailyReport` | Daily stats | `scheduled-jobs.js` |
@@ -668,7 +668,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 | Job | Frequency | What it does |
 |-----|-----------|-------------|
 | Payments sync | 24h | Sync Lemon Squeezy payments cache |
-| Inactive users email | 24h | Email users inactive 30+ days |
+| Inactive users email | Daily (configured hour) | Up to 3 reminders at 30/60/90 days since lastActive; one email per user per run |
 | Tools finder | 7 days | Run AI tools finder + export to `tools.json` |
 | Article writer | Weekly | Generate blog articles via OpenAI |
 | Credits sync | Daily | Sync Lemon Squeezy subscriptions → credits V3 |

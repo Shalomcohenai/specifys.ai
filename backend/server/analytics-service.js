@@ -487,6 +487,8 @@ async function aggregatePageViews(options = {}) {
 
     const snapshot = await query.get();
     const buckets = new Map();
+    const globalUniqueUserIds = new Set();
+    let totalViews = 0;
 
     snapshot.docs.forEach((doc) => {
       const data = doc.data() || {};
@@ -518,7 +520,11 @@ async function aggregatePageViews(options = {}) {
       }
       const bucket = buckets.get(key);
       bucket.count += 1;
-      if (data.userId) bucket.uniqueUserIds.add(data.userId);
+      totalViews += 1;
+      if (data.userId) {
+        bucket.uniqueUserIds.add(data.userId);
+        globalUniqueUserIds.add(data.userId);
+      }
       if (viewedAt && (!bucket.lastSeen || viewedAt > bucket.lastSeen)) {
         bucket.lastSeen = viewedAt;
       }
@@ -537,7 +543,11 @@ async function aggregatePageViews(options = {}) {
     return {
       rows,
       scanned: snapshot.size,
-      truncated: snapshot.size >= cappedScan
+      truncated: snapshot.size >= cappedScan,
+      totals: {
+        views: totalViews,
+        uniqueUsers: globalUniqueUserIds.size
+      }
     };
   } catch (error) {
     logger.error(

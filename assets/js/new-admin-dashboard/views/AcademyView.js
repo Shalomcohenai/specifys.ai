@@ -5,6 +5,7 @@
 
 import { helpers } from '../utils/helpers.js';
 import { firebaseService } from '../core/FirebaseService.js';
+import { apiService } from '../services/ApiService.js';
 
 export class AcademyView {
   constructor(dataManager, stateManager) {
@@ -81,8 +82,8 @@ export class AcademyView {
         };
       });
       
-      // Guides processed
-      this.updateSummary();
+      await this.mergeGuideViewCounts();
+      await this.updateSummary();
       this.render();
     } catch (error) {
       console.error('[AcademyView] Error loading guides:', error);
@@ -90,18 +91,48 @@ export class AcademyView {
     }
   }
   
+  async mergeGuideViewCounts() {
+    try {
+      const result = await apiService.get('/api/analytics/top-guides?limit=1000&range=all');
+      if (!result?.success || !Array.isArray(result.guides)) return;
+
+      const byId = new Map();
+      result.guides.forEach((row) => {
+        const count = row.views || 0;
+        if (row.id) byId.set(row.id, count);
+      });
+
+      this.guides = this.guides.map((guide) => {
+        const logged = byId.get(guide.id) ?? 0;
+        const counter = guide.views || 0;
+        return {
+          ...guide,
+          viewsCounter: counter,
+          viewsLogged: logged,
+          views: Math.max(counter, logged)
+        };
+      });
+    } catch (error) {
+      console.warn('[AcademyView] Could not merge guide view counts:', error);
+    }
+  }
+
   /**
    * Update summary stats
    */
-  updateSummary() {
+  async updateSummary() {
     const totalGuides = this.guides.length;
     const totalViews = this.guides.reduce((sum, g) => sum + (g.views || 0), 0);
-    
-    // Calculate views in last 7 days (we'll use total views as approximation)
-    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-    const views7d = this.guides
-      .filter(g => g.createdAt && g.createdAt.getTime() >= sevenDaysAgo)
-      .reduce((sum, g) => sum + (g.views || 0), 0);
+
+    let views7d = 0;
+    try {
+      const stats = await apiService.getContentStats('week');
+      if (stats?.success && stats.stats) {
+        views7d = stats.stats.guidesViewsInRange || 0;
+      }
+    } catch (error) {
+      console.warn('[AcademyView] Could not load guide views for last 7 days:', error);
+    }
     
     // Find top guide
     const topGuide = this.guides.length > 0
@@ -170,7 +201,7 @@ export class AcademyView {
             </div>
           </td>
           <td><span class="plan-badge plan-free">${this.escapeHtml(guide.category)}</span></td>
-          <td><strong>${(guide.views || 0).toLocaleString()}</strong></td>
+          <td title="${this.formatViewsTooltip(guide)}"><strong>${(guide.views || 0).toLocaleString()}</strong></td>
           <td>${helpers.formatDate(guide.createdAt)}</td>
           <td>
             <div class="action-buttons">
@@ -196,6 +227,15 @@ export class AcademyView {
     return div.innerHTML;
   }
   
+  formatViewsTooltip(guide) {
+    const logged = guide.viewsLogged;
+    const counter = guide.viewsCounter;
+    if (logged == null || counter == null || logged === counter) {
+      return 'Guide opens (logged when a guide page loads)';
+    }
+    return `Opens: ${Math.max(logged, counter)} (counter ${counter}, log ${logged})`;
+  }
+
   /**
    * Show view
    */

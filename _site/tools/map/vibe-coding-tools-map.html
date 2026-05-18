@@ -426,9 +426,9 @@ function trackPreference(preferenceName, preferenceValue) {
 
 
     <script src="/assets/js/core/analytics-schema.js"></script>
-    <!-- Backend analytics beacon (must load before ga4-wrapper so window.analyticsTracker is available when init() fires) -->
-    <script src="/assets/js/services/analytics-tracker.js"></script>
-    <script src="/assets/js/ga4-wrapper.js"></script>
+    <!-- Backend analytics beacon (defer, after config.js — URL resolved at call time in analytics-tracker.js) -->
+    <script defer src="/assets/js/services/analytics-tracker.js"></script>
+    <script defer src="/assets/js/ga4-wrapper.js"></script>
     <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
 {
@@ -1680,7 +1680,9 @@ function trackPreference(preferenceName, preferenceValue) {
         <a href="/pages/how.html" role="listitem">How It Works</a>
         <a href="/pages/why.html" role="listitem">Why?</a>
         <a href="/pages/articles.html" role="listitem">Articles</a>
-        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Compare</a>
+        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Specifys vs Bolt</a>
+        <a href="/pages/compare/specifys-vs-lovable.html" role="listitem">Specifys vs Lovable</a>
+        <a href="/pages/compare/specifys-vs-cursor-windsurf.html" role="listitem">Specifys vs Cursor</a>
         <a href="/pages/glossary/index.html" role="listitem">Glossary</a>
         <a href="/pages/for-ai-assistants.html" role="listitem">For AI assistants</a>
       </div>

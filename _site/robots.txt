@@ -10,21 +10,15 @@ Disallow: /pages/legacy-viewer.html
 # Sitemap
 Sitemap: https://specifys-ai.com/sitemap.xml
 
-# Crawl delay
-Crawl-delay: 1
-
 # Specific rules for major search engines
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 1
 
 User-agent: Slurp
 Allow: /
-Crawl-delay: 1
 
 # AI crawlers
 User-agent: GPTBot

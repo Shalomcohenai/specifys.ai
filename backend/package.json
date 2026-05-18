@@ -8,6 +8,7 @@
     "build": "echo 'No build step'"
   },
   "dependencies": {
+    "@octokit/rest": "^21.1.1",
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",
     "compression": "^1.7.4",
     "date-fns-tz": "^3.0.0",
