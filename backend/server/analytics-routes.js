@@ -272,7 +272,7 @@ router.post('/page-view', async (req, res, next) => {
       return next(createError('Page is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
-    await recordPageView(page, userId || null, metadata || {});
+    await recordPageView(page, userId || null, metadata || {}, req);
     
     res.json({
       success: true,

@@ -107,16 +107,5 @@ extra_css:
   </div>
 </div>
 
-<!-- analytics-tracker.js is loaded once globally from _includes/head.html -->
-<script>
-  // Track academy main page view
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.analyticsTracker !== 'undefined') {
-      window.analyticsTracker.trackPageView('academy', {
-        timestamp: new Date().toISOString()
-      });
-    }
-  });
-</script>
 <script type="module" src="/assets/js/pages/academy.js"></script>
 

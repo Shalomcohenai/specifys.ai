@@ -1,10 +1,9 @@
 /**
  * Analytics Tracker
- * Client-side utility for tracking analytics events
+ * Client-side utility for tracking analytics events to the backend API.
  *
- * Wrapped in an IIFE with an idempotency guard so that an accidental
- * double-load of this file does not cause `Identifier 'API_BASE_URL'
- * has already been declared` in browsers (the const is now module-private).
+ * GA4 page_view events are handled by ga4-wrapper.js only.
+ * This module POSTs to Render (getApiBaseUrl resolved at call time, not load time).
  */
 
 (function () {
@@ -18,45 +17,94 @@
   }
   window.__analyticsTrackerLoaded = true;
 
-  const API_BASE_URL = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
+  function getApiBaseUrl() {
+    if (typeof window.getApiBaseUrl === 'function') {
+      const url = window.getApiBaseUrl();
+      if (url && String(url).trim()) {
+        return String(url).replace(/\/$/, '');
+      }
+    }
+    const fallback = window.API_BASE_URL || window.SPECIFYS_BACKEND_URL || window.BACKEND_URL || '';
+    return String(fallback).replace(/\/$/, '');
+  }
+
+  function isDevHost() {
+    try {
+      const hostname = (window.location.hostname || '').toLowerCase();
+      const devHosts = new Set(['', 'localhost', '127.0.0.1', '::1']);
+      if (devHosts.has(hostname)) return true;
+      if (hostname.endsWith('.local') || hostname.endsWith('.localhost') || hostname.endsWith('.lan')) {
+        return true;
+      }
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+      return /(?:[?&#])(debug-console|debugConsole)=(?:1|true)/i.test(`${search}${hash}`);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function warnAnalyticsFailure(endpoint, response, networkError) {
+    if (!isDevHost()) return;
+    const original = window.__SPECIFYS_ORIGINAL_CONSOLE__;
+    const warn = (original && original.warn) ? original.warn.bind(console) : console.warn;
+    if (networkError) {
+      warn('[analytics-tracker] Request failed:', endpoint, networkError.message || networkError);
+      return;
+    }
+    if (response && !response.ok) {
+      warn('[analytics-tracker] Non-OK response:', response.status, endpoint);
+    }
+  }
+
+  async function postToAnalytics(path, body) {
+    const base = getApiBaseUrl();
+    if (!base) {
+      warnAnalyticsFailure(path, null, new Error('API base URL is empty — is config.js loaded?'));
+      return;
+    }
+    const endpoint = `${base}${path.startsWith('/') ? path : `/${path}`}`;
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...body.headers },
+        body: JSON.stringify(body.payload)
+      });
+      if (!response.ok) {
+        warnAnalyticsFailure(endpoint, response, null);
+      }
+    } catch (error) {
+      warnAnalyticsFailure(endpoint, null, error);
+    }
+  }
+
+  async function getAuthHeaders() {
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.auth().currentUser) {
+      return {};
+    }
+    const token = await firebase.auth().currentUser.getIdToken();
+    return { Authorization: `Bearer ${token}` };
+  }
+
+  async function getUserId() {
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      return firebase.auth().currentUser.uid;
+    }
+    return null;
+  }
 
   /**
-   * Track a page view
+   * Track a page view (backend only — GA is handled by ga4-wrapper.js).
    */
   async function trackPageView(page, metadata = {}) {
     try {
-      let userId = null;
-      if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-        userId = firebase.auth().currentUser.uid;
-      }
-
-      await fetch(`${API_BASE_URL}/api/analytics/page-view`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(userId ? { 'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}` } : {})
-        },
-        body: JSON.stringify({
-          page,
-          userId,
-          metadata
-        })
-      }).catch(() => {
-        // Silently fail - analytics is non-critical
+      const userId = await getUserId();
+      await postToAnalytics('/api/analytics/page-view', {
+        headers: userId ? await getAuthHeaders() : {},
+        payload: { page, userId, metadata }
       });
-
-      if (window.analytics && typeof window.analytics.page === 'function') {
-        window.analytics.page(page, metadata);
-      } else if (typeof gtag !== 'undefined') {
-        gtag('event', 'page_view', {
-          event_category: 'Navigation',
-          event_label: page,
-          page_path: page,
-          ...metadata
-        });
-      }
     } catch (error) {
-      // Silently fail - analytics is non-critical
+      // Non-critical
     }
   }
 
@@ -65,26 +113,16 @@
    */
   async function trackButtonClick(buttonId, context = {}) {
     try {
-      let userId = null;
-      if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-        userId = firebase.auth().currentUser.uid;
-      }
-
-      await fetch(`${API_BASE_URL}/api/analytics/event`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(userId ? { 'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}` } : {})
-        },
-        body: JSON.stringify({
+      const userId = await getUserId();
+      await postToAnalytics('/api/analytics/event', {
+        headers: userId ? await getAuthHeaders() : {},
+        payload: {
           type: 'button_click',
           entityId: buttonId,
           entityType: 'button',
           userId,
           metadata: context
-        })
-      }).catch(() => {
-        // Silently fail - analytics is non-critical
+        }
       });
 
       if (window.analytics && typeof window.analytics.trackButton === 'function') {
@@ -97,7 +135,7 @@
         });
       }
     } catch (error) {
-      // Silently fail - analytics is non-critical
+      // Non-critical
     }
   }
 
@@ -106,25 +144,19 @@
    */
   async function trackFunnelStep(step, userId = null, metadata = {}) {
     try {
-      if (!userId && typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-        userId = firebase.auth().currentUser.uid;
+      if (!userId) {
+        userId = await getUserId();
       }
 
-      await fetch(`${API_BASE_URL}/api/analytics/event`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(userId ? { 'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}` } : {})
-        },
-        body: JSON.stringify({
+      await postToAnalytics('/api/analytics/event', {
+        headers: userId ? await getAuthHeaders() : {},
+        payload: {
           type: 'funnel_step',
           entityId: step,
           entityType: 'funnel',
           userId,
           metadata
-        })
-      }).catch(() => {
-        // Silently fail - analytics is non-critical
+        }
       });
 
       if (window.analytics && typeof window.analytics.event === 'function') {
@@ -143,7 +175,7 @@
         });
       }
     } catch (error) {
-      // Silently fail - analytics is non-critical
+      // Non-critical
     }
   }
 
@@ -152,26 +184,16 @@
    */
   async function trackEvent(type, entityId, entityType, metadata = {}) {
     try {
-      let userId = null;
-      if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-        userId = firebase.auth().currentUser.uid;
-      }
-
-      await fetch(`${API_BASE_URL}/api/analytics/event`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(userId ? { 'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}` } : {})
-        },
-        body: JSON.stringify({
+      const userId = await getUserId();
+      await postToAnalytics('/api/analytics/event', {
+        headers: userId ? await getAuthHeaders() : {},
+        payload: {
           type,
           entityId,
           entityType,
           userId,
           metadata
-        })
-      }).catch(() => {
-        // Silently fail - analytics is non-critical
+        }
       });
 
       if (window.analytics && typeof window.analytics.event === 'function') {
@@ -188,7 +210,7 @@
         });
       }
     } catch (error) {
-      // Silently fail - analytics is non-critical
+      // Non-critical
     }
   }
 

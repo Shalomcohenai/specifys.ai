@@ -919,15 +919,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // But ensure it's set up again in case DOM changed
     setupBillingToggle();
     
-    // Track page view
-    if (typeof window.analyticsTracker !== 'undefined') {
-        window.analyticsTracker.trackPageView('pricing', {
-            timestamp: new Date().toISOString()
-        });
-    } else if (typeof trackPageView !== 'undefined') {
-        trackPageView('pricing');
-    }
-    
+    // Page view tracked site-wide via ga4-wrapper.js + analytics-tracker.js (head.html)
+
     // Wake up the server immediately when page loads
     wakeUpServer();
 

@@ -163,6 +163,7 @@ app.use('/api/feedback', rateLimiters.feedback);
 app.use('/api/logs', rateLimiters.monitoring);
 app.use('/api/admin/css-crash-logs', rateLimiters.monitoring);
 app.use('/api/analytics/web-vitals', rateLimiters.monitoring);
+app.use('/api/analytics/page-view', rateLimiters.monitoring);
 logger.info({ type: 'rate_limiting_applied' }, '[UNIFIED SERVER] ✅ Rate limiting applied');
 
 // Web Vitals: sendBeacon may use text/plain (string) or application/json (Blob). Parse raw here so legacy

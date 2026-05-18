@@ -68,16 +68,5 @@ extra_css:
   </section>
 </div>
 
-<!-- analytics-tracker.js is loaded once globally from _includes/head.html -->
-<script>
-  // Track articles list page view
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.analyticsTracker !== 'undefined') {
-      window.analyticsTracker.trackPageView('articles_list', {
-        timestamp: new Date().toISOString()
-      });
-    }
-  });
-</script>
 <script type="module" src="/assets/js/pages/articles.js"></script>
 

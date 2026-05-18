@@ -134,7 +134,8 @@ const rateLimiters = {
       if (
         path === '/logs' ||
         path === '/admin/css-crash-logs' ||
-        path === '/analytics/web-vitals'
+        path === '/analytics/web-vitals' ||
+        path === '/analytics/page-view'
       ) {
         return true;
       }
