@@ -43,8 +43,7 @@ function startScheduledJobs() {
   // Sync payments data every 24 hours
   startPaymentsSyncJob();
   
-  // Check for inactive users daily (to send 30-day reminder)
-  startInactiveUsersCheckJob();
+  // "We Miss You" inactive-user emails — disabled (see startInactiveUsersCheckJob)
 
   // Tools finder automation (weekly)
   startToolsFinderJob();
@@ -181,20 +180,14 @@ function delay(ms) {
 }
 
 /**
- * Start inactive users check job (runs daily at a configured hour).
- * Sends up to 3 "We Miss You" emails per inactivity cycle (30 / 60 / 90 days since lastActive).
- * At most one email per user per daily run.
- *
- * Env:
- * - INACTIVE_USERS_EMAIL_ENABLED — default on
- * - INACTIVE_USERS_HOUR — 0–23 (default: 10)
- * - INACTIVE_USERS_TIMEZONE — IANA zone (default: REPORT_TIMEZONE or UTC)
+ * Inactive users "We Miss You" email job — permanently disabled.
+ * Set INACTIVE_USERS_EMAIL_ENABLED=true and restore the call in startScheduledJobs() to re-enable.
  */
 function startInactiveUsersCheckJob() {
-  const enabled = process.env.INACTIVE_USERS_EMAIL_ENABLED !== 'false';
+  const enabled = process.env.INACTIVE_USERS_EMAIL_ENABLED === 'true';
 
   if (!enabled) {
-    logger.info('[scheduled-jobs] Inactive users email job disabled via INACTIVE_USERS_EMAIL_ENABLED');
+    logger.info('[scheduled-jobs] Inactive users email job disabled');
     return;
   }
 
