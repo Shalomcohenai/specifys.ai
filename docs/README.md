@@ -1,42 +1,44 @@
-# תיעוד Specifys.ai
+# Specifys.ai Documentation
 
-מבנה התיעוד והקבצים המסדרים בפרויקט.
+Documentation layout and index for this repository.
 
-## ארכיטקטורה (`architecture/`)
+## Architecture (`architecture/`)
 
-| קובץ | תיאור |
-|------|--------|
-| [**ARCHITECTURE.md**](architecture/ARCHITECTURE.md) | **מסמך הארכיטקטורה המרכזי** — תיאור מלא של כל המערכת: backend, frontend, Firestore, spec engine v2, credits, payments, chat, MCP, workers, deployment, flows מרכזיים, בעיות ידועות |
+| File | Description |
+|------|-------------|
+| [**ARCHITECTURE.md**](architecture/ARCHITECTURE.md) | **Primary architecture document (production)** — the system as deployed |
+| [**NEW-ARCHITECTURE.md**](architecture/NEW-ARCHITECTURE.md) | **Next-generation draft** — working copy for the new site; baseline from current architecture + §0 for planning |
 
-## הגדרות (`setup/`)
+## Setup (`setup/`)
 
-הגדרות שירותים: Firebase, SEO, GA4, Lemon Squeezy, Render, webhooks ועוד.
+Service configuration: Firebase, SEO, GA4, Lemon Squeezy, Render, webhooks, and more.
 
-- [mcp.md](setup/mcp.md) – התקנת שרת MCP (Cursor / Claude Desktop): API key, חיבור, כלים ומשאבים (specs, tools).
-- [run-system-per-user.md](setup/run-system-per-user.md) – הפעלת המערכת במצב Per-User (מפתח MCP לכל משתמש), הוראות מפורטות בעברית.
+- [mcp.md](setup/mcp.md) – MCP server setup (Cursor / Claude Desktop): API key, connection, tools and resources (specs, tools).
+- [run-system-per-user.md](setup/run-system-per-user.md) – Run the system in Per-User mode (one MCP key per user).
 
-## מדריכים (`guides/`)
+## Guides (`guides/`)
 
-מדריכי עבודה: יצירת דפים, Testing, Logging, Simulation.
+How-to guides: creating pages, testing, logging, simulation.
 
-## צ'קליסטים (`checklists/`)
+## Checklists (`checklists/`)
 
-תצורת דפים, אבטחה, migration, QA ל-Production.
+Page configuration, security, migration, production QA.
 
-## הפניות (`references/`)
+## References (`references/`)
 
-| קובץ | תיאור |
-|------|--------|
-| [SITE-MAP.md](references/SITE-MAP.md) | מפת דפים, backend, Data Model, MCP, Tools Map, זרימות עיקריות |
-| [TOOLS-MAP-DATA.md](references/TOOLS-MAP-DATA.md) | מפת כלי Vibe Coding: Firestore כ־source of truth, export ל־tools.json, automation |
-| [WEBSITE-TECHNICAL-OPERATIONAL-GUIDE-HE.md](references/WEBSITE-TECHNICAL-OPERATIONAL-GUIDE-HE.md) | מדריך טכני־תפעולי בעברית |
-| [API-EXAMPLES.md](references/API-EXAMPLES.md) | דוגמאות שימוש ב-API |
-| [CI-CD.md](references/CI-CD.md) | אינטגרציה ופריסה |
+| File | Description |
+|------|-------------|
+| [SITE-MAP.md](references/SITE-MAP.md) | Site map, backend, data model, MCP, tools map, main flows |
+| [TOOLS-MAP-DATA.md](references/TOOLS-MAP-DATA.md) | Vibe Coding tools map: Firestore as source of truth, export to `tools.json`, automation |
+| [API-EXAMPLES.md](references/API-EXAMPLES.md) | API usage examples |
+| [CI-CD.md](references/CI-CD.md) | Integration and deployment |
 
-## בדיקות (`testing/`)
+For a full technical and operational overview in English, use [ARCHITECTURE.md](architecture/ARCHITECTURE.md) and [SITE-MAP.md](references/SITE-MAP.md).
 
-דוחות בדיקות ו-migration (למשל V3).
+## Testing (`testing/`)
+
+Test reports and migration notes (e.g. V3).
 
 ---
 
-**עדכון אחרון:** אפריל 2026
+**Last updated:** April 2026

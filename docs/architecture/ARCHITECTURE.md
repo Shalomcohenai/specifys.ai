@@ -2,7 +2,7 @@
 
 Single source of truth for the system architecture. Describes every subsystem, service, data store, and flow as they exist in production.
 
-**Last updated:** May 2026 (backend architecture map refresh + Phase 2 stabilization)
+**Last updated:** May 2026 (full architecture refresh: Credits V3 hard cutover, spec-viewer nav/progress, content automation + Jekyll articles, admin dashboard, analytics page views, deployment model)
 
 ---
 
@@ -117,7 +117,7 @@ The system uses three OpenAI integration patterns:
 | Email | Resend SDK |
 | Edge Functions | Deprecated (auxiliary worker runtime removed) |
 | MCP | TypeScript MCP server (`@modelcontextprotocol/sdk`) via stdio |
-| Deployment | Render (backend), GitHub Pages (Jekyll site) |
+| Deployment | **Render** — single Node service (`specifys-backend`) serves REST API + built `_site` static assets; Jekyll build runs in CI/local, not as a separate Pages runtime |
 | Monorepo | npm workspaces (`packages/*`) — packages exist but are not used at runtime |
 
 ---
@@ -127,10 +127,11 @@ The system uses three OpenAI integration patterns:
 ```
 specifys-ai/
 ├── _config.yml                  # Jekyll config
-├── _includes/                   # Jekyll HTML partials (10 files)
+├── _includes/                   # Jekyll HTML partials (head, header, firebase, spec-viewer-navigation, structured-data, …)
 ├── _layouts/                    # Jekyll layouts (5: default, standalone, auth, post, dashboard)
 ├── _plugins/                    # Jekyll plugins (vite_manifest.rb)
-├── _posts/                      # Blog posts (Markdown)
+├── _posts/                      # Blog posts (Markdown) — manual + automation via jekyll-post-writer
+├── _redirects                   # Redirect rules (included in Jekyll build)
 ├── assets/
 │   ├── css/                     # SCSS + compiled CSS (~87 files)
 │   ├── dist/                    # Vite build output (not used at runtime)
@@ -140,17 +141,19 @@ specifys-ai/
 │       ├── core/                # Config, logger, security, store
 │       ├── services/            # API client, caches, analytics, Firestore listeners
 │       ├── components/          # Base component, Modal
-│       ├── features/            # Feature modules (index, planning, spec-viewer, profile, etc.)
-│       ├── new-admin-dashboard/ # Admin SPA
-│       ├── pages/               # Page-specific JS
+│       ├── features/            # Feature modules (index, planning, spec-viewer, profile, …)
+│       ├── services/            # analytics-tracker.js, caches, Firestore listeners
+│       ├── new-admin-dashboard/ # Admin SPA (ES modules)
+│       ├── pages/               # Page-specific JS (credits-v3-*, pricing, articles, …)
 │       ├── utils/               # Utilities
 │       └── bundles/             # Vite entry points (unused at runtime)
 ├── backend/
-│   ├── package.json             # Backend dependencies (Express 5, Firebase Admin, OpenAI, etc.)
-│   ├── schemas/                 # Zod schemas (spec-schemas.js)
-│   ├── scripts/                 # Migration/utility scripts
-│   └── server/                  # Express app (~60+ files)
-│       └── server.js            # Entry point
+│   ├── package.json             # Backend dependencies (Express 5, Firebase Admin, OpenAI, …)
+│   ├── schemas/                 # Zod schemas (spec-schemas.js, mermaid-validator.js)
+│   ├── scripts/                 # Sitemap, migration, backfill utilities
+│   ├── firestore.indexes.json   # Composite indexes (users, automation_logs, …)
+│   └── server/                  # Express app (~81 JS modules)
+│       └── server.js            # Entry point (~1,230 lines)
 ├── blog/                        # Blog index page
 ├── docs/                        # Documentation
 ├── mcp-server/                  # MCP server (TypeScript)
@@ -160,11 +163,13 @@ specifys-ai/
 │   ├── design-system/
 │   └── ui/
 ├── pages/                       # HTML pages (~29 files)
-├── scripts/                     # Dev/deploy scripts
-├── tools/                       # Vibe Coding Tools Map
+├── scripts/                     # check-env.mjs, favicon, blog/archive utilities
+├── tests/e2e/                   # Playwright (spec-viewer smoke)
+├── tools/                       # Vibe Coding Tools Map (tools/map/tools.json export)
 ├── index.html                   # Homepage
 ├── package.json                 # Root workspace config
-├── render.yaml                  # Render deployment config
+├── render.yaml                  # Render deployment config (API-only service; serves _site when built)
+├── Procfile                     # web: cd backend && npm start
 └── vite.config.js               # Vite config
 ```
 
@@ -199,6 +204,7 @@ flowchart TB
     Aux[ai-service auxiliary Chat Completions]
     Mail[email-service templates tracking]
     Jobs[scheduled-jobs + automation jobs registry]
+    Content[articles-automation jekyll-post-writer sitemap]
   end
 
   subgraph external [External systems]
@@ -220,6 +226,7 @@ flowchart TB
   RT --> Aux
   RT --> Mail
   RT --> Jobs
+  RT --> Content
   Spec --> FS
   Spec --> OAI
   User --> FS
@@ -234,6 +241,8 @@ flowchart TB
   Mail --> RS
   Jobs --> FS
   Jobs --> OAI
+  Content --> FS
+  Content --> OAI
   RT --> GA
 ```
 
@@ -248,6 +257,11 @@ flowchart TB
 | `backend/schemas/` | Zod spec schemas shared with generation (`spec-schemas.js`) |
 | `backend/server/*-routes.js` | Thin HTTP adapters: validate input, call services, shape JSON responses |
 | `backend/server/*-service.js` | Business logic, Firestore transactions, orchestration |
+| `backend/server/articles-automation.js` | Daily article writer (`ArticleWriterJob`), Firestore `articles` + Jekyll `_posts/` |
+| `backend/server/jekyll-post-writer.js` | Writes `_posts/YYYY-MM-DD-slug.md` (local FS or GitHub Contents API) |
+| `backend/server/tools-automation.js` | Weekly tools finder + export to `tools/map/tools.json` |
+| `backend/server/sitemap-generator.js` | Dynamic `sitemap.xml`, optional IndexNow ping |
+| `backend/server/resend-audience-bulk-sync.js` | Admin batch sync of `users` → Resend audience |
 
 **Heavy coupling points (today)** — intentional for velocity, targets for gradual refactors: `server.js` concentration (API + static + blog dynamic route), pervasive `require('./firebase-admin')`, and mixed **Chat Completions** vs **Assistants API** stacks inside `openai-storage-service.js`.
 
@@ -477,8 +491,8 @@ The prompts in `spec-generation-service-v2.js` share a `MERMAID_RULES_BLOCK` con
 | PUT | `/preferences/email` | Firebase | Update email preferences (newsletter, operational, marketing) |
 | GET | `/preferences/email` | Firebase | Get email preferences |
 
-**User initialization flow** (`initializeUser`):
-1. Firestore transaction on `users/{uid}` and `user_credits_v3/{uid}`
+**User initialization flow** (`initializeUser` in `user-management.js`):
+1. Firestore transaction on `users/{uid}` and `user_credits_v3/{uid}` only (no `entitlements` doc)
 2. Determines if new user (from client flag or doc existence)
 3. New users: `plan: 'free'`, welcome credit (`balances.free: 1`)
 4. Records `user_created` analytics event
@@ -489,6 +503,8 @@ The prompts in `spec-generation-service-v2.js` share a `MERMAID_RULES_BLOCK` con
 
 ### 4.5 Credits System (V3)
 
+**Status (May 2026):** **V3 hard cutover complete.** All V2 routes/services (`credits-v2-*`, parallel migration mode) were removed. Runtime credit flows use only `user_credits_v3` / `credit_ledger_v3`. Legacy Firestore `entitlements` may still exist on old accounts and in `firestore.rules`, but the application no longer reads or writes it for product flows.
+
 **Service:** `credits-v3-service.js`
 **Collections:** `user_credits_v3` (primary), `credit_ledger_v3` (transactions), `subscriptions_v3` (archive)
 
@@ -498,7 +514,7 @@ The prompts in `spec-generation-service-v2.js` share a `MERMAID_RULES_BLOCK` con
 | Total | Computed: `paid + free + bonus` |
 | Consumption order | `free → bonus → paid` (configurable via `priority` param) |
 | Pro subscription | `subscription.type === 'pro'` + `status in ['active', 'paid']` + `expiresAt` not past → unlimited creation |
-| Welcome credit | New users get 1 free credit (`balances.free: 1`, `metadata.welcomeCreditGranted: true`) |
+| Welcome credit | New users get 1 free credit (`balances.free: 1`, `metadata.welcomeCreditGranted: true`); header UI (`credits-v3-display.js`) shows it immediately after `POST /api/users/initialize` without a full page reload |
 | Idempotency | Consume: ledger doc ID `consume_{specId}_{userId}`. Grant: idempotent by transaction ID |
 | Pro consume | Records ledger entry with `unlimited: true` without decrementing balances |
 | Expiry | On `getAvailableCredits`, if Pro expired → auto-updates status to `'expired'`, restores `preservedCredits` to `paid` |
@@ -558,6 +574,8 @@ Routes mounted at `/api/v3/credits` only when `CREDITS_V3_ENABLED=true`.
 4. `subscription_updated/cancelled/expired` → `upsertSubscriptionFromWebhook` → `enableProSubscription` / `disableProSubscription`
 5. Record in `purchases`, `subscriptions_v3`, `audit_logs`
 
+**Webhook secret env:** set `LEMON_WEBHOOK_SECRET` in production (see §10 — `LEMON_SQUEEZY_WEBHOOK_SECRET` in `env-check` is a warning-only alias mismatch).
+
 **External APIs:** Lemon Squeezy REST API (`api.lemonsqueezy.com/v1/`) for checkout, subscription cancel, order/subscription/customer lookups.
 
 **Subscription status logic:** Active statuses: `active`, `on_trial`, `paused`, `past_due`, `paid`. Cancelled: `cancelled`, `expired`, `unpaid`.
@@ -582,6 +600,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 - Rate limited: 5 per day per user (`brainDumpRateLimit` collection)
 - Pro-only `POST /api/brain-dump/apply-to-spec`: merges change into overview + technical sections in Firestore
 - Gate: requires technical, market, design all `status: 'ready'` + architecture present
+- **Pro-only:** `POST /api/brain-dump/apply-to-spec` (overview + technical merge; design unchanged)
 - Legacy endpoints still mounted: `/init`, `/message`, `/history`, `/personal-prompt`
 
 ### 4.8 Email — Resend Integration
@@ -628,13 +647,35 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 
 ### 4.9 Admin, Analytics & Content
 
-**Admin dashboard:** SPA at `/pages/new-admin-dashboard.html` with views for overview, users, payments, logs, analytics, spec usage, MCP, articles, academy, tools, contact, unsubscribe.
+**Admin dashboard:** SPA at `/pages/new-admin-dashboard.html` (`assets/js/new-admin-dashboard/`, ES modules). **Current nav sections** (see `main.js`):
 
-**Admin API** (`admin-routes.js`): users management, spec listing, credit operations, payment history, activity log, Resend audience batch sync (`/api/admin/email/resend-audience/*`). Protected by `requireAdmin` middleware (checks email against `ADMIN_EMAILS` list).
+| Section ID | View class | Purpose |
+|------------|------------|---------|
+| `overview` | `OverviewView` | Widgets: contact queue, pipeline canary, recent activity (single-row layout) |
+| `users` | `UsersView` | User list, credits, MCP key visibility |
+| `analytics` | `AnalyticsView` | Content stats, funnels, email analytics (incl. Resend audience batch sync UI) |
+| `page-views` | `PageViewsView` | Site-wide page views from `page_views` (filters, by-page, by-referrer) |
+| `spec-usage` | `SpecUsageView` | Spec creation metrics + export |
+| `mcp` | `McpView` | MCP adoption stats |
+| `logs` | `LogsView` | Server / error logs |
+| `content` | nested | `ArticlesView`, `ToolsView`, `AcademyView` under one tab group |
+| `contact` | `ContactView` | Contact form submissions (view, status, **delete** via API) |
+| `email` | `UnsubscribeView` | Newsletter / email tooling |
+| `brand` | `BrandView` | Brand Kit — downloadable logo variations |
+
+**Removed from dashboard UI (May 2026):** dedicated **Payments** tab — Lemon/payment APIs remain on `/api/admin/payments/*` for scripts and future use, but the SPA no longer mounts `PaymentsView`.
+
+**Admin API** (`admin-routes.js`, large surface): users, specs, credits grant/sync, payments history, activity, pipeline canary triggers, contact CRUD + `DELETE /api/admin/contact-submissions/:id`, page-view analytics (`GET /api/admin/analytics/page-views`, `/by-page`, `/by-referrer`), email draft assistant (`POST /api/admin/email/draft`), Resend audience sync (`/api/admin/email/resend-audience/*`). Protected by `requireAdmin` (email in `ADMIN_EMAILS`).
+
+**Email draft assistant** (`POST /api/admin/email/draft`):
+- Body: `{ brief, emailDraftKind?: 'product' | 'marketing' | 'general' }` (legacy `{ marketing: true }` → `marketing`)
+- OpenAI generates English HTML (dark-card layout) for copy/paste into Resend or other senders
+- Three modes tune tone: product updates, marketing, general
 
 **Analytics** (`analytics-routes.js`, base `/api/analytics`):
-- Public: `POST /page-view`, `POST /event`, `POST /web-vitals`
-- Admin: `GET /content-stats`, `GET /top-articles`, `GET /top-guides`, `GET /funnel`, `GET /buy-now-clicks`, `GET /planning-stats`
+- Public: `POST /page-view`, `POST /event`, `POST /web-vitals` — `POST /page-view` has dedicated monitoring rate limit on mount in `server.js`
+- Admin (also under `/api/admin/analytics/*` for page views): content-stats, top-articles, top-guides, funnel, buy-now-clicks, planning-stats
+- **Client tracker:** `assets/js/services/analytics-tracker.js` — resolves `getApiBaseUrl()` at **call time** (fixes beacons when config loads late); GA4 `page_view` stays in `ga4-wrapper.js` only
 - Collections: `analytics_events`, `article_views`, `guide_views`, `page_views`, `webVitals`
 
 **Activity tracking** (`admin-activity-service.js`): Records to `admin_activity_log` — types: `user` (registration), `spec` (creation), `payment` (purchase), `subscription` (change), `credit` (consumption).
@@ -650,11 +691,20 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 - Frontend pages: `pages/academy/index.html`, `category.html`, `guide.html`
 - Admin pages: `pages/admin/academy/` (4 HTML pages for content management)
 
-**Articles** (`articles-routes.js` + `articles-automation.js`):
-- Admin: `POST /api/articles/generate` (calls Cloudflare Worker for generation), update, delete
-- Public: list, featured, get by slug, view tracking
-- Automation: `ArticleWriterJob` — weekly batch article generation via OpenAI `gpt-4` (JSON mode), saves to `articles` collection
-- Sitemap: `sitemap-generator.js` — generates `sitemap.xml` from static pages + published articles
+**Articles — dual publishing model** (`articles-routes.js` + `articles-automation.js` + `jekyll-post-writer.js`):
+
+| Layer | Storage | Purpose |
+|-------|---------|---------|
+| **API / admin** | Firestore `articles` | CRUD, featured list, view tracking, automation state |
+| **Public HTML** | Jekyll `_posts/YYYY-MM-DD-slug.md` | Crawlable permalinks `/:year/:month/:day/:slug/` (same as manual blog posts) |
+
+- **Admin:** `POST /api/articles/generate` (on-demand), update, delete — generation uses in-process OpenAI, **not** an external worker
+- **Public:** list, featured, get by slug, view tracking
+- **Automation:** `ArticleWriterJob` in `articles-automation.js` — **daily** scheduled job (when `ARTICLES_AUTOMATION_ENABLED=true`); model default `gpt-4o-mini-search-preview` (`ARTICLES_OPENAI_MODEL`) with **mandatory web search** in prompt; resilient JSON parse + retries
+- After publish: `writeJekyllPostForArticle()` → local `_posts/` (backfill) or **GitHub Contents API** on Render (`GITHUB_TOKEN`, `GITHUB_REPO`, `GITHUB_BRANCH`)
+- **Validation:** article body must **not** contain H1 (`# `) — page renders title from JSON; H2/H3 only
+- **Backfill:** `backend/scripts/backfill-articles-to-jekyll.js` migrated historical Firestore articles to `_posts/`
+- **Sitemap:** `sitemap-generator.js` — static pages + Jekyll posts + Firestore articles; optional IndexNow ping; `.github/workflows/update-sitemap.yml` commits `sitemap.xml` on schedule
 
 **Share Prompt** (`share-prompt-routes.js`, base `/api/share-prompt`):
 - `GET /check` — should the share prompt be shown? (based on spec state + user dismissal history)
@@ -665,12 +715,14 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 
 **Scheduler:** `scheduled-jobs.js` — starts on server boot.
 
+**OpenAI for automation** (`automation-service.js`): article and tools jobs default to **`gpt-4o-mini-search-preview`** (built-in web search). Search-preview models do not support `response_format: json_object`; parsers tolerate prose-wrapped JSON. Override via `ARTICLES_OPENAI_MODEL` / `TOOLS_OPENAI_MODEL`.
+
 | Job | Frequency | What it does |
 |-----|-----------|-------------|
 | Payments sync | 24h | Sync Lemon Squeezy payments cache |
 | Inactive users email | Daily (configured hour) | Up to 3 reminders at 30/60/90 days since lastActive; one email per user per run |
-| Tools finder | 7 days | Run AI tools finder + export to `tools.json` |
-| Article writer | Weekly | Generate blog articles via OpenAI |
+| Article writer | **Daily** (when `ARTICLES_AUTOMATION_ENABLED=true`) | `ArticleWriterJob` → Firestore `articles` + Jekyll `_posts/` via `jekyll-post-writer.js`; default `gpt-4o-mini-search-preview` |
+| Tools finder | Weekly (when `TOOLS_AUTOMATION_ENABLED=true`) | `ToolsFinderJob` → `tools` collection + export `tools/map/tools.json`; web-search model via `automation-service.js` |
 | Credits sync | Daily | Sync Lemon Squeezy subscriptions → credits V3 |
 | Daily report | Daily (configured hour) | Collect stats + email report |
 | Weekly report | Sundays | Collect weekly stats + email report |
@@ -732,7 +784,10 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 | `core/security-utils.js` | `sanitizeHTML`, `escapeHTML` | XSS sanitization |
 | `core/app-logger.js` | `window.appLogger` | Client-side logger → backend |
 | `credits-config.js` | `window.CREDITS_CONFIG` | Credits system constants |
-| `ga4-wrapper.js` | `GA4Wrapper` | Google Analytics wrapper |
+| `pages/credits-v3-manager.js` | — | Credit consume/grant client logic |
+| `pages/credits-v3-display.js` | — | Header credit count + welcome credit UI |
+| `ga4-wrapper.js` | `GA4Wrapper` | Google Analytics wrapper (page_view only for GA4) |
+| `services/analytics-tracker.js` | `window.analyticsTracker` | Site-wide page views / events → `POST /api/analytics/*` on Render |
 | `paywall.js` | `checkEntitlement`, `showPaywall` | Entitlement checks, paywall UI |
 | `lib-loader.js` | `LibraryLoader` | Dynamic CDN script loader (Mermaid, Marked, etc.) |
 | `mermaid.js` | `MermaidManager` | Mermaid diagram rendering |
@@ -744,8 +799,13 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `index-vanta.js` — Hero animation (Vanta.NET)
 - `index-demo-scroll.js` — Demo scroll phases
 
-**Spec Viewer** (`features/spec-viewer/`) — the largest feature (main file still ~10k lines, with compatibility bridge):
-- `spec-viewer-main.js` — Primary orchestrator + backward-compatible `window.*` handlers; delegates state to `window.dataService`, tab routing to `window.showTab` (TabManager bridge), and partial HTML rendering to `window.uiRenderer`
+**Spec Viewer** (`features/spec-viewer/`) — largest feature (~9,819 lines in `spec-viewer-main.js`, plus ES module layer):
+
+**Navigation (May 2026 refactor):** `_includes/spec-viewer-navigation.html` — unified **top bar** (content tabs) + **bottom bar** (tools: Chat, Brain Dump, Export, MCP). Tab order for scroll/wheel: `modules/specScrollOrder.js` (`SPEC_SCROLL_ORDER`). Nav badges: `nav-badge--new` per section, `nav-badge--pro` on Visibility / Mockup.
+
+**Generation progress UI:** `computeSpecGenerationProgress()` / `renderSpecGenerationProgress()` — weighted percent from `spec.status` (overview 5%, technical 25%, market 20%, design 20%, architecture 15%, visibility 8%, prompts 7%); `generating` counts as half weight; updates on every Firestore tick. Overview approval UI hides instantly when `status.overview === 'ready'`.
+
+- `spec-viewer-main.js` — Primary orchestrator + backward-compatible `window.*` handlers; delegates state to `window.dataService`, tab routing to `window.showTab` (TabManager bridge), partial HTML to `window.uiRenderer`, live re-render of advanced tabs as stages become `ready`
 - `spec-viewer-coordinator.js` — module bridge that attaches compatibility wrappers, SEO hook, and exposes `window.dataService`, `window.tabManager`, `window.uiRenderer`, `window.diagramEngine`, `window.promptEngine`, and `window.showTab`
 - `modules/DataService.js` — canonical spec state module (`setSpec/getState/patchState`), scoped loading (`setLoading/isLoading`), Firestore `onSnapshot`, polling fallback, save helpers, internal pub/sub (`specUpdated`, `loadingChanged`), and legacy `window.currentSpecData` sync
 - `modules/TabManager.js` — centralized tab navigation/orchestration, active-tab renderer registry, and `specUpdated` subscription to re-render only current tab
@@ -760,13 +820,17 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `spec-viewer-event-handlers.js` — Event handlers
 - `cursor-windsurf-export.js` — Export to Cursor/Windsurf
 
-Tabs: Overview, Technical, Market Research, Design & Branding, Architecture (Mermaid), AIO & SEO Visibility Engine (Pro), Prompts, AI Chat, Brain Dump (Pro), Mockup (Pro), Export & Integration, MCP.
+**Top nav tabs:** Overview, Technical, Mind Map (optional/hidden), Market Research, Design & Branding, Architecture, Prompts, AIO & SEO Visibility Engine (**Pro** — tab and generation gated on active Pro entitlement), Mockup (**Pro**), Raw Data (hidden).
+
+**Bottom nav:** AI Chat, Brain Dump, Export & Integration, MCP (modal action).
+
+**CSS:** primary styles under `assets/css/features/spec-viewer*.css` (legacy copies may exist under `assets/css/pages/`).
 
 **Planning** (`features/planning/`): Multi-step planning interface (~1200 lines).
 
 **Question Flow** (`features/question-flow/`): MVC pattern — controller, state, view.
 
-**Profile** (`features/profile/`): User profile page with Firebase v9+ modular SDK.
+**Profile** (`features/profile/`): User profile page with Firebase v9+ modular SDK; **Pro badge** only when active entitlement (`subscription.type === 'pro'` + valid `expiresAt` / status — not from stale `plan` field alone).
 
 **Demo Spec** (`features/demo-spec/`): Hardcoded demo data + Chart.js charts.
 
@@ -781,8 +845,10 @@ SPA in `assets/js/new-admin-dashboard/`, loaded by `pages/new-admin-dashboard.ht
 | Entry | `main.js` → `NewAdminDashboard` class |
 | Core | `DataManager.js`, `StateManager.js`, `FirebaseService.js`, `MetricsCalculator.js` |
 | Services | `ApiService.js`, `ActivityService.js` |
-| Views | Overview, Users, Payments, Logs, Analytics, SpecUsage, MCP, Articles, Academy, Tools, Contact, Unsubscribe |
+| Views | Overview, Users, Analytics, **PageViews**, **SpecUsage**, MCP, Logs, Articles, Academy, Tools, Contact, Unsubscribe (email), **Brand** — no Payments view |
 | Components | LoadingState, MetricCard, ChartComponent, UserDetailsModal |
+
+Auth gate: Firebase sign-in + `FirebaseService.isAdmin(email)` → redirect to `/pages/auth.html` if denied.
 
 ### 5.5 CSS / Design System
 
@@ -874,7 +940,7 @@ SPA in `assets/js/new-admin-dashboard/`, loaded by `pages/new-admin-dashboard.ht
 | Collection | Doc ID | Purpose |
 |------------|--------|---------|
 | `users` | Firebase UID | User profile: email, displayName, plan, mcpApiKey, emailPreferences, timestamps |
-| `specs` | Auto | Specifications: userId, title, overview/technical/market/design/architecture, status (per-stage), generationVersion, answers, openaiFileId |
+| `specs` | Auto | Specifications: overview/technical/market/design/architecture/**visibility**/prompts, per-stage `status.*`, `generationVersion: 'v2'`, answers, openaiFileId, optional mockups/mindMap/diagrams |
 | `user_credits_v3` | Firebase UID | Credits V3 (primary): balances {paid, free, bonus}, total, subscription info, permissions, metadata |
 | `credit_ledger_v3` | Auto | Credit transaction ledger (consume, grant, refund) |
 
@@ -921,7 +987,8 @@ SPA in `assets/js/new-admin-dashboard/`, loaded by `pages/new-admin-dashboard.ht
 |------------|--------|---------|
 | `brainDumpRateLimit` | Firebase UID | Brain dump daily limit (5/day) |
 | `mcp_events` | Auto | MCP UI events |
-| `automation_state` | Job key | Automation job state (e.g., `weekly_articles`) |
+| `automation_state` | Job key | Automation cursors (e.g., `weekly_articles` doc id — article writer state) |
+| `automation_logs` | Auto | Automation job run history (`automation-service.js`) |
 
 **Other:**
 
@@ -932,7 +999,7 @@ SPA in `assets/js/new-admin-dashboard/`, loaded by `pages/new-admin-dashboard.ht
 | `contactSubmissions` | Auto | Contact form submissions |
 | `errorLogs` | Auto | Server errors |
 | `renderLogs` | Auto | Server logs |
-| `entitlements` | Firebase UID | Legacy credits (deprecated — use `user_credits_v3`) |
+| `entitlements` | Firebase UID | **Legacy only** — V2 removed from code; rules/index may remain; not used by V3 flows |
 
 ### Key relationships
 
@@ -958,7 +1025,9 @@ Firebase Auth (UID)
 | `market` | string/null | JSON string |
 | `design` | string/null | JSON string |
 | `architecture` | string/null | Markdown (serialized from structured JSON) |
-| `status.{stage}` | string | `'pending'` / `'generating'` / `'ready'` / `'error'` |
+| `visibility` | string/null | JSON string (AIO & SEO Visibility Engine) |
+| `prompts` | string/null | JSON string (prompt bundle) |
+| `status.{stage}` | string | `'pending'` / `'generating'` / `'ready'` / `'error'` for overview, technical, market, design, architecture, **visibility**, **prompts** |
 | `thread_id` | string/null | OpenAI thread ID (legacy) or `'chat-completions'` |
 | `generationVersion` | string | `'v2'` for v2-generated specs |
 | `answers` | array | User answers (3 strings) |
@@ -969,25 +1038,45 @@ Firebase Auth (UID)
 
 ## 8. Infrastructure & Deployment
 
-### Backend (Render)
+### Production topology (Render-first)
 
-**Config:** `render.yaml` — web service `specifys-backend`, root `backend/`, `npm install` → `npm start`.
-**Port:** 10000 (default).
-**Process:** `cd backend && npm start` → `node server/server.js`.
+```
+Developer / CI                    Render (specifys-backend)
+─────────────                     ─────────────────────────
+jekyll build → _site/      ──▶    Express serves:
+npm run build:css                 • /api/*  REST API
+optional commit _posts/           • /       _site/index.html
+                                  • /blog/, dynamic /:y/:m/:d/:slug/
+                                  • express.static(repo root + _site)
+```
 
-### Frontend (GitHub Pages + Jekyll)
+**Config:** `render.yaml` — single web service `specifys-backend`, `rootDirectory: backend`, `npm install` → `npm start`. Comments explicitly state: **do not** deploy root as a separate static service; the backend serves the built frontend.
 
-Jekyll builds the static site from root. `_config.yml` excludes `backend/`, `mcp-server/`, `node_modules/`, `scripts/`, etc.
+**Port:** 10000 (default). **Process:** `Procfile` / `backend/package.json` → `node server/server.js` (~1,230 lines).
 
-### CSS Build
+**Jekyll on Render:** Automation can commit `_posts/` via GitHub API (`jekyll-post-writer.js`); a full site rebuild still requires `_site` to be present on the instance (build in CI and deploy artifact, or build step on Render if configured).
 
-`npm run build:css` — Sass compilation → `main-compiled.css`. PostCSS handles autoprefixer, cssnano, purgecss.
+### CI / GitHub Actions
+
+| Workflow | Role |
+|----------|------|
+| `.github/workflows/ci.yml` | Lint + Jekyll build (partial continue-on-error) |
+| `.github/workflows/deploy-backend.yml` | **Stub** — documents Render webhook/API options; does not deploy by itself |
+| `.github/workflows/deploy-frontend.yml` | **Stub** — frontend ships with backend static layer |
+| `.github/workflows/update-sitemap.yml` | Runs `backend/scripts/generate-sitemap.js`, commits `sitemap.xml` |
+
+**Historical note:** Docs and README sometimes mention GitHub Pages for the marketing site. **Current code path** is optimized for **one Render origin** (`specifys-ai.com` → backend) serving API + static HTML.
+
+### Local / build
+
+- Jekyll: `bundle exec jekyll build` from repo root; `_config.yml` excludes `backend/`, `mcp-server/`, `node_modules/`, etc.
+- CSS: `npm run build:css` / `build:css:min` → `assets/css/main-compiled.css` (PostCSS: autoprefixer, cssnano, purgecss)
+- Env guard: `npm run check:env` → `scripts/check-env.mjs`
 
 ### Domains
 
-- Site: `specifys-ai.com` (CNAME)
-- Backend: `specifys-ai-backend.onrender.com`
-- Workers: deprecated from runtime path (legacy deployment artifacts may still exist externally)
+- Site + API (production): `specifys-ai.com` / `www.specifys-ai.com` → Render (`specifys-ai-backend.onrender.com` as `BACKEND_BASE_URL` in `config.js`)
+- Cloudflare Workers: **removed from product path**; `cloudflare-worker.js` + `/api/health/cloudflare-worker` remain as legacy diagnostics only
 
 ---
 
@@ -1183,7 +1272,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | `OPENAI_API_KEY` | OpenAI API |
 | `RESEND_API_KEY` | Email (Resend) |
 | `LEMON_SQUEEZY_API_KEY` | Lemon Squeezy API |
-| `LEMON_SQUEEZY_WEBHOOK_SECRET` | Webhook verification |
+| `LEMON_WEBHOOK_SECRET` | Webhook HMAC verification (**runtime** — `lemon-routes.js`). `env-check.js` warns on missing `LEMON_SQUEEZY_WEBHOOK_SECRET` (naming mismatch — set `LEMON_WEBHOOK_SECRET` in Render) |
 
 ### Optional
 
@@ -1199,8 +1288,14 @@ Frontend → POST /api/live-brief/summarize {text}
 | `MCP_API_KEY` / `MCP_API_USER_ID` | Single-user MCP auth (dev) |
 | `PIPELINE_CANARY_ENABLED` | Enable pipeline health canary |
 | `TOOLS_AUTOMATION_ENABLED` | Enable weekly tools finder |
-| `ARTICLES_AUTOMATION_ENABLED` | Enable weekly article writer |
+| `ARTICLES_AUTOMATION_ENABLED` | Enable **daily** article writer |
+| `ARTICLES_OPENAI_MODEL` | Default `gpt-4o-mini-search-preview` (web search; no `json_object` on search-preview) |
+| `TOOLS_AUTOMATION_ENABLED` | Enable weekly tools finder |
+| `TOOLS_OPENAI_MODEL` | Default `gpt-4o-mini-search-preview` |
+| `GITHUB_TOKEN`, `GITHUB_REPO`, `GITHUB_BRANCH` | Commit automation `_posts/` from Render |
+| `INDEXNOW_KEY` | Optional sitemap ping |
 | `CREDITS_SYNC_ENABLED` | Enable daily credits sync |
+| `FEEDBACK_EMAIL` | Resend feedback recipient |
 
 ---
 
@@ -1210,8 +1305,9 @@ Frontend → POST /api/live-brief/summarize {text}
 
 | Item | Location | Status |
 |------|----------|--------|
-| Credits runtime | `credits-v3-routes.js` + `credits-v3-service.js` | Active source of truth for all credit flows |
-| Spec v1 service | `spec-generation-service.js` | Still imported in MCP routes; also used as fallback for overview generation without specId |
+| Credits runtime | `credits-v3-routes.js` + `credits-v3-service.js` | **Only** active credit system (V2 code removed May 2026) |
+| Firestore `entitlements` | `firestore.rules`, old docs | Not read by V3 app code; migration backups under `backend/backups/v2-cleanup-*` |
+| Spec v1 service | `spec-generation-service.js` | Still imported in MCP routes; fallback for overview without specId |
 | Legacy viewer | `features/legacy-viewer/` | 3 files, kept for old URLs |
 | Vite bundles | `bundles/*.js` | Not used at runtime |
 | Monorepo packages | `packages/*` | Exist but not used at runtime — JS loaded directly via `<script>` |
@@ -1251,7 +1347,10 @@ Frontend → POST /api/live-brief/summarize {text}
 | Issue | Details |
 |-------|---------|
 | Duplicate files | Resolved — canonical shared files are under `assets/js/core/` |
-| spec-viewer-main.js | Still large (~10k lines), but Mockup pipeline/viewer were extracted and Phase 1 Data Backbone moved state/listener/polling/save concerns into `features/spec-viewer/modules/DataService.js` |
+| spec-viewer-main.js | ~9,819 lines — nav moved to `_includes/spec-viewer-navigation.html`; DataService/TabManager/DiagramEngine/PromptEngine extracted; coordinator bridge remains; further prompt/diagram body migration ongoing |
+| Deploy workflows | `.github/workflows/deploy-*.yml` | Stubs only — production deploy is Render dashboard webhook / manual |
+| `LEMON_*` env naming | `env-check.js` vs `lemon-routes.js` | Warn uses `LEMON_SQUEEZY_WEBHOOK_SECRET`; runtime uses `LEMON_WEBHOOK_SECRET` |
+| Firestore indexes file | `firestore.indexes.json` | May list legacy collection groups (`specs_v2`, `apps`, …) not used by current flows |
 | `verifyFirebaseToken` | Resolved — centralized in `backend/server/middleware/auth.js` |
 | Worker URLs | Resolved — frontend uses `/api/auxiliary/*` |
 | `design-system` package | `package.json` declares exports that don't match actual file structure |
@@ -1264,9 +1363,12 @@ Frontend → POST /api/live-brief/summarize {text}
 |------|---------------|------------------------|
 | Auxiliary contract parity | Worker-based behavior was replaced by backend `ai-service` JSON handlers; edge-case output parity may differ | Add endpoint-level contract tests for mockup/prompts/mindmap/jira payloads and error envelopes |
 | Auth propagation for auxiliary endpoints | Main spec-viewer flow now sends bearer tokens for auxiliary calls | Audit all non-spec-viewer callers to ensure they send Firebase bearer token as well |
-| Spec-viewer modularization depth | Mockup/Data Backbone/TabManager/Event Bus/Scoped Loading + DiagramEngine/PromptEngine extraction are in place with compatibility bridge; PromptEngine legacy shadow adapters were removed and schema guard/error-boundary/retry primitives were added | Continue migrating remaining prompt/diagram helper bodies from `spec-viewer-main.js` to engines until coordinator-only orchestration remains |
-| Sitemap publish coverage | Sitemap generation now uses shared generator and is triggered from multiple flows | Add integration test validating `/sitemap.xml` after publish/update/delete events |
-| Spec-viewer E2E coverage | Playwright smoke test added at `tests/e2e/spec-viewer.spec.js` (module boot, tab switch, lazy Mermaid load, bearer header assertion) | Expand to authenticated end-to-end flow against real Firebase test project and include retry/error-path assertions |
+| Spec-viewer modularization depth | Unified nav, weighted progress %, live advanced-tab render, engines + CONTRACTS.md | Migrate remaining orchestration from `spec-viewer-main.js` to coordinator-only |
+| Articles dual-write | Firestore + `_posts/` can drift if GitHub commit fails | Monitor automation_logs; alert on `writeJekyllPostForArticle` failures |
+| Sitemap publish coverage | Generator + `update-sitemap.yml` + article automation hook | Integration test for `/sitemap.xml` after publish |
+| Spec-viewer E2E | `tests/e2e/spec-viewer.spec.js` (smoke: modules, tab, Mermaid, bearer) | Authenticated Firebase E2E + generation error paths |
+| Admin payments UI | API exists; SPA tab removed | Re-add view or document ops-only payment tools |
+| Page views at scale | `page_views` collection + admin Page Views tab | Retention policy / aggregation job if volume grows |
 | Environment guard | Runtime/default ports are aligned to 10000; repo guard now runs via `npm run check:env` (`check:ports` alias) for legacy ports, dev URLs, token/key patterns, feature/service dev URL detection, and local constant anti-patterns with allowlist support (`scripts/check-env.allow.txt`) | Enforce `check:env` in CI and keep allowlist minimal/reviewed during PR |
 | Contracts visibility | Prompt/Diagram/DataService transport and event contracts are now documented in `assets/js/features/spec-viewer/modules/CONTRACTS.md` | Add API-level contract tests that assert documented request/response envelopes |
 | GEO KPI observability | AI/SEO implementation is active across crawler policy, sitemap, JSON-LD, and compare/glossary pages | Track monthly: Search Console organic clicks, manual AI citation count (Perplexity/Bing/ChatGPT sample set), and top 10 organic entry pages |

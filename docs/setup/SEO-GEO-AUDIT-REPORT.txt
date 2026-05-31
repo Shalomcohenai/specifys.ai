@@ -1,480 +1,394 @@
 ================================================================================
   דוח SEO ו-GEO — Specifys.ai
-  תאריך: 18 מאי 2026
-  מקור: ניתוח קוד (sitemap.xml, robots.txt, llms.txt, Jekyll, backend)
+  תאריך ראשוני: 18 מאי 2026
+  עדכון: 18 מאי 2026 — לאחר יישום תוכנית Pareto SEO/GEO
+  מקור: ניתוח קוד + מצב repo (sitemap.xml, _posts/, _redirects)
 ================================================================================
 
 תוכן עניינים
 ------------
+0. סטטוס יישום (חדש)
 1. תמצית מנהלים
 2. מבנה קיים — SEO
-3. מבנה קיים — GEO (Generative Engine Optimization)
-4. מפת Sitemap (140 URLs)
-5. דפים מחוץ ל-Sitemap / סתירות אינדוקס
+3. מבנה קיים — GEO
+4. מפת Sitemap (מצב עדכני)
+5. אינדוקס, redirects וסתירות
 6. תגיות, Schema ו"וקטורים"
 7. זרימות ואוטומציה
-8. למה הביצועים לא משתפרים
-9. המלצות (לפי עדיפות)
-10. נספח — רשימות URLs
+8. מה עדיין מגביל שיפור בדירוג
+9. המלצות — בוצע / נותר
+10. נספח — מסמכים קשורים
+
+
+================================================================================
+0. סטטוס יישום (Pareto SEO/GEO)
+================================================================================
+
+בוצע בקוד וב-repo:
+
+  [x] sitemap-generator.js — הוסרו noindex מ-sitemap; נוספו compare×3, glossary, mcp
+  [x] sitemap-generator.js — dedupe: אין article.html?slug= כשיש _posts/ תואם
+  [x] robots.txt — הוסר Crawl-delay (גלובלי + Googlebot/Bingbot/Slurp)
+  [x] _config.yml — הערות ל-GSC (search_console_verification עדיין למילוי ידני)
+  [x] llms.txt — סעיפי Compare + Glossary
+  [x] footer — קישורים לכל דפי Compare
+  [x] jekyll-post-writer.js — מאמרים → _posts/ + GitHub API (GITHUB_TOKEN)
+  [x] articles-automation.js — כתיבת Jekyll אחרי Firestore + jekyll_permalink
+  [x] backfill-articles-to-jekyll.js — backfill הורץ; ~127 פוסטים ב-_posts/
+  [x] _redirects — בלוק 301: article.html?slug= → /YYYY/MM/DD/slug/ (~83 שורות)
+  [x] articles.js / article.js — קישורים ו-redirect ל-permalink סטטי
+  [x] articles-routes.js — jekyll_permalink ב-API (+ fallback מ-_posts/)
+  [x] pages/how.html — הרחבת תוכן סמנטי ב-<main> (thin content)
+  [x] docs/setup/seo-geo-guardrails.md — כללי צוות
+
+מצב מספרי (repo נוכחי):
+
+  • _posts/*.md                    ~127 קבצים (44 מקוריים + ~83 מאמרי אוטומציה)
+  • sitemap.xml                    145 URLs
+  • article.html?slug= ב-sitemap   0 (הוסרו לאחר backfill + dedupe)
+  • פוסטי Jekyll ב-sitemap         127
+  • דפים סטטיים ב-sitemap          18
+
+נותר לתפעול (לא קוד):
+
+  [ ] הדבקת token ב-search_console_verification (_config.yml) + deploy
+  [ ] GITHUB_REPO ב-Render (אם מאמרים חדשים ייכתבו ל-GitHub מ-Render)
+  [ ] פריסה מלאה: _posts/, _redirects, sitemap.xml, backend, frontend יחד
+  [ ] Search Console: בקשת אינדוקס מחדש לדפים מרכזיים; מעקב 172→ירידה
+  [ ] תיקון redirect feefwe (אופציונלי) — עדיין מצביע לפוסט שלא קיים
 
 
 ================================================================================
 1. תמצית מנהלים
 ================================================================================
 
-האתר כולל תשתית SEO ו-GEO יחסית מתקדמת (sitemap דינמי, llms.txt, דף hub
-למנועי AI, schema.org, robots שמאפשר בוטי AI). עם זאת, יש פערים מבניים
-שמונעים שיפור בדירוג ובציטוטים:
+לפני התיקון: 51 דפים מאונדקסים, 172 "Crawled - currently not indexed" — בעיקר
+בגלל article.html?slug= עם HTML ריק ("Loading article..."), סתירות sitemap/noindex,
+ודפי ערך שלא ב-sitemap.
 
-  • דפי השוואה (compare), MCP, Glossary — אינדקסבילים אך לא ב-sitemap
-  • Academy category/guide ו-dynamic-post — ב-sitemap אך עם noindex (סתירה)
-  • ~80 מאמרי Firebase — תוכן ומטא נטענים ב-JavaScript בלבד
-  • נפח גבוה של תוכן אוטומטי על אותם נושאים (cannibalization)
-  • אימות Google Search Console ריק ב-_config.yml
-  • תוכן דק בדפי מוצר (מזוהה גם ב-docs/setup/seo.md)
+אחרי התיקון (מבני):
 
-הערה חשובה: הקבצים geo-context.js ו-/api/geo/context הם גיאולוקציה
-(מדינה/locale למוצר), לא GEO למנועי בינה מלאכותית.
+  • מאמרי אוטומציה מוגשים כ-Jekyll סטטי: /YYYY/MM/DD/slug/ עם canonical ב-front matter
+  • Sitemap נקי מ-noindex ומ-URLים כפולים (query string הוסרו לאחר backfill)
+  • Bing לא מואט ע"י Crawl-delay
+  • Golden Triad (sitemap + llms.txt + footer) לדפי compare/glossary/MCP
+  • תהליך עתידי מתועד ב-seo-geo-guardrails.md
+
+עדיין פתוח:
+
+  • אימות Google Search Console (שדה ריק עד להדבקת token)
+  • Cannibalization בנושאי vibe coding (נפח תוכן גבוה)
+  • זמן עד ש-Google יסרוק מחדש ויאנדקס (שבועות)
+  • דף הבית / pricing — לא הורחבו במסגרת Pareto (how כן)
+
+הערה: geo-context.js ו-/api/geo/context = גיאולוקציה למוצר, לא GEO למנועי AI.
 
 
 ================================================================================
 2. מבנה קיים — SEO
 ================================================================================
 
-2.1 ארכיטקטורת אתר
-------------------
-  • Frontend: Jekyll (GitHub Pages) — דפים סטטיים, בלוג מ-_posts/
-  • מאמרים דינמיים: Firebase + API — pages/article.html?slug=...
-  • Backend: Node (Render) — יצירת sitemap, אוטומציית מאמרים, IndexNow
-  • קובץ sitemap: שורש הפרויקט — sitemap.xml (מתעדכן אוטומטית)
+2.1 ארכיטקטורת אתר (מעודכן)
+---------------------------
+  • Frontend: Jekyll (GitHub Pages) — דפים סטטיים + כל המאמרים ב-_posts/
+  • Firestore: מקור אמת לנתוני מאמר + שדות jekyll_permalink, jekyll_post_path
+  • article.html?slug= — legacy; 301 ב-_redirects ל-permalink סטטי
+  • Backend (Render): sitemap, אוטומציית מאמרים, כתיבת _posts/ (מקומי או GitHub API)
+  • מודול: backend/server/jekyll-post-writer.js
 
 2.2 קבצי תשתית
 ----------------
-  sitemap.xml          — 140 URLs (נוצר ע"י backend/server/sitemap-generator.js)
-  robots.txt           — Allow כללי + Disallow לאזורים פרטיים + Allow לבוטי AI
-  _redirects           — מאות redirects מ-URLs ישנים
-  _config.yml          — permalink בלוג: /:year/:month/:day/:title/
-                         jekyll-sitemap מושבת — sitemap מהשרת
+  sitemap.xml          — 145 URLs (backend/server/sitemap-generator.js)
+  robots.txt           — ללא Crawl-delay; Allow לבוטי AI
+  _redirects           — redirects היסטוריים + בלוק מאמרי אוטומציה (~83)
+  _config.yml          — permalink: /:year/:month/:day/:title/
 
-2.3 מטא-תגים גלובליים (_includes/head.html)
----------------------------------------------
-  • title, description (מ-front matter של כל דף)
-  • keywords — רשימה גלובלית קבועה לכל האתר
-  • author: Specifys.ai
-  • robots — ברירת מחדל: index, follow, max-image-preview:large, ...
-              ניתן לדרוס per-page עם: robots: noindex, follow
-  • canonical — מחושב מ-page.url או מ-page.canonical_url
-  • hreflang: en + x-default
-  • Open Graph: site_name, title, description, type, url, image (1200x630)
-  • Twitter Card: summary_large_image, @specifysai
-  • google-site-verification — ריק (לא מוגדר)
-  • bing_webmaster_verification — ריק
-  • Google Analytics: G-RWBT69JCM7
+2.3 מטא-תגים (_includes/head.html)
+------------------------------------
+  ללא שינוי מבני — כולל canonical, OG, Twitter, hreflang.
+  google-site-verification: מוכן ב-Liquid; ערך ב-_config.yml עדיין ריק.
 
-2.4 Schema.org (JSON-LD — _includes/structured-data.html)
----------------------------------------------------------
-  על רוב הדפים (@graph):
-    • Organization (Specifys.ai, logo, contact, sameAs LinkedIn)
-    • WebSite (+ SearchAction → ToolPicker)
-    • SoftwareApplication (קטגוריה DevelopmentApplication)
+2.4 Schema.org
+--------------
+  ללא שינוי מבני. פוסטי אוטומציה ב-Jekyll מקבלים Article דרך layout: post.
+  article.html — JSON-LD ב-JS רלוונטי בעיקר לגולשים שלא עברו 301.
 
-  לפי סוג דף:
-    • דף הבית (/)     — FAQPage (5 שאלות)
-    • פוסט Jekyll     — Article + BreadcrumbList
-    • דפים פנימיים    — BreadcrumbList
-    • /pages/pricing  — Product + offers
+2.5 סוגי תוכן לאינדוקס (מעודכן)
+-------------------------------
+  א. פוסטי Jekyll (_posts/) — ~127
+     • כולל 44 פוסטים מקוריים + מאמרים מ-Firestore (backfill + אוטומציה עתידית)
+     • URL: https://specifys-ai.com/YYYY/MM/DD/slug/
+     • front matter: layout post, title (seo_title), description, canonical_url,
+       tags, author, source: automation (למאמרים אוטומטיים)
+     • גוף: content_markdown ללא H1 (ה-title הוא H1)
 
-  Schema נפרד בדפים:
-    • pages/for-ai-assistants.html — WebPage + FAQPage
-    • pages/glossary/index.html    — DefinedTerm (מילון מונחים)
-    • pages/compare/*.html         — JSON-LD ייעודי בכל דף
-    • assets/js/pages/article.js   — Article (מוזרק ב-JS למאמרי Firebase)
-    • assets/js/.../SeoInjector.js — WebApplication (spec-viewer, noindex)
+  ב. Firestore (articles) — מקור נתונים; לא URL ראשי לאינדוקס
+     • אחרי backfill: jekyll_permalink על כל מאמר שפורסם
+     • מאמרים חדשים: articles-automation כותב גם ל-_posts/
 
-2.5 סוגי תוכן לאינדוקס
-----------------------
-  א. בלוג Jekyll (_posts/) — 44 קבצי .md
-     • HTML סטטי בבנייה
-     • URLs: https://specifys-ai.com/YYYY/MM/DD/slug/
-     • layout: post, schema Article בבנייה
+  ג. דפי שיווק — HTML סטטי; how.html הועשר (~300+ מילים ב-main)
 
-  ב. מאמרי Firebase (collection: articles, status: published) — ~80
-     • URL: https://specifys-ai.com/article.html?slug=SLUG
-     • שדות SEO: seo_title, description_160, tags, content_markdown
-     • נוצרים אוטומטית: backend/server/articles-automation.js
-     • רינדור: assets/js/pages/article.js (טעינה מ-API)
-
-  ג. דפי שיווק/מוצר — HTML סטטי ב-pages/ ו-index.html
-
-2.6 robots.txt — מדיניות סריקה
---------------------------------
-  Disallow (לא לסרוק):
-    /pages/auth.html
-    /pages/profile.html
-    /pages/spec-viewer.html
-    /pages/unsubscribe.html
-    /pages/new-admin-dashboard.html
-    /pages/legacy-viewer.html
-    /admin/, /private/, /temp/
-
-  Allow מפורש לבוטי AI:
-    GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-Web,
-    PerplexityBot, Perplexity-User, Google-Extended, Applebot-Extended,
-    CCBot, Bytespider
-
-  Crawl-delay: 1 (Google מתעלם; עלול להאט Bing)
+2.6 robots.txt
+--------------
+  Disallow: auth, profile, spec-viewer, unsubscribe, admin dashboards, וכו'
+  Allow: כל בוטי AI (GPTBot, ClaudeBot, PerplexityBot, ...)
+  אין Crawl-delay (תוקן)
   Sitemap: https://specifys-ai.com/sitemap.xml
 
-2.7 דפים עם noindex (מכוון — לא באינדקס)
+2.7 דפים עם noindex — לא ב-sitemap (תוקן)
 ------------------------------------------
-  pages/auth.html              noindex, follow
-  pages/profile.html           noindex, follow
-  pages/spec-viewer.html       noindex, follow
-  pages/planning.html          noindex, follow
-  pages/demo-spec.html         noindex, follow
-  pages/terms.html             noindex, follow
-  pages/privacy.html           noindex, follow
-  pages/unsubscribe.html       noindex, follow
-  pages/dynamic-post.html      noindex, follow  (permalink: /dynamic-post/)
-  pages/404.html               noindex, nofollow
-  pages/legacy-viewer.html     noindex, nofollow
-  pages/academy/category.html  noindex, follow
-  pages/academy/guide.html     noindex, follow
-  pages/admin/academy/*        noindex, nofollow
+  academy/category, academy/guide, dynamic-post — הוסרו מ-buildStaticUrls().
+  שאר רשימת noindex ללא שינוי (auth, profile, spec-viewer, terms, ...).
 
-2.8 תוכנית SEO פנימית (docs/setup/seo.md)
------------------------------------------
-  מסמך תוכנית שלא מומש במלואו:
-    • thin content (<50 מילים בדפים רבים)
-    • צורך ב-300+ מילים בדף הבית ודפי features
-    • noindex ל-terms/privacy/login (חלק מיושם)
-    • תיקון עומק קישורים פנימיים (crawl depth)
+2.8 תוכנית seo.md
+-----------------
+  חלקית מיושמת: how הועשר; about/why/pricing כבר מעל ~380 מילים; דף הבית לא הורחב.
 
 
 ================================================================================
-3. מבנה קיים — GEO (Generative Engine Optimization)
+3. מבנה קיים — GEO
 ================================================================================
 
-GEO = אופטימיזציה לנראות וציטוט במנועי תשובות AI (ChatGPT, Perplexity,
-Claude, Google AI Overviews וכו') — מקביל ל-SEO עבור מנועי חיפוש קלאסיים.
-
-3.1 נכסי GEO קיימים
--------------------
-  קובץ              נתיב                    תפקיד
-  ---------------------------------------------------------------------------
-  llms.txt          /llms.txt               אינדקס markdown מסודר (מפרט llmstxt.org)
-  ai.txt            /ai.txt                   מצביע קצר ultra-short ל-llms, hub, sitemap
-  Hub HTML          /pages/for-ai-assistants  דף אנושי + machine-readable summary
-  robots.txt        /robots.txt               Allow לבוטי AI
-  sitemap.xml       /sitemap.xml              גילוי URLs + lastmod
-  Glossary          /pages/glossary/          DefinedTerm schema — מונחים לציטוט
-  Compare pages     /pages/compare/*          TL;DR + טבלאות — מענה לשאלות השוואה
-
-3.2 תוכן llms.txt (תמצית)
--------------------------
-  Entity: "AI app specification generator" (Specifys.ai)
-
-  מקשר ל:
-    • for-ai-assistants, ai.txt
-    • דף הבית, how, why, pricing, ToolPicker, MCP, blog, academy
-    • spec-viewer (מוזכר — אך noindex בפועל)
-    • demo-spec, cursor-windsurf-integration, tools map
-    • articles, about, contact
-
-  לא מקשר ל (אך קיימים באתר):
-    • דפי compare (×3) — רק ב-for-ai-assistants
-    • glossary — רק ב-for-ai-assistants
-
-3.3 דף for-ai-assistants.html
-------------------------------
-  • Entity summary (שם, תיאור, קהל יעד)
-  • קישורים ל-llms.txt, ai.txt, sitemap, robots
-  • רשימת "High-signal pages" כולל compare + glossary
-  • FAQ עם JSON-LD FAQPage
-  • WebPage + SoftwareApplication schema
-
-3.4 דפי Compare (לא ב-sitemap, כן ב-footer/hub)
-------------------------------------------------
-  /pages/compare/specifys-vs-lovable.html
-  /pages/compare/specifys-vs-bolt.html
-  /pages/compare/specifys-vs-cursor-windsurf.html
-
-  כל אחד: layout default, title/description ייעודיים, טבלת השוואה,
-  TL;DR, JSON-LD — מכוון לתשובות "Specifys vs X".
-
-3.5 Glossary
+3.1 נכסי GEO
 ------------
-  /pages/glossary/index.html
-  מונחים: Vibe Coding, App Specification, MVP Brief, Mockup, Mind Map,
-  Mermaid, Canonical URL, Schema Markup, ועוד.
-  Schema: DefinedTermSet + DefinedTerm לכל מונח.
+  llms.txt, ai.txt, for-ai-assistants.html, robots (AI Allow), sitemap,
+  glossary (DefinedTerm), compare pages — ללא שינוי ברשימה; סנכרון שופר.
 
-3.6 מה חסר ל-GEO
-----------------
-  [ ] קישור ל-llms.txt ב-<head> של האתר (rel alternate) — לא קיים
-  [ ] סנכרון מלא בין llms.txt ↔ sitemap ↔ דפי compare/glossary
-  [ ] תוכן מאמרים זמין ב-HTML ללא JS (חשוב ל-crawlers של AI)
-  [ ] דף אינדקס מרכזי לכל דפי Compare
-  [ ] מדידת ציטוטים (לא מיושם בקוד)
+3.2 llms.txt (מעודכן)
+---------------------
+  נוספו סעיפים מפורשים:
+    • Compare — Lovable, Bolt, Cursor/Windsurf
+    • Glossary — AI Product Development Glossary
+
+  Golden Triad מסונכרן עם sitemap ו-footer לדפים אלה.
+
+3.3 מה עדיין אופציונלי ל-GEO
+-----------------------------
+  [ ] <link rel="alternate"> ל-llms.txt ב-<head>
+  [ ] דף אינדקס /pages/compare/ מרכזי
+  [ ] מדידת ציטוטים ב-Perplexity/ChatGPT
+  [ ] spec-viewer עדיין מוזכר ב-llms אך noindex — מכוון
 
 
 ================================================================================
-4. מפת Sitemap (140 URLs — נכון למאי 2026)
+4. מפת Sitemap (145 URLs — מצב לאחר backfill)
 ================================================================================
 
-הסיכום לפי מחולל: backend/server/sitemap-generator.js
-מתעדכן: GitHub Action יומי + אחרי פרסום מאמר (articles-automation)
+מחולל: backend/server/sitemap-generator.js
+מתעדכן: GitHub Action (יומי + push ל-_posts/**) + אחרי פרסום מאמר
 
-  קטגוריה                    כמות    מקור
+  קטגוריה                 כמות    מקור
   ------------------------------------------------------------------------
-  דפים שיווקיים סטטיים        16      buildStaticUrls()
-  פוסטי Jekyll                44      _posts/*.md
-  מאמרי Firebase              80      Firestore articles (published)
+  דפים שיווקיים סטטיים      18      buildStaticUrls()
+  פוסטי Jekyll             127      _posts/*.md
+  מאמרי Firebase (query)     0      רק אם אין קובץ _posts/ תואם — כרגע 0
   ------------------------------------------------------------------------
-  סה"כ                        140
+  סה"כ                     145
 
-4.1 דפים סטטיים ב-Sitemap (16)
--------------------------------
-  URL                                                    priority  הערות
-  ---------------------------------------------------------------------------
-  https://specifys-ai.com/                               1.0
-  https://specifys-ai.com/blog/                          0.9
-  https://specifys-ai.com/pages/articles.html            0.9
-  https://specifys-ai.com/academy.html                   0.9
-  https://specifys-ai.com/academy/category.html          0.7       **noindex**
-  https://specifys-ai.com/academy/guide.html             0.7       **noindex**
-  https://specifys-ai.com/pages/about.html               0.8
-  https://specifys-ai.com/pages/contact.html             0.7
-  https://specifys-ai.com/pages/how.html                 0.8
-  https://specifys-ai.com/pages/ToolPicker.html          0.8
-  https://specifys-ai.com/pages/pricing.html             0.8
-  https://specifys-ai.com/pages/why.html                 0.8
-  https://specifys-ai.com/pages/cursor-windsurf-integration.html  0.8
-  https://specifys-ai.com/pages/for-ai-assistants.html   0.85      GEO hub
-  https://specifys-ai.com/pages/dynamic-post/            0.7       **noindex**
-  https://specifys-ai.com/tools/map/vibe-coding-tools-map.html  0.95
+4.1 דפים סטטיים ב-Sitemap (18)
+------------------------------
+  /
+  /blog/
+  /pages/articles.html
+  /academy.html                    (לא category/guide — הוסרו)
+  /pages/about.html
+  /pages/contact.html
+  /pages/how.html
+  /pages/ToolPicker.html
+  /pages/pricing.html
+  /pages/why.html
+  /pages/cursor-windsurf-integration.html
+  /pages/for-ai-assistants.html    (0.85 — GEO hub)
+  /pages/compare/specifys-vs-lovable.html      (0.85)  **חדש**
+  /pages/compare/specifys-vs-bolt.html           (0.85)  **חדש**
+  /pages/compare/specifys-vs-cursor-windsurf.html (0.85) **חדש**
+  /pages/glossary/index.html                     (0.85)  **חדש**
+  /pages/mcp.html                                (0.8)   **חדש**
+  /tools/map/vibe-coding-tools-map.html          (0.95)
 
-4.2 פוסטי Jekyll ב-Sitemap (44)
--------------------------------
+  הוסרו מ-sitemap (noindex):
+    /academy/category.html, /academy/guide.html, /pages/dynamic-post/
+
+4.2 פוסטי Jekyll (127)
+----------------------
   פורמט: https://specifys-ai.com/YYYY/MM/DD/slug/
-  כל 44 הקבצים ב-_posts/ מיוצגים — אין פער.
+  priority: 0.6, changefreq: monthly
+  כולל מאמרי אוטומציה עם תאריך publishedAt מ-Firestore
 
-4.3 מאמרי Firebase ב-Sitemap (~80)
-----------------------------------
-  פורמט: https://specifys-ai.com/article.html?slug=SLUG
-  priority: 0.8, changefreq: monthly
-  lastmod: מתאריך publishedAt/createdAt ב-Firestore
+4.3 מאמרי Firebase ב-Sitemap
+----------------------------
+  כרגע: 0 URLs מסוג article.html?slug=
+  לוגיקה: getJekyllPostSlugSet() מסנן Firestore כשקיים _posts/YYYY-MM-DD-slug.md
 
 
 ================================================================================
-5. דפים מחוץ ל-Sitemap / סתירות אינדוקס
+5. אינדוקס, redirects וסתירות
 ================================================================================
 
-5.1 דפים אינדקסבילים שלא ב-Sitemap (פער — לתקן)
--------------------------------------------------
-  URL                                              מקושר מ-
-  ---------------------------------------------------------------------------
-  /pages/compare/specifys-vs-lovable.html          for-ai-assistants
-  /pages/compare/specifys-vs-bolt.html             footer "Compare"
-  /pages/compare/specifys-vs-cursor-windsurf.html  for-ai-assistants
-  /pages/glossary/index.html                       footer, for-ai-assistants
-  /pages/mcp.html                                  footer, llms.txt
+5.1 פערים שסגורים
+-----------------
+  compare, glossary, mcp — ב-sitemap, llms.txt, footer
+  סתירות noindex↔sitemap — תוקנה
+  מאמרים אוטומטיים — HTML סטטי + ב-sitemap כ-permalink
 
-  סיבה: buildStaticUrls() ב-sitemap-generator.js לא כולל אותם.
+5.2 Redirects למאמרים
+---------------------
+  _redirects מכיל בלוק:
+    # Article slug redirects (automation backfill)
+    /article.html?slug=SLUG  /YYYY/MM/DD/slug/  301
+  (~83 שורות)
 
-5.2 ב-Sitemap אך noindex (סתירה — להסיר מ-sitemap)
-----------------------------------------------------
-  /academy/category.html     robots: noindex, follow
-  /academy/guide.html        robots: noindex, follow
-  /pages/dynamic-post/       robots: noindex, follow (shell לטעינת פוסט)
+  article.js: location.replace ל-jekyll_permalink כשקיים ב-API
 
-  בעיה: שולחים לגוגל URL שמבקשים שלא יאונדקס — בזבוז crawl budget.
-
-5.3 דפים שלא אמורים להיות באינדקס (נכון)
-----------------------------------------
-  auth, profile, spec-viewer, planning, demo-spec, terms, privacy,
-  unsubscribe, 404, legacy-viewer, admin/* — noindex ו/או Disallow ב-robots.
-
-5.4 בעיית Redirect
-------------------
-  _redirects: /blog/feefwe.html → /2025/11/12/feefwe/
-  אין קובץ _posts/2025-11-12-feefwe.md — סיכון ל-404.
-
-5.5 כפילות תוכן פוטנציאלית
----------------------------
-  • בלוג Jekyll (44) + מאמרי Firebase (80) — נושאים חופפים (vibe coding, AI tools)
-  • אין canonical בין פוסט Jekyll למאמר Firebase על אותו נושא
-  • URL עם query string (?slug=) פחות אידיאלי מ-permalink נקי
+5.3 בעיות ידועות שנותרו
+------------------------
+  feefwe: /blog/feefwe.html → /2025/11/12/feefwe/ — עדיין אין _posts תואם (404 אפשרי)
+  Cannibalization: נפח גבוה של מאמרים על אותם נושאים (לא תוקן במסגרת Pareto)
+  כפילות נדירה: שני קבצי _posts עם נושא דומה ותאריכים שונים (slug שונה)
 
 
 ================================================================================
 6. תגיות, Schema ו"וקטורים"
 ================================================================================
 
-6.1 וקטור SEO (מסגרת הערכה)
-----------------------------
-  ממד                  מצב נוכחי
+6.1 וקטור SEO (לאחר תיקון)
+---------------------------
+  ממד                  מצב
   ---------------------------------------------------------------------------
-  Crawlability         טוב (robots, sitemap) — פערים בדפים חדשים
-  Indexability         חלש — סתירות noindex/sitemap, JS articles
-  On-page מוצר        חלש — thin content
-  On-page בלוג/מאמרים  בינוני-חלש — נפח גבוה, אוטומציה
-  Technical SEO        לא נבדק בדוח (Core Web Vitals)
-  E-E-A-T / Backlinks  לא נבדק בקוד
-  International        אנגלית בלבד — תקין
+  Crawlability         טוב — sitemap מלא, ללא crawl-delay
+  Indexability         משופר — אין סתירות; מאמרים סטטיים; ממתין לריענון GSC
+  On-page מוצר        בינוני — how תוקן; בית/pricing ללא הרחבה נוספת
+  On-page בלוג/מאמרים  בינוני — HTML מלא; נפח/כפילות נושאים עדיין סיכון
+  Technical SEO        לא נבדק (CWV)
+  GSC                  ממתין ל-token
 
 6.2 וקטור GEO
 -------------
   ממד                        מצב
   ---------------------------------------------------------------------------
-  Machine-readable index     טוב (llms.txt, ai.txt)
-  Entity clarity             טוב (for-ai-assistants, SoftwareApplication)
-  Citation-ready pages       בינוני — compare/glossary לא ב-sitemap/llms מלא
-  AI crawler access          טוב (robots Allow)
-  Content without JS         חלש — מאמרי Firebase
-  Consistency llms/sitemap   חלש — פערים
+  Machine-readable index     טוב — llms מעודכן
+  Entity clarity             טוב
+  Citation-ready pages       טוב — compare/glossary ב-triad
+  AI crawler access          טוב
+  Content without JS         טוב למאמרים (Jekyll); article.html legacy בלבד
+  Consistency                טוב לדפי מוצר; מאמרים דרך permalink אחיד
 
-6.3 בעיית מאמרים דינמיים (article.html)
------------------------------------------
-  HTML ראשוני לפני JS:
-    title: "Article - Specifys.ai"
-    body: "Loading article..."
-
-  אחרי JS (updateSEOTags):
-    title, description, canonical, OG, JSON-LD Article
-
-  השלכה: Google מרנדר JS אך לא תמיד; בוטי AI פחות אמינים — חולשה ל-SEO ו-GEO.
+6.3 article.html (legacy)
+-------------------------
+  עדיין קיים כדף; גולשים ובוטים מופנים ב-301 ל-permalink.
+  לא מופיע ב-sitemap. לא אמור לגרום עוד ל-"Loading..." ב-crawl אם ה-redirects פעילים בפרודקשן.
 
 
 ================================================================================
 7. זרימות ואוטומציה
 ================================================================================
 
-7.1 יצירת Sitemap
------------------
-  1. backend/scripts/generate-sitemap.js
-  2. generateSitemapXml() — static + Jekyll posts + Firestore articles
-  3. כתיבה ל-sitemap.xml בשורש
-  4. IndexNow ping (אם INDEXNOW_KEY מוגדר ב-env)
-  5. GitHub Action: cron יומי 02:00 UTC + workflow_dispatch
+7.1 פרסום מאמר חדש (זרימה מעודכנת)
+-----------------------------------
+  1. OpenAI → JSON (seo_title, description_160, content_markdown, tags)
+  2. Firestore articles.add()
+  3. jekyll-post-writer.writeJekyllPostForArticle()
+       — GITHUB_TOKEN + GITHUB_REPO → commit ל-repo
+       — אחרת: כתיבה מקומית ל-_posts/ (סביבת dev / backfill)
+  4. Firestore update: jekyll_permalink, jekyll_post_path
+  5. generateAndSaveSitemap() — רק Jekyll URL; dedupe
+  6. (עתידי) redirect נוסף ב-_redirects אם נדרש לסקריפט נפרד
 
-7.2 אוטומציית מאמרים
+7.2 Backfill (בוצע)
 --------------------
-  articles-automation.js:
-    • יצירת נושא + מאמר ב-OpenAI
-    • שדות: seo_title (50-60 תווים), description_160, tags, content_markdown
-    • פרסום ל-Firestore → רענון sitemap
+  node backend/scripts/backfill-articles-to-jekyll.js
+  — כתב ~83+ קבצי _posts/, עדכן Firestore, _redirects, sitemap
 
-7.3 קישורים פנימיים (footer)
------------------------------
-  Features: spec-viewer, MCP, Academy, Tools Map, ToolPicker
-  Company: about, contact, blog, pricing
-  Resources: how, why, articles, Compare (bolt בלבד), Glossary, For AI assistants
-  Legal: terms, privacy
-  Account: auth
+7.3 Sitemap CI
+--------------
+  .github/workflows/update-sitemap.yml — triggers כוללים _posts/**,
+  jekyll-post-writer.js, backfill script
 
-  חסר ב-footer: compare lovable, compare cursor-windsurf (יש רק bolt דרך "Compare")
+7.4 Footer (מעודכן)
+--------------------
+  Resources: Specifys vs Bolt, vs Lovable, vs Cursor, Glossary, For AI assistants
 
 
 ================================================================================
-8. למה הביצועים לא משתפרים
+8. מה עדיין מגביל שיפור בדירוג (ציפיות ריאליות)
 ================================================================================
 
-8.1 SEO אורגני (Google)
------------------------
-  1. Thin content בדפי מוצר — אין מספיק טקסט ייחודי לדירוג.
-  2. Cannibalization — עשרות מאמרים על אותם keywords (Claude Code, Antigravity...).
-  3. פער sitemap — דפי compare/MCP/glossary לא מגיעים דרך sitemap.
-  4. סתירות — URLs עם noindex עדיין ב-sitemap.
-  5. אין Search Console מאומת — אין נתונים לתיקון ממוקד.
-  6. מאמרים ב-JS — אינדוקס איטי/לא שלם.
-  7. תוכנית seo.md לא מומשה.
+8.1 לא ייפתר מיד
+----------------
+  • Google צריך לסרוק מחדש 145+ URLs ולהסיר זיכרון של article.html?slug=
+  • 172 "Crawled not indexed" ירדו לאט — בקש indexing ידנית ל-10–20 URLs מרכזיים
+  • Cannibalization בין 127+ מאמרים על vibe coding / AI tools
+  • Authority / backlinks — מחוץ לטכני
 
-8.2 GEO (מנועי AI)
-------------------
-  1. יתרון יחסי — llms.txt + hub (רבים לא עושים).
-  2. דפי compare/glossary — לא מסונכרנים ב-llms וב-sitemap.
-  3. נפח מאמרים אוטומטיים — פחות authority ממקורות חזקים.
-  4. תחרות entity — "app spec generator" מול Cursor, Lovable, Bolt.
-  5. תוכן ראשוני "Loading..." — חלש ל-retrieval.
+8.2 תלוי בפריסה
+---------------
+  אם production חסר _posts/ או _redirects מה-commit — התיקון לא יופיע לבוטים.
+  ודא deploy אחד הכולל: קוד + _posts/ + _redirects + sitemap.xml.
 
-8.3 בלבול מונחים בפרויקט
--------------------------
-  geo-context.js / api/geo/context = גיאוגרפיה למוצר (US/IL/DE recommendations)
-  GEO במסמך זה = Generative Engine Optimization
+8.3 תפעול
+----------
+  search_console_verification, INDEXNOW_KEY, GITHUB_REPO על Render.
 
 
 ================================================================================
-9. המלצות (לפי עדיפות)
+9. המלצות — בוצע / נותר
 ================================================================================
 
---- דחוף (שבוע 1) ---
+--- בוצע (Pareto) ---
 
-  [1] עדכן backend/server/sitemap-generator.js — buildStaticUrls():
-      הוסף:
-        /pages/compare/specifys-vs-lovable.html
-        /pages/compare/specifys-vs-bolt.html
-        /pages/compare/specifys-vs-cursor-windsurf.html
-        /pages/glossary/index.html
-        /pages/mcp.html
-      הסר:
-        /academy/category.html
-        /academy/guide.html
-        /pages/dynamic-post/
+  [x] sitemap: הסרת noindex URLs; הוספת compare/glossary/mcp
+  [x] sitemap dedupe — ללא article.html?slug= כשיש _posts
+  [x] robots.txt — הסרת Crawl-delay
+  [x] llms.txt + footer — Golden Triad
+  [x] jekyll-post-writer + articles-automation hook
+  [x] backfill → _posts/, _redirects, Firestore permalinks
+  [x] articles.js / article.js / articles-routes permalinks
+  [x] how.html thin content
+  [x] seo-geo-guardrails.md
+  [x] GITHUB_TOKEN (במקום GITHUB_REPO_TOKEN בלבד)
 
-  [2] עדכן llms.txt — הוסף סעיף Compare + Glossary (כמו ב-for-ai-assistants).
+--- נותר (תפעול / המשך) ---
 
-  [3] אמת Google Search Console — מלא search_console_verification ב-_config.yml.
-
-  [4] תקן redirect feefwe — צור פוסט או הסר מ-_redirects.
-
-  [5] הרץ generate-sitemap.js ו-commit ל-sitemap.xml.
-
---- בינוני (שבועות 2–4) ---
-
-  [6] Pre-render או SSR למאמרי Firebase — meta + תוכן ב-HTML לפני JS;
-      או permalinks סטטיים: /articles/SLUG/ עם דף Jekyll/SSR.
-
-  [7] העשרת דפי מוצר — how, why, pricing, MCP, about — מינימום 300 מילים
-      ייחודיות לכל דף (לפי docs/setup/seo.md).
-
-  [8] איחוד אסטרטגיית בלוג — Jekyll לתוכן evergreen; Firebase לחדשות;
-      canonical כשיש כפילות נושא.
-
-  [9] הסר Crawl-delay מ-robots.txt (או הגבל לבוטים ספציפיים).
-
-  [10] דף אינדקס /pages/compare/ — קישור לכל 3 ההשוואות + קישור מה-footer.
-
---- ארוך טווח (GEO + צמיחה) ---
-
-  [11] <link> ל-llms.txt ב-head (כשהתקן יתבסס יותר).
-
-  [12] הפחתת כמות / העלאת איכות מאמרים אוטומטיים — 2–4 מאמרי עומק בשבוע.
-
-  [13] מדידה: שאילתות ב-Perplexity/ChatGPT על "Specifys vs Lovable";
-       מעקב אם Specifys.ai מוצג ומצוטט.
-
-  [14] IndexNow — ודא ש-INDEXNOW_KEY מוגדר ב-GitHub Secrets ל-production.
-
-  [15] Bing Webmaster + אימות msvalidate.01.
+  [ ] הדבק GSC token ב-_config.yml + deploy
+  [ ] ודא production כולל _posts/ + _redirects + sitemap מעודכן
+  [ ] GITHUB_REPO על Render למאמרים חדשים מ-commit אוטומטי
+  [ ] Search Console: Validate fix / Request indexing לדוגמה:
+        /, /pages/compare/*, /pages/glossary/, 3–5 מאמרים חדשים
+  [ ] מעקב שבועי: Indexed vs Crawled-not-indexed
+  [ ] תיקון feefwe redirect
+  [ ] (אופציונלי) דף /pages/compare/ אינדקס; link ל-llms ב-head
+  [ ] (אופציונלי) הרחבת דף הבית; הפחתת קצב/כפילות מאמרים אוטומטיים
+  [ ] Bing Webmaster + msvalidate.01
 
 
 ================================================================================
-10. נספח — סיכום אסטרטגיה
+10. נספח — מסמכים קשורים
 ================================================================================
 
-  ערוץ          אסטרטגיה נוכחית                    פער עיקרי
+  כללי צוות (חובה לדפים חדשים):
+    docs/setup/seo-geo-guardrails.md
+
+  תוכנית מטא ישנה:
+    docs/setup/seo.md
+
+  קבצי מימוש מרכזיים:
+    backend/server/sitemap-generator.js
+    backend/server/jekyll-post-writer.js
+    backend/server/articles-automation.js
+    backend/scripts/backfill-articles-to-jekyll.js
+    backend/scripts/generate-sitemap.js
+
+  סיכום אסטרטגיה (מצב נוכחי):
   ---------------------------------------------------------------------------
-  SEO           Sitemap + schema + בלוג + מאמרים   thin pages, JS, gaps, no GSC
-  GEO           llms + ai.txt + hub + AI robots    sync sitemap/llms, JS content
+  ערוץ    לפני                          אחרי
+  ---------------------------------------------------------------------------
+  SEO     JS shells + sitemap סותר      סטטי Jekyll + sitemap נקי + redirects
+  GEO     llms חלקי + JS content        triad מלא + תוכן סטטי למאמרים
 
-  מסקנה: התשתית ל-GEO קיימת ומוקדמת; הבעיה העיקרית היא ביצוע SEO קלאסי
-  חלקי (פערים, סתירות, תוכן דק) + תלות ב-JS למאמרים — שפוגע גם ב-GEO.
+  מסקנה: התשתית הטכנית לפתרון משבר האינדוקס יושמה. שיפור ב-GSC יבוא אחרי
+  deploy מלא, אימות GSC, וזמן סריקה מחדש של Google/Bing.
 
 
 ================================================================================
-  Operational guardrails (ongoing): docs/setup/seo-geo-guardrails.md
-
-================================================================================
-  סוף הדוח
+  סוף הדוח (גרסה מעודכנת)
 ================================================================================

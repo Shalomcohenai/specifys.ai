@@ -1,59 +1,59 @@
-# 📄 תצורת דפים - Specifys.ai
+# Page Configuration — Specifys.ai
 
-**תאריך עדכון:** 2025-12-10  
-**מצב:** ✅ מסודר ומתועד
-
----
-
-## 📋 סיכום כללי
-
-רוב הדפים באתר משתמשים ב-**Jekyll Layout** `layout: default` (header/footer משותפים, CSS, Firebase, Analytics). דף **Auth** הוא HTML עצמאי (ללא layout).
-
-**Layouts קיימים:** `_layouts/default.html`, `_layouts/dashboard.html`, `_layouts/post.html`, `_layouts/auth.html`, `_layouts/standalone.html`.
+**Last updated:** 2025-12-10  
+**Status:** Documented and current
 
 ---
 
-## 🗂️ רשימת דפים
+## Overview
 
-### דפים עם Jekyll Layout (`layout: default`)
+Most site pages use the **Jekyll layout** `layout: default` (shared header/footer, CSS, Firebase, analytics). The **Auth** page is standalone HTML (no layout).
 
-דפים אלה משתמשים ב-`_layouts/default.html` ומקבלים אוטומטית Header/Footer, CSS, Firebase, Analytics.
+**Available layouts:** `_layouts/default.html`, `_layouts/dashboard.html`, `_layouts/post.html`, `_layouts/auth.html`, `_layouts/standalone.html`.
 
-| דף | מיקום | הערות |
+---
+
+## Page list
+
+### Pages with Jekyll layout (`layout: default`)
+
+These pages use `_layouts/default.html` and automatically get header/footer, CSS, Firebase, and analytics.
+
+| Page | Location | Notes |
 |-----|-------|-------|
-| **404** | `pages/404.html` | ✅ |
-| **About** | `pages/about.html` | ✅ |
-| **Articles** | `pages/articles.html` | ✅ |
-| **Article** | `pages/article.html` | ✅ |
-| **Contact** | `pages/contact.html` | ✅ |
-| **Demo Spec** | `pages/demo-spec.html` | ✅ |
-| **Dynamic Post** | `pages/dynamic-post.html` | ✅ |
-| **How** | `pages/how.html` | ✅ |
-| **Legacy Viewer** | `pages/legacy-viewer.html` | ✅ |
-| **New Admin** | `pages/new-admin-dashboard.html` | ✅ |
-| **Planning** | `pages/planning.html` | ✅ |
-| **Pricing** | `pages/pricing.html` | ✅ |
-| **Profile** | `pages/profile.html` | ✅ |
-| **Privacy** | `pages/privacy.html` | ✅ |
-| **Spec Viewer** | `pages/spec-viewer.html` | ✅ |
-| **Terms** | `pages/terms.html` | ✅ |
-| **Tool Picker** | `pages/ToolPicker.html` | ✅ |
-| **Why** | `pages/why.html` | ✅ |
-| **Unsubscribe** | `pages/unsubscribe.html` | ✅ |
-| **Cursor/Windsurf** | `pages/cursor-windsurf-integration.html` | ✅ |
-| **Academy** | `pages/academy/index.html`, `category.html`, `guide.html` | ✅ |
+| **404** | `pages/404.html` | OK |
+| **About** | `pages/about.html` | OK |
+| **Articles** | `pages/articles.html` | OK |
+| **Article** | `pages/article.html` | OK |
+| **Contact** | `pages/contact.html` | OK |
+| **Demo Spec** | `pages/demo-spec.html` | OK |
+| **Dynamic Post** | `pages/dynamic-post.html` | OK |
+| **How** | `pages/how.html` | OK |
+| **Legacy Viewer** | `pages/legacy-viewer.html` | OK |
+| **New Admin** | `pages/new-admin-dashboard.html` | OK |
+| **Planning** | `pages/planning.html` | OK |
+| **Pricing** | `pages/pricing.html` | OK |
+| **Profile** | `pages/profile.html` | OK |
+| **Privacy** | `pages/privacy.html` | OK |
+| **Spec Viewer** | `pages/spec-viewer.html` | OK |
+| **Terms** | `pages/terms.html` | OK |
+| **Tool Picker** | `pages/ToolPicker.html` | OK |
+| **Why** | `pages/why.html` | OK |
+| **Unsubscribe** | `pages/unsubscribe.html` | OK |
+| **Cursor/Windsurf** | `pages/cursor-windsurf-integration.html` | OK |
+| **Academy** | `pages/academy/index.html`, `category.html`, `guide.html` | OK |
 
-(דפי Blog ב-`blog/index.html` ו-`_posts/` עם layout `post`.)
+(Blog pages live under `blog/index.html` and `_posts/` with layout `post`.)
 
-### דפים עצמאיים (ללא Jekyll layout)
+### Standalone pages (no Jekyll layout)
 
-| דף | מיקום | הערות |
+| Page | Location | Notes |
 |-----|-------|-------|
-| **Auth** | `pages/auth.html` | HTML מלא, ללא front matter layout |
+| **Auth** | `pages/auth.html` | Full HTML, no layout front matter |
 
 ---
 
-## ⚙️ תצורת Jekyll (`_config.yml`)
+## Jekyll configuration (`_config.yml`)
 
 ### Include
 ```yaml
@@ -91,24 +91,24 @@ exclude:
 
 ---
 
-## 🔧 בעיות שנפתרו
+## Resolved issues
 
-### 1. דפים שלא הועתקו ל-`_site`
-**בעיה:** `blog/`, `pages/academy/`, `pages/article.html` לא הועתקו ל-`_site`  
-**פתרון:** 
-- הוספתי `blog/` ל-`include` ב-`_config.yml`
-- דפים עם `layout: default` מקומפלים אוטומטית לפי `permalink`
+### 1. Pages not copied to `_site`
+**Problem:** `blog/`, `pages/academy/`, `pages/article.html` were not copied to `_site`  
+**Fix:** 
+- Added `blog/` to `include` in `_config.yml`
+- Pages with `layout: default` compile automatically via `permalink`
 
-### 2. דפים שלא מקומפלים
-**בעיה:** דפים עם `layout: default` לא מקומפלים בגלל שגיאת build  
-**פתרון:** 
-- הסרתי `assets/css/style.scss` (קובץ ריק שגרם לשגיאה)
-- עדכנתי `exclude` ב-`_config.yml`
+### 2. Pages not compiling
+**Problem:** Pages with `layout: default` failed to compile due to a build error  
+**Fix:** 
+- Removed `assets/css/style.scss` (empty file that caused the error)
+- Updated `exclude` in `_config.yml`
 
-### 3. CSS לא נטען
-**בעיה:** דפים סטטיים לא קיבלו את כל קבצי ה-CSS  
-**פתרון:** 
-- עדכנתי את כל הדפים הסטטיים לכלול את כל קבצי ה-CSS הנדרשים:
+### 3. CSS not loading
+**Problem:** Static pages did not receive all CSS files  
+**Fix:** 
+- Updated all static pages to include required CSS:
   - `main-compiled.css`
   - `tailwind-base-compiled.css`
   - `buttons.css`
@@ -118,86 +118,85 @@ exclude:
 
 ---
 
-## 📦 CSS Files Included
+## CSS files included
 
-### דפים עם Layout
-דפים אלה מקבלים אוטומטית דרך `_includes/head.html`:
+### Pages with layout
+These pages receive styles automatically via `_includes/head.html`:
 - `main-compiled.css`
 - `tailwind-base-compiled.css`
 - `buttons.css`
 - `display.css`
 - `text.css`
 - `spacing.css`
-- `extra_css` (אם מוגדר בדף)
+- `extra_css` (when set on the page)
 
-### דפים סטטיים
-דפים אלה כוללים את כל קבצי ה-CSS ישירות ב-`<head>`:
+### Static pages
+These pages include all CSS directly in `<head>`:
 - `main-compiled.css`
 - `tailwind-base-compiled.css`
 - `buttons.css`
 - `display.css`
 - `text.css`
 - `spacing.css`
-- CSS ספציפי לדף (אם קיים)
+- Page-specific CSS (if any)
 
 ---
 
-## ✅ בדיקות
+## Verification
 
-### דפים עם Layout
-- [x] `blog/index.html` - מקומפל ל-`_site/blog/index.html`
-- [x] `pages/article.html` - מקומפל ל-`_site/article.html`
-- [x] `pages/articles.html` - מקומפל ל-`_site/pages/articles.html`
-- [x] `pages/academy/index.html` - מקומפל ל-`_site/academy.html`
-- [x] `pages/academy/category.html` - מקומפל ל-`_site/academy/category.html`
-- [x] `pages/academy/guide.html` - מקומפל ל-`_site/academy/guide.html`
-- [x] `pages/dynamic-post.html` - מקומפל ל-`_site/dynamic-post/index.html`
-- [x] `tools/map/vibe-coding-tools-map.html` - מקומפל ל-`_site/tools/map/vibe-coding-tools-map.html`
+### Pages with layout
+- [x] `blog/index.html` — compiles to `_site/blog/index.html`
+- [x] `pages/article.html` — compiles to `_site/article.html`
+- [x] `pages/articles.html` — compiles to `_site/pages/articles.html`
+- [x] `pages/academy/index.html` — compiles to `_site/academy.html`
+- [x] `pages/academy/category.html` — compiles to `_site/academy/category.html`
+- [x] `pages/academy/guide.html` — compiles to `_site/academy/guide.html`
+- [x] `pages/dynamic-post.html` — compiles to `_site/dynamic-post/index.html`
+- [x] `tools/map/vibe-coding-tools-map.html` — compiles to `_site/tools/map/vibe-coding-tools-map.html`
 
-### דפים סטטיים
-- [x] כל הדפים הסטטיים כוללים את כל קבצי ה-CSS הנדרשים
-- [x] כל הדפים נטענים נכון בשרת המקומי
+### Static pages
+- [x] All static pages include required CSS files
+- [x] All pages load correctly on the local server
 
 ---
 
-## 🚀 הוראות Build
+## Build instructions
 
-### Build מלא
+### Full build
 ```bash
 bundle exec jekyll build
 ```
 
-### Server עם skip initial build
+### Serve with skip initial build
 ```bash
 bundle exec jekyll serve --skip-initial-build
 ```
 
-**הערה:** `--skip-initial-build` נדרש אם יש שגיאות build (כמו `style.scss`).
+**Note:** Use `--skip-initial-build` when build errors occur (e.g. `style.scss`).
 
 ---
 
-## 📝 הערות חשובות
+## Important notes
 
-1. **דפים עם Layout:** דפים אלה **חייבים** להיות עם `layout: default` כדי לקבל את כל ה-CSS והפונקציונליות.
+1. **Pages with layout:** Must use `layout: default` to get full CSS and functionality.
 
-2. **דפים סטטיים:** דפים אלה **חייבים** לכלול את כל קבצי ה-CSS ישירות ב-`<head>`.
+2. **Static pages:** Must include all CSS files directly in `<head>`.
 
-3. **Permalinks:** חשוב לוודא שה-`permalink` נכון כדי שהדף יופיע במיקום הנכון.
+3. **Permalinks:** Ensure `permalink` is correct so the page is served at the intended URL.
 
-4. **CSS Files:** כל קבצי ה-CSS **חייבים** להיות ב-`include` ב-`_config.yml` כדי ש-Jekyll יעתיק אותם ל-`_site`.
-
----
-
-## 🔄 עדכונים עתידיים
-
-### המלצות לשיפור:
-1. **מיגרציה לדפים עם Layout:** לשקול להמיר את כל הדפים הסטטיים לדפים עם `layout: default` כדי לפשט את התחזוקה.
-
-2. **CSS Modular:** לשקול להפריד את ה-CSS של כל דף לקובץ נפרד במקום לכלול הכל ב-`main-compiled.css`.
-
-3. **Build Process:** לשפר את תהליך ה-build כדי למנוע שגיאות.
+4. **CSS files:** All CSS files must be listed under `include` in `_config.yml` so Jekyll copies them to `_site`.
 
 ---
 
-**עודכן על ידי:** AI Assistant  
-**תאריך:** 2025-12-10
+## Future improvements
+
+1. **Migrate to layout pages:** Consider converting remaining static pages to `layout: default` for easier maintenance.
+
+2. **Modular CSS:** Consider splitting per-page CSS instead of bundling everything in `main-compiled.css`.
+
+3. **Build process:** Improve the build to avoid recurring errors.
+
+---
+
+**Updated by:** AI Assistant  
+**Date:** 2025-12-10
