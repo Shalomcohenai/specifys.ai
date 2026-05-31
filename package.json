@@ -22,7 +22,8 @@
     "build:favicon": "node scripts/generate-favicon.mjs",
     "test:e2e": "playwright test",
     "build:packages": "npm run build --workspaces --if-present",
-    "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite"
+    "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite",
+    "build:vercel": "npm run build:css:min && (npm run build:vite || true) && bundle exec jekyll build"
   },
   "keywords": [
     "specifys",

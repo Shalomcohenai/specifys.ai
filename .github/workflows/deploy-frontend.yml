@@ -9,7 +9,8 @@ on:
       - '_includes/**'
       - '_layouts/**'
       - '_config.yml'
-      - 'index.html'
+      - 'vercel.json'
+      - 'package.json'
       - '.github/workflows/deploy-frontend.yml'
 
 jobs:
@@ -40,26 +41,15 @@ jobs:
       - name: Install Jekyll dependencies
         run: bundle install
 
-      - name: Build CSS
-        run: npm run build:css:min
+      - name: Build site for Vercel
+        run: npm run build:vercel
 
-      - name: Build with Vite
-        run: npm run build:vite
-        continue-on-error: true
-
-      - name: Build Jekyll site
-        run: bundle exec jekyll build
-
-      - name: Deploy to production
+      - name: Verify build output
         run: |
-          echo "Frontend deployment would happen here"
-          echo "This could be:"
-          echo "  - GitHub Pages"
-          echo "  - Netlify"
-          echo "  - Vercel"
-          echo "  - Custom server via SSH/rsync"
-          echo ""
-          echo "Build output is in _site/ directory"
+          test -d _site
+          test -f _site/index.html
+          test -f _site/_redirects
+          echo "Build output ready for Vercel (_site/)"
           ls -la _site/ | head -20
 
 

@@ -47,6 +47,7 @@ exclude:
   - .jekyll-metadata
   - .gitignore
   - .git
+  - CNAME
   - .DS_Store
   - Thumbs.db
   - package.json
