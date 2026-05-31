@@ -305,7 +305,7 @@ Edit `_includes/header.html`:
 ## 📞 Support
 
 For issues or questions:
-- Email: specifysai@gmail.com
+- Email: about@prd.it.com
 - LinkedIn: [Specifys.ai](https://www.linkedin.com/company/specifys-ai/)
 
 ---
