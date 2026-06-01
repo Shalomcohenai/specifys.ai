@@ -5,8 +5,16 @@
 
 const path = require('path');
 const fs = require('fs');
-const { Octokit } = require('@octokit/rest');
 const { logger } = require('./logger');
+
+let octokitCtorPromise = null;
+
+async function loadOctokit() {
+  if (!octokitCtorPromise) {
+    octokitCtorPromise = import('@octokit/rest').then((mod) => mod.Octokit);
+  }
+  return octokitCtorPromise;
+}
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const POSTS_DIR = path.join(ROOT_DIR, '_posts');
@@ -119,6 +127,7 @@ async function commitPostToGitHub({ relativePath, content, message }) {
     throw new Error('GITHUB_TOKEN and GITHUB_REPO are required for GitHub commits');
   }
 
+  const Octokit = await loadOctokit();
   const octokit = new Octokit({ auth: config.token });
   let sha;
 
