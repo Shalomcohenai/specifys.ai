@@ -141,7 +141,7 @@ router.get('/prompt-templates', async (req, res, next) => {
     };
     logger.info({ requestId }, '[mcp-routes] GET /prompt-templates');
     const architecture = 'Generate architecture based on overview + technical. Include diagrams and integration boundaries.';
-    const visibility = 'Generate AIO & SEO visibility engine based on overview + technical. Return launch-ready assets.';
+    const visibility = 'Generate GEO & SEO visibility engine based on overview + technical. Return launch-ready assets.';
     const prompts = 'Generate implementation prompts from all sections: overview, technical, market, design, architecture, visibility.';
     res.json({
       success: true,

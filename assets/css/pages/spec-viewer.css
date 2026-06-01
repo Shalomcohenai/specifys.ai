@@ -3024,7 +3024,7 @@ button[onclick*="openVisualizer"]:active {
   }
 }
 
-/* ===== Visibility Engine (AIO & SEO) ===== */
+/* ===== Visibility Engine (GEO & SEO) ===== */
 .visibility-readiness-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -329,7 +329,7 @@ const ArchitectureSchema = z.object({
 const ArchitecturePayloadSchema = z.object({ architecture: ArchitectureSchema });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Visibility (AIO & SEO)
+// Visibility (GEO & SEO)
 // ─────────────────────────────────────────────────────────────────────────────
 const VisibilitySchema = z.object({
   strategySummary: z.string(),
@@ -338,7 +338,7 @@ const VisibilitySchema = z.object({
     pillarTopics: z.array(z.string()),
     targetIntents: z.array(z.string())
   }),
-  aioReadiness: z.object({
+  geoReadiness: z.object({
     llmsTxt: z.string(),
     aiInfoTxt: z.string(),
     schemaGuidance: z.string()

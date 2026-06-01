@@ -42,7 +42,7 @@ Single source of truth for the system architecture. Describes every subsystem, s
 
 ## 1. System Overview
 
-Specifys.ai is an AI-powered specification generator. Users describe an app idea and the system produces a dependency-driven specification pipeline: Overview -> Technical / Market / Design -> Architecture / AIO & SEO Visibility Engine -> Prompts. Additional features (AI Chat Assistant, Brain Dump, Export & Integration, MCP) consume these generated outputs.
+Specifys.ai is an AI-powered specification generator. Users describe an app idea and the system produces a dependency-driven specification pipeline: Overview -> Technical / Market / Design -> Architecture / GEO & SEO Visibility Engine -> Prompts. Additional features (AI Chat Assistant, Brain Dump, Export & Integration, MCP) consume these generated outputs.
 
 ### Communication Architecture
 
@@ -820,7 +820,7 @@ JS is loaded directly via `<script>` tags — Vite bundles exist in config but a
 - `spec-viewer-event-handlers.js` — Event handlers
 - `cursor-windsurf-export.js` — Export to Cursor/Windsurf
 
-**Top nav tabs:** Overview, Technical, Mind Map (optional/hidden), Market Research, Design & Branding, Architecture, Prompts, AIO & SEO Visibility Engine (**Pro** — tab and generation gated on active Pro entitlement), Mockup (**Pro**), Raw Data (hidden).
+**Top nav tabs:** Overview, Technical, Mind Map (optional/hidden), Market Research, Design & Branding, Architecture, Prompts, GEO & SEO Visibility Engine (**Pro** — tab and generation gated on active Pro entitlement), Mockup (**Pro**), Raw Data (hidden).
 
 **Bottom nav:** AI Chat, Brain Dump, Export & Integration, MCP (modal action).
 
@@ -1025,7 +1025,7 @@ Firebase Auth (UID)
 | `market` | string/null | JSON string |
 | `design` | string/null | JSON string |
 | `architecture` | string/null | Markdown (serialized from structured JSON) |
-| `visibility` | string/null | JSON string (AIO & SEO Visibility Engine) |
+| `visibility` | string/null | JSON string (GEO & SEO Visibility Engine) |
 | `prompts` | string/null | JSON string (prompt bundle) |
 | `status.{stage}` | string | `'pending'` / `'generating'` / `'ready'` / `'error'` for overview, technical, market, design, architecture, **visibility**, **prompts** |
 | `thread_id` | string/null | OpenAI thread ID (legacy) or `'chat-completions'` |

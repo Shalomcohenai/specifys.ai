@@ -171,6 +171,13 @@ export class ApiService {
   }
   
   /**
+   * Grant credits to all users (one batch)
+   */
+  async grantCreditsToAllUsers(body = {}) {
+    return this.post('/api/admin/credits/grant-all', body);
+  }
+
+  /**
    * Sync user credits - uses users sync endpoint
    */
   async syncCredits() {

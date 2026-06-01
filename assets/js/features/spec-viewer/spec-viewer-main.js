@@ -2688,7 +2688,7 @@ function buildReadinessMetricRows(signals) {
             { label: 'Content structure seed', score: signals.hasJourney ? 80 : 45 },
             { label: 'Site architecture hints', score: signals.hasArchitectureContext ? 70 : 35 }
         ],
-        aio: [
+        geo: [
             { label: 'Entity candidates', score: signals.hasCoreMessaging ? 90 : 35 },
             { label: 'Comparison context', score: signals.hasCompetition ? 85 : 30 },
             { label: 'Machine-readable facts', score: signals.hasProofPoints ? 65 : 25 },
@@ -2727,7 +2727,7 @@ function renderReadinessBreakdown(rows) {
 function renderVisibilityReadinessCards(signals) {
     const metrics = buildReadinessMetricRows(signals);
     const seoScore = averageMetricScore(metrics.seo);
-    const aioScore = averageMetricScore(metrics.aio);
+    const geoScore = averageMetricScore(metrics.geo);
     const brandScore = averageMetricScore(metrics.brand);
     const cards = [
         {
@@ -2738,11 +2738,11 @@ function renderVisibilityReadinessCards(signals) {
             rows: metrics.seo
         },
         {
-            title: 'AIO readiness',
-            value: aioScore,
-            level: getReadinessLevel(aioScore),
+            title: 'GEO readiness',
+            value: geoScore,
+            level: getReadinessLevel(geoScore),
             rationale: signals.hasCompetition ? 'Competitor context can seed entity comparisons.' : 'Entity and comparison facts are still limited.',
-            rows: metrics.aio
+            rows: metrics.geo
         },
         {
             title: 'Brand readiness',
@@ -2833,9 +2833,9 @@ function buildVisibilityEngineHtml(data) {
 
     return `
         <div class="content-section">
-            <h3><i class="fa fa-info-circle"></i> SEO vs AIO Foundations</h3>
+            <h3><i class="fa fa-info-circle"></i> SEO vs GEO Foundations</h3>
             <p><strong>SEO</strong> focuses on crawlability, indexation, structure, and ranking in traditional search engines.</p>
-            <p><strong>AIO</strong> focuses on making your product facts machine-readable so AI systems can cite your brand accurately.</p>
+            <p><strong>GEO</strong> (Generative Engine Optimization) focuses on making your product facts machine-readable so AI systems can cite your brand accurately.</p>
             <p>This module combines both into one operational workflow with explicit pre-build and post-launch stages.</p>
         </div>
         ${renderVisibilityReadinessCards(signals)}
@@ -2866,7 +2866,7 @@ function buildVisibilityEngineHtml(data) {
             <p><strong>Internal linking logic:</strong> each cluster article links back to one pillar and one conversion page, while pillar pages cross-link to 2-3 related clusters.</p>
         </div>
         <div class="content-section">
-            <h3><i class="fa fa-sitemap"></i> AI Knowledge Base Schema (AIO)</h3>
+            <h3><i class="fa fa-sitemap"></i> AI Knowledge Base Schema (GEO)</h3>
             ${createMermaidPlaceholderHtml(entityMermaid)}
             <pre class="visibility-jsonld-preview">{
   "@context": "https://schema.org",
@@ -2960,8 +2960,8 @@ async function displayVisibilityEngine(visibilityData, specContext = {}) {
     if (!hasProAccess) {
         container.innerHTML = `
             <div class="locked-tab-message">
-                <h3><i class="fa fa-lock"></i> AIO &amp; SEO Visibility Engine</h3>
-                <p>This module is available for PRO users. Upgrade to unlock full SEO and AIO planning outputs.</p>
+                <h3><i class="fa fa-lock"></i> GEO &amp; SEO Visibility Engine</h3>
+                <p>This module is available for PRO users. Upgrade to unlock full SEO and GEO planning outputs.</p>
                 <p class="visibility-locked-preview">Preview includes readiness explanation, while export-ready assets remain locked.</p>
             </div>
         `;
@@ -6431,7 +6431,7 @@ async function updateVisibilityEngineTab() {
     const canOpenByStatus = !!(currentSpecData?.status?.architecture === 'ready' || currentSpecData?.visibility);
     visibilityTab.disabled = !hasProAccess || !canOpenByStatus;
     if (!hasProAccess) {
-        visibilityTab.title = 'AIO & SEO Visibility Engine is available for PRO users only';
+        visibilityTab.title = 'GEO & SEO Visibility Engine is available for PRO users only';
     } else if (!canOpenByStatus) {
         visibilityTab.title = 'Visibility engine is generated after Architecture is ready';
     } else {
@@ -8219,7 +8219,7 @@ async function generatePrompts() {
             throw new Error('Architecture must be generated first');
         }
         if (!currentSpecData.visibility || currentSpecData.visibility === 'error') {
-            throw new Error('AIO & SEO Visibility Engine must be generated first');
+            throw new Error('GEO & SEO Visibility Engine must be generated first');
         }
         
         console.log(`[${requestId}] [generatePrompts] Prerequisites validated successfully`);
@@ -9592,7 +9592,7 @@ const SPEC_PROGRESS_STAGES = [
     { key: 'market',       weight: 20, label: 'Market Research' },
     { key: 'design',       weight: 20, label: 'Design & Branding' },
     { key: 'architecture', weight: 15, label: 'Architecture' },
-    { key: 'visibility',   weight: 8,  label: 'Visibility Engine' },
+    { key: 'visibility',   weight: 8,  label: 'GEO & SEO' },
     { key: 'prompts',      weight: 7,  label: 'Prompts' },
 ];
 

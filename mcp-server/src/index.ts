@@ -184,7 +184,7 @@ server.registerTool(
 server.registerTool(
   "get_spec_visibility",
   {
-    description: "Get the AIO & SEO Visibility Engine section of a spec by specId.",
+    description: "Get the GEO & SEO Visibility Engine section of a spec by specId.",
     inputSchema: { specId: z.string().describe("Spec document ID") },
   },
   async ({ specId }) => {

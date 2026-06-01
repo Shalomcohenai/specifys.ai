@@ -13,7 +13,7 @@ const FEATURE_COLUMNS = [
   { key: 'market', label: 'Market', abbr: 'Mk' },
   { key: 'design', label: 'Design', abbr: 'Ds' },
   { key: 'architecture', label: 'Architecture', abbr: 'Ar' },
-  { key: 'visibility', label: 'AIO & SEO', abbr: 'Vs' },
+  { key: 'visibility', label: 'GEO & SEO', abbr: 'Vs' },
   { key: 'prompts', label: 'Prompts', abbr: 'Pr' },
   { key: 'mockup', label: 'Mockup', abbr: 'Mu' },
   { key: 'chat', label: 'AI Chat', abbr: 'AI' },

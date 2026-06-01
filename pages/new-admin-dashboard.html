@@ -87,6 +87,10 @@ custom_js_modules:
             <i class="fas fa-coins"></i>
             <span>Sync Credits</span>
           </button>
+          <button class="sync-dropdown-item" id="grant-credits-all-btn" title="Grant credits to all users">
+            <i class="fas fa-gift"></i>
+            <span>Grant Credits to All</span>
+          </button>
         </div>
       </div>
       
@@ -943,7 +947,7 @@ custom_js_modules:
           <div class="summary-value" id="spec-usage-with-architecture">0</div>
         </div>
         <div class="spec-usage-summary-card">
-          <div class="summary-label">With visibility (AIO+SEO)</div>
+          <div class="summary-label">With visibility (GEO+SEO)</div>
           <div class="summary-value" id="spec-usage-with-visibility">0</div>
         </div>
         <div class="spec-usage-summary-card">
@@ -1781,6 +1785,60 @@ custom_js_modules:
     </section>
 
   </main>
+</div>
+
+<!-- Bulk Grant Credits Modal -->
+<div id="bulk-grant-credits-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Grant Credits to All Users</h3>
+      <button class="modal-close" id="close-bulk-grant-credits-modal" type="button" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="form-help-text" style="margin-bottom: 1rem;">
+        Adds the chosen number of credits to every user in the users collection, processed in batches of 25.
+      </p>
+      <div class="form-group">
+        <label for="bulk-grant-amount">Credits per user</label>
+        <input type="number" id="bulk-grant-amount" min="1" max="1000" step="1" value="1" required>
+        <small class="form-help-text">Maximum 1000 per user per grant</small>
+      </div>
+      <div class="form-group">
+        <label for="bulk-grant-credit-type">Credit bucket</label>
+        <select id="bulk-grant-credit-type">
+          <option value="bonus" selected>Bonus</option>
+          <option value="free">Free</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="bulk-grant-reason">Reason (optional)</label>
+        <input type="text" id="bulk-grant-reason" placeholder="e.g. Spring 2026 promotion">
+      </div>
+      <div class="form-group">
+        <label for="bulk-grant-campaign-id">Campaign ID (optional)</label>
+        <input type="text" id="bulk-grant-campaign-id" placeholder="e.g. promo-2026-06">
+        <small class="form-help-text">Same ID prevents double-granting if you run the job again</small>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="bulk-grant-dry-run">
+          Dry run (preview only, no credits added)
+        </label>
+      </div>
+      <div id="bulk-grant-credits-message" class="alert-message hidden" role="alert"></div>
+      <div id="bulk-grant-credits-progress" class="form-help-text hidden" aria-live="polite"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modern btn-secondary" id="cancel-bulk-grant-credits-btn" type="button">Cancel</button>
+      <button class="btn-modern btn-primary" id="confirm-bulk-grant-credits-btn" type="button">
+        <span class="btn-text">Grant to All Users</span>
+        <span class="btn-loading" style="display: none;">
+          <i class="fas fa-spinner fa-spin"></i> Processing…
+        </span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Test Email Modal -->

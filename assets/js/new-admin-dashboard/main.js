@@ -187,6 +187,17 @@ class NewAdminDashboard {
         this.closeSyncDropdown();
       });
     }
+
+    // Bulk grant credits
+    const grantCreditsAllBtn = helpers.dom('#grant-credits-all-btn');
+    if (grantCreditsAllBtn) {
+      grantCreditsAllBtn.addEventListener('click', () => {
+        this.openBulkGrantCreditsModal();
+        this.closeSyncDropdown();
+      });
+    }
+
+    this.setupBulkGrantCreditsModal();
     
     // Subscription refresh event listeners
     window.addEventListener('subscriptionRefreshStart', () => {
@@ -576,6 +587,170 @@ class NewAdminDashboard {
     }
   }
   
+  setupBulkGrantCreditsModal() {
+    const closeBtn = helpers.dom('#close-bulk-grant-credits-modal');
+    const cancelBtn = helpers.dom('#cancel-bulk-grant-credits-btn');
+    const confirmBtn = helpers.dom('#confirm-bulk-grant-credits-btn');
+    const modal = helpers.dom('#bulk-grant-credits-modal');
+
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeBulkGrantCreditsModal());
+    if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeBulkGrantCreditsModal());
+    if (confirmBtn) confirmBtn.addEventListener('click', () => this.runBulkGrantCredits());
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeBulkGrantCreditsModal();
+      });
+    }
+  }
+
+  openBulkGrantCreditsModal() {
+    const modal = helpers.dom('#bulk-grant-credits-modal');
+    const message = helpers.dom('#bulk-grant-credits-message');
+    const progress = helpers.dom('#bulk-grant-credits-progress');
+    const amountInput = helpers.dom('#bulk-grant-amount');
+
+    if (!modal) return;
+
+    if (message) {
+      message.classList.add('hidden');
+      message.textContent = '';
+    }
+    if (progress) {
+      progress.classList.add('hidden');
+      progress.textContent = '';
+    }
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    modal.classList.remove('hidden');
+    if (amountInput) setTimeout(() => amountInput.focus(), 100);
+  }
+
+  closeBulkGrantCreditsModal() {
+    const modal = helpers.dom('#bulk-grant-credits-modal');
+    const confirmBtn = helpers.dom('#confirm-bulk-grant-credits-btn');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+
+    if (confirmBtn && !confirmBtn.disabled) {
+      const btnText = confirmBtn.querySelector('.btn-text');
+      const btnLoading = confirmBtn.querySelector('.btn-loading');
+      if (btnText) btnText.style.display = '';
+      if (btnLoading) btnLoading.style.display = 'none';
+    }
+  }
+
+  async runBulkGrantCredits() {
+    const amountInput = helpers.dom('#bulk-grant-amount');
+    const creditTypeSelect = helpers.dom('#bulk-grant-credit-type');
+    const reasonInput = helpers.dom('#bulk-grant-reason');
+    const campaignInput = helpers.dom('#bulk-grant-campaign-id');
+    const dryRunCheckbox = helpers.dom('#bulk-grant-dry-run');
+    const message = helpers.dom('#bulk-grant-credits-message');
+    const progress = helpers.dom('#bulk-grant-credits-progress');
+    const confirmBtn = helpers.dom('#confirm-bulk-grant-credits-btn');
+    const btnText = confirmBtn?.querySelector('.btn-text');
+    const btnLoading = confirmBtn?.querySelector('.btn-loading');
+
+    const amount = parseInt(amountInput?.value, 10);
+    if (!amount || amount < 1 || amount > 1000) {
+      if (message) {
+        message.textContent = 'Enter a valid amount between 1 and 1000.';
+        message.className = 'alert-message error';
+        message.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const creditType = creditTypeSelect?.value || 'bonus';
+    const dryRun = !!dryRunCheckbox?.checked;
+    const reason = reasonInput?.value?.trim() || undefined;
+    const campaignId = campaignInput?.value?.trim() || undefined;
+
+    const actionLabel = dryRun ? 'preview granting' : 'grant';
+    const confirmed = window.confirm(
+      `${dryRun ? 'Dry run:' : 'This will'} ${actionLabel} ${amount} ${creditType} credit(s) to every user, in batches.\n\nContinue?`
+    );
+    if (!confirmed) return;
+
+    if (confirmBtn) confirmBtn.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoading) btnLoading.style.display = 'inline-block';
+    if (message) message.classList.add('hidden');
+    if (progress) {
+      progress.classList.remove('hidden');
+      progress.textContent = 'Starting…';
+    }
+
+    let startAfter = null;
+    let batches = 0;
+    let totalGranted = 0;
+    let totalErrors = 0;
+    const maxBatches = 2000;
+
+    try {
+      let completed = false;
+      while (!completed && batches < maxBatches) {
+        const res = await apiService.grantCreditsToAllUsers({
+          amount,
+          creditType,
+          reason,
+          campaignId,
+          dryRun,
+          batchSize: 25,
+          startAfter
+        });
+
+        if (!res?.success) {
+          throw new Error(res?.message || res?.error || 'Batch failed');
+        }
+
+        batches += 1;
+        totalGranted += res.granted || 0;
+        totalErrors += res.errors || 0;
+
+        if (progress) {
+          progress.textContent = `Batch ${batches}: ${res.granted ?? 0} users${dryRun ? ' (dry run)' : ''}, ${res.errors ?? 0} errors | total: ${totalGranted}`;
+        }
+
+        if (res.completed) {
+          completed = true;
+          break;
+        }
+
+        startAfter = res.nextBatch?.startAfter || null;
+        if (!startAfter) break;
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+
+      const summary = dryRun
+        ? `Dry run complete. Would grant to ${totalGranted} users across ${batches} batch(es).`
+        : `Done. Granted credits to ${totalGranted} users across ${batches} batch(es).${totalErrors ? ` ${totalErrors} error(s) — check server logs.` : ''}`;
+
+      if (message) {
+        message.textContent = summary;
+        message.className = 'alert-message success';
+        message.classList.remove('hidden');
+      }
+      if (progress) progress.textContent = summary;
+
+    } catch (error) {
+      console.error('[NewAdminDashboard] Bulk grant credits error:', error);
+      if (message) {
+        message.textContent = error.message || 'Bulk grant failed.';
+        message.className = 'alert-message error';
+        message.classList.remove('hidden');
+      }
+    } finally {
+      if (confirmBtn) confirmBtn.disabled = false;
+      if (btnText) btnText.style.display = '';
+      if (btnLoading) btnLoading.style.display = 'none';
+    }
+  }
+
   /**
    * Sync credits
    */

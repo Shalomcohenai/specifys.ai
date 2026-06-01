@@ -562,7 +562,7 @@ The v3 pipeline keeps the **stage shape** from production (overview → technica
 | `market` | `lib/ai/schemas/market.ts` | `market_text` |
 | `design` | `lib/ai/schemas/design.ts` | `design_text`, attaches visual tokens to `ui_screen` modules |
 | `architecture` | `lib/ai/schemas/architecture.ts` | `architecture_text` (markdown w/ Mermaid), adds `logic_flow` modules + connections |
-| `visibility` | `lib/ai/schemas/visibility.ts` | `visibility_text` (AIO/SEO) — **Pro only** |
+| `visibility` | `lib/ai/schemas/visibility.ts` | `visibility_text` (GEO/SEO) — **Pro only** |
 | `prompts` | `lib/ai/schemas/prompts.ts` | `prompts_bundle` |
 
 ### Generic stage runner (`lib/ai/stage-runner.ts`)

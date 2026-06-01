@@ -688,11 +688,11 @@ Output: single JSON object with key "architecture" and the fields above. No mark
     const requestId = `v2-visibility-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     logger.info({ requestId, specId }, '[SpecGenV2] Starting visibility generation');
     const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be visibility.
-Create an AIO & SEO visibility plan based only on Overview + Technical Specification.
+Create a GEO & SEO visibility plan based only on Overview + Technical Specification.
 Required structure:
 - strategySummary (string)
 - seoFoundation: { positioning, pillarTopics[], targetIntents[] }
-- aioReadiness: { llmsTxt, aiInfoTxt, schemaGuidance }
+- geoReadiness: { llmsTxt, aiInfoTxt, schemaGuidance }
 - contentEngine: { editorialTracks[], publishingCadence, authoritySignals[] }
 - programmaticSeo: { templateFamilies[], dataRequirements[], qualityGuardrails[] }
 - launchChecklist[].
@@ -725,7 +725,7 @@ ${(technical || '').slice(0, 12000)}
       'Apply market positioning and differentiators',
       'Implement design system and UX constraints',
       'Enforce architecture and integration boundaries',
-      'Apply visibility (AIO/SEO) assets in content and metadata'
+      'Apply visibility (GEO/SEO) assets in content and metadata'
     ];
     const fullPrompt = `Build the product end-to-end using the following specifications.\n\n${Object.entries(sections)
       .map(([name, content]) => `## ${name}\n${typeof content === 'string' ? content : JSON.stringify(content, null, 2)}`)

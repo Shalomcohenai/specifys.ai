@@ -60,7 +60,7 @@ export async function showTab(tabName, opts = {}) {
   if (tabName === 'mockup' || tabName === 'visibility-engine') {
     const hasProAccess = await window.checkProAccess?.();
     if (!hasProAccess) {
-      const featureName = tabName === 'mockup' ? 'Mockup' : 'AIO & SEO Visibility Engine';
+      const featureName = tabName === 'mockup' ? 'Mockup' : 'GEO & SEO Visibility Engine';
       window.showNotification?.(`${featureName} is available for PRO users only. Please upgrade to PRO to access it.`, 'error');
       return;
     }

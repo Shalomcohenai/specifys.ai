@@ -1096,7 +1096,7 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
     if (sections.visibility) {
         html += `
         <div class="export-section">
-            <h2 class="export-section-title"><i class="fa fa-globe"></i> AIO & SEO Visibility Engine</h2>
+            <h2 class="export-section-title"><i class="fa fa-globe"></i> GEO & SEO Visibility Engine</h2>
             <div class="export-content">${sections.visibility}</div>
         </div>`;
     }

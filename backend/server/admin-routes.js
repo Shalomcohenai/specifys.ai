@@ -1223,6 +1223,149 @@ router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Grant credits to all users in batches (admin only)
+ * POST /api/admin/credits/grant-all
+ * Body: { amount, creditType?, reason?, batchSize?, startAfter?, dryRun?, campaignId? }
+ */
+router.post('/credits/grant-all', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /credits/grant-all');
+  const {
+    amount,
+    creditType = 'bonus',
+    reason,
+    batchSize = 10,
+    startAfter = null,
+    dryRun = false,
+    campaignId = null
+  } = req.body || {};
+
+  logger.info({
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    amount,
+    creditType,
+    dryRun,
+    campaignId: campaignId || null,
+    batchSize,
+    startAfter
+  }, '[admin-routes] POST /credits/grant-all - Starting bulk credit grant');
+
+  try {
+    const parsedAmount = parseInt(amount, 10);
+    if (!parsedAmount || parsedAmount <= 0 || !Number.isInteger(parsedAmount)) {
+      return next(createError('Invalid amount: must be a positive integer', ERROR_CODES.INVALID_INPUT, 400));
+    }
+    if (parsedAmount > 1000) {
+      return next(createError('Amount exceeds maximum allowed (1000)', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    const validCreditTypes = ['paid', 'free', 'bonus'];
+    const resolvedCreditType = validCreditTypes.includes(creditType) ? creditType : 'bonus';
+
+    const validBatchSize = Math.min(Math.max(parseInt(batchSize, 10) || 10, 1), 50);
+
+    let usersQuery = db.collection('users')
+      .orderBy(admin.firestore.FieldPath.documentId())
+      .limit(validBatchSize);
+
+    if (startAfter) {
+      const startAfterDoc = await db.collection('users').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        usersQuery = usersQuery.startAfter(startAfterDoc);
+      }
+    }
+
+    const usersSnapshot = await usersQuery.get();
+    const users = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    if (users.length === 0) {
+      return res.json({
+        success: true,
+        processed: 0,
+        granted: 0,
+        errors: 0,
+        nextBatch: null,
+        completed: true,
+        dryRun: !!dryRun,
+        message: 'All users processed'
+      });
+    }
+
+    const results = {
+      processed: 0,
+      granted: 0,
+      errors: 0,
+      errorDetails: []
+    };
+
+    const grantReason = reason || `Admin bulk grant (${parsedAmount} ${resolvedCreditType})`;
+    const adminEmail = req.adminUser?.email || 'unknown';
+
+    for (const user of users) {
+      results.processed++;
+      try {
+        if (dryRun) {
+          results.granted++;
+          continue;
+        }
+
+        const grantMetadata = {
+          creditType: resolvedCreditType,
+          reason: grantReason,
+          notes: `Bulk grant by ${adminEmail}`,
+          orderId: campaignId || null
+        };
+
+        if (campaignId) {
+          grantMetadata.transactionId = `grant_bulk_${campaignId}_${user.id}`;
+        }
+
+        await creditsV3Service.grantCredits(user.id, parsedAmount, 'admin', grantMetadata);
+        results.granted++;
+      } catch (error) {
+        results.errors++;
+        results.errorDetails.push({ userId: user.id, error: error.message });
+        logger.error({ requestId, userId: user.id, error: error.message }, '[admin-routes] Bulk grant failed for user');
+      }
+    }
+
+    const lastUserId = users[users.length - 1].id;
+    const hasMore = users.length === validBatchSize;
+
+    logger.info({
+      requestId,
+      processed: results.processed,
+      granted: results.granted,
+      errors: results.errors,
+      hasMore,
+      dryRun: !!dryRun
+    }, '[admin-routes] POST /credits/grant-all - Batch completed');
+
+    res.json({
+      success: true,
+      processed: results.processed,
+      granted: results.granted,
+      errors: results.errors,
+      errorDetails: results.errorDetails.length > 0 ? results.errorDetails : undefined,
+      amount: parsedAmount,
+      creditType: resolvedCreditType,
+      nextBatch: hasMore ? { startAfter: lastUserId, batchSize: validBatchSize } : null,
+      completed: !hasMore,
+      dryRun: !!dryRun,
+      message: dryRun
+        ? `Dry run: would grant ${parsedAmount} ${resolvedCreditType} credit(s) to ${results.granted} users in this batch.`
+        : `Granted ${parsedAmount} ${resolvedCreditType} credit(s) to ${results.granted} users (${results.errors} errors).`
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /credits/grant-all - Error');
+    next(createError('Failed to grant credits to all users', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * Sync credits for all users (daily sync - admin only)
  * POST /api/admin/credits-sync/run
  * Runs the daily credits sync to ensure credits match purchases and subscriptions
