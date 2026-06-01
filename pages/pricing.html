@@ -19,6 +19,7 @@ extra_js:
             <p>Choose the perfect plan for your app development needs</p>
             <p class="hero-subtitle">Single specs, packs, or unlimited Pro subscriptions - choose what works for you</p>
             <p style="margin-top: 1rem; max-width: 600px; margin-left: auto; margin-right: auto;">Our AI spec generator helps you create PRDs and app specifications in minutes. Pick a plan that fits your workflow - whether you need one-off specs or unlimited creation for stable apps and token-efficient development.</p>
+            <p id="pricing-plan-status" class="pricing-plan-status" hidden aria-live="polite"></p>
         </div>
     </div>
 
@@ -40,7 +41,10 @@ extra_js:
                             <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
                             <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Edit Specifications</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">GEO &amp; SEO Visibility Engine</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Development Prompts</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
@@ -72,7 +76,10 @@ extra_js:
                             <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
                             <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Edit Specifications</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">GEO &amp; SEO Visibility Engine</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Development Prompts</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
@@ -98,31 +105,58 @@ extra_js:
                         <p class="plan-description">Unlimited specifications with editing</p>
                     </div>
                     
-                    <!-- Billing Toggle -->
-                    <div class="billing-toggle" role="group" aria-label="Billing period selection">
-                        <button class="toggle-btn monthly active" data-billing="monthly" onclick="if(typeof switchBilling === 'function') { switchBilling('monthly'); } return false;" aria-label="Monthly billing" aria-pressed="true">Monthly</button>
-                        <button class="toggle-btn yearly" data-billing="yearly" onclick="if(typeof switchBilling === 'function') { switchBilling('yearly'); } return false;" aria-label="Yearly billing" aria-pressed="false">Yearly</button>
-                    </div>
-                    
-                    <!-- Monthly Plan -->
-                    <div id="pro-monthly" class="plan-details active">
-                        <div class="plan-features">
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
-                            </ul>
+                    <div class="pro-plan-body">
+                        <!-- Monthly features -->
+                        <div id="pro-monthly" class="plan-details active">
+                            <div class="plan-features">
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>GEO &amp; SEO Visibility Engine</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Development Prompts</span></li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="plan-cta">
+
+                        <!-- Yearly features -->
+                        <div id="pro-yearly" class="plan-details">
+                            <div class="plan-features">
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>GEO &amp; SEO Visibility Engine</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>Development Prompts</span></li>
+                                    <li><i class="fas fa-check-circle"></i> <span>17% Savings</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pro-plan-footer">
+                        <div class="billing-toggle" role="group" aria-label="Billing period selection">
+                            <button class="toggle-btn monthly active" data-billing="monthly" onclick="if(typeof switchBilling === 'function') { switchBilling('monthly'); } return false;" aria-label="Monthly billing" aria-pressed="true">Monthly</button>
+                            <button class="toggle-btn yearly" data-billing="yearly" onclick="if(typeof switchBilling === 'function') { switchBilling('yearly'); } return false;" aria-label="Yearly billing" aria-pressed="false">Yearly</button>
+                        </div>
+
+                        <div id="pro-monthly-cta" class="plan-cta plan-cta-panel active">
                             <div class="price">
                                 <span class="currency">$</span>
                                 <span class="amount">29.90</span>
                                 <span class="period">per month</span>
                             </div>
+                            <div class="savings-badge-slot" aria-hidden="true"></div>
                             <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Pro plan monthly for $29.90 per month">
                                 <span class="btn-content">
                                     <span class="btn-text">Subscribe Now</span>
@@ -130,29 +164,16 @@ extra_js:
                                 </span>
                             </button>
                         </div>
-                    </div>
-                    
-                    <!-- Yearly Plan -->
-                    <div id="pro-yearly" class="plan-details">
-                        <div class="plan-features">
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
-                                <li><i class="fas fa-check-circle"></i> <span>17% Savings</span></li>
-                            </ul>
-                        </div>
-                        <div class="plan-cta">
+
+                        <div id="pro-yearly-cta" class="plan-cta plan-cta-panel">
                             <div class="price">
                                 <span class="currency">$</span>
                                 <span class="amount">299.90</span>
                                 <span class="period">per year</span>
                             </div>
-                            <div class="savings-badge">Save $58.30/year</div>
+                            <div class="savings-badge-slot">
+                                <div class="savings-badge">Save $58.30/year</div>
+                            </div>
                             <button class="btn btn-primary" data-product-key="pro_yearly" onclick="purchaseSpec(event, 'pro_yearly')" aria-label="Subscribe to Pro plan yearly for $299.90 per year - Save $58.30">
                                 <span class="btn-content">
                                     <span class="btn-text">Subscribe Now</span>
@@ -211,14 +232,4 @@ extra_js:
             </div>
         </div>
     </div>
-    
-    <!-- Related Links -->
-    <section class="related-links-section" style="margin: 3rem 0; padding: 2rem 0; border-top: 1px solid #e1e5e9; text-align: center;">
-        <h2>Learn More</h2>
-        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
-            <a href="/pages/how.html" class="btn btn-primary" style="text-decoration: none;">How It Works</a>
-            <a href="/pages/about.html" class="btn btn-primary" style="text-decoration: none;">About Us</a>
-            <a href="/" class="btn btn-primary" style="text-decoration: none;">Get Started</a>
-        </div>
-    </section>
 </main>

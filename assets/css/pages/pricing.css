@@ -46,6 +46,62 @@
   font-weight: 400;
 }
 
+.pricing-plan-status {
+  max-width: 640px;
+  margin: 1.25rem auto 0;
+  padding: 0.75rem 1rem;
+  background: #FFF4F0;
+  border: 1px solid rgba(255, 107, 53, 0.35);
+  border-radius: 8px;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.pricing-plan-status[hidden] {
+  display: none;
+}
+
+.pricing-card.is-current-plan {
+  border-width: 3px;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.18), 0 8px 28px rgba(255, 107, 53, 0.22);
+}
+
+.pricing-card.is-current-plan:hover {
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.22), 0 12px 32px rgba(255, 107, 53, 0.25);
+}
+
+.current-plan-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  background: #2d3748;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.pricing-card .btn.is-current-cta {
+  background: #e9ecef;
+  color: #5c6570;
+  border-color: #dee2e6;
+  cursor: default;
+  opacity: 1;
+}
+
+.pricing-card .btn.is-current-cta:hover {
+  transform: none;
+  box-shadow: none;
+  background: #e9ecef;
+  color: #5c6570;
+}
+
 .pricing-container {
   padding: 60px 0;
   background: #ffffff;
@@ -138,14 +194,32 @@
   background: #FF6B35;
 }
 
+/* Pro card layout: features grow, footer (toggle + price) aligns with other cards */
+.pricing-card.pro .pro-plan-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pricing-card.pro .pro-plan-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* Billing Toggle */
 .billing-toggle {
   display: flex;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   background: #f5f5f5;
   padding: 4px;
   border-radius: 8px;
+  flex-shrink: 0;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .toggle-btn {
@@ -175,16 +249,31 @@
   background: #FF8551;
 }
 
-/* Plan Details - Show/Hide */
-.pricing-card.pro .plan-details {
+/* Plan Details - Show/Hide (feature panels) */
+.pricing-card.pro .pro-plan-body .plan-details {
   display: none !important;
   opacity: 0;
   transition: opacity 0.3s ease;
   visibility: hidden;
 }
 
-.pricing-card.pro .plan-details.active {
+.pricing-card.pro .pro-plan-body .plan-details.active {
   display: block !important;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* CTA panels - only one visible at a time */
+.pricing-card.pro .plan-cta-panel {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.pricing-card.pro .plan-cta-panel.active {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
   opacity: 1;
   visibility: visible;
 }
@@ -194,14 +283,19 @@
 }
 
 .plan-features {
-  margin-bottom: 32px;
+  margin-bottom: 0;
   flex-grow: 1;
 }
 
-/* Ensure consistent height for features list to prevent button movement when switching plans */
-/* Monthly has 7 items, yearly has 8 items - add padding to monthly to match yearly height */
+/* Monthly has one fewer feature than yearly — keep footer stable when toggling */
 .pricing-card.pro #pro-monthly .plan-features {
-  padding-bottom: 40px; /* Approximate height of one list item to compensate for missing "17% Savings" item */
+  padding-bottom: 40px;
+}
+
+/* Match Pro billing-toggle row on one-time plans so prices align on the same row */
+.pricing-card.single .plan-cta,
+.pricing-card.pack .plan-cta {
+  padding-top: 56px;
 }
 
 .plan-header h3 {
@@ -220,7 +314,9 @@
 .price {
   display: flex;
   align-items: baseline;
-  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  margin-bottom: 0;
 }
 
 .currency {
@@ -240,6 +336,13 @@
   color: #666;
 }
 
+.savings-badge-slot {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .savings-badge {
   background: #FF6B35;
   color: white;
@@ -247,40 +350,12 @@
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
-  display: inline-block;
-  margin: 8px 0;
+  display: block;
   text-align: center;
   width: 100%;
   min-height: 28px;
   box-sizing: border-box;
   line-height: 20px;
-}
-
-/* Reserve space for savings-badge area to prevent button movement when switching plans */
-/* Add invisible placeholder that mimics savings-badge in monthly view */
-.pricing-card.pro #pro-monthly .plan-cta::after {
-  content: '';
-  display: block;
-  min-height: 28px;
-  margin: 8px 0;
-  visibility: hidden;
-  pointer-events: none;
-  flex-shrink: 0;
-  order: 1; /* Place between price and button */
-}
-
-/* Set button order in monthly view so it comes after the spacer */
-.pricing-card.pro #pro-monthly .plan-cta .btn {
-  order: 2;
-}
-
-/* Ensure yearly view doesn't show the placeholder and resets button order */
-.pricing-card.pro #pro-yearly .plan-cta::after {
-  display: none;
-}
-
-.pricing-card.pro #pro-yearly .plan-cta .btn {
-  order: 0; /* Reset to default order */
 }
 
 .features-label {
@@ -323,7 +398,15 @@
 }
 
 .disabled-feature {
-  opacity: 0.6;
+  color: #9ca3af;
+}
+
+.plan-features li:has(.disabled-feature) {
+  color: #9ca3af;
+}
+
+.plan-features li:has(.disabled-feature) i.fa-times-circle {
+  color: #c5cad1;
 }
 
 .plan-cta {
@@ -333,8 +416,8 @@
   margin-top: auto;
 }
 
-.plan-cta .price {
-  margin-bottom: 8px;
+.pricing-card.pro .pro-plan-footer .plan-cta {
+  margin-top: 0;
 }
 
 /* Pricing-specific button styles */

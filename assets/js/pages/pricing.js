@@ -155,10 +155,191 @@ function initProductButtons() {
     });
 }
 
+function parseSubscriptionDate(value) {
+    if (!value) return null;
+    if (value.toDate && typeof value.toDate === 'function') {
+        return value.toDate();
+    }
+    if (value._seconds) {
+        return new Date(value._seconds * 1000 + (value._nanoseconds || 0) / 1000000);
+    }
+    if (value.seconds) {
+        return new Date(value.seconds * 1000);
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isActiveProSubscription(subscription) {
+    if (!subscription || subscription.type !== 'pro') {
+        return false;
+    }
+    const status = String(subscription.status || '').toLowerCase();
+    if (status !== 'active' && status !== 'paid') {
+        return false;
+    }
+    const expiresAt = parseSubscriptionDate(subscription.expiresAt);
+    if (!expiresAt) {
+        return true;
+    }
+    return expiresAt > new Date();
+}
+
+function resolveCurrentPricingPlan(creditsData) {
+    if (!creditsData || typeof creditsData !== 'object') {
+        return { kind: 'free' };
+    }
+
+    if (creditsData.unlimited === true && isActiveProSubscription(creditsData.subscription)) {
+        const sub = creditsData.subscription || {};
+        const productKey = String(sub.productKey || sub.product_key || '').toLowerCase();
+        const interval = String(sub.billingInterval || sub.billing_interval || '').toLowerCase();
+        const billing = (
+            productKey === 'pro_yearly' ||
+            interval === 'year' ||
+            interval === 'yearly' ||
+            interval === 'annual'
+        ) ? 'yearly' : 'monthly';
+        return { kind: 'pro', billing };
+    }
+
+    const breakdown = creditsData.breakdown || {};
+    const paid = Number(breakdown.paid) || 0;
+    const total = Number(creditsData.total);
+    if (paid > 0 || (Number.isFinite(total) && total > 0)) {
+        return {
+            kind: 'credits',
+            total: Number.isFinite(total) ? total : paid
+        };
+    }
+
+    return { kind: 'free' };
+}
+
+function clearCurrentPlanHighlights() {
+    document.querySelectorAll('.pricing-card.is-current-plan').forEach((card) => {
+        card.classList.remove('is-current-plan');
+        card.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('.current-plan-badge').forEach((badge) => badge.remove());
+    document.querySelectorAll('button[data-current-plan-button]').forEach((btn) => {
+        updateCurrentPlanButton(btn, false);
+    });
+
+    const statusEl = document.getElementById('pricing-plan-status');
+    if (statusEl) {
+        statusEl.hidden = true;
+        statusEl.textContent = '';
+    }
+}
+
+function markCardAsCurrentPlan(card) {
+    if (!card || card.classList.contains('is-current-plan')) {
+        return;
+    }
+    card.classList.add('is-current-plan');
+    card.setAttribute('aria-current', 'true');
+
+    const badge = document.createElement('div');
+    badge.className = 'current-plan-badge';
+    badge.textContent = 'Current Plan';
+    card.insertBefore(badge, card.firstChild);
+}
+
+function updateCurrentPlanButton(btn, isCurrent) {
+    if (!btn) {
+        return;
+    }
+    const btnText = btn.querySelector('.btn-text');
+    if (!btnText) {
+        return;
+    }
+    if (!btn.dataset.originalCtaLabel) {
+        btn.dataset.originalCtaLabel = btnText.textContent.trim();
+    }
+    if (isCurrent) {
+        btnText.textContent = 'Current Plan';
+        btn.disabled = true;
+        btn.classList.add('is-current-cta');
+        btn.setAttribute('data-current-plan-button', 'true');
+    } else {
+        btnText.textContent = btn.dataset.originalCtaLabel;
+        btn.classList.remove('is-current-cta');
+        btn.removeAttribute('data-current-plan-button');
+    }
+}
+
+async function fetchCreditsForPricing() {
+    if (window.CreditsV3Manager && typeof window.CreditsV3Manager.getCredits === 'function') {
+        return window.CreditsV3Manager.getCredits(true);
+    }
+    if (window.api && typeof window.api.get === 'function') {
+        return window.api.get('/api/v3/credits');
+    }
+    return null;
+}
+
+async function applyCurrentPlanHighlight() {
+    clearCurrentPlanHighlights();
+
+    const user = (typeof firebase !== 'undefined' && firebase.auth)
+        ? firebase.auth().currentUser
+        : null;
+    if (!user) {
+        return;
+    }
+
+    let creditsData = null;
+    try {
+        creditsData = await fetchCreditsForPricing();
+    } catch (error) {
+        return;
+    }
+
+    const plan = resolveCurrentPricingPlan(creditsData);
+    const statusEl = document.getElementById('pricing-plan-status');
+
+    if (plan.kind === 'pro') {
+        const proCard = document.querySelector('.pricing-card.pro');
+        markCardAsCurrentPlan(proCard);
+        if (typeof switchBilling === 'function') {
+            switchBilling(plan.billing);
+        }
+        const activeCtaId = plan.billing === 'yearly' ? 'pro-yearly-cta' : 'pro-monthly-cta';
+        document.querySelectorAll('.pricing-card.pro .plan-cta-panel').forEach((panel) => {
+            const btn = panel.querySelector('button[data-product-key]');
+            updateCurrentPlanButton(btn, panel.id === activeCtaId);
+        });
+        if (statusEl) {
+            statusEl.textContent = plan.billing === 'yearly'
+                ? 'You are on Specifys Pro (Yearly). Your current plan is highlighted below.'
+                : 'You are on Specifys Pro (Monthly). Your current plan is highlighted below.';
+            statusEl.hidden = false;
+        }
+        return;
+    }
+
+    if (plan.kind === 'credits' && statusEl) {
+        const creditLabel = plan.total === 1 ? 'credit' : 'credits';
+        statusEl.textContent = `You have ${plan.total} specification ${creditLabel}. Upgrade to Pro for unlimited specifications.`;
+        statusEl.hidden = false;
+        return;
+    }
+
+    if (plan.kind === 'free' && statusEl) {
+        statusEl.textContent = 'You are on the free plan. Choose a package below to add more specifications.';
+        statusEl.hidden = false;
+    }
+}
+
 function setProductButtonsDisabled(disabled) {
     productButtons.forEach((btn) => {
         // Don't modify buttons that are currently loading
         if (btn.classList.contains('loading')) {
+            return;
+        }
+
+        if (btn.hasAttribute('data-current-plan-button')) {
             return;
         }
         
@@ -218,7 +399,8 @@ function handleCheckoutRedirect() {
     if (checkoutStatus === 'success') {
         const productLabel = productKey ? productKey.replace(/_/g, ' ') : 'purchase';
         showPricingAlert(`Purchase successful! Your ${productLabel} will be available shortly.`, 'success');
-        
+        applyCurrentPlanHighlight();
+
         // Refresh credits display after successful purchase
         // The webhook should have processed by now, but we'll force refresh to ensure UI is updated
         if (typeof window.updateCreditsDisplay === 'function') {
@@ -231,6 +413,7 @@ function handleCheckoutRedirect() {
                 if (typeof window.updateCreditsDisplay === 'function') {
                     window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
                 }
+                applyCurrentPlanHighlight();
             }, 3000); // 3 seconds - typical webhook processing time
             
             // One more refresh after longer delay to ensure credits are updated
@@ -238,6 +421,7 @@ function handleCheckoutRedirect() {
                 if (typeof window.updateCreditsDisplay === 'function') {
                     window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
                 }
+                applyCurrentPlanHighlight();
             }, 10000); // 10 seconds - final check
         } else {
             // Fallback: try to clear cache and wait for credits-v3-display to load
@@ -779,25 +963,35 @@ function trackCTA(ctaName, location) {
 
 // Switch billing period for Pro plan
 function switchBilling(period) {
-    const monthlyBtn = document.querySelector('.toggle-btn.monthly');
-    const yearlyBtn = document.querySelector('.toggle-btn.yearly');
+    const monthlyBtn = document.querySelector('.pricing-card.pro .toggle-btn.monthly');
+    const yearlyBtn = document.querySelector('.pricing-card.pro .toggle-btn.yearly');
     const monthlyPlan = document.getElementById('pro-monthly');
     const yearlyPlan = document.getElementById('pro-yearly');
+    const monthlyCta = document.getElementById('pro-monthly-cta');
+    const yearlyCta = document.getElementById('pro-yearly-cta');
     
-    if (!monthlyBtn || !yearlyBtn || !monthlyPlan || !yearlyPlan) {
+    if (!monthlyBtn || !yearlyBtn || !monthlyPlan || !yearlyPlan || !monthlyCta || !yearlyCta) {
         return;
     }
     
     if (period === 'monthly') {
         monthlyBtn.classList.add('active');
         yearlyBtn.classList.remove('active');
+        monthlyBtn.setAttribute('aria-pressed', 'true');
+        yearlyBtn.setAttribute('aria-pressed', 'false');
         monthlyPlan.classList.add('active');
         yearlyPlan.classList.remove('active');
+        monthlyCta.classList.add('active');
+        yearlyCta.classList.remove('active');
     } else if (period === 'yearly') {
         yearlyBtn.classList.add('active');
         monthlyBtn.classList.remove('active');
+        yearlyBtn.setAttribute('aria-pressed', 'true');
+        monthlyBtn.setAttribute('aria-pressed', 'false');
         yearlyPlan.classList.add('active');
         monthlyPlan.classList.remove('active');
+        yearlyCta.classList.add('active');
+        monthlyCta.classList.remove('active');
     }
 }
 
@@ -927,11 +1121,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged((user) => {
             updateProductButtonsForUser(user);
+
+            if (user) {
+                applyCurrentPlanHighlight();
+            } else {
+                clearCurrentPlanHighlights();
+            }
             
             // Track funnel step: pricing page view
             if (user && typeof window.analyticsTracker !== 'undefined') {
                 window.analyticsTracker.trackFunnelStep('pricing_view', user.uid);
             }
+        });
+    }
+
+    if (window.CreditsV3Manager && typeof window.CreditsV3Manager.subscribe === 'function') {
+        window.CreditsV3Manager.subscribe(() => {
+            applyCurrentPlanHighlight();
         });
     }
 });
