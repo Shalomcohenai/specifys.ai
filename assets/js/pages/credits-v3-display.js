@@ -263,11 +263,25 @@
         window.appLogger.logError(error, errorContext);
       }
       
-      // Check if this is a network error
+      // Check if this is a network or rate-limit error
       const isNetworkError = error?.message?.includes('Load failed') || 
                             error?.message?.includes('Failed to fetch') ||
                             error?.message?.includes('Network') ||
                             error?.name === 'TypeError';
+      const isRateLimited = error?.message?.includes('429') ||
+                            error?.message?.toLowerCase().includes('too many requests');
+      
+      if (isRateLimited) {
+        applyCreditsState({
+          text: 'Loading credits…',
+          title: 'Server busy - retrying shortly',
+          variant: 'loading'
+        });
+        setTimeout(() => {
+          updateCreditsDisplay({ forceRefresh: true });
+        }, 5000);
+        return;
+      }
       
       // Show appropriate error state
       if (isNetworkError) {

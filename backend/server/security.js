@@ -131,6 +131,11 @@ const rateLimiters = {
       //   corporate IPs / mobile NATs were hitting 429 and losing useful telemetry.
       // We skip them here and rely on the dedicated `monitoring` limiter below.
       const path = req.path || '';
+      const method = req.method || 'GET';
+      // Lightweight reads that run on every page load — must not exhaust the general budget.
+      if (method === 'GET' && (path === '/v3/credits' || path === '/v3/credits/' || path === '/health')) {
+        return true;
+      }
       if (
         path === '/logs' ||
         path === '/admin/css-crash-logs' ||
