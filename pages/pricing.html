@@ -9,100 +9,96 @@ extra_js:
   - /assets/js/pages/pricing.js
 ---
 
-<div class="pricing-page">
-    <section class="pro-pricing-section" id="pricing" aria-label="Specifys Pro pricing and features">
-        <div class="pro-pricing-inner">
+<main class="pricing-page" id="main-content" role="main">
+    <section class="pro-hero" id="pricing" aria-labelledby="pro-hero-title">
+        <div class="pro-hero-inner">
+            <div class="pro-hero-badge">Specifys Pro</div>
+            <h1 id="pro-hero-title">Build without limits</h1>
+            <p class="pro-hero-tagline">Unlimited specs, editing, mockups, and every Pro tool - one simple plan.</p>
 
-            <div class="pro-pricing-features" aria-labelledby="pro-features-heading">
-                <header class="pro-showcase-header">
-                    <h2 id="pro-features-heading">Everything in Pro</h2>
-                    <p>Select a feature to see what you unlock</p>
-                </header>
+            <div class="pro-hero-price-block">
+                <div class="pro-hero-price" aria-label="1.99 US dollars per month">
+                    <span class="pro-hero-currency">$</span>
+                    <span class="pro-hero-amount">1.99</span>
+                    <span class="pro-hero-period">/ month</span>
+                </div>
+                <p class="pro-hero-price-note">Cancel anytime · 30-day money-back guarantee</p>
+            </div>
 
-                <div class="pro-showcase-layout">
-                    <nav class="pro-feature-nav" role="tablist" aria-label="Pro features">
-                        <button type="button" class="pro-feature-tab is-active" role="tab" aria-selected="true" aria-controls="pro-feature-panel" id="tab-unlimited" data-feature="unlimited">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-infinity" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Unlimited Specs</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-edit" data-feature="edit">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-pen-to-square" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Edit &amp; Customize</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mockups" data-feature="mockups">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-image" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Mockups</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-visibility" data-feature="visibility">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">GEO &amp; SEO Engine</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-prompts" data-feature="prompts">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-code" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Dev Prompts</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-export" data-feature="export">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-file-export" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Export Anywhere</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mcp" data-feature="mcp">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-plug" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">MCP Integration</span>
-                        </button>
-                        <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-support" data-feature="support">
-                            <span class="pro-feature-tab-icon"><i class="fas fa-headset" aria-hidden="true"></i></span>
-                            <span class="pro-feature-tab-label">Priority Support</span>
-                        </button>
-                    </nav>
+            <button class="btn btn-primary btn-lg pro-hero-cta" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro for 1.99 dollars per month">
+                <span class="btn-content">
+                    <span class="btn-text">Subscribe Now</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </span>
+            </button>
 
-                    <div class="pro-feature-panel" id="pro-feature-panel" role="tabpanel" aria-labelledby="tab-unlimited">
-                        <div class="pro-feature-visual" aria-hidden="true">
-                            <div class="pro-feature-orbit">
-                                <span class="pro-orbit-dot pro-orbit-dot-1"></span>
-                                <span class="pro-orbit-dot pro-orbit-dot-2"></span>
-                                <span class="pro-orbit-dot pro-orbit-dot-3"></span>
-                                <span class="pro-feature-visual-icon"><i class="fas fa-infinity"></i></span>
-                            </div>
+            <p id="pricing-plan-status" class="pricing-plan-status" hidden aria-live="polite"></p>
+        </div>
+    </section>
+
+    <section class="pro-showcase" aria-labelledby="pro-features-heading">
+        <div class="pro-showcase-inner">
+            <header class="pro-showcase-header">
+                <h2 id="pro-features-heading">Everything in Pro</h2>
+                <p>Select a feature to see what you unlock</p>
+            </header>
+
+            <div class="pro-showcase-layout">
+                <nav class="pro-feature-nav" role="tablist" aria-label="Pro features">
+                    <button type="button" class="pro-feature-tab is-active" role="tab" aria-selected="true" aria-controls="pro-feature-panel" id="tab-unlimited" data-feature="unlimited">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-infinity" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Unlimited Specs</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-edit" data-feature="edit">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-pen-to-square" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Edit &amp; Customize</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mockups" data-feature="mockups">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-image" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Mockups</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-visibility" data-feature="visibility">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">GEO &amp; SEO Engine</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-prompts" data-feature="prompts">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-code" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Dev Prompts</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-export" data-feature="export">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-file-export" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Export Anywhere</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mcp" data-feature="mcp">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-plug" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">MCP Integration</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-support" data-feature="support">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-headset" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Priority Support</span>
+                    </button>
+                </nav>
+
+                <div class="pro-feature-panel" id="pro-feature-panel" role="tabpanel" aria-labelledby="tab-unlimited">
+                    <div class="pro-feature-visual" aria-hidden="true">
+                        <div class="pro-feature-orbit">
+                            <span class="pro-orbit-dot pro-orbit-dot-1"></span>
+                            <span class="pro-orbit-dot pro-orbit-dot-2"></span>
+                            <span class="pro-orbit-dot pro-orbit-dot-3"></span>
+                            <span class="pro-feature-visual-icon"><i class="fas fa-infinity"></i></span>
                         </div>
-                        <div class="pro-feature-copy">
-                            <h3 class="pro-feature-title">Unlimited Specifications</h3>
-                            <p class="pro-feature-desc">Create as many app specs as you need. No credit limits, no per-spec fees - iterate freely on every idea.</p>
-                            <ul class="pro-feature-highlights">
-                                <li><i class="fas fa-check" aria-hidden="true"></i> Unlimited spec generation</li>
-                                <li><i class="fas fa-check" aria-hidden="true"></i> Full PRD-level detail every time</li>
-                                <li><i class="fas fa-check" aria-hidden="true"></i> Tools Map &amp; Tool Finder included</li>
-                            </ul>
-                        </div>
+                    </div>
+                    <div class="pro-feature-copy">
+                        <h3 class="pro-feature-title">Unlimited Specifications</h3>
+                        <p class="pro-feature-desc">Create as many app specs as you need. No credit limits, no per-spec fees - iterate freely on every idea.</p>
+                        <ul class="pro-feature-highlights">
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Unlimited spec generation</li>
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Full PRD-level detail every time</li>
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Tools Map &amp; Tool Finder included</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-
-            <aside class="pro-pricing-cta" aria-labelledby="pro-hero-title">
-                <div class="pro-pricing-cta-card">
-                    <div class="pro-hero-badge">Specifys Pro</div>
-                    <h1 id="pro-hero-title">Build without limits</h1>
-                    <p class="pro-hero-tagline">Unlimited specs, editing, mockups, and every Pro tool - one simple plan.</p>
-
-                    <div class="pro-hero-price-block">
-                        <div class="pro-hero-price" aria-label="1.99 US dollars per month">
-                            <span class="pro-hero-currency">$</span>
-                            <span class="pro-hero-amount">1.99</span>
-                            <span class="pro-hero-period">/ month</span>
-                        </div>
-                        <p class="pro-hero-price-note">Cancel anytime · 30-day money-back guarantee</p>
-                    </div>
-
-                    <button class="btn btn-primary btn-lg pro-hero-cta" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro for 1.99 dollars per month">
-                        <span class="btn-content">
-                            <span class="btn-text">Subscribe Now</span>
-                            <span class="btn-spinner" aria-hidden="true"></span>
-                        </span>
-                    </button>
-
-                    <p id="pricing-plan-status" class="pricing-plan-status" hidden aria-live="polite"></p>
-                </div>
-            </aside>
-
         </div>
     </section>
 
@@ -129,4 +125,16 @@ extra_js:
             </div>
         </div>
     </section>
-</div>
+
+    <section class="pro-footer-cta" aria-label="Subscribe to Pro">
+        <div class="pro-footer-cta-inner">
+            <p class="pro-footer-cta-text">Ready to unlock everything?</p>
+            <button class="btn btn-primary btn-lg pro-footer-cta-btn" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro">
+                <span class="btn-content">
+                    <span class="btn-text">Get Pro - $1.99/mo</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </span>
+            </button>
+        </div>
+    </section>
+</main>

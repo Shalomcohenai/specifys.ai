@@ -198,7 +198,7 @@ function resolveCurrentPricingPlan(creditsData) {
 }
 
 function clearCurrentPlanHighlights() {
-    document.querySelectorAll('.pro-pricing-cta.is-current-plan, .pricing-card.is-current-plan').forEach((el) => {
+    document.querySelectorAll('.pro-hero.is-current-plan, .pricing-card.is-current-plan').forEach((el) => {
         el.classList.remove('is-current-plan');
         el.removeAttribute('aria-current');
     });
@@ -281,12 +281,8 @@ async function applyCurrentPlanHighlight() {
     const statusEl = document.getElementById('pricing-plan-status');
 
     if (plan.kind === 'pro') {
-        const proCtaAside = document.querySelector('.pro-pricing-cta');
-        const proCtaCard = document.querySelector('.pro-pricing-cta-card');
-        if (proCtaAside) {
-            proCtaAside.classList.add('is-current-plan');
-        }
-        markCardAsCurrentPlan(proCtaCard);
+        const proHero = document.querySelector('.pro-hero');
+        markCardAsCurrentPlan(proHero);
         document.querySelectorAll('button[data-product-key="pro_monthly"]').forEach((btn) => {
             updateCurrentPlanButton(btn, true);
         });
@@ -338,7 +334,7 @@ function getPricingAlertContainer() {
     container = document.createElement('div');
     container.id = 'pricing-alert';
     container.className = 'pricing-alert';
-    const hero = document.querySelector('.pro-pricing-section');
+    const hero = document.querySelector('.pro-hero-inner');
     if (hero && hero.parentNode) {
         hero.parentNode.insertBefore(container, hero);
     } else {
