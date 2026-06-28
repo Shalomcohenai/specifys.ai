@@ -16,35 +16,26 @@ node scripts/simulate-purchase-flow.js
 ```
 
 This runs a default simulation with:
-- Product: `single_spec` ($4.90 for 1 credit)
+- Product: `pro_monthly` ($1.99/month Pro subscription)
 - User: `test@specifys-ai.com`
 - User ID: `test_user_123`
 
 ### Run Custom Simulation
 
 ```bash
-# Simulate specific product purchase
-node scripts/simulate-purchase-flow.js single_spec
-
-# Simulate three-pack purchase
-node scripts/simulate-purchase-flow.js three_pack
-
-# Simulate Pro monthly subscription
+# Simulate Pro subscription purchase
 node scripts/simulate-purchase-flow.js pro_monthly
-
-# Simulate Pro yearly subscription
-node scripts/simulate-purchase-flow.js pro_yearly
 ```
 
 ### Advanced Options
 
 ```bash
 # Specify product, user ID, and email
-node scripts/simulate-purchase-flow.js single_spec user123 user@example.com
+node scripts/simulate-purchase-flow.js pro_monthly user123 user@example.com
 
 # Example output:
 # 🎬 Starting simulation with:
-# - Product: single_spec
+# - Product: pro_monthly
 # - User: user@example.com
 # - User ID: user123
 ```
@@ -228,32 +219,18 @@ Confirms all security measures are in place.
 
 ## 🧪 Testing Scenarios
 
-### Scenario 1: Normal Purchase
-User has account → Buys credits → Gets credits immediately
-
-```bash
-node scripts/simulate-purchase-flow.js single_spec existing_user existing@email.com
-```
-
-### Scenario 2: Purchase Before Signup
-User doesn't have account → Buys credits → Gets pending entitlement
-
-```bash
-node scripts/simulate-purchase-flow.js three_pack new_user new@email.com
-```
-
-### Scenario 3: Pro Subscription
+### Scenario 1: Pro Subscription
 User subscribes → Gets unlimited access
 
 ```bash
 node scripts/simulate-purchase-flow.js pro_monthly pro_user pro@email.com
 ```
 
-### Scenario 4: Three-Pack Purchase
-User buys bulk credits → Gets 3 credits
+### Scenario 2: New User Subscription
+New user signs up → Subscribes to Pro
 
 ```bash
-node scripts/simulate-purchase-flow.js three_pack bulk_user bulk@email.com
+node scripts/simulate-purchase-flow.js pro_monthly new_user new@email.com
 ```
 
 ---
@@ -294,11 +271,11 @@ node scripts/simulate-purchase-flow.js three_pack bulk_user bulk@email.com
 🖥️ [2025-11-01T12:00:00.002Z] STEP 1: Frontend - User selects product
 📦 [2025-11-01T12:00:00.003Z] Product details
 {
-  "name": "Single AI Specification",
-  "price": "$4.90",
-  "credits": 1,
-  "unlimited": false,
-  "can_edit": false
+  "name": "Specifys Pro",
+  "price": "$1.99/mo",
+  "credits": "unlimited",
+  "unlimited": true,
+  "can_edit": true
 }
 
 🌐 [2025-11-01T12:00:00.010Z] STEP 2: Frontend opens Lemon Squeezy checkout

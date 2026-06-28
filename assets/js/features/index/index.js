@@ -1198,7 +1198,7 @@ async function generateSpecification() {
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
         } catch (redirectError) {
-          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
         }
         return;
       }
@@ -1328,7 +1328,7 @@ async function generateSpecification() {
             });
             window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
           } catch (redirectError) {
-            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
           }
           return;
         }
@@ -1515,7 +1515,7 @@ async function generateSpecification() {
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
         } catch (redirectError) {
-          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
         }
         return;
       }

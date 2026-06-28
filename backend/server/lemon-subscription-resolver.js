@@ -1,4 +1,5 @@
 const { URLSearchParams } = require('url');
+const { getProductByKey } = require('./lemon-products-config');
 
 const ACTIVE_STATUSES = new Set(['active', 'on_trial', 'paused', 'past_due', 'paid']);
 const CANCELLED_STATUSES = new Set(['cancelled', 'expired', 'unpaid']);
@@ -799,7 +800,8 @@ async function upsertSubscriptionFromWebhook({
     const normalizedStatus = normalizeStatus(payload.status);
     const isActive = hasActiveStatus(normalizedStatus);
     const productKey = payload.update.product_key || existingData.product_key;
-    const isProProduct = productKey === 'pro_monthly' || productKey === 'pro_yearly';
+    const product = productKey ? getProductByKey(productKey) : null;
+    const isProProduct = product && product.type === 'subscription' && product.credits === 'unlimited';
     
     // Also check if user.plan is 'pro' (fallback for missing product_key)
     let isProUser = false;

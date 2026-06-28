@@ -172,7 +172,7 @@ export class DataManager {
     // If numeric >= 50 or divisible by 10, might be cents
     if (numeric >= 50 || numeric % 10 === 0) {
       // Check if it matches common product prices in cents
-      const commonPrices = [490, 990, 2990, 29900]; // $4.90, $9.90, $29.90, $299.00
+      const commonPrices = [199]; // $1.99
       if (commonPrices.includes(numeric)) {
         return Number((numeric / 100).toFixed(2));
       }
@@ -186,12 +186,9 @@ export class DataManager {
    */
   lookupProductPrice(context) {
     const PRODUCT_PRICE_MAP = {
-      single_spec: 4.90,
-      three_pack: 9.90,
-      pro_monthly: 29.90,
-      pro_yearly: 299.00
+      pro_monthly: 1.99
     };
-    
+
     const key =
       context?.productKey ||
       context?.product_key ||
@@ -199,18 +196,15 @@ export class DataManager {
       context?.metadata?.product_key ||
       context?.metadata?.customData?.product_key ||
       context?.metadata?.customData?.productKey;
-    
+
     if (key && PRODUCT_PRICE_MAP[key]) {
       return PRODUCT_PRICE_MAP[key];
     }
-    
+
     const name = (context?.productName || context?.metadata?.productName || "").toLowerCase();
     if (!name) return null;
-    if (name.includes("single")) return PRODUCT_PRICE_MAP.single_spec;
-    if (name.includes("3-pack") || name.includes("three")) return PRODUCT_PRICE_MAP.three_pack;
-    if (name.includes("monthly")) return PRODUCT_PRICE_MAP.pro_monthly;
-    if (name.includes("yearly") || name.includes("annual")) return PRODUCT_PRICE_MAP.pro_yearly;
-    
+    if (name.includes("pro") || name.includes("monthly")) return PRODUCT_PRICE_MAP.pro_monthly;
+
     return null;
   }
   

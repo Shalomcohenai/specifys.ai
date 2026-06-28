@@ -553,10 +553,7 @@ Routes mounted at `/api/v3/credits` only when `CREDITS_V3_ENABLED=true`.
 
 | Key | Name | Type | Credits |
 |-----|------|------|---------|
-| `single_spec` | Single AI Specification | one_time | 1 |
-| `three_pack` | 3-Pack AI Specifications | one_time | 3 |
-| `pro_monthly` | Specifys Pro – Monthly | subscription | unlimited |
-| `pro_yearly` | Specifys Pro – Yearly | subscription | unlimited |
+| `pro_monthly` | Specifys Pro | subscription | unlimited |
 
 **Endpoints** (base: `/api/lemon`):
 

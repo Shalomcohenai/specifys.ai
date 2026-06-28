@@ -506,7 +506,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     if (!resolution || !resolution.subscriptionId) {
       logger.warn({ requestId, userId }, '[lemon-routes] Subscription not found');
       return next(createError('Subscription not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, {
-        details: 'לא נמצא מנוי פעיל לחשבון זה או שקיימת חוסר התאמה בין מצב Test/Live, ה-API key או ה-store ID.',
+        details: 'No active subscription was found for this account, or there is a Test/Live mode mismatch with the API key or store ID.',
         requestId
       }));
     }
@@ -598,7 +598,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
 
       return res.status(cancelResponse.status || 500).json({
         error: 'Failed to cancel subscription with Lemon Squeezy',
-        details: errorSummary || 'Lemon Squeezy rejected the cancellation request. בדוק שהחנות והמפתחות תואמים למצב Test/Live.',
+        details: errorSummary || 'Lemon Squeezy rejected the cancellation request. Verify the store and API keys match the Test/Live mode.',
         requestId
       });
     }

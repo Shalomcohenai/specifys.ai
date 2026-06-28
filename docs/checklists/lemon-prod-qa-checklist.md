@@ -29,10 +29,10 @@
 ## בדיקות Frontend
 - [ ] `pricing.html`:
   - כפתורי הרכישה עדיין מושבתים (disabled) עד סיום הבדיקות
-  - טעינת הדף עם `?checkout=success&product=single_spec` מציגה הודעת הצלחה וניקוי ה-URL
+  - טעינת הדף עם `?checkout=success&product=pro_monthly` מציגה הודעת הצלחה וניקוי ה-URL
   - טעינת הדף עם `?checkout=cancel` מציגה הודעת ביטול
 - [ ] בדוק שה-SDK של Lemon נטען ללא שגיאות (בקונסול הדפדפן)
-- [ ] ודא שהקריאה ל-`/assets/data/lemon-products.json` מחזירה את המידע המעודכן (4 מוצרים)
+- [ ] Verify `/assets/data/lemon-products.json` returns the updated config (single Pro product at $1.99/month)
 
 ## בדיקות Webhook Production
 - [ ] העבר את `LEMON_TEST_MODE=false`

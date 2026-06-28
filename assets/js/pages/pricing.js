@@ -191,26 +191,7 @@ function resolveCurrentPricingPlan(creditsData) {
     }
 
     if (creditsData.unlimited === true && isActiveProSubscription(creditsData.subscription)) {
-        const sub = creditsData.subscription || {};
-        const productKey = String(sub.productKey || sub.product_key || '').toLowerCase();
-        const interval = String(sub.billingInterval || sub.billing_interval || '').toLowerCase();
-        const billing = (
-            productKey === 'pro_yearly' ||
-            interval === 'year' ||
-            interval === 'yearly' ||
-            interval === 'annual'
-        ) ? 'yearly' : 'monthly';
-        return { kind: 'pro', billing };
-    }
-
-    const breakdown = creditsData.breakdown || {};
-    const paid = Number(breakdown.paid) || 0;
-    const total = Number(creditsData.total);
-    if (paid > 0 || (Number.isFinite(total) && total > 0)) {
-        return {
-            kind: 'credits',
-            total: Number.isFinite(total) ? total : paid
-        };
+        return { kind: 'pro' };
     }
 
     return { kind: 'free' };
@@ -302,33 +283,22 @@ async function applyCurrentPlanHighlight() {
     if (plan.kind === 'pro') {
         const proCard = document.querySelector('.pricing-card.pro');
         markCardAsCurrentPlan(proCard);
-        if (typeof switchBilling === 'function') {
-            switchBilling(plan.billing);
-        }
-        const activeCtaId = plan.billing === 'yearly' ? 'pro-yearly-cta' : 'pro-monthly-cta';
-        document.querySelectorAll('.pricing-card.pro .plan-cta-panel').forEach((panel) => {
-            const btn = panel.querySelector('button[data-product-key]');
-            updateCurrentPlanButton(btn, panel.id === activeCtaId);
-        });
+        const proBtn = proCard && proCard.querySelector('button[data-product-key]');
+        updateCurrentPlanButton(proBtn, true);
         if (statusEl) {
-            statusEl.textContent = plan.billing === 'yearly'
-                ? 'You are on Specifys Pro (Yearly). Your current plan is highlighted below.'
-                : 'You are on Specifys Pro (Monthly). Your current plan is highlighted below.';
+            statusEl.textContent = 'You are on Specifys Pro. Your current plan is highlighted below.';
             statusEl.hidden = false;
         }
         return;
     }
 
-    if (plan.kind === 'credits' && statusEl) {
-        const creditLabel = plan.total === 1 ? 'credit' : 'credits';
-        statusEl.textContent = `You have ${plan.total} specification ${creditLabel}. Upgrade to Pro for unlimited specifications.`;
-        statusEl.hidden = false;
-        return;
-    }
-
-    if (plan.kind === 'free' && statusEl) {
-        statusEl.textContent = 'You are on the free plan. Choose a package below to add more specifications.';
-        statusEl.hidden = false;
+    if (plan.kind === 'free') {
+        const freeCard = document.querySelector('.pricing-card.free');
+        markCardAsCurrentPlan(freeCard);
+        if (statusEl) {
+            statusEl.textContent = 'You are on the free plan. Upgrade to Pro for unlimited specifications.';
+            statusEl.hidden = false;
+        }
     }
 }
 
@@ -961,81 +931,6 @@ function trackCTA(ctaName, location) {
     }
 }
 
-// Switch billing period for Pro plan
-function switchBilling(period) {
-    const monthlyBtn = document.querySelector('.pricing-card.pro .toggle-btn.monthly');
-    const yearlyBtn = document.querySelector('.pricing-card.pro .toggle-btn.yearly');
-    const monthlyPlan = document.getElementById('pro-monthly');
-    const yearlyPlan = document.getElementById('pro-yearly');
-    const monthlyCta = document.getElementById('pro-monthly-cta');
-    const yearlyCta = document.getElementById('pro-yearly-cta');
-    
-    if (!monthlyBtn || !yearlyBtn || !monthlyPlan || !yearlyPlan || !monthlyCta || !yearlyCta) {
-        return;
-    }
-    
-    if (period === 'monthly') {
-        monthlyBtn.classList.add('active');
-        yearlyBtn.classList.remove('active');
-        monthlyBtn.setAttribute('aria-pressed', 'true');
-        yearlyBtn.setAttribute('aria-pressed', 'false');
-        monthlyPlan.classList.add('active');
-        yearlyPlan.classList.remove('active');
-        monthlyCta.classList.add('active');
-        yearlyCta.classList.remove('active');
-    } else if (period === 'yearly') {
-        yearlyBtn.classList.add('active');
-        monthlyBtn.classList.remove('active');
-        yearlyBtn.setAttribute('aria-pressed', 'true');
-        monthlyBtn.setAttribute('aria-pressed', 'false');
-        yearlyPlan.classList.add('active');
-        monthlyPlan.classList.remove('active');
-        yearlyCta.classList.add('active');
-        monthlyCta.classList.remove('active');
-    }
-}
-
-// Expose switchBilling to global scope for backward compatibility
-window.switchBilling = switchBilling;
-
-// Setup billing toggle using event delegation (works even if elements load later)
-let billingToggleSetup = false;
-function setupBillingToggle() {
-    // Only setup once to avoid duplicate listeners
-    if (billingToggleSetup) {
-        return;
-    }
-    
-    // Use event delegation on the document body
-    // This works even if elements are added dynamically
-    if (document.body) {
-        document.body.addEventListener('click', function(e) {
-            const clickedBtn = e.target.closest('.toggle-btn[data-billing]');
-            if (clickedBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                const billingPeriod = clickedBtn.getAttribute('data-billing');
-                if (billingPeriod) {
-                    switchBilling(billingPeriod);
-                }
-            }
-        });
-        billingToggleSetup = true;
-    }
-}
-
-// Initialize immediately (before DOMContentLoaded)
-// This ensures the function is available for inline handlers
-if (document.readyState === 'loading') {
-    // DOM is still loading, wait for it
-    document.addEventListener('DOMContentLoaded', function() {
-        setupBillingToggle();
-    });
-} else {
-    // DOM is already loaded, setup immediately
-    setupBillingToggle();
-}
-
 // Wake up the backend server when pricing page loads
 // This ensures the server is ready when user clicks "Buy Now"
 async function wakeUpServer() {
@@ -1108,12 +1003,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initProductButtons();
     handleCheckoutRedirect();
     setProductButtonsDisabled(true);
-    
-    // Billing toggle is already set up above (before DOMContentLoaded)
-    // But ensure it's set up again in case DOM changed
-    setupBillingToggle();
-    
-    // Page view tracked site-wide via ga4-wrapper.js + analytics-tracker.js (head.html)
 
     // Wake up the server immediately when page loads
     wakeUpServer();

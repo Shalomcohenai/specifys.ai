@@ -337,10 +337,7 @@
     if (!container) return;
 
     const products = [
-      { key: 'single_spec', label: 'Single Spec', price: '$4.90', description: 'One specification credit' },
-      { key: 'three_pack', label: '3-Pack', price: '$9.90', description: 'Three specification credits' },
-      { key: 'pro_monthly', label: 'Pro Monthly', price: '$29.90', description: 'Unlimited specifications' },
-      { key: 'pro_yearly', label: 'Pro Yearly', price: '$299.90', description: 'Unlimited - best savings' }
+      { key: 'pro_monthly', label: 'Specifys Pro', price: '$1.99/mo', description: 'Unlimited specifications' }
     ];
 
     container.innerHTML = `
@@ -379,7 +376,7 @@
 
     function handleSuccess(productKey) {
       if (messageEl) {
-        messageEl.textContent = 'Checkout opened in a new window. Complete your purchase to unlock more credits.';
+        messageEl.textContent = 'Checkout opened in a new window. Complete your purchase to unlock unlimited specifications.';
         messageEl.classList.remove('error');
       }
     }
@@ -414,7 +411,7 @@
             <div id="paywall-status" class="paywall-status" style="display:none;"></div>
             <div class="paywall-products"></div>
             <div class="paywall-footer">
-              <a href="/pages/pricing.html" class="pricing-link">See detailed pricing and plan comparisons</a>
+              <a href="/pages/pricing.html" class="pricing-link">View pricing plans</a>
             </div>
             <div class="paywall-actions">
               <button onclick="closePaywall()" class="btn btn-secondary">

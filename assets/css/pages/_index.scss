@@ -1412,7 +1412,7 @@ body .logo a:hover .logo-dot {
 /* ===== PRICING TABLE HOME ===== */
 .pricing-grid-home {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   max-width: 1200px;
   margin: 2rem auto;

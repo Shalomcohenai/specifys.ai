@@ -1307,10 +1307,7 @@ export class OverviewView {
    * Product key to display label (pricing page)
    */
   static BUY_NOW_PRODUCT_LABELS = {
-    single_spec: 'Single Spec',
-    three_pack: '3-Pack',
-    pro_monthly: 'Pro Monthly',
-    pro_yearly: 'Pro Yearly'
+    pro_monthly: 'Specifys Pro'
   };
   
   /**
@@ -1345,7 +1342,7 @@ export class OverviewView {
    */
   renderBuyNowClicks(byProduct, total, listEl, totalEl) {
     const labels = OverviewView.BUY_NOW_PRODUCT_LABELS;
-    const order = ['single_spec', 'three_pack', 'pro_monthly', 'pro_yearly'];
+    const order = ['pro_monthly'];
     
     let html = '';
     for (const key of order) {

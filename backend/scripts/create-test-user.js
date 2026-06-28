@@ -56,7 +56,7 @@ async function createTestUser(email) {
         console.log('🎉 Test user created successfully!');
         console.log('User ID:', userRecord.uid);
         console.log('');
-        console.log('Now run: node scripts/simulate-purchase-flow.js single_spec', userRecord.uid, email);
+        console.log('Now run: node scripts/simulate-purchase-flow.js pro_monthly', userRecord.uid, email);
         
         return userRecord.uid;
         

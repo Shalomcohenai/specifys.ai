@@ -287,8 +287,8 @@ async function getUserAnalytics(userId) {
         };
         
         // Check if user_credits needs syncing: if subscription exists but user_credits doesn't have pro subscription
-        if (isActiveSubscription && subData.product_type === 'subscription' && 
-            (subData.product_key === 'pro_monthly' || subData.product_key === 'pro_yearly')) {
+        if (isActiveSubscription && subData.product_type === 'subscription' &&
+            subData.product_key === 'pro_monthly') {
           const creditsDoc = await db.collection('user_credits_v3').doc(userId).get();
           if (creditsDoc.exists) {
             const credits = creditsDoc.data();

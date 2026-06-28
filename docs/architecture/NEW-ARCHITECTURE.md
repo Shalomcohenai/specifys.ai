@@ -1695,7 +1695,7 @@ export async function getServerUser() {
 
 ## 9. Payments — Lemon Squeezy
 
-The Lemon Squeezy integration is the **one place** that grants paid credits or toggles Pro state. Same products as today (`single_spec`, `three_pack`, `pro_monthly`, `pro_yearly`).
+The Lemon Squeezy integration is the **one place** that toggles Pro state. Single product: `pro_monthly` (Specifys Pro, $1.99/month, unlimited).
 
 ### Webhook handler — `app/api/lemon/webhook/route.ts`
 
