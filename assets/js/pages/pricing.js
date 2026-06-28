@@ -198,9 +198,9 @@ function resolveCurrentPricingPlan(creditsData) {
 }
 
 function clearCurrentPlanHighlights() {
-    document.querySelectorAll('.pricing-card.is-current-plan').forEach((card) => {
-        card.classList.remove('is-current-plan');
-        card.removeAttribute('aria-current');
+    document.querySelectorAll('.pro-hero.is-current-plan, .pricing-card.is-current-plan').forEach((el) => {
+        el.classList.remove('is-current-plan');
+        el.removeAttribute('aria-current');
     });
     document.querySelectorAll('.current-plan-badge').forEach((badge) => badge.remove());
     document.querySelectorAll('button[data-current-plan-button]').forEach((btn) => {
@@ -281,24 +281,21 @@ async function applyCurrentPlanHighlight() {
     const statusEl = document.getElementById('pricing-plan-status');
 
     if (plan.kind === 'pro') {
-        const proCard = document.querySelector('.pricing-card.pro');
-        markCardAsCurrentPlan(proCard);
-        const proBtn = proCard && proCard.querySelector('button[data-product-key]');
-        updateCurrentPlanButton(proBtn, true);
+        const proHero = document.querySelector('.pro-hero');
+        markCardAsCurrentPlan(proHero);
+        document.querySelectorAll('button[data-product-key="pro_monthly"]').forEach((btn) => {
+            updateCurrentPlanButton(btn, true);
+        });
         if (statusEl) {
-            statusEl.textContent = 'You are on Specifys Pro. Your current plan is highlighted below.';
+            statusEl.textContent = 'You are on Specifys Pro. Enjoy unlimited access.';
             statusEl.hidden = false;
         }
         return;
     }
 
-    if (plan.kind === 'free') {
-        const freeCard = document.querySelector('.pricing-card.free');
-        markCardAsCurrentPlan(freeCard);
-        if (statusEl) {
-            statusEl.textContent = 'You are on the free plan. Upgrade to Pro for unlimited specifications.';
-            statusEl.hidden = false;
-        }
+    if (plan.kind === 'free' && statusEl) {
+        statusEl.textContent = 'Upgrade to Pro for unlimited specifications and every feature below.';
+        statusEl.hidden = false;
     }
 }
 
@@ -337,9 +334,9 @@ function getPricingAlertContainer() {
     container = document.createElement('div');
     container.id = 'pricing-alert';
     container.className = 'pricing-alert';
-    const hero = document.querySelector('.pricing-hero .container');
+    const hero = document.querySelector('.pro-hero-inner');
     if (hero && hero.parentNode) {
-        hero.parentNode.insertBefore(container, hero.nextSibling);
+        hero.parentNode.insertBefore(container, hero);
     } else {
         document.body.prepend(container);
     }
@@ -995,12 +992,124 @@ async function wakeUpServer() {
     return false; // All retries exhausted
 }
 
+var PRO_FEATURES = {
+    unlimited: {
+        icon: 'fa-infinity',
+        title: 'Unlimited Specifications',
+        desc: 'Create as many app specs as you need. No credit limits, no per-spec fees — iterate freely on every idea.',
+        highlights: ['Unlimited spec generation', 'Full PRD-level detail every time', 'Tools Map & Tool Finder included']
+    },
+    edit: {
+        icon: 'fa-pen-to-square',
+        title: 'Edit & Customize Specs',
+        desc: 'Refine your PRD as your product evolves. Update features, user flows, and technical details anytime.',
+        highlights: ['Live editing in the spec viewer', 'Changes saved to your account', 'Re-export after every update']
+    },
+    mockups: {
+        icon: 'fa-image',
+        title: 'Mockup Generation',
+        desc: 'Turn your specification into visual mockups. See your app before writing a single line of code.',
+        highlights: ['AI-generated UI mockups', 'Tied to your spec content', 'Share with stakeholders instantly']
+    },
+    visibility: {
+        icon: 'fa-chart-line',
+        title: 'GEO & SEO Visibility Engine',
+        desc: 'Analyze how your app can rank and get discovered. Get actionable SEO and geographic visibility insights.',
+        highlights: ['Keyword & market visibility analysis', 'GEO targeting recommendations', 'Pro-only advanced engine']
+    },
+    prompts: {
+        icon: 'fa-code',
+        title: 'Development Prompts',
+        desc: 'Generate ready-to-use prompts for Cursor, Windsurf, and your AI coding workflow — straight from your spec.',
+        highlights: ['Structured dev prompts from your PRD', 'Apply brain dump insights to specs', 'Export for any AI IDE']
+    },
+    export: {
+        icon: 'fa-file-export',
+        title: 'Export Anywhere',
+        desc: 'Take your spec wherever your team works — HTML, Jira, Cursor, Windsurf, and full prompts export.',
+        highlights: ['HTML & Jira export', 'Cursor & Windsurf integration', 'Full prompts export for app building']
+    },
+    mcp: {
+        icon: 'fa-plug',
+        title: 'MCP Integration',
+        desc: 'Connect Specifys to Cursor and Claude via MCP. Your specs become context inside your AI coding tools.',
+        highlights: ['Model Context Protocol support', 'Works with Cursor & Claude', 'Specs as live project context']
+    },
+    support: {
+        icon: 'fa-headset',
+        title: 'Priority Support',
+        desc: 'Get help when you need it. Pro subscribers receive faster responses and dedicated support.',
+        highlights: ['Priority email support', 'Faster response times', 'Help with specs & integrations']
+    }
+};
+
+function renderProFeaturePanel(featureKey) {
+    var feature = PRO_FEATURES[featureKey];
+    var panel = document.getElementById('pro-feature-panel');
+    if (!feature || !panel) {
+        return;
+    }
+
+    var iconEl = panel.querySelector('.pro-feature-visual-icon i');
+    var titleEl = panel.querySelector('.pro-feature-title');
+    var descEl = panel.querySelector('.pro-feature-desc');
+    var listEl = panel.querySelector('.pro-feature-highlights');
+
+    if (iconEl) {
+        iconEl.className = 'fas ' + feature.icon;
+    }
+    if (titleEl) {
+        titleEl.textContent = feature.title;
+    }
+    if (descEl) {
+        descEl.textContent = feature.desc;
+    }
+    if (listEl) {
+        listEl.innerHTML = feature.highlights.map(function (item) {
+            return '<li><i class="fas fa-check" aria-hidden="true"></i> ' + item + '</li>';
+        }).join('');
+    }
+}
+
+function initFeatureShowcase() {
+    var tabs = document.querySelectorAll('.pro-feature-tab');
+    var panel = document.getElementById('pro-feature-panel');
+    if (!tabs.length || !panel) {
+        return;
+    }
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var featureKey = tab.getAttribute('data-feature');
+            if (!featureKey || tab.classList.contains('is-active')) {
+                return;
+            }
+
+            tabs.forEach(function (t) {
+                t.classList.remove('is-active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            tab.classList.add('is-active');
+            tab.setAttribute('aria-selected', 'true');
+
+            panel.classList.add('is-switching');
+            panel.setAttribute('aria-labelledby', tab.id);
+
+            window.requestAnimationFrame(function () {
+                renderProFeaturePanel(featureKey);
+                panel.classList.remove('is-switching');
+            });
+        });
+    });
+}
+
 // Wake up server immediately when script loads (don't wait for DOMContentLoaded)
 // This gives the server more time to wake up before user interacts
 wakeUpServer();
 
 document.addEventListener('DOMContentLoaded', () => {
     initProductButtons();
+    initFeatureShowcase();
     handleCheckoutRedirect();
     setProductButtonsDisabled(true);
 

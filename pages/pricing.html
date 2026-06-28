@@ -1,146 +1,140 @@
 ---
 layout: default
-title: "Simple Pricing | Specifys.AI Pro at $1.99/month"
-description: "Start free with one specification, then upgrade to Specifys Pro for unlimited app specifications, editing, mockups, and more — just $1.99 per month."
+title: "Specifys Pro | $1.99/month"
+description: "Upgrade to Specifys Pro for unlimited app specifications, editing, mockups, GEO and SEO visibility, development prompts, and more — $1.99 per month."
 permalink: /pages/pricing.html
 extra_css:
   - /assets/css/pages/pricing.css
 extra_js:
-  # analytics-tracker.js is loaded once globally from _includes/head.html
-  # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
   - /assets/js/pages/pricing.js
 ---
 
 <main class="pricing-page" id="main-content" role="main">
-    <!-- Hero Section -->
-    <div class="pricing-hero">
-        <div class="container">
-            <h1>Specifys AI Pricing</h1>
-            <p>Start free, upgrade when you're ready</p>
-            <p class="hero-subtitle">One free specification to try the platform — then unlimited Pro for $1.99/month</p>
-            <p style="margin-top: 1rem; max-width: 600px; margin-left: auto; margin-right: auto;">Our AI spec generator helps you create PRDs and app specifications in minutes. Try it free, then unlock unlimited creation, editing, and advanced tools with Pro.</p>
+    <section class="pro-hero" id="pricing" aria-labelledby="pro-hero-title">
+        <div class="pro-hero-inner">
+            <div class="pro-hero-badge">Specifys Pro</div>
+            <h1 id="pro-hero-title">Build without limits</h1>
+            <p class="pro-hero-tagline">Unlimited specs, editing, mockups, and every Pro tool — one simple plan.</p>
+
+            <div class="pro-hero-price-block">
+                <div class="pro-hero-price" aria-label="1.99 US dollars per month">
+                    <span class="pro-hero-currency">$</span>
+                    <span class="pro-hero-amount">1.99</span>
+                    <span class="pro-hero-period">/ month</span>
+                </div>
+                <p class="pro-hero-price-note">Cancel anytime · 30-day money-back guarantee</p>
+            </div>
+
+            <button class="btn btn-primary btn-lg pro-hero-cta" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro for 1.99 dollars per month">
+                <span class="btn-content">
+                    <span class="btn-text">Subscribe Now</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </span>
+            </button>
+
             <p id="pricing-plan-status" class="pricing-plan-status" hidden aria-live="polite"></p>
         </div>
-    </div>
+    </section>
 
-    <!-- Pricing Cards -->
-    <div class="pricing-container" id="pricing">
-        <div class="container">
-            <div class="pricing-grid">
+    <section class="pro-showcase" aria-labelledby="pro-features-heading">
+        <div class="pro-showcase-inner">
+            <header class="pro-showcase-header">
+                <h2 id="pro-features-heading">Everything in Pro</h2>
+                <p>Select a feature to see what you unlock</p>
+            </header>
 
-                <!-- Free Plan -->
-                <div class="pricing-card free" role="article" aria-labelledby="free-title">
-                    <div class="plan-header">
-                        <h3 id="free-title">Free</h3>
-                        <p class="plan-description">Try Specifys with one specification</p>
+            <div class="pro-showcase-layout">
+                <nav class="pro-feature-nav" role="tablist" aria-label="Pro features">
+                    <button type="button" class="pro-feature-tab is-active" role="tab" aria-selected="true" aria-controls="pro-feature-panel" id="tab-unlimited" data-feature="unlimited">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-infinity" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Unlimited Specs</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-edit" data-feature="edit">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-pen-to-square" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Edit &amp; Customize</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mockups" data-feature="mockups">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-image" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Mockups</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-visibility" data-feature="visibility">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">GEO &amp; SEO Engine</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-prompts" data-feature="prompts">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-code" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Dev Prompts</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-export" data-feature="export">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-file-export" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Export Anywhere</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-mcp" data-feature="mcp">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-plug" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">MCP Integration</span>
+                    </button>
+                    <button type="button" class="pro-feature-tab" role="tab" aria-selected="false" aria-controls="pro-feature-panel" id="tab-support" data-feature="support">
+                        <span class="pro-feature-tab-icon"><i class="fas fa-headset" aria-hidden="true"></i></span>
+                        <span class="pro-feature-tab-label">Priority Support</span>
+                    </button>
+                </nav>
+
+                <div class="pro-feature-panel" id="pro-feature-panel" role="tabpanel" aria-labelledby="tab-unlimited">
+                    <div class="pro-feature-visual" aria-hidden="true">
+                        <div class="pro-feature-orbit">
+                            <span class="pro-orbit-dot pro-orbit-dot-1"></span>
+                            <span class="pro-orbit-dot pro-orbit-dot-2"></span>
+                            <span class="pro-orbit-dot pro-orbit-dot-3"></span>
+                            <span class="pro-feature-visual-icon"><i class="fas fa-infinity"></i></span>
+                        </div>
                     </div>
-                    <div class="plan-features">
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>1 Specification</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
-                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Edit Specifications</span></li>
-                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">GEO &amp; SEO Visibility Engine</span></li>
-                            <li><i class="fas fa-times-circle"></i> <span class="disabled-feature">Development Prompts</span></li>
+                    <div class="pro-feature-copy">
+                        <h3 class="pro-feature-title">Unlimited Specifications</h3>
+                        <p class="pro-feature-desc">Create as many app specs as you need. No credit limits, no per-spec fees — iterate freely on every idea.</p>
+                        <ul class="pro-feature-highlights">
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Unlimited spec generation</li>
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Full PRD-level detail every time</li>
+                            <li><i class="fas fa-check" aria-hidden="true"></i> Tools Map &amp; Tool Finder included</li>
                         </ul>
                     </div>
-                    <div class="plan-cta">
-                        <div class="price">
-                            <span class="currency">$</span>
-                            <span class="amount">0</span>
-                            <span class="period">forever</span>
-                        </div>
-                        <a href="/pages/auth.html" class="btn btn-outline" aria-label="Get started with the free plan">
-                            Get Started
-                        </a>
-                    </div>
                 </div>
-
-                <!-- Pro Subscription -->
-                <div class="pricing-card pro" role="article" aria-labelledby="pro-title">
-                    <div class="plan-badge" aria-label="Pro plan">Pro</div>
-                    <div class="plan-header">
-                        <h3 id="pro-title">Pro</h3>
-                        <p class="plan-description">Unlimited specifications with editing</p>
-                    </div>
-                    <div class="plan-features">
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Export Specifications (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline;">Cursor & Windsurf</a>)</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span><a href="/pages/mcp.html" style="color: #FF6B35; text-decoration: underline;">MCP Integration</a> (Cursor &amp; Claude)</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>GEO &amp; SEO Visibility Engine</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Development Prompts</span></li>
-                        </ul>
-                    </div>
-                    <div class="plan-cta">
-                        <div class="price">
-                            <span class="currency">$</span>
-                            <span class="amount">1.99</span>
-                            <span class="period">per month</span>
-                        </div>
-                        <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro for $1.99 per month">
-                            <span class="btn-content">
-                                <span class="btn-text">Subscribe Now</span>
-                                <span class="btn-spinner" aria-hidden="true"></span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- FAQ Section -->
-    <div class="pricing-faq">
+    <section class="pricing-faq" aria-labelledby="pricing-faq-heading">
         <div class="container">
-            <h2>Frequently Asked Questions</h2>
+            <h2 id="pricing-faq-heading">Questions</h2>
             <div class="faq-grid">
                 <div class="faq-item">
-                    <h4>What's included in the free plan?</h4>
-                    <p>You get 1 free specification to try our AI-powered app planning. You also have access to our Tools Map and Tool Finder.</p>
+                    <h4>How does Pro work?</h4>
+                    <p>One subscription at $1.99/month unlocks unlimited specifications and every Pro feature. Cancel anytime from your profile.</p>
                 </div>
                 <div class="faq-item">
                     <h4>Can I edit my specifications?</h4>
-                    <p>Only Pro subscribers can edit specifications. Free users can view and save their specifications.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>How does the Pro subscription work?</h4>
-                    <p>Pro gives you unlimited specifications and the ability to edit them for just $1.99 per month. Cancel anytime.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>Can I cancel my Pro subscription?</h4>
-                    <p>Yes, you can cancel anytime. You'll keep Pro features until the end of your billing period.</p>
+                    <p>Yes — editing and customizing specs is a Pro-only feature. Update your PRD as your product evolves.</p>
                 </div>
                 <div class="faq-item">
                     <h4>What payment methods do you accept?</h4>
-                    <p>We accept all major credit cards, PayPal, and other payment methods through Lemon Squeezy.</p>
+                    <p>All major credit cards, PayPal, and more through our secure Lemon Squeezy checkout.</p>
                 </div>
                 <div class="faq-item">
                     <h4>Is there a money-back guarantee?</h4>
-                    <p>Yes, we offer a 30-day money-back guarantee for all Pro subscriptions.</p>
+                    <p>Yes — 30-day money-back guarantee on all Pro subscriptions.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- CTA Section -->
-    <div class="pricing-cta">
-        <div class="container">
-            <h2>Ready to Build Your App?</h2>
-            <p>Start with our free plan or jump straight to Pro for unlimited specifications</p>
-            <div class="cta-buttons">
-                <a href="/" class="btn btn-primary">Try Free</a>
-                <a href="#pricing" class="btn btn-outline">View Plans</a>
-            </div>
+    <section class="pro-footer-cta" aria-label="Subscribe to Pro">
+        <div class="pro-footer-cta-inner">
+            <p class="pro-footer-cta-text">Ready to unlock everything?</p>
+            <button class="btn btn-primary btn-lg pro-footer-cta-btn" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro">
+                <span class="btn-content">
+                    <span class="btn-text">Get Pro — $1.99/mo</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </span>
+            </button>
         </div>
-    </div>
+    </section>
 </main>
