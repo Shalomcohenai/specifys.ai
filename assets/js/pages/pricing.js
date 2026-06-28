@@ -198,7 +198,7 @@ function resolveCurrentPricingPlan(creditsData) {
 }
 
 function clearCurrentPlanHighlights() {
-    document.querySelectorAll('.pro-hero.is-current-plan, .pricing-card.is-current-plan').forEach((el) => {
+    document.querySelectorAll('.pro-pricing-cta.is-current-plan, .pricing-card.is-current-plan').forEach((el) => {
         el.classList.remove('is-current-plan');
         el.removeAttribute('aria-current');
     });
@@ -281,8 +281,12 @@ async function applyCurrentPlanHighlight() {
     const statusEl = document.getElementById('pricing-plan-status');
 
     if (plan.kind === 'pro') {
-        const proHero = document.querySelector('.pro-hero');
-        markCardAsCurrentPlan(proHero);
+        const proCtaAside = document.querySelector('.pro-pricing-cta');
+        const proCtaCard = document.querySelector('.pro-pricing-cta-card');
+        if (proCtaAside) {
+            proCtaAside.classList.add('is-current-plan');
+        }
+        markCardAsCurrentPlan(proCtaCard);
         document.querySelectorAll('button[data-product-key="pro_monthly"]').forEach((btn) => {
             updateCurrentPlanButton(btn, true);
         });
@@ -334,7 +338,7 @@ function getPricingAlertContainer() {
     container = document.createElement('div');
     container.id = 'pricing-alert';
     container.className = 'pricing-alert';
-    const hero = document.querySelector('.pro-hero-inner');
+    const hero = document.querySelector('.pro-pricing-section');
     if (hero && hero.parentNode) {
         hero.parentNode.insertBefore(container, hero);
     } else {
@@ -996,7 +1000,7 @@ var PRO_FEATURES = {
     unlimited: {
         icon: 'fa-infinity',
         title: 'Unlimited Specifications',
-        desc: 'Create as many app specs as you need. No credit limits, no per-spec fees — iterate freely on every idea.',
+        desc: 'Create as many app specs as you need. No credit limits, no per-spec fees - iterate freely on every idea.',
         highlights: ['Unlimited spec generation', 'Full PRD-level detail every time', 'Tools Map & Tool Finder included']
     },
     edit: {
@@ -1020,13 +1024,13 @@ var PRO_FEATURES = {
     prompts: {
         icon: 'fa-code',
         title: 'Development Prompts',
-        desc: 'Generate ready-to-use prompts for Cursor, Windsurf, and your AI coding workflow — straight from your spec.',
+        desc: 'Generate ready-to-use prompts for Cursor, Windsurf, and your AI coding workflow - straight from your spec.',
         highlights: ['Structured dev prompts from your PRD', 'Apply brain dump insights to specs', 'Export for any AI IDE']
     },
     export: {
         icon: 'fa-file-export',
         title: 'Export Anywhere',
-        desc: 'Take your spec wherever your team works — HTML, Jira, Cursor, Windsurf, and full prompts export.',
+        desc: 'Take your spec wherever your team works - HTML, Jira, Cursor, Windsurf, and full prompts export.',
         highlights: ['HTML & Jira export', 'Cursor & Windsurf integration', 'Full prompts export for app building']
     },
     mcp: {

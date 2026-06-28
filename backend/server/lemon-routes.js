@@ -16,7 +16,7 @@ const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
-const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
+const { getProductByKey, getProductByVariantId, getProductKeyByVariantId, resolveVariantIdForProduct } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
 const creditsV3Service = require('./credits-v3-service');
 const config = require('./config');
@@ -122,7 +122,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       defaultVariantId 
     }, '[lemon-routes] Product config lookup result');
     
-    const variantIdToUse = productConfig?.variant_id || defaultVariantId;
+    const variantIdToUse = resolveVariantIdForProduct(productConfig, defaultVariantId);
     logger.debug({ 
       requestId, 
       variantIdToUse, 

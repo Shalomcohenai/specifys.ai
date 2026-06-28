@@ -36,6 +36,27 @@ function getProductsConfig() {
   return config.products || {};
 }
 
+function isUsableLemonVariantId(variantId) {
+  if (variantId === undefined || variantId === null) {
+    return false;
+  }
+  const normalized = String(variantId).trim();
+  if (!normalized || /replace/i.test(normalized)) {
+    return false;
+  }
+  return /^\d+$/.test(normalized);
+}
+
+function resolveVariantIdForProduct(product, fallbackVariantId) {
+  if (product && isUsableLemonVariantId(product.variant_id)) {
+    return String(product.variant_id);
+  }
+  if (isUsableLemonVariantId(fallbackVariantId)) {
+    return String(fallbackVariantId);
+  }
+  return null;
+}
+
 function getProductByKey(productKey) {
   if (!productKey) {
     return null;
@@ -66,6 +87,8 @@ module.exports = {
   getProductsConfig,
   getProductByKey,
   getProductByVariantId,
-  getProductKeyByVariantId
+  getProductKeyByVariantId,
+  isUsableLemonVariantId,
+  resolveVariantIdForProduct
 };
 

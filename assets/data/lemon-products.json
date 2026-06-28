@@ -2,8 +2,8 @@
   "products": {
     "pro_monthly": {
       "name": "Specifys Pro",
-      "variant_id": "REPLACE_WITH_NEW_VARIANT_ID",
-      "product_id": "REPLACE_WITH_NEW_PRODUCT_ID",
+      "variant_id": "1055346",
+      "product_id": "671446",
       "type": "subscription",
       "credits": "unlimited",
       "billing_interval": "month"
