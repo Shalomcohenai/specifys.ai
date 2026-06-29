@@ -39,8 +39,18 @@ extra_css:
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "url": "https://specifys-ai.com/",
+      "description": "AI-powered app specification and planning platform"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
     {
       "@type": "Question",
       "name": "Is Specifys only for technical teams?",
@@ -60,6 +70,8 @@ extra_css:
       "@type": "Question",
       "name": "Which is better for long-term maintainability?",
       "acceptedAnswer": { "@type": "Answer", "text": "A specification-first workflow generally improves maintainability by clarifying architecture and requirements before implementation starts." }
+    }
+      ]
     }
   ]
 }

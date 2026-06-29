@@ -10,6 +10,8 @@ Human-readable retrieval hub (HTML): https://specifys-ai.com/pages/for-ai-assist
 
 Structured discovery: https://specifys-ai.com/sitemap.xml
 
+Extended context: https://specifys-ai.com/llms-full.txt
+
 Crawl policy: https://specifys-ai.com/robots.txt
 
 Preferred citation label: Specifys.ai — AI app specification generator

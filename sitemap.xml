@@ -2,22 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://specifys-ai.com/</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/blog/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/blog/" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/pages/articles.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/articles.html" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -30,14 +23,14 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/about.html</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/about.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/contact.html</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/contact.html" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -58,7 +51,7 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/pricing.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/pricing.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -79,28 +72,63 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/for-ai-assistants.html</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/for-ai-assistants.html" />
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/pages/compare.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/integrations.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/integrations.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/guides.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/guides.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/guides/vibe-coding.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/guides/vibe-coding.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/pages/guides/app-specification.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/guides/app-specification.html" />
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/pages/compare/specifys-vs-lovable.html</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-lovable.html" />
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/compare/specifys-vs-bolt.html</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-bolt.html" />
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html</loc>
-    <lastmod>2026-05-08</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html" />
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
@@ -114,7 +142,7 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/mcp.html</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-06-28</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/mcp.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -1014,5 +1042,1146 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/" />
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/accessibility-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/accessibility-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/ai-driven-seo-practices/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/ai-driven-seo-practices/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/api-security/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/api-security/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/app-security-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/app-security-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/architecture-basics-monolith-microservices/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/architecture-basics-monolith-microservices/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/architecture-prompts-conceptual/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/architecture-prompts-conceptual/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/authentication-authorization/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/authentication-authorization/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/avoiding-hallucinations/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/avoiding-hallucinations/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/backups-restore/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/backups-restore/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/basic-ux-principles/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/basic-ux-principles/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/breaking-problems-into-parts/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/breaking-problems-into-parts/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/caching-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/caching-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/cdns-explained/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/cdns-explained/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/ci-cd-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/ci-cd-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/client-server-model/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/client-server-model/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/cloud-providers-overview/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/cloud-providers-overview/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/cloud-security-cloudflare-waf/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/cloud-security-cloudflare-waf/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/cohorts/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/cohorts/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/color-typography/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/color-typography/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/communicating-with-ai-tools/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/communicating-with-ai-tools/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/component-thinking/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/component-thinking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/connecting-apis/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/connecting-apis/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/content-clusters-internal-linking/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/content-clusters-internal-linking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/conversion-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/conversion-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/dashboards/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/dashboards/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/database-errors-conceptual/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/database-errors-conceptual/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/database-security/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/database-security/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/dns-domains/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/dns-domains/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/edge-functions/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/edge-functions/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/endpoints-routes/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/endpoints-routes/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/environment-types-dev-stage-prod/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/environment-types-dev-stage-prod/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/error-handling/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/error-handling/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/errors-status-codes/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/errors-status-codes/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/events-tracking/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/events-tracking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/feature-breakdown-structure/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/feature-breakdown-structure/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/flow-based-thinking/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/flow-based-thinking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/flows-diagrams/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/flows-diagrams/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/frontend-vs-backend/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/frontend-vs-backend/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/funnels/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/funnels/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/headers-cookies/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/headers-cookies/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-ai-builds-apps-for-you/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-ai-builds-apps-for-you/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-ai-builds-components/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-ai-builds-components/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-ai-creates-code/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-ai-creates-code/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-ai-handles-errors/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-ai-handles-errors/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-apps-scale/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-apps-scale/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-deployments-work/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-deployments-work/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-search-engines-work/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-search-engines-work/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-systems-fail/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-systems-fail/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-to-describe-a-feature-clearly/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-to-describe-a-feature-clearly/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-to-think-in-ai-first-architecture/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-to-think-in-ai-first-architecture/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/how-websites-load/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/how-websites-load/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/http-methods-get-post-patch/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/http-methods-get-post-patch/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/identifying-bottlenecks/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/identifying-bottlenecks/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/indexes-simple-explanation/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/indexes-simple-explanation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/inputs-outputs/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/inputs-outputs/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/integrations/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/integrations/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/keyword-research/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/keyword-research/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/layout-systems/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/layout-systems/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/mapping-data-flow/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/mapping-data-flow/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/mental-models-for-tech/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/mental-models-for-tech/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/mobile-vs-desktop-ux/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/mobile-vs-desktop-ux/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/monitoring-logs/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/monitoring-logs/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/multi-step-prompt-thinking/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/multi-step-prompt-thinking/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/multi-step-workflows/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/multi-step-workflows/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/owasp-for-non-coders/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/owasp-for-non-coders/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/page-speed-performance/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/page-speed-performance/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/page-structure-metadata/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/page-structure-metadata/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/prompt-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/prompt-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/query-lifecycle/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/query-lifecycle/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/rate-limiting/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/rate-limiting/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/reducing-cognitive-load/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/reducing-cognitive-load/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/refining-ai-output/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/refining-ai-output/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/relations-1-1-1-n-n-n/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/relations-1-1-1-n-n-n/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/request-response-lifecycle/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/request-response-lifecycle/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/request-response-structure/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/request-response-structure/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/rest-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/rest-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/retention/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/retention/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/reviewing-ai-generated-code-conceptually/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/reviewing-ai-generated-code-conceptually/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/reviewing-what-ai-creates/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/reviewing-what-ai-creates/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/roles-system-user-assistant/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/roles-system-user-assistant/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/scheduling/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/scheduling/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/secure-storage-secrets/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/secure-storage-secrets/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/security-testing-conceptual/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/security-testing-conceptual/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/seo-basics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/seo-basics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/state-client-server/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/state-client-server/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/tables-columns-rows-conceptual/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/tables-columns-rows-conceptual/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/technical-seo/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/technical-seo/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/testing-ai-responses/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/testing-ai-responses/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/testing-features-with-ai/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/testing-features-with-ai/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/the-role-of-the-vibe-developer/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/the-role-of-the-vibe-developer/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/trigger-action-logic/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/trigger-action-logic/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/understanding-api-endpoints/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/understanding-api-endpoints/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/understanding-dependencies/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/understanding-dependencies/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/understanding-model-limitations/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/understanding-model-limitations/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/user-behavior-analysis/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/user-behavior-analysis/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/user-flows/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/user-flows/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/versioning-rollbacks/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/versioning-rollbacks/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/vibe-coding-pitfalls-best-practices/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/vibe-coding-pitfalls-best-practices/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/webhooks-conceptual/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/webhooks-conceptual/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/webhooks-in-automations/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/webhooks-in-automations/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-devops-really-does/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-devops-really-does/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-build/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-build/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-database-layer/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-database-layer/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-database/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-database/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-library-framework/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-library-framework/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-package/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-package/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-repository/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-repository/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-service-layer/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-service-layer/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-a-transaction/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-a-transaction/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-an-api-layer/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-an-api-layer/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-an-api/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-an-api/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-an-error/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-an-error/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-analytics/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-analytics/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-automation/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-automation/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-code-conceptually/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-code-conceptually/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-runtime-vs-compile-time/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-runtime-vs-compile-time/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-serverless/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-serverless/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-the-cloud/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-the-cloud/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-version-control/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-version-control/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/what-is-vibe-coding/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/what-is-vibe-coding/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/academy/guides/writing-efficient-feature-descriptions/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/writing-efficient-feature-descriptions/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-flaw-lets-malicious-sites-run-code-on-your-machine</loc>
+    <lastmod>2026-06-25</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-flaw-lets-malicious-sites-run-code-on-your-machine" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems-1781254810472</loc>
+    <lastmod>2026-06-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems-1781254810472" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharging-codexs-agentic-power</loc>
+    <lastmod>2026-06-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharging-codexs-agentic-power" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents</loc>
+    <lastmod>2026-06-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development</loc>
+    <lastmod>2026-05-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=databricks-genie-one-your-new-ai-co-worker-for-business-tasks</loc>
+    <lastmod>2026-06-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=databricks-genie-one-your-new-ai-co-worker-for-business-tasks" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-surges-among-knowledge-workers-5m-users-and-counting</loc>
+    <lastmod>2026-06-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-surges-among-knowledge-workers-5m-users-and-counting" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity-1781082012133</loc>
+    <lastmod>2026-06-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity-1781082012133" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779526811974</loc>
+    <lastmod>2026-05-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779526811974" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-build-2026-unveils-intent-first-development-ai-driven-workflows-redefine-coding</loc>
+    <lastmod>2026-06-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-build-2026-unveils-intent-first-development-ai-driven-workflows-redefine-coding" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems</loc>
+    <lastmod>2026-06-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity</loc>
+    <lastmod>2026-06-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=ais-impact-on-coding-speed-and-software-stability-in-2026-a-developers-guide</loc>
+    <lastmod>2026-06-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=ais-impact-on-coding-speed-and-software-stability-in-2026-a-developers-guide" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-13-million-ai-coding-experiment-unveiled</loc>
+    <lastmod>2026-05-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-13-million-ai-coding-experiment-unveiled" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows</loc>
+    <lastmod>2026-06-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows-1780909217579</loc>
+    <lastmod>2026-06-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows-1780909217579" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779354015142</loc>
+    <lastmod>2026-05-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779354015142" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-flaw-exposes-ai-agents-to-rce-attacks</loc>
+    <lastmod>2026-06-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-flaw-exposes-ai-agents-to-rce-attacks" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents-1781686812389</loc>
+    <lastmod>2026-06-17</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents-1781686812389" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-opus-48-cutting-ai-hallucinations-in-code-generation</loc>
+    <lastmod>2026-05-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-opus-48-cutting-ai-hallucinations-in-code-generation" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-unleashes-agentic-coding-transforming-dev-workflows</loc>
+    <lastmod>2026-05-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-unleashes-agentic-coding-transforming-dev-workflows" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development-1779699613894</loc>
+    <lastmod>2026-05-25</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development-1779699613894" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-flaw-exposes-ai-agents-to-rce-attacks-1782205214169</loc>
+    <lastmod>2026-06-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-flaw-exposes-ai-agents-to-rce-attacks-1782205214169" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems-1781341212820</loc>
+    <lastmod>2026-06-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openclaw-flaw-exposes-security-risks-in-agentic-ai-systems-1781341212820" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=apples-removal-of-anything-app-exposes-security-flaws-in-ai-generated-code</loc>
+    <lastmod>2026-05-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=apples-removal-of-anything-app-exposes-security-flaws-in-ai-generated-code" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-knowledge-workers-embrace-ai-powered-productivity</loc>
+    <lastmod>2026-06-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-knowledge-workers-embrace-ai-powered-productivity" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openai-acquires-ona-to-supercharge-codexs-autonomous-coding-agents-1781859610566</loc>
+    <lastmod>2026-06-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openai-acquires-ona-to-supercharge-codexs-autonomous-coding-agents-1781859610566" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development</loc>
+    <lastmod>2026-05-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=databricks-genie-one-ai-co-worker-for-business-teams</loc>
+    <lastmod>2026-06-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=databricks-genie-one-ai-co-worker-for-business-teams" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-ai-generated-code-a-wake-up-call</loc>
+    <lastmod>2026-06-29</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-ai-generated-code-a-wake-up-call" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=apples-anything-app-removal-exposes-ai-code-security-flaws</loc>
+    <lastmod>2026-05-27</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=apples-anything-app-removal-exposes-ai-code-security-flaws" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-tackle-complex-tasks-beyond-simple-coding</loc>
+    <lastmod>2026-06-27</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-tackle-complex-tasks-beyond-simple-coding" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=googles-gemini-35-flash-unleashing-ai-agent-efficiency</loc>
+    <lastmod>2026-05-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-gemini-35-flash-unleashing-ai-agent-efficiency" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-build-2026-unveils-scout-your-new-ai-productivity-partner</loc>
+    <lastmod>2026-06-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-build-2026-unveils-scout-your-new-ai-productivity-partner" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-vulnerability-exposes-ai-agents-to-rce-attacks</loc>
+    <lastmod>2026-06-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-autojack-vulnerability-exposes-ai-agents-to-rce-attacks" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-from-code-to-complex-tasks-now-empowering-non-developers</loc>
+    <lastmod>2026-06-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-from-code-to-complex-tasks-now-empowering-non-developers" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=aws-kiros-spec-driven-development-boosting-ai-coding-agents</loc>
+    <lastmod>2026-05-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=aws-kiros-spec-driven-development-boosting-ai-coding-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-boosting-codexs-agentic-power</loc>
+    <lastmod>2026-06-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-boosting-codexs-agentic-power" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=apples-anything-app-removal-exposes-ai-code-security-flaws-1779958813544</loc>
+    <lastmod>2026-05-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=apples-anything-app-removal-exposes-ai-code-security-flaws-1779958813544" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-transforms-agentic-coding-with-autonomous-task-execution</loc>
+    <lastmod>2026-06-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-transforms-agentic-coding-with-autonomous-task-execution" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openai-acquires-ona-to-supercharge-codexs-autonomous-coding-agents</loc>
+    <lastmod>2026-06-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openai-acquires-ona-to-supercharge-codexs-autonomous-coding-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

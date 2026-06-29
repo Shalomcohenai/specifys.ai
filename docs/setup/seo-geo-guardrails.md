@@ -68,6 +68,15 @@ Body: `content_markdown` only — **no H1** in body (title is the page H1).
 - [ ] 300+ words of semantic prose on core marketing pages
 - [ ] JSON-LD where applicable (compare, glossary, FAQ patterns exist)
 
+## 7. Academy static guides
+
+Indexable academy content lives in `_guides/*.md` (Jekyll collection, layout `guide`).
+
+- Permalink: `/academy/guides/:name/`
+- Backfill: `node backend/scripts/backfill-academy-to-jekyll.js`
+- Legacy `/academy/guide.html?guide=` stays `noindex`; redirects to static URL when `jekyll_slug` is set.
+- Add new guides to `llms.txt` and regenerate sitemap after backfill.
+
 ## 6. Environment & verification
 
 | Variable | Purpose |
@@ -77,7 +86,7 @@ Body: `content_markdown` only — **no H1** in body (title is the page H1).
 | `GITHUB_BRANCH` | Default `main` |
 | `search_console_verification` in `_config.yml` | Google Search Console HTML tag token |
 | `GSC_VERIFICATION_TOKEN` | Optional CI secret to inject at build time |
-| `INDEXNOW_KEY` | Bing/IndexNow ping after sitemap updates |
+| `INDEXNOW_KEY` | Bing/IndexNow ping after sitemap updates (`specifysai-indexnow-key`) |
 
 ## 7. robots.txt
 

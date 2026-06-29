@@ -204,3 +204,9 @@
 /article.html?slug=vibe-coding-the-revolutionary-force-reshaping-software-jobs  /2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/  301
 /article.html?slug=web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app  /2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/  301
 # End article slug redirects
+
+# SEO fixes
+/404 /pages/404.html 301
+/blog/feefwe.html /pages/404.html 301
+/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding/ /2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/ 301
+/pages/articles.html /blog/ 301

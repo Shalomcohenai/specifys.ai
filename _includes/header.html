@@ -1,12 +1,20 @@
-<!-- Header: logo (left), user (left), credits (right) -->
+<!-- Header: logo, nav, user, credits -->
 <header class="thematic-header" role="banner">
-    <nav class="header-center" aria-label="Main navigation">
+    <div class="header-left">
         <div class="logo">
             <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </nav>
+        <nav class="header-nav" aria-label="Site navigation">
+            <a href="{{ '/pages/how.html' | relative_url }}">How</a>
+            <a href="{{ '/pages/pricing.html' | relative_url }}">Pricing</a>
+            <a href="{{ '/blog/' | relative_url }}">Blog</a>
+            <a href="{{ '/academy.html' | relative_url }}">Academy</a>
+            <a href="{{ '/pages/guides.html' | relative_url }}">Guides</a>
+            <a href="{{ '/pages/compare.html' | relative_url }}">Compare</a>
+        </nav>
+    </div>
     <div class="header-right" role="complementary" aria-label="User account and credits">
         <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
             <!-- Will be populated by auth system -->

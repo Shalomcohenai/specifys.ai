@@ -1,0 +1,29 @@
+# Priority URLs for Google Search Console "Request Indexing"
+# Submit after deploy: https://search.google.com/search-console
+# Also submit sitemap: https://specifys-ai.com/sitemap.xml
+# Bing: https://www.bing.com/webmasters — add site + submit same sitemap
+
+https://specifys-ai.com/
+https://specifys-ai.com/pages/how.html
+https://specifys-ai.com/pages/why.html
+https://specifys-ai.com/pages/pricing.html
+https://specifys-ai.com/pages/about.html
+https://specifys-ai.com/blog/
+https://specifys-ai.com/academy.html
+https://specifys-ai.com/pages/compare/specifys-vs-lovable.html
+https://specifys-ai.com/pages/compare/specifys-vs-bolt.html
+https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html
+https://specifys-ai.com/pages/glossary/index.html
+https://specifys-ai.com/pages/mcp.html
+https://specifys-ai.com/pages/for-ai-assistants.html
+https://specifys-ai.com/pages/cursor-windsurf-integration.html
+https://specifys-ai.com/tools/map/vibe-coding-tools-map.html
+https://specifys-ai.com/pages/ToolPicker.html
+https://specifys-ai.com/pages/compare.html
+https://specifys-ai.com/pages/integrations.html
+https://specifys-ai.com/pages/guides.html
+https://specifys-ai.com/pages/guides/vibe-coding.html
+https://specifys-ai.com/pages/guides/app-specification.html
+https://specifys-ai.com/academy/guides/app-security-basics/
+https://specifys-ai.com/academy/guides/frontend-vs-backend/
+https://specifys-ai.com/academy/guides/seo-basics/

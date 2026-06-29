@@ -7,7 +7,7 @@ extra_css:
   - /assets/css/pages/ai-content-pages.css
 ---
 
-<main class="compare-page" id="main-content">
+<div class="compare-page" id="main-content">
   <article>
     <h1>Specifys vs Lovable</h1>
     <p><strong>TL;DR:</strong> Lovable is optimized for fast product assembly from prompts, while Specifys focuses on structured requirements and architecture-grade planning outputs.</p>
@@ -34,32 +34,44 @@ extra_css:
       <p>If your team needs shared clarity before engineering execution, Specifys offers stronger planning controls. If your goal is immediate prototyping velocity, Lovable may feel faster for early experimentation.</p>
     </section>
   </article>
-</main>
+</div>
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
+  "@graph": [
     {
-      "@type": "Question",
-      "name": "Is Specifys a replacement for Lovable?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Not necessarily. Many teams combine specification-first planning with fast generation tools in one delivery pipeline." }
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "url": "https://specifys-ai.com/",
+      "description": "AI-powered app specification and planning platform"
     },
     {
-      "@type": "Question",
-      "name": "Which platform is better for product discovery?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Specifys is typically stronger for structured product discovery and alignment before implementation begins." }
-    },
-    {
-      "@type": "Question",
-      "name": "Can non-developers use Specifys effectively?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The workflow is designed to guide non-technical stakeholders through planning and requirement definition." }
-    },
-    {
-      "@type": "Question",
-      "name": "What improves handoff quality to engineering?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Explicit technical and architecture sections generally improve engineering handoff quality and reduce ambiguity." }
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Specifys a replacement for Lovable?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not necessarily. Many teams combine specification-first planning with fast generation tools in one delivery pipeline." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which platform is better for product discovery?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Specifys is typically stronger for structured product discovery and alignment before implementation begins." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can non-developers use Specifys effectively?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The workflow is designed to guide non-technical stakeholders through planning and requirement definition." }
+        },
+        {
+          "@type": "Question",
+          "name": "What improves handoff quality to engineering?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Explicit technical and architecture sections generally improve engineering handoff quality and reduce ambiguity." }
+        }
+      ]
     }
   ]
 }

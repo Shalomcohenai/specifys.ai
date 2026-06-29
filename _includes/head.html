@@ -119,33 +119,35 @@
     <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
     
     <!-- Canonical URL -->
+    {% assign canonical_base = site.url | default: 'https://specifys-ai.com' %}
     {% if page.canonical_url %}
-    <link rel="canonical" href="{{ page.canonical_url }}">
+    {% assign canonical_href = page.canonical_url %}
     {% else %}
     {% assign canonical_path = page.url | replace:'index.html','' | replace:'index.htm','' %}
     {% assign canonical_path = canonical_path | strip %}
     {% if canonical_path == '' %}
       {% assign canonical_path = '/' %}
     {% endif %}
-    {% assign canonical_base = site.url | default: 'https://specifys-ai.com' %}
     {% assign canonical_href = canonical_base | append: canonical_path %}
-    <link rel="canonical" href="{{ canonical_href }}">
     {% endif %}
+    <link rel="canonical" href="{{ canonical_href }}">
     <link rel="alternate" hreflang="en" href="{{ canonical_href }}">
     <link rel="alternate" hreflang="x-default" href="{{ canonical_href }}">
+    <link rel="alternate" type="text/markdown" href="{{ canonical_base }}/llms.txt" title="LLM site index">
     {% if site.search_console_verification %}
     <meta name="google-site-verification" content="{{ site.search_console_verification }}">
     {% endif %}
     {% if site.bing_webmaster_verification %}
     <meta name="msvalidate.01" content="{{ site.bing_webmaster_verification }}">
     {% endif %}
+    {% feed_meta %}
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
     <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
     <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
-    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:url" content="{{ canonical_href }}">
     <meta property="og:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">

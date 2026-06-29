@@ -7,25 +7,54 @@ extra_css:
   - /assets/css/pages/about.css
 ---
 
-<main class="content-box" id="main-content" role="main">
+<div class="content-box">
   <article>
     <h1>Contact Specifys.AI</h1>
     <h2>How can we help?</h2>
-    <p>Whether you need a custom demo of our AI app spec creation tool, technical support, or have questions about PRD generation and stable app development - we're here to help.</p>
-    <p>Use the button below to open the contact form, or reach us by email. We typically respond within one business day.</p>
+    <p>Whether you need a custom demo of our AI app spec creation tool, technical support, or have questions about PRD generation and stable app development — we're here to help.</p>
+    <p>Use the button below to open the contact form, or reach us by email. We typically respond within <strong>one business day</strong> (Sunday–Thursday, Israel time).</p>
     <p>
       <button type="button" class="btn contact-us-trigger" aria-label="Open contact form">Contact Us</button>
       <a href="mailto:about@prd.it.com" class="btn" style="margin-left: 0.5rem;">about@prd.it.com</a>
     </p>
+
+    <section>
+      <h2>Common questions</h2>
+      <dl>
+        <dt>Enterprise or team plans?</dt>
+        <dd>Email us with your team size and workflow — we can discuss custom onboarding and specification templates.</dd>
+        <dt>Technical support</dt>
+        <dd>Include your account email and a short description of the issue. Screenshots help us resolve faster.</dd>
+        <dt>Partnerships &amp; press</dt>
+        <dd>We welcome collaborations with AI tool vendors, educators, and content creators in the vibe coding space.</dd>
+      </dl>
+    </section>
+
     <div class="related-links" style="margin: 2rem 0; padding: 1.5rem 0; border-top: 1px solid #e1e5e9;">
       <h3>More</h3>
       <ul style="list-style: none; padding: 0;">
         <li style="margin: 0.5rem 0;"><a href="/" style="color: #0066cc; text-decoration: none;">Home →</a></li>
         <li style="margin: 0.5rem 0;"><a href="/pages/about.html" style="color: #0066cc; text-decoration: none;">About →</a></li>
         <li style="margin: 0.5rem 0;"><a href="/pages/pricing.html" style="color: #0066cc; text-decoration: none;">Pricing →</a></li>
+        <li style="margin: 0.5rem 0;"><a href="/pages/how.html" style="color: #0066cc; text-decoration: none;">How It Works →</a></li>
       </ul>
     </div>
   </article>
-</main>
+</div>
 
 <script src="{{ '/assets/js/contact-us-modal.js' | relative_url }}"></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Specifys.AI",
+  "url": "https://specifys-ai.com/pages/contact.html",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "Specifys.ai",
+    "email": "about@prd.it.com",
+    "url": "https://specifys-ai.com"
+  }
+}
+</script>

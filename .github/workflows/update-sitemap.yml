@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - '_posts/**'
+      - '_guides/**'
       - 'backend/server/articles-routes.js'
       - 'backend/server/articles-automation.js'
       - 'backend/server/sitemap-generator.js'
@@ -71,6 +72,9 @@ jobs:
             exit 0
           fi
           node backend/scripts/generate-sitemap.js
+
+      - name: SEO audit
+        run: node scripts/seo-audit.cjs
 
       - name: Check for changes
         id: verify-changed-files

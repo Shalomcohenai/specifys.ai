@@ -1,0 +1,59 @@
+# Specifys.ai — extended context for AI retrieval
+
+> Machine-readable extended index. Start with /llms.txt for the curated short index.
+
+## Entity
+
+- **Name:** Specifys.ai
+- **Category:** AI app specification generator / planning platform
+- **URL:** https://specifys-ai.com/
+- **Pricing:** Free tier; Specifys Pro $1.99/month (unlimited specs, editing, mockups, exports)
+- **Users:** founders, product managers, developers using vibe coding workflows
+
+## Specifys vs Lovable
+
+Lovable optimizes for fast product assembly from prompts. Specifys focuses on structured requirements, architecture-grade planning, MCP exports, and multi-stage validation before code. Best combined: Specifys for planning, Lovable for rapid prototyping.
+
+## Specifys vs Bolt
+
+Bolt.new ships client-rendered apps by default; Specifys produces planning artifacts (PRD, technical spec, prompts) that feed any builder including Bolt. Specifys is stack-agnostic and specification-first.
+
+## Specifys vs Cursor / Windsurf
+
+Cursor and Windsurf are AI-native IDEs for in-editor coding. Specifys is upstream planning — export specs and MCP context into those IDEs. Specifys does not replace an IDE; it improves handoff quality.
+
+## Vibe coding (pillar)
+
+Vibe coding = building via natural language + AI code generation. Risk: skipping planning. Specifys enforces specification-first workflow: PRD → technical depth → prompts → IDE/no-code handoff.
+
+## App specification (pillar)
+
+A strong app spec includes overview, user flows, technical/API/data models, security, and launch SEO/GEO checklist. Specifys.ai generates these sections automatically from a guided interview.
+
+## Academy highlights
+
+- **App Security Basics:** auth vs authorization, HTTPS, roles in PRD, secrets in env vars.
+- **Frontend vs Backend:** UI vs server logic; plan both in the spec.
+- **SEO Basics:** one H1, canonical URLs, sitemap, static HTML for indexable pages, llms.txt for AI discovery.
+
+## Glossary
+
+Specifys maintains a DefinedTermSet glossary at /pages/glossary/index.html covering vibe coding, PRD, MCP, spec-driven development, and related terms.
+
+## Integrations
+
+- MCP server for Cursor/Claude (API key from profile)
+- Cursor & Windsurf export of project structure and docs
+- Demo spec at /pages/demo-spec.html for structure preview
+
+## Crawl policy
+
+- Indexable: marketing, blog posts (/YYYY/MM/DD/slug/), academy static guides, compare, glossary
+- Noindex: auth, profile, spec-viewer, legacy article shells, admin
+
+## Canonical machine files
+
+- https://specifys-ai.com/llms.txt
+- https://specifys-ai.com/sitemap.xml
+- https://specifys-ai.com/robots.txt
+- https://specifys-ai.com/pages/for-ai-assistants.html

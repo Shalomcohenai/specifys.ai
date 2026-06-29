@@ -1,0 +1,11 @@
+---
+layout: guide
+title: What is a Transaction
+description: Understanding transactions in databases is key to ensuring data integrity and consistency, which is vital for reliable AI application development.
+level: Intermediate
+category_title: Databases
+canonical_url: https://specifys-ai.com/academy/guides/what-is-a-transaction/
+source: academy
+---
+
+<h2>Introduction</h2><p>Imagine a transaction as a promise made by a bank teller when transferring money between accounts. The teller ensures that funds are debited from one account and credited to another, completing the process without errors. This is similar to how database transactions work, ensuring that all operations within it are completed successfully or not at all.</p><h2>What is a Transaction?</h2><p>A transaction in a database is a sequence of operations performed as a single logical unit of work. Much like a complete banking transaction involving a withdrawal and a deposit, a database transaction is either fully completed or not executed at all, maintaining the consistency of the data.</p><h2>How It Works Behind the Scenes</h2><p>When a transaction starts, the database enters a state where it tracks changes. If the transaction completes successfully, the changes are committed and made permanent. If any part of the transaction fails, all changes are rolled back to maintain data integrity. This process is governed by ACID properties: Atomicity (all or nothing), Consistency (maintaining valid data), Isolation (transactions do not interfere with each other), and Durability (changes are permanent once committed).</p><h2>Why It Matters</h2><p>Transactions are crucial in modern AI development because they ensure that applications can trust the data they work with. This is especially important in AI-driven applications where data accuracy and consistency are vital for decision-making processes and model training.</p><h2>How AI Thinks About This</h2><p>AI systems approach transactions by ensuring that data processing tasks are reliable and consistent. When generating features or handling large datasets, AI must manage data operations in a way that aligns with transaction principles, ensuring the integrity and reliability of the outcomes.</p>

@@ -19,6 +19,9 @@ collections:
   posts:
     output: true
     permalink: /:year/:month/:day/:title/
+  guides:
+    output: true
+    permalink: /academy/guides/:name/
 
 # Defaults
 defaults:
@@ -27,6 +30,11 @@ defaults:
       type: "posts"
     values:
       layout: "post"
+  - scope:
+      path: ""
+      type: "guides"
+    values:
+      layout: "guide"
 
 # Plugins (GitHub Pages compatible)
 plugins:
@@ -66,8 +74,10 @@ exclude:
 include:
   - _redirects
   - llms.txt
+  - llms-full.txt
   - ai.txt
   - robots.txt
+  - specifysai-indexnow-key.txt
   - tools/
   - blog/  # Blog directory must be explicitly included
   # CSS files - must be explicitly listed (Jekyll doesn't support wildcards)

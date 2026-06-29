@@ -40,8 +40,18 @@ extra_css:
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "url": "https://specifys-ai.com/",
+      "description": "AI-powered app specification and planning platform"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
     {
       "@type": "Question",
       "name": "Do Cursor and Windsurf replace planning tools?",
@@ -61,6 +71,8 @@ extra_css:
       "@type": "Question",
       "name": "Which tool should I start with?",
       "acceptedAnswer": { "@type": "Answer", "text": "Start with Specifys when scope and architecture are still fluid, then move into IDE execution once requirements stabilize." }
+    }
+      ]
     }
   ]
 }

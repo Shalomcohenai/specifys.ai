@@ -1,0 +1,71 @@
+---
+layout: default
+extra_css:
+  - /assets/css/pages/academy.css
+  - /assets/css/pages/post.css
+extra_js:
+  - /assets/js/pages/post.js
+---
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ '/' | relative_url }}">Home</a>
+    <span class="separator">/</span>
+    <a href="{{ '/academy.html' | relative_url }}">Academy</a>
+    <span class="separator">/</span>
+    <span class="current">{{ page.title | truncate: 50 }}</span>
+</nav>
+
+<article class="post-content academy-guide-static" itemscope itemtype="https://schema.org/LearningResource">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name">{{ page.title }}</h1>
+        <div class="post-meta">
+            {% if page.level %}
+            <div class="meta-item">
+                <i class="fas fa-signal"></i>
+                <span>{{ page.level }}</span>
+            </div>
+            {% endif %}
+            {% if page.category_title %}
+            <div class="meta-item">
+                <i class="fas fa-folder"></i>
+                <span>{{ page.category_title }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% if page.description %}
+        <div class="post-description">
+            <p itemprop="description">{{ page.description }}</p>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="post-body" itemprop="text">
+        {{ content }}
+    </div>
+
+    <footer class="post-footer">
+        <div class="back-to-blog">
+            <a href="{{ '/academy.html' | relative_url }}" class="back-to-blog-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Academy</span>
+            </a>
+        </div>
+    </footer>
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": {{ page.title | jsonify }},
+  "description": {{ page.description | default: page.summary | jsonify }},
+  "url": "{{ page.url | absolute_url }}",
+  "learningResourceType": "Guide",
+  "isAccessibleForFree": true,
+  "provider": {
+    "@type": "Organization",
+    "name": "Specifys.ai",
+    "url": "https://specifys-ai.com"
+  }
+}
+</script>

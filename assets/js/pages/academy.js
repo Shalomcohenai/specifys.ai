@@ -8,6 +8,23 @@ class AcademyApp {
         this.init();
     }
 
+    slugify(title) {
+        return String(title || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
+    getGuideUrl(guide) {
+        if (guide.jekyll_permalink) {
+            return guide.jekyll_permalink.replace('https://specifys-ai.com', '');
+        }
+        if (guide.jekyll_slug) {
+            return `/academy/guides/${guide.jekyll_slug}/`;
+        }
+        return `/academy/guide.html?guide=${guide.id}`;
+    }
+
     init() {
         // Wait for DOM and Firebase
         if (document.readyState === 'loading') {
@@ -789,8 +806,9 @@ class AcademyApp {
 
         guidesGrid.innerHTML = guides.map(guide => {
             const levelClass = guide.level ? guide.level.toLowerCase() : 'beginner';
+            const guideUrl = this.getGuideUrl(guide);
             return `
-                <a href="/academy/guide.html?guide=${guide.id}" class="guide-card" role="listitem" aria-label="Read ${this.escapeHTML(guide.title)} guide">
+                <a href="${guideUrl}" class="guide-card" role="listitem" aria-label="Read ${this.escapeHTML(guide.title)} guide">
                     <div class="guide-card-header">
                         <h3>${this.escapeHTML(guide.title)}</h3>
                         <span class="level-badge ${levelClass}" aria-label="Difficulty: ${guide.level || 'Beginner'}">${guide.level || 'Beginner'}</span>
@@ -841,6 +859,12 @@ class AcademyApp {
             }
 
             const guide = { id: guideDoc.id, ...guideDoc.data() };
+
+            const staticUrl = this.getGuideUrl(guide);
+            if (staticUrl.startsWith('/academy/guides/')) {
+                window.location.replace(staticUrl);
+                return;
+            }
 
             // Track guide visit
             this.trackGuideVisit(guideId, guide.title);

@@ -18,6 +18,33 @@
 .header-left {
   display: flex;
   align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.header-nav a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0.85;
+  transition: opacity var(--transition-normal), color var(--transition-normal);
+}
+
+.header-nav a:hover {
+  opacity: 1;
+  color: var(--primary-color);
 }
 
 .header-center {
@@ -198,6 +225,9 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .header-nav {
+    display: none;
+  }
   .thematic-header {
     padding: 8px 12px;
     height: 56px;

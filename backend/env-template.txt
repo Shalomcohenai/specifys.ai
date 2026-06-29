@@ -204,6 +204,11 @@ BASE_URL=https://specifys-ai.com
 # Default: https://specifys-ai.com
 SITE_URL=https://specifys-ai.com
 
+# IndexNow (Bing) — key must match specifysai-indexnow-key.txt at repo root
+# INDEXNOW_KEY=specifysai-indexnow-key
+
+# Bing Webmaster — paste token into _config.yml bing_webmaster_verification
+
 # Production Server URL (for API calls)
 # Backend public URL (single source: backend/server/config.js default)
 PRODUCTION_SERVER_URL=https://specifys-ai-backend.onrender.com

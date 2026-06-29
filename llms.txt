@@ -4,9 +4,12 @@
 
 Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 
+**Pricing:** Free tier for core planning. **Specifys Pro: $1.99/month** — unlimited specs, editing, mockups, GEO/SEO exports, and development prompts.
+
 ## AI retrieval
 
 - [For AI assistants & answer engines](https://specifys-ai.com/pages/for-ai-assistants.html): Human-readable hub with entity facts, FAQ, and pointers to machine-readable files.
+- [llms-full.txt](https://specifys-ai.com/llms-full.txt): Extended summaries for compare pages, glossary, and academy guides.
 - [ai.txt](https://specifys-ai.com/ai.txt): Short pointer file for assistants (llms.txt, sitemap, robots).
 
 ## Key pages
@@ -17,14 +20,28 @@ Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 - [Pricing](https://specifys-ai.com/pages/pricing.html)
 - [Tool Finder](https://specifys-ai.com/pages/ToolPicker.html)
 - [MCP Integration](https://specifys-ai.com/pages/mcp.html)
+- [Integrations hub](https://specifys-ai.com/pages/integrations.html)
 - [Blog](https://specifys-ai.com/blog/)
 - [Academy](https://specifys-ai.com/academy.html)
 
 ## Compare (high-signal for AI answers)
 
+- [Compare hub](https://specifys-ai.com/pages/compare.html)
 - [Specifys vs Lovable](https://specifys-ai.com/pages/compare/specifys-vs-lovable.html)
 - [Specifys vs Bolt](https://specifys-ai.com/pages/compare/specifys-vs-bolt.html)
 - [Specifys vs Cursor and Windsurf](https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html)
+
+## Guides
+
+- [Guides hub](https://specifys-ai.com/pages/guides.html)
+- [Vibe coding guide](https://specifys-ai.com/pages/guides/vibe-coding.html)
+- [App specification guide](https://specifys-ai.com/pages/guides/app-specification.html)
+
+## Academy (static guides)
+
+- [App Security Basics](https://specifys-ai.com/academy/guides/app-security-basics/)
+- [Frontend vs Backend](https://specifys-ai.com/academy/guides/frontend-vs-backend/)
+- [SEO Basics](https://specifys-ai.com/academy/guides/seo-basics/)
 
 ## Glossary
 
@@ -32,13 +49,11 @@ Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 
 ## Product surfaces
 
-- [Spec Viewer](https://specifys-ai.com/pages/spec-viewer.html) - Interactive review workflow for generated specs.
 - [Demo Spec](https://specifys-ai.com/pages/demo-spec.html) - Public demo output and structure preview.
 - [Cursor and Windsurf Integration](https://specifys-ai.com/pages/cursor-windsurf-integration.html) - IDE export and handoff flow.
 - [Vibe Coding Tools Map](https://specifys-ai.com/tools/map/vibe-coding-tools-map.html) - Curated tools landscape for AI-native builders.
 
 ## Optional reading
 
-- [Articles Index](https://specifys-ai.com/pages/articles.html)
 - [About Specifys](https://specifys-ai.com/pages/about.html)
 - [Contact](https://specifys-ai.com/pages/contact.html)

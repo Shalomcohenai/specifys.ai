@@ -30,7 +30,6 @@ function buildStaticUrls(baseUrl, today) {
     const staticPages = [
         { loc: `${baseUrl}/`, source: 'index.html', priority: '1.0', changefreq: 'weekly' },
         { loc: `${baseUrl}/blog/`, source: 'blog/index.html', priority: '0.9', changefreq: 'weekly' },
-        { loc: `${baseUrl}/pages/articles.html`, source: 'pages/articles.html', priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/academy.html`, source: 'pages/academy/index.html', priority: '0.9', changefreq: 'weekly' },
         { loc: `${baseUrl}/pages/about.html`, source: 'pages/about.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/contact.html`, source: 'pages/contact.html', priority: '0.7', changefreq: 'monthly' },
@@ -40,6 +39,11 @@ function buildStaticUrls(baseUrl, today) {
         { loc: `${baseUrl}/pages/why.html`, source: 'pages/why.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/cursor-windsurf-integration.html`, source: 'pages/cursor-windsurf-integration.html', priority: '0.8', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/for-ai-assistants.html`, source: 'pages/for-ai-assistants.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/compare.html`, source: 'pages/compare.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/integrations.html`, source: 'pages/integrations.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/guides.html`, source: 'pages/guides.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/guides/vibe-coding.html`, source: 'pages/guides/vibe-coding.html', priority: '0.85', changefreq: 'monthly' },
+        { loc: `${baseUrl}/pages/guides/app-specification.html`, source: 'pages/guides/app-specification.html', priority: '0.85', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/compare/specifys-vs-lovable.html`, source: 'pages/compare/specifys-vs-lovable.html', priority: '0.85', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/compare/specifys-vs-bolt.html`, source: 'pages/compare/specifys-vs-bolt.html', priority: '0.85', changefreq: 'monthly' },
         { loc: `${baseUrl}/pages/compare/specifys-vs-cursor-windsurf.html`, source: 'pages/compare/specifys-vs-cursor-windsurf.html', priority: '0.85', changefreq: 'monthly' },
@@ -73,6 +77,41 @@ function getJekyllPostUrls(baseUrl, today) {
             priority: '0.6'
         };
     }).filter(Boolean);
+}
+
+function getJekyllGuideUrls(baseUrl, today) {
+    const guidesDir = path.join(ROOT_DIR, '_guides');
+    if (!fs.existsSync(guidesDir)) return [];
+
+    const files = fs.readdirSync(guidesDir).filter((name) => name.endsWith('.md'));
+    return files.map((fileName) => {
+        const slug = fileName.replace(/\.md$/, '');
+        const filePath = path.join(guidesDir, fileName);
+        let lastmod = today;
+        try {
+            lastmod = fs.statSync(filePath).mtime.toISOString().split('T')[0];
+        } catch (error) {
+            // keep today
+        }
+        return {
+            loc: `${baseUrl}/academy/guides/${slug}/`,
+            lastmod,
+            changefreq: 'monthly',
+            priority: '0.75'
+        };
+    });
+}
+
+/** Slugs from `_guides/*.md` for deduping Firestore academy URLs */
+function getJekyllGuideSlugSet() {
+    const guidesDir = path.join(ROOT_DIR, '_guides');
+    if (!fs.existsSync(guidesDir)) return new Set();
+
+    return new Set(
+        fs.readdirSync(guidesDir)
+            .filter((name) => name.endsWith('.md'))
+            .map((name) => name.replace(/\.md$/, ''))
+    );
 }
 
 /** Slugs from `_posts/YYYY-MM-DD-slug.md` for deduping Firestore article URLs */
@@ -163,6 +202,7 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
 
     const staticUrls = buildStaticUrls(baseUrl, today);
     const jekyllPostUrls = getJekyllPostUrls(baseUrl, today);
+    const jekyllGuideUrls = getJekyllGuideUrls(baseUrl, today);
     const jekyllSlugs = getJekyllPostSlugSet();
 
     // Legacy Firebase article URLs only when no static Jekyll post exists for that slug
@@ -183,7 +223,7 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
             };
         });
 
-    const allUrls = [...staticUrls, ...jekyllPostUrls, ...articleUrls];
+    const allUrls = [...staticUrls, ...jekyllPostUrls, ...jekyllGuideUrls, ...articleUrls];
 
     // Generate XML
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -254,6 +294,8 @@ module.exports = {
     generateAndSaveSitemap,
     pingIndexNow,
     getJekyllPostSlugSet,
-    getJekyllPostUrls
+    getJekyllPostUrls,
+    getJekyllGuideUrls,
+    getJekyllGuideSlugSet
 };
 
