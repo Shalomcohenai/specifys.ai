@@ -5,6 +5,31 @@
    Extracted from main-compiled.css.backup.old
 */
 
+.home-seo-intro {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 20px 1.5rem;
+  text-align: center;
+}
+
+.home-seo-intro p {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  line-height: 1.65;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+.home-seo-intro a {
+  color: var(--text-color, #333);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.home-seo-intro a:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
 /* Center section title and subtitle in all why-sections */
 .why-section .section-title,
 .why-section .section-subtitle {

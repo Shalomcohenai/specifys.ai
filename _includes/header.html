@@ -1,10 +1,8 @@
-<!-- Header: logo, nav, user, credits -->
+<!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
-        <div class="logo">
-            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
-            </a>
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
+            <!-- Will be populated by auth system -->
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="{{ '/pages/how.html' | relative_url }}">How</a>
@@ -15,10 +13,14 @@
             <a href="{{ '/pages/compare.html' | relative_url }}">Compare</a>
         </nav>
     </div>
-    <div class="header-right" role="complementary" aria-label="User account and credits">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
+    <div class="header-center">
+        <div class="logo">
+            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
         </div>
+    </div>
+    <div class="header-right" role="complementary" aria-label="User credits">
         <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
                 <span id="credits-text" aria-label="Available credits">Credits: 0</span>
@@ -30,4 +32,3 @@
 <!-- Credits Display Scripts (V3) -->
 <script src="/assets/js/pages/credits-v3-manager.js"></script>
 <script src="/assets/js/pages/credits-v3-display.js"></script>
-
