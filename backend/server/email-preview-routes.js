@@ -41,7 +41,7 @@ function getPreviewData(template) {
       return emailTemplates.purchaseConfirmationEmail(
         'John Doe',
         '5 Spec Credits Pack',
-        '49.00',
+        199,
         'USD',
         'ORDER-12345',
         `${baseUrl}/pages/profile.html?utm_source=email&utm_medium=email&utm_campaign=purchase-confirmation`

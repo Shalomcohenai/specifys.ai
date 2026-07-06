@@ -876,7 +876,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               const emailService = require('./email-service');
               const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
               const productName = productConfig.name || 'Product';
-              const amount = orderData.total || 0;
+              // Show product price (subtotal) in email, not total with tax
+              const amount = orderData.subtotal ?? orderData.total ?? 0;
               const currency = orderData.currency || 'USD';
               
               // Get user display name and check email preferences

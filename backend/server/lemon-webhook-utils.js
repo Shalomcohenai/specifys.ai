@@ -131,12 +131,26 @@ function parseWebhookPayload(event) {
         total = Number.isNaN(parsed) ? null : Math.round(parsed * 100);
       }
 
+      let subtotal = null;
+      if (typeof attributes.subtotal === 'number') {
+        subtotal = attributes.subtotal;
+      } else if (typeof attributes.subtotal === 'string') {
+        const parsedSubtotal = Number(attributes.subtotal);
+        subtotal = Number.isNaN(parsedSubtotal) ? null : parsedSubtotal;
+      }
+      if ((subtotal === null || Number.isNaN(subtotal)) && typeof attributes.subtotal_formatted === 'string') {
+        const numeric = attributes.subtotal_formatted.replace(/[^0-9.]/g, '');
+        const parsed = Number(numeric);
+        subtotal = Number.isNaN(parsed) ? null : Math.round(parsed * 100);
+      }
+
       const orderData = {
         orderId: eventData.id,
         orderNumber: attributes.order_number || attributes.identifier || null,
         userId: customData.user_id || customData.userId || null,
         email: attributes.customer_email || attributes.email || attributes.user_email || null,
         total: typeof total === 'number' && !Number.isNaN(total) ? total : null,
+        subtotal: typeof subtotal === 'number' && !Number.isNaN(subtotal) ? subtotal : null,
         currency: attributes.currency || 'USD',
         testMode: testMode,
         createdAt: attributes.created_at || new Date().toISOString(),

@@ -4,6 +4,34 @@
  */
 
 /**
+ * Format a Lemon Squeezy amount (stored in cents) for display in emails.
+ * @param {number|string|null} amountCents
+ * @param {string} [currency='USD']
+ * @returns {string}
+ */
+function formatLemonAmount(amountCents, currency = 'USD') {
+  if (amountCents === null || amountCents === undefined || amountCents === '') {
+    return '—';
+  }
+  const numeric = typeof amountCents === 'number' ? amountCents : Number(amountCents);
+  if (!Number.isFinite(numeric)) {
+    return String(amountCents);
+  }
+  const dollars = numeric / 100;
+  const code = (currency || 'USD').toUpperCase();
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(dollars);
+  } catch {
+    return `$${dollars.toFixed(2)}`;
+  }
+}
+
+/**
  * Base template wrapper with common styles and structure
  */
 function getBaseTemplate(headerTitle, bodyContent, showUnsubscribe = false, unsubscribeUrl = null) {
@@ -380,7 +408,7 @@ function purchaseConfirmationEmail(userName, productName, amount, currency, orde
       <div class="content-title">Order Details</div>
       <p class="content-text">
         <strong>Product:</strong> ${productName}<br>
-        <strong>Amount:</strong> ${amount} ${currency}<br>
+        <strong>Amount:</strong> ${formatLemonAmount(amount, currency)}<br>
         <strong>Order ID:</strong> ${orderId}
       </p>
       <div class="btn-container">
@@ -452,6 +480,7 @@ function toolFinderUsageEmail(userName, toolFinderUrl, createSpecUrl) {
 }
 
 module.exports = {
+  formatLemonAmount,
   getBaseTemplate,
   getAdminMarketingDraftTemplate,
   welcomeEmail,
