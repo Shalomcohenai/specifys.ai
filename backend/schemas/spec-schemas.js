@@ -64,7 +64,8 @@ const OverviewSchema = z.object({
   screenDescriptions: OverviewScreenDescriptionsSchema,
   complexityScore: OverviewComplexityScoreSchema,
   suggestionsIdeaSummary: OverviewSuggestionsSchema,
-  suggestionsCoreFeatures: OverviewSuggestionsSchema
+  suggestionsCoreFeatures: OverviewSuggestionsSchema,
+  inferredItems: z.array(z.string()).nullable()
 });
 
 const OverviewPayloadSchema = z.object({ overview: OverviewSchema });
@@ -255,22 +256,43 @@ const MarketPayloadSchema = z.object({ market: MarketSchema });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Design
-// z.record() generates open schemas (additionalProperties:true) which strict
-// mode forbids. Replaced with explicit objects matching the prompt structure.
+// Explicit nested objects matching the design prompt (colors, typography, appIcon).
 // ─────────────────────────────────────────────────────────────────────────────
+const VisualStyleGuideColorsSchema = z.object({
+  primary: z.string(),
+  secondary: z.string(),
+  accent: z.string(),
+  background: z.string(),
+  text: z.string()
+});
+
+const VisualStyleGuideTypographySchema = z.object({
+  headings: z.string(),
+  body: z.string(),
+  captions: z.string()
+});
+
 const VisualStyleGuideSchema = z.object({
-  colors: z.string(),
-  typography: z.string(),
+  colors: VisualStyleGuideColorsSchema,
+  colorHarmony: z.string(),
+  colorReasoning: z.string(),
+  typography: VisualStyleGuideTypographySchema,
   spacing: z.string(),
   buttons: z.string(),
   animations: z.string()
+});
+
+const AppIconSchema = z.object({
+  letters: z.string(),
+  bgColor: z.string(),
+  description: z.string()
 });
 
 const LogoIconographySchema = z.object({
   logoConcepts: z.string(),
   colorVersions: z.string(),
   iconSet: z.string(),
-  appIcon: z.string()
+  appIcon: AppIconSchema
 });
 
 const UiLayoutSchema = z.object({
@@ -365,7 +387,26 @@ const PromptsSchema = z.object({
   generated: z.boolean(),
   fullPrompt: z.string(),
   contextSummary: z.string(),
-  integrationChecklist: z.array(z.string())
+  integrationChecklist: z.array(z.string()),
+  thirdPartyIntegrations: z.array(z.object({
+    service: z.string(),
+    description: z.string(),
+    instructions: z.array(z.string())
+  })).nullable()
+});
+
+const PromptsStageOnlySchema = z.object({
+  fullPrompt: z.string()
+});
+
+const PromptsStageOnlyPayloadSchema = z.object({ prompts: PromptsStageOnlySchema });
+
+const IntegrationsOnlyPayloadSchema = z.object({
+  thirdPartyIntegrations: z.array(z.object({
+    service: z.string(),
+    description: z.string(),
+    instructions: z.array(z.string())
+  }))
 });
 
 const PromptsPayloadSchema = z.object({ prompts: PromptsSchema });
@@ -380,7 +421,9 @@ const STAGE_PAYLOAD_SCHEMAS = {
   design: DesignPayloadSchema,
   architecture: ArchitecturePayloadSchema,
   visibility: VisibilityPayloadSchema,
-  prompts: PromptsPayloadSchema
+  prompts: PromptsPayloadSchema,
+  'prompt-stage': PromptsStageOnlyPayloadSchema,
+  'prompt-integrations': IntegrationsOnlyPayloadSchema
 };
 
 const STAGE_ROOT_KEYS = {
@@ -390,7 +433,9 @@ const STAGE_ROOT_KEYS = {
   design: 'design',
   architecture: 'architecture',
   visibility: 'visibility',
-  prompts: 'prompts'
+  prompts: 'prompts',
+  'prompt-stage': 'prompts',
+  'prompt-integrations': 'thirdPartyIntegrations'
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

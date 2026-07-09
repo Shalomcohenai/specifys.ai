@@ -121,20 +121,17 @@
     <!-- Canonical URL -->
     
     
-    
-    
-    
-    
     <link rel="canonical" href="https://specifys-ai.com/pages/how.html">
-    
     <link rel="alternate" hreflang="en" href="https://specifys-ai.com/pages/how.html">
     <link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/how.html">
+    <link rel="alternate" type="text/markdown" href="https://specifys-ai.com/llms.txt" title="LLM site index">
     
     <meta name="google-site-verification" content="8_O42wMHZTeWq6KipUYXmRqieXTY2PR0LPNLv6-HhRI">
     
     
     <meta name="msvalidate.01" content="">
     
+    <link type="application/atom+xml" rel="alternate" href="https://specifys-ai.com/feed.xml" title="Specifys.ai" />
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
@@ -254,6 +251,12 @@
   gtag('js', new Date());
   gtag('config', 'G-RWBT69JCM7');
 </script>
+
+<!-- Vercel Web Analytics (static site integration) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 
     <script>
 // Central Analytics Event Tracking System for Specifys.ai
@@ -461,7 +464,7 @@ function trackPreference(preferenceName, preferenceValue) {
       },
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "specifysai@gmail.com",
+        "email": "about@prd.it.com",
         "contactType": "Customer Service"
       }
     },
@@ -636,19 +639,29 @@ function trackPreference(preferenceName, preferenceValue) {
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Header -->
     
-    <!-- Header: logo (left), user (left), credits (right) -->
+    <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
-    <nav class="header-center" aria-label="Main navigation">
+    <div class="header-left">
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+        <nav class="header-nav" aria-label="Site navigation">
+            <a href="/pages/how.html">How</a>
+            <a href="/pages/pricing.html">Pricing</a>
+            <a href="/blog/">Blog</a>
+            <a href="/academy.html">Academy</a>
+            <a href="/pages/guides.html">Guides</a>
+            <a href="/pages/compare.html">Compare</a>
+        </nav>
+    </div>
+    <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </nav>
-    <div class="header-right" role="complementary" aria-label="User account and credits">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
-        </div>
+    </div>
+    <div class="header-right" role="complementary" aria-label="User credits">
         <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
                 <span id="credits-text" aria-label="Available credits">Credits: 0</span>
@@ -660,7 +673,6 @@ function trackPreference(preferenceName, preferenceValue) {
 <!-- Credits Display Scripts (V3) -->
 <script src="/assets/js/pages/credits-v3-manager.js"></script>
 <script src="/assets/js/pages/credits-v3-display.js"></script>
-
 
     
     
@@ -906,10 +918,9 @@ function trackPreference(preferenceName, preferenceValue) {
         <span class="footer-sitemap-title">Resources</span>
         <a href="/pages/how.html" role="listitem">How It Works</a>
         <a href="/pages/why.html" role="listitem">Why?</a>
-        <a href="/pages/articles.html" role="listitem">Articles</a>
-        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Specifys vs Bolt</a>
-        <a href="/pages/compare/specifys-vs-lovable.html" role="listitem">Specifys vs Lovable</a>
-        <a href="/pages/compare/specifys-vs-cursor-windsurf.html" role="listitem">Specifys vs Cursor</a>
+        <a href="/pages/guides.html" role="listitem">Guides</a>
+        <a href="/pages/compare.html" role="listitem">Compare</a>
+        <a href="/pages/integrations.html" role="listitem">Integrations</a>
         <a href="/pages/glossary/index.html" role="listitem">Glossary</a>
         <a href="/pages/for-ai-assistants.html" role="listitem">For AI assistants</a>
       </div>
@@ -927,7 +938,7 @@ function trackPreference(preferenceName, preferenceValue) {
       <div class="footer-social" role="list" aria-label="Social media links">
         <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
         <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+        <a href="mailto:about@prd.it.com" aria-label="Email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
         <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
       </div>
     </div>
@@ -937,7 +948,7 @@ function trackPreference(preferenceName, preferenceValue) {
       © 2026 specifys.ai. All rights reserved.
     </div>
     <p class="footer-attribution">
-      a product of <a href="https://www.prd.it.com/" target="_blank" rel="noopener noreferrer">prd.it.com</a>
+      A product of <a href="https://www.prd.it.com/" target="_blank" rel="noopener noreferrer">prd.it.com</a>
     </p>
   </div>
 </footer>

@@ -991,7 +991,3 @@ ${designContent || 'Not provided'}`;
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { PROMPTS, formatUserRequirements };
 }
-if (typeof window !== 'undefined') {
-  window.PROMPTS = PROMPTS;
-  window.formatUserRequirements = formatUserRequirements;
-}

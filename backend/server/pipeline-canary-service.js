@@ -13,6 +13,7 @@ const specGenerationServiceV2 = require('./spec-generation-service-v2');
 const specQueue = require('./spec-queue');
 const { getTitleFromOverview } = require('./spec-overview-utils');
 const { attachSpecQueueFirestoreListeners } = require('./spec-queue-firestore-listeners');
+const { assertSpecFidelity } = require('./prompts-fidelity.test');
 
 const RUNS_COLLECTION = 'pipeline_canary_runs';
 const DEFAULT_CANARY_UID = 'w7t9dZPxSzOXgTm3jaQBC0w4rez1';
@@ -291,11 +292,19 @@ async function executePipelineCanaryRun(runId, { dateKey, trigger, templateIndex
 
     const specSnap = await db.collection('specs').doc(specId).get();
     const specData = specSnap.data() || {};
-    const traffic = classifyTraffic(specData, job);
+    let traffic = classifyTraffic(specData, job);
+
+    const fidelity = assertSpecFidelity(specData, answers);
+    if (!fidelity.ok) {
+      logger.warn({ requestId, runId, specId, issues: fidelity.issues }, '[pipeline-canary] Fidelity check failed');
+      if (traffic === 'green') traffic = 'orange';
+    }
 
     await updateRun(runId, {
       phase: 'done',
       traffic,
+      fidelity: fidelity.ok ? 'pass' : 'fail',
+      fidelityIssues: fidelity.issues,
       stages: {
         specCreated: true,
         overview: 'ready',

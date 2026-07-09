@@ -498,8 +498,7 @@ function openRenameSpecModal() {
     const modal = document.getElementById('rename-spec-modal');
     const input = document.getElementById('rename-spec-input');
     if (!modal || !input) return;
-    const raw = (currentSpecData.title && String(currentSpecData.title).trim()) ? String(currentSpecData.title).trim() : '';
-    input.value = (raw && raw !== 'Generating...') ? raw : 'Project Spec';
+    input.value = resolveSpecDisplayTitle(currentSpecData);
     input.focus();
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -540,9 +539,7 @@ async function saveRenameSpec() {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         updateCurrentSpecData({ ...currentSpecData, title: newTitle });
-        const specTitleEl = document.getElementById('spec-title');
-        if (specTitleEl) specTitleEl.textContent = newTitle;
-        document.title = `${newTitle} - Specifys.ai`;
+        updateSpecTitleDisplay({ ...currentSpecData, title: newTitle });
         closeRenameSpecModal();
         showNotification('Spec name updated.', 'success');
     } catch (err) {
@@ -550,6 +547,36 @@ async function saveRenameSpec() {
     } finally {
         if (saveText) saveText.classList.remove('hidden');
         if (spinner) spinner.classList.add('hidden');
+    }
+}
+
+function resolveSpecDisplayTitle(data) {
+    const raw = (data?.title && String(data.title).trim()) ? String(data.title).trim() : '';
+    return (raw && raw !== 'Generating...') ? raw : 'Project Spec';
+}
+
+function updateSpecTitleDisplay(data) {
+    if (!data) return;
+    const displayTitle = resolveSpecDisplayTitle(data);
+    const specTitleElement = document.getElementById('spec-title');
+    if (specTitleElement) {
+        specTitleElement.textContent = displayTitle;
+    }
+    const specTitleEditBtn = document.getElementById('spec-title-edit-btn');
+    if (specTitleEditBtn) {
+        specTitleEditBtn.classList.remove('hidden');
+    }
+    const v2Badge = document.getElementById('spec-v2-badge');
+    if (v2Badge) {
+        if (data.generationVersion === 'v2') {
+            v2Badge.classList.remove('hidden');
+        } else {
+            v2Badge.classList.add('hidden');
+        }
+    }
+    document.title = `${displayTitle} - Specifys.ai`;
+    if (data.status?.overview === 'ready' && window.sharePrompt && data.id) {
+        window.sharePrompt.init(data.id, data.title || 'App Specification');
     }
 }
 
@@ -795,6 +822,12 @@ async function loadSpec(specId) {
                     // Update current spec data
                     updateCurrentSpecData(updatedData);
 
+                    const prevTitle = (previousData?.title && String(previousData.title).trim()) || '';
+                    const newTitle = (updatedData.title && String(updatedData.title).trim()) || '';
+                    if (newTitle && newTitle !== prevTitle && newTitle !== 'Generating...') {
+                        updateSpecTitleDisplay(updatedData);
+                    }
+
                     // Recompute the progress bar percentage on every Firestore tick. This is the
                     // single source of truth for real-time progress: it picks up every status
                     // transition (pending → generating → ready/error) across all stages.
@@ -805,6 +838,8 @@ async function loadSpec(specId) {
                     const newOverviewStatus = newStatus.overview;
                     if (newOverviewStatus === 'ready' && prevOverviewStatus !== 'ready' && updatedData.overview) {
                         console.log('[Firestore Listener] Overview became ready, displaying...');
+                        updateSpecTitleDisplay(updatedData);
+                        try { displayOverview(updatedData.overview); } catch (e) { console.warn('[Listener] displayOverview failed:', e); }
                         // Hide progress bar and chat bubbles when overview is ready
                         stopProgressBar();
                         const bubblesContainer = document.getElementById('chat-bubbles-container');
@@ -933,6 +968,42 @@ async function loadSpec(specId) {
                         updateTabLoadingState('architecture', false);
                     }
 
+                    // Visibility: unlock GEO/SEO tab and Prompts nav without a full page refresh
+                    const prevVisStatus = previousStatus.visibility;
+                    const newVisStatus = newStatus.visibility;
+                    if (newVisStatus === 'ready' && prevVisStatus !== 'ready' && updatedData.visibility) {
+                        updateNotificationDot('visibility-engine', 'ready');
+                        try { displayVisibilityEngine(updatedData.visibility, updatedData); } catch (e) { console.warn('[Listener] displayVisibilityEngine failed:', e); }
+                        updateVisibilityEngineTab();
+                        refreshTabsAfterDesignReady();
+                        try { displayPromptsFromData(updatedData); } catch (e) { /* no-op */ }
+                        try { displayRaw(updatedData); } catch (e) { /* no-op */ }
+                        updateExportCheckboxes();
+                    } else if (newVisStatus === 'generating' && prevVisStatus !== 'generating') {
+                        updateNotificationDot('visibility-engine', 'generating');
+                    } else if (newVisStatus === 'error' && prevVisStatus !== 'error') {
+                        updateNotificationDot('visibility-engine', 'error');
+                    }
+
+                    // Prompts: enable tab and render when auto-generation completes
+                    const prevPromptsStatus = previousStatus.prompts;
+                    const newPromptsStatus = newStatus.prompts;
+                    if (newPromptsStatus === 'ready' && prevPromptsStatus !== 'ready') {
+                        updateNotificationDot('prompts', 'ready');
+                        updateTabLoadingState('prompts', false);
+                        refreshTabsAfterDesignReady();
+                        try { displayPromptsFromData(updatedData); } catch (e) { console.warn('[Listener] displayPromptsFromData failed:', e); }
+                        try { displayRaw(updatedData); } catch (e) { /* no-op */ }
+                        updateExportCheckboxes();
+                    } else if (newPromptsStatus === 'generating' && prevPromptsStatus !== 'generating') {
+                        updateNotificationDot('prompts', 'generating');
+                        updateTabLoadingState('prompts', true);
+                    } else if (newPromptsStatus === 'error' && prevPromptsStatus !== 'error') {
+                        updateNotificationDot('prompts', 'error');
+                        updateTabLoadingState('prompts', false);
+                        refreshTabsAfterDesignReady();
+                    }
+
                     // Upload only after all stages (including architecture) are finished (ready or error). Enables manual retry/upload of missing parts.
                     const allStagesForUpload = ['technical', 'market', 'design', 'architecture'];
                     const allTerminal = newStatus.overview === 'ready' && allStagesForUpload.every(s => newStatus[s] === 'ready' || newStatus[s] === 'error');
@@ -1052,27 +1123,7 @@ function displaySpec(data) {
     }
     
     // Display spec title (from overview or user edit); fallback when empty or placeholder
-    const raw = (data.title && String(data.title).trim()) ? String(data.title).trim() : '';
-    const displayTitle = (raw && raw !== 'Generating...') ? raw : 'Project Spec';
-    const specTitleElement = document.getElementById('spec-title');
-    if (specTitleElement) {
-        specTitleElement.textContent = displayTitle;
-    }
-    const specTitleEditBtn = document.getElementById('spec-title-edit-btn');
-    if (specTitleEditBtn) {
-        specTitleEditBtn.classList.remove('hidden');
-    }
-    // Show "Spec Engine v2" badge when this spec was generated with the new system
-    const v2Badge = document.getElementById('spec-v2-badge');
-    if (v2Badge) {
-        if (data.generationVersion === 'v2') {
-            v2Badge.classList.remove('hidden');
-        } else {
-            v2Badge.classList.add('hidden');
-        }
-    }
-    // Browser tab title
-    document.title = `${displayTitle} - Specifys.ai`;
+    updateSpecTitleDisplay(data);
     
         // Update status indicators
         updateStatus('overview', data.status?.overview || 'ready');
@@ -1089,14 +1140,6 @@ function displaySpec(data) {
     
     // Update all notification dots
     updateAllNotificationDots();
-    
-    // Initialize share prompt and button only when spec is ready
-    // The share button is part of the frame and always visible once spec is ready
-    if (data.status?.overview === 'ready' && window.sharePrompt && data.id) {
-        const specTitle = data.title || 'App Specification';
-        // Initialize share prompt (which also initializes the share button)
-        window.sharePrompt.init(data.id, specTitle);
-    }
     
     // Check if any section is still generating OR spec was just created
     const status = data.status || {};
@@ -2394,9 +2437,10 @@ function parseDesignData(designContent) {
                 }
                 // Extract typography from JSON
                 if (jsonData.visualStyleGuide.typography) {
-                    const typographyObj = jsonData.visualStyleGuide.typography;
-                    if (typeof typographyObj === 'object' && typographyObj !== null && !Array.isArray(typographyObj)) {
+                    const typographyObj = normalizeTypographyData(jsonData.visualStyleGuide.typography);
+                    if (typographyObj) {
                         Object.entries(typographyObj).forEach(([key, value]) => {
+                            if (key === '_summary') return;
                             const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                             result.typography[capitalizedKey] = value;
                         });
@@ -2423,9 +2467,10 @@ function parseDesignData(designContent) {
                 }
                 // Extract typography from JSON
                 if (jsonData.design.visualStyleGuide.typography) {
-                    const typographyObj = jsonData.design.visualStyleGuide.typography;
-                    if (typeof typographyObj === 'object' && typographyObj !== null && !Array.isArray(typographyObj)) {
+                    const typographyObj = normalizeTypographyData(jsonData.design.visualStyleGuide.typography);
+                    if (typographyObj) {
                         Object.entries(typographyObj).forEach(([key, value]) => {
+                            if (key === '_summary') return;
                             const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                             result.typography[capitalizedKey] = value;
                         });
@@ -3629,6 +3674,107 @@ function toggleSuggestionSelection(item) {
 }
 
 /** Escape for HTML and attributes (used in overview suggestions) */
+function expandShortHex(hexBody) {
+    if (!hexBody) return '';
+    if (hexBody.length === 3) {
+        return '#' + hexBody.split('').map(function (c) { return c + c; }).join('');
+    }
+    return hexBody.startsWith('#') ? hexBody : '#' + hexBody;
+}
+
+function normalizeHexColor(value) {
+    if (value == null) return null;
+    const match = String(value).match(/#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/i);
+    if (!match) return null;
+    return expandShortHex(match[1]);
+}
+
+function getSpecShortTitle() {
+    if (!currentSpecData) return '';
+    try {
+        const overview = typeof currentSpecData.overview === 'string'
+            ? JSON.parse(currentSpecData.overview)
+            : currentSpecData.overview;
+        if (overview && overview.shortTitle) return overview.shortTitle;
+        if (overview && overview.overview && overview.overview.shortTitle) return overview.overview.shortTitle;
+    } catch (e) { /* ignore */ }
+    return '';
+}
+
+function deriveAppIconLetters(title) {
+    if (!title || typeof title !== 'string') return null;
+    const words = title.trim().split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    if (words.length === 1 && words[0].length >= 2) {
+        return words[0].slice(0, 2).toUpperCase();
+    }
+    return null;
+}
+
+function pickPrimaryColorFromMap(colorsMap) {
+    if (!colorsMap || typeof colorsMap !== 'object') return null;
+    const preferredKeys = ['primary', 'Primary', 'accent', 'Accent', 'secondary', 'Secondary'];
+    for (let i = 0; i < preferredKeys.length; i++) {
+        const hex = normalizeHexColor(colorsMap[preferredKeys[i]]);
+        if (hex) return hex;
+    }
+    const values = Object.values(colorsMap);
+    for (let j = 0; j < values.length; j++) {
+        const hex = normalizeHexColor(values[j]);
+        if (hex && hex.toUpperCase() !== '#FFFFFF') return hex;
+    }
+    return normalizeHexColor(values[0]);
+}
+
+function normalizeAppIconData(appIcon, colorsMap) {
+    if (!appIcon) return null;
+    const fallbackLetters = deriveAppIconLetters(getSpecShortTitle()) || 'SP';
+    const fallbackBg = pickPrimaryColorFromMap(colorsMap) || '#6366F1';
+
+    if (typeof appIcon === 'object' && appIcon !== null && !Array.isArray(appIcon)) {
+        const letters = String(appIcon.letters || '').trim().slice(0, 2).toUpperCase();
+        return {
+            letters: letters || fallbackLetters,
+            bgColor: appIcon.bgColor || fallbackBg,
+            description: appIcon.description || ''
+        };
+    }
+
+    if (typeof appIcon === 'string') {
+        const quotedLetters = appIcon.match(/['"]([A-Za-z]{2})['"]/);
+        return {
+            letters: (quotedLetters ? quotedLetters[1].toUpperCase() : null) || fallbackLetters,
+            bgColor: normalizeHexColor(appIcon) || fallbackBg,
+            description: appIcon
+        };
+    }
+
+    return null;
+}
+
+function normalizeTypographyData(typography) {
+    if (!typography) return null;
+    if (typeof typography === 'object' && typography !== null && !Array.isArray(typography)) {
+        return typography;
+    }
+    if (typeof typography === 'string') {
+        const out = {};
+        const headingsMatch = typography.match(/headings?\s*:\s*([^.;]+)/i);
+        const bodyMatch = typography.match(/body\s*:\s*([^.;]+)/i);
+        const captionsMatch = typography.match(/captions?\s*:\s*([^.;]+)/i);
+        if (headingsMatch) out.headings = headingsMatch[1].trim();
+        if (bodyMatch) out.body = bodyMatch[1].trim();
+        if (captionsMatch) out.captions = captionsMatch[1].trim();
+        if (Object.keys(out).length === 0) {
+            out._summary = typography;
+        }
+        return out;
+    }
+    return null;
+}
+
 /**
  * Parse semicolon-separated color string from API (e.g. "#1E90FF - Blue (Primary); #FF4500 - ...")
  * into { RoleName: "#HEX - description" } so UI does not treat the string as per-character entries.
@@ -3636,36 +3782,48 @@ function toggleSuggestionSelection(item) {
 function parseColorsSemicolonStringToObject(str) {
     const out = {};
     if (!str || typeof str !== 'string') return out;
-    const parts = str.split(';').map(function (s) { return s.trim(); }).filter(function (s) { return s; });
-    parts.forEach(function (part, i) {
-        const m = part.match(/^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\s*-\s*(.+)$/i);
-        if (m) {
-            let hex = m[1];
-            if (hex.length === 3) {
-                hex = '#' + hex.split('').map(function (c) { return c + c; }).join('');
-            } else {
-                hex = '#' + hex;
-            }
-            const rest = m[2].trim();
+
+    function addColor(key, hex, description) {
+        let normalizedKey = (key || '').trim();
+        if (!normalizedKey) normalizedKey = 'Color ' + (Object.keys(out).length + 1);
+        if (out[normalizedKey]) {
+            normalizedKey = normalizedKey + ' (' + (Object.keys(out).length + 1) + ')';
+        }
+        out[normalizedKey] = description ? (hex + ' - ' + description) : hex;
+    }
+
+    const parts = str.split(/;|,(?=\s*(?:#|[A-Za-z][A-Za-z\s/&]*:))/).map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+    parts.forEach(function (part) {
+        const leadingHex = part.match(/^#?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\s*-\s*(.+)$/i);
+        if (leadingHex) {
+            const hex = expandShortHex(leadingHex[1]);
+            const rest = leadingHex[2].trim();
             const roleMatch = rest.match(/\(([^)]+)\)\s*$/);
-            let key = roleMatch ? roleMatch[1].trim() : ('Color ' + (i + 1));
-            if (out[key]) {
-                key = key + ' (' + (i + 1) + ')';
-            }
-            out[key] = hex + ' - ' + rest;
+            const key = roleMatch ? roleMatch[1].trim() : ('Color ' + (Object.keys(out).length + 1));
+            addColor(key, hex, rest);
             return;
         }
+
+        const roleHex = part.match(/^([A-Za-z][A-Za-z\s/&]*?):\s*(#?[0-9A-Fa-f]{6}|#?[0-9A-Fa-f]{3})(?:\s*-\s*(.+))?$/i);
+        if (roleHex) {
+            addColor(roleHex[1], expandShortHex(roleHex[2].replace(/^#/, '')), roleHex[3] ? roleHex[3].trim() : '');
+            return;
+        }
+
         const hexOnly = part.match(/#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/i);
         if (hexOnly) {
-            let h = hexOnly[1];
-            if (h.length === 3) {
-                h = '#' + h.split('').map(function (c) { return c + c; }).join('');
-            } else {
-                h = '#' + h;
-            }
-            out['Color ' + (i + 1)] = h;
+            addColor('Color ' + (Object.keys(out).length + 1), expandShortHex(hexOnly[1]), '');
         }
     });
+
+    if (Object.keys(out).length === 0) {
+        const globalPattern = /([A-Za-z][A-Za-z\s/&]*?):\s*(#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3}))/gi;
+        let match;
+        while ((match = globalPattern.exec(str)) !== null) {
+            addColor(match[1], expandShortHex(match[3]), '');
+        }
+    }
+
     return out;
 }
 
@@ -3683,6 +3841,8 @@ function normalizeVisualStyleGuideColors(colors) {
 
 if (typeof window !== 'undefined') {
     window.normalizeVisualStyleGuideColors = normalizeVisualStyleGuideColors;
+    window.normalizeAppIconData = normalizeAppIconData;
+    window.normalizeTypographyData = normalizeTypographyData;
 }
 
 function escapeHtmlSpec(str) {
@@ -5472,18 +5632,23 @@ function formatJSONContent(jsonData) {
         }
         
         if (jsonData.visualStyleGuide.typography) {
+            const typographyData = normalizeTypographyData(jsonData.visualStyleGuide.typography);
             html += '<h4>Typography:</h4>';
-            html += '<ul>';
-            if (jsonData.visualStyleGuide.typography.headings) {
-                html += `<li><strong>Headings:</strong> ${jsonData.visualStyleGuide.typography.headings}</li>`;
+            if (typographyData && typographyData._summary) {
+                html += '<p>' + escapeHtmlSpec(typographyData._summary) + '</p>';
+            } else if (typographyData) {
+                html += '<ul>';
+                if (typographyData.headings) {
+                    html += '<li><strong>Headings:</strong> ' + escapeHtmlSpec(typographyData.headings) + '</li>';
+                }
+                if (typographyData.body) {
+                    html += '<li><strong>Body:</strong> ' + escapeHtmlSpec(typographyData.body) + '</li>';
+                }
+                if (typographyData.captions) {
+                    html += '<li><strong>Captions:</strong> ' + escapeHtmlSpec(typographyData.captions) + '</li>';
+                }
+                html += '</ul>';
             }
-            if (jsonData.visualStyleGuide.typography.body) {
-                html += `<li><strong>Body:</strong> ${jsonData.visualStyleGuide.typography.body}</li>`;
-            }
-            if (jsonData.visualStyleGuide.typography.captions) {
-                html += `<li><strong>Captions:</strong> ${jsonData.visualStyleGuide.typography.captions}</li>`;
-            }
-            html += '</ul>';
         }
         
         if (jsonData.visualStyleGuide.spacing) {
@@ -5519,30 +5684,33 @@ function formatJSONContent(jsonData) {
         }
         
         // App Icon Design (like in demo-spec.html)
-        if (jsonData.logoIconography.appIcon) {
+        const colorsMapForIcon = jsonData.visualStyleGuide && jsonData.visualStyleGuide.colors
+            ? normalizeVisualStyleGuideColors(jsonData.visualStyleGuide.colors)
+            : {};
+        const appIcon = normalizeAppIconData(jsonData.logoIconography.appIcon, colorsMapForIcon);
+        if (appIcon) {
             html += '<h4 style="margin-top: 25px; margin-bottom: 20px;"><i class="fa fa-mobile"></i> App Icon Design</h4>';
             html += '<div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">';
             
-            const appIcon = jsonData.logoIconography.appIcon;
-            const letters = appIcon.letters || 'AA'; // Default to AA if not provided
-            const bgColor = appIcon.bgColor || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'; // Default gradient
+            const letters = escapeHtmlSpec(appIcon.letters);
+            const bgColor = escapeHtmlSpec(appIcon.bgColor);
             
             // iOS App Icon
             html += '<div style="text-align: center;">';
-            html += `<div style="width: 120px; height: 120px; border-radius: 25px; background: ${bgColor}; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; color: white; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);">${letters}</div>`;
+            html += '<div style="width: 120px; height: 120px; border-radius: 25px; background: ' + bgColor + '; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; color: white; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);">' + letters + '</div>';
             html += '<p style="margin-top: 15px; font-weight: 600;">iOS App Icon</p>';
             html += '</div>';
             
             // Android App Icon
             html += '<div style="text-align: center;">';
-            html += `<div style="width: 120px; height: 120px; border-radius: 20px; background: ${bgColor}; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; color: white; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);">${letters}</div>`;
+            html += '<div style="width: 120px; height: 120px; border-radius: 20px; background: ' + bgColor + '; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; color: white; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);">' + letters + '</div>';
             html += '<p style="margin-top: 15px; font-weight: 600;">Android App Icon</p>';
             html += '</div>';
             
             // Description
             if (appIcon.description) {
                 html += '<div style="flex: 1; padding: 20px; min-width: 250px;">';
-                html += `<p>${appIcon.description}</p>`;
+                html += '<p>' + escapeHtmlSpec(appIcon.description) + '</p>';
                 html += '</div>';
             }
             
@@ -6443,8 +6611,10 @@ async function updateVisibilityEngineTab() {
 function refreshTabsAfterDesignReady() {
     if (!currentSpecData) return;
 
-    // Check if overview is approved
-    if (!currentSpecData.overviewApproved) {
+    const overviewReady = currentSpecData.overviewApproved
+        || currentSpecData.status?.overview === 'ready'
+        || currentSpecData.status?.technical === 'ready';
+    if (!overviewReady) {
         return;
     }
 

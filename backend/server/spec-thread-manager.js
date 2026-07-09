@@ -11,7 +11,7 @@ const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-
 
 /** System instructions for spec JSON stages when not using OPENAI_SPEC_GENERATOR_ASSISTANT_ID. */
 const SPEC_GENERATOR_INSTRUCTIONS =
-  'You generate application specification sections (overview, technical, market, design, architecture, visibility, prompts). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation.';
+  'You generate application specification sections (overview, technical, market, design, architecture, visibility, prompts). Return only valid JSON matching the structure requested in the user message. No markdown, no explanation. Priority: (1) USER REQUIREMENTS verbatim — do not omit or contradict user-provided pages, workflows, features, integrations, or design; (2) App Description for narrative; (3) inference only for gaps. Mark inferred content with [INFERRED]. Do not add auth, real-time, AI, or mobile unless the user requested them or the spec explicitly requires them.';
 
 /** Strict mini-schema used by the diagram repair sub-call. Single string output. */
 const MERMAID_REPAIR_RESPONSE_FORMAT = Object.freeze({

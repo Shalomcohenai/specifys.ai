@@ -55,7 +55,13 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
     window.fetch = async (url, options = {}) => {
       window.__requests.push({ url: String(url), headers: options.headers || {} });
       if (String(url).includes('/api/auxiliary/prompts/generate')) {
-        return new Response(JSON.stringify({ prompts: { fullPrompt: 'ok', thirdPartyIntegrations: [] } }), { status: 200 });
+        const longPrompt = 'STAGE 1: PROJECT SETUP\n'.repeat(40);
+        return new Response(JSON.stringify({
+          prompts: {
+            fullPrompt: longPrompt,
+            thirdPartyIntegrations: [{ service: 'Stripe', description: 'Payments', instructions: ['Sign up', 'Add key', 'Configure webhook'] }]
+          }
+        }), { status: 200 });
       }
       if (String(url).includes('/api/auxiliary/mindmap/generate')) {
         return new Response(JSON.stringify({ mindMap: { drawflow: { Home: { data: {} } } } }), { status: 200 });
@@ -68,7 +74,13 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
         if (url === '/api/auxiliary/prompts/generate') {
           const headers = await window.getAuxHeaders();
           window.__requests.push({ url, headers });
-          return { prompts: { fullPrompt: 'ok', thirdPartyIntegrations: [] } };
+          const longPrompt = 'STAGE 1: PROJECT SETUP\n'.repeat(40);
+          return {
+            prompts: {
+              fullPrompt: longPrompt,
+              thirdPartyIntegrations: [{ service: 'Stripe', description: 'Payments', instructions: ['Sign up', 'Add key'] }]
+            }
+          };
         }
         if (url === '/api/chat/diagrams/generate') {
           return {

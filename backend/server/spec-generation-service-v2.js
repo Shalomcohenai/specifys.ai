@@ -8,6 +8,8 @@ const { logger } = require('./logger');
 const specEvents = require('./spec-events');
 const { getSpecThreadManager } = require('./spec-thread-manager');
 const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
+const { PROMPTS, formatUserRequirements } = require('../../packages/spec-prompts/index.cjs');
+const { runPromptStages, runIntegrations, assembleFullPrompt } = require('./prompts-stage-runner');
 const {
   DIAGRAM_FIELDS,
   sanitizeMermaid,
@@ -23,12 +25,6 @@ function getApiKeyForSpecOpenAI() {
   return process.env.OPENAI_API_KEY?.trim() || '';
 }
 
-const OVERVIEW_USER_PROMPT_PREFIX = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. All output must be in English.
-Include: shortTitle (3-8 word display title for the spec), ideaSummary, problemStatement, targetAudience (object: ageRange, sector, interests, needs), valueProposition, coreFeaturesOverview (array of 6-8 features), userJourneySummary, detailedUserFlow.steps, screenDescriptions (screens array with name, description, uiComponents; navigationStructure), complexityScore (architecture, integrations, functionality, userSystem as numbers 0-100), suggestionsIdeaSummary and suggestionsCoreFeatures as { toInclude: [], notToInclude: [...] }.
-Generate a comprehensive overview from the user input below. Every required key must contain substantive content.
-
-User Input:
-`;
 
 /**
  * Strict Mermaid rules block shared across stages that emit diagrams.
@@ -177,94 +173,24 @@ class SpecGenerationServiceV2 {
     return this.threadManager;
   }
 
-  _buildTechnicalPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference) {
-    const overviewSection = isReference
-      ? `[SPEC_REFERENCE]\nSpec ID: ${specId}\nOverview Location: Firebase > specs collection > ${specId} > overview field\nNote: The system will retrieve the full overview content automatically.`
-      : `Application Overview:\n${overviewContent}`;
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. Never omit required keys.
-Create a comprehensive technical specification with Mermaid diagrams where indicated.
-
-${MERMAID_RULES_BLOCK}
-
-Use Mermaid 10–compatible syntax. Prefer flowchart/graph for system maps, erDiagram for data, sequenceDiagram for auth/integration flows.
-
-Required structure:
-- techStack: { frontend, backend, database, storage, authentication } — text only, no diagram.
-- architectureOverview: { narrative (full paragraph 80+ chars on client/API/DB/cache flow), systemContextDiagramMermaid (flowchart LR or TB showing Client, API, DB, cache, storage — use null only if impossible) }.
-- databaseSchema: { description, erDiagramMermaid (valid erDiagram with entities and relationships reflecting the app), tablesSupplement (nullable array of tables with name, purpose, fields[], relationships for export — at least 2 tables when the app implies data) }.
-- apiDesign: { endpointsOverviewDiagramMermaid (nullable flowchart grouping major API areas/modules), endpoints (array: path, method, description, parameters, requestBody, responseBody, statusCodes — each endpoint substantive) }.
-- dataFlow: { narrative (main data paths, sync, validation), diagramMermaid (nullable flowchart of primary data flow) }.
-- securityAuthentication: { authentication, authorization, encryption, securityMeasures, securityCriticalPoints (array 3–5 strings), authFlowDiagramMermaid (nullable sequenceDiagram for login/session) }.
-- integrationExternalApis: { thirdPartyServices (array), integrations, dataFlow, integrationLandscapeDiagramMermaid (nullable flowchart or graph of external services) }.
-- devops: { deploymentStrategy, infrastructure, monitoring, scaling, backup, automation, cicdPipelineDiagramMermaid (nullable flowchart of CI/CD) }.
-- dataStorage: { storageStrategy, dataRetention, dataBackup, storageArchitecture }.
-- analytics: { analyticsStrategy, trackingMethods, analysisTools, reporting }.
-
-${overviewSection}
-
-User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}`;
+  _formatUserRequirements(answers) {
+    return formatUserRequirements(answers);
   }
 
-  _buildMarketPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference) {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
-    const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-    const overviewSection = isReference
-      ? `[SPEC_REFERENCE]\nSpec ID: ${specId}\nOverview in Firebase > specs > ${specId} > overview.`
-      : `Application Overview:\n${overviewContent}`;
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. Never omit required keys.
-Create comprehensive market research. Required keys (each with full content):
-- industryOverview (object): trends, marketData, growthProjections/growthPotential.
-- targetAudienceInsights (object): demographics, needs, behaviors, etc.
-- competitiveLandscape (array, at least 1 competitor with name, advantages, disadvantages, etc.).
-- swotAnalysis (object): strengths, weaknesses, opportunities, threats (arrays).
-- monetizationModel (object): pricingStrategy, revenueStreams, rationale.
-- marketingStrategy (object): channels, messaging, goToMarket.
-
-Current Date: ${currentDateStr}
-
-${overviewSection}
-
-User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}`;
-  }
-
-  _buildDesignPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference) {
-    const overviewSection = isReference
-      ? `[SPEC_REFERENCE]\nSpec ID: ${specId}\nOverview in Firebase > specs > ${specId} > overview.`
-      : `Application Overview:\n${overviewContent}`;
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. Never omit required keys.
-Create comprehensive design specifications. Required keys (each with full content):
-- visualStyleGuide (object): colors, typography, spacing, buttons, animations.
-- logoIconography (object): logoConcepts, colorVersions, iconSet, appIcon.
-- uiLayout (object): landingPage, dashboard, navigation, responsiveDesign.
-- uxPrinciples (object): userFlow, accessibility, informationHierarchy.
-
-${overviewSection}
-
-User Input:
-App Description: ${appDescription}
-User Workflow: ${workflow}
-Additional Details: ${additionalDetails}`;
+  _appendUserRequirementsBlock(prompt, answers) {
+    const block = this._formatUserRequirements(answers);
+    if (!block) return prompt;
+    return `${prompt}\n\n${block}`;
   }
 
   _buildPrompt(stage, specId, overview, answers) {
-    const appDescription = answers[0] || 'Not provided';
-    const workflow = answers[1] || 'Not provided';
-    const additionalDetails = answers[2] || 'Not provided';
     const hasOverview = overview && typeof overview === 'string' && overview.trim().length > 0;
-    const overviewContent = hasOverview ? overview : null;
-    const isReference = !overviewContent;
-    if (stage === 'technical') return this._buildTechnicalPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference);
-    if (stage === 'market') return this._buildMarketPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference);
-    if (stage === 'design') return this._buildDesignPrompt(specId, overviewContent, appDescription, workflow, additionalDetails, isReference);
-    return `Generate ${stage} specification.\nApp Description: ${appDescription}\nWorkflow: ${workflow}\nAdditional: ${additionalDetails}\n\nOverview:\n${overviewContent || ''}`;
+    const overviewParam = hasOverview ? overview : specId;
+    const builder = PROMPTS[stage];
+    if (!builder) {
+      return `Generate ${stage} specification.\n\nOverview:\n${overview || ''}\n\n${this._formatUserRequirements(answers)}`;
+    }
+    return this._appendUserRequirementsBlock(builder(overviewParam, answers || []), answers);
   }
 
   /**
@@ -279,7 +205,7 @@ Additional Details: ${additionalDetails}`;
     logger.info({ requestId, specId }, '[SpecGenV2] Starting overview generation');
     const tm = this._getThreadManager();
     const threadId = await tm.getOrCreateThread(specId);
-    const userMessage = OVERVIEW_USER_PROMPT_PREFIX + (userInput || '');
+    const userMessage = PROMPTS.overview([userInput || '', '', '']);
     const payload = await tm.runStage(threadId, 'overview', userMessage);
     const rootKey = STAGE_ROOT_KEYS.overview;
     const overviewObj = payload[rootKey];
@@ -373,7 +299,7 @@ Additional Details: ${additionalDetails}`;
     if (processed.technical && processed.market && processed.design) {
       specEvents.emitSpecUpdate(specId, 'architecture', 'generating', null);
       try {
-        const architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design);
+        const architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design, answers);
         processed.architecture = architecture;
         specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
         processed.successes.push({ stage: 'architecture', content: architecture });
@@ -387,7 +313,7 @@ Additional Details: ${additionalDetails}`;
     if (processed.technical && processed.architecture) {
       specEvents.emitSpecUpdate(specId, 'visibility', 'generating', null);
       try {
-        const visibility = await this.generateVisibility(specId, overview, processed.technical);
+        const visibility = await this.generateVisibility(specId, overview, processed.technical, answers);
         processed.visibility = visibility;
         specEvents.emitSpecUpdate(specId, 'visibility', 'ready', visibility);
         processed.successes.push({ stage: 'visibility', content: visibility });
@@ -401,13 +327,14 @@ Additional Details: ${additionalDetails}`;
     if (processed.technical && processed.market && processed.design && processed.architecture && processed.visibility) {
       specEvents.emitSpecUpdate(specId, 'prompts', 'generating', null);
       try {
-        const prompts = this.generatePromptsBundle({
+        const prompts = await this.generatePrompts(specId, {
           overview,
           technical: processed.technical,
           market: processed.market,
           design: processed.design,
           architecture: processed.architecture,
-          visibility: processed.visibility
+          visibility: processed.visibility,
+          answers
         });
         processed.prompts = prompts;
         specEvents.emitSpecUpdate(specId, 'prompts', 'ready', prompts);
@@ -434,12 +361,12 @@ Additional Details: ${additionalDetails}`;
    * @param {string} design - Design content
    * @returns {Promise<string>} Markdown string (for Firestore and frontend)
    */
-  async generateArchitecture(specId, overview, technical, market, design) {
+  async generateArchitecture(specId, overview, technical, market, design, answers = []) {
     const requestId = `v2-arch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     logger.info({ requestId, specId }, '[SpecGenV2] Starting architecture generation');
 
-    const userPrompt = this._buildArchitecturePrompt(overview, technical, market, design);
+    const userPrompt = this._buildArchitecturePrompt(overview, technical, market, design, answers);
 
     const tm = this._getThreadManager();
     const threadId = await tm.getOrCreateThread(specId);
@@ -457,7 +384,7 @@ Additional Details: ${additionalDetails}`;
     return typeof markdown === 'string' ? markdown : String(markdown);
   }
 
-  _buildArchitecturePrompt(overview, technical, market, design) {
+  _buildArchitecturePrompt(overview, technical, market, design, answers = []) {
     const overviewSlice = (overview || '').slice(0, 15000);
     const technicalSlice = (technical || '').slice(0, 20000);
     const marketSlice = (market || '').slice(0, 8000);
@@ -516,6 +443,10 @@ ${marketSlice}
 
 ## Design
 ${designSlice}
+
+${this._formatUserRequirements(answers)}
+
+Do not add systems, services, or integrations the user did not request unless required by the overview/technical specs.
 
 Output: single JSON object with key "architecture" and the fields above. No markdown outside JSON, no explanation.`;
   }
@@ -684,11 +615,12 @@ Output: single JSON object with key "architecture" and the fields above. No mark
     return lines.join('\n').trim() || '';
   }
 
-  async generateVisibility(specId, overview, technical) {
+  async generateVisibility(specId, overview, technical, answers = []) {
     const requestId = `v2-visibility-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     logger.info({ requestId, specId }, '[SpecGenV2] Starting visibility generation');
+    const requirementsBlock = this._formatUserRequirements(answers);
     const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be visibility.
-Create a GEO & SEO visibility plan based only on Overview + Technical Specification.
+Create a GEO & SEO visibility plan based only on Overview + Technical Specification + user requirements.
 Required structure:
 - strategySummary (string)
 - seoFoundation: { positioning, pillarTopics[], targetIntents[] }
@@ -702,6 +634,8 @@ ${(overview || '').slice(0, 12000)}
 
 Technical:
 ${(technical || '').slice(0, 12000)}
+
+${requirementsBlock}
 `;
     const tm = this._getThreadManager();
     const threadId = await tm.getOrCreateThread(specId);
@@ -709,6 +643,65 @@ ${(technical || '').slice(0, 12000)}
     return JSON.stringify(payload.visibility, null, 2);
   }
 
+  /**
+   * Generate staged PRD prompts (10 development stages) plus third-party integration instructions.
+   * @param {string} specId
+   * @param {{ overview: string, technical: string, market: string, design: string, architecture: string, visibility: string, answers?: Array }} ctx
+   * @returns {Promise<string>} JSON string for prompts bundle
+   */
+  async generatePrompts(specId, ctx) {
+    const requestId = `v2-prompts-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    logger.info({ requestId, specId }, '[SpecGenV2] Starting staged prompts generation');
+
+    const tm = this._getThreadManager();
+    const threadId = await tm.getOrCreateThread(specId);
+
+    const overview = ctx.overview || '';
+    const technical = ctx.technical || '';
+    const design = ctx.design || '';
+
+    const generatedStages = await runPromptStages(tm, threadId, {
+      overview,
+      technical,
+      design,
+      specId
+    });
+
+    if (generatedStages.length === 0) {
+      throw new Error('All PRD stages failed to generate');
+    }
+
+    const fullPrompt = assembleFullPrompt(generatedStages, overview, technical);
+    const thirdPartyIntegrations = await runIntegrations(tm, threadId, overview, technical);
+
+    const bundle = {
+      generated: true,
+      fullPrompt,
+      contextSummary: 'Staged development PRD generated from overview, technical, market, design, architecture, and visibility specifications.',
+      integrationChecklist: [
+        'Use Overview as product source of truth',
+        'Follow Technical architecture and API contracts',
+        'Apply design system and UX constraints',
+        'Enforce architecture and integration boundaries',
+        'Apply visibility (GEO/SEO) assets in content and metadata'
+      ],
+      thirdPartyIntegrations: thirdPartyIntegrations.length > 0 ? thirdPartyIntegrations : null
+    };
+
+    logger.info({
+      requestId,
+      specId,
+      duration: `${Date.now() - startTime}ms`,
+      stagesCompleted: generatedStages.length,
+      fullPromptLength: fullPrompt.length,
+      integrationsCount: thirdPartyIntegrations.length
+    }, '[SpecGenV2] Staged prompts completed');
+
+    return JSON.stringify(bundle, null, 2);
+  }
+
+  /** @deprecated Use generatePrompts — kept for callers expecting sync dump */
   generatePromptsBundle({ overview, technical, market, design, architecture, visibility }) {
     const sections = {
       overview,

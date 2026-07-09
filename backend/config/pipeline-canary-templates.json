@@ -62,6 +62,15 @@
         "Add pet profile, add visit with date and notes, upload optional PDF from vet, see timeline per pet.",
         "Consumer web app, one household per account, no vet portal in v1, English only."
       ]
+    },
+    {
+      "id": "planning-fidelity",
+      "title": "Planning Fidelity Board",
+      "answers": [
+        "App Description: A kanban board for design teams to track creative tasks.\n\nPages:\n1. Dashboard\n2. Project Board\n3. Team Settings\n\nFeatures:\n1. Drag and drop cards\n2. Color-coded labels\n3. Due date reminders",
+        "",
+        ""
+      ]
     }
   ]
 }

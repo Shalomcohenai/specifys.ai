@@ -1212,7 +1212,7 @@ async function generateSpecification() {
     
     // Prepare the prompt for overview generation
     let prompt = '';
-    let enhancedPrompt = '';
+    let rawUserInputForApi = '';
     
     if (planningText) {
       // Use new planning data
@@ -1251,8 +1251,10 @@ async function generateSpecification() {
 
       // Create comprehensive user input from planning data
       const userInput = `App Description: ${mainPitch}${pagesText}${workflowsText}${featuresText}${designText}${integrationsText}${audienceText}${screenshotsText}`;
-      
-      // Use PROMPTS.overview with the user input as a single answer
+      rawUserInputForApi = userInput;
+      answers = [userInput, '', ''];
+
+      // Use PROMPTS.overview with the user input as a single answer (client preview / legacy paths)
       prompt = PROMPTS.overview([userInput, '', '']);
     } else {
       // Fallback to old 3-question flow
@@ -1267,12 +1269,11 @@ async function generateSpecification() {
         ? `Target Platform: ${platformInfo.join(', ')}` 
         : 'Target Platform: Not specified';
       
-      enhancedPrompt = `${prompt}\n\n${platformText}`;
+      rawUserInputForApi = `App Description: ${answers[0] || ''}\n\nUser Workflow: ${answers[1] || ''}\n\nAdditional Details: ${answers[2] || ''}\n\n${platformText}`;
     }
     
-    // Use enhanced prompt if available, otherwise use regular prompt
-    if (!enhancedPrompt) {
-      enhancedPrompt = prompt;
+    if (!rawUserInputForApi) {
+      rawUserInputForApi = answers[0] || '';
     }
     
     // CRITICAL: Consume credit BEFORE creating spec and starting background job
@@ -1378,7 +1379,7 @@ async function generateSpecification() {
           
           // Try queue API
           const queueResponse = await window.api.post('/api/specs/generate-overview', {
-            userInput: enhancedPrompt,
+            userInput: rawUserInputForApi,
             specId: specIdForQueue
           });
           
@@ -1437,7 +1438,7 @@ async function generateSpecification() {
             // Try to use queue API for background generation
             try {
               const queueResponse = await window.api.post('/api/specs/generate-overview', {
-                userInput: enhancedPrompt,
+                userInput: rawUserInputForApi,
                 specId: directSpecId
               });
               
@@ -1449,14 +1450,14 @@ async function generateSpecification() {
               } else {
                 // Queue API failed, but we have specId - use direct API in background
                 // We'll update the spec after redirect
-                data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: enhancedPrompt };
+                data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: rawUserInputForApi };
                 specIdForQueue = directSpecId;
                 useQueue = true;
               }
             } catch (queueError) {
               console.warn('Queue API failed for direct flow, will use direct API in background:', queueError);
               // Queue API failed, but we have specId - use direct API in background
-              data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: enhancedPrompt };
+              data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: rawUserInputForApi };
               specIdForQueue = directSpecId;
               useQueue = true;
             }
@@ -1464,13 +1465,13 @@ async function generateSpecification() {
             console.error('Failed to create spec document:', specCreationError);
             // Fallback to old direct API flow if spec creation fails
             data = await window.api.post('/api/generate-spec', {
-              userInput: enhancedPrompt
+              userInput: rawUserInputForApi
             });
           }
         } else {
           // User not authenticated - fallback to old direct API
           data = await window.api.post('/api/generate-spec', {
-            userInput: enhancedPrompt
+            userInput: rawUserInputForApi
           });
         }
       }

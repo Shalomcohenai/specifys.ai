@@ -121,20 +121,17 @@
     <!-- Canonical URL -->
     
     
-    
-    
-    
-    
     <link rel="canonical" href="https://specifys-ai.com/">
-    
     <link rel="alternate" hreflang="en" href="https://specifys-ai.com/">
     <link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/">
+    <link rel="alternate" type="text/markdown" href="https://specifys-ai.com/llms.txt" title="LLM site index">
     
     <meta name="google-site-verification" content="8_O42wMHZTeWq6KipUYXmRqieXTY2PR0LPNLv6-HhRI">
     
     
     <meta name="msvalidate.01" content="">
     
+    <link type="application/atom+xml" rel="alternate" href="https://specifys-ai.com/feed.xml" title="Specifys.ai" />
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
@@ -260,6 +257,12 @@
   gtag('js', new Date());
   gtag('config', 'G-RWBT69JCM7');
 </script>
+
+<!-- Vercel Web Analytics (static site integration) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 
     <script>
 // Central Analytics Event Tracking System for Specifys.ai
@@ -467,7 +470,7 @@ function trackPreference(preferenceName, preferenceValue) {
       },
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "specifysai@gmail.com",
+        "email": "about@prd.it.com",
         "contactType": "Customer Service"
       }
     },
@@ -502,7 +505,7 @@ function trackPreference(preferenceName, preferenceValue) {
           "name": "What's Specifys.ai all about?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Specifys.ai is a complete AI-powered app planning ecosystem. Create specs, discover tools, manage projects - all free."
+            "text": "Specifys.ai is an AI-powered app planning ecosystem. Create specs, discover tools, and manage projects. A free tier is available; Specifys Pro unlocks unlimited specs and advanced features."
           }
         },
         {
@@ -515,10 +518,10 @@ function trackPreference(preferenceName, preferenceValue) {
         },
         {
           "@type": "Question",
-          "name": "Is it really 100% free?",
+          "name": "Is Specifys.ai free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes! All features are completely free. No hidden fees, no premium tiers."
+            "text": "Yes — you can start for free with core planning features. Specifys Pro is $1.99/month for unlimited specifications, editing, mockups, and advanced exports."
           }
         },
         {
@@ -611,19 +614,29 @@ function trackPreference(preferenceName, preferenceValue) {
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Header -->
     
-    <!-- Header: logo (left), user (left), credits (right) -->
+    <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
-    <nav class="header-center" aria-label="Main navigation">
+    <div class="header-left">
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+        <nav class="header-nav" aria-label="Site navigation">
+            <a href="/pages/how.html">How</a>
+            <a href="/pages/pricing.html">Pricing</a>
+            <a href="/blog/">Blog</a>
+            <a href="/academy.html">Academy</a>
+            <a href="/pages/guides.html">Guides</a>
+            <a href="/pages/compare.html">Compare</a>
+        </nav>
+    </div>
+    <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </nav>
-    <div class="header-right" role="complementary" aria-label="User account and credits">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
-        </div>
+    </div>
+    <div class="header-right" role="complementary" aria-label="User credits">
         <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
                 <span id="credits-text" aria-label="Available credits">Credits: 0</span>
@@ -635,7 +648,6 @@ function trackPreference(preferenceName, preferenceValue) {
 <!-- Credits Display Scripts (V3) -->
 <script src="/assets/js/pages/credits-v3-manager.js"></script>
 <script src="/assets/js/pages/credits-v3-display.js"></script>
-
 
     
     
@@ -714,7 +726,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Application Overview</h1>
+                                <h2 class="spec-title">Application Overview</h2>
                                 
                                 <!-- Application Summary -->
                                 <div class="overview-section-container">
@@ -750,7 +762,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Technical Specification</h1>
+                                <h2 class="spec-title">Technical Specification</h2>
                                 
                                 <!-- Architecture Overview -->
                                 <div class="technical-section-container">
@@ -795,7 +807,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Market Research</h1>
+                                <h2 class="spec-title">Market Research</h2>
                                 
                                 <!-- Market Opportunity -->
                                 <div class="market-section-container">
@@ -851,7 +863,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Design & Branding</h1>
+                                <h2 class="spec-title">Design & Branding</h2>
                                 
                                 <div class="design-section-container">
                                     <h3 class="design-section-title">
@@ -920,7 +932,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Diagrams</h1>
+                                <h2 class="spec-title">Diagrams</h2>
                                 
                                 <div class="diagram-section-container">
                                     <h3 class="diagram-section-title">
@@ -980,7 +992,7 @@ graph TB
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
-                                <h1 class="spec-title">Prompts</h1>
+                                <h2 class="spec-title">Prompts</h2>
                                 
                                 <div class="prompt-section-container">
                                     <h3 class="prompt-section-title">
@@ -1281,6 +1293,10 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
 </section>
 
 <!-- Why Sections from why.html -->
+<section class="home-seo-intro" aria-label="About Specifys.ai">
+    <p>Specifys.ai is an <strong>AI app specification generator</strong> for teams who vibe code with Cursor, Lovable, or Bolt. Turn a product idea into a structured PRD, technical architecture, and IDE-ready prompts — before a single line of code. <a href="/pages/how.html">See how it works</a> or explore our <a href="/pages/guides/vibe-coding.html">vibe coding guide</a>.</p>
+</section>
+
 <!-- Section 1: The Promise That Falls Short -->
 <section class="why-section prompt-section" data-section="1">
     <h2 class="section-title">The Promise That Falls Short</h2>
@@ -1398,76 +1414,53 @@ graph TD
     <h2>Choose Your Plan</h2>
     <p>Start free or upgrade for unlimited specifications</p>
     <div class="pricing-grid-home">
-      
-      <!-- Single Spec -->
+
+      <!-- Free -->
       <div class="pricing-card-home">
         <div class="pricing-card-header">
-          <h3>Single Spec</h3>
-          <p>One-time payment</p>
+          <h3>Free</h3>
+          <p>Try Specifys for free</p>
         </div>
         <div class="pricing-card-price">
           <span class="currency">$</span>
-          <span class="amount">4.90</span>
+          <span class="amount">0</span>
         </div>
         <div class="pricing-card-features">
           <ul>
-            <li><i class="fa fa-check"></i> 1 additional spec</li>
-            <li><i class="fa fa-check"></i> Edit saved specs</li>
-            <li><i class="fa fa-check"></i> All free features</li>
+            <li><i class="fa fa-check"></i> 1 specification</li>
+            <li><i class="fa fa-check"></i> Tools Map access</li>
+            <li><i class="fa fa-check"></i> Export &amp; MCP</li>
           </ul>
         </div>
-        <a href="/pages/pricing.html" class="pricing-btn" onclick="trackCTA('View Single Spec', 'pricing_home')">
-          View Details
-        </a>
-      </div>
-
-      <!-- 3-Pack -->
-      <div class="pricing-card-home highlight">
-        <div class="badge">Best Value</div>
-        <div class="pricing-card-header">
-          <h3>3-Pack</h3>
-          <p>Three specs at a discount</p>
-        </div>
-        <div class="pricing-card-price">
-          <span class="currency">$</span>
-          <span class="amount">9.90</span>
-        </div>
-        <div class="pricing-card-features">
-          <ul>
-            <li><i class="fa fa-check"></i> 3 additional specs</li>
-            <li><i class="fa fa-check"></i> Edit saved specs</li>
-            <li><i class="fa fa-check"></i> All free features</li>
-          </ul>
-        </div>
-        <a href="/pages/pricing.html" class="pricing-btn highlight-btn" onclick="trackCTA('View 3-Pack', 'pricing_home')">
-          View Details
+        <a href="/pages/auth.html" class="pricing-btn" onclick="trackCTA('Get Started Free', 'pricing_home')">
+          Get Started
         </a>
       </div>
 
       <!-- Pro -->
-      <div class="pricing-card-home pro">
-        <div class="badge">Popular</div>
+      <div class="pricing-card-home pro highlight">
+        <div class="badge">Pro</div>
         <div class="pricing-card-header">
           <h3>Pro</h3>
           <p>Unlimited specifications</p>
         </div>
         <div class="pricing-card-price">
           <span class="currency">$</span>
-          <span class="amount">29.90</span>
+          <span class="amount">1.99</span>
           <span class="period">/month</span>
         </div>
         <div class="pricing-card-features">
           <ul>
             <li><i class="fa fa-check"></i> Unlimited specs</li>
             <li><i class="fa fa-check"></i> Edit all specs</li>
-            <li><i class="fa fa-check"></i> Priority support</li>
+            <li><i class="fa fa-check"></i> Mockups &amp; advanced tools</li>
           </ul>
         </div>
-        <a href="/pages/pricing.html" class="pricing-btn" onclick="trackCTA('View Pro Plan', 'pricing_home')">
-          View Details
+        <a href="/pages/pricing.html" class="pricing-btn highlight-btn" onclick="trackCTA('View Pro Plan', 'pricing_home')">
+          Subscribe
         </a>
       </div>
-      
+
     </div>
     <p class="pricing-footer">Start for free • No credit card required</p>
   </div>
@@ -1490,7 +1483,7 @@ graph TD
           Is there a free plan? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Absolutely! We believe everyone should have the opportunity to experience the power of proper app planning. That's why we offer one complete specification completely free - no credit card required, no hidden fees, no strings attached. This gives you full access to test our platform and see how it can transform your development workflow. Once you've tried it and love it, additional specifications start at just $4.90, making professional-grade planning accessible to everyone.
+          Absolutely! We believe everyone should have the opportunity to experience the power of proper app planning. That's why we offer one complete specification completely free - no credit card required, no hidden fees, no strings attached. This gives you full access to test our platform and see how it can transform your development workflow. Once you've tried it and love it, upgrade to Pro for just $1.99/month for unlimited specifications and advanced features.
         </div>
       </div>
       <div class="faq-item">
@@ -1602,10 +1595,9 @@ graph TD
         <span class="footer-sitemap-title">Resources</span>
         <a href="/pages/how.html" role="listitem">How It Works</a>
         <a href="/pages/why.html" role="listitem">Why?</a>
-        <a href="/pages/articles.html" role="listitem">Articles</a>
-        <a href="/pages/compare/specifys-vs-bolt.html" role="listitem">Specifys vs Bolt</a>
-        <a href="/pages/compare/specifys-vs-lovable.html" role="listitem">Specifys vs Lovable</a>
-        <a href="/pages/compare/specifys-vs-cursor-windsurf.html" role="listitem">Specifys vs Cursor</a>
+        <a href="/pages/guides.html" role="listitem">Guides</a>
+        <a href="/pages/compare.html" role="listitem">Compare</a>
+        <a href="/pages/integrations.html" role="listitem">Integrations</a>
         <a href="/pages/glossary/index.html" role="listitem">Glossary</a>
         <a href="/pages/for-ai-assistants.html" role="listitem">For AI assistants</a>
       </div>
@@ -1623,7 +1615,7 @@ graph TD
       <div class="footer-social" role="list" aria-label="Social media links">
         <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
         <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+        <a href="mailto:about@prd.it.com" aria-label="Email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
         <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
       </div>
     </div>
@@ -1633,7 +1625,7 @@ graph TD
       © 2026 specifys.ai. All rights reserved.
     </div>
     <p class="footer-attribution">
-      a product of <a href="https://www.prd.it.com/" target="_blank" rel="noopener noreferrer">prd.it.com</a>
+      A product of <a href="https://www.prd.it.com/" target="_blank" rel="noopener noreferrer">prd.it.com</a>
     </p>
   </div>
 </footer>

@@ -66,6 +66,7 @@ export default defineConfig({
       '@specifys/api-client': resolve(__dirname, 'packages/api-client/src'),
       '@specifys/ui': resolve(__dirname, 'packages/ui/src'),
       '@specifys/design-system': resolve(__dirname, 'packages/design-system/tokens'),
+      '@specifys/spec-prompts': resolve(__dirname, 'packages/spec-prompts'),
     },
   },
 });

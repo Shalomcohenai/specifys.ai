@@ -794,6 +794,7 @@ pre code {
   top: 0;
   bottom: 0;
   pointer-events: none;
+  z-index: 2;
 }
 
 .header-center .logo {
