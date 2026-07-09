@@ -72,17 +72,6 @@ body:has(.side-menu) .thematic-header .header-right {
   color: #FF6B35;
 }
 
-/* Preview buttons styling */
-/* Using attribute selector with higher specificity instead of !important */
-button[onclick*="openVisualizer"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-}
-
-button[onclick*="openVisualizer"]:active {
-  transform: translateY(0);
-}
-
 /* Mindmap container specific styles */
 #mindmap-container {
   width: 100%;
