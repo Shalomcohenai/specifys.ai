@@ -317,32 +317,63 @@ export class UsageIntelligenceView {
       (new Date(toIso).getTime() - new Date(fromIso).getTime()) / (24 * 60 * 60 * 1000)
     );
 
-    const params = new URLSearchParams({
+    const body = {
       from: fromIso,
       to: toIso,
-      redactPii: redactInput?.checked ? 'true' : 'false'
-    });
-    // Always flag wide ranges so older servers / proxies treat them as full history
-    if (allMode || rangeDays > 365) params.set('all', 'true');
+      redactPii: !!(redactInput?.checked),
+      all: allMode || rangeDays > 365
+    };
 
     const original = btn ? btn.innerHTML : '';
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building dump…';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting…';
     }
     if (status) {
-      status.textContent = allMode
-        ? 'Collecting all historical data and building ZIP. This may take several minutes.'
-        : 'Collecting collections and building ZIP. Large ranges may take a few minutes.';
+      status.textContent = 'Starting export job…';
     }
 
     try {
       const token = await this.getAuthToken();
-      const apiBaseUrl = window.getApiBaseUrl
+      const apiBaseUrl = (window.getApiBaseUrl
         ? window.getApiBaseUrl()
-        : (window.API_BASE_URL || window.BACKEND_URL || '');
-      const response = await fetch(
-        `${apiBaseUrl.replace(/\/$/, '')}/api/admin/usage-intelligence/export?${params}`,
+        : (window.API_BASE_URL || window.BACKEND_URL || '')).replace(/\/$/, '');
+
+      // 1) Start async job (returns immediately — avoids Cloudflare TTFB timeout)
+      const startRes = await fetch(`${apiBaseUrl}/api/admin/usage-intelligence/export/jobs`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-No-Compression': '1'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!startRes.ok) {
+        const payload = await startRes.json().catch(() => ({ message: startRes.statusText }));
+        throw new Error(formatExportError(payload) || `HTTP ${startRes.status}`);
+      }
+
+      const startJson = await startRes.json();
+      const jobId = startJson.job?.id;
+      if (!jobId) throw new Error('Server did not return a job id');
+
+      if (status) status.textContent = `Job ${jobId.slice(0, 8)}… building dump on server`;
+      if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building…';
+
+      // 2) Poll until ready / error
+      const readyJob = await this.pollExportJob(apiBaseUrl, token, jobId, status);
+      if (readyJob.status === 'error') {
+        throw new Error(readyJob.error || 'Export job failed on server');
+      }
+
+      if (status) status.textContent = 'Downloading ZIP…';
+      if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading…';
+
+      // 3) Download finished file (fast — file already on disk)
+      const dlRes = await fetch(
+        `${apiBaseUrl}/api/admin/usage-intelligence/export/jobs/${encodeURIComponent(jobId)}/download`,
         {
           method: 'GET',
           headers: {
@@ -352,23 +383,21 @@ export class UsageIntelligenceView {
         }
       );
 
-      const contentType = (response.headers.get('Content-Type') || '').toLowerCase();
-
-      if (!response.ok) {
+      const contentType = (dlRes.headers.get('Content-Type') || '').toLowerCase();
+      if (!dlRes.ok) {
         let payload = null;
         try {
           payload = contentType.includes('json')
-            ? await response.json()
-            : { message: await response.text() };
+            ? await dlRes.json()
+            : { message: await dlRes.text() };
         } catch (_) {
-          payload = { message: response.statusText || `HTTP ${response.status}` };
+          payload = { message: dlRes.statusText || `HTTP ${dlRes.status}` };
         }
-        throw new Error(formatExportError(payload) || `HTTP ${response.status}`);
+        throw new Error(formatExportError(payload) || `HTTP ${dlRes.status}`);
       }
 
-      // Guard: server sometimes returns JSON error with 200 in edge cases, or HTML error pages
       if (contentType.includes('application/json') || contentType.includes('text/html')) {
-        const text = await response.text();
+        const text = await dlRes.text();
         let payload;
         try {
           payload = JSON.parse(text);
@@ -378,14 +407,14 @@ export class UsageIntelligenceView {
         throw new Error(formatExportError(payload));
       }
 
-      let filename = `usage-dump-${fromDate || 'all'}-to-${toDate || 'now'}.zip`;
-      const cd = response.headers.get('Content-Disposition');
+      let filename = readyJob.filename || `usage-dump-${fromDate || 'all'}-to-${toDate || 'now'}.zip`;
+      const cd = dlRes.headers.get('Content-Disposition');
       if (cd) {
         const match = cd.match(/filename="(.+)"/);
         if (match) filename = match[1];
       }
 
-      const blob = await response.blob();
+      const blob = await dlRes.blob();
       if (!blob || blob.size < 22) {
         throw new Error('Export returned an empty or invalid ZIP file');
       }
@@ -399,7 +428,9 @@ export class UsageIntelligenceView {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      if (status) status.textContent = `Downloaded ${filename} (${Math.round(blob.size / 1024)} KB)`;
+      if (status) {
+        status.textContent = `Downloaded ${filename} (${Math.round(blob.size / 1024)} KB)`;
+      }
       if (btn) {
         btn.innerHTML = '<i class="fas fa-check"></i> Downloaded';
         btn.classList.add('success');
@@ -419,6 +450,40 @@ export class UsageIntelligenceView {
         }, 2000);
       }
     }
+  }
+
+  /**
+   * Poll export job until ready or error (max ~10 minutes).
+   */
+  async pollExportJob(apiBaseUrl, token, jobId, statusEl) {
+    const maxAttempts = 150; // 150 * 2s = 5 minutes
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const res = await fetch(
+        `${apiBaseUrl}/api/admin/usage-intelligence/export/jobs/${encodeURIComponent(jobId)}`,
+        {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({ message: res.statusText }));
+        throw new Error(formatExportError(payload) || `HTTP ${res.status}`);
+      }
+      const json = await res.json();
+      const job = json.job;
+      if (!job) throw new Error('Invalid job status response');
+
+      if (statusEl) {
+        const kb = job.bytes ? ` · ${Math.round(job.bytes / 1024)} KB` : '';
+        statusEl.textContent = `Job ${job.status}${job.progress ? ` — ${job.progress}` : ''}${kb}`;
+      }
+
+      if (job.status === 'ready' || job.status === 'error') {
+        return job;
+      }
+    }
+    throw new Error('Export job timed out while building. Try a shorter date range (Last 7 days).');
   }
 
   async loadReleases() {

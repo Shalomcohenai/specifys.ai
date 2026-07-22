@@ -560,32 +560,44 @@ async function buildUsageDumpZip(outputStream, options = {}) {
 }
 
 /**
- * Stream a ZIP of JSONL files to an HTTP response.
+ * Sync HTTP download: build ZIP on disk first, then send the finished file.
+ * Prefer async jobs in production (Cloudflare TTFB limits). Kept for scripts / fallback.
  */
 async function streamUsageDumpZip(res, options = {}) {
-  // Validate range before committing to a ZIP content-type (so errors stay JSON).
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+
   const allowAll = options.all === true || options.all === 'true' || options.all === '1';
   parseExportRange(options.from, options.to, { allowAll });
 
-  const fromPreview = options.from
-    ? new Date(options.from).toISOString().slice(0, 10)
-    : 'all';
-  const toPreview = options.to
-    ? new Date(options.to).toISOString().slice(0, 10)
-    : new Date().toISOString().slice(0, 10);
-  const filename = `usage-dump-${fromPreview}-to-${toPreview}.zip`;
+  const tmpPath = path.join(
+    os.tmpdir(),
+    `specifys-usage-sync-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.zip`
+  );
 
-  // Avoid gzipping an already-compressed ZIP (and keep proxy happy).
-  res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('X-No-Compression', '1');
+  try {
+    const result = await writeUsageDumpToFile(tmpPath, options);
+    const stat = fs.statSync(tmpPath);
 
-  if (typeof res.setTimeout === 'function') {
-    res.setTimeout(10 * 60 * 1000);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-No-Compression', '1');
+
+    await new Promise((resolve, reject) => {
+      const stream = fs.createReadStream(tmpPath);
+      stream.on('error', reject);
+      res.on('error', reject);
+      res.on('finish', resolve);
+      stream.pipe(res);
+    });
+
+    return result;
+  } finally {
+    fs.unlink(tmpPath, () => {});
   }
-
-  return buildUsageDumpZip(res, options);
 }
 
 /**
@@ -604,6 +616,146 @@ async function writeUsageDumpToFile(filePath, options = {}) {
     output.on('error', reject);
   });
   return { ...result, filePath };
+}
+
+// ─── Async export jobs (avoids Cloudflare / proxy TTFB timeouts) ──────
+
+const EXPORT_JOBS = new Map();
+const EXPORT_JOB_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function publicJobView(job) {
+  if (!job) return null;
+  return {
+    id: job.id,
+    status: job.status,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt,
+    filename: job.filename || null,
+    bytes: job.bytes || null,
+    error: job.error || null,
+    range: job.range || null,
+    fileStats: job.status === 'ready' ? job.fileStats : undefined,
+    progress: job.progress || null
+  };
+}
+
+function cleanupExpiredExportJobs() {
+  const fs = require('fs');
+  const now = Date.now();
+  for (const [id, job] of EXPORT_JOBS.entries()) {
+    const created = Date.parse(job.createdAt) || 0;
+    if (now - created > EXPORT_JOB_TTL_MS) {
+      if (job.filePath) {
+        try { fs.unlinkSync(job.filePath); } catch (_) { /* ignore */ }
+      }
+      EXPORT_JOBS.delete(id);
+    }
+  }
+}
+
+async function runExportJob(jobId) {
+  const fs = require('fs');
+  const job = EXPORT_JOBS.get(jobId);
+  if (!job) return;
+
+  job.status = 'running';
+  job.updatedAt = new Date().toISOString();
+  job.progress = 'Building ZIP from Firestore…';
+
+  try {
+    const result = await writeUsageDumpToFile(job.filePath, job.options);
+    const stat = fs.statSync(job.filePath);
+    job.status = 'ready';
+    job.filename = result.filename;
+    job.fileStats = result.fileStats;
+    job.bytes = stat.size;
+    job.range = {
+      from: result.fromDate?.toISOString?.() || job.options.from,
+      to: result.toDate?.toISOString?.() || job.options.to
+    };
+    job.progress = 'Ready';
+    job.updatedAt = new Date().toISOString();
+    logger.info(
+      { jobId, filename: job.filename, bytes: job.bytes },
+      '[usage-intelligence] Export job ready'
+    );
+  } catch (err) {
+    job.status = 'error';
+    job.error = err.message || String(err);
+    job.progress = null;
+    job.updatedAt = new Date().toISOString();
+    logger.error(
+      { jobId, error: job.error },
+      '[usage-intelligence] Export job failed'
+    );
+    try { fs.unlinkSync(job.filePath); } catch (_) { /* ignore */ }
+  }
+}
+
+/**
+ * Start a background export job. Returns immediately with job id.
+ */
+function startExportJob(options = {}, adminUser = null) {
+  const os = require('os');
+  const path = require('path');
+  const crypto = require('crypto');
+
+  cleanupExpiredExportJobs();
+
+  const allowAll = options.all === true || options.all === 'true' || options.all === '1';
+  const { fromDate, toDate } = parseExportRange(options.from, options.to, { allowAll });
+
+  const jobId = crypto.randomBytes(12).toString('hex');
+  const filePath = path.join(os.tmpdir(), `specifys-usage-job-${jobId}.zip`);
+
+  const job = {
+    id: jobId,
+    status: 'queued',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: adminUser?.email || adminUser?.uid || null,
+    options: {
+      from: fromDate.toISOString(),
+      to: toDate.toISOString(),
+      all: allowAll,
+      redactPii: options.redactPii === true || options.redactPii === 'true',
+      maxPerCollection: options.maxPerCollection
+    },
+    range: { from: fromDate.toISOString(), to: toDate.toISOString() },
+    filePath,
+    filename: null,
+    fileStats: null,
+    bytes: null,
+    error: null,
+    progress: 'Queued'
+  };
+
+  EXPORT_JOBS.set(jobId, job);
+  setImmediate(() => {
+    runExportJob(jobId).catch((err) => {
+      logger.error({ jobId, error: err.message }, '[usage-intelligence] Unhandled job error');
+    });
+  });
+
+  logger.info(
+    { jobId, from: job.options.from, to: job.options.to, admin: job.createdBy },
+    '[usage-intelligence] Export job started'
+  );
+
+  return publicJobView(job);
+}
+
+function getExportJob(jobId) {
+  cleanupExpiredExportJobs();
+  return publicJobView(EXPORT_JOBS.get(jobId) || null);
+}
+
+function getExportJobFile(jobId) {
+  cleanupExpiredExportJobs();
+  const job = EXPORT_JOBS.get(jobId);
+  if (!job) return null;
+  if (job.status !== 'ready') return { job: publicJobView(job), filePath: null };
+  return { job: publicJobView(job), filePath: job.filePath, filename: job.filename };
 }
 
 // ─── product_releases CRUD ───────────────────────────────────────────
@@ -727,6 +879,9 @@ module.exports = {
   writeUsageDumpToFile,
   buildUsageDumpZip,
   parseExportRange,
+  startExportJob,
+  getExportJob,
+  getExportJobFile,
   listProductReleases,
   createProductRelease,
   deleteProductRelease,

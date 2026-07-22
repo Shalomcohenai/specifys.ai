@@ -3500,9 +3500,9 @@ router.post('/scheduled-jobs/tools-finder/test', requireAdmin, async (req, res, 
 const usageIntelligence = require('./usage-intelligence-service');
 
 /**
- * Download raw usage dump as ZIP of JSONL files.
+ * Download raw usage dump as ZIP (sync — may time out behind Cloudflare on large ranges).
+ * Prefer POST /usage-intelligence/export/jobs for the admin UI.
  * GET /api/admin/usage-intelligence/export
- * Query: from (ISO, required), to (ISO, optional), redactPii=true|false, maxPerCollection
  */
 router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /usage-intelligence/export');
@@ -3512,14 +3512,13 @@ router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) =>
     if (!from && !allMode) {
       return next(createError('Query param "from" is required (ISO 8601), or pass all=true', ERROR_CODES.INVALID_INPUT, 400));
     }
-    // Disable compression for this binary ZIP response
     req.headers['x-no-compression'] = '1';
     if (typeof req.setTimeout === 'function') req.setTimeout(10 * 60 * 1000);
     if (typeof res.setTimeout === 'function') res.setTimeout(10 * 60 * 1000);
 
     logger.info(
       { requestId, from, to, all: allMode, redactPii, maxPerCollection, admin: req.adminUser?.email },
-      '[admin-routes] GET /usage-intelligence/export - Starting dump'
+      '[admin-routes] GET /usage-intelligence/export - Starting sync dump'
     );
     await usageIntelligence.streamUsageDumpZip(res, {
       from: allMode ? (from || usageIntelligence.ALL_DATES_FROM) : from,
@@ -3543,6 +3542,125 @@ router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) =>
         500,
         { details: error.message }
       ));
+    }
+  }
+});
+
+/**
+ * Start async usage dump job (returns immediately — poll status, then download).
+ * POST /api/admin/usage-intelligence/export/jobs
+ * Body/query: from, to, all, redactPii, maxPerCollection
+ */
+router.post('/usage-intelligence/export/jobs', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /usage-intelligence/export/jobs');
+  try {
+    const body = req.body || {};
+    const from = body.from || req.query.from;
+    const to = body.to || req.query.to;
+    const all = body.all ?? req.query.all;
+    const redactPii = body.redactPii ?? req.query.redactPii;
+    const maxPerCollection = body.maxPerCollection ?? req.query.maxPerCollection;
+    const allMode = all === true || all === 'true' || all === '1' || all === 'yes';
+
+    if (!from && !allMode) {
+      return next(createError('from is required (ISO 8601), or pass all=true', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    const job = usageIntelligence.startExportJob(
+      {
+        from: allMode ? (from || usageIntelligence.ALL_DATES_FROM) : from,
+        to,
+        all: allMode,
+        redactPii,
+        maxPerCollection
+      },
+      req.adminUser
+    );
+
+    logger.info({ requestId, jobId: job.id, admin: req.adminUser?.email }, '[admin-routes] Export job created');
+    res.status(202).json({ success: true, job, requestId });
+  } catch (error) {
+    if (error.code === 'INVALID_INPUT') {
+      return next(createError(error.message, ERROR_CODES.INVALID_INPUT, 400));
+    }
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] POST /usage-intelligence/export/jobs - Error'
+    );
+    next(createError(error.message || 'Failed to start export job', ERROR_CODES.INTERNAL_ERROR, 500));
+  }
+});
+
+/**
+ * Poll async export job status.
+ * GET /api/admin/usage-intelligence/export/jobs/:jobId
+ */
+router.get('/usage-intelligence/export/jobs/:jobId', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /usage-intelligence/export/jobs/:jobId');
+  try {
+    const job = usageIntelligence.getExportJob(req.params.jobId);
+    if (!job) {
+      return next(createError('Export job not found or expired', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    res.json({ success: true, job, requestId });
+  } catch (error) {
+    next(createError('Failed to get export job', ERROR_CODES.INTERNAL_ERROR, 500));
+  }
+});
+
+/**
+ * Download completed export job ZIP.
+ * GET /api/admin/usage-intelligence/export/jobs/:jobId/download
+ */
+router.get('/usage-intelligence/export/jobs/:jobId/download', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /usage-intelligence/export/jobs/:jobId/download');
+  try {
+    const fs = require('fs');
+    const info = usageIntelligence.getExportJobFile(req.params.jobId);
+    if (!info) {
+      return next(createError('Export job not found or expired', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    if (!info.filePath || info.job.status !== 'ready') {
+      return next(createError(
+        `Export job is not ready (status: ${info.job.status})`,
+        ERROR_CODES.INVALID_INPUT,
+        409
+      ));
+    }
+    if (!fs.existsSync(info.filePath)) {
+      return next(createError('Export file missing on server', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+
+    req.headers['x-no-compression'] = '1';
+    const stat = fs.statSync(info.filePath);
+    const filename = info.filename || `usage-dump-${info.job.id}.zip`;
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
+    res.setHeader('Cache-Control', 'no-store');
+
+    logger.info(
+      { requestId, jobId: info.job.id, bytes: stat.size, filename },
+      '[admin-routes] Export job download'
+    );
+
+    const stream = fs.createReadStream(info.filePath);
+    stream.on('error', (err) => {
+      logger.error({ requestId, error: err.message }, '[admin-routes] Export download stream error');
+      if (!res.headersSent) {
+        next(createError('Failed to stream export file', ERROR_CODES.INTERNAL_ERROR, 500));
+      } else {
+        res.end();
+      }
+    });
+    stream.pipe(res);
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET export job download - Error'
+    );
+    if (!res.headersSent) {
+      next(createError('Failed to download export', ERROR_CODES.INTERNAL_ERROR, 500));
     }
   }
 });
