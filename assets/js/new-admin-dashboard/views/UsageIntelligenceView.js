@@ -28,7 +28,7 @@ function formatDate(iso) {
   });
 }
 
-function defaultFromDate(daysAgo = 90) {
+function defaultFromDate(daysAgo = 7) {
   const d = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
   return d.toISOString().slice(0, 10);
 }
@@ -37,12 +37,38 @@ function defaultToDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Flatten API / Error values into a readable string. */
+function formatExportError(err) {
+  if (err == null) return 'Unknown error';
+  if (typeof err === 'string') return err;
+  if (err instanceof Error && err.message && err.message !== '[object Object]') {
+    return err.message;
+  }
+  if (typeof err === 'object') {
+    if (typeof err.message === 'string') return err.message;
+    if (err.error) {
+      if (typeof err.error === 'string') return err.error;
+      if (typeof err.error.message === 'string') {
+        const details = err.error.details ? ` (${typeof err.error.details === 'string' ? err.error.details : JSON.stringify(err.error.details)})` : '';
+        return `${err.error.message}${details}`;
+      }
+    }
+    try {
+      return JSON.stringify(err);
+    } catch (_) {
+      return String(err);
+    }
+  }
+  return String(err);
+}
+
 export class UsageIntelligenceView {
   constructor(dataManager, stateManager) {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
     this._initialized = false;
     this._releases = [];
+    this._rangeMode = '7'; // '7' | '30' | 'all' | 'custom'
   }
 
   initOnce() {
@@ -50,6 +76,7 @@ export class UsageIntelligenceView {
     this._initialized = true;
     this.renderShell();
     this.bindEvents();
+    this.applyRangePreset('7');
   }
 
   show() {
@@ -75,10 +102,20 @@ export class UsageIntelligenceView {
           Downloads a ZIP of JSONL files (page views, events, users, credits, specs summary,
           MCP, email, releases, and more). No aggregations — suitable for an external analysis system.
         </p>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Quick range</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" role="group" aria-label="Export date range presets">
+            <button type="button" class="btn-modern btn-secondary ui-range-preset" data-range="7">Last 7 days</button>
+            <button type="button" class="btn-modern btn-secondary ui-range-preset" data-range="30">Last 30 days</button>
+            <button type="button" class="btn-modern btn-secondary ui-range-preset" data-range="all">All dates</button>
+          </div>
+        </div>
+
         <div class="form-row" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
           <div class="form-group" style="margin: 0;">
             <label for="ui-export-from">From</label>
-            <input type="date" id="ui-export-from" value="${defaultFromDate(90)}">
+            <input type="date" id="ui-export-from" value="${defaultFromDate(7)}">
           </div>
           <div class="form-group" style="margin: 0;">
             <label for="ui-export-to">To</label>
@@ -168,6 +205,28 @@ export class UsageIntelligenceView {
       exportBtn.addEventListener('click', () => this.downloadExport());
     }
 
+    helpers.domAll('.ui-range-preset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const range = btn.getAttribute('data-range');
+        if (range) this.applyRangePreset(range);
+      });
+    });
+
+    const fromInput = helpers.dom('#ui-export-from');
+    const toInput = helpers.dom('#ui-export-to');
+    if (fromInput) {
+      fromInput.addEventListener('change', () => {
+        this._rangeMode = 'custom';
+        this.syncPresetButtons();
+      });
+    }
+    if (toInput) {
+      toInput.addEventListener('change', () => {
+        this._rangeMode = 'custom';
+        this.syncPresetButtons();
+      });
+    }
+
     const refreshBtn = helpers.dom('#ui-refresh-releases-btn');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', () => this.loadReleases());
@@ -197,6 +256,31 @@ export class UsageIntelligenceView {
     }
   }
 
+  applyRangePreset(range) {
+    this._rangeMode = range;
+    const fromInput = helpers.dom('#ui-export-from');
+    const toInput = helpers.dom('#ui-export-to');
+    if (!fromInput || !toInput) return;
+
+    toInput.value = defaultToDate();
+    if (range === '7') {
+      fromInput.value = defaultFromDate(7);
+    } else if (range === '30') {
+      fromInput.value = defaultFromDate(30);
+    } else if (range === 'all') {
+      fromInput.value = '2024-01-01';
+    }
+    this.syncPresetButtons();
+  }
+
+  syncPresetButtons() {
+    helpers.domAll('.ui-range-preset').forEach((btn) => {
+      const isActive = btn.getAttribute('data-range') === this._rangeMode;
+      btn.classList.toggle('btn-primary', isActive);
+      btn.classList.toggle('btn-secondary', !isActive);
+    });
+  }
+
   async getAuthToken() {
     const user = firebaseService.getCurrentUser();
     if (!user) throw new Error('Not signed in');
@@ -212,12 +296,16 @@ export class UsageIntelligenceView {
 
     const fromDate = fromInput?.value;
     const toDate = toInput?.value;
-    if (!fromDate) {
+    const allMode = this._rangeMode === 'all';
+
+    if (!allMode && !fromDate) {
       if (status) status.textContent = 'Please choose a From date.';
       return;
     }
 
-    const fromIso = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
+    const fromIso = allMode
+      ? '2024-01-01T00:00:00.000Z'
+      : new Date(`${fromDate}T00:00:00.000Z`).toISOString();
     const toIso = toDate
       ? new Date(`${toDate}T23:59:59.999Z`).toISOString()
       : new Date().toISOString();
@@ -227,6 +315,7 @@ export class UsageIntelligenceView {
       to: toIso,
       redactPii: redactInput?.checked ? 'true' : 'false'
     });
+    if (allMode) params.set('all', 'true');
 
     const original = btn ? btn.innerHTML : '';
     if (btn) {
@@ -234,7 +323,9 @@ export class UsageIntelligenceView {
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building dump…';
     }
     if (status) {
-      status.textContent = 'Collecting collections and building ZIP. Large ranges may take a few minutes.';
+      status.textContent = allMode
+        ? 'Collecting all historical data and building ZIP. This may take several minutes.'
+        : 'Collecting collections and building ZIP. Large ranges may take a few minutes.';
     }
 
     try {
@@ -246,16 +337,40 @@ export class UsageIntelligenceView {
         `${apiBaseUrl.replace(/\/$/, '')}/api/admin/usage-intelligence/export?${params}`,
         {
           method: 'GET',
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'X-No-Compression': '1'
+          }
         }
       );
 
+      const contentType = (response.headers.get('Content-Type') || '').toLowerCase();
+
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(err.message || err.error || `HTTP ${response.status}`);
+        let payload = null;
+        try {
+          payload = contentType.includes('json')
+            ? await response.json()
+            : { message: await response.text() };
+        } catch (_) {
+          payload = { message: response.statusText || `HTTP ${response.status}` };
+        }
+        throw new Error(formatExportError(payload) || `HTTP ${response.status}`);
       }
 
-      let filename = `usage-dump-${fromDate}-to-${toDate || 'now'}.zip`;
+      // Guard: server sometimes returns JSON error with 200 in edge cases, or HTML error pages
+      if (contentType.includes('application/json') || contentType.includes('text/html')) {
+        const text = await response.text();
+        let payload;
+        try {
+          payload = JSON.parse(text);
+        } catch (_) {
+          throw new Error(`Unexpected response (not a ZIP): ${text.slice(0, 200)}`);
+        }
+        throw new Error(formatExportError(payload));
+      }
+
+      let filename = `usage-dump-${fromDate || 'all'}-to-${toDate || 'now'}.zip`;
       const cd = response.headers.get('Content-Disposition');
       if (cd) {
         const match = cd.match(/filename="(.+)"/);
@@ -263,6 +378,10 @@ export class UsageIntelligenceView {
       }
 
       const blob = await response.blob();
+      if (!blob || blob.size < 22) {
+        throw new Error('Export returned an empty or invalid ZIP file');
+      }
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -272,15 +391,16 @@ export class UsageIntelligenceView {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      if (status) status.textContent = `Downloaded ${filename}`;
+      if (status) status.textContent = `Downloaded ${filename} (${Math.round(blob.size / 1024)} KB)`;
       if (btn) {
         btn.innerHTML = '<i class="fas fa-check"></i> Downloaded';
         btn.classList.add('success');
       }
     } catch (error) {
+      const msg = formatExportError(error);
       console.error('[UsageIntelligenceView] export failed', error);
-      if (status) status.textContent = `Export failed: ${error.message}`;
-      alert(`Export failed: ${error.message}`);
+      if (status) status.textContent = `Export failed: ${msg}`;
+      alert(`Export failed: ${msg}`);
       if (btn) btn.innerHTML = original;
     } finally {
       if (btn) {
@@ -303,7 +423,7 @@ export class UsageIntelligenceView {
     } catch (error) {
       console.error('[UsageIntelligenceView] loadReleases', error);
       if (wrap) {
-        wrap.innerHTML = `<p class="form-help-text" style="color: #c0392b;">Failed to load: ${escapeHtml(error.message)}</p>`;
+        wrap.innerHTML = `<p class="form-help-text" style="color: #c0392b;">Failed to load: ${escapeHtml(formatExportError(error))}</p>`;
       }
     }
   }
@@ -390,7 +510,7 @@ export class UsageIntelligenceView {
       await this.loadReleases();
     } catch (error) {
       console.error('[UsageIntelligenceView] createRelease', error);
-      if (status) status.textContent = `Failed: ${error.message}`;
+      if (status) status.textContent = `Failed: ${formatExportError(error)}`;
     }
   }
 
@@ -401,7 +521,7 @@ export class UsageIntelligenceView {
       await this.loadReleases();
     } catch (error) {
       console.error('[UsageIntelligenceView] deleteRelease', error);
-      alert(`Delete failed: ${error.message}`);
+      alert(`Delete failed: ${formatExportError(error)}`);
     }
   }
 
@@ -420,7 +540,7 @@ export class UsageIntelligenceView {
       await this.loadReleases();
     } catch (error) {
       console.error('[UsageIntelligenceView] seedReleases', error);
-      alert(`Seed failed: ${error.message}`);
+      alert(`Seed failed: ${formatExportError(error)}`);
     } finally {
       if (btn) {
         btn.disabled = false;

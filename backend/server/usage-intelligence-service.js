@@ -13,6 +13,9 @@ const COLLECTION_PRODUCT_RELEASES = 'product_releases';
 const PAGE_SIZE = 400;
 const DEFAULT_MAX_PER_COLLECTION = 100000;
 const MAX_RANGE_DAYS = 400;
+/** Earliest bound used when exporting "all dates". */
+const ALL_DATES_FROM = '2024-01-01T00:00:00.000Z';
+const ALL_DATES_MAX_DAYS = 3000;
 
 /** Seed markers for known significant product changes (idempotent by doc id). */
 const SEED_RELEASES = [
@@ -304,13 +307,18 @@ function transformSpecSummary(id, data) {
   };
 }
 
-function parseExportRange(from, to) {
-  if (!from) {
+function parseExportRange(from, to, { allowAll = false } = {}) {
+  const allMode = allowAll === true || allowAll === 'true' || allowAll === '1';
+  let fromRaw = from;
+  if (allMode && !fromRaw) {
+    fromRaw = ALL_DATES_FROM;
+  }
+  if (!fromRaw) {
     const err = new Error('from is required (ISO 8601)');
     err.code = 'INVALID_INPUT';
     throw err;
   }
-  const fromDate = from instanceof Date ? from : new Date(from);
+  const fromDate = fromRaw instanceof Date ? fromRaw : new Date(fromRaw);
   const toDate = to ? (to instanceof Date ? to : new Date(to)) : new Date();
   if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
     const err = new Error('Invalid from/to date. Use ISO 8601.');
@@ -323,17 +331,19 @@ function parseExportRange(from, to) {
     throw err;
   }
   const rangeMs = toDate.getTime() - fromDate.getTime();
-  const maxMs = MAX_RANGE_DAYS * 24 * 60 * 60 * 1000;
+  const maxDays = allMode ? ALL_DATES_MAX_DAYS : MAX_RANGE_DAYS;
+  const maxMs = maxDays * 24 * 60 * 60 * 1000;
   if (rangeMs > maxMs) {
-    const err = new Error(`Date range cannot exceed ${MAX_RANGE_DAYS} days`);
+    const err = new Error(`Date range cannot exceed ${maxDays} days`);
     err.code = 'INVALID_INPUT';
     throw err;
   }
-  return { fromDate, toDate };
+  return { fromDate, toDate, allMode };
 }
 
 /**
  * Paginate and return all JSONL lines for a source (memory-capped via maxPerCollection).
+ * On indexed query failure, falls back to a capped scan + in-memory date filter.
  */
 async function collectSourceLines(source, opts) {
   const { fromDate, toDate, maxPerCollection, redactPii } = opts;
@@ -341,16 +351,36 @@ async function collectSourceLines(source, opts) {
   let truncated = false;
   let pages = 0;
   let error = null;
+  let usedFallback = false;
+
+  const pushDoc = (doc) => {
+    lines.push(JSON.stringify(source.transform(doc.id, doc.data(), { redactPii })));
+  };
+
+  const inRange = (data) => {
+    if (!source.dateField) return true;
+    const raw = data[source.dateField];
+    if (raw == null) return false;
+    let ms = null;
+    if (typeof raw.toDate === 'function') {
+      try { ms = raw.toDate().getTime(); } catch (_) { return false; }
+    } else if (typeof raw._seconds === 'number') {
+      ms = raw._seconds * 1000;
+    } else {
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return false;
+      ms = d.getTime();
+    }
+    return ms >= fromDate.getTime() && ms <= toDate.getTime();
+  };
 
   try {
     if (!source.dateField) {
       const snap = await db.collection(source.collection).limit(maxPerCollection).get();
-      for (const doc of snap.docs) {
-        lines.push(JSON.stringify(source.transform(doc.id, doc.data(), { redactPii })));
-      }
+      for (const doc of snap.docs) pushDoc(doc);
       if (snap.size >= maxPerCollection) truncated = true;
       pages = 1;
-      return { lines, truncated, pages, error };
+      return { lines, truncated, pages, error, usedFallback };
     }
 
     const fromTs = admin.firestore.Timestamp.fromDate(fromDate);
@@ -369,9 +399,7 @@ async function collectSourceLines(source, opts) {
       pages++;
       if (snap.empty) break;
 
-      for (const doc of snap.docs) {
-        lines.push(JSON.stringify(source.transform(doc.id, doc.data(), { redactPii })));
-      }
+      for (const doc of snap.docs) pushDoc(doc);
       lastDoc = snap.docs[snap.docs.length - 1];
       if (snap.size < PAGE_SIZE) break;
       if (lines.length >= maxPerCollection) {
@@ -380,23 +408,68 @@ async function collectSourceLines(source, opts) {
       }
     }
   } catch (err) {
+    // Fallback: capped collection scan + in-memory filter (slower, no composite index needed)
+    usedFallback = true;
     error = err.message || String(err);
     logger.warn(
-      { collection: source.collection, dateField: source.dateField, error: error },
-      '[usage-intelligence] Collection export failed (continuing)'
+      { collection: source.collection, dateField: source.dateField, error },
+      '[usage-intelligence] Indexed query failed — using fallback scan'
     );
+    try {
+      lines.length = 0;
+      pages = 0;
+      let lastDoc = null;
+      while (lines.length < maxPerCollection) {
+        let q = db.collection(source.collection).limit(PAGE_SIZE);
+        // Prefer ordering by date field when possible
+        try {
+          q = db.collection(source.collection)
+            .orderBy(source.dateField, 'desc')
+            .limit(PAGE_SIZE);
+          if (lastDoc) q = q.startAfter(lastDoc);
+        } catch (_) {
+          if (lastDoc) q = q.startAfter(lastDoc);
+        }
+        const snap = await q.get();
+        pages++;
+        if (snap.empty) break;
+        for (const doc of snap.docs) {
+          if (inRange(doc.data())) pushDoc(doc);
+          if (lines.length >= maxPerCollection) {
+            truncated = true;
+            break;
+          }
+        }
+        lastDoc = snap.docs[snap.docs.length - 1];
+        if (snap.size < PAGE_SIZE) break;
+        // Stop scanning after enough pages to avoid unbounded cost
+        if (pages >= 50) {
+          truncated = true;
+          break;
+        }
+      }
+      // Clear hard error if fallback produced data or completed
+      error = truncated || lines.length >= 0
+        ? (error ? `fallback_after: ${error}` : null)
+        : error;
+    } catch (fallbackErr) {
+      error = fallbackErr.message || String(fallbackErr);
+      logger.warn(
+        { collection: source.collection, error },
+        '[usage-intelligence] Fallback scan also failed (continuing)'
+      );
+    }
   }
 
-  return { lines, truncated, pages, error };
+  return { lines, truncated, pages, error, usedFallback };
 }
 
 /**
- * Stream a ZIP of JSONL files to an HTTP response.
- * @param {import('express').Response} res
- * @param {{ from: Date|string, to?: Date|string, redactPii?: boolean, maxPerCollection?: number }} options
+ * Build a usage dump ZIP into any writable stream (HTTP response or file).
  */
-async function streamUsageDumpZip(res, options = {}) {
-  const { fromDate, toDate } = parseExportRange(options.from, options.to);
+async function buildUsageDumpZip(outputStream, options = {}) {
+  const allowAll = options.all === true || options.all === 'true' || options.all === '1';
+  const { fromDate, toDate, allMode } = parseExportRange(options.from, options.to, { allowAll });
   const redactPii = options.redactPii === true || options.redactPii === 'true';
   const maxPerCollection = Math.min(
     DEFAULT_MAX_PER_COLLECTION,
@@ -407,19 +480,21 @@ async function streamUsageDumpZip(res, options = {}) {
   const toIso = toDate.toISOString().slice(0, 10);
   const filename = `usage-dump-${fromIso}-to-${toIso}.zip`;
 
-  res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
   const archive = archiver('zip', { zlib: { level: 6 } });
-  archive.on('error', (err) => {
-    logger.error({ error: err.message }, '[usage-intelligence] Archive error');
-    if (!res.headersSent) {
-      res.status(500).json({ success: false, error: 'Archive failed' });
-    } else {
-      res.end();
-    }
+  const archiveDone = new Promise((resolve, reject) => {
+    archive.on('error', reject);
+    archive.on('warning', (err) => {
+      if (err.code === 'ENOENT') {
+        logger.warn({ error: err.message }, '[usage-intelligence] Archive warning');
+      } else {
+        reject(err);
+      }
+    });
+    outputStream.on('error', reject);
+    archive.on('end', resolve);
   });
-  archive.pipe(res);
+
+  archive.pipe(outputStream);
 
   const collectedAt = new Date().toISOString();
   const fileStats = [];
@@ -436,15 +511,26 @@ async function streamUsageDumpZip(res, options = {}) {
       rows: result.lines.length,
       truncated: result.truncated,
       pages: result.pages,
+      usedFallback: !!result.usedFallback,
       error: result.error || null
     });
+    logger.info(
+      {
+        file: source.key,
+        rows: result.lines.length,
+        truncated: result.truncated,
+        usedFallback: !!result.usedFallback,
+        error: result.error || null
+      },
+      '[usage-intelligence] Collection packed'
+    );
   }
 
   const manifest = {
     schemaVersion: 1,
     type: 'specifys-usage-intelligence-raw-dump',
     collectedAt,
-    range: { from: fromDate.toISOString(), to: toDate.toISOString() },
+    range: { from: fromDate.toISOString(), to: toDate.toISOString(), allMode },
     redactPii,
     maxPerCollection,
     note: 'Raw records for external analysis. Specs are summarized (no stage markdown bodies). mcpApiKey never exported. Snapshot collections (users, user_credits_v3, subscriptions_v3) are current state, not date-filtered. Event collections are filtered by the requested date range.',
@@ -458,6 +544,7 @@ async function streamUsageDumpZip(res, options = {}) {
 
   archive.append(JSON.stringify(manifest, null, 2), { name: 'manifest.json' });
   await archive.finalize();
+  await archiveDone;
 
   logger.info(
     {
@@ -470,7 +557,54 @@ async function streamUsageDumpZip(res, options = {}) {
     '[usage-intelligence] Usage dump ZIP finalized'
   );
 
-  return { filename, fileStats };
+  return { filename, fileStats, fromDate, toDate, allMode };
+}
+
+/**
+ * Stream a ZIP of JSONL files to an HTTP response.
+ */
+async function streamUsageDumpZip(res, options = {}) {
+  // Validate range before committing to a ZIP content-type (so errors stay JSON).
+  const allowAll = options.all === true || options.all === 'true' || options.all === '1';
+  parseExportRange(options.from, options.to, { allowAll });
+
+  const fromPreview = options.from
+    ? new Date(options.from).toISOString().slice(0, 10)
+    : 'all';
+  const toPreview = options.to
+    ? new Date(options.to).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
+  const filename = `usage-dump-${fromPreview}-to-${toPreview}.zip`;
+
+  // Avoid gzipping an already-compressed ZIP (and keep proxy happy).
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-No-Compression', '1');
+
+  if (typeof res.setTimeout === 'function') {
+    res.setTimeout(10 * 60 * 1000);
+  }
+
+  return buildUsageDumpZip(res, options);
+}
+
+/**
+ * Write a usage dump ZIP to a local filesystem path (for scripts / tests).
+ */
+async function writeUsageDumpToFile(filePath, options = {}) {
+  const fs = require('fs');
+  const path = require('path');
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  const output = fs.createWriteStream(filePath);
+  const result = await buildUsageDumpZip(output, options);
+  await new Promise((resolve, reject) => {
+    output.on('close', resolve);
+    output.on('finish', resolve);
+    output.on('error', reject);
+  });
+  return { ...result, filePath };
 }
 
 // ─── product_releases CRUD ───────────────────────────────────────────
@@ -589,7 +723,10 @@ async function seedProductReleases(adminUser) {
 module.exports = {
   EXPORT_SOURCES,
   SEED_RELEASES,
+  ALL_DATES_FROM,
   streamUsageDumpZip,
+  writeUsageDumpToFile,
+  buildUsageDumpZip,
   parseExportRange,
   listProductReleases,
   createProductRelease,

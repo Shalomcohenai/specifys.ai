@@ -3507,17 +3507,24 @@ const usageIntelligence = require('./usage-intelligence-service');
 router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) => {
   const requestId = logRouteCall(req, 'GET /usage-intelligence/export');
   try {
-    const { from, to, redactPii, maxPerCollection } = req.query;
-    if (!from) {
-      return next(createError('Query param "from" is required (ISO 8601)', ERROR_CODES.INVALID_INPUT, 400));
+    const { from, to, redactPii, maxPerCollection, all } = req.query;
+    const allMode = all === 'true' || all === '1' || all === 'yes';
+    if (!from && !allMode) {
+      return next(createError('Query param "from" is required (ISO 8601), or pass all=true', ERROR_CODES.INVALID_INPUT, 400));
     }
+    // Disable compression for this binary ZIP response
+    req.headers['x-no-compression'] = '1';
+    if (typeof req.setTimeout === 'function') req.setTimeout(10 * 60 * 1000);
+    if (typeof res.setTimeout === 'function') res.setTimeout(10 * 60 * 1000);
+
     logger.info(
-      { requestId, from, to, redactPii, maxPerCollection, admin: req.adminUser?.email },
+      { requestId, from, to, all: allMode, redactPii, maxPerCollection, admin: req.adminUser?.email },
       '[admin-routes] GET /usage-intelligence/export - Starting dump'
     );
     await usageIntelligence.streamUsageDumpZip(res, {
-      from,
+      from: allMode ? (from || usageIntelligence.ALL_DATES_FROM) : from,
       to,
+      all: allMode,
       redactPii,
       maxPerCollection
     });
@@ -3530,7 +3537,12 @@ router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) =>
       '[admin-routes] GET /usage-intelligence/export - Error'
     );
     if (!res.headersSent) {
-      next(createError('Failed to export usage dump', ERROR_CODES.INTERNAL_ERROR, 500));
+      next(createError(
+        error.message || 'Failed to export usage dump',
+        ERROR_CODES.INTERNAL_ERROR,
+        500,
+        { details: error.message }
+      ));
     }
   }
 });
