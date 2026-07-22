@@ -12,10 +12,10 @@ const { logger } = require('./logger');
 const COLLECTION_PRODUCT_RELEASES = 'product_releases';
 const PAGE_SIZE = 400;
 const DEFAULT_MAX_PER_COLLECTION = 100000;
-const MAX_RANGE_DAYS = 400;
+/** Allow multi-year history dumps (product has data back to ~2024). */
+const MAX_RANGE_DAYS = 3000;
 /** Earliest bound used when exporting "all dates". */
 const ALL_DATES_FROM = '2024-01-01T00:00:00.000Z';
-const ALL_DATES_MAX_DAYS = 3000;
 
 /** Seed markers for known significant product changes (idempotent by doc id). */
 const SEED_RELEASES = [
@@ -331,10 +331,9 @@ function parseExportRange(from, to, { allowAll = false } = {}) {
     throw err;
   }
   const rangeMs = toDate.getTime() - fromDate.getTime();
-  const maxDays = allMode ? ALL_DATES_MAX_DAYS : MAX_RANGE_DAYS;
-  const maxMs = maxDays * 24 * 60 * 60 * 1000;
+  const maxMs = MAX_RANGE_DAYS * 24 * 60 * 60 * 1000;
   if (rangeMs > maxMs) {
-    const err = new Error(`Date range cannot exceed ${maxDays} days`);
+    const err = new Error(`Date range cannot exceed ${MAX_RANGE_DAYS} days`);
     err.code = 'INVALID_INPUT';
     throw err;
   }

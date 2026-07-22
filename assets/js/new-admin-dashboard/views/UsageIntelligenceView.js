@@ -41,6 +41,9 @@ function defaultToDate() {
 function formatExportError(err) {
   if (err == null) return 'Unknown error';
   if (typeof err === 'string') return err;
+  if (err instanceof TypeError && /failed to fetch/i.test(err.message || '')) {
+    return 'Network error (Failed to fetch). The server may have rejected the date range, timed out, or blocked the response. Try "Last 7 days" first, then longer ranges.';
+  }
   if (err instanceof Error && err.message && err.message !== '[object Object]') {
     return err.message;
   }
@@ -310,12 +313,17 @@ export class UsageIntelligenceView {
       ? new Date(`${toDate}T23:59:59.999Z`).toISOString()
       : new Date().toISOString();
 
+    const rangeDays = Math.ceil(
+      (new Date(toIso).getTime() - new Date(fromIso).getTime()) / (24 * 60 * 60 * 1000)
+    );
+
     const params = new URLSearchParams({
       from: fromIso,
       to: toIso,
       redactPii: redactInput?.checked ? 'true' : 'false'
     });
-    if (allMode) params.set('all', 'true');
+    // Always flag wide ranges so older servers / proxies treat them as full history
+    if (allMode || rangeDays > 365) params.set('all', 'true');
 
     const original = btn ? btn.innerHTML : '';
     if (btn) {
