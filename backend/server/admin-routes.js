@@ -3496,6 +3496,127 @@ router.post('/scheduled-jobs/tools-finder/test', requireAdmin, async (req, res, 
   }
 });
 
+// ─── Usage Intelligence (raw export + product releases) ───────────────
+const usageIntelligence = require('./usage-intelligence-service');
+
+/**
+ * Download raw usage dump as ZIP of JSONL files.
+ * GET /api/admin/usage-intelligence/export
+ * Query: from (ISO, required), to (ISO, optional), redactPii=true|false, maxPerCollection
+ */
+router.get('/usage-intelligence/export', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /usage-intelligence/export');
+  try {
+    const { from, to, redactPii, maxPerCollection } = req.query;
+    if (!from) {
+      return next(createError('Query param "from" is required (ISO 8601)', ERROR_CODES.INVALID_INPUT, 400));
+    }
+    logger.info(
+      { requestId, from, to, redactPii, maxPerCollection, admin: req.adminUser?.email },
+      '[admin-routes] GET /usage-intelligence/export - Starting dump'
+    );
+    await usageIntelligence.streamUsageDumpZip(res, {
+      from,
+      to,
+      redactPii,
+      maxPerCollection
+    });
+  } catch (error) {
+    if (error.code === 'INVALID_INPUT') {
+      return next(createError(error.message, ERROR_CODES.INVALID_INPUT, 400));
+    }
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET /usage-intelligence/export - Error'
+    );
+    if (!res.headersSent) {
+      next(createError('Failed to export usage dump', ERROR_CODES.INTERNAL_ERROR, 500));
+    }
+  }
+});
+
+/**
+ * List product releases / significant-change markers.
+ * GET /api/admin/usage-intelligence/releases
+ */
+router.get('/usage-intelligence/releases', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /usage-intelligence/releases');
+  try {
+    const releases = await usageIntelligence.listProductReleases();
+    res.json({ success: true, releases, requestId });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] GET /usage-intelligence/releases - Error'
+    );
+    next(createError('Failed to list product releases', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Create or overwrite a product release marker.
+ * POST /api/admin/usage-intelligence/releases
+ * Body: { id?, version?, label, summary?, shippedAt?, impactAreas?, significant?, gitSha?, overwrite? }
+ */
+router.post('/usage-intelligence/releases', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /usage-intelligence/releases');
+  try {
+    const release = await usageIntelligence.createProductRelease(req.body || {}, req.adminUser);
+    res.status(201).json({ success: true, release, requestId });
+  } catch (error) {
+    if (error.code === 'INVALID_INPUT') {
+      return next(createError(error.message, ERROR_CODES.INVALID_INPUT, 400));
+    }
+    if (error.code === 'CONFLICT') {
+      return next(createError(error.message, ERROR_CODES.INVALID_INPUT, 409));
+    }
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] POST /usage-intelligence/releases - Error'
+    );
+    next(createError('Failed to create product release', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Delete a product release marker.
+ * DELETE /api/admin/usage-intelligence/releases/:id
+ */
+router.delete('/usage-intelligence/releases/:id', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'DELETE /usage-intelligence/releases/:id');
+  try {
+    await usageIntelligence.deleteProductRelease(req.params.id);
+    res.json({ success: true, id: req.params.id, requestId });
+  } catch (error) {
+    if (error.code === 'NOT_FOUND') {
+      return next(createError('Release not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] DELETE /usage-intelligence/releases - Error'
+    );
+    next(createError('Failed to delete product release', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Seed known historical product releases (idempotent).
+ * POST /api/admin/usage-intelligence/releases/seed
+ */
+router.post('/usage-intelligence/releases/seed', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /usage-intelligence/releases/seed');
+  try {
+    const results = await usageIntelligence.seedProductReleases(req.adminUser);
+    res.json({ success: true, results, requestId });
+  } catch (error) {
+    logger.error(
+      { requestId, error: { message: error.message, stack: error.stack } },
+      '[admin-routes] POST /usage-intelligence/releases/seed - Error'
+    );
+    next(createError('Failed to seed product releases', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
 /**
  * Pipeline canary history (admin only)
  * GET /api/admin/pipeline-canary/history?days=14

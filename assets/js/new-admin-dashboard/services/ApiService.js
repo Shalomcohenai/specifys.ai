@@ -105,7 +105,7 @@ export class ApiService {
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({ message: response.statusText }));
-          throw new Error(error.message || `HTTP ${response.status}`);
+          throw new Error(error.error?.message || error.message || `HTTP ${response.status}`);
         }
 
         return await response.json();

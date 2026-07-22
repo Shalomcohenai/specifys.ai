@@ -108,14 +108,23 @@
   display: flex;
   gap: 0.25rem; /* Reduced from var(--spacing-xs) = 0.5rem */
   flex: 1;
-  justify-content: center;
+  min-width: 0;
+  justify-content: flex-start;
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-nav-links::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+
+.admin-nav-links::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
 }
 
 .nav-tab {

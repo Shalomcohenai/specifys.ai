@@ -21,6 +21,7 @@ import { ToolsView } from './views/ToolsView.js';
 import { ContactView } from './views/ContactView.js';
 import { UnsubscribeView } from './views/UnsubscribeView.js';
 import { BrandView } from './views/BrandView.js';
+import { UsageIntelligenceView } from './views/UsageIntelligenceView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -144,6 +145,19 @@ class NewAdminDashboard {
         }
       });
     });
+
+    // Horizontal scroll with mouse wheel over the nav tabs
+    const navLinks = helpers.dom('#admin-nav-links');
+    if (navLinks) {
+      navLinks.addEventListener('wheel', (e) => {
+        if (navLinks.scrollWidth <= navLinks.clientWidth) return;
+        // Prefer vertical wheel / trackpad delta for sideways pan when content overflows
+        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        if (delta === 0) return;
+        e.preventDefault();
+        navLinks.scrollLeft += delta;
+      }, { passive: false });
+    }
     
     // Sync actions dropdown toggle
     const syncActionsToggle = helpers.dom('#sync-actions-toggle');
@@ -403,6 +417,11 @@ class NewAdminDashboard {
       const brandView = new BrandView(this.dataManager, this.stateManager);
       this.views.set('brand', brandView);
       window.brandView = brandView;
+
+      // Usage Intelligence — raw dump + product releases
+      const usageIntelligenceView = new UsageIntelligenceView(this.dataManager, this.stateManager);
+      this.views.set('usage-intelligence', usageIntelligenceView);
+      window.usageIntelligenceView = usageIntelligenceView;
 
     } catch (error) {
       console.error('[NewAdminDashboard] Error initializing views:', error);
