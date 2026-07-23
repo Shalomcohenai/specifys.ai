@@ -1,29 +1,62 @@
-// Mermaid.js for diagrams — load CDN on demand, then init when diagrams are visible.
+// Mermaid.js for diagrams - load CDN on demand (with mirrors), then init when visible.
 // Exclude the hero browser-window demo: index.js renderBrowserDiagrams owns that tree.
 (function initMermaidOnVisible() {
-  var MERMAID_CDN = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  var MERMAID_CDNS = [
+    'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
+    'https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js'
+  ];
   var mermaidLoadPromise = null;
 
-  function loadMermaid() {
-    if (typeof mermaid !== 'undefined') {
-      return Promise.resolve(mermaid);
-    }
-    if (mermaidLoadPromise) return mermaidLoadPromise;
-    mermaidLoadPromise = new Promise(function (resolve, reject) {
-      var existing = document.querySelector('script[data-mermaid-cdn="1"]');
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[data-mermaid-cdn="1"][src="' + src + '"]');
       if (existing) {
-        existing.addEventListener('load', function () { resolve(window.mermaid); });
-        existing.addEventListener('error', reject);
+        if (typeof window.mermaid !== 'undefined') {
+          resolve(window.mermaid);
+          return;
+        }
+        existing.addEventListener('load', function () {
+          if (typeof window.mermaid !== 'undefined') resolve(window.mermaid);
+          else reject(new Error('Mermaid missing after load'));
+        });
+        existing.addEventListener('error', function () {
+          reject(new Error('Mermaid script error'));
+        });
         return;
       }
       var s = document.createElement('script');
-      s.src = MERMAID_CDN;
+      s.src = src;
       s.async = true;
       s.setAttribute('data-mermaid-cdn', '1');
-      s.onload = function () { resolve(window.mermaid); };
-      s.onerror = reject;
+      s.onload = function () {
+        if (typeof window.mermaid !== 'undefined') resolve(window.mermaid);
+        else reject(new Error('Mermaid missing after load'));
+      };
+      s.onerror = function () {
+        reject(new Error('Failed to load ' + src));
+      };
       document.head.appendChild(s);
     });
+  }
+
+  function loadMermaid() {
+    if (typeof window.mermaid !== 'undefined') {
+      return Promise.resolve(window.mermaid);
+    }
+    if (mermaidLoadPromise) return mermaidLoadPromise;
+
+    function tryNext(i) {
+      if (i >= MERMAID_CDNS.length) {
+        mermaidLoadPromise = null;
+        return Promise.resolve(null);
+      }
+      return loadScript(MERMAID_CDNS[i]).catch(function () {
+        return tryNext(i + 1);
+      });
+    }
+
+    mermaidLoadPromise = tryNext(0);
     return mermaidLoadPromise;
   }
 

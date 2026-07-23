@@ -30,22 +30,25 @@
     {% include firebase-auth.html %}
     {% endunless %}
     
-    <!-- Extra JavaScript (defer so config.js in head runs first) -->
+    <!-- Extra JavaScript (defer so config.js in head runs first); ?v= busts Vercel immutable asset cache -->
+    {% assign asset_v = site.time | date: '%s' %}
     {% if page.extra_js %}
       {% for js in page.extra_js %}
-        <script defer src="{{ js | relative_url }}"></script>
+        <script defer src="{{ js | relative_url }}?v={{ asset_v }}"></script>
       {% endfor %}
     {% endif %}
     {% if layout.extra_js %}
       {% for js in layout.extra_js %}
-        <script defer src="{{ js | relative_url }}"></script>
+        <script defer src="{{ js | relative_url }}?v={{ asset_v }}"></script>
       {% endfor %}
     {% endif %}
-    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
+    <!-- Idle / on-demand scripts (homepage planning, etc.) - load after LCP or on demand -->
     {% if page.idle_js %}
     <script>
       (function () {
-        var sources = {{ page.idle_js | jsonify }};
+        var sources = {{ page.idle_js | jsonify }}.map(function (src) {
+          return src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v={{ asset_v }}';
+        });
         if (!sources || !sources.length) return;
         var loading = null;
         function loadOne(src) {

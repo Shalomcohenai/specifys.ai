@@ -2582,12 +2582,43 @@ function triggerPlatformHint() {
     currentTabIndex = index;
   }
   
-  function renderBrowserDiagrams() {
-    var ensure = (typeof window.__specifysEnsureMermaid === 'function')
-      ? window.__specifysEnsureMermaid()
-      : Promise.resolve(typeof mermaid !== 'undefined' ? mermaid : null);
+  function loadMermaidWithFallbacks() {
+    if (typeof window.__specifysEnsureMermaid === 'function') {
+      return window.__specifysEnsureMermaid();
+    }
+    if (typeof mermaid !== 'undefined') {
+      return Promise.resolve(mermaid);
+    }
+    // Fallback when a stale cached index-mermaid.js lacks __specifysEnsureMermaid
+    var cdns = [
+      'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
+      'https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js'
+    ];
+    function loadOne(src) {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        s.setAttribute('data-mermaid-cdn', '1');
+        s.onload = function () {
+          if (typeof window.mermaid !== 'undefined') resolve(window.mermaid);
+          else reject(new Error('mermaid missing'));
+        };
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    var i = 0;
+    function tryNext() {
+      if (i >= cdns.length) return Promise.resolve(null);
+      return loadOne(cdns[i++]).catch(tryNext);
+    }
+    return tryNext();
+  }
 
-    Promise.resolve(ensure).then(function (m) {
+  function renderBrowserDiagrams() {
+    loadMermaidWithFallbacks().then(function (m) {
       if (!m && typeof mermaid !== 'undefined') m = mermaid;
       if (!m) return;
 

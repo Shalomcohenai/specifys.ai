@@ -203,6 +203,8 @@
     <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
     {% if optimize_lcp %}
     {% include critical-lcp-home.html %}
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://unpkg.com">
     {% endif %}
     {% if page.extra_css %}
       {% for css in page.extra_css %}
