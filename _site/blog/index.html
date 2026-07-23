@@ -121,25 +121,25 @@
     <!-- Canonical URL -->
     
     
-    <link rel="canonical" href="https://specifys-ai.com/blog/">
-    <link rel="alternate" hreflang="en" href="https://specifys-ai.com/blog/">
-    <link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/blog/">
-    <link rel="alternate" type="text/markdown" href="https://specifys-ai.com/llms.txt" title="LLM site index">
+    <link rel="canonical" href="http://0.0.0.0:4000/blog/">
+    <link rel="alternate" hreflang="en" href="http://0.0.0.0:4000/blog/">
+    <link rel="alternate" hreflang="x-default" href="http://0.0.0.0:4000/blog/">
+    <link rel="alternate" type="text/markdown" href="http://0.0.0.0:4000/llms.txt" title="LLM site index">
     
     <meta name="google-site-verification" content="8_O42wMHZTeWq6KipUYXmRqieXTY2PR0LPNLv6-HhRI">
     
     
     <meta name="msvalidate.01" content="">
     
-    <link type="application/atom+xml" rel="alternate" href="https://specifys-ai.com/feed.xml" title="Specifys.ai" />
+    <link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Specifys.ai" />
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="AI App Spec Blog | Insights, Tips & Updates">
     <meta property="og:description" content="Stay ahead in the world of AI development. Explore insights on Vibe Coding, app specification trends, and expert tips for modern software planning.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/blog/">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/blog/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="AI App Spec Blog | Insights, Tips & Updates - Specifys.ai">
@@ -152,7 +152,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="AI App Spec Blog | Insights, Tips & Updates">
     <meta name="twitter:description" content="Stay ahead in the world of AI development. Explore insights on Vibe Coding, app specification trends, and expert tips for modern software planning.">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="AI App Spec Blog | Insights, Tips & Updates - Specifys.ai">
     
     <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
@@ -165,6 +165,11 @@
     <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="/site.webmanifest">
     
+    
+    
+    
+    
+
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Components -->
@@ -178,14 +183,18 @@
     <!-- Visually Hidden Utility (for accessibility) -->
     <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
     
+    
       
+        
         <link rel="stylesheet" href="/assets/css/pages/blog.css">
+        
       
     
     
     
     <!-- Font Awesome - Loaded asynchronously -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
     <link rel="preload" as="script" href="/assets/js/core/config.js">
@@ -196,12 +205,7 @@
     <script defer src="/assets/js/core/api-client.js"></script>
     <script defer src="/assets/js/core/geo-context.js"></script>
     
-    <!-- Focus Manager (must load early for accessibility) -->
-    <script defer src="/assets/js/core/focus-manager.js"></script>
     
-    <!-- Components (must load before page-specific JS) -->
-    <script type="module" src="/assets/js/components/base.js"></script>
-    <script type="module" src="/assets/js/components/Modal.js"></script>
     
     <!-- State Management -->
     <script defer src="/assets/js/core/store.js"></script>
@@ -209,8 +213,7 @@
     <!-- Safe localStorage utilities (must load early) -->
     <script src="/assets/js/utils/localStorage-safe.js"></script>
     
-    <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
-    <script src="/assets/js/utils/mermaid-sanitize.js"></script>
+    
     
     <!-- Application Logger -->
     <script defer src="/assets/js/core/app-logger.js"></script>
@@ -218,25 +221,24 @@
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
     <script defer src="/assets/js/core/web-vitals.js"></script>
     
-    <!-- CSS Monitoring Script -->
-    <script defer src="/assets/js/css-monitor.js"></script>
     
-    <!-- Security Utils -->
-    <script type="module" src="/assets/js/core/security-utils.js"></script>
+    
+    
     
     <!-- Core Bundle (if exists) -->
     
     
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
+    <!-- Fonts - fewer weights; async stylesheet to unblock LCP text paint with system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <!-- Preload the stylesheet (not individual woff2 URLs): Google Fonts serves subset files that rarely match hard-coded font URLs, which triggers unused-preload warnings. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Library Loader - for conditional loading of external libraries -->
-    <script src="/assets/js/lib-loader.js"></script>
+    <script defer src="/assets/js/lib-loader.js"></script>
     
     <!-- Conditional library loading based on page requirements -->
     
@@ -436,7 +438,7 @@ function trackPreference(preferenceName, preferenceValue) {
 </script>
 
 
-    <script src="/assets/js/core/analytics-schema.js"></script>
+    <script defer src="/assets/js/core/analytics-schema.js"></script>
     <!-- Backend analytics beacon (defer, after config.js — URL resolved at call time in analytics-tracker.js) -->
     <script defer src="/assets/js/services/analytics-tracker.js"></script>
     <script defer src="/assets/js/ga4-wrapper.js"></script>
@@ -498,13 +500,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://specifys-ai.com/"
+          "item": "http://0.0.0.0:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "AI App Spec Blog | Insights, Tips & Updates",
-          "item": "https://specifys-ai.com/blog/"
+          "item": "http://0.0.0.0:4000/blog/"
         }
       ]
     },
@@ -592,18 +594,21 @@ function trackPreference(preferenceName, preferenceValue) {
 </head>
 
 
-<body>
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+
+
+<body data-perf-shell="lean">
     <!-- Header -->
     
     <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
         <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
+            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
+            <a href="/pages/auth.html" class="auth-btn">Log in/Sign up</a>
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="/pages/how.html">How</a>
+            <a href="/pages/example-specs.html">Examples</a>
             <a href="/pages/pricing.html">Pricing</a>
             <a href="/blog/">Blog</a>
             <a href="/academy.html">Academy</a>
@@ -627,9 +632,9 @@ function trackPreference(preferenceName, preferenceValue) {
     </div>
 </header>
 
-<!-- Credits Display Scripts (V3) -->
-<script src="/assets/js/pages/credits-v3-manager.js"></script>
-<script src="/assets/js/pages/credits-v3-display.js"></script>
+
+
+
 
     
     
@@ -2720,392 +2725,15 @@ function trackPreference(preferenceName, preferenceValue) {
     
     
     <!-- Scroll to top button -->
-    <!-- Scroll to top button -->
-<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
-  <i class="fas fa-arrow-up"></i>
-</button>
-
-<script>
-  // Scroll button functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const scrollBtn = document.getElementById('scrollToTop');
     
-    if (scrollBtn) {
-      // Handle click - scroll to top or bottom based on current state
-      scrollBtn.addEventListener("click", () => {
-        if (window.scrollY > 300) {
-          // If scrolled down, go to top
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-          // If at top, scroll to bottom
-          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-        }
-      });
-      
-      // Rotate button based on scroll position
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 300) {
-          scrollBtn.classList.add("scrolled-down");
-          scrollBtn.setAttribute("aria-label", "Scroll to top");
-        } else {
-          scrollBtn.classList.remove("scrolled-down");
-          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
-        }
-      });
-    }
-  });
-</script>
-
-
     
-    <!-- Firebase SDK & Auth -->
-    
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-    authDomain: "specify-ai.firebaseapp.com",
-    projectId: "specify-ai",
-    storageBucket: "specify-ai.firebasestorage.app",
-    messagingSenderId: "734278787482",
-    appId: "1:734278787482:web:0e312fb6f197e849695a23",
-    measurementId: "G-4YR9LK63MR"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  
-  // Delay Firestore initialization to prevent IndexedDB blocking main thread
-  // Firestore will be initialized on-demand when needed (lazy loading)
-  // This improves initial page load performance by avoiding IndexedDB creation during startup
-  let dbInitialized = false;
-  let dbInstance = null;
-  
-  const getFirestore = function() {
-    if (!dbInitialized) {
-      dbInitialized = true;
-      
-      // Defer Firestore initialization until after page is interactive
-      // This prevents IndexedDB from blocking the main thread during initial page load
-      // Initialize immediately but defer the actual IndexedDB creation
-      dbInstance = firebase.firestore();
-      window.db = dbInstance;
-      
-      // Note: firebase.firestore() creates IndexedDB synchronously in compat mode
-      // However, by using lazy loading (only initializing when window.db is accessed),
-      // we ensure it's not created during initial page load unless actually needed
-      // The actual IndexedDB operations happen asynchronously in the background
-      
-      return dbInstance;
-    }
-    return dbInstance || window.db;
-  };
-  
-  // Make auth available globally immediately (needed for auth checks)
-  window.auth = auth;
-  
-  // Make db a getter that initializes on first access (lazy loading)
-  // This prevents IndexedDB from being created during initial page load
-  Object.defineProperty(window, 'db', {
-    get: getFirestore,
-    configurable: true,
-    enumerable: true
-  });
-  
-  // Dispatch firebase-ready event for other scripts
-  window.dispatchEvent(new Event('firebase-ready'));
-</script>
-
-
-    <script>
-  /** Firebase Auth compat instance — never rely on a bare global `auth` (not visible in all script/module orderings). */
-  function getFirebaseAuthCompat() {
-    if (typeof window !== 'undefined' && window.auth) return window.auth;
-    if (typeof firebase !== 'undefined' && firebase.auth) return firebase.auth();
-    return null;
-  }
-
-  // Auth UI functions
-  function updateAuthUI(user) {
-    const authButtons = document.getElementById('auth-buttons');
-    if (!authButtons) return;
-    
-    if (user) {
-      // User is logged in
-      const displayName = user.displayName || user.email.split('@')[0];
-      const firstLetter = displayName.charAt(0).toUpperCase();
-      
-      authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
-          <div class="user-avatar">${firstLetter}</div>
-          <span>${displayName}</span>
-        </a>
-      `;
-    } else {
-      // User is not logged in
-      authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
-      `;
-    }
-  }
-
-  // Global auth functions
-  window.showLoginModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Login', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.showRegisterModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Register', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.logout = function() {
-    if (typeof trackAuthEvent !== 'undefined') {
-      trackAuthEvent('logout', 'email');
-    }
-    
-    const authInstance = getFirebaseAuthCompat();
-    
-    if (!authInstance) {
-      // Redirect to auth page as fallback
-      window.location.href = '/pages/auth.html';
-      return;
-    }
-    
-    authInstance.signOut()
-      .then(() => {
-        // Logged out successfully
-        window.location.reload();
-      })
-      .catch(error => {
-        // Still redirect to auth page even if signOut fails
-        window.location.href = '/pages/auth.html';
-      });
-  };
-
-  // Listen to auth state changes (only after Firebase is initialized)
-  function setupAuthListener() {
-    const authInstance = getFirebaseAuthCompat();
-    
-    if (!authInstance) {
-      setTimeout(setupAuthListener, 100);
-      return;
-    }
-    
-    authInstance.onAuthStateChanged(async (user) => {
-      updateAuthUI(user);
-
-      // Ensure user document exists immediately for new users; expose promise for credits loading
-      if (user) {
-        if (document.visibilityState === 'visible') {
-          window.__userInitPromise = ensureUserDocument(user).catch(function() {
-            // Error ensuring user document - credits flow will still try one GET
-          });
-        } else {
-          window.__userInitPromise = Promise.resolve();
-        }
-      } else {
-        window.__userInitPromise = undefined;
-      }
-    });
-  }
-  
-  async function ensureUserDocument(user, retryCount = 0) {
-    const MAX_RETRIES = 3;
-    const RETRY_DELAYS = [500, 1000, 2000]; // ms
-    
-    try {
-      // Verify user is still authenticated before making the request
-      if (!user) {
-        return; // User logged out, skip initialization
-      }
-      
-      const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
-      
-      // Check if user is new based on sessionStorage flags (set in auth.html during registration)
-      // This helps the server correctly identify new users even if documents were created by race condition.
-      // We treat ANY of these flags as a strong signal that the user just registered, so that the
-      // popup-removal timeout (1s) cannot accidentally hide the new-user signal before the API responds.
-      const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
-      const refreshCreditsOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
-      const welcomeCreditsCountRaw = sessionStorage.getItem('welcomeCreditsCount');
-      const hasWelcomeCount = welcomeCreditsCountRaw !== null && welcomeCreditsCountRaw !== '' && parseInt(welcomeCreditsCountRaw, 10) > 0;
-      const isNewUser = showCreditPopup || refreshCreditsOnLoad || hasWelcomeCount;
-      
-      // Use AbortController to handle errors more gracefully
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5 second timeout (reduced from 5s for faster loading)
-      
-      let response;
-      try {
-        response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            isNewUser: isNewUser || undefined // Only send if true, let server determine otherwise
-          }),
-          signal: controller.signal
-        });
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-        // Handle network errors gracefully - don't block user from using the site
-        if (fetchError.name === 'AbortError' || 
-            fetchError.message.includes('Failed to fetch') || 
-            fetchError.message.includes('NetworkError') ||
-            fetchError.message.includes('Load failed')) {
-          // Silently fail - endpoint might not be available or network issue
-          // User can still use the site, credits will be initialized on next page load or when API is available
-          return;
-        }
-        // For other errors, silently fail (don't block user)
-        return;
-      }
-      
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist.
-        // Decide whether to refresh credits using a broader signal: any welcome-related flag, OR an
-        // optimistic count that hasn't been consumed yet, OR the server explicitly reporting isNewUser.
-        // This avoids a race where index.js's 1s popup-removal timer wipes `showCreditPopup` before
-        // /api/users/initialize finishes — previously that race blocked the refresh entirely.
-        const popupFlag = sessionStorage.getItem('showCreditPopup');
-        const refreshFlag = sessionStorage.getItem('refreshCreditsOnLoad');
-        const welcomeCount = sessionStorage.getItem('welcomeCreditsCount');
-        const hasPendingWelcomeUI = popupFlag === 'true' || refreshFlag === 'true' || (welcomeCount && parseInt(welcomeCount, 10) > 0);
-
-        if (!hasPendingWelcomeUI && result && result.isNewUser) {
-          sessionStorage.setItem('showCreditPopup', 'true');
-          if (result && typeof result.creditsGranted === 'number' && result.creditsGranted > 0) {
-            sessionStorage.setItem('welcomeCreditsCount', String(result.creditsGranted));
-          }
-        } else if (hasPendingWelcomeUI) {
-          if (typeof window.clearCreditsCache === 'function') {
-            window.clearCreditsCache();
-          }
-          if (typeof window.updateCreditsDisplay === 'function') {
-            window.updateCreditsDisplay({ forceRefresh: true });
-          }
-        }
-        
-        // If entitlements were created or updated, trigger credits refresh
-        if (result.entitlements && (result.created || result.updated)) {
-          // Clear credits cache (credits-v3)
-          if (typeof window.clearCreditsCache === 'function') {
-            window.clearCreditsCache();
-          }
-          
-          // Update credits display (no force refresh, will use cache if available)
-          if (typeof window.updateCreditsDisplay === 'function') {
-            window.updateCreditsDisplay({ forceRefresh: false });
-          }
-        }
-      } else if (response.status === 404) {
-        // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
-        // Don't retry on 404 - it won't help
-        // Don't log to console to avoid noise
-        return;
-      } else {
-        // Only throw for non-404 errors
-        const errorText = await response.text().catch(() => '');
-        throw new Error(`HTTP ${response.status}${errorText ? ': ' + errorText.substring(0, 100) : ''}`);
-      }
-    } catch (error) {
-      // Don't retry on network errors that suggest the endpoint doesn't exist
-      // Don't log 404 errors to console to avoid noise
-      const errorMessage = error.message || error.toString() || '';
-      if (errorMessage.includes('404') || 
-          errorMessage.includes('Failed to fetch') || 
-          errorMessage.includes('Not Found') ||
-          errorMessage.includes('NetworkError') ||
-          errorMessage.includes('Load failed') ||
-          error.name === 'AbortError') {
-        // Silently fail - endpoint might not be available
-        return;
-      }
-      
-      // Retry on other failures
-      if (retryCount < MAX_RETRIES) {
-        const delay = RETRY_DELAYS[retryCount] || 2000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return ensureUserDocument(user, retryCount + 1);
-      }
-      // Only log warning if it's not a 404 or network error
-      if (!errorMessage.includes('404') && 
-          !errorMessage.includes('Failed to fetch') &&
-          !errorMessage.includes('NetworkError') &&
-          !errorMessage.includes('Load failed') &&
-          error.name !== 'AbortError') {
-        // Error initializing user documents after retries
-      }
-    }
-  }
-
-  // Wait for Firebase to be ready
-  if (typeof firebase !== 'undefined' && firebase.auth) {
-    // Firebase already loaded, wait a bit for initialization
-    setTimeout(setupAuthListener, 100);
-  } else {
-    window.addEventListener('firebase-ready', setupAuthListener);
-  }
-
-  // Initialize auth buttons with default state (only if auth listener hasn't run yet)
-  document.addEventListener('DOMContentLoaded', function() {
-    const authButtons = document.getElementById('auth-buttons');
-    if (!authButtons) return;
-    
-    const authInstance = getFirebaseAuthCompat();
-    if (authInstance) {
-      // Auth is available, set up a one-time listener to check current state
-      // This ensures we get the auth state even if it's still loading
-      const unsubscribe = authInstance.onAuthStateChanged((user) => {
-        // Update UI with current auth state
-        updateAuthUI(user);
-        // Unsubscribe after first check
-        unsubscribe();
-      });
-      return;
-    }
-    
-    // Only set default if buttons are empty and we don't have auth yet
-    if (!authButtons.innerHTML.trim()) {
-      authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Log in/Sign up</button>
-      `;
-      
-      const loginBtn = authButtons.querySelector('.login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', function(event) {
-          event.stopPropagation();
-          window.location.href = '/pages/auth.html';
-        });
-      }
-    }
-  });
-</script>
-
-
+    <!-- Firebase SDK & Auth (skipped on lean content shells for LCP) -->
     
     
     <!-- Extra JavaScript (defer so config.js in head runs first) -->
     
+    
+    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
     
     <!-- Custom JavaScript Modules -->
     

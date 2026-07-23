@@ -1,26 +1,27 @@
 ---
 layout: default
-title: "Create App Specs with AI"
-description: "Generate comprehensive PRDs and app specifications in minutes with Specifys AI. Optimize your Vibe Coding workflow and save development costs today."
+title: "Plan Before AI Writes Code"
+description: "Stop prompting. Start planning. Specifys AI turns your idea into a complete PRD, user stories, architecture, and IDE-ready prompts — before a single line of code."
 permalink: /
+optimize_lcp: true
 extra_css:
   - /assets/css/pages/index.css
-  - /assets/css/pages/index-process-flow.css
-  - /assets/css/pages/index-why-sections.css
+  - /assets/css/pages/index-value.css
   - /assets/css/pages/planning.css
+  - /assets/css/pages/paywall.css
 extra_js:
-  # analytics-tracker.js is loaded once globally from _includes/head.html
+  # Critical homepage behavior only — planning/mermaid/paywall load idle or on Start
+  - /assets/js/features/index/audience-picker.js
+  - /assets/js/features/index/index.js
+  - /assets/js/features/index/index-vanta.js
+  - /assets/js/features/index/index-access-code.js
+  - /assets/js/features/index/index-mermaid.js
+idle_js:
   - /assets/js/services/prompts.js
   - /assets/js/paywall.js
   - /assets/js/features/planning/planning.js
-  - /assets/js/features/index/index.js
-  - https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js
-  - /assets/js/features/index/index-mermaid.js
-  - /assets/js/pages/why.js
-  - /assets/js/features/index/index-vanta.js
-  - /assets/js/features/index/index-access-code.js
+  - /assets/js/features/index/example-templates.js
 defer_vanta: true
-  # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
 ---
 
 <!-- Access Code Modal -->
@@ -48,30 +49,38 @@ defer_vanta: true
 <section class="hero-section" aria-label="Hero section">
     <div id="vanta-net" aria-hidden="true"></div>
     
-    <!-- Hero Content -->
+    <!-- Hero Content — audience (drives H1) + H1 + supporting line + CTA + preview -->
     <div class="hero-content" id="heroContent">
+            <div class="audience-picker audience-picker--hero" id="audiencePicker" role="group" aria-label="I am">
+                <p class="audience-picker-label">I am</p>
+                <div class="audience-picker-options" role="presentation">
+                    <button type="button" class="audience-picker-btn" data-audience="founder" aria-pressed="false">Founder</button>
+                    <button type="button" class="audience-picker-btn" data-audience="developer" aria-pressed="false">Developer</button>
+                    <button type="button" class="audience-picker-btn" data-audience="pm" aria-pressed="false">
+                        <span class="audience-picker-btn-long">Product Manager</span>
+                        <span class="audience-picker-btn-short">PM</span>
+                    </button>
+                    <button type="button" class="audience-picker-btn" data-audience="agency" aria-pressed="false">Agency</button>
+                </div>
+            </div>
             <div class="hero-description">
-                <h1 class="hero-description-text">Create Comprehensive App Specs & PRDs with AI</h1>
-                <p class="hero-tagline">Save time. Save tokens. Build stable apps.</p>
+                <h1 class="hero-description-text">Plan your app before AI writes a single line of code</h1>
+                <p class="hero-tagline">Stop prompting. Start planning.</p>
             </div>
         
         <div class="hero-button-container">
-            <a href="/pages/why.html" class="hero-cta-button-secondary" aria-label="Why">
-                Why?
-            </a>
-            <button class="hero-cta-button-new" id="startButton" aria-label="Start now">
+            <button class="hero-cta-button-new" id="startButton" aria-label="Start free">
                 <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
                 </svg>
-                Start now
+                <span class="hero-cta-label">Start free</span>
             </button>
+            <a href="#example-specs" class="hero-cta-button-secondary hero-cta-see-example" aria-label="See example">
+                See example
+            </a>
         </div>
-        <p class="start-now-subtext">your first app is on us!</p>
-        <a href="{{ '/pages/mcp.html' | relative_url }}" class="hero-mcp-teaser" aria-label="Connect your spec to Cursor with MCP">
-            <span class="hero-mcp-teaser-label">New!</span> Connect your spec to Cursor with MCP
-        </a>
         
-        <!-- Browser Window Preview -->
+        <!-- Browser Window Preview — dominant hero visual plane -->
         <div class="browser-window-preview" id="browserWindowPreview">
             <div class="browser-window-frame">
                 <div class="browser-window-header">
@@ -87,7 +96,7 @@ defer_vanta: true
                         <button class="browser-window-tab" data-tab="design" role="tab" aria-selected="false" aria-controls="browser-design">Design</button>
                         <button class="browser-window-tab active" data-tab="diagrams" role="tab" aria-selected="true" aria-controls="browser-diagrams">Diagrams</button>
                         <button class="browser-window-tab" data-tab="prompts" role="tab" aria-selected="false" aria-controls="browser-prompts">Prompts</button>
-                        <a href="/pages/demo-spec.html" class="browser-window-tab browser-window-tab-see-more" aria-label="See more">See more</a>
+                        <a href="/pages/demo-spec.html?example=relaydesk" class="browser-window-tab browser-window-tab-see-more" aria-label="See more">See more</a>
                 </div>
             </div>
                 <div class="browser-window-content">
@@ -98,15 +107,15 @@ defer_vanta: true
                                 <div class="spec-label">Project Specifications</div>
                                 <h2 class="spec-title">Application Overview</h2>
                                 
-                                <!-- Application Summary -->
+                                <!-- Idea summary (enriched overview) -->
                                 <div class="overview-section-container">
                                     <h3 class="overview-section-title">
-                                        <i class="fa fa-clipboard" aria-hidden="true"></i> Application Summary
+                                        <i class="fa fa-clipboard" aria-hidden="true"></i> Idea Summary
                                     </h3>
                                     <div class="overview-summary-text">
-                                        <p>Taskify Pro is an intelligent, AI-powered task management platform that revolutionizes productivity for modern professionals and teams. Unlike traditional to-do applications that simply list tasks, Taskify Pro serves as a comprehensive productivity intelligence system that learns, adapts, and optimizes workflows in real-time.</p>
-                                        <p>The platform specifically targets busy professionals, team managers, entrepreneurs, executives, and creative individuals who regularly juggle 10-50 concurrent tasks across multiple projects. These users experience common pain points: constant context switching that reduces cognitive efficiency, unclear priority management leading to missed critical deadlines, lack of visibility into actual time expenditure, coordination challenges when managing distributed teams, and the overwhelming sense of always playing catch-up despite working long hours.</p>
-                                        <p>What truly distinguishes Taskify Pro is its proprietary AI-powered decision engine that transcends simple task tracking. The system understands not just what you're doing, but why it matters, when it's optimal to execute, and how it fits into your broader productivity patterns.</p>
+                                        <p>RelayDesk is a lightweight shared customer support inbox for indie SaaS founders. It unifies email threads, macros, and light SLA timers so a tiny team can answer customers without enterprise helpdesk complexity or seat-tax pricing.</p>
+                                        <p>Indie SaaS teams drown in a mix of personal Gmail, Notion docs, and Slack forwards. Important tickets get lost, replies collide, and founders cannot see response time. RelayDesk closes the gap with a focused shared inbox, reusable macros, and simple SLA lite timers.</p>
+                                        <p>Personas, epics, acceptance criteria, and screen states are part of the enriched Overview — the same shape Spec Viewer renders after generation.</p>
                 </div>
                 </div>
                                 
@@ -116,11 +125,11 @@ defer_vanta: true
                                         <i class="fa fa-star" aria-hidden="true"></i> Core Features
                                     </h3>
                                     <ul class="overview-features-list">
-                                        <li>AI-powered task prioritization that analyzes deadlines, importance scores, dependencies, and your personal productivity patterns to suggest the optimal order of tasks</li>
-                                        <li>Smart calendar integration with automatic deadline reminders that learn your meeting cadence and suggest blocks of focused work time</li>
-                                        <li>Collaborative boards for team projects with real-time updates, live cursors, activity streams, and smart conflict resolution for multi-user editing</li>
-                                        <li>Intelligent task suggestions based on past work patterns, time of day energy levels, and predictive analytics that understand when you do your best work</li>
-                                        <li>Customizable workflows and automation rules that eliminate repetitive task management with triggers, conditions, and multi-step actions</li>
+                                        <li>Shared inbox: team mailbox with assignable threads</li>
+                                        <li>Macros: reusable reply snippets with variables</li>
+                                        <li>SLA lite: first-response timers and breach badges</li>
+                                        <li>Email sync: IMAP/SMTP or provider OAuth for a support address</li>
+                                        <li>Thread status: open, pending, resolved — plus full-text search</li>
                                     </ul>
                                 </div>
                             </div>
@@ -139,7 +148,7 @@ defer_vanta: true
                                     <h3 class="technical-section-title">
                                         <i class="fa fa-building" aria-hidden="true"></i> Architecture Overview
                                     </h3>
-                                    <p class="technical-section-text">Enterprise-grade microservices architecture with API Gateway pattern ensuring scalability and maintainability. Backend services communicate via REST APIs with OpenAPI documentation and use RabbitMQ message queues for async processing. Real-time updates are handled through WebSocket connections with automatic reconnection and offline queue. AI service runs as separate containerized microservice with dedicated GPU resources, request queuing, and rate limiting. Database connections are pooled with read replicas for performance. Each service is independently deployable with its own CI/CD pipeline, auto-scaling policies, and health checks.</p>
+                                    <p class="technical-section-text">Browser SPA talks to RelayDesk API. API owns threads, macros, and SLA state in Postgres. An email worker syncs IMAP/OAuth mail and enqueues inbound messages. Object storage holds attachments. Stack: React 18 + Vite + TypeScript, Node.js 20 + Express, PostgreSQL 16, S3-compatible storage, email magic-link auth.</p>
                                 </div>
                                 
                                 <!-- Database Schema -->
@@ -147,7 +156,7 @@ defer_vanta: true
                                     <h3 class="technical-section-title">
                                         <i class="fa fa-database" aria-hidden="true"></i> Database Schema
                                     </h3>
-                                    <p class="technical-section-text">Hybrid multi-database architecture using PostgreSQL for transactional relational data with strict schema enforcement, MongoDB for flexible document storage of user preferences and metadata, Elasticsearch for blazing-fast full-text search across all task content, and TimescaleDB for storing time-series analytics data like productivity metrics and completion rates over time</p>
+                                    <p class="technical-section-text">PostgreSQL relational model for workspaces, users, mailboxes, threads, messages, and macros — with an ER Mermaid diagram embedded in the enriched Technical stage (same shape Spec Viewer validates).</p>
                                 </div>
                                 
                                 <!-- API Endpoints -->
@@ -156,16 +165,11 @@ defer_vanta: true
                                         <i class="fa fa-plug" aria-hidden="true"></i> API Endpoints
                                     </h3>
                                     <ul class="technical-endpoints-list">
-                                        <li><strong>POST</strong> <code>/api/v1/tasks</code> - Create a new task with optional AI-suggested priority and due date</li>
-                                        <li><strong>GET</strong> <code>/api/v1/tasks</code> - Get all tasks with advanced filtering, pagination, and sorting options</li>
-                                        <li><strong>GET</strong> <code>/api/v1/tasks/:id</code> - Get detailed information about a specific task including analytics</li>
-                                        <li><strong>PUT</strong> <code>/api/v1/tasks/:id</code> - Update a task with optimistic locking to prevent conflicts</li>
-                                        <li><strong>DELETE</strong> <code>/api/v1/tasks/:id</code> - Soft delete a task with archive option</li>
-                                        <li><strong>GET</strong> <code>/api/v1/ai/suggestions</code> - Get AI task prioritization suggestions based on current workload and historical patterns</li>
-                                        <li><strong>POST</strong> <code>/api/v1/ai/analyze-workload</code> - Analyze user workload and suggest time distribution optimizations</li>
-                                        <li><strong>GET</strong> <code>/api/v1/projects</code> - Get all projects with nested task counts and progress metrics</li>
-                                        <li><strong>GET</strong> <code>/api/v1/analytics/productivity</code> - Get productivity analytics and trends over time</li>
-                                        <li><strong>POST</strong> <code>/api/v1/integrations/:service/sync</code> - Trigger manual sync with external service integration</li>
+                                        <li><strong>GET</strong> <code>/api/threads</code> — List threads for workspace with filters</li>
+                                        <li><strong>POST</strong> <code>/api/threads/{id}/replies</code> — Send a reply on a thread</li>
+                                        <li><strong>POST</strong> <code>/api/macros</code> — Create macro</li>
+                                        <li><strong>GET</strong> <code>/api/macros</code> — List macros for workspace</li>
+                                        <li><strong>PATCH</strong> <code>/api/threads/{id}</code> — Update status or assignee</li>
                                     </ul>
                                 </div>
                             </div>
@@ -184,21 +188,20 @@ defer_vanta: true
                                     <h3 class="market-section-title">
                                         <i class="fa fa-line-chart" aria-hidden="true"></i> Market Opportunity
                                     </h3>
-                                    <p class="market-section-text">The global task management software market is valued at $6.76 billion in 2024 and is projected to reach $14.6 billion by 2030, growing at a CAGR of 14.2%. This explosive growth is driven by increasing remote work adoption, digital transformation initiatives, and the critical need for productivity tools that can handle distributed teams and complex workflows. The market is experiencing a shift from basic task tracking to intelligent, AI-powered solutions that provide actionable insights and automation.</p>
+                                    <p class="market-section-text">Indie SaaS teams favor lightweight support tools over enterprise suites; flat pricing and shared inboxes are rising themes. Enriched Market includes SWOT, ICP scorecard, GTM 30/60/90, and competitor gaps — qualitative insights, not fabricated market-size cards.</p>
                                     
-                                    <!-- Stat Cards -->
                                     <div class="market-stats-grid">
                                         <div class="market-stat-card market-stat-card--purple">
-                                            <h4 class="market-stat-title">Market Size 2024</h4>
-                                            <div class="market-stat-value">$6.76B</div>
+                                            <h4 class="market-stat-title">Focus</h4>
+                                            <div class="market-stat-value" style="font-size:1.1rem;">Indie SaaS</div>
                                         </div>
                                         <div class="market-stat-card market-stat-card--pink">
-                                            <h4 class="market-stat-title">Projected 2030</h4>
-                                            <div class="market-stat-value">$14.6B</div>
+                                            <h4 class="market-stat-title">GTM</h4>
+                                            <div class="market-stat-value" style="font-size:1.1rem;">30 / 60 / 90</div>
                                         </div>
                                         <div class="market-stat-card market-stat-card--blue">
-                                            <h4 class="market-stat-title">CAGR Growth</h4>
-                                            <div class="market-stat-value">14.2%</div>
+                                            <h4 class="market-stat-title">Edge</h4>
+                                            <div class="market-stat-value" style="font-size:1.1rem;">Flat pricing</div>
                                         </div>
                                     </div>
                                 </div>
@@ -209,11 +212,11 @@ defer_vanta: true
                                         <i class="fa fa-trending-up" aria-hidden="true"></i> Market Trends
                                     </h3>
                                     <ul class="market-trends-list">
-                                        <li>Remote and hybrid work models driving 40% year-over-year growth in task management tool adoption</li>
-                                        <li>AI integration becoming table stakes - 85% of buyers expect AI features in productivity tools by 2025</li>
-                                        <li>Individual contributors now making purchase decisions for team tools, shifting from top-down procurement</li>
-                                        <li>Demand for privacy-first solutions with on-premise deployment options growing 60% annually</li>
-                                        <li>Mobile-first usage patterns - 70% of task management happens on mobile devices during commutes and breaks</li>
+                                        <li>Founder-led support before hiring a full CX team</li>
+                                        <li>Rejection of per-agent seat taxes for very small teams</li>
+                                        <li>Demand for shared inbox + macros without full helpdesk complexity</li>
+                                        <li>Email remains the primary support channel for early B2B SaaS</li>
+                                        <li>Buyers compare against Zendesk/Intercom on price and simplicity</li>
                                     </ul>
                                 </div>
                                 
@@ -222,7 +225,7 @@ defer_vanta: true
                                     <h3 class="market-section-title">
                                         <i class="fa fa-bullseye" aria-hidden="true"></i> Target Market
                                     </h3>
-                                    <p class="market-section-text">Our addressable market consists of approximately 500 million knowledge workers globally, with 150 million located in our primary target markets (United States, Canada, United Kingdom, European Union, Australia). These professionals are increasingly seeking AI-powered solutions that can adapt to their work style rather than forcing them into rigid workflows. Market research shows that 67% of knowledge workers use 3 or more productivity apps daily, creating demand for unified platforms.</p>
+                                    <p class="market-section-text">Primary ICP: indie SaaS founders and tiny support pods (1–5 people) who currently juggle Gmail, Notion, and Slack for customer email. Disqualify: enterprises needing omnichannel WFM or on-prem helpdesks.</p>
                                 </div>
                             </div>
                         </div>
@@ -239,44 +242,44 @@ defer_vanta: true
                                     <h3 class="design-section-title">
                                         <i class="fa fa-paint-brush" aria-hidden="true"></i> Design Philosophy
                                     </h3>
-                                    <p class="design-section-text">Your app’s design guidelines are generated to match its purpose and audience. Start a spec to get a custom color palette, typography, and app icon tailored to your product.</p>
+                                    <p class="design-section-text">RelayDesk follows a calm ops aesthetic: warm paper background, high-contrast text, and orange primary actions for reply/assign. Design stage includes live palette, theme preview, component inventory, and style notes — one visual system, no duplicate style guides.</p>
                                 </div>
                                 
                                 <div class="design-section-container">
                                     <h3 class="design-section-title">
                                         <i class="fa fa-palette" aria-hidden="true"></i> Color Palette
                                     </h3>
-                                    <p class="design-section-text" style="margin-bottom: 16px;">Generated per app — e.g. primary, secondary, accent, background, text.</p>
+                                    <p class="design-section-text" style="margin-bottom: 16px;">Enriched tokens — primary, secondary, accent, background, text.</p>
                                     <div class="color-palette-grid">
                                         <div class="color-item">
-                                            <div class="color-swatch" style="background: #64748B;"></div>
+                                            <div class="color-swatch" style="background: #E85D04;"></div>
                                             <div class="color-name">Primary</div>
-                                            <div class="color-code">—</div>
-                                            <div class="color-description">From your spec</div>
+                                            <div class="color-code">#E85D04</div>
+                                            <div class="color-description">Actions</div>
                                         </div>
                                         <div class="color-item">
-                                            <div class="color-swatch" style="background: #94A3B8;"></div>
+                                            <div class="color-swatch" style="background: #1B1B1E;"></div>
                                             <div class="color-name">Secondary</div>
-                                            <div class="color-code">—</div>
-                                            <div class="color-description">From your spec</div>
+                                            <div class="color-code">#1B1B1E</div>
+                                            <div class="color-description">Ink</div>
                                         </div>
                                         <div class="color-item">
-                                            <div class="color-swatch" style="background: #0EA5E9;"></div>
+                                            <div class="color-swatch" style="background: #F48C06;"></div>
                                             <div class="color-name">Accent</div>
-                                            <div class="color-code">—</div>
-                                            <div class="color-description">From your spec</div>
+                                            <div class="color-code">#F48C06</div>
+                                            <div class="color-description">Highlights</div>
                                         </div>
                                         <div class="color-item">
-                                            <div class="color-swatch" style="background: #F8FAFC;"></div>
+                                            <div class="color-swatch" style="background: #FFF8F0;"></div>
                                             <div class="color-name">Background</div>
-                                            <div class="color-code">—</div>
-                                            <div class="color-description">From your spec</div>
+                                            <div class="color-code">#FFF8F0</div>
+                                            <div class="color-description">Paper</div>
                                         </div>
                                         <div class="color-item">
-                                            <div class="color-swatch" style="background: #1E293B;"></div>
+                                            <div class="color-swatch" style="background: #1B1B1E;"></div>
                                             <div class="color-name">Text</div>
-                                            <div class="color-code">—</div>
-                                            <div class="color-description">From your spec</div>
+                                            <div class="color-code">#1B1B1E</div>
+                                            <div class="color-description">Body</div>
                                         </div>
                                     </div>
                                 </div>
@@ -285,11 +288,11 @@ defer_vanta: true
                                     <h3 class="design-section-title">
                                         <i class="fa fa-mobile" aria-hidden="true"></i> App Icon Design
                                     </h3>
-                                    <p class="design-section-text">Two-letter icon and colors are generated for your app (e.g. “FD” for Food Delivery).</p>
+                                    <p class="design-section-text">Orange rounded square with RD letters in white.</p>
                                     <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-top: 16px;">
                                         <div style="text-align: center;">
-                                            <div style="width: 80px; height: 80px; border-radius: 18px; background: linear-gradient(135deg, #64748B 0%, #94A3B8 100%); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: white;">AP</div>
-                                            <p style="margin-top: 8px; font-size: 13px; color: #64748B;">Your app</p>
+                                            <div style="width: 80px; height: 80px; border-radius: 18px; background: #E85D04; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: white;">RD</div>
+                                            <p style="margin-top: 8px; font-size: 13px; color: #64748B;">RelayDesk</p>
                                         </div>
                                     </div>
                                 </div>
@@ -306,50 +309,19 @@ defer_vanta: true
                                 
                                 <div class="diagram-section-container">
                                     <h3 class="diagram-section-title">
-                                        <i class="fa fa-project-diagram" aria-hidden="true"></i> System Architecture - Microservices Overview
+                                        <i class="fa fa-project-diagram" aria-hidden="true"></i> System Context — RelayDesk
                                     </h3>
-                                    <p class="diagram-section-description">Complete high-level system architecture showing all microservices, databases, and external integrations</p>
+                                    <p class="diagram-section-description">Enriched Technical + Architecture stages embed validated Mermaid diagrams (context, ER, auth, deploy).</p>
                                     <div class="diagram-container">
                                         <div class="mermaid" id="mermaid-diagram-system-architecture">
-graph TB
-    A[Web/Mobile/Desktop Clients]
-    B[API Gateway with Load Balancer]
-    C[Authentication Service]
-    D[Task Management Service]
-    E[AI Processing Service]
-    F[Analytics Service]
-    G[Notification Service]
-    
-    H[(PostgreSQL Primary)]
-    I[(PostgreSQL Replica)]
-    J[(MongoDB Atlas)]
-    K[(Elasticsearch)]
-    L[(Redis Cache)]
-    
-    M[AWS S3 Storage]
-    N[RabbitMQ Message Queue]
-    
-    A --> B
-    B --> C
-    B --> D
-    B --> E
-    B --> F
-    
-    D --> H
-    D --> L
-    D --> N
-    D --> J
-    
-    E --> L
-    E --> I
-    E --> K
-    
-    D --> M
-    E --> M
-    
-    F --> J
-    G --> N
-    N --> G
+flowchart LR
+  User["Founder or Agent"] --> SPA["RelayDesk Web"]
+  SPA --> API["RelayDesk API"]
+  API --> DB[(Postgres)]
+  API --> Store[(Object Storage)]
+  Worker["Email Worker"] --> API
+  Worker --> Mail["Mail Provider"]
+  API --> Mail
                 </div>
                 </div>
             </div>
@@ -369,74 +341,53 @@ graph TB
                                         <i class="fa fa-code" aria-hidden="true"></i> Full Development Prompt
                                     </h3>
                                     <div class="prompt-code-container">
-                                        <pre class="prompt-code"><code>You are building Taskify Pro - an intelligent, AI-powered task management platform that revolutionizes productivity for modern professionals and teams.
+                                        <pre class="prompt-code"><code>You are building RelayDesk Support Inbox - RelayDesk is a lightweight shared customer support inbox for indie SaaS founders. It unifies email threads, macros, and light SLA timers so a tiny team can answer customers without enterprise helpdesk complexity or seat-tax pricing.
 
 PROJECT OVERVIEW:
-Taskify Pro is a comprehensive productivity intelligence system that learns, adapts, and optimizes workflows in real-time. The platform targets busy professionals, team managers, entrepreneurs, and executives who regularly juggle 10-50 concurrent tasks across multiple projects.
+RelayDesk gives indie SaaS teams a shared inbox with macros and SLA lite at a flat price. No bloated CRM, no agent seat tax—just email threads, ownership, and fast replies.
 
 TECHNICAL STACK:
-- Frontend: React 18, TypeScript 5.5, Next.js 14, Tailwind CSS 3.4
-- Backend: Node.js 20 LTS, Express.js 4.21, TypeScript 5.5
-- Database: PostgreSQL 15, MongoDB Atlas 7.1, Elasticsearch 8.15, TimescaleDB 2.14
-- AI Service: OpenAI GPT-4 Turbo API with custom fine-tuned models
-- Authentication: NextAuth.js v5 with OAuth 2.0, JWT tokens, 2FA via TOTP
-- Real-time: WebSocket with Socket.io v4, Redis Adapter for scaling
-- Storage: AWS S3, CloudFront CDN
-- Infrastructure: Docker 24, Kubernetes on AWS EKS, GitHub Actions CI/CD
-
-SECURITY REQUIREMENTS:
-- End-to-end encryption for all task data
-- HTTPS/WSS for all communications
-- JWT tokens with expiration and refresh mechanisms
-- Rate limiting on all API endpoints
-- CORS properly configured (no wildcards in production)
-- Input validation and sanitization on backend
-- Never store API keys or secrets in frontend code
+- Frontend: React 18 + Vite + TypeScript
+- Backend: Node.js 20 + Express
+- Database: PostgreSQL 16
+- Authentication: Email magic link + session cookies (HttpOnly)
 
 DEVELOPMENT STAGES - BUILD IN THIS EXACT ORDER:
+Each stage is an Agent Ticket with Goal, Non-goals, Files, AC, Commands, DoD, Pitfalls, and Build/Review/Tests variants.
 
 ═══════════════════════════════════════════════════════════════
 STAGE 1: PROJECT SETUP & BASIC STRUCTURE
 ═══════════════════════════════════════════════════════════════
 
-1.1 Initialize Project Structure
-   - Create Next.js 14 project with TypeScript
-   - Set up folder structure: /app, /components, /lib, /types, /api
-   - Configure Tailwind CSS 3.4 with custom design tokens
-   - Set up ESLint, Prettier, and TypeScript strict mode
-   - Initialize Git repository and create .gitignore
+## Goal
+Scaffold RelayDesk monorepo with web, API, and worker packages so agents can implement inbox features next.
 
-1.2 Environment Configuration
-   - Set up .env.local with required environment variables
-   - Configure Next.js environment variables for API keys
-   - Set up development, staging, and production configs
-   - Never commit .env files to Git
+## Variant: Build
+1.1 Create workspaces
+1.2 Add Express health route
+1.3 Add Vite React shell
+1.4 Add shared ThreadStatus type
 
-1.3 Basic Layout & Navigation
-   - Create main layout component with header and sidebar
-   - Implement responsive navigation menu
-   - Set up routing structure for main pages
-   - Create basic page components (Dashboard, Tasks, Projects, Settings)
-   - Add loading states and error boundaries
+## Variant: Review
+- Check no secrets committed
+- Verify workspace filters
 
-1.4 Design System Setup
-   - Create design tokens file (colors, typography, spacing)
-   - Set up component library structure
-   - Create base UI components (Button, Input, Card, Modal)
-   - Implement dark mode support
-   - Set up icon system (Font Awesome integration)
+## Variant: Tests
+- Unit: health handler returns ok
+- Smoke: web index route mounts
 
 ═══════════════════════════════════════════════════════════════
 STAGE 2: FRONTEND CORE FUNCTIONALITY
 ═══════════════════════════════════════════════════════════════
 
-2.1 Task Management UI Components
-   - Build TaskCard component with drag-and-drop support
-   - Create TaskList component with filtering and sorting
-   - Implement TaskForm for creating/editing tasks
-   - Build TaskDetail modal/view
-   - Add task status indicators and priority badges
-   - Implement task search and filter functionality</code></pre>
+## Goal
+Implement Inbox list UI against mocked thread API matching Overview screens and SLA badges.
+
+## Variant: Build
+2.1 Seed threads
+2.2 API list + filters
+2.3 ThreadRow + InboxPage
+2.4 Empty/error skeletons</code></pre>
                                     </div>
                 </div>
                 </div>
@@ -493,11 +444,11 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
                     <span class="nav-btn-indicator"></span>
                     <span>Audience</span>
                 </button>
-                <button onclick="openSection('screenshot')" class="nav-btn nav-btn-screenshot" type="button" data-section="screenshot">
+                <button onclick="openSection('screenshot')" class="nav-btn nav-btn-screenshot nav-btn-secondary-opt" type="button" data-section="screenshot" title="Optional — prefer Features presets when possible">
                     <span class="nav-btn-indicator"></span>
                     <span class="nav-btn-label-stack">
-                        <span class="nav-btn-main-label">Screenshot</span>
-                        <span class="nav-btn-new-badge" aria-label="New feature">NEW!</span>
+                        <span class="nav-btn-main-label">UI refs</span>
+                        <span class="nav-btn-optional-hint">optional</span>
                     </span>
                 </button>
             </div>
@@ -635,7 +586,7 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
 
                 <div id="view-screenshot" class="section-view hidden-el">
                     <div class="screenshot-section">
-                        <p class="screenshot-lead">Upload UI references (screenshots)—up to <strong>10</strong> per spec. Add a short note, run AI analysis, edit the English description, then confirm. Confirmed items are included in your final spec.</p>
+                        <p class="screenshot-lead">Optional UI references — prefer <strong>Features</strong> presets when they cover what you need. Upload screenshots only for unique layouts (up to <strong>10</strong>). Add a short note, run analysis, edit, then confirm.</p>
                         <p id="screenshot-at-limit-notice" class="screenshot-at-limit-notice hidden-el" role="status">You’ve reached the maximum of 10 screenshot references for this spec. Remove one to add another.</p>
                         <div id="screenshot-confirmed-list" class="screenshot-confirmed-list" aria-live="polite"></div>
                         <div class="screenshot-composer">
@@ -662,190 +613,175 @@ STAGE 2: FRONTEND CORE FUNCTIONALITY
     </div>
 </section>
 
-<!-- Why Sections from why.html -->
+<!-- 1. Value / Before–After + merged numbers -->
+<section class="value-section" id="value" aria-labelledby="before-after-title">
+    <div class="value-section-inner">
+        <h2 id="before-after-title" class="value-section-title">Without Specifys vs with Specifys</h2>
+        <p class="value-section-subtitle">Same idea. Completely different starting point for AI and your team.</p>
+        <div class="before-after-grid">
+            <div class="before-after-card before-after-card--before">
+                <p class="before-after-eyebrow">Without Specifys</p>
+                <h3 class="before-after-heading">20+ prompts, missing requirements</h3>
+                <ul class="before-after-list">
+                    <li>Vague chats that lose context mid-build</li>
+                    <li>Missing edge cases, roles, and data model</li>
+                    <li>Rework when AI invents the wrong architecture</li>
+                    <li>No shared PRD for founders, PMs, and engineers</li>
+                </ul>
+            </div>
+            <div class="before-after-card before-after-card--after">
+                <p class="before-after-eyebrow">With Specifys</p>
+                <h3 class="before-after-heading">Complete PRD ready to build</h3>
+                <ul class="before-after-list">
+                    <li>Full PRD with problem, scope, and success metrics</li>
+                    <li>User stories and end-to-end flows</li>
+                    <li>Database schema and API endpoints</li>
+                    <li>Design direction + IDE-ready prompts / MCP</li>
+                </ul>
+            </div>
+        </div>
+        <div class="value-numbers" aria-label="Product proof and ROI">
+            <div class="value-number">
+                <p class="value-number-value">450+</p>
+                <p class="value-number-label">Specs generated</p>
+            </div>
+            <div class="value-number">
+                <p class="value-number-value">550+</p>
+                <p class="value-number-label">Builders</p>
+            </div>
+            <div class="value-number">
+                <p class="value-number-value">70%</p>
+                <p class="value-number-label">Fewer prompt iterations</p>
+            </div>
+            <div class="value-number">
+                <p class="value-number-value">~4 min</p>
+                <p class="value-number-label">Avg time to PRD</p>
+            </div>
+            <div class="value-number">
+                <p class="value-number-value">~25 pages</p>
+                <p class="value-number-label">Typical full spec</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. How it works — 3 steps (replaces why-sections) -->
+<section class="how-works-section" id="how-it-works" aria-labelledby="how-works-title">
+    <div class="how-works-inner">
+        <h2 id="how-works-title" class="value-section-title">How it works</h2>
+        <p class="value-section-subtitle">Three steps from idea to something your team can build.</p>
+        <ol class="how-works-steps">
+            <li class="how-works-step">
+                <span class="how-works-step-num" aria-hidden="true">1</span>
+                <h3 class="how-works-step-title">Questions</h3>
+                <p class="how-works-step-text">Answer a short brief about your app — pages, features, audience, and constraints.</p>
+            </li>
+            <li class="how-works-step">
+                <span class="how-works-step-num" aria-hidden="true">2</span>
+                <h3 class="how-works-step-title">Spec</h3>
+                <p class="how-works-step-text">Get a structured PRD with architecture, flows, design direction, and IDE-ready prompts.</p>
+            </li>
+            <li class="how-works-step">
+                <span class="how-works-step-num" aria-hidden="true">3</span>
+                <h3 class="how-works-step-title">Build</h3>
+                <p class="how-works-step-text">Hand the spec to your team or connect it to your IDE via MCP — then ship with clarity.</p>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<!-- 3. Example Specs library -->
+<section class="value-section value-section--alt" id="example-specs" aria-labelledby="example-specs-title">
+    <div class="value-section-inner">
+        <h2 id="example-specs-title" class="value-section-title">Example Specs</h2>
+        <p class="value-section-subtitle">Browse real Spec Viewer–style examples, then generate yours from scratch.</p>
+        <div class="example-specs-grid">
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-address-book"></i></div>
+                <h3 class="example-spec-title">CRM — Pipeboard</h3>
+                <p class="example-spec-desc">Pipeline, leads, and follow-ups for small sales teams.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=crm">See example</a>
+                </div>
+            </article>
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-store"></i></div>
+                <h3 class="example-spec-title">Marketplace — Stallio</h3>
+                <p class="example-spec-desc">Two-sided marketplace with listings, search, and checkout.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=marketplace#technical">See example</a>
+                </div>
+            </article>
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-calendar-check"></i></div>
+                <h3 class="example-spec-title">Booking — Slotly</h3>
+                <p class="example-spec-desc">Appointments with availability, reminders, and payments.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=booking#diagrams">See example</a>
+                </div>
+            </article>
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-robot"></i></div>
+                <h3 class="example-spec-title">AI SaaS — PromptForge</h3>
+                <p class="example-spec-desc">AI workspace with prompts, history, and team seats.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=ai-saas#prompts">See example</a>
+                </div>
+            </article>
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-users"></i></div>
+                <h3 class="example-spec-title">Social — Trailfeed</h3>
+                <p class="example-spec-desc">Feed, profiles, follows, and notifications for a niche community.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=social#market">See example</a>
+                </div>
+            </article>
+            <article class="example-spec-card">
+                <div class="example-spec-icon" aria-hidden="true"><i class="fa fa-inbox"></i></div>
+                <h3 class="example-spec-title">Support — RelayDesk</h3>
+                <p class="example-spec-desc">Shared inbox with macros and SLA lite for indie SaaS.</p>
+                <div class="example-spec-actions">
+                    <a class="example-spec-btn-secondary" href="/pages/demo-spec.html?example=relaydesk">See example</a>
+                </div>
+            </article>
+        </div>
+        <p class="example-specs-footer">
+            <a href="/pages/example-specs.html">View full Example Specs library →</a>
+        </p>
+    </div>
+</section>
+
+<!-- 4. MCP / IDE bridge -->
+<section class="mcp-bridge" id="mcp-bridge" aria-labelledby="mcp-bridge-title">
+    <div class="mcp-bridge-inner">
+        <h2 id="mcp-bridge-title" class="visually-hidden">MCP and IDE bridge</h2>
+        <p class="mcp-bridge-text">Already coding in Cursor or your IDE? <a href="{{ '/pages/mcp.html' | relative_url }}">Connect your spec with MCP</a>.</p>
+    </div>
+</section>
+
+<!-- Quiet SEO intro (one sentence) -->
 <section class="home-seo-intro" aria-label="About Specifys.ai">
-    <p>Specifys.ai is an <strong>AI app specification generator</strong> for teams who vibe code with Cursor, Lovable, or Bolt. Turn a product idea into a structured PRD, technical architecture, and IDE-ready prompts — before a single line of code. <a href="/pages/how.html">See how it works</a> or explore our <a href="/pages/guides/vibe-coding.html">vibe coding guide</a>.</p>
+    <p>Specifys.ai helps you <strong>plan before AI writes code</strong> — turn an idea into a structured PRD, architecture, and IDE-ready prompts.</p>
 </section>
 
-<!-- Section 1: The Promise That Falls Short -->
-<section class="why-section prompt-section" data-section="1">
-    <h2 class="section-title">The Promise That Falls Short</h2>
-    <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
-    <div class="prompt-animation-container" id="promptAnimationContainer">
-        <!-- Credit counters and prompts will be generated dynamically -->
-    </div>
-    <div class="content-text-centered">
-        <div class="section-container">
-            <p class="section-text">But here's what actually happens: You spend hours, sometimes days, tweaking prompts, fixing errors, and trying to get the AI to understand what you really want.</p>
-            <p class="section-text">The code comes out messy. Features don't connect. And when you want to add something new, everything breaks.</p>
-            <div class="cta-container">
-                <a href="/" class="btn btn-primary">Start Planning</a>
-            </div>
-        </div>
-    </div>
+<!-- Buried SEO copy (screen-reader / crawlers only) -->
+<section class="visually-hidden" id="seo-home-content" aria-hidden="true">
+    <h2>Create App Specs with AI</h2>
+    <p>Specifys.AI generates software requirement documents (PRD) so you build stable apps with a single source of truth before writing code.</p>
 </section>
 
-<!-- Section 2: The Right Way to Build -->
-<section class="why-section" data-section="2">
-    <h2 class="section-title">The Right Way to Build</h2>
-    <p class="section-subtitle">Start with foundations, then build the structure.</p>
-    <div class="content-layout">
-        <div class="content-image">
-            <div class="planning-visual">
-                <div class="mermaid-diagram">
-                    <!-- div (not pre): Mermaid injects style+svg; inside <pre> that output shows as raw text and breaks layout -->
-                    <div class="mermaid" id="why-planning-flow-mermaid" aria-hidden="true">
-graph TD
-    A[Data Structures] --> B[Functions]
-    B --> C[Logic Flow]
-    C --> D[UI Layout]
-                    </div>
-                </div>
-                <div class="variables-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Variable</th>
-                                <th>Type</th>
-                                <th>Purpose</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
-                            <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
-                            <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="content-text">
-            <div class="section-container">
-                <p class="section-text">Real development doesn't start with code. It starts with foundations.</p>
-                <p class="section-text">First, you define your data structures - arrays, variables, the core information your app needs.</p>
-                <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
-                <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
-                <div class="cta-container">
-                    <a href="/" class="btn btn-primary">Start Planning</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Section 3: How It Works -->
-<section class="why-section" data-section="4">
-    <h2 class="section-title">How It Works</h2>
-    <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
-    <div class="content-layout reverse">
-        <div class="content-image">
-            <div class="process-flow">
-                <div class="process-step">
-                    <div class="process-icon"><i class="fas fa-edit"></i></div>
-                    <h4>Questions</h4>
-                </div>
-                <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                <div class="process-step">
-                    <div class="process-icon"><i class="fas fa-file-alt"></i></div>
-                    <h4>Specification</h4>
-                </div>
-                <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                <div class="process-step">
-                    <div class="process-icon"><i class="fas fa-rocket"></i></div>
-                    <h4>Application</h4>
-                </div>
-            </div>
-        </div>
-        <div class="content-text">
-            <div class="section-container">
-                <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
-                <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
-                <div class="cta-container">
-                    <a href="/" class="btn btn-primary">Start Planning</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- SEO: App spec creation, PRD, stable apps, token savings -->
-<section class="content-box" id="seo-home-content" style="max-width: 800px; margin: 2rem auto; padding: 2rem 1.5rem;">
-    <h2 class="visually-hidden">Create App Specs with AI</h2>
-    <p>Specifys.AI is the ultimate AI tool for app spec creation. Generate comprehensive software requirement documents (PRD) in minutes instead of hours. Our specification generator guides you through the right questions so you get a clear, structured spec before writing any code.</p>
-    <p>Why create app specs with AI? Without a spec, AI coding assistants and developers often jump straight into implementation. The result is unstable foundations, patchwork features, and wasted tokens when you have to re-prompt or refactor. A solid PRD aligns everyone on data structures, workflows, and requirements - so you build stable apps the first time and save tokens by giving the AI a single source of truth.</p>
-    <p>Requirements management and technical reviews become straightforward when your project starts with a spec. Our AI helps you capture pages, features, design direction, and integrations in one place. You can export your specification to your favorite tools and use it to keep development on track. Teams that start with app spec creation report more predictable delivery and fewer costly rewrites.</p>
-    <p>Automation is at the core of what we do. From initial idea to a full PRD, our platform streamlines the specification phase so you can focus on building. Whether you are planning a mobile app, a web product, or a vibe-coded project, having a generated spec means less guesswork and more stable apps. Try Specifys.AI today and turn your idea into a specification that saves time and tokens.</p>
-</section>
-
-<!-- Content Sections -->
-<div class="extra-sections">
-  <!-- Pricing Table -->
+<!-- 5. FAQ -->
+<div class="extra-sections" id="faq">
   <div class="section" style="--section-index: 0;">
-    <h2>Choose Your Plan</h2>
-    <p>Start free or upgrade for unlimited specifications</p>
-    <div class="pricing-grid-home">
-
-      <!-- Free -->
-      <div class="pricing-card-home">
-        <div class="pricing-card-header">
-          <h3>Free</h3>
-          <p>Try Specifys for free</p>
-        </div>
-        <div class="pricing-card-price">
-          <span class="currency">$</span>
-          <span class="amount">0</span>
-        </div>
-        <div class="pricing-card-features">
-          <ul>
-            <li><i class="fa fa-check"></i> 1 specification</li>
-            <li><i class="fa fa-check"></i> Tools Map access</li>
-            <li><i class="fa fa-check"></i> Export &amp; MCP</li>
-          </ul>
-        </div>
-        <a href="/pages/auth.html" class="pricing-btn" onclick="trackCTA('Get Started Free', 'pricing_home')">
-          Get Started
-        </a>
-      </div>
-
-      <!-- Pro -->
-      <div class="pricing-card-home pro highlight">
-        <div class="badge">Pro</div>
-        <div class="pricing-card-header">
-          <h3>Pro</h3>
-          <p>Unlimited specifications</p>
-        </div>
-        <div class="pricing-card-price">
-          <span class="currency">$</span>
-          <span class="amount">1.99</span>
-          <span class="period">/month</span>
-        </div>
-        <div class="pricing-card-features">
-          <ul>
-            <li><i class="fa fa-check"></i> Unlimited specs</li>
-            <li><i class="fa fa-check"></i> Edit all specs</li>
-            <li><i class="fa fa-check"></i> Mockups &amp; advanced tools</li>
-          </ul>
-        </div>
-        <a href="/pages/pricing.html" class="pricing-btn highlight-btn" onclick="trackCTA('View Pro Plan', 'pricing_home')">
-          Subscribe
-        </a>
-      </div>
-
-    </div>
-    <p class="pricing-footer">Start for free • No credit card required</p>
-  </div>
-
-  <!-- FAQ Section -->
-  <div class="section" style="--section-index: 1;">
     <h2>Got Questions? We Got You!</h2>
-    <p>Everything you need to know about Specifys.ai!</p>
+    <p>Everything you need to know about Specifys.ai.</p>
     <div class="faq-list">
       <div class="faq-item">
         <div class="faq-question">
           What's Specifys.ai all about? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Specifys.ai is a complete AI-powered app planning ecosystem designed to revolutionize how you build applications. Our platform helps you create comprehensive specifications, discover the perfect development tools, manage your projects efficiently, and collaborate with your team seamlessly. Whether you're a solo developer, a startup founder, or part of a larger team, Specifys.ai provides everything you need to plan, organize, and execute your app development journey from concept to completion.
+          Specifys.ai is an AI-powered app planning platform. You answer a short brief and get a complete specification — PRD, user stories, architecture, design direction, and IDE-ready prompts — before anyone writes code.
         </div>
       </div>
       <div class="faq-item">
@@ -853,7 +789,7 @@ graph TD
           Is there a free plan? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Absolutely! We believe everyone should have the opportunity to experience the power of proper app planning. That's why we offer one complete specification completely free - no credit card required, no hidden fees, no strings attached. This gives you full access to test our platform and see how it can transform your development workflow. Once you've tried it and love it, upgrade to Pro for just $1.99/month for unlimited specifications and advanced features.
+          Yes. Your first complete app spec is free — no credit card required. Upgrade anytime for more specs and advanced features.
         </div>
       </div>
       <div class="faq-item">
@@ -861,44 +797,31 @@ graph TD
           Can I edit my specifications? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Yes, editing capabilities depend on your plan. Pro subscribers enjoy unlimited editing access to all their specifications, allowing them to refine, update, and perfect their plans as their projects evolve. If you're using purchased credits, you can edit any specifications you've saved, giving you flexibility to iterate and improve your plans. This ensures your specifications stay current and accurate throughout your entire development process.
+          Yes. Pro subscribers get unlimited editing. With purchased credits, you can edit any specs you have saved so plans stay current as the project evolves.
         </div>
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          What is the Vibe Coding Tools Map? <i class="fa fa-chevron-down"></i>
+          Can I use my spec in Cursor or other IDEs? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          The Vibe Coding Tools Map is our carefully curated and comprehensive collection of AI-driven development tools, meticulously organized by category to help you find exactly what you need. Whether you're looking for code generators, design assistants, testing frameworks, or deployment tools, our map provides detailed information, comparisons, and recommendations. It's constantly updated with the latest tools and technologies, ensuring you always have access to the most current and effective solutions for your development needs.
+          Yes. Export structured packages for Cursor and Windsurf, or <a href="{{ '/pages/mcp.html' | relative_url }}">connect via MCP</a> so your IDE pulls context from the live spec.
         </div>
       </div>
-      <div class="faq-item">
-        <div class="faq-question">
-          How does the Tool Finder work? <i class="fa fa-chevron-down"></i>
-        </div>
-        <div class="faq-answer">
-          Our intelligent Tool Finder uses advanced AI algorithms to analyze your specific project requirements, technology stack, team size, and development goals. Based on this comprehensive analysis, it suggests the most suitable tools from our extensive database, ranked by relevance and compatibility with your needs. The system learns from your preferences and project history, continuously improving its recommendations to help you discover tools that will truly enhance your development workflow and productivity.
-        </div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-question">
-          Can I export my specifications to Cursor and Windsurf? <i class="fa fa-chevron-down"></i>
-        </div>
-        <div class="faq-answer">
-          Yes! We offer seamless <strong>Cursor integration</strong> and <strong>Windsurf integration</strong>. Export your specifications as a structured ZIP package that includes pre-configured <strong>.cursorrules</strong> and <strong>.windsurf/info.md</strong> files. Simply extract the ZIP to your project directory, and Cursor or Windsurf will automatically detect and use these files to provide context-aware AI assistance. <a href="/pages/cursor-windsurf-integration.html" style="color: #FF6B35; text-decoration: underline; font-weight: 600;">Learn more about Cursor & Windsurf Integration</a>.
-        </div>
-      </div>
-    </div>
-    <div style="text-align: center; margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
-      <p style="margin-bottom: 1rem; font-size: 1.1rem; color: #333;">
-        <strong>New:</strong> Export your specifications directly to <strong>Cursor</strong> and <strong>Windsurf</strong> AI editors!
-      </p>
-      <a href="/pages/cursor-windsurf-integration.html" class="btn btn-primary" style="text-decoration: none; display: inline-block;" aria-label="Learn about Cursor and Windsurf Integration">
-        Learn About Cursor & Windsurf Integration
-      </a>
     </div>
   </div>
 </div>
+
+<!-- 6. Final CTA -->
+<section class="final-cta" aria-labelledby="final-cta-title">
+    <div class="final-cta-inner">
+        <h2 id="final-cta-title" class="final-cta-title">Ready to plan before you code?</h2>
+        <p class="final-cta-subtitle">Your first app spec is on us.</p>
+        <button type="button" class="hero-cta-button-new final-cta-button" id="finalStartButton" aria-label="Start free">
+            <span class="hero-cta-label">Start free</span>
+        </button>
+    </div>
+</section>
 
 <!-- Modals -->
 <!-- Registration Required Modal -->

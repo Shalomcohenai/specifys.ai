@@ -317,17 +317,29 @@ function isUserAuthenticated() {
 // ===== START BUTTON HANDLER =====
 function handleStartButtonClick() {
   trackStartNowClick();
-  
-  // Check if user is authenticated
+
+  // Value-first: guests can start the brief; account is required only when generating
   if (!isUserAuthenticated()) {
-    // Show alert and redirect to auth page
-    alert('You must be logged in to create a specification. Please sign in or register first.');
-    window.location.href = '/pages/auth.html';
-    return;
+    try {
+      localStorage.setItem('guestBriefStarted', '1');
+      localStorage.setItem('guestBriefStartedAt', String(Date.now()));
+    } catch (_) { /* ignore */ }
   }
-  
-  // Show planning interface
-  showPlanningInterface();
+
+  var startBtn = document.getElementById('startButton');
+  if (startBtn) startBtn.disabled = true;
+
+  var ensureLibs = (typeof window.__specifysEnsureIdleScripts === 'function')
+    ? window.__specifysEnsureIdleScripts()
+    : Promise.resolve();
+
+  Promise.resolve(ensureLibs).then(function () {
+    showPlanningInterface();
+  }).catch(function () {
+    showPlanningInterface();
+  }).finally(function () {
+    if (startBtn) startBtn.disabled = false;
+  });
 }
 
 // ===== PLANNING INTERFACE =====
@@ -387,16 +399,32 @@ window.generateSpecFromPlanning = function() {
   }
 }
 
+// ===== TEMPLATE PREFILLS (Example Specs) =====
+function getTemplatePrefillAnswers() {
+  if (window.SpecifysExampleTemplates && typeof window.SpecifysExampleTemplates.loadTemplateIntent === 'function') {
+    const intent = window.SpecifysExampleTemplates.loadTemplateIntent();
+    if (intent && Array.isArray(intent.answers) && intent.answers.length > 0) {
+      return intent.answers.slice();
+    }
+  }
+  return null;
+}
+
 // ===== APP PLANNING FLOW =====
 function proceedWithAppPlanning() {
+  const prefilledAnswers = getTemplatePrefillAnswers();
   // Use new Question Flow Controller
   if (window.questionFlowController) {
-    window.questionFlowController.start('typing');
+    window.questionFlowController.start('typing', prefilledAnswers);
   } else {
     // Fallback to old implementation
     const heroContent = document.getElementById('heroContent');
     const heroTitle = document.querySelector('.hero-main-title');
     const heroSubtitle = document.querySelector('.hero-subtitle');
+    if (prefilledAnswers && typeof showModernInput === 'function') {
+      showModernInput(prefilledAnswers);
+      return;
+    }
     const heroButtonContainer = document.querySelector('.hero-button-container');
     
     if (heroContent) heroContent.classList.add('fade-out');
@@ -1167,7 +1195,32 @@ async function generateSpecification() {
       if (generateButton) {
         setButtonLoading(generateButton, false);
       }
-      showRegistrationModal();
+      // Persist draft so signup → return continues value-first flow
+      try {
+        if (window.planningData || window.planningText) {
+          localStorage.setItem('pendingGuestBrief', JSON.stringify({
+            planningData: window.planningData || null,
+            planningText: window.planningText || null,
+            savedAt: Date.now()
+          }));
+        }
+      } catch (_) { /* ignore */ }
+      const next = encodeURIComponent('/?resumeBrief=1');
+      if (typeof showRegistrationModal === 'function') {
+        showRegistrationModal();
+        // Soft nudge: also point login CTA toward auth with return path
+        const authLinks = document.querySelectorAll('#registrationModal a[href*="auth"], a.auth-link');
+        authLinks.forEach((a) => {
+          try {
+            const url = new URL(a.href, window.location.origin);
+            url.searchParams.set('next', '/?resumeBrief=1');
+            url.searchParams.set('redirect', 'profile');
+            a.href = url.pathname + url.search;
+          } catch (_) { /* ignore */ }
+        });
+      } else {
+        window.location.href = `/pages/auth.html?next=${next}&redirect=profile`;
+      }
       return;
     }
     
@@ -1189,16 +1242,20 @@ async function generateSpecification() {
         }
         const paywallPayload = entitlementCheck.paywallData || {
           reason: 'insufficient_credits',
-          message: 'You have no remaining spec credits'
+          message: 'Your free credit is used up. Upgrade to Pro to keep building.'
         };
-        try {
-          const searchParams = new URLSearchParams({
-            reason: paywallPayload.reason || 'insufficient_credits',
-            message: paywallPayload.message || 'You have no remaining spec credits'
-          });
-          window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
-        } catch (redirectError) {
-          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
+        if (typeof window.showPaywall === 'function') {
+          window.showPaywall(paywallPayload);
+        } else {
+          try {
+            const searchParams = new URLSearchParams({
+              reason: paywallPayload.reason || 'insufficient_credits',
+              message: paywallPayload.message || 'Your free credit is used up'
+            });
+            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          } catch (redirectError) {
+            alert(paywallPayload.message || 'Subscribe to Pro for unlimited specifications.');
+          }
         }
         return;
       }
@@ -1320,16 +1377,20 @@ async function generateSpecification() {
           
           const paywallPayload = {
             reason: 'insufficient_credits',
-            message: userMessage
+            message: userMessage || 'Your free credit is used up. Upgrade to Pro to unlock Database Design, Export to Cursor, Unlimited Specs, AI Review, and Team Collaboration.'
           };
-          try {
-            const searchParams = new URLSearchParams({
-              reason: paywallPayload.reason || 'insufficient_credits',
-              message: paywallPayload.message || 'You have no remaining spec credits'
-            });
-            window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
-          } catch (redirectError) {
-            alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
+          if (typeof window.showPaywall === 'function') {
+            window.showPaywall(paywallPayload);
+          } else {
+            try {
+              const searchParams = new URLSearchParams({
+                reason: paywallPayload.reason || 'insufficient_credits',
+                message: paywallPayload.message
+              });
+              window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+            } catch (redirectError) {
+              alert(paywallPayload.message);
+            }
           }
           return;
         }
@@ -1561,7 +1622,8 @@ async function generateSpecification() {
       }
       
       // Redirect to spec viewer immediately - listener will update when ready
-      window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
+      // welcome=1 triggers the first-visit spotlight tour once
+      window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
       return; // Exit early - queue will handle the rest
     }
     
@@ -1627,7 +1689,8 @@ async function generateSpecification() {
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
     
     // Redirect to spec viewer immediately with Firebase ID
-    window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
+    // welcome=1 triggers the first-visit spotlight tour once
+    window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
     
   } catch (error) {
     // Reset button loading state
@@ -1793,22 +1856,98 @@ async function triggerOpenAIUpload(specId) {
 function checkAutoStart() {
   const urlParams = new URLSearchParams(window.location.search);
   const autoStart = urlParams.get('autoStart');
-  
+  const templateId = urlParams.get('template');
+
+  if (templateId && window.SpecifysExampleTemplates) {
+    window.SpecifysExampleTemplates.saveTemplateIntent(templateId);
+  }
+
   if (autoStart === 'true') {
-    // Remove the query parameter from URL for cleaner navigation
-    window.history.replaceState({}, '', window.location.pathname);
-    
-    // Check if user is authenticated before auto-starting
-    if (isUserAuthenticated()) {
-      // Small delay to ensure page is fully loaded
-      setTimeout(() => {
-        proceedWithAppPlanning();
-      }, 500);
-    } else {
-      // Redirect to auth if not authenticated
-      window.location.href = '/pages/auth.html?redirect=profile';
+    try {
+      sessionStorage.setItem('specifys_auto_start', '1');
+    } catch (e) {
+      /* ignore */
     }
   }
+
+  if (autoStart === 'true' || templateId) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  function tryAutoStartPlanning() {
+    let shouldStart = false;
+    try {
+      shouldStart = sessionStorage.getItem('specifys_auto_start') === '1';
+    } catch (e) {
+      shouldStart = false;
+    }
+    if (!shouldStart) return;
+
+    if (!isUserAuthenticated()) {
+      const redirect = '/?autoStart=true' + (templateId ? '&template=' + encodeURIComponent(templateId) : '');
+      window.location.href = '/pages/auth.html?redirect=' + encodeURIComponent(redirect);
+      return;
+    }
+
+    try {
+      sessionStorage.removeItem('specifys_auto_start');
+    } catch (e) {
+      /* ignore */
+    }
+    setTimeout(() => {
+      proceedWithAppPlanning();
+    }, 500);
+  }
+
+  if (autoStart === 'true') {
+    tryAutoStartPlanning();
+    return;
+  }
+
+  // Resume after returning from auth (session flag left behind)
+  try {
+    if (sessionStorage.getItem('specifys_auto_start') === '1') {
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged(function (user) {
+          if (user) tryAutoStartPlanning();
+        });
+      } else {
+        tryAutoStartPlanning();
+      }
+    }
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+// ===== GUEST BRIEF RESUME (Sprint B — auth friction) =====
+function resumeGuestBriefIfNeeded() {
+  let shouldResume = false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    shouldResume = params.get('resumeBrief') === '1' || localStorage.getItem('guestBriefStarted') === '1';
+    const raw = localStorage.getItem('pendingGuestBrief');
+    if (raw) {
+      const draft = JSON.parse(raw);
+      if (draft && (draft.planningData || draft.planningText)) {
+        window.planningData = draft.planningData;
+        window.planningText = draft.planningText;
+        shouldResume = true;
+      }
+    }
+  } catch (_) { /* ignore */ }
+
+  if (!shouldResume) return;
+
+  showPlanningInterface();
+
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('resumeBrief')) {
+      url.searchParams.delete('resumeBrief');
+      window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
+    }
+  } catch (_) { /* ignore */ }
 }
 
 // ===== CREDIT INITIALIZATION LOADING =====
@@ -1901,7 +2040,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 1000); // Reduced from 3s to 1s for faster popup display
   setupModernInput();
   checkAutoStart();
-  
+  resumeGuestBriefIfNeeded();
+
   // Initialize Live Brief Modal (after DOM is ready)
   // Wait a bit to ensure all scripts are loaded
   setTimeout(() => {
@@ -1917,6 +2057,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const startButton = document.getElementById('startButton');
   if (startButton) {
     startButton.addEventListener('click', handleStartButtonClick);
+  }
+  const finalStartButton = document.getElementById('finalStartButton');
+  if (finalStartButton) {
+    finalStartButton.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      handleStartButtonClick();
+    });
   }
   
   // Function to switch to voice mode
@@ -2207,19 +2354,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Fade in subtext after buttons appear
-        const subtext = document.querySelector('.start-now-subtext');
+        const subtext = document.querySelector('.start-now-subtext, .hero-value-subtext');
         if (subtext) {
           setTimeout(() => {
             subtext.classList.add('visible');
           }, 300); // Appears 300ms after buttons
-        }
-        
-        // Fade in MCP teaser after subtext (part of same sequence)
-        const mcpTeaser = document.querySelector('.hero-mcp-teaser');
-        if (mcpTeaser) {
-          setTimeout(() => {
-            mcpTeaser.classList.add('visible');
-          }, 500); // Appears 500ms after buttons (200ms after subtext)
         }
         
         // Fade in browser window after Start button appears
@@ -2432,7 +2571,7 @@ function triggerPlatformHint() {
         content.classList.add('active');
         
         // Render Mermaid diagrams if diagrams tab is active
-        if (currentTab === 'diagrams' && typeof mermaid !== 'undefined') {
+        if (currentTab === 'diagrams') {
           setTimeout(() => {
             renderBrowserDiagrams();
           }, 300);
@@ -2444,57 +2583,60 @@ function triggerPlatformHint() {
   }
   
   function renderBrowserDiagrams() {
-    if (typeof mermaid === 'undefined') {
-      return;
-    }
-    
-    try {
-      const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
-      if (!diagramsContainer) return;
-      
-      const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
-        return !el.querySelector('svg');
-      });
-      if (mermaidElements.length === 0) return;
+    var ensure = (typeof window.__specifysEnsureMermaid === 'function')
+      ? window.__specifysEnsureMermaid()
+      : Promise.resolve(typeof mermaid !== 'undefined' ? mermaid : null);
 
-      if (typeof window.sanitizeMermaidSource === 'function') {
-        mermaidElements.forEach(function (el) {
-          var t = el.textContent || '';
-          var c = window.sanitizeMermaidSource(t);
-          if (c) {
-            el.textContent = c;
-          }
-        });
-      }
+    Promise.resolve(ensure).then(function (m) {
+      if (!m && typeof mermaid !== 'undefined') m = mermaid;
+      if (!m) return;
 
-      // Initialize Mermaid if not already initialized
-      if (!window.mermaidInitialized) {
-        mermaid.initialize({ 
-          startOnLoad: false,
-          theme: 'default',
-          themeVariables: {
-            primaryColor: '#FF6B35',
-            primaryTextColor: '#333',
-            primaryBorderColor: '#FF6B35',
-            lineColor: '#333',
-            secondaryColor: '#f5f5f5',
-            tertiaryColor: '#fff'
-          }
+      try {
+        const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
+        if (!diagramsContainer) return;
+        
+        const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
+          return !el.querySelector('svg');
         });
-        window.mermaidInitialized = true;
+        if (mermaidElements.length === 0) return;
+
+        if (typeof window.sanitizeMermaidSource === 'function') {
+          mermaidElements.forEach(function (el) {
+            var t = el.textContent || '';
+            var c = window.sanitizeMermaidSource(t);
+            if (c) {
+              el.textContent = c;
+            }
+          });
+        }
+
+        if (!window.mermaidInitialized) {
+          m.initialize({ 
+            startOnLoad: false,
+            theme: 'default',
+            themeVariables: {
+              primaryColor: '#FF6B35',
+              primaryTextColor: '#333',
+              primaryBorderColor: '#FF6B35',
+              lineColor: '#333',
+              secondaryColor: '#f5f5f5',
+              tertiaryColor: '#fff'
+            }
+          });
+          window.mermaidInitialized = true;
+        }
+        
+        if (m.run) {
+          Promise.resolve(m.run({
+            nodes: mermaidElements
+          })).catch(function () {});
+        } else if (m.contentLoaded) {
+          m.contentLoaded();
+        }
+      } catch (error) {
+        // Error rendering browser diagrams
       }
-      
-      // Render diagrams (use explicit nodes — avoids :has() in querySelector, unsupported in some browsers)
-      if (mermaid.run) {
-        Promise.resolve(mermaid.run({
-          nodes: mermaidElements
-        })).catch(function () {});
-      } else if (mermaid.contentLoaded) {
-        mermaid.contentLoaded();
-      }
-    } catch (error) {
-      // Error rendering browser diagrams
-    }
+    }).catch(function () {});
   }
 
   function nextTab() {

@@ -1,0 +1,610 @@
+/* ============================================
+   Homepage value communication
+   Value / How it works / Examples / MCP / CTA
+   ============================================ */
+
+/* ----- Audience picker (hero — dark bg, subordinate to H1) ----- */
+.audience-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  max-width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.audience-picker--hero {
+  background: transparent;
+  border: none;
+}
+
+.audience-picker-label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+  line-height: 1;
+}
+
+.audience-picker-options {
+  display: inline-grid;
+  grid-template-columns: repeat(4, auto);
+  align-items: stretch;
+  gap: 0;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.audience-picker-btn {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.audience-picker-btn-short {
+  display: none;
+}
+
+.audience-picker-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.audience-picker-btn.is-active {
+  background: #fff;
+  color: #333;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.audience-picker-btn:focus-visible {
+  outline: 2px solid rgba(255, 107, 53, 0.9);
+  outline-offset: 2px;
+}
+
+/* Keep hero description tight under the picker */
+.hero-content > .audience-picker + .hero-description {
+  margin-top: 0;
+  margin-bottom: 1.75rem;
+}
+
+.hero-content > .audience-picker + .hero-description .hero-tagline {
+  margin-bottom: 0;
+}
+
+/* ----- Hero CTA pair (Start free + See example) ----- */
+.hero-cta-button-secondary.hero-cta-see-example {
+  text-decoration: none;
+}
+
+/* ----- Value sections shared ----- */
+.value-section {
+  padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
+  background: var(--bg-secondary, #f5f5f5);
+  position: relative;
+  z-index: 2;
+}
+
+.value-section--alt {
+  background: var(--bg-primary, #ffffff);
+}
+
+.value-section-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.value-section-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--text-color, #333);
+  text-align: center;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.value-section-subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  color: var(--text-secondary, #666);
+  text-align: center;
+  margin: 0 auto 2rem;
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+/* ----- Before / After ----- */
+.before-after-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.before-after-card {
+  border-radius: 12px;
+  padding: 1.5rem 1.35rem;
+  border: 1px solid var(--border-light, #e9ecef);
+  background: var(--bg-primary, #ffffff);
+}
+
+.before-after-card--before {
+  background: #fafafa;
+  border-color: #e5e7eb;
+}
+
+.before-after-card--after {
+  background: var(--primary-light, #FFF4F0);
+  border-color: rgba(255, 107, 53, 0.25);
+}
+
+.before-after-eyebrow {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  color: var(--text-muted, #999);
+}
+
+.before-after-card--after .before-after-eyebrow {
+  color: var(--primary-color, #FF6B35);
+}
+
+.before-after-heading {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--text-color, #333);
+}
+
+.before-after-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.before-after-list li {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-secondary, #666);
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.before-after-card--before .before-after-list li::before {
+  content: "×";
+  position: absolute;
+  left: 0;
+  color: #b45353;
+  font-weight: 700;
+}
+
+.before-after-card--after .before-after-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #FF6B35);
+  font-weight: 700;
+}
+
+/* ----- Merged proof + ROI numbers row ----- */
+.value-numbers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 1.25rem 0.5rem 0;
+  border-top: 1px solid var(--border-light, #e9ecef);
+}
+
+.value-number {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.value-number-value {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  color: var(--primary-color, #FF6B35);
+  line-height: 1.2;
+  margin: 0 0 0.25rem;
+}
+
+.value-number-label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* ----- How it works (3 steps) ----- */
+.how-works-section {
+  padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
+  background: var(--bg-primary, #ffffff);
+  position: relative;
+  z-index: 2;
+}
+
+.how-works-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.how-works-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.how-works-step {
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+}
+
+.how-works-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--primary-color, #FF6B35);
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.how-works-step-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin: 0 0 0.5rem;
+}
+
+.how-works-step-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+/* ----- Example Specs ----- */
+#example-specs .value-section-inner {
+  max-width: 1180px;
+}
+
+.example-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.example-spec-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 1.25rem 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.example-spec-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color, #FF6B35), #FF8551);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.example-spec-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 107, 53, 0.35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+}
+
+.example-spec-card:hover::before {
+  opacity: 1;
+}
+
+.example-spec-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #FFF4F0 0%, #FFE8DE 100%);
+  color: var(--primary-color, #FF6B35);
+  margin-bottom: 0.95rem;
+  font-size: 1.15rem;
+  transition: transform 0.25s ease;
+}
+
+.example-spec-card:hover .example-spec-icon {
+  transform: scale(1.06);
+}
+
+.example-spec-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.example-spec-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.45;
+  margin: 0 0 1.1rem;
+  flex: 1;
+}
+
+.example-spec-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: auto;
+}
+
+.example-spec-actions a {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 0.65rem;
+  border-radius: 7px;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.example-spec-btn-primary {
+  background: var(--primary-color, #FF6B35);
+  color: #fff;
+  border: 1px solid var(--primary-color, #FF6B35);
+}
+
+.example-spec-btn-primary:hover {
+  background: var(--primary-hover, #FF8551);
+  border-color: var(--primary-hover, #FF8551);
+  color: #fff;
+  text-decoration: none;
+}
+
+.example-spec-btn-secondary {
+  background: transparent;
+  color: var(--text-color, #333);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.example-spec-btn-secondary:hover {
+  background: var(--primary-light, #FFF4F0);
+  border-color: rgba(255, 107, 53, 0.35);
+  color: var(--primary-color, #FF6B35);
+  text-decoration: none;
+}
+
+.example-specs-footer {
+  text-align: center;
+  margin-top: 1.75rem;
+}
+
+.example-specs-footer a {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: var(--primary-color, #FF6B35);
+  text-decoration: none;
+}
+
+.example-specs-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ----- MCP bridge ----- */
+.mcp-bridge {
+  padding: 1.75rem 1.25rem;
+  background: var(--bg-secondary, #f5f5f5);
+  border-top: 1px solid var(--border-light, #e9ecef);
+  border-bottom: 1px solid var(--border-light, #e9ecef);
+}
+
+.mcp-bridge-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.mcp-bridge-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mcp-bridge-text a {
+  color: var(--primary-color, #FF6B35);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mcp-bridge-text a:hover {
+  text-decoration: underline;
+}
+
+/* ----- Quiet SEO intro ----- */
+.home-seo-intro {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 0.5rem;
+  text-align: center;
+}
+
+.home-seo-intro p {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+/* ----- Final CTA (compact — hugs copy) ----- */
+.final-cta {
+  padding: 1.75rem 1.25rem;
+  background: transparent;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.final-cta-inner {
+  width: fit-content;
+  max-width: min(420px, 100%);
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  background: #333;
+  border-radius: 12px;
+}
+
+.final-cta-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.final-cta-subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 0.85rem;
+  line-height: 1.4;
+}
+
+.final-cta-button {
+  margin: 0 auto;
+  min-height: auto;
+  min-width: auto;
+  height: auto;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 1100px) {
+  .example-specs-grid {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .example-spec-card {
+    flex: 0 0 min(220px, 72vw);
+    scroll-snap-align: start;
+  }
+
+  .value-numbers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .before-after-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .how-works-steps {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .value-numbers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .audience-picker {
+    margin-bottom: 1rem;
+    gap: 0.45rem;
+    padding: 0 0.75rem;
+  }
+
+  .audience-picker-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(100%, 420px);
+    border-radius: 12px;
+  }
+
+  .audience-picker-btn {
+    font-size: 0.72rem;
+    padding: 0.45rem 0.35rem;
+    border-radius: 9px;
+  }
+
+  .audience-picker-btn-long {
+    display: none;
+  }
+
+  .audience-picker-btn-short {
+    display: inline;
+  }
+}
+
+@media (max-width: 480px) {
+  .value-number-value {
+    font-size: 1.25rem;
+  }
+}

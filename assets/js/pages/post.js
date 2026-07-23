@@ -3,6 +3,22 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   
+  // ===== LCP: lazy-load below-the-fold images =====
+  (function optimizePostImages() {
+    const postBody = document.getElementById('post-body');
+    if (!postBody) return;
+    const imgs = postBody.querySelectorAll('img');
+    imgs.forEach(function (img, index) {
+      if (index === 0) {
+        if (!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', 'high');
+        if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+      } else {
+        if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+        if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+      }
+    });
+  })();
+
   // ===== Calculate and Display Reading Time =====
   function calculateReadingTime() {
     const postBody = document.getElementById('post-body');
@@ -231,13 +247,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       .toc-h3 {
-        padding-left: calc(var(--spacing-md) + var(--spacing-sm)) !important;
-        font-size: 0.85rem !important;
-        color: var(--text-muted) !important;
+        padding-left: calc(var(--spacing-md) + var(--spacing-sm));
+        font-size: 0.85rem;
+        color: var(--text-muted);
       }
       
       .toc-h3:hover {
-        padding-left: calc(var(--spacing-lg) + var(--spacing-sm)) !important;
+        padding-left: calc(var(--spacing-lg) + var(--spacing-sm));
       }
     `;
     document.head.appendChild(style);
@@ -247,9 +263,16 @@ document.addEventListener('DOMContentLoaded', function() {
   function enhanceImages() {
     const images = document.querySelectorAll('.post-body img');
     
-    images.forEach(img => {
-      // Add loading attribute for lazy loading
-      img.loading = 'lazy';
+    images.forEach((img, index) => {
+      // First in-article image is the LCP candidate — eager + high priority
+      if (index === 0) {
+        img.loading = 'eager';
+        img.fetchPriority = 'high';
+        img.decoding = 'async';
+      } else {
+        img.loading = 'lazy';
+        img.decoding = 'async';
+      }
       
       // Add alt text if missing
       if (!img.alt) {

@@ -33,6 +33,8 @@ let dailyReportInterval = null;
 let weeklyReportInterval = null;
 let pipelineCanaryTimeout = null;
 let pipelineCanaryInterval = null;
+let lifecycleActivationTimeout = null;
+let lifecycleActivationInterval = null;
 
 /**
  * Start all scheduled jobs
@@ -62,6 +64,17 @@ function startScheduledJobs() {
 
   // Pipeline canary (optional — expensive full spec generation)
   startPipelineCanaryScheduledJob();
+
+  // Sprint B: unfinished / overview-stuck lifecycle emails
+  startLifecycleActivationEmailJob();
+
+  // Register product-side lifecycle listeners (prompts-ready → MCP email)
+  try {
+    const { registerLifecycleEmailListeners } = require('./lifecycle-email-hooks');
+    registerLifecycleEmailListeners();
+  } catch (err) {
+    logger.warn({ error: err.message }, '[scheduled-jobs] Failed to register lifecycle email listeners');
+  }
 
   logger.info('[scheduled-jobs] All scheduled jobs started');
 }
@@ -119,6 +132,15 @@ function stopScheduledJobs() {
   if (pipelineCanaryInterval) {
     clearInterval(pipelineCanaryInterval);
     pipelineCanaryInterval = null;
+  }
+
+  if (lifecycleActivationTimeout) {
+    clearTimeout(lifecycleActivationTimeout);
+    lifecycleActivationTimeout = null;
+  }
+  if (lifecycleActivationInterval) {
+    clearInterval(lifecycleActivationInterval);
+    lifecycleActivationInterval = null;
   }
 
   logger.info('[scheduled-jobs] All scheduled jobs stopped');
@@ -947,6 +969,42 @@ function startPipelineCanaryScheduledJob() {
   }, '[scheduled-jobs] Pipeline canary job scheduled');
 }
 
+/**
+ * Sprint B lifecycle emails: unfinished specs + overview-stuck (~24h).
+ * Enable by default; disable with LIFECYCLE_EMAILS_ENABLED=false.
+ */
+function startLifecycleActivationEmailJob() {
+  if (process.env.LIFECYCLE_EMAILS_ENABLED === 'false') {
+    logger.info('[scheduled-jobs] Lifecycle activation email job disabled via LIFECYCLE_EMAILS_ENABLED=false');
+    return;
+  }
+
+  const { runLifecycleActivationEmailJob } = require('./lifecycle-email-hooks');
+  const hours24 = 24 * 60 * 60 * 1000;
+  const timezone = process.env.REPORT_TIMEZONE || 'UTC';
+  const hour = parseInt(process.env.LIFECYCLE_EMAIL_HOUR || '10', 10);
+  const nextRun = getNextScheduledTime(Number.isFinite(hour) ? hour : 10, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - Date.now());
+
+  lifecycleActivationTimeout = setTimeout(() => {
+    runLifecycleActivationEmailJob().catch((err) => {
+      logger.error({ error: err.message }, '[scheduled-jobs] Lifecycle activation email job failed');
+    });
+    lifecycleActivationInterval = setInterval(() => {
+      runLifecycleActivationEmailJob().catch((err) => {
+        logger.error({ error: err.message }, '[scheduled-jobs] Lifecycle activation email job failed');
+      });
+    }, hours24);
+  }, msUntilNext);
+
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    hour: Number.isFinite(hour) ? hour : 10,
+    timezone,
+    msUntilNext
+  }, '[scheduled-jobs] Lifecycle activation email job scheduled');
+}
+
 module.exports = {
   startScheduledJobs,
   stopScheduledJobs,
@@ -962,6 +1020,7 @@ module.exports = {
   runWeeklyReportJob,
   getNextScheduledTime,
   runPipelineCanaryAndCleanup,
-  startPipelineCanaryScheduledJob
+  startPipelineCanaryScheduledJob,
+  startLifecycleActivationEmailJob
 };
 

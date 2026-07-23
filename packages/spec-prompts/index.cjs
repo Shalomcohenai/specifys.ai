@@ -22,6 +22,21 @@ function formatUserRequirements(answers) {
   return lines.join('\n\n');
 }
 
+/**
+ * Strict Mermaid rules block shared across stages that emit diagrams.
+ * Mirrors mermaid-validator expectations (Mermaid 10 / mermaid.parse).
+ */
+const MERMAID_RULES_BLOCK = `MERMAID DIAGRAM RULES (strict — apply to every *Mermaid field):
+- Output RAW Mermaid only. No \`\`\`mermaid fences, no surrounding prose, no comments outside the diagram.
+- The first non-empty line MUST be a directive: flowchart TD/LR, graph TD/LR, erDiagram, sequenceDiagram, classDiagram, stateDiagram-v2, mindmap, pie, gantt, journey.
+- Node IDs: ASCII letters, digits and underscore only. NO spaces, dots, hyphens, parentheses, slashes or non-ASCII characters in IDs.
+- Labels with spaces or punctuation MUST be quoted: A["Login Page"]-->B["Dashboard"]. Never write A[Login Page] -- mermaid will reject it.
+- No emoji, no smart quotes (use straight " and '), no HTML other than <br> inside labels.
+- Edges: --> for solid, --- for plain, ==> for thick. Sequence arrows: ->>, -->>, ->, -->.
+- erDiagram: keep cardinality tokens exact (||--o{, }o--||, |o--o|). Each entity body uses { } on its own lines.
+- Keep diagrams under ~25 nodes; collapse detail into sub-systems if needed.
+- Never repeat the same edge twice; never reference an undefined node ID.`;
+
 const PROMPTS = {
   // Overview prompt - generates general app information
   overview: (answers) => {
@@ -122,7 +137,10 @@ Create a comprehensive and detailed overview based on the user input. Follow the
         {
           "name": "Screen Name (e.g., Home Screen, Dashboard)",
           "description": "Detailed description of the screen's purpose, key elements, and user interactions",
-          "uiComponents": ["Component 1: Purpose, placement, behavior", "Component 2: Purpose, placement, behavior"]
+          "uiComponents": ["Component 1: Purpose, placement, behavior", "Component 2: Purpose, placement, behavior"],
+          "emptyState": "What the user sees when there is no data yet (null if not applicable)",
+          "errorState": "What the user sees when this screen fails to load or an action fails (null if not applicable)",
+          "edgeCases": ["Edge case 1", "Edge case 2"]
         }
       ],
       "navigationStructure": "Detailed navigation flow including: main navigation paths, side navigation, bottom navigation, modal flows, deep linking structure, and key transition points between screens"
@@ -141,7 +159,46 @@ Create a comprehensive and detailed overview based on the user input. Follow the
       "toInclude": [],
       "notToInclude": ["Optional feature with brief description", "Another optional feature to consider"]
     },
-    "inferredItems": ["Short description of each inferred screen/feature/step/integration added because user did not provide it — empty array if none"]
+    "inferredItems": ["Short description of each inferred screen/feature/step/integration added because user did not provide it — empty array if none"],
+    "personas": [
+      {
+        "name": "Persona name",
+        "role": "Job/role relative to the product",
+        "goals": ["Goal 1", "Goal 2"],
+        "pains": ["Pain 1", "Pain 2"],
+        "jtbd": "When [situation], I want to [motivation], so I can [outcome]"
+      }
+    ],
+    "epics": [
+      {
+        "name": "Epic name",
+        "description": "What this epic delivers",
+        "stories": [
+          {
+            "title": "Story title",
+            "description": "As a [persona], I want [capability] so that [benefit]",
+            "acceptanceCriteria": ["Given/When/Then or checklist AC 1", "AC 2"]
+          }
+        ]
+      }
+    ],
+    "nonGoals": ["Explicitly out of scope for v1 — what we will NOT build"],
+    "successMetrics": {
+      "northStar": "Single primary success metric for the product",
+      "leading": ["Leading indicator 1", "Leading indicator 2"]
+    },
+    "permissionsMatrix": [
+      {
+        "role": "Role name (e.g., Owner, Member, Viewer)",
+        "permissions": ["permission.action", "another.permission"]
+      }
+    ],
+    "glossary": [
+      {
+        "term": "Domain term",
+        "definition": "Plain-language definition specific to this product"
+      }
+    ]
   }
 }
 
@@ -154,12 +211,13 @@ IMPORTANT DETAILED REQUIREMENTS:
 - targetAudience.interests should be 5-7 detailed interests or professional activities
 - targetAudience.needs should be 5-7 specific needs with explanations
 - valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
-- coreFeaturesOverview: include ALL user-provided features with brief descriptions; add [INFERRED] features only when needed for coherence (no fixed minimum count)
+- coreFeaturesOverview: REQUIRED non-empty array of 4–8 feature strings with brief descriptions. NEVER return []. Include ALL user-provided features; add [INFERRED] features only when needed for coherence. Prefer populating this field over epics alone — epics complement features, they do not replace them.
 - userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
-- detailedUserFlow.steps should include specific user actions and system responses. These steps will be displayed as a visual flow diagram with boxes and arrows, so keep each step concise and clear (1-2 sentences max per step)
-- screenDescriptions.screens MUST be an array of objects, each with: name, description, and uiComponents array
+- detailedUserFlow.steps: REQUIRED non-empty array of at least 3 concise steps (1-2 sentences each). NEVER return []. These steps display as a visual journey rail.
+- screenDescriptions.screens MUST be a REQUIRED non-empty array of at least 3 screen objects (NEVER []). Each object: name, description, uiComponents array, emptyState (string|null), errorState (string|null), edgeCases (array|null)
 - Each screen object MUST include at least 2-3 uiComponents specific to that screen
-- screenDescriptions.screens: include ALL user-provided pages; add [INFERRED] screens only when needed for navigation coherence (no fixed minimum count)
+- For each screen: emptyState and errorState should describe real UX copy/behavior when relevant; use null only when truly N/A. edgeCases should list 1–3 realistic edge cases or null
+- screenDescriptions.screens: include ALL user-provided pages; when Pages: is absent, infer 3–6 primary screens from the App Description and mark them [INFERRED] — never leave screens empty
 - screenDescriptions.navigationStructure MUST be comprehensive with detailed navigation paths
 - complexityScore MUST be an object with four numeric values (0-100) representing:
   * architecture: Frontend only = 20, Frontend+Backend = 60, Full stack with database = 90
@@ -169,40 +227,50 @@ IMPORTANT DETAILED REQUIREMENTS:
 - suggestionsIdeaSummary and suggestionsCoreFeatures MUST be objects with exactly "toInclude" (array) and "notToInclude" (array). Put all generated suggestions in notToInclude (user can add them later). toInclude stays empty [].
 - suggestionsIdeaSummary.notToInclude: 3-5 short, concrete phrases or sentences (one line each) that DEVELOP THIS SPECIFIC IDEA. Each suggestion must: (a) be directly derived from this app's ideaSummary, valueProposition, or problemStatement; (b) be something that could be merged into the idea summary to deepen or refine it (e.g. a specific benefit, differentiator, or angle for this app). Do NOT suggest generic directions (e.g. "add target audience" or "mention scalability"); every item must be specific content that extends this idea.
 - suggestionsCoreFeatures.notToInclude: 3-5 optional features with brief descriptions (same format as coreFeaturesOverview items) that fit the app but were not included in the main list.
+- personas: 2–4 personas with name, role, goals[], pains[], jtbd — grounded in targetAudience and App Description (null only if impossible)
+- epics: 2–5 epics; each epic has stories with title, description, and acceptanceCriteria[] (testable Given/When/Then or checklist). Map stories to user-provided features/pages when present
+- nonGoals: 3–6 explicit v1 non-goals (what we will NOT build)
+- successMetrics: northStar string + leading[] indicators tied to this product
+- permissionsMatrix: role → permissions[] for every meaningful role (Owner/Admin/Member/Viewer as applicable); null only if no user system
+- glossary: 4–10 domain terms specific to THIS product
 - All content should be detailed, comprehensive, and provide substantial value
-- All values must be strings or arrays, never null or undefined
+- Nullable enriched fields (personas, epics, nonGoals, successMetrics, permissionsMatrix, glossary, screen empty/error/edgeCases) may be null when truly inapplicable — prefer populated values
+- All other values must be strings, numbers, or arrays as shown — never omit required keys
 
 DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
 
 1. screenDescriptions.screens:
-   - CRITICAL: screens MUST be an array of objects, NOT strings. Each object must have: name, description, uiComponents (array)
+   - CRITICAL: screens MUST be an array of objects, NOT strings. Each object must have: name, description, uiComponents (array), emptyState (string|null), errorState (string|null), edgeCases (array|null)
    - IF "Pages:" section EXISTS in user input:
      * EVERY page from "Pages:" MUST appear in screenDescriptions.screens as an object with name, description, and uiComponents
      * Use the exact page names provided
-     * For each user-provided page, create a screen object with: name (page name), description (detailed screen description), uiComponents (array of 2-3 components for that screen)
+     * For each user-provided page, create a screen object with: name (page name), description (detailed screen description), uiComponents (array of 2-3 components for that screen), plus empty/error/edgeCases
      * MAY add [INFERRED] screens only to connect user pages — list each in inferredItems
    - IF "Pages:" section DOES NOT EXIST:
-     * Create screens based on App Description analysis; mark each as [INFERRED] in inferredItems
+     * Create 3–6 screens based on App Description analysis; mark each as [INFERRED] in inferredItems
+     * NEVER return an empty screens array
 
 2. detailedUserFlow.steps:
    - CRITICAL: Only include "steps" array. Do NOT include decisionPoints, errorHandling, confirmations, or feedbackLoops
-   - Each step should be concise (1-2 sentences) as it will be displayed in a visual flow diagram
+   - Each step should be concise (1-2 sentences) as it will be displayed in a visual journey rail
+   - At least 3 steps required — NEVER return an empty steps array
    - IF "Workflows:" section EXISTS in user input:
      * EVERY workflow from "Workflows:" MUST appear in detailedUserFlow.steps
      * Include ALL steps from each workflow exactly as provided
      * MAY add [INFERRED] steps only to bridge gaps — list in inferredItems
    - IF "Workflows:" section DOES NOT EXIST:
-     * Create workflow steps based on App Description; mark additions in inferredItems
+     * Create at least 3–6 workflow steps based on App Description; mark additions in inferredItems
 
 3. coreFeaturesOverview:
+   - REQUIRED: at least 4 feature strings — NEVER return []
    - IF "Features:" section EXISTS in user input:
      * EVERY feature from "Features:" MUST appear in coreFeaturesOverview
      * Use the exact feature names provided
      * You may add brief descriptions, but feature names MUST match exactly
      * MAY add [INFERRED] features only when needed — list in inferredItems
    - IF "Features:" section DOES NOT EXIST:
-     * Infer features from App Description; mark each in inferredItems
-
+     * Infer 4–8 features from App Description; mark each in inferredItems
+     * Do NOT leave coreFeaturesOverview empty even if you also fill epics
 4. Design Style (in screenDescriptions and valueProposition):
    - IF "Design Style:" section EXISTS in user input:
      * The design style MUST be reflected in screenDescriptions and valueProposition
@@ -247,12 +315,22 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - suggestionsIdeaSummary.notToInclude: 3-5 concrete phrases that develop this specific idea (derived from ideaSummary/valueProposition); each must be mergeable into the idea summary. No generic directions.
    - suggestionsCoreFeatures.notToInclude: 3-5 optional feature descriptions (same style as coreFeaturesOverview)
 
+10. personas, epics, nonGoals, successMetrics, permissionsMatrix, glossary:
+   - Ground personas and epics in user-provided features, pages, workflows, and target audience
+   - Epic stories MUST trace to coreFeaturesOverview / screens where possible
+   - acceptanceCriteria MUST be testable
+   - nonGoals MUST NOT contradict MUST user requirements
+   - permissionsMatrix MUST match any auth/roles implied by App Description (mark inferred roles in inferredItems if added)
+
 VALIDATION CHECKLIST (Before generating output):
 ✓ Did I include shortTitle as a 3-8 word display title (not the start of ideaSummary)?
 ✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens?
+✓ Is screenDescriptions.screens a non-empty array with at least 3 screen objects? (NEVER return [])
 ✓ Did I mark any non-user screens with [INFERRED] and list them in inferredItems?
 ✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps?
+✓ Is detailedUserFlow.steps a non-empty array with at least 3 steps?
 ✓ Did I check if "Features:" section exists? If yes, did I include ALL features in coreFeaturesOverview?
+✓ Is coreFeaturesOverview a non-empty array with at least 4 feature strings? (NEVER return [] — epics do not replace this field)
 ✓ Did I check if "Design Style:" section exists? If yes, did I incorporate it in design descriptions?
 ✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?
 ✓ Did I check if "Target Audience:" section exists? If yes, did I use EXACT values?
@@ -261,6 +339,8 @@ VALIDATION CHECKLIST (Before generating output):
 ✓ Did I avoid adding auth/real-time/AI/mobile unless user requested or App Description requires?
 ✓ Did I populate inferredItems for every [INFERRED] addition (empty array if none)?
 ✓ Did I add suggestionsIdeaSummary and suggestionsCoreFeatures with toInclude: [] and notToInclude?
+✓ Did each screen include emptyState, errorState, and edgeCases (or null where N/A)?
+✓ Did I include personas, epics (with stories + acceptanceCriteria), nonGoals, successMetrics, permissionsMatrix, and glossary?
 
 REMEMBER: User-provided data is MANDATORY. Additions must be minimal, marked [INFERRED], and listed in inferredItems.
 
@@ -290,25 +370,101 @@ Create a comprehensive technical specification with Mermaid diagrams in the desi
     "techStack": { "frontend": "", "backend": "", "database": "", "storage": "", "authentication": "" },
     "architectureOverview": { "narrative": "", "systemContextDiagramMermaid": null },
     "databaseSchema": { "description": "", "erDiagramMermaid": "", "tablesSupplement": null },
-    "apiDesign": { "endpointsOverviewDiagramMermaid": null, "endpoints": [] },
+    "apiDesign": {
+      "endpointsOverviewDiagramMermaid": null,
+      "endpoints": [
+        {
+          "path": "/api/v1/resource",
+          "method": "POST",
+          "description": "",
+          "parameters": null,
+          "requestBody": "",
+          "responseBody": "",
+          "statusCodes": null,
+          "errorResponses": "Map of error codes to payloads/meanings (e.g. 400 validation, 401, 403, 404, 409, 429)",
+          "authScope": "Required role/scope or 'public'",
+          "rateLimit": "e.g. 60 req/min per user — or null",
+          "idempotency": "Idempotency-Key behavior for mutating routes — or null"
+        }
+      ]
+    },
     "dataFlow": { "narrative": "", "diagramMermaid": null },
     "securityAuthentication": {
-      "authentication": "","authorization": "","encryption": null,"securityMeasures": "",
-      "securityCriticalPoints": [],
+      "authentication": "How THIS product authenticates users (exact methods, sessions/tokens, identity providers named in the overview/integrations)",
+      "authorization": "Roles/permissions model for THIS product's actors (from overview personas/permissions — not generic RBAC filler)",
+      "encryption": "What THIS product encrypts and why (specific data classes: messages, PII, payments, files) — or null",
+      "securityMeasures": "Concrete controls tied to THIS app's features, data, and third-party integrations",
+      "securityCriticalPoints": [
+        "Project-specific critical warning naming a real asset, flow, or integration from THIS spec"
+      ],
       "authFlowDiagramMermaid": null
     },
     "integrationExternalApis": { "thirdPartyServices": [], "integrations": "", "dataFlow": "", "integrationLandscapeDiagramMermaid": null },
     "devops": { "deploymentStrategy": "", "infrastructure": "", "monitoring": "", "scaling": "", "backup": "", "automation": "", "cicdPipelineDiagramMermaid": null },
     "dataStorage": { "storageStrategy": "", "dataRetention": "", "dataBackup": "", "storageArchitecture": "" },
-    "analytics": { "analyticsStrategy": "", "trackingMethods": "", "analysisTools": "", "reporting": "" }
+    "analytics": { "analyticsStrategy": "", "trackingMethods": "", "analysisTools": "", "reporting": "" },
+    "eventCatalog": [
+      {
+        "name": "domain.event_name",
+        "description": "",
+        "payloadSummary": "Key fields in the event payload",
+        "consumers": ["service-or-worker"],
+        "deliveryGuarantees": "at-least-once / exactly-once notes — or null"
+      }
+    ],
+    "envSecrets": [
+      {
+        "name": "ENV_VAR_NAME",
+        "purpose": "",
+        "required": true,
+        "exampleHint": "non-secret shape hint — or null"
+      }
+    ],
+    "migrationAndSeed": "How schema migrations and seed data work for local/staging/prod",
+    "performanceBudgets": {
+      "lcpMs": 2500,
+      "inpMs": 200,
+      "cls": 0.1,
+      "apiP95Ms": 300,
+      "notes": "Product-specific budget notes — or null"
+    },
+    "mvpCostModel": {
+      "monthlyEstimateUsd": null,
+      "assumptions": "Clearly labeled estimate assumptions (do not invent fake invoices)",
+      "breakdown": [
+        { "category": "Hosting", "monthlyEstimateUsd": null, "notes": "" }
+      ]
+    },
+    "testPlan": {
+      "unit": "",
+      "integration": "",
+      "e2e": "",
+      "load": null,
+      "security": null
+    }
   }
 }
 
-Use erDiagram for databaseSchema.erDiagramMermaid; flowchart/graph for system context and API overview; sequenceDiagram for auth flow when relevant. tablesSupplement must list detailed tables (name, purpose, fields as objects with name, type, etc.) when helpful.
+${MERMAID_RULES_BLOCK}
 
-CRITICAL FOR SECURITY: securityCriticalPoints MUST be 3–5 actionable CRITICAL warnings.
+Use erDiagram for databaseSchema.erDiagramMermaid; flowchart/graph for system context and API overview; sequenceDiagram for auth flow when relevant. tablesSupplement must list detailed tables (name, purpose, fields as objects with name, type, required, constraints, description, relationships string) when helpful.
 
-IMPORTANT FOR API: apiDesign.endpoints must include requestBody and responseBody as detailed strings.
+CRITICAL FOR SECURITY (project-specific — no generic boilerplate):
+- securityCriticalPoints MUST be 3–5 actionable CRITICAL warnings that are UNIQUE to THIS product.
+- Each point MUST name a concrete asset, user flow, data type, screen, API, or third-party integration from the Overview / user input (e.g. "shared inbox attachments", "magic-link workspace invite", "Stripe webhook signature", "patient records export").
+- FORBIDDEN generic lines such as: "use HTTPS", "hash passwords", "enable 2FA", "validate input", "keep dependencies updated", "use JWT carefully", "never store secrets in frontend" — unless rewritten with the exact secret/name/flow from THIS app.
+- authentication, authorization, encryption, and securityMeasures MUST likewise describe THIS product's actors, data, and integrations — not textbook security advice.
+- Prefer risks from: auth boundaries in the overview, PII/PHI/payment data, file uploads, multi-tenant isolation, webhooks, OAuth tokens, realtime channels, AI prompts/data leakage, admin impersonation, export/download paths.
+
+IMPORTANT FOR API: apiDesign.endpoints must include requestBody and responseBody as detailed strings. Prefer populating errorResponses, authScope, rateLimit, and idempotency (null only when truly N/A).
+
+ENRICHED FIELDS:
+- eventCatalog: domain events this system emits/consumes (null only if none)
+- envSecrets: every required env/secret with purpose (null only if none)
+- migrationAndSeed: concrete migration + seed strategy
+- performanceBudgets: realistic LCP/INP/CLS/apiP95 targets for this product
+- mvpCostModel: labeled estimates only — never fabricate precise invoices; null monthlyEstimateUsd when unknown
+- testPlan: unit/integration/e2e required; load/security nullable
 
 Application Overview:
 ${isReference ? `[SPEC_REFERENCE]
@@ -327,265 +483,150 @@ Note: The user input above may contain structured information organized into sec
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    // Target Audience information should be inferred from app description and workflow
 
-    // Calculate current date and last 3 months for historical data
     const now = new Date();
     const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11, so we add 1
+    const currentMonth = now.getMonth() + 1;
     const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-    
-    // Calculate last 3 months (including current month)
-    const months = [];
-    for (let i = 2; i >= 0; i--) {
-      // Go back i months from current month
-      const date = new Date(currentYear, currentMonth - 1 - i, 1);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      months.push(`${year}-${month}`);
-    }
-    const last3Months = months.join(', ');
 
-    // Determine if using reference or full content
     const isReference = typeof specId === 'string' && specId.length < 100;
     const overviewContent = isReference ? null : specId;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. Never omit required keys. Use null for nullable fields when unknown — do not invent fake precision.
 
-🚨 DATA FRESHNESS (qualitative — do not fabricate statistics) 🚨
-- Current date is ${currentDateStr}
-- Use qualitative industry trends and competitive insights grounded in the app's domain
-- Do NOT invent precise statistics, market sizes, or search volumes — label estimates clearly as estimates
-- Prefer actionable strategic insights over fabricated numeric "market data"
-- If citing trends, describe them qualitatively without fake precision
+IMPORTANT: All output must be in English regardless of the input language.
 
-Create detailed market analysis. Return JSON with market key containing:
+PHILOSOPHY (qualitative + clearly labeled estimates):
+- Current date context: ${currentDateStr}
+- Prefer qualitative industry trends, competitive insight, and actionable GTM over fabricated numbers
+- Do NOT invent precise statistics, TAM/SAM/SOM figures, CAGR %, market share %, or search volumes
+- When you must estimate, label clearly as an estimate and explain methodology
+- searchTrends is qualitative direction + confidence — NEVER numeric searchVolume charts
+
+Create detailed market analysis matching MarketSchema exactly. Return JSON with market key containing:
 
 {
   "market": {
     "industryOverview": {
-      "trends": "CURRENT industry trends and developments as of ${currentDateStr} - MUST reflect the most recent trends, not historical ones",
-      "marketData": "Relevant and RECENT market statistics and forecasts - use data from 2024-2025 only, never outdated data",
-      "growthProjections": "Future market growth expectations based on CURRENT market conditions"
-    },
-    "searchTrends": {
-      "keywords": ["Key search term 1", "Key search term 2", "Key search term 3"],
-      "historicalData": [
-        {
-          "month": "YYYY-MM",
-          "searchVolume": 12345,
-          "trend": "increasing/decreasing/stable",
-          "competition": "low/medium/high"
-        }
-      ],
-      "period": "3 months minimum",
-      "dataFormat": "Each entry should have consistent month format and numeric values suitable for chart visualization",
-      "insights": "Analysis of search trend patterns and what they indicate about market demand"
+      "trends": "Qualitative CURRENT industry trends as of ${currentDateStr} grounded in this product's domain",
+      "marketData": "Qualitative market context and clearly labeled estimates only — no fabricated precise stats",
+      "growthProjections": "Directional growth expectations with uncertainty — or null",
+      "growthPotential": "Qualitative growth potential narrative — or null",
+      "estimateDisclaimer": "Explicit disclaimer that figures are estimates / directional, not audited market research"
     },
     "targetAudienceInsights": {
       "primaryAudience": {
-        "definition": "Detailed description of primary users",
-        "demographics": "Age range, location, income, education, and other demographic details",
-        "psychographics": "Values, motivations, lifestyle, and psychological factors",
-        "behaviors": "How they currently behave, what products/services they use",
-        "technologySkills": "Their comfort level with technology",
-        "specificRoles": ["Role 1 description", "Role 2 description"]
+        "description": "Who the primary users are and why they buy/use",
+        "ageRange": "e.g. 25-45 — or null",
+        "occupation": "Roles/jobs — or null",
+        "goals": "What they want to achieve — or null",
+        "painPoints": "Practical and emotional pains — or null"
       },
       "secondaryAudience": {
-        "definition": "Secondary users who benefit from the app",
-        "demographics": "Demographic details",
-        "relationshipToPrimary": "How they relate to primary users"
+        "description": "Secondary users/buyers who influence or benefit",
+        "ageRange": null,
+        "occupation": null,
+        "goals": null,
+        "painPoints": null
       },
-      "needsAnalysis": "Detailed analysis of user needs and pain points",
-      "usageHabits": "How target audience currently behaves",
-      "demographics": "Detailed demographic breakdown"
+      "needsAnalysis": "Needs and jobs-to-be-done analysis — or null",
+      "usageHabits": "How they currently solve the problem — or null",
+      "demographics": "High-level demographic notes — or null"
     },
     "competitiveLandscape": [
       {
-        "competitor": "Competitor name (current/existing as of ${currentDateStr})",
-        "advantages": "Their CURRENT strengths based on recent analysis",
-        "disadvantages": "Their CURRENT weaknesses based on recent analysis",
-        "marketPosition": "Their CURRENT position in the market as of ${currentDateStr}",
-        "features": ["CURRENT feature list of competitor - recent features and capabilities"],
-        "uxStrengths": "What they CURRENTLY do well in UX",
-        "uxWeaknesses": "Where they CURRENTLY fall short in UX",
-        "monetization": "How they CURRENTLY make money - recent pricing and revenue models",
-        "gaps": ["CURRENT gaps - what they're missing NOW", "Their CURRENT weaknesses"],
-        "marketShare": "CURRENT estimated market share (use recent data from 2024-2025)"
+        "name": "Competitor name (current as of ${currentDateStr})",
+        "advantages": "Their strengths vs alternatives",
+        "disadvantages": "Their weaknesses / friction",
+        "strengths": "Optional strengths summary — or null",
+        "weaknesses": "Optional weaknesses summary — or null",
+        "differentiators": "How they position — or null",
+        "marketPosition": "Niche / mid-market / enterprise etc. — or null",
+        "features": ["Notable feature 1", "Notable feature 2"],
+        "gaps": ["Gap they leave open"],
+        "marketShare": "Qualitative share note only (e.g. 'leader in SMB segment') — NEVER fake % — or null",
+        "pricingSummary": "Public pricing bands if known (e.g. Free / $29/seat) — labeled estimate if uncertain",
+        "featureGapVsUs": ["Where we can win vs them", "Where they beat us"]
       }
     ],
     "swotAnalysis": {
-      "strengths": ["CURRENT Strength 1", "CURRENT Strength 2"],
-      "weaknesses": ["CURRENT Weakness 1", "CURRENT Weakness 2"],
-      "opportunities": ["CURRENT Opportunity 1 based on recent market conditions", "CURRENT Opportunity 2 based on recent market conditions"],
-      "threats": ["CURRENT Threat 1", "CURRENT Threat 2"]
-    },
-    "painPoints": [
-      {
-        "pain": "Specific problem description",
-        "impact": "How it affects users (practical and emotional)",
-        "frequency": "How often this happens",
-        "emotionalImpact": "How it makes users feel",
-        "currentWorkarounds": "What users do now to solve it",
-        "severity": "High/Medium/Low"
-      }
-    ],
-    "businessModelsAnalysis": [
-      {
-        "model": "Model name (Freemium/Subscription/Advertising/B2B/One-time purchase)",
-        "description": "How this model works",
-        "advantages": ["Advantage 1", "Advantage 2"],
-        "disadvantages": ["Disadvantage 1", "Disadvantage 2"],
-        "revenuePotential": "Estimated revenue potential",
-        "fitScore": "How well it fits the product (1-10)",
-        "implementationComplexity": "Easy/Medium/Hard"
-      }
-    ],
-    "qualityAssessment": {
-      "marketFitRating": "Rating 1-10 with detailed reasoning based on CURRENT market conditions as of ${currentDateStr}",
-      "technicalFeasibility": "Feasibility rating and CURRENT specific technical challenges",
-      "executionRiskFactors": ["CURRENT Risk factor 1", "CURRENT Risk factor 2"],
-      "marketReadiness": "Is the market CURRENTLY ready? Why or why not - based on ${currentDateStr} market state",
-      "keySuccessFactors": ["CURRENT Factor 1", "CURRENT Factor 2"],
-      "goToMarketReadiness": "Ready/Not ready and specific reasons based on CURRENT market analysis"
-    },
-    "uniqueSellingProposition": {
-      "coreValue": "The unique value offered that competitors don't provide",
-      "differentiationFactors": ["What makes it unique", "Key differentiators"],
-      "competitiveAdvantages": ["Advantage 1", "Advantage 2"],
-      "sustainability": "Can this advantage be sustained? Why",
-      "proofPoints": "Evidence of uniqueness or competitive advantage"
+      "strengths": ["Product-specific strength"],
+      "weaknesses": ["Honest weakness"],
+      "opportunities": ["Market opportunity tied to this domain"],
+      "threats": ["Realistic threat"]
     },
     "monetizationModel": {
-      "proposedModels": ["Subscription", "Pay-per-use", "Freemium"],
-      "recommendations": "Recommended monetization strategy",
-      "pricingStrategy": "Suggested pricing approach"
-    },
-    "pricingStrategy": {
-      "proposedModels": ["Model 1", "Model 2"],
-      "recommendations": "Recommended pricing approach with justification based on CURRENT market conditions",
-      "pricingComparison": [
-        {
-          "competitor": "Competitor name",
-          "pricing": "CURRENT pricing as of ${currentDateStr} ($X/month or free)",
-          "features": "CURRENT features they offer at this price",
-          "valueProposition": "Why people CURRENTLY pay for their service"
-        }
-      ],
-      "justification": "Why this pricing structure makes sense based on CURRENT market analysis",
-      "suggestedPricing": "Recommended pricing structure with tiers based on CURRENT market conditions"
-    },
-    "expectedROI": {
-      "scenarios": [
-        {
-          "scenario": "Conservative/Optimistic/Realistic",
-          "assumptions": "Key assumptions made",
-          "userProjections": "Expected users over 3 years",
-          "revenueProjections": "Expected revenue over 1-3 years",
-          "costBreakdown": "Development costs + Marketing costs breakdown",
-          "roiCalculation": "ROI percentage and time to breakeven"
-        }
-      ],
-      "riskFactors": ["What could go wrong", "Market risks"],
-      "sensitivityAnalysis": "Key variables that impact projections (e.g., conversion rate, CAC)"
-    },
-    "kpiFramework": {
-      "userMetrics": [
-        {
-          "metric": "Metric name (e.g., DAU, MAU, Conversion Rate, Churn)",
-          "definition": "What it measures",
-          "targetValue": "Target to achieve in first year",
-          "measurementMethod": "How to track and measure it",
-          "importance": "Why this metric matters"
-        }
-      ],
-      "businessMetrics": ["Revenue", "CAC (Customer Acquisition Cost)", "LTV (Lifetime Value)", "Churn Rate", "ARPU"],
-      "productMetrics": ["Engagement Rate", "Retention Rate", "NPS", "Feature Adoption", "Time to Value"]
-    },
-    "nicheInformation": {
-      "nicheDefinition": "What specific niche this app serves",
-      "trends": ["CURRENT Trend 1 with context as of ${currentDateStr}", "CURRENT Trend 2 with context as of ${currentDateStr}"],
-      "opportunities": ["CURRENT Opportunity 1 based on recent market developments", "CURRENT Opportunity 2 based on recent market developments"],
-      "challenges": ["CURRENT Challenge 1", "CURRENT Challenge 2"],
-      "growthFactors": ["CURRENT Factor 1 driving growth", "CURRENT Factor 2 driving growth"],
-      "marketMaturity": "CURRENT market maturity status (Early stage/Growing/Mature/Declining) as of ${currentDateStr}"
-    },
-    "marketStatistics": {
-      "globalStatistics": [
-        "RECENT Stat 1 with context and source - MUST be from 2024-2025 data sources",
-        "RECENT Stat 2 with context and source - MUST be from 2024-2025 data sources"
-      ],
-      "targetMarketSize": "CURRENT estimated TAM/SAM/SOM based on most recent market research (2024-2025 data only)",
-      "growthRate": "CURRENT expected CAGR or growth rate based on recent market analysis",
-      "keyNumbers": "CURRENT important numbers that support market viability - use 2024-2025 statistics only"
-    },
-    "threatsOverview": {
-      "externalThreats": [
-        {
-          "threat": "CURRENT specific threat description",
-          "probability": "High/Medium/Low with reasoning based on CURRENT market conditions",
-          "impact": "High/Medium/Low and why - considering ${currentDateStr} market state",
-          "mitigation": "How to mitigate or address this CURRENT threat"
-        }
-      ],
-      "competitiveThreats": ["CURRENT Competitive threat 1", "CURRENT Competitive threat 2"],
-      "regulatoryThreats": ["CURRENT Regulatory risk 1", "CURRENT Regulatory risk 2"],
-      "marketThreats": ["CURRENT Market risk 1", "CURRENT Market risk 2"]
-    },
-    "complexityRating": {
-      "overallRating": "Rating 1-10 (10 = very complex)",
-      "technicalComplexity": "Tech challenges and why",
-      "marketComplexity": "Market challenges and barriers",
-      "operationalComplexity": "Operational challenges",
-      "mitigationStrategies": "How to reduce complexity",
-      "developmentTimeline": "Estimated timeline to launch MVP and full version"
-    },
-    "actionableInsights": {
-      "development": {
-        "priorities": ["Must-have feature 1", "Must-have feature 2"],
-        "recommendations": "What to focus on in development based on CURRENT market needs",
-        "phases": "Suggested phased rollout approach (MVP, v1, v2) based on CURRENT market timing",
-        "mvpFeatures": "Core features for Minimum Viable Product based on CURRENT market demand"
-      },
-      "marketFit": {
-        "strategies": ["CURRENT Go-to-market strategy 1", "CURRENT Strategy 2"],
-        "partnerships": "Recommended strategic partnerships based on CURRENT market landscape",
-        "timing": "CURRENT best time to launch (when, why) - consider ${currentDateStr} market conditions",
-        "targetMarkets": "CURRENT best geographic or demographic markets to enter first"
-      },
-      "productPositioning": {
-        "branding": "Branding recommendations and positioning for CURRENT market (${currentDateStr})",
-        "messaging": "Key messages to use in marketing based on CURRENT market sentiment",
-        "differentiation": "How to differentiate from competitors in messaging based on CURRENT competitive landscape",
-        "marketPosition": "Where to position in the CURRENT market (premium, affordable, niche, etc.)"
-      }
+      "pricingStrategy": "Suggested pricing approach",
+      "revenueStreams": "Primary + secondary streams",
+      "rationale": "Why this monetization fits ICP and willingness-to-pay",
+      "proposedModels": ["Subscription", "Freemium", "Usage-based"],
+      "recommendations": "Recommended model and packaging",
+      "methodology": "How pricing was reasoned (comparables, value metric, willingness-to-pay proxies) — no fake financial models"
     },
     "marketingStrategy": {
-      "channels": "CURRENT effective marketing channels (as of ${currentDateStr})",
-      "community": "CURRENT community building strategies",
-      "partnerships": "CURRENT potential partnerships and collaborations"
-    }
+      "channels": "Priority acquisition channels for this ICP",
+      "messaging": "Core messages and proof points",
+      "goToMarket": "High-level GTM narrative (details live in gtmPlan)"
+    },
+    "icpScorecard": [
+      {
+        "criterion": "e.g. Budget authority / Problem urgency / Tech readiness",
+        "weight": 0.25,
+        "score": 4,
+        "notes": "Why this score for THIS product"
+      }
+    ],
+    "disqualificationCriteria": [
+      "Explicit anti-ICP: who we should NOT sell to / support in v1"
+    ],
+    "gtmPlan": [
+      {
+        "days": "0-30",
+        "goals": ["Goal 1"],
+        "tactics": ["Tactic 1"],
+        "successSignals": ["Signal 1"]
+      },
+      {
+        "days": "31-60",
+        "goals": ["Goal 1"],
+        "tactics": ["Tactic 1"],
+        "successSignals": ["Signal 1"]
+      },
+      {
+        "days": "61-90",
+        "goals": ["Goal 1"],
+        "tactics": ["Tactic 1"],
+        "successSignals": ["Signal 1"]
+      }
+    ],
+    "interviewScripts": [
+      {
+        "audience": "ICP segment",
+        "objective": "What we need to learn",
+        "questions": ["Open question 1", "Open question 2", "Open question 3"]
+      }
+    ],
+    "positioningOnePager": "Ready-to-paste positioning: for [ICP] who [problem], [product] is a [category] that [benefit]. Unlike [alt], we [differentiator].",
+    "searchTrends": [
+      {
+        "topic": "Topic or intent cluster (not a fake keyword volume)",
+        "direction": "rising | stable | declining | unclear",
+        "confidence": "low | medium | high",
+        "notes": "Qualitative rationale — no invented search volumes"
+      }
+    ]
   }
 }
 
-CRITICAL FOR searchTrends.historicalData:
-- The "month" field MUST use CURRENT and RECENT dates only - NEVER use old dates from previous years
-- Current date is ${currentDateStr}
-- You MUST use the last 3 months up to the current date: ${last3Months}
-- Date format MUST be YYYY-MM (e.g., "2025-01", "2025-02", "2025-03")
-- NEVER use dates from past years (like 2023 or 2024 if we're in 2025)
-- The historical data MUST reflect the most recent 3 months leading up to ${currentDateStr}
-- If the current date is ${currentDateStr}, include data for the last 3 months including ${currentDateStr}
-
-IMPORTANT: The searchTrends.historicalData MUST include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
-
-🚨 REMINDER: ALL MARKET DATA MUST BE CURRENT 🚨
-- Current date: ${currentDateStr}
-- Use ONLY recent data from 2024-2025
-- All statistics, trends, and market insights MUST reflect the CURRENT state of the market
-- NEVER use outdated information from previous years (2023 or earlier)
-- Competitive analysis MUST reflect CURRENT competitor status, features, and pricing
-- Market statistics MUST use the most recent available data sources
+CRITICAL RULES:
+- Match MarketSchema field names exactly (competitiveLandscape[].name — NOT competitor; AudienceSegmentSchema uses description — NOT definition)
+- Do NOT include legacy keys (painPoints, businessModelsAnalysis, qualityAssessment, uniqueSellingProposition, pricingStrategy object, expectedROI, kpiFramework, nicheInformation, marketStatistics, threatsOverview, complexityRating, actionableInsights, searchTrends.historicalData, etc.)
+- competitiveLandscape: 3–6 real/plausible competitors with pricingSummary + featureGapVsUs
+- gtmPlan MUST include 30 / 60 / 90 day phases (days fields like "0-30", "31-60", "61-90")
+- icpScorecard: 4–8 scored criteria; disqualificationCriteria: 3–6 anti-ICP rules
+- interviewScripts: at least 1–2 scripts with 5–8 questions each
+- monetizationModel.methodology and industryOverview.estimateDisclaimer MUST be present (non-empty strings)
+- searchTrends entries: topic + direction + confidence only (notes optional) — NEVER numeric volumes
 
 Application Overview:
 ${isReference ? `[SPEC_REFERENCE]
@@ -604,45 +645,83 @@ Note: The user input above may contain structured information organized into sec
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    // Target Audience information should be inferred from app description and workflow
 
-    // Determine if using reference or full content
     const isReference = typeof specId === 'string' && specId.length < 100;
     const overviewContent = isReference ? null : specId;
 
-    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. If a value is unknown, return an empty array/object—never omit required keys.
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. Never omit required keys. Use null for nullable fields when unknown.
 
-Create comprehensive design guidelines and branding elements. Return JSON with design key containing:
+IMPORTANT: All output must be in English regardless of the input language.
+
+Create comprehensive design guidelines and branding elements matching DesignSchema. Return JSON with design key containing:
 
 {
   "design": {
     "visualStyleGuide": {
       "colors": {
-        "primary": "#hexcode",
-        "secondary": "#hexcode", 
-        "accent": "#hexcode",
-        "background": "#hexcode",
-        "text": "#hexcode"
+        "primary": "#hex",
+        "secondary": "#hex",
+        "accent": "#hex",
+        "background": "#hex",
+        "text": "#hex",
+        "success": "#hex",
+        "warning": "#hex",
+        "danger": "#hex",
+        "muted": "#hex",
+        "surface": "#hex",
+        "border": "#hex"
       },
-      "colorHarmony": "Description of the color scheme harmony (monochromatic, analogous, or complementary with 2 tones maximum)",
-      "colorReasoning": "Explanation of why these specific colors and tones were chosen and how they work together",
+      "colorHarmony": "Monochromatic / analogous / complementary — how the palette relates",
+      "colorReasoning": "Why these colors fit the product, audience, and brand emotion",
       "typography": {
-        "headings": "Font family and specifications for headings",
-        "body": "Font family and specifications for body text",
-        "captions": "Font family and specifications for captions"
+        "headings": "Heading font family + usage summary",
+        "body": "Body font family + usage summary",
+        "captions": "Caption/meta font usage",
+        "display": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "h1": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "h2": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "h3": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "bodyLg": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "bodyMd": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "bodySm": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null },
+        "label": { "fontFamily": "", "fontSize": "", "fontWeight": "", "lineHeight": "", "letterSpacing": null }
       },
-      "spacing": "Spacing guidelines and grid system",
+      "spacing": "Narrative spacing / grid guidance",
       "buttons": "Button styles and variations",
-      "animations": "Animation guidelines and transitions"
+      "animations": "Motion philosophy summary",
+      "spacingScale": { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px", "xxl": "48px" },
+      "radiiScale": { "sm": "4px", "md": "8px", "lg": "16px", "full": "9999px" },
+      "shadowScale": { "sm": "...", "md": "...", "lg": "..." },
+      "zIndexScale": { "base": 0, "dropdown": 1000, "sticky": 1100, "modal": 1300, "toast": 1400 },
+      "themes": {
+        "light": {
+          "name": "Light",
+          "background": "#hex",
+          "surface": "#hex",
+          "text": "#hex",
+          "textMuted": "#hex",
+          "primary": "#hex",
+          "border": "#hex"
+        },
+        "dark": {
+          "name": "Dark",
+          "background": "#hex",
+          "surface": "#hex",
+          "text": "#hex",
+          "textMuted": "#hex",
+          "primary": "#hex",
+          "border": "#hex"
+        }
+      }
     },
     "logoIconography": {
       "logoConcepts": "Logo design concepts and variations",
       "colorVersions": "Different color versions of the logo",
       "iconSet": "Icon set specifications and style",
       "appIcon": {
-        "letters": "Two letters for the app icon (e.g., 'TP' for Taskify Pro, 'SM' for Smart Manager)",
-        "bgColor": "Background color or gradient for the icon (e.g., 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)' or single color '#6366F1')",
-        "description": "Brief description of the app icon design concept"
+        "letters": "Two letters for the app icon (e.g., 'TP')",
+        "bgColor": "Single hex or CSS gradient",
+        "description": "Brief app icon concept"
       }
     },
     "uiLayout": {
@@ -653,52 +732,73 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
     },
     "uxPrinciples": {
       "userFlow": "User flow and navigation principles",
-      "accessibility": "Accessibility guidelines and considerations",
+      "accessibility": "Accessibility guidelines (WCAG targets, focus, contrast)",
       "informationHierarchy": "Information hierarchy and content organization"
+    },
+    "componentInventory": [
+      {
+        "name": "Button",
+        "variants": ["primary", "secondary", "ghost"],
+        "states": ["default", "hover", "focus", "disabled", "loading"],
+        "a11yChecklist": ["keyboard focus visible", "aria-busy when loading"],
+        "usageNotes": "When to use — or null"
+      }
+    ],
+    "screenLayouts": [
+      {
+        "screenName": "Must match overview screens when possible",
+        "layout": "Regions, columns, key components",
+        "empty": "Empty-state layout/copy notes — or null",
+        "loading": "Loading/skeleton notes — or null",
+        "error": "Error-state notes — or null",
+        "success": "Success-state notes — or null"
+      }
+    ],
+    "motionSpecs": [
+      {
+        "name": "Page enter",
+        "trigger": "Route change",
+        "durationMs": 200,
+        "easing": "ease-out",
+        "notes": "Keep subtle — or null"
+      }
+    ],
+    "toneOfVoice": "Brand voice: personality, do/don't examples",
+    "microcopy": [
+      { "context": "Primary CTA on landing", "copy": "Concrete button/label text" },
+      { "context": "Empty dashboard", "copy": "Empty-state message" }
+    ],
+    "tokenExport": {
+      "cssVariables": ":root { --color-primary: ...; --font-body: ...; }",
+      "jsonTokens": "{ \"color\": { \"primary\": \"#...\" }, \"font\": { ... } }"
     }
   }
 }
 
 CRITICAL COLOR REQUIREMENTS:
-- ABSOLUTELY CRITICAL: Use EXACTLY 5 colors maximum (no more, no less) - primary, secondary, accent, background, text
-- ABSOLUTELY CRITICAL: All 5 colors MUST be from the SAME tone/shade/family - NO mixing of clashing colors (e.g., NO green+blue+yellow together, NO red+green+blue together)
-- Colors MUST be contextual to the app type and target audience:
-  - Professional/B2B apps: Trust-building blues, professional grays
-  - Health/Medical apps: Calming greens, tranquil blues
-  - Finance apps: Secure blues, reliability-focused tones
-  - Creative/Design apps: Vibrant colors, artistic palettes
-  - Education apps: Warm, approachable tones
-  - Fitness/Wellness apps: Energetic colors with motivation-focused tones
-  - Social apps: Friendly, inviting colors
-  - Gaming/Entertainment apps: Bold, exciting colors
-- Color scheme structure: Use 4-5 related colors in one tone/theme + ONE contrasting accent color for CTAs and important elements
-- The color palette should reflect the app's purpose, brand personality, and user emotions
-- Colors must be harmonious and coherent (use either monochromatic scheme with variations of the same tone, or analogous/complementary scheme with maximum 2 tones)
+- Provide a coherent semantic palette: primary/secondary/accent/background/text PLUS success/warning/danger/muted/surface/border
+- Colors MUST be harmonious (monochromatic, analogous, or complementary with at most 2 families) — no broken clashing palettes
+- themes.light is REQUIRED; themes.dark should be provided when the product supports dark mode (otherwise null)
+- Contrast: text on background/surface must remain readable; danger/success must be distinguishable
 
 CRITICAL TYPOGRAPHY REQUIREMENTS:
-- ABSOLUTELY CRITICAL: Typography MUST complement and enhance the color palette - DO NOT default to Roboto or generic fonts without considering color harmony
-- Font choice MUST create visual harmony with the chosen colors:
-  - Warm colors (browns, oranges, yellows) → warm fonts like Playfair Display, Merriweather
-  - Cool colors (blues, teals, grays) → sleek fonts like Inter, Poppins, Work Sans
-  - Vibrant colors → bold fonts like Montserrat, Oswald
-  - Soft colors → friendly fonts like Nunito, Lato
-  - Deep/rich colors → sophisticated fonts like Cormorant, Lora
-  - Neutral colors → clean fonts like Space Grotesk, Atlas Grotesk
-- Fonts MUST be selected based on app context AND color mood:
-  - Professional apps: Clean, readable sans-serif (Inter, Work Sans, Roboto ONLY if it matches the color mood)
-  - Creative apps: Distinctive display fonts that enhance the color personality
-  - Editorial/Content apps: Serif fonts for readability (Merriweather, Georgia, Lora) matching color warmth
-  - Technical apps: Monospace options for code/data, still chosen to complement colors
-  - Luxury brands: Elegant, refined typefaces that enhance color sophistication
-  - Youth-oriented apps: Playful, modern fonts matching color energy
-- Include specific font recommendations with reasoning for each app type AND how they work with the color palette
-- Typography should match the app's personality AND create visual harmony with the chosen colors
+- Provide concrete font pairings with sizes/weights for display, h1, h2, h3, bodyLg, bodyMd, bodySm, label
+- Each type style object MUST include fontFamily, fontSize, fontWeight, lineHeight (letterSpacing nullable)
+- Typography MUST complement the color mood — do not default to Inter/Roboto without justification
+- Example pairings: display serif + geometric sans body; or distinctive sans display + neutral body
+
+ENRICHED FIELDS:
+- spacingScale, radiiScale, shadowScale, zIndexScale: concrete token values
+- componentInventory: 6–12 core components with variants/states/a11yChecklist
+- screenLayouts: cover key screens from overview Pages when present
+- motionSpecs: 3–6 intentional motions (not noise)
+- toneOfVoice + microcopy: product-specific copy ready to use
+- tokenExport.cssVariables and tokenExport.jsonTokens: ready-to-paste exports mirroring the style guide
 
 CRITICAL APP ICON REQUIREMENTS:
-- The appIcon MUST include exactly 2 letters that represent the app (e.g., "TP" for Taskify Pro, "SM" for Smart Manager, "FD" for Food Delivery)
-- The bgColor MUST be either a single color (e.g., "#6366F1") or a gradient (e.g., "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)")
-- The letters should be white and bold, displayed in a simple, clean design
-- The description should explain the design concept briefly
+- appIcon.letters MUST be exactly 2 letters representing the app
+- bgColor MUST be a single hex or CSS gradient
+- letters assumed white/bold on the bgColor
 
 Make sure all descriptions are clear and actionable for designers and developers.
 
@@ -719,7 +819,7 @@ If the user input contains a "Design Style:" section:
 - The design must align with the design style preferences provided by the user
 
 If the user input contains a "Pages:" section:
-- ALL pages listed MUST be considered when defining the design system
+- ALL pages listed MUST be considered when defining the design system and screenLayouts
 - The design must account for the specific pages mentioned by the user
 
 If the user input contains a "Target Audience:" section:
@@ -989,5 +1089,5 @@ ${designContent || 'Not provided'}`;
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PROMPTS, formatUserRequirements };
+  module.exports = { PROMPTS, formatUserRequirements, MERMAID_RULES_BLOCK };
 }

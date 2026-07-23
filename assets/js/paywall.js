@@ -313,7 +313,7 @@
         entitlements: { unlimited: false, spec_credits: 0, total: 0 },
         paywallData: {
           reason: 'insufficient_credits',
-          message: 'You have no remaining spec credits',
+          message: 'Your free credit is used up. Upgrade to Pro to unlock Database Design, Export to Cursor, Unlimited Specs, AI Review, and Team Collaboration.',
           freeSpecs: breakdown.free || 0,
           specCredits: breakdown.paid || 0,
           total: total,
@@ -333,16 +333,81 @@
     }
   }
 
+  const PRO_PAYWALL_BENEFITS = [
+    { icon: 'fa-database', title: 'Unlock Database Design', detail: 'Schema, relationships, and data model for your app' },
+    { icon: 'fa-terminal', title: 'Export to Cursor', detail: 'Ship IDE-ready prompts and MCP context in one click' },
+    { icon: 'fa-infinity', title: 'Unlimited Specs', detail: 'Iterate on every idea — no credit ceiling' },
+    { icon: 'fa-wand-magic-sparkles', title: 'AI Review', detail: 'Deeper technical, market, and architecture coverage' },
+    { icon: 'fa-users', title: 'Team Collaboration', detail: 'Share specs and keep everyone aligned' }
+  ];
+
+  function escapePaywallHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getSpecPreviewFromContext(paywallData) {
+    const fromPayload = paywallData && paywallData.preview;
+    if (fromPayload && (fromPayload.title || fromPayload.stage)) {
+      return {
+        title: fromPayload.title || 'Your specification',
+        stage: fromPayload.stage || null,
+        meta: fromPayload.meta || null
+      };
+    }
+
+    try {
+      const planning = window.planningData || null;
+      const vision = planning && planning.vision && planning.vision.description;
+      if (vision && String(vision).trim()) {
+        const title = String(vision).trim().slice(0, 80) + (String(vision).length > 80 ? '…' : '');
+        return { title, stage: 'Planning draft', meta: 'Ready to generate — Pro unlocks unlimited specs' };
+      }
+    } catch (_) { /* ignore */ }
+
+    try {
+      const title =
+        (window.currentSpecData && (window.currentSpecData.title || window.currentSpecData.appName)) ||
+        localStorage.getItem('lastSpecTitle') ||
+        null;
+      const stage = (window.currentSpecData && window.currentSpecData.status && window.currentSpecData.status.overview) || null;
+      if (title) {
+        return {
+          title: String(title).slice(0, 100),
+          stage: stage === 'ready' ? 'Overview ready' : (stage || 'In progress'),
+          meta: 'Keep building on what you already created'
+        };
+      }
+    } catch (_) { /* ignore */ }
+
+    return null;
+  }
+
+  function buildExhaustedMessage(paywallData) {
+    if (paywallData && paywallData.message && paywallData.reason !== 'insufficient_credits') {
+      return paywallData.message;
+    }
+    return 'Your free credit is used up. Upgrade to Pro to keep building — unlock Database Design, Export to Cursor, Unlimited Specs, AI Review, and Team Collaboration.';
+  }
+
   function renderPaywallButtons(container) {
     if (!container) return;
 
     const products = [
-      { key: 'pro_monthly', label: 'Specifys Pro', price: '$1.99/mo', description: 'Unlimited specifications' }
+      {
+        key: 'pro_monthly',
+        label: 'Upgrade to Specifys Pro',
+        price: '$1.99/mo',
+        description: 'Unlimited specs + Database Design, Cursor export, AI Review & collaboration'
+      }
     ];
 
     container.innerHTML = `
       ${products.map(product => `
-        <button class="paywall-product-btn" data-product-key="${product.key}">
+        <button type="button" class="paywall-product-btn" data-product-key="${product.key}">
           <span class="label">${product.label}</span>
           <span class="price">${product.price}</span>
           <span class="description">${product.description}</span>
@@ -374,9 +439,9 @@
       }
     }
 
-    function handleSuccess(productKey) {
+    function handleSuccess() {
       if (messageEl) {
-        messageEl.textContent = 'Checkout opened in a new window. Complete your purchase to unlock unlimited specifications.';
+        messageEl.textContent = 'Checkout opened. Complete purchase to unlock Pro benefits on the work you already started.';
         messageEl.classList.remove('error');
       }
     }
@@ -393,52 +458,95 @@
     });
   }
 
+  function ensurePaywallStyles() {
+    if (document.getElementById('paywall-sprint-b-styles')) return;
+    const link = document.createElement('link');
+    link.id = 'paywall-sprint-b-styles';
+    link.rel = 'stylesheet';
+    link.href = '/assets/css/pages/paywall.css';
+    document.head.appendChild(link);
+  }
+
+  function renderPaywallPreview(container, paywallData) {
+    if (!container) return;
+    const preview = getSpecPreviewFromContext(paywallData || {});
+    if (preview) {
+      container.innerHTML = `
+        <p class="paywall-preview-label">Your work so far</p>
+        <p class="paywall-preview-title">${escapePaywallHtml(preview.title)}</p>
+        <p class="paywall-preview-meta">${escapePaywallHtml(preview.stage || '')}${preview.meta ? ' · ' + escapePaywallHtml(preview.meta) : ''}</p>
+      `;
+      container.hidden = false;
+      return;
+    }
+    container.innerHTML = `
+      <p class="paywall-preview-label">Your next step</p>
+      <p class="paywall-preview-empty">Pro unlocks the full pipeline for every idea you plan — Database Design, Cursor export, and unlimited specs.</p>
+    `;
+    container.hidden = false;
+  }
+
   function showPaywall(paywallData) {
+    ensurePaywallStyles();
+    const data = paywallData || {};
     let paywallModal = document.getElementById('paywall-modal');
-    
+
     if (!paywallModal) {
       paywallModal = document.createElement('div');
       paywallModal.id = 'paywall-modal';
       paywallModal.className = 'modal';
+      paywallModal.setAttribute('role', 'dialog');
+      paywallModal.setAttribute('aria-modal', 'true');
+      paywallModal.setAttribute('aria-labelledby', 'paywall-title');
       paywallModal.innerHTML = `
         <div class="modal-content paywall-content">
           <div class="modal-header">
-            <h3><i class="fa fa-lock"></i> Purchase Additional Credits</h3>
-            <span class="close" onclick="closePaywall()">&times;</span>
+            <h3 id="paywall-title"><i class="fa fa-rocket" aria-hidden="true"></i> Unlock Specifys Pro</h3>
+            <button type="button" class="close" onclick="closePaywall()" aria-label="Close">&times;</button>
           </div>
           <div class="modal-body">
-            <p id="paywall-message">${paywallData.message}</p>
+            <p id="paywall-message" class="paywall-reason"></p>
+            <div id="paywall-preview" class="paywall-preview" hidden></div>
+            <ul class="paywall-benefits" id="paywall-benefits"></ul>
             <div id="paywall-status" class="paywall-status" style="display:none;"></div>
             <div class="paywall-products"></div>
             <div class="paywall-footer">
-              <a href="/pages/pricing.html" class="pricing-link">View pricing plans</a>
+              <a href="/pages/pricing.html?reason=insufficient_credits" class="pricing-link">Compare Pro benefits</a>
             </div>
             <div class="paywall-actions">
-              <button onclick="closePaywall()" class="btn btn-secondary">
-                Cancel
-              </button>
+              <button type="button" onclick="closePaywall()" class="btn btn-secondary">Not now</button>
             </div>
           </div>
         </div>
       `;
       document.body.appendChild(paywallModal);
-    }
 
-    const messageEl = document.getElementById('paywall-message');
-    if (messageEl) {
-      messageEl.textContent = paywallData.message;
-      messageEl.classList.remove('error');
-    }
+      const benefitsEl = paywallModal.querySelector('#paywall-benefits');
+      if (benefitsEl) {
+        benefitsEl.innerHTML = PRO_PAYWALL_BENEFITS.map((b) => `
+          <li>
+            <i class="fa ${b.icon}" aria-hidden="true"></i>
+            <span><strong>${escapePaywallHtml(b.title)}</strong> — ${escapePaywallHtml(b.detail)}</span>
+          </li>
+        `).join('');
+      }
 
-    const productsContainer = paywallModal.querySelector('.paywall-products');
-    if (productsContainer && !productsContainer.hasChildNodes()) {
+      const productsContainer = paywallModal.querySelector('.paywall-products');
       renderPaywallButtons(productsContainer);
       attachPaywallButtonHandlers(paywallModal);
     }
 
+    const messageEl = document.getElementById('paywall-message');
+    if (messageEl) {
+      messageEl.textContent = buildExhaustedMessage(data);
+      messageEl.classList.toggle('error', data.reason === 'insufficient_credits' || data.reason === 'error');
+    }
+
+    renderPaywallPreview(document.getElementById('paywall-preview'), data);
+
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    paywallModal.style.display = 'block';
+    paywallModal.style.display = 'grid';
   }
 
   function closePaywall() {
@@ -453,4 +561,5 @@
   window.checkEntitlement = checkEntitlement;
   window.showPaywall = showPaywall;
   window.closePaywall = closePaywall;
+  window.PRO_PAYWALL_BENEFITS = PRO_PAYWALL_BENEFITS;
 })();

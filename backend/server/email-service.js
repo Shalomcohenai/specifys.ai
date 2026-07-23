@@ -9,26 +9,62 @@ const emailTracking = require('./email-tracking-service');
  */
 class EmailService {
   constructor() {
-    const apiKey = process.env.RESEND_API_KEY;
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Specifys-Ai-Team@specifys-ai.com';
-    
-    if (!apiKey) {
-      logger.warn('[EmailService] RESEND_API_KEY not configured - email service disabled');
-      this.resend = null;
-      this.fromEmail = fromEmail;
-      return;
-    }
-    
-    this.resend = new Resend(apiKey);
-    this.fromEmail = fromEmail;
-    logger.info({ fromEmail }, '[EmailService] Initialized with Resend');
+    this.resend = null;
+    this.fromEmail = process.env.RESEND_FROM_EMAIL || 'Specifys-Ai-Team@specifys-ai.com';
+    this._initFromEnv();
   }
 
   /**
-   * Check if email service is configured
+   * Initialize / re-initialize Resend client from env (supports dotenv loaded after first require).
+   */
+  _initFromEnv() {
+    const apiKey = process.env.RESEND_API_KEY;
+    this.fromEmail = process.env.RESEND_FROM_EMAIL || this.fromEmail || 'Specifys-Ai-Team@specifys-ai.com';
+
+    if (!apiKey) {
+      if (!this._warnedMissingKey) {
+        logger.warn('[EmailService] RESEND_API_KEY not configured - email service disabled');
+        this._warnedMissingKey = true;
+      }
+      this.resend = null;
+      return false;
+    }
+
+    if (!this.resend) {
+      this.resend = new Resend(apiKey);
+      logger.info({ fromEmail: this.fromEmail }, '[EmailService] Initialized with Resend');
+    }
+    return true;
+  }
+
+  /**
+   * Check if email service is configured (lazy re-init if env became available).
    */
   isConfigured() {
-    return this.resend !== null;
+    if (this.resend) return true;
+    return this._initFromEnv();
+  }
+
+  /**
+   * Send via Resend and normalize SDK v3+ response shape.
+   * Resend returns { data: { id }, error } — callers expect { id }.
+   * @param {object} payload - Resend emails.send payload
+   * @returns {Promise<{id: string|null, data?: object, error: null}>}
+   */
+  async _send(payload) {
+    const result = await this.resend.emails.send(payload);
+    if (result?.error) {
+      const err = new Error(result.error.message || JSON.stringify(result.error));
+      err.resendError = result.error;
+      throw err;
+    }
+    const messageId = result?.data?.id || result?.id || null;
+    return {
+      id: messageId,
+      data: result?.data,
+      headers: result?.headers,
+      error: null
+    };
   }
 
   /**
@@ -142,17 +178,17 @@ class EmailService {
     try {
       const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
       
-      // Generate tracking URL
+      // Generate tracking URL — value-first continue unfinished brief
       const getStartedUrl = emailTracking.generateTrackingUrl(
-        finalBaseUrl, 
-        'welcome', 
+        `${finalBaseUrl}/?resumeBrief=1`,
+        'welcome',
         userId || 'anonymous',
         'get-started'
       );
       
       const html = emailTemplates.welcomeEmail(userName || userEmail.split('@')[0], getStartedUrl, creditsCount);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: 'Welcome to Specifys.ai - You\'ve Received 1 Free Credit!',
@@ -208,7 +244,7 @@ class EmailService {
       
       const html = emailTemplates.specReadyEmail(userName || userEmail.split('@')[0], specTitle, specLink);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: 'You did it! Your first specification is ready!',
@@ -265,7 +301,7 @@ class EmailService {
       const html = emailTemplates.specReadyEmailSubsequent(userName || userEmail.split('@')[0], specTitle, specLink);
       
       const subject = `Your specification "${specTitle}" is ready!`;
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: subject,
@@ -298,7 +334,7 @@ class EmailService {
    * @param {string} emailType - Email type for tracking (optional, defaults to 'newsletter')
    * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
    */
-  async sendNewsletterEmail(userEmail, userName, subject, htmlContent, unsubscribeUrl, userId = null, emailType = 'newsletter') {
+  async sendNewsletterEmail(userEmail, userName, subject, htmlContent, unsubscribeUrl, userId = null, emailType = 'newsletter', eventName = null) {
     if (!this.isConfigured()) {
       logger.warn('[EmailService] sendNewsletterEmail - Email service not configured');
       return { success: false, error: 'Email service not configured' };
@@ -312,7 +348,7 @@ class EmailService {
     try {
       // Add tracking to unsubscribe URL if not already tracked
       let finalUnsubscribeUrl = unsubscribeUrl;
-      if (userId && !unsubscribeUrl.includes('et=')) {
+      if (userId && unsubscribeUrl && !unsubscribeUrl.includes('et=')) {
         finalUnsubscribeUrl = emailTracking.generateTrackingUrl(
           unsubscribeUrl,
           emailType,
@@ -323,7 +359,7 @@ class EmailService {
       
       const html = emailTemplates.newsletterEmail(userName || userEmail.split('@')[0], htmlContent, finalUnsubscribeUrl);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: subject,
@@ -332,7 +368,14 @@ class EmailService {
 
       // Record email sent for analytics
       if (result.id) {
-        emailTracking.recordEmailSent(userId, userEmail, subject, 'newsletter', eventName || 'newsletter_sent', { messageId: result.id, emailType }).catch(err => {
+        emailTracking.recordEmailSent(
+          userId,
+          userEmail,
+          subject,
+          'newsletter',
+          eventName || emailType || 'newsletter_sent',
+          { messageId: result.id, emailType }
+        ).catch(err => {
           logger.warn({ error: err.message }, '[EmailService] Failed to record newsletter email sent');
         });
       }
@@ -366,7 +409,7 @@ class EmailService {
     try {
       const html = emailTemplates.notificationEmail(htmlContent);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: subject,
@@ -424,7 +467,7 @@ class EmailService {
         `
       );
 
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: recipient,
         subject: 'New Feedback from Specifys.ai',
@@ -469,7 +512,7 @@ class EmailService {
       
       const html = emailTemplates.inactiveUserEmail(userName || userEmail.split('@')[0], returnUrl, baseUrl);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: 'We Miss You at Specifys.ai',
@@ -533,7 +576,7 @@ class EmailService {
         accountUrl
       );
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: 'Thank You for Your Purchase',
@@ -589,7 +632,7 @@ class EmailService {
       
       const html = emailTemplates.advancedSpecReadyEmail(userName || userEmail.split('@')[0], specTitle, specLink);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: `Your advanced specification "${specTitle}" is ready!`,
@@ -648,7 +691,7 @@ class EmailService {
       
       const html = emailTemplates.toolFinderUsageEmail(userName || userEmail.split('@')[0], toolFinderUrl, createSpecUrl);
       
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: userEmail,
         subject: 'Tools Found for You',
@@ -671,6 +714,152 @@ class EmailService {
   }
 
   /**
+   * Continue unfinished spec (product lifecycle)
+   */
+  async sendUnfinishedSpecEmail(userEmail, userName, specTitle, specId, userId, baseUrl) {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'Email service not configured' };
+    }
+    if (!userEmail) {
+      return { success: false, error: 'User email missing' };
+    }
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const continueBase = specId
+        ? `${finalBaseUrl}/pages/spec-viewer.html?id=${specId}`
+        : `${finalBaseUrl}/?resumeBrief=1`;
+      const continueUrl = emailTracking.generateTrackingUrl(
+        continueBase,
+        'unfinished-spec',
+        userId || 'anonymous',
+        'continue-spec',
+        specId ? { specId } : {}
+      );
+      const html = emailTemplates.unfinishedSpecEmail(userName || userEmail.split('@')[0], specTitle, continueUrl);
+      const subject = 'Continue your unfinished Specifys spec';
+      const result = await this._send({ from: this.fromEmail, to: userEmail, subject, html });
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'unfinished-spec', 'lifecycle_unfinished', { messageId: result.id, specId }).catch(() => {});
+      }
+      logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Unfinished spec email sent');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ userEmail, error: error.message }, '[EmailService] Failed to send unfinished spec email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Reminder when stuck at overview-only (~24h)
+   */
+  async sendOverviewStuckEmail(userEmail, userName, specTitle, specId, userId, baseUrl) {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'Email service not configured' };
+    }
+    if (!userEmail) {
+      return { success: false, error: 'User email missing' };
+    }
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const continueUrl = emailTracking.generateTrackingUrl(
+        `${finalBaseUrl}/pages/spec-viewer.html?id=${specId}`,
+        'overview-stuck',
+        userId || 'anonymous',
+        'continue-pipeline',
+        { specId }
+      );
+      const html = emailTemplates.overviewStuckEmail(userName || userEmail.split('@')[0], specTitle, continueUrl);
+      const subject = 'Your overview is ready — continue to prompts';
+      const result = await this._send({ from: this.fromEmail, to: userEmail, subject, html });
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'overview-stuck', 'lifecycle_overview_stuck', { messageId: result.id, specId }).catch(() => {});
+      }
+      logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Overview-stuck email sent');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ userEmail, error: error.message }, '[EmailService] Failed to send overview-stuck email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Upgrade offer when free credits exhausted
+   */
+  async sendUpgradeOfferEmail(userEmail, userName, userId, baseUrl) {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'Email service not configured' };
+    }
+    if (!userEmail) {
+      return { success: false, error: 'User email missing' };
+    }
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const upgradeUrl = emailTracking.generateTrackingUrl(
+        `${finalBaseUrl}/pages/pricing.html?reason=insufficient_credits`,
+        'upgrade-offer',
+        userId || 'anonymous',
+        'upgrade-pro'
+      );
+      const html = emailTemplates.upgradeOfferEmail(userName || userEmail.split('@')[0], upgradeUrl);
+      const subject = 'Unlock Specifys Pro — Database Design, Cursor export & more';
+      const result = await this._send({ from: this.fromEmail, to: userEmail, subject, html });
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'upgrade-offer', 'lifecycle_upgrade_offer', { messageId: result.id }).catch(() => {});
+      }
+      logger.info({ userEmail, messageId: result.id }, '[EmailService] Upgrade offer email sent');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ userEmail, error: error.message }, '[EmailService] Failed to send upgrade offer email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Prompts ready — Cursor / MCP activation
+   */
+  async sendPromptsReadyMcpEmail(userEmail, userName, specTitle, specId, userId, baseUrl) {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'Email service not configured' };
+    }
+    if (!userEmail) {
+      return { success: false, error: 'User email missing' };
+    }
+    try {
+      const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+      const specUrl = emailTracking.generateTrackingUrl(
+        `${finalBaseUrl}/pages/spec-viewer.html?id=${specId}#prompts`,
+        'prompts-ready-mcp',
+        userId || 'anonymous',
+        'open-prompts',
+        { specId }
+      );
+      const mcpUrl = emailTracking.generateTrackingUrl(
+        `${finalBaseUrl}/pages/spec-viewer.html?id=${specId}#mcp`,
+        'prompts-ready-mcp',
+        userId || 'anonymous',
+        'connect-mcp',
+        { specId }
+      );
+      const html = emailTemplates.promptsReadyMcpEmail(
+        userName || userEmail.split('@')[0],
+        specTitle,
+        specUrl,
+        mcpUrl
+      );
+      const subject = 'Ready for Cursor & MCP — your prompts are live';
+      const result = await this._send({ from: this.fromEmail, to: userEmail, subject, html });
+      if (result.id) {
+        emailTracking.recordEmailSent(userId, userEmail, subject, 'prompts-ready-mcp', 'lifecycle_prompts_ready', { messageId: result.id, specId }).catch(() => {});
+      }
+      logger.info({ userEmail, specId, messageId: result.id }, '[EmailService] Prompts-ready MCP email sent');
+      return { success: true, messageId: result.id };
+    } catch (error) {
+      logger.error({ userEmail, error: error.message }, '[EmailService] Failed to send prompts-ready MCP email');
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Check Resend service health and configuration
    * @returns {Promise<{success: boolean, configured: boolean, fromEmail?: string, error?: string, lastChecked?: string}>}
    */
@@ -679,6 +868,8 @@ class EmailService {
       success: false,
       configured: this.isConfigured(),
       fromEmail: this.fromEmail,
+      audienceConfigured: !!this.getResendAudienceId(),
+      sdkResponseShape: 'data.id (Resend SDK v3+)',
       lastChecked: new Date().toISOString()
     };
 
@@ -688,10 +879,8 @@ class EmailService {
     }
 
     try {
-      // Try to validate the API key by checking domains (lightweight check)
-      // We'll attempt to get API key info if available, otherwise just verify the instance exists
-      // Since Resend SDK doesn't expose a direct health check, we verify the service is initialized
       result.success = true;
+      result.hasApiKey = true;
       logger.info({ fromEmail: this.fromEmail }, '[EmailService] Health check passed');
       return result;
     } catch (error) {
@@ -720,7 +909,13 @@ class EmailService {
 
     try {
       const finalBaseUrl = baseUrl || process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
-      
+      const trackedHomeUrl = emailTracking.generateTrackingUrl(
+        finalBaseUrl,
+        'test',
+        'verify-script',
+        'cta'
+      );
+
       const testHtml = emailTemplates.getBaseTemplate(
         'Test Email from Specifys.ai',
         `
@@ -737,7 +932,7 @@ class EmailService {
             <strong>Sent At:</strong> ${new Date().toLocaleString()}
           </p>
           <div class="btn-container">
-            <a href="${finalBaseUrl}" class="btn">Visit Specifys.ai</a>
+            <a href="${trackedHomeUrl}" class="btn">Visit Specifys.ai</a>
           </div>
           <p class="content-text">
             This is an automated test message. No action is required.
@@ -749,29 +944,28 @@ class EmailService {
         `
       );
 
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: toEmail,
         subject: 'Test Email - Specifys.ai Email System',
         html: testHtml
       });
 
-      // Check for explicit error first
-      if (result.error) {
-        logger.error({ toEmail, error: result.error }, '[EmailService] Failed to send test email via Resend');
-        return { success: false, error: result.error.message || JSON.stringify(result.error) };
-      }
-
-      // If we have an id, great - use it
       if (result.id) {
-        logger.info({ toEmail, messageId: result.id }, '[EmailService] Test email sent successfully');
-        return { success: true, messageId: result.id };
+        emailTracking.recordEmailSent(
+          null,
+          toEmail,
+          'Test Email - Specifys.ai Email System',
+          'test',
+          'email_system_verify',
+          { messageId: result.id }
+        ).catch(err => {
+          logger.warn({ error: err.message }, '[EmailService] Failed to record test email sent');
+        });
       }
 
-      // If no id but also no error, email was likely sent (Resend sometimes doesn't return id immediately)
-      // Log the full result for debugging
-      logger.info({ toEmail, result }, '[EmailService] Test email sent (no messageId in response, but no error)');
-      return { success: true, messageId: null, note: 'Email sent but no messageId returned in response' };
+      logger.info({ toEmail, messageId: result.id }, '[EmailService] Test email sent successfully');
+      return { success: true, messageId: result.id };
     } catch (error) {
       logger.error({ toEmail, error: error.message }, '[EmailService] Exception sending test email');
       return { success: false, error: error.message };
@@ -868,7 +1062,7 @@ class EmailService {
         `
       );
 
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: adminEmail,
         subject: `Weekly Error Summary - ${totalErrors} Errors (${weekStart} to ${weekEnd})`,
@@ -1036,7 +1230,7 @@ class EmailService {
         `
       );
 
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: adminEmail,
         subject: `Daily Report - ${date} - Specifys.ai`,
@@ -1221,7 +1415,7 @@ class EmailService {
         `
       );
 
-      const result = await this.resend.emails.send({
+      const result = await this._send({
         from: this.fromEmail,
         to: adminEmail,
         subject: `Weekly Report - ${weekStart} to ${weekEnd} - Specifys.ai`,

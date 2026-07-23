@@ -217,7 +217,7 @@ IMPORTANT RULES:
 8. Never make up information or refer to other specifications
 
 Always reference specific parts of the spec when relevant.`,
-          model: 'gpt-4o-mini',
+          model: 'gpt-5.6-luna',
           tools: [{ type: 'file_search' }],
           tool_resources: {
             file_search: {
@@ -1679,7 +1679,7 @@ IMPORTANT: Answer based on the context and knowledge you have about this specifi
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: assistant.model || 'gpt-4o-mini',
+          model: assistant.model || 'gpt-5.6-luna',
           messages: [
             {
               role: 'system',

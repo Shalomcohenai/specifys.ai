@@ -56,6 +56,7 @@ export class McpView {
     setText('#mcp-stat-users-with-key', d.usersWithKey ?? '—');
     setText('#mcp-stat-modal-opens', d.events?.mcp_modal_open ?? '—');
     setText('#mcp-stat-page-views', d.events?.mcp_page_view ?? '—');
+    setText('#mcp-stat-connected', d.events?.mcp_connected ?? '—');
     const total = d.apiRequests?.total ?? 0;
     setText('#mcp-stat-api-requests', total);
     const byClient = d.apiRequests?.byClient ?? {};
@@ -92,6 +93,7 @@ export class McpView {
     setText('#mcp-stat-users-with-key', '—');
     setText('#mcp-stat-modal-opens', '—');
     setText('#mcp-stat-page-views', '—');
+    setText('#mcp-stat-connected', '—');
     setText('#mcp-stat-api-requests', '—');
     setText('#mcp-stat-cursor', '—');
     setText('#mcp-stat-claude', '—');

@@ -384,7 +384,7 @@ The v2 engine uses **Chat Completions with Structured Outputs** — not the Assi
 
 1. **`resolveSpecGeneratorTarget()`** (in `spec-thread-manager.js`):
    - If `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` env var is set → `{ mode: 'assistant', assistantId }` (fetches model + instructions from the assistant record via `GET /v1/assistants/:id`, but does **not** use threads/runs)
-   - Otherwise → `{ mode: 'direct', model: OPENAI_SPEC_GENERATION_MODEL || 'gpt-4o-mini', instructions }` (no assistant at all)
+   - Otherwise → `{ mode: 'direct', model: OPENAI_SPEC_GENERATION_MODEL || 'gpt-5.6-luna', instructions }` (no assistant at all)
 
 2. **`runSpecGeneration(threadId, target, userMessage, responseFormat)`** (in `openai-storage-service.js`):
    - `threadId` parameter is **unused** (legacy correlation — for new specs the value is `'chat-completions'`)
@@ -586,7 +586,7 @@ These features use the **OpenAI Assistants API** (threads + runs + file_search) 
 - Per-spec assistant (cached in memory: `assistantCache`, `threadCache`)
 - Real OpenAI threads maintain conversation history
 - `ensureSpecUploaded` → `getOrCreateAssistant` (with vector store) → `createThread`
-- Model: `gpt-4o-mini` (hardcoded in `createAssistant`)
+- Model: `gpt-5.6-luna` (hardcoded in `createAssistant`)
 - Endpoints: `POST /api/chat/init`, `/message`, `/demo` (demo is rate-limited, no auth)
 - `POST /api/chat/diagrams/generate` returns `{ deprecated: true }` — diagrams are now embedded in Technical/Architecture sections
 - `POST /api/chat/diagrams/repair` uses `openaiStorage.repairDiagram` (Assistants path)
@@ -1095,7 +1095,7 @@ Backend (specs-routes.js → generate-overview)
   │
   ├─ Anchor write: status.overview = 'generating' (Firestore)
   ├─ Background (setImmediate):
-  │    ├─ resolveSpecGeneratorTarget() → { mode: 'direct', model: 'gpt-4o-mini' }
+  │    ├─ resolveSpecGeneratorTarget() → { mode: 'direct', model: 'gpt-5.6-luna' }
   │    ├─ POST https://api.openai.com/v1/chat/completions
   │    │    body: { model, messages: [system, user], response_format: OverviewPayloadSchema }
   │    ├─ Zod validation: parseAndValidateStage('overview', raw)
@@ -1218,7 +1218,7 @@ User → Pricing page → Lemon Squeezy checkout (external)
 User → Spec Viewer → Chat tab → POST /api/chat/init {specId}
   ├─ chatService.ensureSpecUploaded(specId) → POST /v1/files (purpose: assistants)
   ├─ chatService.getOrCreateAssistant(specId)
-  │    → POST /v1/assistants (gpt-4o-mini, file_search tool)
+  │    → POST /v1/assistants (gpt-5.6-luna, file_search tool)
   │    → POST /v1/vector_stores → attach file
   └─ chatService.createThread() → POST /v1/threads
      Return { threadId, assistantId }
@@ -1276,7 +1276,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | Variable | Purpose |
 |----------|---------|
 | `OPENAI_SPEC_GENERATOR_ASSISTANT_ID` | Pre-created generator assistant (skips auto-creation) |
-| `OPENAI_SPEC_GENERATION_MODEL` | Model override (default: `gpt-4o-mini`) |
+| `OPENAI_SPEC_GENERATION_MODEL` | Model override (default: `gpt-5.6-luna`) |
 | `OPENAI_SPEC_API_KEY` | Separate key for spec generation |
 | `CREDITS_V3_ENABLED` | Production: `true` required to mount `/api/v3/credits`. Non-production: V3 on unless set to `false`. |
 | `NODE_ENV` | `production` / `development` |

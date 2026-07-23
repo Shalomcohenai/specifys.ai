@@ -1,5 +1,8 @@
 ---
 layout: default
+perf_shell: lean
+skip_firebase: true
+skip_credits: true
 extra_css:
   - /assets/css/pages/post.css
 extra_js:
@@ -24,7 +27,7 @@ extra_js:
         
         <div class="post-meta">
             <div class="meta-item">
-                <i class="far fa-calendar-alt"></i>
+                <i class="far fa-calendar-alt" aria-hidden="true"></i>
                 <time datetime="{{ page.date | date_to_xmlschema }}" class="post-date">
                     {{ page.date | date: "%B %d, %Y" }}
                 </time>
@@ -32,13 +35,13 @@ extra_js:
             
             {% if page.author %}
             <div class="meta-item">
-                <i class="far fa-user"></i>
+                <i class="far fa-user" aria-hidden="true"></i>
                 <span class="post-author">{{ page.author }}</span>
             </div>
             {% endif %}
             
             <div class="meta-item">
-                <i class="far fa-clock"></i>
+                <i class="far fa-clock" aria-hidden="true"></i>
                 <span class="reading-time" id="reading-time">5 min read</span>
             </div>
         </div>
@@ -53,7 +56,7 @@ extra_js:
         
         {% if page.description %}
         <div class="post-description">
-            <i class="fas fa-quote-left quote-icon"></i>
+            <i class="fas fa-quote-left quote-icon" aria-hidden="true"></i>
             <p>{{ page.description }}</p>
         </div>
         {% endif %}
@@ -68,6 +71,8 @@ extra_js:
     <div class="post-body" id="post-body">
         {{ content }}
     </div>
+
+    {% include product-cta.html %}
     
     <footer class="post-footer">
         <!-- Share Buttons -->
@@ -75,16 +80,16 @@ extra_js:
             <h4>Share this article</h4>
             <div class="share-buttons">
                 <a href="#" class="share-btn twitter" onclick="shareOnTwitter(event)" aria-label="Share on Twitter">
-                    <i class="fab fa-twitter"></i>
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
                 </a>
                 <a href="#" class="share-btn linkedin" onclick="shareOnLinkedIn(event)" aria-label="Share on LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
+                    <i class="fab fa-linkedin-in" aria-hidden="true"></i>
                 </a>
                 <a href="#" class="share-btn facebook" onclick="shareOnFacebook(event)" aria-label="Share on Facebook">
-                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
                 </a>
                 <a href="#" class="share-btn copy" onclick="copyLink(event)" aria-label="Copy link">
-                    <i class="fas fa-link"></i>
+                    <i class="fas fa-link" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
@@ -121,7 +126,7 @@ extra_js:
         
         <div class="back-to-blog">
             <a href="{{ '/blog/' | relative_url }}" class="back-to-blog-btn">
-                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
                 <span>Back to All Articles</span>
             </a>
         </div>
@@ -130,6 +135,5 @@ extra_js:
 
 <!-- Back to Top Button -->
 <button class="back-to-top" id="back-to-top" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
 </button>
-

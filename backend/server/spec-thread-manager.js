@@ -89,7 +89,7 @@ class SpecThreadManager {
 
   /**
    * Resolve how to run spec JSON stages: existing assistant (needs api.assistants.read) or direct Chat Completions
-   * (needs only model access — set OPENAI_SPEC_GENERATION_MODEL, or defaults to gpt-4o-mini).
+   * (needs only model access — set OPENAI_SPEC_GENERATION_MODEL, or defaults to gpt-5.6-luna).
    * Never calls POST /assistants (avoids api.assistants.write on restricted keys).
    * @returns {Promise<{ mode: 'assistant', assistantId: string } | { mode: 'direct', model: string, instructions: string }>}
    */
@@ -104,7 +104,7 @@ class SpecThreadManager {
     }
 
     const configuredModel = process.env.OPENAI_SPEC_GENERATION_MODEL?.trim();
-    const model = configuredModel || 'gpt-4o-mini';
+    const model = configuredModel || 'gpt-5.6-luna';
     this._specGeneratorTarget = {
       mode: 'direct',
       model,
@@ -113,7 +113,7 @@ class SpecThreadManager {
     if (!configuredModel) {
       logger.warn(
         { model },
-        '[SpecThreadManager] OPENAI_SPEC_GENERATION_MODEL not set; using gpt-4o-mini. Set OPENAI_SPEC_GENERATION_MODEL or OPENAI_SPEC_GENERATOR_ASSISTANT_ID in production.'
+        '[SpecThreadManager] OPENAI_SPEC_GENERATION_MODEL not set; using gpt-5.6-luna. Set OPENAI_SPEC_GENERATION_MODEL or OPENAI_SPEC_GENERATOR_ASSISTANT_ID in production.'
       );
     } else {
       logger.info({ model }, '[SpecThreadManager] Using OPENAI_SPEC_GENERATION_MODEL (no Assistants API)');
@@ -195,7 +195,7 @@ class SpecThreadManager {
     const repairTarget =
       target.mode === 'direct'
         ? { ...target, instructions: MERMAID_REPAIR_SYSTEM }
-        : { mode: 'direct', model: process.env.OPENAI_SPEC_GENERATION_MODEL?.trim() || 'gpt-4o-mini', instructions: MERMAID_REPAIR_SYSTEM };
+        : { mode: 'direct', model: process.env.OPENAI_SPEC_GENERATION_MODEL?.trim() || 'gpt-5.6-luna', instructions: MERMAID_REPAIR_SYSTEM };
 
     const userMessage = `Fix the following Mermaid diagram so it parses cleanly with Mermaid 10.
 

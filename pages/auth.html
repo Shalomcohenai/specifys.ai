@@ -167,8 +167,8 @@
                     <a href="../index.html">Specifys.ai</a>
                 </div>
                 <div class="compact-login-header">
-                    <h1>Login to Your Specifys AI Dashboard</h1>
-                    <p>Sign in to continue your app development journey</p>
+                    <h1>Continue with Specifys</h1>
+                    <p>Sign in with Google or email — then finish your brief and open your Profile.</p>
                 </div>
 
                 <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
@@ -357,6 +357,37 @@
         const _apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || window.BACKEND_URL || '');
         console.log('[Auth] [ENV] origin=', _origin, 'hostname=', _hostname, 'apiBaseUrl=', _apiBaseUrl);
 
+        // Safe post-login redirect (supports ?next= / ?redirect= from product CTAs)
+        function getPostAuthRedirect(options) {
+            const opts = options || {};
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const next = params.get('next') || params.get('redirect');
+                if (next && next.startsWith('/') && !next.startsWith('//') && !next.includes('://')) {
+                    return next;
+                }
+                // Named destinations
+                if (next === 'profile' || params.get('redirect') === 'profile') {
+                    return '/pages/profile.html';
+                }
+                if (opts.preferProfile) {
+                    return '/pages/profile.html';
+                }
+                // Resume guest brief after signup
+                if (localStorage.getItem('pendingGuestBrief') || localStorage.getItem('guestBriefStarted') === '1') {
+                    return '/?resumeBrief=1';
+                }
+            } catch (e) { /* ignore */ }
+            return opts.preferProfile ? '/pages/profile.html' : '../index.html';
+        }
+
+        function redirectAfterAuth(message, preferProfile) {
+            showSuccess(message || 'Success! Taking you to your workspace...');
+            setTimeout(() => {
+                window.location.href = getPostAuthRedirect({ preferProfile: !!preferProfile });
+            }, 1200);
+        }
+
         /**
          * Persist the welcome-credit signal for the next page (index.html header).
          * Stores both the legacy boolean flags AND the actual credits count when known,
@@ -424,7 +455,7 @@
                         
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
-                            window.location.href = '../index.html';
+                            window.location.href = getPostAuthRedirect();
                         }, 1500);
                     } catch (error) {
 
@@ -466,7 +497,7 @@
                         persistWelcomeCreditSignal(initResult);
                     }
                     showSuccess('Login successful! Redirecting to homepage...');
-                    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+                    setTimeout(() => { window.location.href = getPostAuthRedirect(); }, 1500);
                 } else {
                     console.log('[Auth] checkRedirectResult: no redirect result (normal on first load or popup flow)');
                 }
@@ -851,10 +882,7 @@
             
             try {
                 await loginWithEmail(email, password);
-                showSuccess('Login successful! Redirecting to homepage...');
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1500);
+                redirectAfterAuth('Signed in — continuing…', false);
             } catch (error) {
                 showError(error.message);
             } finally {
@@ -893,10 +921,7 @@
             try {
                 const user = await registerWithEmail(email, password);
                 
-                showSuccess('Registration successful! Redirecting to homepage...');
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1500);
+                redirectAfterAuth('Account created — opening your Profile…', true);
             } catch (error) {
                 showError(error.message);
             } finally {
@@ -942,9 +967,10 @@
                     console.log('[Auth] signInWithPopup: createUserDocument done, redirecting in 1.5s');
                     if (isNewUser || (createResult && createResult.isNewUser)) {
                         persistWelcomeCreditSignal(createResult);
+                        redirectAfterAuth('Welcome — opening your Profile…', true);
+                    } else {
+                        redirectAfterAuth('Signed in — continuing…', false);
                     }
-                    showSuccess('Login successful! Redirecting to homepage...');
-                    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
                 })
                 .catch((error) => {
                     googlePopupInProgress = false;
@@ -1062,7 +1088,7 @@
             console.log('[Auth] onAuthStateChanged(2): user=', user ? { uid: user.uid, email: user.email } : null, 'googlePopupInProgress=', googlePopupInProgress, 'willRedirect=', !!(user && !googlePopupInProgress));
             if (user && !googlePopupInProgress) {
                 console.log('[Auth] onAuthStateChanged(2): redirecting to index');
-                window.location.href = '../index.html';
+                window.location.href = getPostAuthRedirect();
             }
         });
 

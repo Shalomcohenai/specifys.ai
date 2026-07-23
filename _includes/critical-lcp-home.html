@@ -1,0 +1,116 @@
+{# Inline critical CSS for homepage LCP — keep small; full styles still load via index.css #}
+<style id="critical-lcp-home">
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: #333333;
+    overflow: visible;
+    padding: 8rem 0 4rem 0;
+  }
+  #vanta-net {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    padding: 2rem 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-description-text {
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+    margin: 0 0 0.1rem;
+    text-align: center;
+    opacity: 1;
+    transform: none;
+  }
+  .hero-tagline {
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(0.77rem, 1.75vw, 0.98rem);
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    margin: 0.3rem 0 2.5rem;
+    opacity: 1;
+    transform: none;
+  }
+  .hero-button-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0 0 0.5rem 0;
+  }
+  .audience-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 auto 1.25rem;
+  }
+  .audience-picker-label {
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0;
+  }
+  .audience-picker-options {
+    display: inline-grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 0;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .audience-picker-btn {
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.78);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .audience-picker-btn-short { display: none; }
+  .browser-window-preview {
+    width: 100%;
+    max-width: 980px;
+    margin: 3rem auto 0;
+    padding: 0 40px;
+    content-visibility: auto;
+    contain-intrinsic-size: 980px 420px;
+  }
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 5rem 0 3rem 0;
+      min-height: auto;
+    }
+    .browser-window-preview {
+      margin: 2.5rem auto 0;
+      padding: 0 20px;
+    }
+  }
+</style>

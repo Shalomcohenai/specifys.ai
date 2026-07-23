@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
-    "build": "echo 'No build step'"
+    "build": "echo 'No build step'",
+    "verify:email": "node scripts/verify-resend-email.js --dry-run",
+    "verify:email:send": "node scripts/verify-resend-email.js --send --to=delivered@resend.dev"
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",

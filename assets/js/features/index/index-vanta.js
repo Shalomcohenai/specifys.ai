@@ -223,12 +223,26 @@
     observer.observe(heroSection);
   }
   
-  // Fallback: Load after 2 seconds if user hasn't scrolled (reduced from 5s for faster loading)
-  setTimeout(function() {
+  // Fallback: Load after idle / 4s — never compete with LCP paint
+  function scheduleDeferredVanta() {
+    var run = function () {
+      if (!vantaLoaded && document.visibilityState === 'visible') {
+        loadVantaOnDemand();
+      }
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(run, { timeout: 5000 });
+    } else {
+      setTimeout(run, 4000);
+    }
+  }
+  scheduleDeferredVanta();
+  // Hard fallback if idle never fires
+  setTimeout(function () {
     if (!vantaLoaded && document.visibilityState === 'visible') {
       loadVantaOnDemand();
     }
-  }, 2000);
+  }, 6000);
   
   // Also load on user interaction
   var interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];

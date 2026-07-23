@@ -231,6 +231,16 @@ service cloud.firestore {
       );
     }
 
+    // Email sent collection - for send analytics
+    match /email_sent/{sentId} {
+      // Only backend can write (via Admin SDK)
+      allow write: if false;
+      // Users can read their own sent records, admins can read all
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+    }
+
     // Error logs collection - admin only
     match /errorLogs/{logId} {
       allow read: if isAdmin();

@@ -710,6 +710,18 @@ async function consumeCredit(userId, specId, options = {}) {
     } catch (err) {
       logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Failed to get user email for activity recording');
     }
+
+    // Sprint B: upgrade offer when free credits hit zero (non-blocking)
+    if (!result.unlimited && result.remaining === 0 && !result.alreadyProcessed) {
+      try {
+        const { maybeSendUpgradeOfferAfterConsume } = require('./lifecycle-email-hooks');
+        maybeSendUpgradeOfferAfterConsume(userId, result).catch((err) => {
+          logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Upgrade offer email hook failed');
+        });
+      } catch (hookErr) {
+        logger.warn({ requestId, userId, error: hookErr.message }, '[CREDITS-V3] Upgrade offer hook require failed');
+      }
+    }
     
     return result;
   } catch (error) {

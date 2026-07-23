@@ -84,17 +84,25 @@
     if (textarea) textarea.value = JSON.stringify(config, null, 2);
   }
 
-  function trackMcpEvent(type) {
+  function trackMcpEvent(type, extra) {
     var user = getCurrentUser();
     if (!user) return;
     var apiBaseUrl = getApiBaseUrl();
+    var body = Object.assign({ type: type }, extra || {});
     user.getIdToken().then(function (token) {
       fetch(apiBaseUrl + '/api/users/me/mcp-event', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: type })
+        body: JSON.stringify(body)
       }).catch(function () {});
     }).catch(function () {});
+  }
+
+  function hasRealMcpKey() {
+    var key = window._mcpCurrentKeyForModal || '';
+    var input = document.getElementById('mcp-key-input');
+    if (input && input.value && input.value.trim()) key = input.value.trim();
+    return !!(key && key.indexOf('<YOUR_API_KEY') === -1 && key.length > 10);
   }
 
   window.openMcpModal = function () {
@@ -104,10 +112,11 @@
       document.documentElement.style.overflow = 'hidden';
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
       updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
       loadMcpApiKeyStatus();
       var jsonWrap = document.getElementById('mcp-modal-json-wrap');
-      if (jsonWrap) jsonWrap.classList.remove('revealed');
+      if (jsonWrap) jsonWrap.classList.add('revealed');
       trackMcpEvent('mcp_modal_open');
     }
   };
@@ -229,7 +238,12 @@
   window.copyMcpJson = function () {
     var textarea = document.getElementById('mcp-json-config');
     if (!textarea || !textarea.value) return;
-    navigator.clipboard.writeText(textarea.value).then(function () { showToast('JSON copied'); }).catch(function () {});
+    navigator.clipboard.writeText(textarea.value).then(function () {
+      showToast('MCP JSON copied — paste into Cursor Settings → MCP');
+      if (hasRealMcpKey()) {
+        trackMcpEvent('mcp_connected', { source: 'copy_mcp_json' });
+      }
+    }).catch(function () {});
   };
 
   if (typeof window.location !== 'undefined' && window.location.hash === '#mcp') {

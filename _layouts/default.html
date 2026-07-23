@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include head.html %}
-<body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}{% if page.no_track %} data-no-track="true"{% endif %}>
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+{% assign perf_shell = page.perf_shell | default: layout.perf_shell %}
+{% assign skip_firebase_flag = page.skip_firebase | default: layout.skip_firebase %}
+<body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}{% if page.no_track %} data-no-track="true"{% endif %}{% if perf_shell %} data-perf-shell="{{ perf_shell }}"{% endif %}>
     <!-- Header -->
     {% unless page.hide_header %}
     {% include header.html %}
@@ -19,10 +20,12 @@
     {% endunless %}
     
     <!-- Scroll to top button -->
+    {% unless perf_shell == 'lean' %}
     {% include scroll-to-top.html %}
+    {% endunless %}
     
-    <!-- Firebase SDK & Auth -->
-    {% unless page.custom_firebase %}
+    <!-- Firebase SDK & Auth (skipped on lean content shells for LCP) -->
+    {% unless page.custom_firebase or skip_firebase_flag or perf_shell == 'lean' %}
     {% include firebase-init.html %}
     {% include firebase-auth.html %}
     {% endunless %}
@@ -37,6 +40,56 @@
       {% for js in layout.extra_js %}
         <script defer src="{{ js | relative_url }}"></script>
       {% endfor %}
+    {% endif %}
+    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
+    {% if page.idle_js %}
+    <script>
+      (function () {
+        var sources = {{ page.idle_js | jsonify }};
+        if (!sources || !sources.length) return;
+        var loading = null;
+        function loadOne(src) {
+          return new Promise(function (resolve, reject) {
+            var existing = document.querySelector('script[data-idle-src="' + src + '"]');
+            if (existing) {
+              if (existing.getAttribute('data-idle-loaded') === '1') return resolve();
+              existing.addEventListener('load', function () { resolve(); });
+              existing.addEventListener('error', function () { reject(new Error(src)); });
+              return;
+            }
+            var s = document.createElement('script');
+            s.src = src;
+            s.defer = true;
+            s.setAttribute('data-idle-src', src);
+            s.onload = function () {
+              s.setAttribute('data-idle-loaded', '1');
+              resolve();
+            };
+            s.onerror = function () { reject(new Error(src)); };
+            document.body.appendChild(s);
+          });
+        }
+        window.__specifysEnsureIdleScripts = function () {
+          if (!loading) {
+            loading = sources.reduce(function (chain, src) {
+              return chain.then(function () { return loadOne(src); });
+            }, Promise.resolve());
+          }
+          return loading;
+        };
+        function scheduleIdleLoad() {
+          var run = function () {
+            if (window.__specifysEnsureIdleScripts) window.__specifysEnsureIdleScripts();
+          };
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(run, { timeout: 4000 });
+          } else {
+            window.addEventListener('load', function () { setTimeout(run, 1500); });
+          }
+        }
+        scheduleIdleLoad();
+      })();
+    </script>
     {% endif %}
     <!-- Custom JavaScript Modules -->
     {% if page.custom_js_modules %}

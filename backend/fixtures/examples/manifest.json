@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-07-23T11:05:45.085Z",
+  "defaultExampleId": "relaydesk",
+  "examples": [
+    {
+      "id": "relaydesk",
+      "templateId": null,
+      "title": "RelayDesk",
+      "category": "Support Inbox",
+      "icon": "fa-inbox",
+      "shortDesc": "Shared support inbox with macros and SLA lite for indie SaaS.",
+      "demoAnchor": "overview",
+      "answers": [
+        "A lightweight shared customer support inbox for indie SaaS founders with macros and SLA lite timers.",
+        "Founder connects support email → teammates assign threads → reply with macros → watch first-response SLA → resolve and search history.",
+        "Email sync, macros with variables, flat pricing, and simple open/pending/resolved workflow."
+      ],
+      "path": "/assets/data/example-specs/relaydesk.json"
+    },
+    {
+      "id": "crm",
+      "templateId": "crm",
+      "title": "Pipeboard",
+      "category": "CRM",
+      "icon": "fa-address-book",
+      "shortDesc": "Pipeline, leads, and follow-ups for small sales teams.",
+      "demoAnchor": "overview",
+      "answers": [
+        "A B2B CRM for small sales teams that tracks leads, deals, and follow-ups with a visual pipeline, activity reminders, and team ownership.",
+        "Rep captures a lead → qualifies → moves the deal through stages → logs calls and notes → closes or hands off.",
+        "Email/calendar sync basics, roles for admin and rep, mobile-friendly views, and conversion reporting by stage."
+      ],
+      "path": "/assets/data/example-specs/crm.json"
+    },
+    {
+      "id": "marketplace",
+      "templateId": "marketplace",
+      "title": "Stallio",
+      "category": "Marketplace",
+      "icon": "fa-store",
+      "shortDesc": "Two-sided marketplace with listings, search, and checkout.",
+      "demoAnchor": "technical",
+      "answers": [
+        "A two-sided marketplace where sellers list products or services and buyers discover, compare, and purchase with ratings and messaging.",
+        "Seller creates a listing → buyer searches → views detail → messages or checks out → order and payouts tracked.",
+        "Search and filters, payments, reviews, dispute basics, and admin moderation tools."
+      ],
+      "path": "/assets/data/example-specs/marketplace.json"
+    },
+    {
+      "id": "booking",
+      "templateId": "booking",
+      "title": "Slotly",
+      "category": "Booking",
+      "icon": "fa-calendar-check",
+      "shortDesc": "Appointments with availability, reminders, and payments.",
+      "demoAnchor": "diagrams",
+      "answers": [
+        "An appointment booking platform for local services with real-time availability, reminders, and optional deposits.",
+        "Customer picks service and provider → chooses slot → confirms → reminders → attends or reschedules; provider manages calendar.",
+        "Calendar sync, SMS/email reminders, deposits, staff roles, and customer history."
+      ],
+      "path": "/assets/data/example-specs/booking.json"
+    },
+    {
+      "id": "ai-saas",
+      "templateId": "ai-saas",
+      "title": "PromptForge",
+      "category": "AI SaaS",
+      "icon": "fa-robot",
+      "shortDesc": "AI workspace with prompts, history, and team seats.",
+      "demoAnchor": "prompts",
+      "answers": [
+        "An AI SaaS workspace where teams run guided workflows with saved prompts, usage limits, and shared projects.",
+        "User signs up → creates a project → runs a workflow → reviews output → saves or exports; admins manage seats and billing.",
+        "Auth, usage metering, prompt templates, export, and team roles (owner, member)."
+      ],
+      "path": "/assets/data/example-specs/ai-saas.json"
+    },
+    {
+      "id": "social",
+      "templateId": "social",
+      "title": "Trailfeed",
+      "category": "Social Network",
+      "icon": "fa-users",
+      "shortDesc": "Feed, profiles, follows, and notifications for a niche community.",
+      "demoAnchor": "market",
+      "answers": [
+        "A niche social network with profiles, follows, a chronological or ranked feed, posts with media, and notifications.",
+        "User creates a profile → follows people or topics → posts updates → engages → gets notified.",
+        "Feed ranking basics, media upload, report/block, and push/email notifications."
+      ],
+      "path": "/assets/data/example-specs/social.json"
+    }
+  ]
+}

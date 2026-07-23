@@ -1250,15 +1250,8 @@ function displaySpec(data) {
             if (designTab) {
                 designTab.disabled = false;
             }
-            // Enable mockup tab when design is ready (only for PRO users)
-            checkProAccess().then(hasProAccess => {
-                if (hasProAccess) {
-                    const mockupTab = document.getElementById('mockupTab');
-                    if (mockupTab) {
-                        mockupTab.disabled = false;
-                    }
-                }
-            });
+            // Mockups stage is hidden by default (Sprint C); updateMockupTab respects SPECIFYS_ENABLE_MOCKUPS
+            updateMockupTab();
         }
         updateVisibilityEngineTab();
         
@@ -1357,6 +1350,12 @@ function displaySpec(data) {
     setTimeout(() => {
         initializeAllSubsections();
     }, 500);
+
+    // First-visit tour after create (?welcome=1). Wait longer if the brief progress UX is showing.
+    if (typeof window.maybeStartSpecViewerTour === 'function') {
+        const tourDelayMs = (isRecentlyCreated && !isGenerating) ? 3200 : 700;
+        window.maybeStartSpecViewerTour({ delayMs: tourDelayMs });
+    }
     
     // Spec is already saved to Firebase from processing page
 }
@@ -1978,9 +1977,13 @@ function displayMarket(market) {
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
-    // Format the market content
-    const formattedContent = formatTextContent(market);
-    container.innerHTML = formattedContent;
+    // Format the market content (enriched visuals when available)
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.appendEnrichedMarket === 'function') {
+        uiRenderer.appendEnrichedMarket(container, market, formatTextContent);
+    } else {
+        container.innerHTML = formatTextContent(market);
+    }
     enhanceClarificationUI(container, 'market');
     
     // Update subsections after content is loaded
@@ -2347,8 +2350,6 @@ function displayDesign(design) {
     // Hide loading state
     displaySectionLoading(headerElement, false);
     
-    const formattedContent = formatTextContent(design);
-    
     // Update subsections after content is loaded
     setTimeout(() => {
         if (window.currentTab === 'design') {
@@ -2356,7 +2357,12 @@ function displayDesign(design) {
         }
     }, 100);
 
-    container.innerHTML = formattedContent;
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.appendEnrichedDesign === 'function') {
+        uiRenderer.appendEnrichedDesign(container, design, formatTextContent);
+    } else {
+        container.innerHTML = formatTextContent(design);
+    }
     enhanceClarificationUI(container, 'design');
     
     // Update raw data
@@ -2695,6 +2701,10 @@ async function displayVisibilityEngine(visibilityData, specContext = {}) {
         ...(resolvedData && typeof resolvedData === 'object' ? resolvedData : {})
     };
     container.innerHTML = buildVisibilityEngineHtml(mergedData);
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.appendEnrichedVisibility === 'function') {
+        uiRenderer.appendEnrichedVisibility(container, resolvedData);
+    }
     renderSpecMermaidPlaceholders(container);
     setTimeout(() => updateSubsections('visibility-engine'), 0);
 }
@@ -2732,6 +2742,25 @@ function displayArchitectureFromData(data) {
 
     const architectureTab = document.getElementById('architectureTab');
     if (architectureTab) architectureTab.classList.remove('generated');
+
+    // Structured architecture object (enriched schema) — visual document renderer
+    const uiRenderer = window.uiRenderer;
+    if (data.architecture && typeof data.architecture === 'object' && uiRenderer?.tryRenderStructuredArchitecture) {
+        const structuredHtml = uiRenderer.tryRenderStructuredArchitecture(data.architecture);
+        if (structuredHtml) {
+            container.innerHTML = structuredHtml;
+            if (typeof renderSpecMermaidPlaceholders === 'function') {
+                renderSpecMermaidPlaceholders(container);
+            } else if (window.diagramEngine?.renderSpecMermaidPlaceholders) {
+                window.diagramEngine.renderSpecMermaidPlaceholders(container);
+            }
+            if (uiRenderer.enhanceSpecTermTooltips) {
+                uiRenderer.enhanceSpecTermTooltips(container);
+            }
+            if (architectureTab) architectureTab.classList.add('generated');
+            return;
+        }
+    }
 
     // Architecture content exists — render it and show orange icon
     if (data.architecture && typeof data.architecture === 'string' && data.architecture.trim()) {
@@ -2910,6 +2939,9 @@ function displayArchitecture(content, containerEl) {
     var tail = (textParts[mermaidParts.length] || '').trim();
     if (tail) {
         appendArchitectureTextSegment(tail);
+    }
+    if (window.uiRenderer && typeof window.uiRenderer.enhanceSpecTermTooltips === 'function') {
+        window.uiRenderer.enhanceSpecTermTooltips(container);
     }
 }
 
@@ -3623,6 +3655,11 @@ function formatJSONContent(jsonData) {
     if (jsonData.design && typeof jsonData.design === 'object') {
         jsonData = jsonData.design;
     }
+
+    // Heal drifted / empty feature & screen field aliases (legacy + broken enriched gens)
+    if (window.uiRenderer && typeof window.uiRenderer.normalizeOverviewDisplayFields === 'function') {
+        jsonData = window.uiRenderer.normalizeOverviewDisplayFields(jsonData);
+    }
     
     // Handle new Overview structure
     if (jsonData.ideaSummary) {
@@ -3633,35 +3670,29 @@ function formatJSONContent(jsonData) {
         html += renderSuggestionsBlock('ideaSummary', jsonData.suggestionsIdeaSummary);
     }
     
-    // Handle new Detailed User Flow (moved to position 2, after Idea Summary)
-    if (jsonData.detailedUserFlow) {
-        html += '<div class="content-section">';
-        html += '<h3><i class="fa fa-sitemap"></i> Detailed User Flow</h3>';
-        
-        if (jsonData.detailedUserFlow.steps && Array.isArray(jsonData.detailedUserFlow.steps)) {
-            html += '<div class="user-flow-diagram">';
-            jsonData.detailedUserFlow.steps.forEach((step, index) => {
-                // Remove "Step X:" prefix if it already exists in the step text
-                const cleanedStep = step.replace(/^Step\s+\d+:\s*/i, '').trim();
-                
-                // Create flow box
-                html += '<div class="flow-item">';
-                html += `<div class="flow-box">`;
-                html += `<div class="flow-step-number">Step ${index + 1}</div>`;
-                html += `<div class="flow-step-text">${escapeHtml(cleanedStep)}</div>`;
+    // Detailed User Flow — journey rail (enriched visual language)
+    if (jsonData.detailedUserFlow && Array.isArray(jsonData.detailedUserFlow.steps) && jsonData.detailedUserFlow.steps.length) {
+        if (window.uiRenderer && typeof window.uiRenderer.renderDetailedUserFlowRail === 'function') {
+            html += window.uiRenderer.renderDetailedUserFlowRail(jsonData.detailedUserFlow.steps);
+        } else {
+            html += '<div class="content-section detailed-user-flow-section">';
+            html += '<h3><i class="fa fa-sitemap"></i> Detailed User Flow</h3>';
+            html += '<ol class="user-flow-rail" aria-label="Detailed user flow">';
+            jsonData.detailedUserFlow.steps.forEach(function (step, index) {
+                const cleaned = String(step || '').replace(/^Step\s+\d+\s*[:.\-–—]\s*/i, '').trim();
+                const isLast = index === jsonData.detailedUserFlow.steps.length - 1;
+                html += '<li class="user-flow-rail-step' + (isLast ? ' is-last' : '') + '">';
+                html += '<div class="user-flow-rail-track" aria-hidden="true">';
+                html += '<span class="user-flow-rail-node"><span class="user-flow-rail-index">' + (index + 1) + '</span></span>';
+                if (!isLast) html += '<span class="user-flow-rail-line"></span>';
                 html += '</div>';
-                
-                // Add arrow between steps (not after last step) - DOWN arrow
-                if (index < jsonData.detailedUserFlow.steps.length - 1) {
-                    html += '<div class="flow-arrow">↓</div>';
-                }
-                
-                html += '</div>';
+                html += '<div class="user-flow-rail-content">';
+                html += '<h4 class="user-flow-rail-title">Step ' + (index + 1) + '</h4>';
+                html += '<p class="user-flow-rail-detail">' + escapeHtml(cleaned) + '</p>';
+                html += '</div></li>';
             });
-            html += '</div>';
+            html += '</ol></div>';
         }
-        
-        html += '</div>';
     }
     
     // Handle new Target Audience structure
@@ -3706,8 +3737,8 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle new Core Features Overview
-    if (jsonData.coreFeaturesOverview && Array.isArray(jsonData.coreFeaturesOverview)) {
+    // Handle new Core Features Overview (skip empty arrays — never show a blank section)
+    if (jsonData.coreFeaturesOverview && Array.isArray(jsonData.coreFeaturesOverview) && jsonData.coreFeaturesOverview.length) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-star"></i> Core Features Overview</h3>';
         html += '<ul>';
@@ -3736,17 +3767,24 @@ function formatJSONContent(jsonData) {
     }
     
     // Handle new Screen Descriptions (unified with UI Components)
+    // Never render a hollow "Screens (0 total)" section — only show when there is content.
     if (jsonData.screenDescriptions) {
+        const screensList = Array.isArray(jsonData.screenDescriptions.screens)
+            ? jsonData.screenDescriptions.screens
+            : [];
+        const navStructure = jsonData.screenDescriptions.navigationStructure;
+
+        if (screensList.length > 0 || navStructure) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-desktop"></i> Screen Descriptions</h3>';
-        
-        if (jsonData.screenDescriptions.screens && Array.isArray(jsonData.screenDescriptions.screens)) {
-            html += '<h4>Screens (' + jsonData.screenDescriptions.screens.length + ' total):</h4>';
+
+        if (screensList.length > 0) {
+            html += '<h4>Screens (' + screensList.length + ' total):</h4>';
             
             // Create responsive grid for screen cards
             html += '<div class="screens-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">';
             
-            jsonData.screenDescriptions.screens.forEach((screen, index) => {
+            screensList.forEach((screen, index) => {
                 // Handle both old format (string) and new format (object)
                 if (typeof screen === 'string') {
                     // Legacy format - convert to new format
@@ -3791,14 +3829,15 @@ function formatJSONContent(jsonData) {
             html += '</div>'; // Close screens-grid
         }
         
-        if (jsonData.screenDescriptions.navigationStructure) {
+        if (navStructure) {
             html += '<div style="margin-top: 30px;">';
             html += '<h4>Navigation Structure:</h4>';
-            html += `<p style="line-height: 1.6;">${escapeHtml(jsonData.screenDescriptions.navigationStructure)}</p>`;
+            html += `<p style="line-height: 1.6;">${escapeHtml(navStructure)}</p>`;
             html += '</div>';
         }
         
         html += '</div>';
+        }
     }
     
     // Handle applicationSummary
@@ -3811,8 +3850,13 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle coreFeatures
-    if (jsonData.coreFeatures && Array.isArray(jsonData.coreFeatures)) {
+    // Handle legacy coreFeatures only when coreFeaturesOverview was not already rendered
+    if (
+        jsonData.coreFeatures &&
+        Array.isArray(jsonData.coreFeatures) &&
+        jsonData.coreFeatures.length &&
+        !(jsonData.coreFeaturesOverview && jsonData.coreFeaturesOverview.length)
+    ) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-star"></i> Core Features</h3>';
         html += '<ul>';
@@ -4794,31 +4838,6 @@ function formatJSONContent(jsonData) {
         
         if (jsonData.uniqueSellingProposition.proofPoints) {
             html += `<p><strong>Proof Points:</strong> ${jsonData.uniqueSellingProposition.proofPoints}</p>`;
-        }
-        
-        html += '</div>';
-    }
-    
-    // Handle new Monetization Model
-    if (jsonData.monetizationModel) {
-        html += '<div class="content-section">';
-        html += '<h3><i class="fa fa-dollar"></i> Monetization Model</h3>';
-        
-        if (jsonData.monetizationModel.proposedModels && Array.isArray(jsonData.monetizationModel.proposedModels)) {
-            html += '<h4>Proposed Models:</h4>';
-            html += '<ul>';
-            jsonData.monetizationModel.proposedModels.forEach(model => {
-                html += `<li>${model}</li>`;
-            });
-            html += '</ul>';
-        }
-        
-        if (jsonData.monetizationModel.recommendations) {
-            html += `<p><strong>Recommendations:</strong> ${jsonData.monetizationModel.recommendations}</p>`;
-        }
-        
-        if (jsonData.monetizationModel.pricingStrategy) {
-            html += `<p><strong>Pricing Strategy:</strong> ${jsonData.monetizationModel.pricingStrategy}</p>`;
         }
         
         html += '</div>';
@@ -6249,6 +6268,24 @@ async function updateEditButton() {
 async function updateMockupTab() {
     const mockupTab = document.getElementById('mockupTab');
     if (!mockupTab) return;
+
+    // Sprint C: mockups are a low-usage late stage (~2% ready) — keep UI hidden
+    const mockupsEnabled = window.SPECIFYS_ENABLE_MOCKUPS === true;
+    const mockupItem = mockupTab.closest('.side-menu-item');
+    if (!mockupsEnabled) {
+        mockupTab.disabled = true;
+        mockupTab.hidden = true;
+        if (mockupItem) {
+            mockupItem.classList.add('hidden');
+            mockupItem.hidden = true;
+        }
+        return;
+    }
+    if (mockupItem) {
+        mockupItem.classList.remove('hidden');
+        mockupItem.hidden = false;
+    }
+    mockupTab.hidden = false;
     
     const hasProAccess = await checkProAccess();
     
@@ -6307,15 +6344,8 @@ function refreshTabsAfterDesignReady() {
             enableBrainDumpTab();
         }
 
-        // Enable mockup tab when design is ready (only for PRO users)
-        checkProAccess().then(hasProAccess => {
-            if (hasProAccess) {
-                const mockupTab = document.getElementById('mockupTab');
-                if (mockupTab) {
-                    mockupTab.disabled = false;
-                }
-            }
-        });
+        // Mockups stage is hidden by default (Sprint C); updateMockupTab respects SPECIFYS_ENABLE_MOCKUPS
+        updateMockupTab();
     }
     updateVisibilityEngineTab();
     
@@ -6883,7 +6913,7 @@ async function approveOverview() {
         setFeatureLoading('overview', false);
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
         }
         
     } catch (error) {
@@ -6902,7 +6932,7 @@ async function approveOverview() {
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
         }
     }
 }
@@ -8685,6 +8715,34 @@ function displayPrompts(promptsData) {
     
     // Clear container
     container.innerHTML = '';
+
+    const uiRenderer = window.uiRenderer;
+    if (uiRenderer && typeof uiRenderer.appendEnrichedPrompts === 'function') {
+        uiRenderer.appendEnrichedPrompts(container, promptsData);
+    }
+
+    // Success next-actions: Copy to Cursor / Connect MCP + activation checklist
+    const nextActions = document.createElement('div');
+    nextActions.className = 'prompts-next-actions';
+    nextActions.innerHTML = `
+        <p class="prompts-next-actions-label">Next actions</p>
+        <button type="button" class="btn btn-primary" onclick="copyPromptToClipboard()">
+            <i class="fa fa-copy" aria-hidden="true"></i> Copy to Cursor
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="window.openMcpModal && window.openMcpModal()">
+            <i class="fa fa-plug" aria-hidden="true"></i> Connect MCP
+        </button>
+    `;
+    container.appendChild(nextActions);
+
+    const checklist = document.createElement('ul');
+    checklist.className = 'prompts-activation-checklist';
+    checklist.innerHTML = `
+        <li><i class="fa fa-check-circle" aria-hidden="true"></i> <span>Copy the full prompt into Cursor (or your AI IDE)</span></li>
+        <li><i class="fa fa-check-circle" aria-hidden="true"></i> <span>Connect MCP in 2 clicks so Cursor can read this live spec</span></li>
+        <li><i class="fa fa-check-circle" aria-hidden="true"></i> <span>Optional: export Cursor/Windsurf pack from the Export tab</span></li>
+    `;
+    container.appendChild(checklist);
     
     // Create full prompt section
     const fullPromptSection = document.createElement('div');
@@ -8693,7 +8751,7 @@ function displayPrompts(promptsData) {
         <div class="prompt-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3><i class="fa fa-code"></i> Full Development Prompt</h3>
             <button onclick="copyPromptToClipboard()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px; background-color: #ff6b35; color: white; border: none; margin-left: 15px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#e55a2b'" onmouseout="this.style.backgroundColor='#ff6b35'">
-                <i class="fa fa-copy" style="color: white !important;"></i> Copy Prompt
+                <i class="fa fa-copy"></i> Copy to Cursor
             </button>
         </div>
         <div class="prompt-content" id="full-prompt-content" style="background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; overflow-x: auto; max-width: 100%;">
@@ -9502,15 +9560,81 @@ function renderSpecGenerationProgress(spec) {
 
     if (allDone) {
         stageLabel.textContent = `All specifications ready · ${total}/${total}`;
+        updateStageRecoveryBanner(spec);
         return;
     }
 
     const status = spec?.status || {};
     const stageStatus = currentStage ? status[currentStage.key] : undefined;
-    const verb = stageStatus === 'generating' ? 'Generating' : 'Queued';
+    const verb = stageStatus === 'generating' ? 'Generating' : (stageStatus === 'error' ? 'Failed' : 'Queued');
     const safeLabel = currentStage?.label || 'Next stage';
     stageLabel.textContent = `${verb}: ${safeLabel} · ${completed}/${total} done`;
+    updateStageRecoveryBanner(spec);
 }
+
+/**
+ * Show recovery CTA when stages are error/stuck generating after overview approval.
+ */
+function updateStageRecoveryBanner(spec) {
+    const banner = document.getElementById('stage-recovery-banner');
+    if (!banner) return;
+    const status = spec?.status || {};
+    const failed = [];
+    const stuck = [];
+    const STUCK_MS = 12 * 60 * 1000;
+    const updatedAt = spec?.updatedAt?.toDate ? spec.updatedAt.toDate() : (spec?.updatedAt ? new Date(spec.updatedAt) : null);
+
+    ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].forEach((key) => {
+        const s = status[key];
+        if (s === 'error') failed.push(key);
+        if (s === 'generating' && updatedAt && (Date.now() - updatedAt.getTime() > STUCK_MS)) {
+            stuck.push(key);
+        }
+    });
+
+    if (!failed.length && !stuck.length) {
+        banner.hidden = true;
+        banner.classList.add('hidden');
+        return;
+    }
+
+    const titleEl = document.getElementById('stage-recovery-title');
+    const msgEl = document.getElementById('stage-recovery-message');
+    if (titleEl) {
+        titleEl.textContent = failed.length ? 'Stage error — recover and continue' : 'Generation looks stuck';
+    }
+    if (msgEl) {
+        const parts = [];
+        if (failed.length) parts.push(`Failed: ${failed.join(', ')}`);
+        if (stuck.length) parts.push(`Possibly stuck: ${stuck.join(', ')}`);
+        msgEl.textContent = `${parts.join('. ')}. Retry to continue toward Prompts, then Copy to Cursor / Connect MCP.`;
+    }
+    banner.hidden = false;
+    banner.classList.remove('hidden');
+}
+
+async function retryStuckOrFailedStages() {
+    if (!currentSpecData?.id) {
+        showNotification('No spec loaded', 'error');
+        return;
+    }
+    const status = currentSpecData.status || {};
+    const needsRetry = ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].some((k) => {
+        return status[k] === 'error' || status[k] === 'generating';
+    });
+    if (!needsRetry && status.overview === 'ready') {
+        return approveOverview();
+    }
+    try {
+        showNotification('Retrying pipeline from overview…', 'info');
+        return await approveOverview();
+    } catch (e) {
+        showNotification('Retry failed. Try again in a moment.', 'error');
+    }
+}
+
+window.retryStuckOrFailedStages = retryStuckOrFailedStages;
+window.updateStageRecoveryBanner = updateStageRecoveryBanner;
 
 /**
  * Start progress bar with rotating messages

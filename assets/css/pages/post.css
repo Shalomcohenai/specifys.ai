@@ -334,6 +334,84 @@
   box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
+/* Below-fold article images only — keep first image eligible for LCP */
+.post-body img:not(:first-of-type) {
+  content-visibility: auto;
+  contain-intrinsic-size: 600px 340px;
+}
+
+/* ============================================
+   Product CTA (Sprint A4)
+   ============================================ */
+
+.product-cta {
+  margin: var(--spacing-2xl, 3rem) 0;
+  padding: var(--spacing-xl, 2rem) var(--spacing-lg, 1.5rem);
+  background: var(--primary-light, #FFF4F0);
+  border: 1px solid rgba(255, 107, 53, 0.25);
+  border-radius: var(--border-radius-lg, 1rem);
+  text-align: center;
+}
+
+.product-cta-lead {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin: 0 0 var(--spacing-sm, 0.5rem);
+}
+
+.product-cta-copy {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--text-secondary, #666);
+  margin: 0 auto var(--spacing-lg, 1.5rem);
+  max-width: 36rem;
+  line-height: 1.5;
+}
+
+.product-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.product-cta-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.product-cta-btn--primary {
+  background: var(--primary-color, #FF6B35);
+  color: #fff;
+  border: 1px solid var(--primary-color, #FF6B35);
+}
+
+.product-cta-btn--primary:hover {
+  background: var(--primary-hover, #FF8551);
+  border-color: var(--primary-hover, #FF8551);
+  color: #fff;
+  text-decoration: none;
+}
+
+.product-cta-btn--secondary {
+  background: #fff;
+  color: var(--primary-color, #FF6B35);
+  border: 1px solid rgba(255, 107, 53, 0.45);
+}
+
+.product-cta-btn--secondary:hover {
+  background: #fff;
+  color: var(--primary-hover, #FF8551);
+  text-decoration: none;
+}
+
+
 .post-body hr {
   border: none;
   border-top: 2px solid var(--border-light, #e9ecef);

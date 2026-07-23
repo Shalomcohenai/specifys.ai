@@ -51,11 +51,11 @@ extra_js:
                     <span class="nav-btn-indicator"></span>
                     <span>Audience</span>
                 </button>
-                <button onclick="openSection('screenshot')" class="nav-btn nav-btn-screenshot" type="button" data-section="screenshot">
+                <button onclick="openSection('screenshot')" class="nav-btn nav-btn-screenshot nav-btn-secondary-opt" type="button" data-section="screenshot" title="Optional — prefer Features presets when possible">
                     <span class="nav-btn-indicator"></span>
                     <span class="nav-btn-label-stack">
-                        <span class="nav-btn-main-label">Screenshot</span>
-                        <span class="nav-btn-new-badge" aria-label="New feature">NEW!</span>
+                        <span class="nav-btn-main-label">UI refs</span>
+                        <span class="nav-btn-optional-hint">optional</span>
                     </span>
                 </button>
             </div>
@@ -128,7 +128,7 @@ extra_js:
 
                 <div id="view-screenshot" class="section-view hidden-el">
                     <div class="screenshot-section">
-                        <p class="screenshot-lead">Upload UI references (screenshots)—up to <strong>10</strong> per spec. Add a short note, run AI analysis, edit the English description, then confirm. Confirmed items are included in your final spec.</p>
+                        <p class="screenshot-lead">Optional UI references — prefer <strong>Features</strong> presets when they cover what you need. Upload screenshots only for unique layouts (up to <strong>10</strong>). Add a short note, run analysis, edit, then confirm.</p>
                         <p id="screenshot-at-limit-notice" class="screenshot-at-limit-notice hidden-el" role="status">You’ve reached the maximum of 10 screenshot references for this spec. Remove one to add another.</p>
                         <div id="screenshot-confirmed-list" class="screenshot-confirmed-list" aria-live="polite"></div>
                         <div class="screenshot-composer">

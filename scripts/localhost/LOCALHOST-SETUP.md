@@ -100,9 +100,12 @@ LEMON_WEBHOOK_SECRET=your_secret_here
 # OpenAI (נדרש רק אם בודקים תכונות Chat)
 OPENAI_API_KEY=sk-your-key-here
 
-# Email (אופציונלי)
+# Email (Resend — required for transactional mail)
 RESEND_API_KEY=re_your_key_here
-RESEND_FROM_EMAIL=your-email@domain.com
+RESEND_FROM_EMAIL=Specifys-Ai-Team@specifys-ai.com
+# Optional audience sync:
+# RESEND_AUDIENCE_ID=aud_xxxxxxxx
+# Verify: node backend/scripts/verify-resend-email.js --dry-run
 ```
 
 > **⚠️ חשוב:** 

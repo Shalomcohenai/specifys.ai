@@ -50,15 +50,11 @@ router.get('/check', verifyFirebaseToken, async (req, res, next) => {
       return res.json({ shouldShow: false });
     }
 
-    // Check if last shown was less than 24 hours ago
+    // Soft banner is one-shot: once shown (or acted on), never auto-prompt again
     const lastShown = sharePrompts.lastShown;
     if (lastShown) {
-      const lastShownDate = lastShown.toDate ? lastShown.toDate() : new Date(lastShown);
-      const hoursSinceLastShown = (Date.now() - lastShownDate.getTime()) / (1000 * 60 * 60);
-      if (hoursSinceLastShown < 24) {
-        logger.debug({ requestId, userId, specId, hoursSinceLastShown }, '[share-prompt-routes] Last shown too recently');
-        return res.json({ shouldShow: false });
-      }
+      logger.debug({ requestId, userId, specId }, '[share-prompt-routes] Prompt already shown once');
+      return res.json({ shouldShow: false });
     }
 
     // Verify spec exists and belongs to user
@@ -94,7 +90,7 @@ router.get('/check', verifyFirebaseToken, async (req, res, next) => {
 
 /**
  * POST /api/share-prompt/action
- * Record a share prompt action (maybe_later, dismissed, or shared)
+ * Record a share prompt action (shown, maybe_later, dismissed, or shared)
  * Requires: Firebase authentication
  * Body: { specId, action }
  * Returns: { success: boolean }
@@ -110,8 +106,8 @@ router.post('/action', verifyFirebaseToken, async (req, res, next) => {
       return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
 
-    if (!action || !['maybe_later', 'dismissed', 'shared'].includes(action)) {
-      return next(createError('action must be one of: maybe_later, dismissed, shared', ERROR_CODES.INVALID_INPUT, 400));
+    if (!action || !['shown', 'maybe_later', 'dismissed', 'shared'].includes(action)) {
+      return next(createError('action must be one of: shown, maybe_later, dismissed, shared', ERROR_CODES.INVALID_INPUT, 400));
     }
 
     const userRef = db.collection('users').doc(userId);
@@ -121,7 +117,10 @@ router.post('/action', verifyFirebaseToken, async (req, res, next) => {
     const sharePrompts = userData.sharePrompts || {};
     const updateData = {};
 
-    if (action === 'dismissed') {
+    if (action === 'shown') {
+      // Banner actually appeared — one-shot gate
+      updateData['sharePrompts.lastShown'] = new Date();
+    } else if (action === 'dismissed') {
       // Dismiss permanently
       updateData['sharePrompts.dismissedPermanently'] = true;
       updateData['sharePrompts.lastShown'] = new Date();
@@ -138,6 +137,7 @@ router.post('/action', verifyFirebaseToken, async (req, res, next) => {
         updateData['sharePrompts.sharedSpecs'] = sharedSpecs;
       }
       updateData['sharePrompts.lastShareAction'] = new Date();
+      updateData['sharePrompts.lastShown'] = new Date();
     }
 
     // Update user document

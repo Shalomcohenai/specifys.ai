@@ -184,6 +184,11 @@
     <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
     
+    {% assign perf_shell = page.perf_shell | default: layout.perf_shell %}
+    {% assign skip_credits_flag = page.skip_credits | default: layout.skip_credits %}
+    {% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
+    {% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
+
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}">
     <!-- Components -->
@@ -196,9 +201,21 @@
     <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
     <!-- Visually Hidden Utility (for accessibility) -->
     <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
+    {% if optimize_lcp %}
+    {% include critical-lcp-home.html %}
+    {% endif %}
     {% if page.extra_css %}
       {% for css in page.extra_css %}
+        {% if optimize_lcp %}
+          {% if css contains 'index-value' or css contains 'planning.css' or css contains 'paywall.css' %}
+        <link rel="preload" href="{{ css | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="{{ css | relative_url }}"></noscript>
+          {% else %}
         <link rel="stylesheet" href="{{ css | relative_url }}">
+          {% endif %}
+        {% else %}
+        <link rel="stylesheet" href="{{ css | relative_url }}">
+        {% endif %}
       {% endfor %}
     {% endif %}
     {% if layout.extra_css %}
@@ -209,6 +226,7 @@
     
     <!-- Font Awesome - Loaded asynchronously -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
     <link rel="preload" as="script" href="{{ '/assets/js/core/config.js' | relative_url }}">
@@ -219,12 +237,14 @@
     <script defer src="{{ '/assets/js/core/api-client.js' | relative_url }}"></script>
     <script defer src="{{ '/assets/js/core/geo-context.js' | relative_url }}"></script>
     
+    {% unless perf_shell == 'lean' %}
     <!-- Focus Manager (must load early for accessibility) -->
     <script defer src="{{ '/assets/js/core/focus-manager.js' | relative_url }}"></script>
     
     <!-- Components (must load before page-specific JS) -->
     <script type="module" src="{{ '/assets/js/components/base.js' | relative_url }}"></script>
     <script type="module" src="{{ '/assets/js/components/Modal.js' | relative_url }}"></script>
+    {% endunless %}
     
     <!-- State Management -->
     <script defer src="{{ '/assets/js/core/store.js' | relative_url }}"></script>
@@ -232,8 +252,10 @@
     <!-- Safe localStorage utilities (must load early) -->
     <script src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
     
+    {% unless perf_shell == 'lean' %}
     <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
-    <script src="{{ '/assets/js/utils/mermaid-sanitize.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/utils/mermaid-sanitize.js' | relative_url }}"></script>
+    {% endunless %}
     
     <!-- Application Logger -->
     <script defer src="{{ '/assets/js/core/app-logger.js' | relative_url }}"></script>
@@ -241,27 +263,32 @@
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
     <script defer src="{{ '/assets/js/core/web-vitals.js' | relative_url }}"></script>
     
+    {% unless perf_shell == 'lean' or optimize_lcp %}
     <!-- CSS Monitoring Script -->
     <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
+    {% endunless %}
     
+    {% unless perf_shell == 'lean' %}
     <!-- Security Utils -->
     <script type="module" src="{{ '/assets/js/core/security-utils.js' | relative_url }}"></script>
+    {% endunless %}
     
     <!-- Core Bundle (if exists) -->
     {% if site.data.bundles.core %}
     <script src="{{ '/assets/js/bundles/core.js' | relative_url }}"></script>
     {% endif %}
     
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
+    <!-- Fonts - fewer weights; async stylesheet to unblock LCP text paint with system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <!-- Preload the stylesheet (not individual woff2 URLs): Google Fonts serves subset files that rarely match hard-coded font URLs, which triggers unused-preload warnings. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% assign font_css_href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap' %}
+    <link rel="preload" as="style" href="{{ font_css_href }}">
+    <link href="{{ font_css_href }}" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="{{ font_css_href }}" rel="stylesheet"></noscript>
     
     <!-- Library Loader - for conditional loading of external libraries -->
-    <script src="{{ '/assets/js/lib-loader.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/lib-loader.js' | relative_url }}"></script>
     
     <!-- Conditional library loading based on page requirements -->
     {% if page.requires_libs %}
@@ -288,7 +315,7 @@
     
     {% include analytics.html %}
     {% include analytics-events.html %}
-    <script src="{{ '/assets/js/core/analytics-schema.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/core/analytics-schema.js' | relative_url }}"></script>
     <!-- Backend analytics beacon (defer, after config.js — URL resolved at call time in analytics-tracker.js) -->
     <script defer src="{{ '/assets/js/services/analytics-tracker.js' | relative_url }}"></script>
     <script defer src="{{ '/assets/js/ga4-wrapper.js' | relative_url }}"></script>

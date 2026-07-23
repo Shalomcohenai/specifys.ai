@@ -2840,18 +2840,26 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             if (textarea) textarea.value = JSON.stringify(config, null, 2);
         }
 
-        function trackMcpEvent(type) {
+        function trackMcpEvent(type, extra) {
             const user = auth.currentUser;
             if (!user) return;
             const apiBaseUrl = (window.getApiBaseUrl && window.getApiBaseUrl()) || (window.API_BASE_URL || window.BACKEND_URL || '');
             if (!apiBaseUrl) return;
+            const body = Object.assign({ type }, extra || {});
             user.getIdToken().then(token => {
                 fetch(`${apiBaseUrl}/api/users/me/mcp-event`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type })
+                    body: JSON.stringify(body)
                 }).catch(() => {});
             }).catch(() => {});
+        }
+
+        function hasRealMcpKey() {
+            let key = window._mcpCurrentKeyForModal || '';
+            const input = document.getElementById('mcp-key-input');
+            if (input && input.value && input.value.trim()) key = input.value.trim();
+            return !!(key && key.indexOf('<YOUR_API_KEY') === -1 && key.length > 10);
         }
 
         window.openMcpModal = function() {
@@ -2864,7 +2872,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 updateMcpJsonConfig(window._mcpCurrentKeyForModal || '');
                 loadMcpApiKeyStatus();
                 const jsonWrap = document.getElementById('mcp-modal-json-wrap');
-                if (jsonWrap) jsonWrap.classList.remove('revealed');
+                if (jsonWrap) jsonWrap.classList.add('revealed');
                 trackMcpEvent('mcp_modal_open');
             }
         };
@@ -2916,7 +2924,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const textarea = document.getElementById('mcp-json-config');
             if (!textarea || !textarea.value) return;
             navigator.clipboard.writeText(textarea.value).then(() => {
-                if (typeof showSuccess === 'function') showSuccess('JSON copied');
+                if (typeof showSuccess === 'function') showSuccess('MCP JSON copied — paste into Cursor Settings → MCP');
+                if (hasRealMcpKey()) {
+                    trackMcpEvent('mcp_connected', { source: 'copy_mcp_json' });
+                }
             }).catch(() => {});
         };
 

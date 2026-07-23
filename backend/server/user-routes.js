@@ -354,12 +354,12 @@ router.post('/me/mcp-api-key', verifyFirebaseToken, async (req, res, next) => {
     }
 });
 
-const MCP_EVENT_TYPES = new Set(['mcp_modal_open', 'mcp_page_view']);
+const MCP_EVENT_TYPES = new Set(['mcp_modal_open', 'mcp_page_view', 'mcp_connected']);
 
 /**
- * Record MCP-related frontend event (modal open, MCP page view) for admin stats.
+ * Record MCP-related frontend event (modal open, MCP page view, connected) for admin stats.
  * POST /api/users/me/mcp-event
- * Body: { type: 'mcp_modal_open' | 'mcp_page_view' }
+ * Body: { type: 'mcp_modal_open' | 'mcp_page_view' | 'mcp_connected' }
  */
 router.post('/me/mcp-event', verifyFirebaseToken, async (req, res, next) => {
     const requestId = req.requestId || `mcp-event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -367,12 +367,14 @@ router.post('/me/mcp-event', verifyFirebaseToken, async (req, res, next) => {
         const userId = req.user.uid;
         const type = req.body?.type;
         if (!type || !MCP_EVENT_TYPES.has(type)) {
-            return next(createError('Invalid type. Use mcp_modal_open or mcp_page_view', ERROR_CODES.INVALID_INPUT, 400));
+            return next(createError('Invalid type. Use mcp_modal_open, mcp_page_view, or mcp_connected', ERROR_CODES.INVALID_INPUT, 400));
         }
         await db.collection('mcp_events').add({
             userId,
             type,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            source: req.body?.source || null,
+            specId: req.body?.specId || null
         });
         logger.debug({ requestId, userId, type }, '[user-routes] MCP event recorded');
         res.json({ success: true });

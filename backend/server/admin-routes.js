@@ -1826,6 +1826,7 @@ router.get('/stats/mcp', requireAdmin, async (req, res, next) => {
       .get();
     const modalOpens = eventsSnap.docs.filter(d => d.data().type === 'mcp_modal_open').length;
     const pageViews = eventsSnap.docs.filter(d => d.data().type === 'mcp_page_view').length;
+    const connected = eventsSnap.docs.filter(d => d.data().type === 'mcp_connected').length;
 
     // 3) MCP API requests (last 30 days) - aggregate by path and by client
     const requestsSnap = await db.collection('mcp_requests')
@@ -1854,7 +1855,8 @@ router.get('/stats/mcp', requireAdmin, async (req, res, next) => {
         usersWithKeyList,
         events: {
           mcp_modal_open: modalOpens,
-          mcp_page_view: pageViews
+          mcp_page_view: pageViews,
+          mcp_connected: connected
         },
         apiRequests: {
           total: requestsSnap.size,

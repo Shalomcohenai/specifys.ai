@@ -121,25 +121,25 @@
     <!-- Canonical URL -->
     
     
-    <link rel="canonical" href="https://specifys-ai.com/pages/profile.html">
-    <link rel="alternate" hreflang="en" href="https://specifys-ai.com/pages/profile.html">
-    <link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/profile.html">
-    <link rel="alternate" type="text/markdown" href="https://specifys-ai.com/llms.txt" title="LLM site index">
+    <link rel="canonical" href="http://0.0.0.0:4000/pages/profile.html">
+    <link rel="alternate" hreflang="en" href="http://0.0.0.0:4000/pages/profile.html">
+    <link rel="alternate" hreflang="x-default" href="http://0.0.0.0:4000/pages/profile.html">
+    <link rel="alternate" type="text/markdown" href="http://0.0.0.0:4000/llms.txt" title="LLM site index">
     
     <meta name="google-site-verification" content="8_O42wMHZTeWq6KipUYXmRqieXTY2PR0LPNLv6-HhRI">
     
     
     <meta name="msvalidate.01" content="">
     
-    <link type="application/atom+xml" rel="alternate" href="https://specifys-ai.com/feed.xml" title="Specifys.ai" />
+    <link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Specifys.ai" />
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="My Profile">
     <meta property="og:description" content="Manage your Specifys.ai profile and apps">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/pages/profile.html">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/pages/profile.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="My Profile - Specifys.ai">
@@ -152,7 +152,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="My Profile">
     <meta name="twitter:description" content="Manage your Specifys.ai profile and apps">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="My Profile - Specifys.ai">
     
     <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
@@ -165,6 +165,11 @@
     <meta name="theme-color" content="#FF6B35">
     <link rel="manifest" href="/site.webmanifest">
     
+    
+    
+    
+    
+
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Components -->
@@ -178,16 +183,22 @@
     <!-- Visually Hidden Utility (for accessibility) -->
     <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
     
+    
       
+        
         <link rel="stylesheet" href="/assets/css/pages/profile.css">
+        
       
+        
         <link rel="stylesheet" href="/assets/css/pages/mcp-modal.css">
+        
       
     
     
     
     <!-- Font Awesome - Loaded asynchronously -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
     <link rel="preload" as="script" href="/assets/js/core/config.js">
@@ -198,6 +209,7 @@
     <script defer src="/assets/js/core/api-client.js"></script>
     <script defer src="/assets/js/core/geo-context.js"></script>
     
+    
     <!-- Focus Manager (must load early for accessibility) -->
     <script defer src="/assets/js/core/focus-manager.js"></script>
     
@@ -205,14 +217,17 @@
     <script type="module" src="/assets/js/components/base.js"></script>
     <script type="module" src="/assets/js/components/Modal.js"></script>
     
+    
     <!-- State Management -->
     <script defer src="/assets/js/core/store.js"></script>
     
     <!-- Safe localStorage utilities (must load early) -->
     <script src="/assets/js/utils/localStorage-safe.js"></script>
     
+    
     <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
-    <script src="/assets/js/utils/mermaid-sanitize.js"></script>
+    <script defer src="/assets/js/utils/mermaid-sanitize.js"></script>
+    
     
     <!-- Application Logger -->
     <script defer src="/assets/js/core/app-logger.js"></script>
@@ -220,25 +235,30 @@
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
     <script defer src="/assets/js/core/web-vitals.js"></script>
     
+    
     <!-- CSS Monitoring Script -->
     <script defer src="/assets/js/css-monitor.js"></script>
+    
+    
     
     <!-- Security Utils -->
     <script type="module" src="/assets/js/core/security-utils.js"></script>
     
+    
     <!-- Core Bundle (if exists) -->
     
     
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
+    <!-- Fonts - fewer weights; async stylesheet to unblock LCP text paint with system fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <!-- Preload the stylesheet (not individual woff2 URLs): Google Fonts serves subset files that rarely match hard-coded font URLs, which triggers unused-preload warnings. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Library Loader - for conditional loading of external libraries -->
-    <script src="/assets/js/lib-loader.js"></script>
+    <script defer src="/assets/js/lib-loader.js"></script>
     
     <!-- Conditional library loading based on page requirements -->
     
@@ -438,7 +458,7 @@ function trackPreference(preferenceName, preferenceValue) {
 </script>
 
 
-    <script src="/assets/js/core/analytics-schema.js"></script>
+    <script defer src="/assets/js/core/analytics-schema.js"></script>
     <!-- Backend analytics beacon (defer, after config.js — URL resolved at call time in analytics-tracker.js) -->
     <script defer src="/assets/js/services/analytics-tracker.js"></script>
     <script defer src="/assets/js/ga4-wrapper.js"></script>
@@ -500,13 +520,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://specifys-ai.com/"
+          "item": "http://0.0.0.0:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "My Profile",
-          "item": "https://specifys-ai.com/pages/profile.html"
+          "item": "http://0.0.0.0:4000/pages/profile.html"
         }
       ]
     }
@@ -578,18 +598,21 @@ function trackPreference(preferenceName, preferenceValue) {
 </head>
 
 
+
+
 <body>
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Header -->
     
     <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
         <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
+            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
+            <a href="/pages/auth.html" class="auth-btn">Log in/Sign up</a>
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="/pages/how.html">How</a>
+            <a href="/pages/example-specs.html">Examples</a>
             <a href="/pages/pricing.html">Pricing</a>
             <a href="/blog/">Blog</a>
             <a href="/academy.html">Academy</a>
@@ -613,9 +636,13 @@ function trackPreference(preferenceName, preferenceValue) {
     </div>
 </header>
 
-<!-- Credits Display Scripts (V3) -->
-<script src="/assets/js/pages/credits-v3-manager.js"></script>
-<script src="/assets/js/pages/credits-v3-display.js"></script>
+
+
+
+<!-- Credits Display Scripts (V3) — deferred to reduce main-thread contention on LCP -->
+<script defer src="/assets/js/pages/credits-v3-manager.js"></script>
+<script defer src="/assets/js/pages/credits-v3-display.js"></script>
+
 
     
     
@@ -907,24 +934,43 @@ function trackPreference(preferenceName, preferenceValue) {
 <div id="mcpModal" class="modal-overlay hidden" aria-hidden="true" aria-label="Connect MCP">
     <div class="modal-content mcp-modal-content">
         <div class="modal-header mcp-modal-header">
-            <h3 class="mcp-modal-title"><i class="fas fa-plug" aria-hidden="true"></i> Connect MCP</h3>
+            <h3 class="mcp-modal-title"><i class="fas fa-plug" aria-hidden="true"></i> Connect MCP — 2 clicks</h3>
             <button type="button" class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body mcp-modal-body">
-            <p class="mcp-modal-intro">Use one API key per account. Cursor or Claude Desktop can then read and update your specs in real time.</p>
+            <p class="mcp-modal-intro">Use Specifys inside Cursor in two steps: create your API key, then copy the MCP JSON into Cursor Settings.</p>
+
+            <div class="mcp-two-click" aria-label="Two-click MCP setup">
+                <div class="mcp-two-click-step">
+                    <span class="mcp-two-click-num">1</span>
+                    <div class="mcp-two-click-body">
+                        <strong>Create &amp; copy API key</strong>
+                        <p>One key per account. We copy it to your clipboard automatically.</p>
+                        <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()">Create API key</button>
+                        <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
+                    </div>
+                </div>
+                <div class="mcp-two-click-step">
+                    <span class="mcp-two-click-num">2</span>
+                    <div class="mcp-two-click-body">
+                        <strong>Copy JSON → Cursor MCP</strong>
+                        <p>Open Cursor Settings → MCP, paste the config, save, restart Cursor.</p>
+                        <div class="mcp-two-click-actions">
+                            <button type="button" class="panel-action-btn" onclick="window.copyMcpJson && window.copyMcpJson()">Copy MCP JSON</button>
+                            <a class="panel-action-btn cancel-btn mcp-cursor-deeplink" id="mcp-open-cursor-settings" href="cursor://settings/mcp" target="_blank" rel="noopener">Open Cursor Settings</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="mcp-modal-requirement">
-                <p class="mcp-setup-text"><strong>Requirement:</strong> <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> must be installed on your machine to use MCP (Cursor and Claude run the Specifys server via <code>npx</code>).</p>
+                <p class="mcp-setup-text"><strong>Requirement:</strong> <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> must be installed (Cursor runs Specifys via <code>npx</code>).</p>
             </div>
 
             <div class="mcp-modal-key-block">
                 <div class="mcp-modal-key-row">
                     <span class="mcp-modal-label">Status</span>
                     <span id="mcp-key-status">Checking...</span>
-                </div>
-                <div class="mcp-modal-key-row mcp-modal-key-actions">
-                    <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
-                    <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
                 </div>
                 <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
                     <input type="text" id="mcp-key-input" readonly aria-label="API key" />
@@ -934,7 +980,7 @@ function trackPreference(preferenceName, preferenceValue) {
             </div>
 
             <div class="mcp-modal-setup-section">
-                <p class="mcp-modal-setup-label">Setup</p>
+                <p class="mcp-modal-setup-label">Editor</p>
                 <div class="mcp-modal-setup-buttons" role="tablist" aria-label="Choose editor">
                     <button type="button" class="mcp-setup-btn active" id="mcp-tab-cursor" role="tab" aria-selected="true" aria-controls="mcp-setup-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button>
                     <button type="button" class="mcp-setup-btn" id="mcp-tab-claude" role="tab" aria-selected="false" aria-controls="mcp-setup-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button>
@@ -942,13 +988,17 @@ function trackPreference(preferenceName, preferenceValue) {
             </div>
 
             <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel" aria-labelledby="mcp-tab-cursor">
-                <p class="mcp-setup-text">In Cursor open <strong>Settings → MCP</strong>. Add a server and paste the JSON below (no path needed — it uses the <code>specifys-mcp-server</code> package). Save and restart Cursor.</p>
+                <ol class="mcp-setup-steps">
+                    <li>Click <strong>Copy MCP JSON</strong> above (includes your API key when created).</li>
+                    <li>In Cursor: <strong>Settings → MCP</strong> (or use “Open Cursor Settings”).</li>
+                    <li>Add a new server / paste JSON → Save → restart Cursor.</li>
+                </ol>
             </div>
             <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel" aria-labelledby="mcp-tab-claude">
-                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>env.SPECIFYS_API_KEY</code> (and optionally <code>SPECIFYS_API_BASE_URL</code>). Restart Claude Desktop.</p>
+                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Paste the Specifys server JSON below; set <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
             </div>
 
-            <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap" aria-live="polite">
+            <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap revealed" aria-live="polite">
                 <p class="mcp-modal-json-label">Configuration (JSON)</p>
                 <div class="mcp-modal-json-box">
                     <textarea id="mcp-json-config" readonly rows="8" aria-label="MCP configuration JSON"></textarea>
@@ -1074,6 +1124,7 @@ function trackPreference(preferenceName, preferenceValue) {
     
     
     <!-- Scroll to top button -->
+    
     <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
   <i class="fas fa-arrow-up"></i>
@@ -1112,7 +1163,8 @@ function trackPreference(preferenceName, preferenceValue) {
 
 
     
-    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK & Auth (skipped on lean content shells for LCP) -->
     
     
     <!-- Extra JavaScript (defer so config.js in head runs first) -->
@@ -1123,6 +1175,8 @@ function trackPreference(preferenceName, preferenceValue) {
         <script defer src="/assets/js/features/profile/profile-scroll.js"></script>
       
     
+    
+    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
     
     <!-- Custom JavaScript Modules -->
     

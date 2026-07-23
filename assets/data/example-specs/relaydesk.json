@@ -1,0 +1,1356 @@
+{
+  "meta": {
+    "product": "RelayDesk",
+    "category": "Support Inbox",
+    "exampleId": "relaydesk",
+    "description": "Public enriched example specification",
+    "generatedAt": "2026-07-23T11:05:45.089Z",
+    "source": "scripts/build-example-specs.mjs"
+  },
+  "overview": {
+    "shortTitle": "RelayDesk Support Inbox",
+    "ideaSummary": "RelayDesk is a lightweight shared customer support inbox for indie SaaS founders. It unifies email threads, macros, and light SLA timers so a tiny team can answer customers without enterprise helpdesk complexity or seat-tax pricing.",
+    "problemStatement": "Indie SaaS teams drown in a mix of personal Gmail, Notion docs, and Slack forwards. Important tickets get lost, replies collide, and founders cannot see response time. Enterprise tools are expensive and heavy. RelayDesk closes the gap with a focused shared inbox, reusable macros, and simple SLA lite timers.",
+    "targetAudience": {
+      "ageRange": "25-45 years old, indie founders and early operators",
+      "sector": "B2B SaaS tooling, specifically early-stage customer support operations",
+      "interests": [
+        "bootstrapping",
+        "customer success",
+        "email productivity",
+        "SaaS metrics",
+        "no-code ops",
+        "founder-led support",
+        "lightweight tooling"
+      ],
+      "needs": [
+        "shared inbox without per-seat tax",
+        "macros for repeated answers",
+        "basic SLA visibility",
+        "email sync that just works",
+        "handoff between co-founders",
+        "searchable history",
+        "simple status workflow"
+      ]
+    },
+    "valueProposition": "RelayDesk gives indie SaaS teams a shared inbox with macros and SLA lite at a flat price. No bloated CRM, no agent seat tax—just email threads, ownership, and fast replies.",
+    "coreFeaturesOverview": [
+      "Shared inbox: team mailbox with assignable threads",
+      "Macros: reusable reply snippets with variables",
+      "SLA lite: first-response timers and breach badges",
+      "Email sync: IMAP/SMTP or provider OAuth for a support address",
+      "Thread status: open, pending, resolved",
+      "Search: full-text across subject and body"
+    ],
+    "userJourneySummary": "A founder connects a support@ address, invites a teammate, and starts receiving mail in a shared inbox. They assign threads, apply macros, and watch SLA lite timers. Resolved threads archive but remain searchable.",
+    "detailedUserFlow": {
+      "steps": [
+        "Step 1: Founder signs up and connects support email.",
+        "Step 2: Invite teammate and set default SLA target.",
+        "Step 3: Incoming email creates an Open thread.",
+        "Step 4: Agent assigns thread and replies via macro or free text.",
+        "Step 5: SLA lite updates; thread moves to Pending or Resolved."
+      ]
+    },
+    "screenDescriptions": {
+      "screens": [
+        {
+          "name": "Inbox",
+          "description": "Primary list of open and pending threads with SLA badges.",
+          "uiComponents": [
+            "Thread list",
+            "Filter chips",
+            "SLA badge"
+          ],
+          "emptyState": "No open threads—connect email or wait for customers.",
+          "errorState": "Could not load inbox. Retry or check email connection.",
+          "edgeCases": [
+            "Zero teammates",
+            "All threads breached SLA"
+          ]
+        },
+        {
+          "name": "Thread Detail",
+          "description": "Conversation view with reply composer and macros.",
+          "uiComponents": [
+            "Message timeline",
+            "Reply editor",
+            "Macro picker"
+          ],
+          "emptyState": null,
+          "errorState": "Failed to send reply. Draft preserved.",
+          "edgeCases": [
+            "Concurrent replies",
+            "Large attachment blocked"
+          ]
+        },
+        {
+          "name": "Macros",
+          "description": "Manage reusable reply templates.",
+          "uiComponents": [
+            "Macro list",
+            "Variable chips",
+            "Preview"
+          ],
+          "emptyState": "No macros yet—create your first template.",
+          "errorState": "Could not save macro.",
+          "edgeCases": [
+            "Invalid variable token"
+          ]
+        },
+        {
+          "name": "Settings",
+          "description": "Email connection, teammates, SLA target.",
+          "uiComponents": [
+            "Connection card",
+            "Team list",
+            "SLA slider"
+          ],
+          "emptyState": null,
+          "errorState": "Email connection failed—re-authorize.",
+          "edgeCases": [
+            "OAuth revoked"
+          ]
+        }
+      ],
+      "navigationStructure": "Top nav: Inbox, Macros, Settings. Thread detail opens as a split pane on desktop and full screen on mobile."
+    },
+    "complexityScore": {
+      "architecture": 70,
+      "integrations": 45,
+      "functionality": 55,
+      "userSystem": 50
+    },
+    "suggestionsIdeaSummary": {
+      "toInclude": [],
+      "notToInclude": [
+        "Highlight flat pricing vs seat-tax helpdesks in the summary",
+        "Emphasize founder + one teammate as the sweet spot",
+        "Call out SLA lite as timers not full workforce management"
+      ]
+    },
+    "suggestionsCoreFeatures": {
+      "toInclude": [],
+      "notToInclude": [
+        "Customer satisfaction CSAT micro-survey after resolve",
+        "Saved views for breached SLA only",
+        "Public status page snippet for downtime replies"
+      ]
+    },
+    "inferredItems": [
+      "[INFERRED] Search screen affordance within Inbox filters"
+    ],
+    "personas": [
+      {
+        "name": "Maya",
+        "role": "Indie SaaS founder",
+        "goals": [
+          "Answer customers same day",
+          "Stop losing emails in Gmail"
+        ],
+        "pains": [
+          "Shared Gmail chaos",
+          "No ownership on threads"
+        ],
+        "jtbd": "When a customer emails support, I want one place to reply so nothing falls through."
+      },
+      {
+        "name": "Jordan",
+        "role": "Part-time support teammate",
+        "goals": [
+          "Clear queue each morning",
+          "Reuse good answers"
+        ],
+        "pains": [
+          "Repeating the same reply",
+          "Unclear what is urgent"
+        ],
+        "jtbd": "When I open the inbox, I want assigned work and macros so I clear tickets fast."
+      },
+      {
+        "name": "Sam",
+        "role": "Technical co-founder",
+        "goals": [
+          "Reliable email sync",
+          "Simple audit of who replied"
+        ],
+        "pains": [
+          "OAuth breakage",
+          "No visibility into SLA"
+        ],
+        "jtbd": "When sync fails, I want a clear alert and reconnect path."
+      }
+    ],
+    "epics": [
+      {
+        "name": "Shared Inbox",
+        "description": "Receive, assign, and resolve email threads as a team.",
+        "stories": [
+          {
+            "title": "View open threads",
+            "description": "As Maya, I can see open threads sorted by urgency.",
+            "acceptanceCriteria": [
+              "Given connected email, when I open Inbox, then threads with status Open or Pending appear",
+              "SLA breach badge shows when first-response target exceeded",
+              "Empty state shows when zero open threads"
+            ]
+          },
+          {
+            "title": "Assign thread",
+            "description": "As Maya, I assign a thread to Jordan.",
+            "acceptanceCriteria": [
+              "Assignee list shows teammates",
+              "Assignment is visible on list and detail",
+              "Assignee receives in-app indicator"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Macros",
+        "description": "Reusable reply templates with variables.",
+        "stories": [
+          {
+            "title": "Insert macro",
+            "description": "As Jordan, I insert a macro into the reply editor.",
+            "acceptanceCriteria": [
+              "Macro picker lists saved macros",
+              "Variables like {{customer_name}} resolve when known",
+              "Unresolved variables remain highlighted"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SLA Lite",
+        "description": "First-response timers without enterprise WFM.",
+        "stories": [
+          {
+            "title": "Configure SLA target",
+            "description": "As Maya, I set a default first-response target in hours.",
+            "acceptanceCriteria": [
+              "Settings accepts 1-72 hour target",
+              "New threads inherit the target",
+              "Breach badge appears after target"
+            ]
+          }
+        ]
+      }
+    ],
+    "nonGoals": [
+      "Full omnichannel (chat, social, SMS)",
+      "Workforce management and shift scheduling",
+      "Public knowledge base CMS",
+      "Complex multi-brand enterprise RBAC"
+    ],
+    "successMetrics": {
+      "northStar": "Median first-response time under the team SLA target",
+      "leading": [
+        "Weekly active teammates in inbox",
+        "Macro insert rate per reply",
+        "Percent of threads resolved within 7 days"
+      ]
+    },
+    "permissionsMatrix": [
+      {
+        "role": "Owner",
+        "permissions": [
+          "manage billing",
+          "connect email",
+          "invite teammates",
+          "edit macros",
+          "all threads"
+        ]
+      },
+      {
+        "role": "Agent",
+        "permissions": [
+          "reply",
+          "assign",
+          "edit own macros",
+          "view assigned+unassigned"
+        ]
+      },
+      {
+        "role": "Viewer",
+        "permissions": [
+          "read threads",
+          "no reply"
+        ]
+      }
+    ],
+    "glossary": [
+      {
+        "term": "Thread",
+        "definition": "An email conversation grouped by provider thread id."
+      },
+      {
+        "term": "Macro",
+        "definition": "A reusable reply template with optional variables."
+      },
+      {
+        "term": "SLA lite",
+        "definition": "A first-response timer with breach badge; not full WFM."
+      }
+    ]
+  },
+  "technical": {
+    "techStack": {
+      "frontend": "React 18 + Vite + TypeScript",
+      "backend": "Node.js 20 + Express",
+      "database": "PostgreSQL 16",
+      "storage": "S3-compatible object storage for attachments",
+      "authentication": "Email magic link + session cookies (HttpOnly)"
+    },
+    "architectureOverview": {
+      "narrative": "Browser SPA talks to RelayDesk API. API owns threads, macros, and SLA state in Postgres. An email worker syncs IMAP/OAuth mail and enqueues inbound messages. Object storage holds attachments.",
+      "systemContextDiagramMermaid": "flowchart LR\n  User[\"Founder or Agent\"] --> SPA[\"RelayDesk Web\"]\n  SPA --> API[\"RelayDesk API\"]\n  API --> DB[(Postgres)]\n  API --> Store[(Object Storage)]\n  Worker[\"Email Worker\"] --> API\n  Worker --> Mail[\"Mail Provider\"]\n  API --> Mail"
+    },
+    "databaseSchema": {
+      "description": "Core entities: workspace, user, mailbox, thread, message, macro, sla_policy.",
+      "erDiagramMermaid": "erDiagram\n  WORKSPACE ||--o{ USER : has\n  WORKSPACE ||--|| MAILBOX : owns\n  WORKSPACE ||--o{ THREAD : contains\n  THREAD ||--o{ MESSAGE : includes\n  WORKSPACE ||--o{ MACRO : defines\n  WORKSPACE ||--|| SLA_POLICY : configures\n  USER ||--o{ THREAD : assigned\n  WORKSPACE {\n    uuid id PK\n    string name\n  }\n  THREAD {\n    uuid id PK\n    string status\n    datetime sla_due_at\n  }",
+      "tablesSupplement": [
+        {
+          "name": "threads",
+          "purpose": "Support conversations",
+          "fields": [
+            {
+              "name": "id",
+              "type": "uuid",
+              "required": true,
+              "constraints": "PK",
+              "description": "Thread id"
+            },
+            {
+              "name": "status",
+              "type": "text",
+              "required": true,
+              "constraints": "open|pending|resolved",
+              "description": "Workflow status"
+            },
+            {
+              "name": "sla_due_at",
+              "type": "timestamptz",
+              "required": false,
+              "constraints": null,
+              "description": "First response deadline"
+            }
+          ],
+          "relationships": "belongs to workspace; optional assignee user"
+        }
+      ]
+    },
+    "apiDesign": {
+      "endpointsOverviewDiagramMermaid": "flowchart TD\n  Client[\"SPA\"] --> Auth[\"POST /auth/magic-link\"]\n  Client --> Inbox[\"GET /threads\"]\n  Client --> Reply[\"POST /threads/{id}/replies\"]\n  Client --> Macros[\"CRUD /macros\"]",
+      "endpoints": [
+        {
+          "path": "/api/threads",
+          "method": "GET",
+          "description": "List threads for workspace with filters",
+          "parameters": "status, assigneeId, q",
+          "requestBody": "n/a",
+          "responseBody": "{ items: Thread[], nextCursor }",
+          "statusCodes": "200, 401",
+          "errorResponses": "401 unauthorized; 429 rate limited",
+          "authScope": "workspace.member",
+          "rateLimit": "120/min per user",
+          "idempotency": null
+        },
+        {
+          "path": "/api/threads/{id}/replies",
+          "method": "POST",
+          "description": "Send a reply on a thread",
+          "parameters": "id",
+          "requestBody": "{ body: string, macroId?: string }",
+          "responseBody": "{ message: Message }",
+          "statusCodes": "201, 400, 409",
+          "errorResponses": "400 validation; 409 concurrent send conflict",
+          "authScope": "workspace.agent",
+          "rateLimit": "30/min per user",
+          "idempotency": "Idempotency-Key header required"
+        },
+        {
+          "path": "/api/macros",
+          "method": "POST",
+          "description": "Create macro",
+          "parameters": null,
+          "requestBody": "{ title, body, variables[] }",
+          "responseBody": "{ macro }",
+          "statusCodes": "201, 400",
+          "errorResponses": "400 invalid variable tokens",
+          "authScope": "workspace.agent",
+          "rateLimit": "60/min",
+          "idempotency": null
+        }
+      ]
+    },
+    "dataFlow": {
+      "narrative": "Inbound mail hits worker, normalized to message rows, thread upserted, SLA due set. Outbound replies go API to provider send then message append.",
+      "diagramMermaid": "flowchart TD\n  In[\"Inbound email\"] --> W[\"Email Worker\"]\n  W --> API[\"API ingest\"]\n  API --> DB[(Postgres)]\n  Agent[\"Agent reply\"] --> API2[\"POST replies\"]\n  API2 --> Provider[\"Mail send\"]\n  API2 --> DB"
+    },
+    "securityAuthentication": {
+      "authentication": "Magic link email OTP issues session cookie",
+      "authorization": "Workspace RBAC: owner, agent, viewer",
+      "encryption": "TLS in transit; encrypted-at-rest DB volumes",
+      "securityMeasures": "CSRF on cookie session, attachment MIME allowlist, rate limits",
+      "securityCriticalPoints": [
+        "Never store mail provider refresh tokens in localStorage",
+        "Sanitize HTML email bodies before render",
+        "Idempotency keys on outbound send to prevent duplicate customer emails",
+        "Restrict attachment types and max size"
+      ],
+      "authFlowDiagramMermaid": "sequenceDiagram\n  participant U as User\n  participant SPA as SPA\n  participant API as API\n  U->>SPA: Request magic link\n  SPA->>API: POST /auth/magic-link\n  API-->>U: Email with token\n  U->>SPA: Open link\n  SPA->>API: POST /auth/verify\n  API-->>SPA: Set session cookie"
+    },
+    "integrationExternalApis": {
+      "thirdPartyServices": [
+        "Mail provider OAuth or IMAP/SMTP",
+        "Transactional email for magic links",
+        "S3-compatible storage"
+      ],
+      "integrations": "Email sync worker + object storage for attachments",
+      "dataFlow": "OAuth tokens stored server-side; attachments streamed to object storage",
+      "integrationLandscapeDiagramMermaid": "flowchart LR\n  API[\"API\"] --> OAuth[\"Mail OAuth\"]\n  API --> SMTP[\"SMTP send\"]\n  API --> S3[\"Object storage\"]\n  Worker[\"Worker\"] --> OAuth"
+    },
+    "devops": {
+      "deploymentStrategy": "Containerized API + worker on a single PaaS; managed Postgres",
+      "infrastructure": "API service, worker service, Postgres, object storage, Redis for rate limit/idempotency",
+      "monitoring": "Request latency, email sync lag, SLA breach count",
+      "scaling": "Horizontal API; worker concurrency capped by provider limits",
+      "backup": "Daily Postgres snapshots; 7-day PITR",
+      "automation": "CI runs lint, unit, migrate dry-run",
+      "cicdPipelineDiagramMermaid": "flowchart TD\n  Push[\"git push\"] --> CI[\"CI lint test\"]\n  CI --> Migrate[\"migrate\"]\n  Migrate --> Deploy[\"deploy API and worker\"]"
+    },
+    "dataStorage": {
+      "storageStrategy": "Postgres primary; object storage for attachments",
+      "dataRetention": "Resolved threads retained 24 months; raw MIME 90 days",
+      "dataBackup": "Daily snapshots + attachment versioning off",
+      "storageArchitecture": "Relational source of truth; blob store for files"
+    },
+    "analytics": {
+      "analyticsStrategy": "First-party product analytics for funnel and SLA",
+      "trackingMethods": "Server events for reply_sent, macro_used, sla_breached",
+      "analysisTools": "SQL warehouse export weekly",
+      "reporting": "Owner dashboard: median first response, breach rate"
+    },
+    "eventCatalog": [
+      {
+        "name": "thread.created",
+        "description": "Fired when inbound mail creates a thread",
+        "payloadSummary": "{ threadId, workspaceId, slaDueAt }",
+        "consumers": [
+          "analytics",
+          "notification"
+        ],
+        "deliveryGuarantees": "at-least-once via outbox"
+      },
+      {
+        "name": "reply.sent",
+        "description": "Outbound reply accepted by provider",
+        "payloadSummary": "{ threadId, messageId, actorId }",
+        "consumers": [
+          "analytics"
+        ],
+        "deliveryGuarantees": "at-least-once"
+      }
+    ],
+    "envSecrets": [
+      {
+        "name": "DATABASE_URL",
+        "purpose": "Postgres connection",
+        "required": true,
+        "exampleHint": "postgres://..."
+      },
+      {
+        "name": "SESSION_SECRET",
+        "purpose": "Cookie signing",
+        "required": true,
+        "exampleHint": "32+ byte random"
+      },
+      {
+        "name": "MAIL_OAUTH_CLIENT_SECRET",
+        "purpose": "Mail provider OAuth",
+        "required": true,
+        "exampleHint": null
+      },
+      {
+        "name": "S3_SECRET_KEY",
+        "purpose": "Attachment storage",
+        "required": true,
+        "exampleHint": null
+      }
+    ],
+    "migrationAndSeed": "SQL migrations via node-pg-migrate. Seed: demo workspace, two users, three sample threads, two macros.",
+    "performanceBudgets": {
+      "lcpMs": 2500,
+      "inpMs": 200,
+      "cls": 0.1,
+      "apiP95Ms": 400,
+      "notes": "Inbox list p95 under 400ms excluding mail provider"
+    },
+    "mvpCostModel": {
+      "monthlyEstimateUsd": 85,
+      "assumptions": "Estimate for ~3 users, 2k threads/month — labeled estimate not a quote",
+      "breakdown": [
+        {
+          "category": "PaaS compute",
+          "monthlyEstimateUsd": 25,
+          "notes": "API + worker"
+        },
+        {
+          "category": "Postgres",
+          "monthlyEstimateUsd": 20,
+          "notes": "Managed small"
+        },
+        {
+          "category": "Object storage",
+          "monthlyEstimateUsd": 5,
+          "notes": "Attachments"
+        },
+        {
+          "category": "Transactional email",
+          "monthlyEstimateUsd": 10,
+          "notes": "Magic links"
+        },
+        {
+          "category": "Misc monitoring",
+          "monthlyEstimateUsd": 25,
+          "notes": "Logs/metrics"
+        }
+      ]
+    },
+    "testPlan": {
+      "unit": "Thread status transitions, SLA due calculation, macro variable interpolation",
+      "integration": "API auth + reply idempotency with test DB",
+      "e2e": "Connect mailbox mock, receive, reply, resolve",
+      "load": "Inbox list 100 concurrent reads",
+      "security": "HTML sanitization fixtures; CSRF negative tests"
+    }
+  },
+  "market": {
+    "industryOverview": {
+      "trends": "Indie SaaS teams favor lightweight support tools over enterprise suites; flat pricing and shared inboxes are rising themes.",
+      "marketData": "Estimate (directional): early-stage B2B SaaS increasingly runs founder-led support before hiring a full CX team. Not a precise TAM figure.",
+      "growthProjections": "Estimate: continued demand for simple shared inboxes as more solo founders ship products.",
+      "growthPotential": "Strong among bootstrapped SaaS; weaker among enterprises needing omnichannel.",
+      "estimateDisclaimer": "All figures and sizes are qualitative estimates, not audited market research."
+    },
+    "targetAudienceInsights": {
+      "primaryAudience": {
+        "description": "Indie SaaS founders doing their own support",
+        "ageRange": "25-45",
+        "occupation": "Founder / CEO of early SaaS",
+        "goals": "Respond fast without hiring a CX team",
+        "painPoints": "Gmail chaos, no SLA visibility, seat-tax tools"
+      },
+      "secondaryAudience": {
+        "description": "Part-time support teammates and technical co-founders",
+        "ageRange": "22-40",
+        "occupation": "Ops / engineer",
+        "goals": "Clear queue with macros",
+        "painPoints": "Unclear ownership, repeated answers"
+      },
+      "needsAnalysis": "Need shared truth for email, ownership, and simple urgency signals.",
+      "usageHabits": "Check support between product work; mobile triage occasionally.",
+      "demographics": "Global English-speaking indie SaaS; small teams 1-5."
+    },
+    "competitiveLandscape": [
+      {
+        "name": "Help Scout",
+        "advantages": "Polished shared inbox and docs",
+        "disadvantages": "Pricing climbs with seats",
+        "strengths": "Brand trust",
+        "weaknesses": "Heavier than indie needs",
+        "differentiators": "Knowledge base depth",
+        "marketPosition": "SMB helpdesk",
+        "features": [
+          "shared inbox",
+          "docs",
+          "AI assist"
+        ],
+        "gaps": [
+          "can feel pricey early"
+        ],
+        "marketShare": null,
+        "pricingSummary": "Per-seat tiers (estimate — verify current pricing)",
+        "featureGapVsUs": [
+          "We stay flatter and lighter",
+          "We skip full docs CMS"
+        ]
+      },
+      {
+        "name": "Freshdesk",
+        "advantages": "Broad ticketing",
+        "disadvantages": "Complex for tiny teams",
+        "strengths": "Feature breadth",
+        "weaknesses": "UI weight",
+        "differentiators": "Omnichannel",
+        "marketPosition": "Mid-market",
+        "features": [
+          "tickets",
+          "automation"
+        ],
+        "gaps": [
+          "overkill for 2-person teams"
+        ],
+        "marketShare": null,
+        "pricingSummary": "Freemium then seats (estimate)",
+        "featureGapVsUs": [
+          "We focus email-only MVP",
+          "SLA lite vs full WFM"
+        ]
+      },
+      {
+        "name": "Shared Gmail + Notion",
+        "advantages": "Free and familiar",
+        "disadvantages": "No ownership or SLA",
+        "strengths": "Zero switching cost",
+        "weaknesses": "Collision and lost mail",
+        "differentiators": "None purpose-built",
+        "marketPosition": "Default workaround",
+        "features": [
+          "email",
+          "docs"
+        ],
+        "gaps": [
+          "no macros native",
+          "no SLA"
+        ],
+        "marketShare": null,
+        "pricingSummary": "Free / Google Workspace",
+        "featureGapVsUs": [
+          "We add assignment, macros, SLA lite"
+        ]
+      }
+    ],
+    "swotAnalysis": {
+      "strengths": [
+        "Focused ICP",
+        "Flat pricing story",
+        "Fast time-to-value"
+      ],
+      "weaknesses": [
+        "No omnichannel",
+        "Brand new vs incumbents"
+      ],
+      "opportunities": [
+        "Indie hacker communities",
+        "Migration from shared Gmail"
+      ],
+      "threats": [
+        "Incumbent free tiers",
+        "AI inbox features in email clients"
+      ]
+    },
+    "monetizationModel": {
+      "pricingStrategy": "Flat monthly workspace plan plus optional attachment storage pack",
+      "revenueStreams": "Subscriptions",
+      "rationale": "Avoid seat tax which punishes adding a helper",
+      "proposedModels": [
+        "Flat Pro workspace",
+        "Usage add-on for storage"
+      ],
+      "recommendations": "Launch with one clear Pro plan",
+      "methodology": "Anchored to indie willingness-to-pay interviews and competitor seat math — not a fabricated ROI %"
+    },
+    "marketingStrategy": {
+      "channels": "Indie Hackers, Twitter/X founders, Product Hunt, SEO for shared inbox",
+      "messaging": "Shared inbox without seat tax",
+      "goToMarket": "Content + community launches; founder-led demos"
+    },
+    "icpScorecard": [
+      {
+        "criterion": "Team size 1-5",
+        "weight": 0.25,
+        "score": 9,
+        "notes": "Core ICP"
+      },
+      {
+        "criterion": "Email as primary support channel",
+        "weight": 0.25,
+        "score": 9,
+        "notes": null
+      },
+      {
+        "criterion": "Budget under typical seat-tax tools",
+        "weight": 0.2,
+        "score": 8,
+        "notes": null
+      },
+      {
+        "criterion": "Needs macros/SLA lite",
+        "weight": 0.15,
+        "score": 8,
+        "notes": null
+      },
+      {
+        "criterion": "Not requiring omnichannel",
+        "weight": 0.15,
+        "score": 7,
+        "notes": null
+      }
+    ],
+    "disqualificationCriteria": [
+      "Needs phone/chat/social omnichannel day one",
+      "Enterprise SSO/SCIM mandatory",
+      "Team larger than 25 agents",
+      "Requires complex WFM scheduling"
+    ],
+    "gtmPlan": [
+      {
+        "days": "0-30",
+        "goals": [
+          "Ship public beta",
+          "10 design partners"
+        ],
+        "tactics": [
+          "IH posts",
+          "founder DMs",
+          "waitlist"
+        ],
+        "successSignals": [
+          "10 active workspaces",
+          "median TTV under 30m"
+        ]
+      },
+      {
+        "days": "31-60",
+        "goals": [
+          "Convert paid",
+          "SEO pillars live"
+        ],
+        "tactics": [
+          "Case snippets",
+          "comparison pages",
+          "PH prep"
+        ],
+        "successSignals": [
+          "15% trial-to-paid estimate target"
+        ]
+      },
+      {
+        "days": "61-90",
+        "goals": [
+          "PH launch",
+          "referral loop"
+        ],
+        "tactics": [
+          "Launch week",
+          "affiliate for indie tools"
+        ],
+        "successSignals": [
+          "NPS qualitative feedback theme: simplicity"
+        ]
+      }
+    ],
+    "interviewScripts": [
+      {
+        "audience": "Indie founders",
+        "objective": "Validate shared inbox pain",
+        "questions": [
+          "How do you handle support@ today?",
+          "When did the last customer email get lost?",
+          "What would you pay monthly to fix that?"
+        ]
+      },
+      {
+        "audience": "Part-time agents",
+        "objective": "Validate macros/SLA",
+        "questions": [
+          "What replies do you repeat weekly?",
+          "How do you know what is urgent?"
+        ]
+      }
+    ],
+    "positioningOnePager": "For indie SaaS teams who outgrow shared Gmail, RelayDesk is the shared inbox that adds assignment, macros, and SLA lite without enterprise seat tax.",
+    "searchTrends": [
+      {
+        "topic": "shared inbox for startups",
+        "direction": "up",
+        "confidence": "medium",
+        "notes": "Qualitative estimate from community chatter"
+      },
+      {
+        "topic": "helpdesk alternatives for indie hackers",
+        "direction": "stable",
+        "confidence": "medium",
+        "notes": null
+      }
+    ]
+  },
+  "design": {
+    "visualStyleGuide": {
+      "colors": {
+        "primary": "#E85D04",
+        "secondary": "#1B1B1E",
+        "accent": "#F48C06",
+        "background": "#FFF8F0",
+        "text": "#1B1B1E",
+        "success": "#2A9D8F",
+        "warning": "#E9C46A",
+        "danger": "#E63946",
+        "muted": "#6C757D",
+        "surface": "#FFFFFF",
+        "border": "#E6D5C3"
+      },
+      "colorHarmony": "Warm orange primary on cream background with near-black text; teal success and coral danger for semantic clarity. Accent is a lighter orange for hover/focus.",
+      "colorReasoning": "Orange signals speed and approachability for support workflows; cream reduces glare for long inbox sessions; high-contrast text meets AA on surfaces.",
+      "typography": {
+        "headings": "Source Serif 4 for display/headings",
+        "body": "IBM Plex Sans for body and UI",
+        "captions": "IBM Plex Sans 12-13px medium",
+        "display": {
+          "fontFamily": "Source Serif 4, Georgia, serif",
+          "fontSize": "40px",
+          "fontWeight": "600",
+          "lineHeight": "1.15",
+          "letterSpacing": "-0.02em"
+        },
+        "h1": {
+          "fontFamily": "Source Serif 4, Georgia, serif",
+          "fontSize": "32px",
+          "fontWeight": "600",
+          "lineHeight": "1.2",
+          "letterSpacing": "-0.01em"
+        },
+        "h2": {
+          "fontFamily": "Source Serif 4, Georgia, serif",
+          "fontSize": "24px",
+          "fontWeight": "600",
+          "lineHeight": "1.25",
+          "letterSpacing": null
+        },
+        "h3": {
+          "fontFamily": "IBM Plex Sans, Helvetica, sans-serif",
+          "fontSize": "18px",
+          "fontWeight": "600",
+          "lineHeight": "1.35",
+          "letterSpacing": null
+        },
+        "bodyLg": {
+          "fontFamily": "IBM Plex Sans, Helvetica, sans-serif",
+          "fontSize": "18px",
+          "fontWeight": "400",
+          "lineHeight": "1.6",
+          "letterSpacing": null
+        },
+        "bodyMd": {
+          "fontFamily": "IBM Plex Sans, Helvetica, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "1.55",
+          "letterSpacing": null
+        },
+        "bodySm": {
+          "fontFamily": "IBM Plex Sans, Helvetica, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "1.5",
+          "letterSpacing": null
+        },
+        "label": {
+          "fontFamily": "IBM Plex Sans, Helvetica, sans-serif",
+          "fontSize": "12px",
+          "fontWeight": "500",
+          "lineHeight": "1.4",
+          "letterSpacing": "0.02em"
+        }
+      },
+      "spacing": "8px base grid; section padding 24-48px",
+      "buttons": "Primary filled orange; secondary outline; destructive coral text button",
+      "animations": "150-200ms ease-out for hover; 250ms for panel slide",
+      "spacingScale": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "40px",
+        "xxl": "64px"
+      },
+      "radiiScale": {
+        "sm": "4px",
+        "md": "8px",
+        "lg": "16px",
+        "full": "9999px"
+      },
+      "shadowScale": {
+        "sm": "0 1px 2px rgba(27,27,30,0.06)",
+        "md": "0 4px 12px rgba(27,27,30,0.08)",
+        "lg": "0 12px 32px rgba(27,27,30,0.12)"
+      },
+      "zIndexScale": {
+        "base": 1,
+        "dropdown": 20,
+        "sticky": 30,
+        "modal": 40,
+        "toast": 50
+      },
+      "themes": {
+        "light": {
+          "name": "light",
+          "background": "#FFF8F0",
+          "surface": "#FFFFFF",
+          "text": "#1B1B1E",
+          "textMuted": "#6C757D",
+          "primary": "#E85D04",
+          "border": "#E6D5C3"
+        },
+        "dark": {
+          "name": "dark",
+          "background": "#121214",
+          "surface": "#1B1B1E",
+          "text": "#F5F5F5",
+          "textMuted": "#A0A0A5",
+          "primary": "#F48C06",
+          "border": "#2A2A2E"
+        }
+      }
+    },
+    "logoIconography": {
+      "logoConcepts": "Wordmark RelayDesk with a small inbox chevron mark",
+      "colorVersions": "Full color on cream; mono white on dark; mono dark on light",
+      "iconSet": "Stroke icons 1.5px: inbox, macro, clock, settings",
+      "appIcon": {
+        "letters": "RD",
+        "bgColor": "#E85D04",
+        "description": "Orange rounded square with RD letters in white"
+      }
+    },
+    "uiLayout": {
+      "landingPage": "Full-bleed cream hero with product inbox screenshot as atmosphere; one headline and CTA",
+      "dashboard": "Inbox split view: list left, thread right",
+      "navigation": "Top bar with Inbox, Macros, Settings",
+      "responsiveDesign": "Stack to single column under 768px; thread becomes full route"
+    },
+    "uxPrinciples": {
+      "userFlow": "Connect email first, then inbox; macros secondary",
+      "accessibility": "WCAG 2.1 AA contrast; focus rings; keyboard thread nav",
+      "informationHierarchy": "SLA breach and unassigned float above resolved noise"
+    },
+    "componentInventory": [
+      {
+        "name": "Button",
+        "variants": [
+          "primary",
+          "secondary",
+          "destructive",
+          "ghost"
+        ],
+        "states": [
+          "default",
+          "hover",
+          "focus",
+          "disabled",
+          "loading"
+        ],
+        "a11yChecklist": [
+          "visible focus",
+          "disabled not focus-trapped",
+          "loading announced"
+        ],
+        "usageNotes": "One primary per view"
+      },
+      {
+        "name": "ThreadRow",
+        "variants": [
+          "compact",
+          "comfortable"
+        ],
+        "states": [
+          "default",
+          "selected",
+          "breached",
+          "resolved"
+        ],
+        "a11yChecklist": [
+          "row is button or link",
+          "SLA text not color-only"
+        ],
+        "usageNotes": null
+      },
+      {
+        "name": "MacroPicker",
+        "variants": [
+          "popover",
+          "inline"
+        ],
+        "states": [
+          "empty",
+          "loading",
+          "error"
+        ],
+        "a11yChecklist": [
+          "listbox pattern",
+          "Escape closes"
+        ],
+        "usageNotes": "Support typeahead"
+      }
+    ],
+    "screenLayouts": [
+      {
+        "screenName": "Inbox",
+        "layout": "Filter bar + virtualized list + optional split preview",
+        "empty": "Illustration + connect CTA",
+        "loading": "Skeleton rows",
+        "error": "Inline alert with retry",
+        "success": null
+      },
+      {
+        "screenName": "Thread Detail",
+        "layout": "Header meta, scroll timeline, sticky composer",
+        "empty": null,
+        "loading": "Skeleton timeline",
+        "error": "Send failure toast + draft keep",
+        "success": "Sent checkmark in timeline"
+      }
+    ],
+    "motionSpecs": [
+      {
+        "name": "Thread open",
+        "trigger": "Select row",
+        "durationMs": 200,
+        "easing": "ease-out",
+        "notes": "Slide panel in from right on desktop"
+      },
+      {
+        "name": "SLA breach pulse",
+        "trigger": "Timer crosses due",
+        "durationMs": 400,
+        "easing": "ease-in-out",
+        "notes": "Single subtle pulse; respect reduced motion"
+      }
+    ],
+    "toneOfVoice": "Clear, calm, founder-friendly. Short sentences. No enterprise jargon.",
+    "microcopy": [
+      {
+        "context": "Inbox empty",
+        "copy": "Your queue is clear. Nice work—or connect email to start."
+      },
+      {
+        "context": "SLA breach badge",
+        "copy": "First response overdue"
+      },
+      {
+        "context": "Macro insert",
+        "copy": "Inserted. Review variables before sending."
+      }
+    ],
+    "tokenExport": {
+      "cssVariables": ":root {\n  --color-primary: #E85D04;\n  --color-secondary: #1B1B1E;\n  --color-accent: #F48C06;\n  --color-bg: #FFF8F0;\n  --color-text: #1B1B1E;\n  --color-success: #2A9D8F;\n  --color-danger: #E63946;\n  --font-display: \"Source Serif 4\", Georgia, serif;\n  --font-body: \"IBM Plex Sans\", Helvetica, sans-serif;\n  --space-md: 16px;\n  --radius-md: 8px;\n}",
+      "jsonTokens": "{\n  \"color\": {\n    \"primary\": \"#E85D04\",\n    \"background\": \"#FFF8F0\",\n    \"text\": \"#1B1B1E\"\n  },\n  \"font\": {\n    \"display\": \"Source Serif 4\",\n    \"body\": \"IBM Plex Sans\"\n  },\n  \"space\": {\n    \"md\": 16\n  },\n  \"radius\": {\n    \"md\": 8\n  }\n}"
+    }
+  },
+  "architecture": {
+    "executiveSummary": "RelayDesk is a small-system support inbox: SPA, API, email worker, Postgres, and object storage. Critical areas are email sync reliability, reply idempotency, and HTML sanitization of inbound mail.",
+    "systemBoundaries": "In scope: shared inbox, macros, SLA lite, magic-link auth. Out of scope: omnichannel, public KB, WFM. Trust boundary at API; mail provider is external.",
+    "logicalSystemArchitecture": {
+      "narrative": "Presentation (SPA), application API, async email worker, persistence (Postgres + object storage), and external mail/identity providers.",
+      "diagramMermaid": "flowchart TB\n  subgraph Client\n    SPA[\"Web SPA\"]\n  end\n  subgraph RelayDesk\n    API[\"API\"]\n    Worker[\"Email Worker\"]\n    DB[(Postgres)]\n    Blob[(Object Storage)]\n  end\n  SPA --> API\n  Worker --> API\n  API --> DB\n  API --> Blob\n  Worker --> Mail[\"Mail Provider\"]\n  API --> Mail"
+    },
+    "informationArchitecture": {
+      "narrative": "Workspace is the tenancy root. Users, mailbox, threads/messages, macros, and sla_policy hang off workspace.",
+      "diagramMermaid": "flowchart LR\n  WS[\"Workspace\"] --> Users[\"Users\"]\n  WS --> Mailbox[\"Mailbox\"]\n  WS --> Threads[\"Threads\"]\n  Threads --> Messages[\"Messages\"]\n  WS --> Macros[\"Macros\"]\n  WS --> SLA[\"SLA Policy\"]"
+    },
+    "functionalArchitecture": {
+      "narrative": "Modules: Auth, Inbox, Composer/Macros, SLA, Email Sync, Admin/Settings.",
+      "diagramMermaid": "flowchart TD\n  Auth[\"Auth\"] --> Inbox[\"Inbox\"]\n  Inbox --> Composer[\"Composer\"]\n  Composer --> Macros[\"Macros\"]\n  Inbox --> SLA[\"SLA Lite\"]\n  Sync[\"Email Sync\"] --> Inbox\n  Settings[\"Settings\"] --> Auth\n  Settings --> Sync"
+    },
+    "repositoryStructure": "relaydesk/\n  apps/web/          # Vite React SPA\n  apps/api/          # Express API\n  apps/worker/       # Email sync worker\n  packages/shared/   # Types and validators\n  docs/architecture/ # ADRs and runbooks",
+    "coreFlows": {
+      "narrative": "Primary flow: inbound email creates thread with SLA due; agent replies with optional macro; status updates.",
+      "primarySequenceDiagramMermaid": "sequenceDiagram\n  participant M as MailProvider\n  participant W as Worker\n  participant API as API\n  participant A as Agent\n  M->>W: New email\n  W->>API: Ingest message\n  API->>API: Upsert thread and SLA\n  A->>API: POST reply\n  API->>M: Send email\n  API->>A: 201 message"
+    },
+    "integrationLandscape": {
+      "narrative": "Mail OAuth/IMAP, transactional email for magic links, S3-compatible storage.",
+      "diagramMermaid": "flowchart LR\n  API[\"API\"] --> OAuth[\"Mail OAuth\"]\n  API --> Tx[\"Transactional email\"]\n  API --> S3[\"Object storage\"]\n  Worker[\"Worker\"] --> OAuth"
+    },
+    "deploymentTopology": {
+      "narrative": "Single region PaaS: API and worker services, managed Postgres, object storage, Redis for idempotency keys.",
+      "diagramMermaid": "flowchart TB\n  Edge[\"HTTPS edge\"] --> API[\"API service\"]\n  Edge --> Static[\"SPA static\"]\n  API --> DB[(Postgres)]\n  API --> Redis[(Redis)]\n  Worker[\"Worker service\"] --> DB\n  Worker --> Mail[\"Mail Provider\"]"
+    },
+    "nonFunctionalQuality": "Availability target 99.5% monthly for API. Inbox p95 400ms. Email sync lag alert at 10 minutes. Attachments max 10MB.",
+    "observabilityOperability": "Structured logs with workspaceId; metrics: sync_lag_seconds, reply_send_failures, sla_breach_count; traces on ingest and send.",
+    "securityArchitectureDeepDive": "Session cookies HttpOnly Secure SameSite=Lax; CSRF tokens on mutating routes; HTML sanitizer allowlist; secrets in env only; least-privilege DB roles.",
+    "architectureDecisionLog": "See structured adrs[] for magic-link auth, outbox events, and HTML sanitization.",
+    "risksAndOpenDecisions": "IMAP vs API-first providers; multi-mailbox later; whether to add webhooks for thread.created externally.",
+    "contextDiagramMermaid": "flowchart LR\n  Founder[\"Founder\"] --> System[\"RelayDesk\"]\n  Agent[\"Agent\"] --> System\n  System --> Mail[\"Mail Provider\"]\n  System --> Store[\"Object Storage\"]\n  System --> TxMail[\"Magic-link email\"]",
+    "containerDiagramMermaid": "flowchart TB\n  SPA[\"SPA container\"] --> API[\"API container\"]\n  Worker[\"Worker container\"] --> API\n  API --> PG[(Postgres)]\n  API --> Obj[(Object storage)]\n  API --> Redis[(Redis)]",
+    "adrs": [
+      {
+        "title": "Magic-link sessions instead of passwords",
+        "context": "Indie users hate password reset loops; support tool login must be low friction.",
+        "options": [
+          "Password + email verify",
+          "Magic link sessions",
+          "OAuth-only Google"
+        ],
+        "decision": "Magic link issuing HttpOnly session cookies",
+        "consequences": [
+          "Simpler UX",
+          "Depends on transactional email deliverability",
+          "No password DB"
+        ],
+        "revisitWhen": "Enterprise SSO demand appears or email deliverability is chronically poor"
+      },
+      {
+        "title": "Transactional outbox for domain events",
+        "context": "Need reliable analytics/notifications without dual-write bugs.",
+        "options": [
+          "Direct emit after commit",
+          "Outbox table + poller",
+          "External queue only"
+        ],
+        "decision": "Postgres outbox polled by worker",
+        "consequences": [
+          "At-least-once delivery",
+          "Extra table",
+          "Simple ops"
+        ],
+        "revisitWhen": "Event volume exceeds poller capacity"
+      },
+      {
+        "title": "Strict HTML sanitization on inbound mail",
+        "context": "Email HTML is a XSS vector in the agent UI.",
+        "options": [
+          "iframe sandbox only",
+          "Server-side sanitizer allowlist",
+          "Plain-text only"
+        ],
+        "decision": "Server-side sanitizer with conservative allowlist plus CSP",
+        "consequences": [
+          "Some layout loss in emails",
+          "Strong XSS reduction"
+        ],
+        "revisitWhen": "Customers require richer HTML rendering"
+      }
+    ],
+    "threatModel": [
+      {
+        "threat": "XSS via crafted HTML email",
+        "severity": "high",
+        "mitigation": "Sanitize on ingest; CSP; escape in React"
+      },
+      {
+        "threat": "Stolen session cookie",
+        "severity": "medium",
+        "mitigation": "Secure HttpOnly; short TTL; revoke on logout"
+      },
+      {
+        "threat": "Duplicate customer emails on retry",
+        "severity": "medium",
+        "mitigation": "Idempotency-Key on send"
+      }
+    ],
+    "sloSli": [
+      {
+        "name": "API availability",
+        "sli": "Successful non-5xx ratio",
+        "target": "99.5%",
+        "window": "30d"
+      },
+      {
+        "name": "Inbox latency",
+        "sli": "GET /threads p95",
+        "target": "400ms",
+        "window": "7d"
+      },
+      {
+        "name": "Email sync freshness",
+        "sli": "Ingest lag p95",
+        "target": "10m",
+        "window": "7d"
+      }
+    ],
+    "dataClassification": [
+      {
+        "name": "Email bodies",
+        "classification": "confidential",
+        "handling": "Encrypt in transit/rest; retention 24 months"
+      },
+      {
+        "name": "OAuth tokens",
+        "classification": "secret",
+        "handling": "Server vault/env; never to client"
+      },
+      {
+        "name": "Product analytics",
+        "classification": "internal",
+        "handling": "Aggregates OK to warehouse"
+      }
+    ],
+    "failureModes": [
+      {
+        "failure": "Mail provider OAuth revoked",
+        "impact": "Inbound sync stops",
+        "detection": "sync_lag alert + settings banner",
+        "runbook": "Notify owner; Settings reconnect OAuth; backfill last 24h"
+      },
+      {
+        "failure": "Postgres primary failover",
+        "impact": "Brief API errors",
+        "detection": "5xx spike",
+        "runbook": "Rely on managed failover; pause worker; verify migrations"
+      }
+    ],
+    "repoToPromptsMap": "Stage 1 maps to apps/web+api scaffolding; Stage 2 Inbox UI in apps/web; Stage 4 API threads/macros; Stage 7 mail OAuth; Stage 9 tests; Stage 10 deploy worker+API."
+  },
+  "visibility": {
+    "strategySummary": "Position RelayDesk as the indie shared inbox: SEO for shared-inbox intent, GEO assets (llms.txt/JSON-LD), and a steady founder-content engine.",
+    "seoFoundation": {
+      "positioning": "Shared inbox for indie SaaS without seat tax",
+      "pillarTopics": [
+        "shared inbox",
+        "support macros",
+        "SLA for small teams",
+        "helpdesk alternatives"
+      ],
+      "targetIntents": [
+        "switch from shared Gmail",
+        "cheap helpdesk",
+        "macros for support email"
+      ]
+    },
+    "geoReadiness": {
+      "llmsTxt": "# RelayDesk\n> Lightweight shared support inbox for indie SaaS teams.\n\n## Product\n- Shared email inbox with assignment\n- Macros with variables\n- SLA lite first-response timers\n\n## Links\n- https://relaydesk.example/\n- https://relaydesk.example/docs\n",
+      "aiInfoTxt": "name: RelayDesk\ndescription: Shared customer support inbox for indie SaaS\nprimary_offers: shared inbox, macros, SLA lite\ncontact: support@relaydesk.example\n",
+      "schemaGuidance": "Use SoftwareApplication + FAQPage JSON-LD on home and comparison pages.",
+      "jsonLd": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"SoftwareApplication\",\n  \"name\": \"RelayDesk\",\n  \"applicationCategory\": \"BusinessApplication\",\n  \"offers\": { \"@type\": \"Offer\", \"price\": \"29\", \"priceCurrency\": \"USD\" },\n  \"description\": \"Shared support inbox with macros and SLA lite for indie SaaS teams.\"\n}",
+      "metaTemplates": {
+        "titleTemplate": "{page} | RelayDesk — shared inbox for indie SaaS",
+        "descriptionTemplate": "{benefit}. Macros, SLA lite, flat pricing.",
+        "ogNotes": "Use inbox product screenshot; cream background; no fake stats overlays"
+      }
+    },
+    "contentEngine": {
+      "editorialTracks": [
+        "Founder support ops",
+        "Migration stories",
+        "Comparisons"
+      ],
+      "publishingCadence": "2 long-form posts / month + weekly short notes",
+      "authoritySignals": [
+        "Indie Hackers AMAs",
+        "Open SLA calculator sheet"
+      ],
+      "contentCalendar": [
+        {
+          "week": "W1",
+          "channel": "Blog",
+          "topic": "Why shared Gmail breaks at 2 founders",
+          "status": "planned"
+        },
+        {
+          "week": "W2",
+          "channel": "X",
+          "topic": "Macro variable tips",
+          "status": "planned"
+        },
+        {
+          "week": "W3",
+          "channel": "Blog",
+          "topic": "SLA lite vs enterprise WFM",
+          "status": "planned"
+        },
+        {
+          "week": "W4",
+          "channel": "Newsletter",
+          "topic": "Design partner learnings",
+          "status": "planned"
+        }
+      ],
+      "contentBriefs": [
+        {
+          "title": "Shared Gmail to RelayDesk migration",
+          "intent": "switch",
+          "outline": [
+            "Pain",
+            "Setup steps",
+            "Macros",
+            "SLA"
+          ],
+          "cta": "Start free trial"
+        }
+      ]
+    },
+    "programmaticSeo": {
+      "templateFamilies": [
+        "vs-{competitor}",
+        "shared-inbox-for-{niche}"
+      ],
+      "dataRequirements": [
+        "competitor names",
+        "niche list"
+      ],
+      "qualityGuardrails": [
+        "No fabricated stats",
+        "Unique intro per page",
+        "Human edit before index"
+      ],
+      "sampleUrlSets": [
+        {
+          "pattern": "/vs/{competitor}",
+          "sampleUrls": [
+            "/vs/help-scout",
+            "/vs/freshdesk",
+            "/vs/shared-gmail"
+          ],
+          "notes": "Comparison pages"
+        },
+        {
+          "pattern": "/shared-inbox-for/{niche}",
+          "sampleUrls": [
+            "/shared-inbox-for-indie-hackers",
+            "/shared-inbox-for-micro-saas"
+          ],
+          "notes": null
+        }
+      ]
+    },
+    "launchChecklist": [
+      "Ship llms.txt and ai.txt",
+      "Add SoftwareApplication JSON-LD",
+      "Index vs pages with unique intros",
+      "Submit sitemap",
+      "Verify Search Console"
+    ],
+    "aiCitationFaq": [
+      {
+        "question": "What is RelayDesk?",
+        "answer": "RelayDesk is a shared customer support inbox for indie SaaS teams with macros and SLA lite."
+      },
+      {
+        "question": "Who is RelayDesk for?",
+        "answer": "Founders and small teams who outgrew shared Gmail but do not need enterprise helpdesks."
+      }
+    ],
+    "technicalSeoChecklist": [
+      "Clean canonical tags",
+      "Fast LCP on marketing pages",
+      "Structured data validates",
+      "robots allows llms.txt",
+      "OG images absolute URLs"
+    ]
+  },
+  "prompts": {
+    "generated": true,
+    "fullPrompt": "You are building RelayDesk Support Inbox - RelayDesk is a lightweight shared customer support inbox for indie SaaS founders. It unifies email threads, macros, and light SLA timers so a tiny team can answer customers without enterprise helpdesk complexity or seat-tax pricing.\n\nPROJECT OVERVIEW:\nRelayDesk gives indie SaaS teams a shared inbox with macros and SLA lite at a flat price. No bloated CRM, no agent seat tax—just email threads, ownership, and fast replies.\n\nTECHNICAL STACK:\n- Frontend: React 18 + Vite + TypeScript\n- Backend: Node.js 20 + Express\n- Database: PostgreSQL 16\n- Authentication: Email magic link + session cookies (HttpOnly)\n\nDEVELOPMENT STAGES - BUILD IN THIS EXACT ORDER:\nEach stage below is an Agent Ticket with Goal, Non-goals, Files, AC, Commands, DoD, Pitfalls, and Build/Review/Tests variants.\n\n═══════════════════════════════════════════════════════════════\nSTAGE 1: PROJECT SETUP & BASIC STRUCTURE\n═══════════════════════════════════════════════════════════════\n\n## Goal\nScaffold RelayDesk monorepo with web, API, and worker packages so agents can implement inbox features next.\n\n## Non-goals\n- No mail provider integration yet\n- No production deploy\n- No UI polish beyond shell routes\n\n## Files to create\n- apps/web/package.json\n- apps/api/src/index.ts\n- apps/worker/src/index.ts\n- packages/shared/src/types.ts\n\n## Files to modify\n- Root package.json workspaces\n\n## Acceptance criteria\n- [ ] pnpm install succeeds at repo root\n- [ ] API health endpoint returns 200\n- [ ] Web dev server renders shell nav (Inbox, Macros, Settings)\n- [ ] Shared types package imported by API\n\n## Commands\n```bash\npnpm install\npnpm --filter api dev\npnpm --filter web dev\n```\n\n## Definition of done\n- Health check green\n- README lists app purposes\n- CI lint script present\n\n## Pitfalls\n- Do not put secrets in apps/web\n- Keep Express 5 route typing consistent\n\n## Variant: Build\n1.1 Create workspaces\n1.2 Add Express health route\n1.3 Add Vite React shell\n1.4 Add shared ThreadStatus type\n\n## Variant: Review\n- Check no secrets committed\n- Verify workspace filters\n- Confirm TypeScript strict on\n\n## Variant: Tests\n- Unit: health handler returns ok\n- Smoke: web index route mounts\n\n═══════════════════════════════════════════════════════════════\nSTAGE 2: FRONTEND CORE FUNCTIONALITY\n═══════════════════════════════════════════════════════════════\n\n## Goal\nImplement Inbox list UI against mocked thread API matching Overview screens and SLA badges.\n\n## Non-goals\n- Real email sync\n- Macro picker (stage later)\n- Billing\n\n## Files to create\n- apps/web/src/pages/InboxPage.tsx\n- apps/web/src/components/ThreadRow.tsx\n- apps/api/src/routes/threads.ts\n\n## Files to modify\n- apps/web/src/App.tsx routes\n- packages/shared/src/types.ts\n\n## Acceptance criteria\n- [ ] GET /api/threads returns seeded threads\n- [ ] Inbox shows empty state when list empty\n- [ ] Breach badge visible when sla_due_at passed\n- [ ] Keyboard focus order list then filters\n\n## Commands\n```bash\npnpm --filter api test\npnpm --filter web test -- InboxPage\n```\n\n## Definition of done\n- Empty/error/loading states match Design screenLayouts\n- Accessibility checklist for ThreadRow checked\n\n## Pitfalls\n- Do not encode urgency by color alone\n- Preserve draft filters in URL query\n\n## Variant: Build\n2.1 Seed threads\n2.2 API list + filters\n2.3 ThreadRow + InboxPage\n2.4 Empty/error skeletons\n\n## Variant: Review\n- Contrast AA on badges\n- Error retry wired\n\n## Variant: Tests\n- RTL: empty state copy\n- API: status filter\n",
+    "contextSummary": "RelayDesk enriched sample: overview, technical, design-informed agent tickets.",
+    "integrationChecklist": [
+      "Configure MAIL_OAUTH_CLIENT_SECRET",
+      "Set DATABASE_URL",
+      "Verify object storage bucket",
+      "Enable transactional email domain"
+    ],
+    "thirdPartyIntegrations": [
+      {
+        "service": "Mail provider OAuth",
+        "description": "Connect support mailbox",
+        "instructions": [
+          "Create OAuth app",
+          "Set redirect URL to API callback",
+          "Store client secret in env",
+          "Test token refresh"
+        ]
+      }
+    ]
+  }
+}

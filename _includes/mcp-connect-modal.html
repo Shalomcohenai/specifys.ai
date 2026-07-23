@@ -2,24 +2,43 @@
 <div id="mcpModal" class="modal-overlay hidden" aria-hidden="true" aria-label="Connect MCP">
     <div class="modal-content mcp-modal-content">
         <div class="modal-header mcp-modal-header">
-            <h3 class="mcp-modal-title"><i class="fas fa-plug" aria-hidden="true"></i> Connect MCP</h3>
+            <h3 class="mcp-modal-title"><i class="fas fa-plug" aria-hidden="true"></i> Connect MCP — 2 clicks</h3>
             <button type="button" class="modal-close" onclick="closeMcpModal()" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body mcp-modal-body">
-            <p class="mcp-modal-intro">Use one API key per account. Cursor or Claude Desktop can then read and update your specs in real time.</p>
+            <p class="mcp-modal-intro">Use Specifys inside Cursor in two steps: create your API key, then copy the MCP JSON into Cursor Settings.</p>
+
+            <div class="mcp-two-click" aria-label="Two-click MCP setup">
+                <div class="mcp-two-click-step">
+                    <span class="mcp-two-click-num">1</span>
+                    <div class="mcp-two-click-body">
+                        <strong>Create &amp; copy API key</strong>
+                        <p>One key per account. We copy it to your clipboard automatically.</p>
+                        <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()">Create API key</button>
+                        <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
+                    </div>
+                </div>
+                <div class="mcp-two-click-step">
+                    <span class="mcp-two-click-num">2</span>
+                    <div class="mcp-two-click-body">
+                        <strong>Copy JSON → Cursor MCP</strong>
+                        <p>Open Cursor Settings → MCP, paste the config, save, restart Cursor.</p>
+                        <div class="mcp-two-click-actions">
+                            <button type="button" class="panel-action-btn" onclick="window.copyMcpJson && window.copyMcpJson()">Copy MCP JSON</button>
+                            <a class="panel-action-btn cancel-btn mcp-cursor-deeplink" id="mcp-open-cursor-settings" href="cursor://settings/mcp" target="_blank" rel="noopener">Open Cursor Settings</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="mcp-modal-requirement">
-                <p class="mcp-setup-text"><strong>Requirement:</strong> <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> must be installed on your machine to use MCP (Cursor and Claude run the Specifys server via <code>npx</code>).</p>
+                <p class="mcp-setup-text"><strong>Requirement:</strong> <a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js</a> must be installed (Cursor runs Specifys via <code>npx</code>).</p>
             </div>
 
             <div class="mcp-modal-key-block">
                 <div class="mcp-modal-key-row">
                     <span class="mcp-modal-label">Status</span>
                     <span id="mcp-key-status">Checking...</span>
-                </div>
-                <div class="mcp-modal-key-row mcp-modal-key-actions">
-                    <button type="button" class="panel-action-btn" id="mcp-create-key-btn" onclick="window.createMcpApiKey && window.createMcpApiKey()" style="display: none;">Create API key</button>
-                    <button type="button" class="panel-action-btn cancel-btn" id="mcp-regenerate-key-btn" onclick="window.regenerateMcpApiKey && window.regenerateMcpApiKey()" style="display: none;">Regenerate key</button>
                 </div>
                 <div id="mcp-key-display-wrap" class="mcp-modal-key-display" style="display: none;">
                     <input type="text" id="mcp-key-input" readonly aria-label="API key" />
@@ -29,7 +48,7 @@
             </div>
 
             <div class="mcp-modal-setup-section">
-                <p class="mcp-modal-setup-label">Setup</p>
+                <p class="mcp-modal-setup-label">Editor</p>
                 <div class="mcp-modal-setup-buttons" role="tablist" aria-label="Choose editor">
                     <button type="button" class="mcp-setup-btn active" id="mcp-tab-cursor" role="tab" aria-selected="true" aria-controls="mcp-setup-cursor" onclick="switchMcpSetupTab('cursor')">Cursor</button>
                     <button type="button" class="mcp-setup-btn" id="mcp-tab-claude" role="tab" aria-selected="false" aria-controls="mcp-setup-claude" onclick="switchMcpSetupTab('claude')">Claude Desktop</button>
@@ -37,13 +56,17 @@
             </div>
 
             <div id="mcp-setup-cursor" class="mcp-setup-panel" role="tabpanel" aria-labelledby="mcp-tab-cursor">
-                <p class="mcp-setup-text">In Cursor open <strong>Settings → MCP</strong>. Add a server and paste the JSON below (no path needed — it uses the <code>specifys-mcp-server</code> package). Save and restart Cursor.</p>
+                <ol class="mcp-setup-steps">
+                    <li>Click <strong>Copy MCP JSON</strong> above (includes your API key when created).</li>
+                    <li>In Cursor: <strong>Settings → MCP</strong> (or use “Open Cursor Settings”).</li>
+                    <li>Add a new server / paste JSON → Save → restart Cursor.</li>
+                </ol>
             </div>
             <div id="mcp-setup-claude" class="mcp-setup-panel hidden" role="tabpanel" aria-labelledby="mcp-tab-claude">
-                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Add the Specifys server from the JSON below; set <code>env.SPECIFYS_API_KEY</code> (and optionally <code>SPECIFYS_API_BASE_URL</code>). Restart Claude Desktop.</p>
+                <p class="mcp-setup-text">Open Claude Desktop config (e.g. <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>). Paste the Specifys server JSON below; set <code>env.SPECIFYS_API_KEY</code>. Restart Claude Desktop.</p>
             </div>
 
-            <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap" aria-live="polite">
+            <div id="mcp-modal-json-wrap" class="mcp-modal-json-wrap revealed" aria-live="polite">
                 <p class="mcp-modal-json-label">Configuration (JSON)</p>
                 <div class="mcp-modal-json-box">
                     <textarea id="mcp-json-config" readonly rows="8" aria-label="MCP configuration JSON"></textarea>

@@ -1,104 +1,63 @@
-# Email System Setup Instructions
+# Email System Setup (Resend)
 
-## בעיות שזוהו
+## Required environment variables
 
-1. ✅ **Endpoint `/api/admin/analytics/email` עובד** - השרת רץ עם הקוד החדש
-2. ❌ **`RESEND_API_KEY` לא מוגדר** - לכן מיילים לא נשלחים
-
-## הוראות הגדרה
-
-### 1. הגדרת Resend API Key
-
-1. היכנס ל-Resend Dashboard: https://resend.com/api-keys
-2. צור API Key חדש (או השתמש בקיים)
-3. העתק את ה-API Key (מתחיל ב-`re_`)
-
-### 2. הגדרת From Email
-
-1. ודא שיש לך דומיין מאומת ב-Resend
-2. היכנס ל-Resend Dashboard > Domains
-3. אם אין דומיין מאומת, הוסף אותו ועקוב אחר ההוראות לאימות
-
-### 3. עדכון .env File
-
-ערוך את הקובץ `backend/.env` והוסף:
+Add to `backend/.env` (local) and Render Environment (production):
 
 ```bash
-# Resend Configuration
+# Required — transactional send
 RESEND_API_KEY=re_your_actual_api_key_here
-RESEND_FROM_EMAIL=noreply@yourdomain.com
+RESEND_FROM_EMAIL=Specifys-Ai-Team@specifys-ai.com
+
+# Optional — marketing audience sync on signup / admin bulk sync
+RESEND_AUDIENCE_ID=aud_xxxxxxxx
+# RESEND_SEGMENT_ID is accepted as an alias for the same ID
+
+# Optional — absolute URLs in emails + click tracking redirects
+BASE_URL=https://specifys-ai.com
+# SITE_URL=https://specifys-ai.com
 ```
 
-**חשוב:**
-- החלף `re_your_actual_api_key_here` ב-API Key האמיתי שלך
-- החלף `noreply@yourdomain.com` בכתובת מייל מהדומיין המאומת שלך
-- ה-From Email חייב להיות מהדומיין המאומת ב-Resend
+**Notes:**
+- `RESEND_FROM_EMAIL` must be on a domain verified in the Resend dashboard.
+- Never commit `.env` or real API keys.
+- Click tracking uses `GET /api/email/track` (writes `email_clicks`). Successful sends write `email_sent`.
 
-### 4. Restart השרת
-
-לאחר עדכון ה-.env, הפעל מחדש את השרת:
+## Verify integration
 
 ```bash
 cd backend
-pkill -f "node.*server.js"
-npm start
+
+# Config + SDK response shape only (no send)
+node scripts/verify-resend-email.js --dry-run
+
+# Real send + confirm email_sent in Firestore
+node scripts/verify-resend-email.js --send --to=you@example.com
+
+# Resend's delivered test inbox (no inbox needed)
+node scripts/verify-resend-email.js --send --to=delivered@resend.dev
 ```
 
-### 5. בדיקה
+Admin API (when server is running): `POST /api/admin/email/test` with `{ "email": "you@example.com" }`.
 
-לאחר ההגדרה, בדוק שהכל עובד:
+## Root cause (fixed Jul 2026)
 
-1. **בדיקת Email Service:**
-   - השרת צריך להדפיס: `✅ Resend email service configured (RESEND_API_KEY)`
-   - אם אתה רואה: `⚠️ Email configuration not found` - ה-API Key לא מוגדר נכון
+Resend SDK v3+ returns `{ data: { id }, error }` from `emails.send`. The mailer was reading `result.id` (always `undefined`), so:
 
-2. **בדיקת שליחת מייל:**
-   - נסה ליצור משתמש חדש - צריך להישלח welcome email
-   - נסה ליצור spec - צריך להישלח spec ready email
+1. `email_sent` was never written (`if (result.id)` skipped)
+2. Callers got `messageId: undefined` even when Resend accepted the message
+3. Resend API errors in the `{ error }` field were not always treated as failures
 
-3. **בדיקת Analytics:**
-   - פתח את Admin Dashboard > Analytics
-   - Email Analytics section צריך להציג נתונים
+Fix: `EmailService._send()` unwraps `{ data, error }` into `{ id }` for all send paths.
 
 ## Troubleshooting
 
-### מיילים לא נשלחים
+1. **API key missing:** server log `RESEND_API_KEY not configured` → set env and restart.
+2. **401 / restricted key:** send-only keys cannot list domains; sending still works.
+3. **422 validation:** check `from` is a verified domain address.
+4. **email_sent still empty:** run verify script with `--send`; confirm Firebase Admin credentials.
+5. **email_clicks empty:** expected until a user clicks a tracked link from a sent email (`/api/email/track?...`).
 
-1. **בדוק שה-API Key תקין:**
-   ```bash
-   cd backend
-   grep RESEND_API_KEY .env
-   ```
-   - ודא שהערך מתחיל ב-`re_`
-   - ודא שאין רווחים או תווים מיותרים
+## Production (Render)
 
-2. **בדוק שה-From Email תקין:**
-   ```bash
-   grep RESEND_FROM_EMAIL .env
-   ```
-   - ודא שזה כתובת מהדומיין המאומת
-   - ודא שהפורמט נכון (email@domain.com)
-
-3. **בדוק את הלוגים:**
-   - חפש ב-logs: `[EmailService] RESEND_API_KEY not configured`
-   - אם אתה רואה את זה, ה-API Key לא מוגדר
-
-### Endpoint לא נמצא (404)
-
-אם אתה רואה `404` על `/api/admin/analytics/email`:
-- השרת לא רץ עם הקוד החדש
-- הפעל מחדש: `pkill -f "node.*server.js" && npm start`
-
-### שגיאות אחרות
-
-אם אתה רואה שגיאות אחרות:
-- בדוק את הלוגים של השרת
-- ודא שכל ה-dependencies מותקנים: `npm install`
-- ודא שה-Firebase מוגדר נכון
-
-## הערות
-
-- **ב-Render (Production):** הוסף את המשתנים ב-Dashboard > Environment
-- **ב-Local Development:** עדכן את `backend/.env`
-- **אבטחה:** לעולם אל תעלה את `.env` ל-Git (הוא ב-.gitignore)
-
+Dashboard → Environment → set `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, then redeploy/restart.

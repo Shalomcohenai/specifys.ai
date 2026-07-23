@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 const specEvents = require('./spec-events');
 const { getSpecThreadManager } = require('./spec-thread-manager');
 const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
-const { PROMPTS, formatUserRequirements } = require('../../packages/spec-prompts/index.cjs');
+const { PROMPTS, formatUserRequirements, MERMAID_RULES_BLOCK } = require('../../packages/spec-prompts/index.cjs');
 const { runPromptStages, runIntegrations, assembleFullPrompt } = require('./prompts-stage-runner');
 const {
   DIAGRAM_FIELDS,
@@ -25,25 +25,6 @@ function getApiKeyForSpecOpenAI() {
   return process.env.OPENAI_API_KEY?.trim() || '';
 }
 
-
-/**
- * Strict Mermaid rules block shared across stages that emit diagrams.
- *
- * The post-generation server-side validator (mermaid-validator.js) catches
- * the high-volume failure modes; these rules in the prompt keep the model
- * from hitting them in the first place. They mirror Mermaid 10 syntax that
- * mermaid.parse() accepts.
- */
-const MERMAID_RULES_BLOCK = `MERMAID DIAGRAM RULES (strict — apply to every *Mermaid field):
-- Output RAW Mermaid only. No \`\`\`mermaid fences, no surrounding prose, no comments outside the diagram.
-- The first non-empty line MUST be a directive: flowchart TD/LR, graph TD/LR, erDiagram, sequenceDiagram, classDiagram, stateDiagram-v2, mindmap, pie, gantt, journey.
-- Node IDs: ASCII letters, digits and underscore only. NO spaces, dots, hyphens, parentheses, slashes or non-ASCII characters in IDs.
-- Labels with spaces or punctuation MUST be quoted: A["Login Page"]-->B["Dashboard"]. Never write A[Login Page] -- mermaid will reject it.
-- No emoji, no smart quotes (use straight " and '), no HTML other than <br> inside labels.
-- Edges: --> for solid, --- for plain, ==> for thick. Sequence arrows: ->>, -->>, ->, -->.
-- erDiagram: keep cardinality tokens exact (||--o{, }o--||, |o--o|). Each entity body uses { } on its own lines.
-- Keep diagrams under ~25 nodes; collapse detail into sub-systems if needed.
-- Never repeat the same edge twice; never reference an undefined node ID.`;
 
 class SpecGenerationServiceV2 {
   constructor() {
@@ -209,6 +190,16 @@ class SpecGenerationServiceV2 {
     const payload = await tm.runStage(threadId, 'overview', userMessage);
     const rootKey = STAGE_ROOT_KEYS.overview;
     const overviewObj = payload[rootKey];
+    // Belt-and-suspenders: structured schema already requires minItems, but guard
+    // against empty critical arrays so we never persist "Screens (0 total)" payloads.
+    const features = overviewObj?.coreFeaturesOverview;
+    const screens = overviewObj?.screenDescriptions?.screens;
+    if (!Array.isArray(features) || features.length === 0) {
+      throw new Error('Overview generation returned empty coreFeaturesOverview');
+    }
+    if (!Array.isArray(screens) || screens.length === 0) {
+      throw new Error('Overview generation returned empty screenDescriptions.screens');
+    }
     const specification = JSON.stringify(overviewObj);
     logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Overview completed');
     return specification;
@@ -353,7 +344,7 @@ class SpecGenerationServiceV2 {
 
   /**
    * Generate architecture as structured JSON then serialize to Markdown for storage.
-   * Uses assistant model (fallback: gpt-5.2, gpt-5-mini, gpt-5-nano, gpt-5) via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
+   * Uses assistant model (default: gpt-5.6-luna via OPENAI_SPEC_GENERATION_MODEL) via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
    * @param {string} technical - Technical content
@@ -390,9 +381,9 @@ class SpecGenerationServiceV2 {
     const marketSlice = (market || '').slice(0, 8000);
     const designSlice = (design || '').slice(0, 12000);
 
-    return `You are an expert software architect. Provide specific, non-generic, actionable architecture content. Do not give vague or template-like answers.
+    return `You are an expert software architect. Provide deep, product-specific, diagram-heavy architecture — not generic boilerplate. Every narrative must name concrete components, paths, and constraints from the inputs.
 
-Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must match this structure exactly:
+Return ONLY valid JSON. The top-level key MUST be "architecture". Match ArchitectureSchema exactly:
 
 - executiveSummary: string (2–4 short paragraphs: product, scope, critical areas).
 
@@ -414,21 +405,41 @@ Return ONLY valid JSON. The top-level key MUST be "architecture". The JSON must 
 
 - nonFunctionalQuality: string (performance, availability, scalability, security posture at architecture level).
 
-- observabilityOperability: string (logs, metrics, traces, SLI/SLOs, alerting strategy, incident/readiness posture).
+- observabilityOperability: string (logs, metrics, traces, SLI/SLOs summary, alerting strategy, incident/readiness posture).
 
 - securityArchitectureDeepDive: string (authn/authz boundaries, data protection model, key management, security controls by layer).
 
-- architectureDecisionLog: string (ADR-style decisions: context, alternatives, chosen approach, trade-offs, revisit triggers).
+- architectureDecisionLog: string (brief ADR-style summary; detailed ADRs live in adrs[]).
 
 - risksAndOpenDecisions: string (open decisions, trade-offs, technical debt).
 
+- contextDiagramMermaid: C4-style context diagram (flowchart/graph of system vs actors/external systems) — nullable only if impossible.
+
+- containerDiagramMermaid: C4-style container diagram (apps, APIs, DBs, queues) — nullable only if impossible.
+
+- adrs: array of at least 3 ADR objects:
+  { title, context, options[] (alternatives considered), decision, consequences[], revisitWhen }
+  Prefer populating adrs over only architectureDecisionLog prose.
+
+- threatModel: [{ threat, severity (critical|high|medium|low), mitigation }] — product-specific threats, not generic OWASP fluff.
+
+- sloSli: [{ name, sli, target, window (nullable) }] — measurable service objectives tied to this product.
+
+- dataClassification: [{ name, classification (e.g. public/internal/confidential/restricted), handling }] — data classes this product stores/processes.
+
+- failureModes: [{ failure, impact, detection, runbook }] — concrete failure scenarios with operator runbooks.
+
+- repoToPromptsMap: string mapping major repo paths/modules to which implementation prompt stages/tickets own them (nullable only if repositoryStructure is unknown).
+
 ${MERMAID_RULES_BLOCK}
 
-QUALITY BAR:
-- Each narrative/string field must be specific to the provided inputs and include concrete details (components, technologies, flows, constraints).
-- Avoid generic architecture boilerplate.
-- For repositoryStructure, include concrete path examples (e.g., backend/server, assets/js/features/spec-viewer, docs/architecture) when inferable from context.
-- For architectureDecisionLog, include at least 3 distinct decisions.
+QUALITY BAR (ARCHITECTURE.md-level depth):
+- Diagram-heavy: prefer non-null Mermaid for logical/info/functional/coreFlows/integration/deployment PLUS contextDiagramMermaid and containerDiagramMermaid.
+- Product-specific: name real entities, APIs, and integrations from Overview/Technical — no template filler.
+- Less boilerplate: cut generic cloud/security essays; prefer concrete decisions and failure modes.
+- adrs MUST include at least 3 distinct decisions with options + revisitWhen.
+- For repositoryStructure / repoToPromptsMap, include concrete path examples when inferable.
+- Align with Technical techStack, apiDesign, and securityAuthentication — do not invent conflicting stacks.
 
 Input context:
 
@@ -547,6 +558,123 @@ Output: single JSON object with key "architecture" and the fields above. No mark
       lines.push('');
     }
 
+    if (Array.isArray(payload.adrs) && payload.adrs.length > 0) {
+      lines.push('## Architecture decision records');
+      lines.push('');
+      payload.adrs.forEach((adr, i) => {
+        if (!adr || typeof adr !== 'object') return;
+        lines.push(`### ADR ${i + 1}: ${adr.title || 'Decision'}`);
+        lines.push('');
+        if (adr.context) {
+          lines.push('**Context**');
+          lines.push('');
+          lines.push(String(adr.context).trim());
+          lines.push('');
+        }
+        if (Array.isArray(adr.options) && adr.options.length > 0) {
+          lines.push('**Options considered**');
+          lines.push('');
+          adr.options.forEach((opt) => lines.push(`- ${opt}`));
+          lines.push('');
+        }
+        if (adr.decision) {
+          lines.push('**Decision**');
+          lines.push('');
+          lines.push(String(adr.decision).trim());
+          lines.push('');
+        }
+        if (Array.isArray(adr.consequences) && adr.consequences.length > 0) {
+          lines.push('**Consequences**');
+          lines.push('');
+          adr.consequences.forEach((c) => lines.push(`- ${c}`));
+          lines.push('');
+        }
+        if (adr.revisitWhen) {
+          lines.push('**Revisit when**');
+          lines.push('');
+          lines.push(String(adr.revisitWhen).trim());
+          lines.push('');
+        }
+      });
+    }
+
+    if (payload.contextDiagramMermaid && typeof payload.contextDiagramMermaid === 'string' && payload.contextDiagramMermaid.trim()) {
+      lines.push('## Context diagram');
+      lines.push('');
+      lines.push('```mermaid');
+      lines.push(payload.contextDiagramMermaid.trim());
+      lines.push('```');
+      lines.push('');
+    }
+
+    if (payload.containerDiagramMermaid && typeof payload.containerDiagramMermaid === 'string' && payload.containerDiagramMermaid.trim()) {
+      lines.push('## Container diagram');
+      lines.push('');
+      lines.push('```mermaid');
+      lines.push(payload.containerDiagramMermaid.trim());
+      lines.push('```');
+      lines.push('');
+    }
+
+    if (Array.isArray(payload.threatModel) && payload.threatModel.length > 0) {
+      lines.push('## Threat model');
+      lines.push('');
+      payload.threatModel.forEach((t) => {
+        if (!t || typeof t !== 'object') return;
+        lines.push(`### ${t.threat || 'Threat'} (${t.severity || 'unspecified'})`);
+        lines.push('');
+        if (t.mitigation) lines.push(String(t.mitigation).trim());
+        lines.push('');
+      });
+    }
+
+    if (Array.isArray(payload.sloSli) && payload.sloSli.length > 0) {
+      lines.push('## SLOs / SLIs');
+      lines.push('');
+      payload.sloSli.forEach((s) => {
+        if (!s || typeof s !== 'object') return;
+        const window = s.window ? ` · window: ${s.window}` : '';
+        lines.push(`- **${s.name || 'SLO'}**: SLI \`${s.sli || ''}\` → target **${s.target || ''}**${window}`);
+      });
+      lines.push('');
+    }
+
+    if (Array.isArray(payload.dataClassification) && payload.dataClassification.length > 0) {
+      lines.push('## Data classification');
+      lines.push('');
+      payload.dataClassification.forEach((d) => {
+        if (!d || typeof d !== 'object') return;
+        lines.push(`- **${d.name || 'Data'}** (${d.classification || 'unclassified'}): ${d.handling || ''}`);
+      });
+      lines.push('');
+    }
+
+    if (Array.isArray(payload.failureModes) && payload.failureModes.length > 0) {
+      lines.push('## Failure modes and runbooks');
+      lines.push('');
+      payload.failureModes.forEach((f, i) => {
+        if (!f || typeof f !== 'object') return;
+        lines.push(`### ${i + 1}. ${f.failure || 'Failure'}`);
+        lines.push('');
+        if (f.impact) lines.push(`**Impact:** ${f.impact}`);
+        if (f.detection) lines.push(`**Detection:** ${f.detection}`);
+        if (f.runbook) {
+          lines.push('');
+          lines.push('**Runbook**');
+          lines.push('');
+          lines.push(String(f.runbook).trim());
+        }
+        lines.push('');
+      });
+    }
+
+    if (payload.repoToPromptsMap && String(payload.repoToPromptsMap).trim()) {
+      lines.push('## Repo → prompts map');
+      lines.push('');
+      lines.push(String(payload.repoToPromptsMap).trim());
+      lines.push('');
+    }
+
     if (payload.risksAndOpenDecisions && String(payload.risksAndOpenDecisions).trim()) {
       lines.push('## Risks and open decisions');
       lines.push('');
@@ -621,13 +749,40 @@ Output: single JSON object with key "architecture" and the fields above. No mark
     const requirementsBlock = this._formatUserRequirements(answers);
     const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be visibility.
 Create a GEO & SEO visibility plan based only on Overview + Technical Specification + user requirements.
+Match VisibilitySchema exactly. Prefer ready-to-paste assets (llms.txt, ai.txt, JSON-LD, meta templates).
+
 Required structure:
 - strategySummary (string)
 - seoFoundation: { positioning, pillarTopics[], targetIntents[] }
-- geoReadiness: { llmsTxt, aiInfoTxt, schemaGuidance }
-- contentEngine: { editorialTracks[], publishingCadence, authoritySignals[] }
-- programmaticSeo: { templateFamilies[], dataRequirements[], qualityGuardrails[] }
-- launchChecklist[].
+- geoReadiness: {
+    llmsTxt (ready-to-paste full llms.txt body),
+    aiInfoTxt (ready-to-paste full ai.txt / ai-info body),
+    schemaGuidance (how to apply structured data),
+    jsonLd (ready-to-paste JSON-LD script body as a string — or null),
+    metaTemplates: { titleTemplate, descriptionTemplate, ogNotes (nullable) } — or null
+  }
+- contentEngine: {
+    editorialTracks[],
+    publishingCadence,
+    authoritySignals[],
+    contentCalendar: [{ week, channel, topic, status (nullable) }] — or null,
+    contentBriefs: [{ title, intent, outline[], cta (nullable) }] — or null
+  }
+- programmaticSeo: {
+    templateFamilies[],
+    dataRequirements[],
+    qualityGuardrails[],
+    sampleUrlSets: [{ pattern, sampleUrls[], notes (nullable) }] — or null
+  }
+- launchChecklist[]
+- aiCitationFaq: [{ question, answer }] — FAQ optimized for AI citation/answers — or null
+- technicalSeoChecklist: string[] of concrete technical SEO checks — or null
+
+QUALITY:
+- llmsTxt / aiInfoTxt / jsonLd must be paste-ready for THIS product (not placeholders).
+- contentBriefs: 3–6 briefs with outlines; contentCalendar: 4–8 week entries when possible.
+- sampleUrlSets: concrete URL patterns + sample URLs derived from the product domain.
+- Do not invent fake traffic numbers or keyword volumes.
 
 Overview:
 ${(overview || '').slice(0, 12000)}

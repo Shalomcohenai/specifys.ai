@@ -9,6 +9,7 @@ page_class: spec-viewer-page
 extra_css:
   - /assets/css/features/spec-viewer.css
   - /assets/css/features/spec-viewer-navigation.css
+  - /assets/css/features/spec-viewer-tour.css
   - /assets/css/pages/mcp-modal.css
 extra_js:
   - /assets/js/script.js
@@ -22,6 +23,7 @@ extra_js:
   - /assets/js/features/spec-viewer/spec-viewer-api-helper.js
   - /assets/js/features/spec-viewer/spec-viewer-scroll.js
   - /assets/js/features/spec-viewer/spec-viewer-auth.js
+  - /assets/js/features/spec-viewer/spec-viewer-tour.js
   - /assets/js/features/spec-viewer/spec-viewer-main.js
 defer_js:
   - /assets/js/services/prompts.js
@@ -45,7 +47,7 @@ custom_js_modules:
 <!-- Main Content -->
     <!-- Page Introduction Section -->
     <div class="page-intro-section">
-        <h1 class="page-title"><span id="spec-title">Project Spec</span> <button type="button" class="btn-icon spec-title-edit" id="spec-title-edit-btn" aria-label="Edit spec title" title="Edit spec name"><i class="fas fa-pencil-alt" aria-hidden="true"></i></button> <span id="spec-v2-badge" class="spec-v2-badge hidden" aria-label="Generated with Spec Engine v2">Spec Engine v2</span></h1>
+        <h1 class="page-title"><span id="spec-title">Project Spec</span> <button type="button" class="btn-icon spec-title-edit" id="spec-title-edit-btn" aria-label="Edit spec title" title="Edit spec name"><i class="fas fa-pencil-alt" aria-hidden="true"></i></button> <span id="spec-v2-badge" class="spec-v2-badge hidden" aria-label="Generated with Spec Engine v3">Spec Engine v3</span></h1>
     </div>
     
     <!-- Fallback content for SEO (hidden when JS loads) -->
@@ -135,14 +137,29 @@ custom_js_modules:
             <div id="approval-container" class="approval-container">
                 <div class="approval-message">
                     <i class="fa fa-info-circle"></i>
-                    <span>Please review the Overview specification below. Approve to generate: Technical Specification, Market Research, Design & Branding, Architecture, GEO & SEO Visibility Engine, and Prompts.</span>
+                    <span><strong>Overview ready.</strong> Continue to generate Technical, Market, Design, Architecture, GEO &amp; SEO, and <strong>Prompts</strong> — then Copy to Cursor / Connect MCP.</span>
                 </div>
                 <div class="approval-actions" role="group" aria-label="Approval actions">
                     <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()" aria-label="Edit overview specification">
                         <i class="fa fa-pencil" aria-hidden="true"></i> Edit
                     </button>
-                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Approve overview and generate technical specifications">
-                        <i class="fa fa-check" aria-hidden="true"></i> Approve Overview
+                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Continue to technical specification and prompts" data-tour-target="approve">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Continue to Technical + Prompts
+                    </button>
+                </div>
+            </div>
+
+            <div id="stage-recovery-banner" class="stage-recovery-banner hidden" role="status" aria-live="polite" hidden>
+                <div class="stage-recovery-copy">
+                    <strong id="stage-recovery-title">Generation needs attention</strong>
+                    <p id="stage-recovery-message">A stage failed or is stuck. Retry to continue toward Prompts.</p>
+                </div>
+                <div class="stage-recovery-actions">
+                    <button type="button" id="stage-recovery-retry-btn" class="btn btn-secondary" onclick="retryStuckOrFailedStages()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i> Retry failed stages
+                    </button>
+                    <button type="button" id="stage-recovery-continue-btn" class="btn btn-success" onclick="approveOverview()">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Continue pipeline
                     </button>
                 </div>
             </div>

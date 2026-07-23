@@ -1,0 +1,198 @@
+/* Sprint B — Pro paywall (benefit-led, preview of user's work) */
+
+.paywall-content {
+  width: min(520px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e8e4df;
+  box-shadow: 0 24px 48px rgba(20, 16, 12, 0.18);
+}
+
+.paywall-content .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid #f0ebe6;
+}
+
+.paywall-content .modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1510;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.paywall-content .modal-header h3 i {
+  color: #ff6b35;
+}
+
+.paywall-content .modal-body {
+  padding: 16px 24px 24px;
+}
+
+.paywall-reason {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #4a4038;
+}
+
+.paywall-reason.error {
+  color: #b42318;
+}
+
+.paywall-preview {
+  background: linear-gradient(135deg, #fff8f3 0%, #f7f3ef 100%);
+  border: 1px solid #f0d9c8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.paywall-preview-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a65a2e;
+  margin: 0 0 6px;
+}
+
+.paywall-preview-title {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 650;
+  color: #1a1510;
+}
+
+.paywall-preview-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b5e54;
+}
+
+.paywall-preview-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b5e54;
+}
+
+.paywall-benefits {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paywall-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: #2a221c;
+}
+
+.paywall-benefits li i {
+  color: #ff6b35;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.paywall-benefits strong {
+  font-weight: 650;
+}
+
+.paywall-products {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.paywall-product-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background: #ff6b35;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.paywall-product-btn:hover {
+  background: #e55a2b;
+  transform: translateY(-1px);
+}
+
+.paywall-product-btn:disabled,
+.paywall-product-btn.loading {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+.paywall-product-btn .label {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.paywall-product-btn .price {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.paywall-product-btn .description {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.paywall-status {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #6b5e54;
+}
+
+.paywall-footer {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.paywall-footer .pricing-link {
+  color: #ff6b35;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.paywall-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.paywall-actions .btn-secondary {
+  background: transparent;
+  border: 1px solid #d9d0c8;
+  color: #4a4038;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.paywall-actions .btn-secondary:hover {
+  background: #f7f3ef;
+}

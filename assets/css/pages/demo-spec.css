@@ -466,3 +466,40 @@ body:has(.demo-header) .main-content {
 .content-section {
   animation: fadeInUp 0.5s ease-out;
 }
+
+/* Example switcher (enriched multi-spec demo) */
+.demo-example-switcher {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.demo-example-switcher-label {
+  font-weight: 600;
+  color: #1b1b1e;
+}
+
+.demo-example-select {
+  min-width: 220px;
+  max-width: 100%;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(27, 27, 30, 0.18);
+  border-radius: 8px;
+  background: #fff;
+  color: #1b1b1e;
+  font-size: 0.95rem;
+}
+
+.demo-spec-product-title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  color: #1b1b1e;
+}
+
+.demo-section-rule {
+  border: 0;
+  border-top: 1px solid rgba(27, 27, 30, 0.1);
+  margin: 1.5rem 0;
+}

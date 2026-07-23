@@ -53,6 +53,34 @@ function getPreviewData(template) {
         `${baseUrl}/pages/ToolPicker.html?utm_source=email&utm_medium=email&utm_campaign=tool-finder`,
         `${baseUrl}?utm_source=email&utm_medium=email&utm_campaign=tool-finder`
       );
+
+    case 'unfinished-spec':
+      return emailTemplates.unfinishedSpecEmail(
+        'John Doe',
+        'My Side Project',
+        `${baseUrl}/pages/spec-viewer.html?id=preview-unfinished`
+      );
+
+    case 'overview-stuck':
+      return emailTemplates.overviewStuckEmail(
+        'John Doe',
+        'My Side Project',
+        `${baseUrl}/pages/spec-viewer.html?id=preview-overview`
+      );
+
+    case 'upgrade-offer':
+      return emailTemplates.upgradeOfferEmail(
+        'John Doe',
+        `${baseUrl}/pages/pricing.html?reason=insufficient_credits`
+      );
+
+    case 'prompts-ready-mcp':
+      return emailTemplates.promptsReadyMcpEmail(
+        'John Doe',
+        'My Side Project',
+        `${baseUrl}/pages/spec-viewer.html?id=preview-prompts#prompts`,
+        `${baseUrl}/pages/spec-viewer.html?id=preview-prompts#mcp`
+      );
     
     case 'newsletter':
       return emailTemplates.newsletterEmail(

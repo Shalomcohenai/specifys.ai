@@ -10,7 +10,7 @@ const helpTexts = {
     integrations: "Connect your app to external worlds like payments, maps, or AI.",
     features: "Select specific functional tools your app needs to work.",
     audience: "Define who will use this and on which devices.",
-    screenshot: "Upload UI screenshots as references. AI turns them into detailed English spec text you can edit."
+    screenshot: "Optional. Prefer Features presets when they fit. Upload screenshots only for unique UI references — AI turns them into editable English spec text."
 };
 
 const sectionDescriptions = {
@@ -20,7 +20,7 @@ const sectionDescriptions = {
     integrations: "Connect your app to external services like payments, maps, AI, and other third-party tools.",
     features: "Select specific functional tools and capabilities your app needs to work effectively.",
     audience: "Define who will use this app and on which devices they'll access it.",
-    screenshot: "Upload reference screenshots of UIs you want to emulate. Add a short instruction, run analysis, edit the result, and confirm. Each confirmed item is merged into your specification."
+    screenshot: "Optional. Prefer Features presets when they fit. Upload screenshots only for unique layouts, then edit and confirm."
 };
 
 const designStyles = [

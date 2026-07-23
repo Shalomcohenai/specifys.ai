@@ -33,6 +33,29 @@ router.use((req, res, next) => {
   db.collection(MCP_REQUESTS_COLLECTION).add(doc).catch(err => {
     logger.warn({ err: err.message, path, method }, '[mcp-routes] Failed to log MCP request');
   });
+
+  // Sprint B: first authenticated MCP API call → mcp_connected (once per user, non-blocking)
+  if (userId) {
+    db.collection('users').doc(userId).get().then((snap) => {
+      const data = snap.exists ? snap.data() : {};
+      if (data && data.mcpConnectedTrackedAt) return;
+      return Promise.all([
+        db.collection('mcp_events').add({
+          userId,
+          type: 'mcp_connected',
+          source: 'mcp_api_request',
+          path,
+          client,
+          timestamp: admin.firestore.FieldValue.serverTimestamp()
+        }),
+        db.collection('users').doc(userId).set({
+          mcpConnectedTrackedAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+      ]);
+    }).catch((err) => {
+      logger.warn({ err: err.message, userId }, '[mcp-routes] Failed to record mcp_connected');
+    });
+  }
   next();
 });
 

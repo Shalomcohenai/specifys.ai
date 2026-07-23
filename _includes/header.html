@@ -2,10 +2,12 @@
 <header class="thematic-header" role="banner">
     <div class="header-left">
         <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Will be populated by auth system -->
+            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
+            <a href="{{ '/pages/auth.html' | relative_url }}" class="auth-btn">Log in/Sign up</a>
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="{{ '/pages/how.html' | relative_url }}">How</a>
+            <a href="{{ '/pages/example-specs.html' | relative_url }}">Examples</a>
             <a href="{{ '/pages/pricing.html' | relative_url }}">Pricing</a>
             <a href="{{ '/blog/' | relative_url }}">Blog</a>
             <a href="{{ '/academy.html' | relative_url }}">Academy</a>
@@ -29,6 +31,10 @@
     </div>
 </header>
 
-<!-- Credits Display Scripts (V3) -->
-<script src="/assets/js/pages/credits-v3-manager.js"></script>
-<script src="/assets/js/pages/credits-v3-display.js"></script>
+{% assign perf_shell = page.perf_shell | default: layout.perf_shell %}
+{% assign skip_credits_flag = page.skip_credits | default: layout.skip_credits %}
+{% unless perf_shell == 'lean' or skip_credits_flag %}
+<!-- Credits Display Scripts (V3) — deferred to reduce main-thread contention on LCP -->
+<script defer src="/assets/js/pages/credits-v3-manager.js"></script>
+<script defer src="/assets/js/pages/credits-v3-display.js"></script>
+{% endunless %}

@@ -278,7 +278,9 @@ const DIAGRAM_FIELDS = {
     { path: 'functionalArchitecture.diagramMermaid', nullable: true, kind: 'flowchart' },
     { path: 'coreFlows.primarySequenceDiagramMermaid', nullable: true, kind: 'sequenceDiagram' },
     { path: 'integrationLandscape.diagramMermaid', nullable: true, kind: 'flowchart' },
-    { path: 'deploymentTopology.diagramMermaid', nullable: true, kind: 'flowchart' }
+    { path: 'deploymentTopology.diagramMermaid', nullable: true, kind: 'flowchart' },
+    { path: 'contextDiagramMermaid', nullable: true, kind: 'flowchart' },
+    { path: 'containerDiagramMermaid', nullable: true, kind: 'flowchart' }
   ]
 };
 

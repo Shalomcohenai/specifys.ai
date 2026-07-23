@@ -1,43 +1,83 @@
-const fs = require('fs');
-const path = require('path');
+#!/usr/bin/env node
+/**
+ * Generate demo HTML snippets from an enriched example fixture.
+ * Usage: node generate-demo-html.js [exampleId]
+ * Default: relaydesk
+ */
+import fs from 'fs';
+import path from 'path';
+import vm from 'vm';
+import { fileURLToPath } from 'url';
 
-// Read demo-spec-data.js and extract the data
-const dataPath = path.join(__dirname, 'assets/js/features/demo-spec/demo-spec-data.js');
-let dataContent = fs.readFileSync(dataPath, 'utf8');
-// Remove the const declaration and window assignment
-dataContent = dataContent.replace(/^const demoSpecData = /, 'const demoSpecData = ');
-eval(dataContent);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const exampleId = process.argv[2] || 'relaydesk';
+const fixturePath = path.join(__dirname, 'assets/data/example-specs', `${exampleId}.json`);
+if (!fs.existsSync(fixturePath)) {
+  console.error(`Missing fixture: ${fixturePath}`);
+  console.error('Run: npm run build:example-specs');
+  process.exit(1);
+}
 
-// Read demo-spec-formatter.js
+const demoSpecData = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+
 const formatterPath = path.join(__dirname, 'assets/js/features/demo-spec/demo-spec-formatter.js');
 const formatterContent = fs.readFileSync(formatterPath, 'utf8');
-eval(formatterContent);
+const sandbox = {
+  window: {},
+  console,
+  demoSpecData,
+  document: {
+    createElement() {
+      return {
+        set textContent(v) {
+          this._t = String(v ?? '');
+        },
+        get innerHTML() {
+          return String(this._t ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        }
+      };
+    }
+  }
+};
+vm.runInNewContext(
+  formatterContent +
+    '\nthis.formatOverview=formatOverview;this.formatTechnical=formatTechnical;this.formatMarket=formatMarket;this.formatDesign=formatDesign;this.formatPrompts=formatPrompts;',
+  sandbox
+);
 
-// Generate HTML for each section
+const { formatOverview, formatTechnical, formatMarket, formatDesign, formatPrompts } = sandbox;
+
 const overviewHtml = formatOverview(demoSpecData.overview);
 const technicalHtml = formatTechnical(demoSpecData.technical);
 const marketHtml = formatMarket(demoSpecData.market);
 const designHtml = formatDesign(demoSpecData.design);
-const promptsHtml = formatPrompts();
+const promptsHtml = formatPrompts(demoSpecData.prompts);
 
-// Generate diagrams HTML
 let diagramsHtml = '';
-if (demoSpecData.diagrams && demoSpecData.diagrams.diagrams) {
-  demoSpecData.diagrams.diagrams.forEach((diagram, index) => {
-    diagramsHtml += `<div class="diagram-section-container">`;
-    diagramsHtml += `<h3 class="diagram-section-title"><i class="fa fa-project-diagram" aria-hidden="true"></i> ${diagram.name || 'Diagram'}</h3>`;
-    if (diagram.description) {
-      diagramsHtml += `<p class="diagram-section-description">${diagram.description}</p>`;
-    }
-    diagramsHtml += `<div class="diagram-container">`;
-    const mermaidCode = (diagram.mermaidCode || diagram.code || '').trim();
-    diagramsHtml += `<div class="mermaid" id="mermaid-diagram-${index}">${mermaidCode}</div>`;
-    diagramsHtml += `</div></div>`;
-  });
-}
+const arch = demoSpecData.architecture || {};
+const tech = demoSpecData.technical || {};
+const diagramPairs = [
+  ['System context', tech.architectureOverview?.systemContextDiagramMermaid],
+  ['Architecture context', arch.contextDiagramMermaid],
+  ['Containers', arch.containerDiagramMermaid],
+  ['ER diagram', tech.databaseSchema?.erDiagramMermaid]
+];
+diagramPairs.forEach(([name, code], index) => {
+  if (!code) return;
+  diagramsHtml += `<div class="diagram-section-container">`;
+  diagramsHtml += `<h3 class="diagram-section-title"><i class="fa fa-project-diagram" aria-hidden="true"></i> ${name}</h3>`;
+  diagramsHtml += `<div class="diagram-container">`;
+  diagramsHtml += `<div class="mermaid" id="mermaid-diagram-${index}">${String(code).trim()}</div>`;
+  diagramsHtml += `</div></div>`;
+});
 
-// Write to a file
 const output = {
+  exampleId,
+  product: demoSpecData.meta?.product || exampleId,
   overview: overviewHtml,
   technical: technicalHtml,
   market: marketHtml,
@@ -46,6 +86,6 @@ const output = {
   prompts: promptsHtml
 };
 
-fs.writeFileSync('/tmp/demo-html-output.json', JSON.stringify(output, null, 2));
-console.log('HTML generated successfully!');
-
+const outPath = '/tmp/demo-html-output.json';
+fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
+console.log(`HTML generated for ${exampleId} (${output.product}) → ${outPath}`);

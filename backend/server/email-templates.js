@@ -274,15 +274,15 @@ function welcomeEmail(userName, getStartedUrl, creditsCount = 1) {
           As a welcome gift, we've added <strong>${creditsCount} specification credit${creditsCount !== 1 ? 's' : ''}</strong> to your account. You can use ${creditsCount === 1 ? 'it' : 'them'} to create your first comprehensive app specification right away!
         </p>
         <p class="content-text" style="margin: 10px 0;">
-          Our AI will help you build detailed specifications including technical requirements, market research, and design guidelines.
+          Already started a brief? Pick up where you left off — your unfinished idea is waiting.
         </p>
       </div>
       <div class="content-title">What's Next?</div>
       <p class="content-text">
-        You can start creating your first specification right away. Our AI will help you build comprehensive app specifications including technical requirements, market research, and design guidelines.
+        Continue your unfinished brief or start a new one. After Overview is ready, keep going to Technical + Prompts so you can Copy to Cursor and Connect MCP.
       </p>
       <div class="btn-container">
-        <a href="${getStartedUrl || 'https://specifys-ai.com'}" class="btn">Get Started</a>
+        <a href="${getStartedUrl || 'https://specifys-ai.com/?resumeBrief=1'}" class="btn">Continue your idea</a>
       </div>
       <p class="content-text">
         If you have any questions, feel free to reach out to us. We're here to help!
@@ -479,6 +479,93 @@ function toolFinderUsageEmail(userName, toolFinderUrl, createSpecUrl) {
   return getBaseTemplate(headerTitle, bodyContent);
 }
 
+/**
+ * Unfinished spec / continue brief reminder
+ */
+function unfinishedSpecEmail(userName, specTitle, continueUrl) {
+  const headerTitle = 'Continue your unfinished spec';
+  const title = specTitle || 'your idea';
+  const bodyContent = `
+      <p class="content-text">Hello ${userName},</p>
+      <p class="content-text">
+        You started <strong>"${title}"</strong> but have not finished yet. Pick up where you left off —
+        approve Overview, then continue to Technical and Prompts so you can build in Cursor.
+      </p>
+      <div class="btn-container">
+        <a href="${continueUrl}" class="btn">Continue unfinished spec</a>
+      </div>
+  `;
+  return getBaseTemplate(headerTitle, bodyContent);
+}
+
+/**
+ * Stuck at overview-only (~24h reminder)
+ */
+function overviewStuckEmail(userName, specTitle, continueUrl) {
+  const headerTitle = 'Your overview is ready — keep going';
+  const title = specTitle || 'your app';
+  const bodyContent = `
+      <p class="content-text">Hello ${userName},</p>
+      <p class="content-text">
+        Great news: Overview for <strong>"${title}"</strong> is ready. Most builders who continue past Overview
+        get Cursor-ready prompts. Approve Overview to generate Technical, Architecture, and Prompts.
+      </p>
+      <div class="btn-container">
+        <a href="${continueUrl}" class="btn">Continue to Technical + Prompts</a>
+      </div>
+  `;
+  return getBaseTemplate(headerTitle, bodyContent);
+}
+
+/**
+ * Upgrade offer when free credits are exhausted
+ */
+function upgradeOfferEmail(userName, upgradeUrl) {
+  const headerTitle = 'Unlock Specifys Pro';
+  const bodyContent = `
+      <p class="content-text">Hello ${userName},</p>
+      <p class="content-text">
+        Your free credit is used up. Specifys Pro is not just “more credits” — it unlocks what finishes your product:
+      </p>
+      <ul style="color:#333;font-size:16px;line-height:1.8;">
+        <li><strong>Unlock Database Design</strong></li>
+        <li><strong>Export to Cursor</strong></li>
+        <li><strong>Unlimited Specs</strong></li>
+        <li><strong>AI Review</strong></li>
+        <li><strong>Team Collaboration</strong></li>
+      </ul>
+      <div class="btn-container">
+        <a href="${upgradeUrl}" class="btn">Upgrade to Pro — $1.99/mo</a>
+      </div>
+  `;
+  return getBaseTemplate(headerTitle, bodyContent);
+}
+
+/**
+ * Prompts ready — ready for Cursor / MCP
+ */
+function promptsReadyMcpEmail(userName, specTitle, specUrl, mcpUrl) {
+  const headerTitle = 'Ready for Cursor & MCP';
+  const title = specTitle || 'Your specification';
+  const bodyContent = `
+      <p class="content-text">Hello ${userName},</p>
+      <p class="content-text">
+        Prompts for <strong>"${title}"</strong> are ready. Next actions:
+      </p>
+      <ol style="color:#333;font-size:16px;line-height:1.8;">
+        <li>Copy prompts into Cursor</li>
+        <li>Connect MCP (2 clicks) so Cursor can read your live spec</li>
+      </ol>
+      <div class="btn-container">
+        <a href="${specUrl}" class="btn">Open prompts</a>
+      </div>
+      <p class="content-text" style="text-align:center;">
+        <a href="${mcpUrl}" style="color:#FF6B35;">Connect MCP setup</a>
+      </p>
+  `;
+  return getBaseTemplate(headerTitle, bodyContent);
+}
+
 module.exports = {
   formatLemonAmount,
   getBaseTemplate,
@@ -491,6 +578,10 @@ module.exports = {
   notificationEmail,
   inactiveUserEmail,
   purchaseConfirmationEmail,
-  toolFinderUsageEmail
+  toolFinderUsageEmail,
+  unfinishedSpecEmail,
+  overviewStuckEmail,
+  upgradeOfferEmail,
+  promptsReadyMcpEmail
 };
 

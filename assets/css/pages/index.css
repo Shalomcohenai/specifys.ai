@@ -24,7 +24,7 @@
 .section span,
 .section div,
 .section li,
-.section a:not(.btn):not(.pricing-btn):not(.tool-link):not(.cta-button) {
+.section a:not(.btn):not(.tool-link):not(.cta-button) {
   font-family: "Montserrat", sans-serif;
 }
 
@@ -155,13 +155,14 @@ body .logo a:hover .logo-dot {
 .hero-section {
   width: 100%;
   background: #333;
-  padding: 8rem 0 0 0;
+  padding: 8rem 0 4rem 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   min-height: 100vh;
   position: relative;
+  overflow: visible;
 }
 
 /* Vanta.NET container */
@@ -430,9 +431,9 @@ body .logo a:hover .logo-dot {
   line-height: 1.3;
   margin: 0 0 0.1rem 0;
   text-align: center;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+  /* Visible immediately for LCP — do not gate behind JS fade-in */
+  opacity: 1;
+  transform: none;
 }
 
 .hero-title-line1 {
@@ -451,9 +452,9 @@ body .logo a:hover .logo-dot {
   color: #ffffff;
   text-align: center;
   margin: 0.3rem 0 2.5rem 0;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  /* Visible immediately for LCP — do not gate behind JS fade-in */
+  opacity: 1;
+  transform: none;
 }
 
 .hero-tagline.fade-in {
@@ -1301,10 +1302,6 @@ body .logo a:hover .logo-dot {
   z-index: 5;
 }
 
-.why-section.prompt-section {
-  margin-top: 150px;
-}
-
 .section {
   margin-bottom: 4rem;
   opacity: 0;
@@ -1313,16 +1310,6 @@ body .logo a:hover .logo-dot {
   animation-delay: calc(0.2s * var(--section-index));
   text-align: center;
   width: 100%;
-}
-
-/* Choose Your Plan section - darker gray background */
-.extra-sections .section[style*="--section-index: 0"] {
-  background-color: #e5e5e5;
-  padding: 80px 20px;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  width: 100vw;
-  position: relative;
 }
 
 .section h2 {
@@ -1345,7 +1332,6 @@ body .logo a:hover .logo-dot {
 .section > p,
 .section .tools-showcase,
 .section .stats-list,
-.section .pricing-grid-home,
 .section .benefits-container,
 .section .use-cases-list,
 .section .faq-list,
@@ -1358,7 +1344,6 @@ body .logo a:hover .logo-dot {
 .section.revealed > p,
 .section.revealed .tools-showcase,
 .section.revealed .stats-list,
-.section.revealed .pricing-grid-home,
 .section.revealed .benefits-container,
 .section.revealed .use-cases-list,
 .section.revealed .faq-list,
@@ -1682,191 +1667,6 @@ body .logo a:hover .logo-dot {
   background: #f0f0f0;
 }
 
-/* ===== PRICING TABLE HOME ===== */
-.pricing-grid-home {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(260px, 380px));
-  justify-content: center;
-  gap: 1.5rem;
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 2rem;
-}
-
-.pricing-card-home {
-  background: #FFF4F0;
-  border: 2px solid #FF6B35;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-  position: relative;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.pricing-card-home:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
-}
-
-.pricing-card-home.highlight {
-  border-color: #FF6B35;
-  background: #FFF4F0;
-}
-
-.pricing-card-home.highlight .badge {
-  background: #FF6B35;
-}
-
-.pricing-card-home.pro {
-  border-color: #FF6B35;
-  background: #FFF4F0;
-}
-
-.badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #28a745;
-  color: white;
-  padding: 3px 10px;
-  border-radius: 5px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.pricing-card-home.pro .badge {
-  background: #FF6B35;
-}
-
-.pricing-card-header h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.4rem;
-  color: #333;
-  font-weight: 600;
-}
-
-.pricing-card-header p {
-  color: #666;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.pricing-card-price {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  margin-bottom: 1rem;
-  flex-grow: 0;
-}
-
-.currency {
-  font-size: 1rem;
-  color: #666;
-}
-
-.amount {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #333;
-  margin: 0 2px;
-}
-
-.period {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.pricing-card-features {
-  flex-grow: 1;
-  margin-bottom: 1.5rem;
-}
-
-.pricing-card-features ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  text-align: left;
-}
-
-.pricing-card-features li {
-  display: flex;
-  align-items: center;
-  padding: 0.4rem 0;
-  font-size: 0.85rem;
-  color: #333;
-}
-
-.pricing-card-features li i {
-  color: #28a745;
-  margin-right: 0.6rem;
-  font-size: 0.9rem;
-}
-
-.pricing-btn {
-  display: block;
-  width: 100%;
-  padding: 0.65rem 1.2rem;
-  background: #2a2a2a;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  margin-top: auto;
-}
-
-.pricing-btn:hover {
-  background: #3a3a3a;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.pricing-btn.highlight-btn {
-  background: #2a2a2a;
-  color: white;
-}
-
-.pricing-btn.highlight-btn:hover {
-  background: #3a3a3a;
-  color: white;
-}
-
-.pricing-footer {
-  text-align: center;
-  color: #666;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-}
-
-/* Tablet Responsive */
-@media (max-width: 968px) and (min-width: 600px) {
-  .pricing-grid-home {
-    grid-template-columns: repeat(2, minmax(240px, 1fr));
-    justify-content: center;
-    gap: 1.25rem;
-    padding: 0 1.5rem;
-  }
-}
-/* Mobile Responsive */
-@media (max-width: 599px) {
-  .pricing-grid-home {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-    max-width: 500px;
-    padding: 0 1rem;
-  }
-  .pricing-card-home {
-    padding: 1.25rem;
-  }
-  .amount {
-    font-size: 1.75rem;
-  }
-}
 /* ===== BENEFITS SECTION ===== */
 .benefits-container {
   max-width: 800px;
@@ -2383,10 +2183,10 @@ body .logo a:hover .logo-dot {
 @media (max-width: 768px) {
   .hero-section {
     min-height: 100vh;
-    padding: 5rem 0 0 0; /* Space for header */
+    padding: 5rem 0 3rem 0; /* Space for header + bottom breathing room */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     overflow: visible;
   }
   .hero-section:has(.questions-display:not(.hidden)) {
@@ -2525,13 +2325,13 @@ body .logo a:hover .logo-dot {
 }
 @media (max-width: 480px) {
   .hero-section {
-    min-height: 100vh;
-    height: 100vh;
-    padding: 4.5rem 0 0 0; /* Space for header */
+    min-height: auto;
+    height: auto;
+    padding: 4.5rem 0 2.5rem 0; /* Space for header */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
+    justify-content: flex-start;
+    overflow: visible;
   }
   .hero-cta-button-new {
     min-width: 160px;
@@ -2756,8 +2556,8 @@ body .logo a:hover .logo-dot {
 }
 @media (max-width: 768px) {
   .hero-section {
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-top: 5rem;
+    padding-bottom: 3rem;
     min-height: auto;
     display: flex;
     flex-direction: column;
@@ -3134,7 +2934,7 @@ body .logo a:hover .logo-dot {
 .browser-window-preview {
   width: 100%;
   max-width: 980px;
-  margin: 4rem auto 0;
+  margin: 3rem auto 0;
   padding: 0 40px;
   display: flex;
   justify-content: center;
@@ -3144,7 +2944,8 @@ body .logo a:hover .logo-dot {
   transition: opacity 1s ease-out, transform 1s ease-out;
   position: relative;
   z-index: 10;
-  margin-bottom: -200px;
+  content-visibility: auto;
+  contain-intrinsic-size: 980px 520px;
 }
 
 .browser-window-preview.fade-in {
@@ -3303,7 +3104,8 @@ body .logo a:hover .logo-dot {
 
 
 .browser-window-content {
-  height: 686px;
+  height: min(686px, 70vh);
+  max-height: 686px;
   background: #f5f5f5;
   width: 100%;
   position: relative;
@@ -4220,9 +4022,8 @@ body .logo a:hover .logo-dot {
 @media (max-width: 768px) {
   
   .browser-window-preview {
-    margin: 3rem auto 0;
+    margin: 2.5rem auto 0;
     padding: 0 20px;
-    margin-bottom: -150px;
   }
   
   
@@ -4251,7 +4052,8 @@ body .logo a:hover .logo-dot {
   }
   
   .browser-window-content {
-    height: 480px;
+    height: min(420px, 55vh);
+    max-height: 420px;
   }
   
   .spec-wrapper {
@@ -4384,7 +4186,7 @@ body .logo a:hover .logo-dot {
   
   .extra-sections {
     margin-top: 0;
-    padding-top: 200px;
+    padding-top: 60px;
   }
 }
 
@@ -4393,7 +4195,6 @@ body .logo a:hover .logo-dot {
   .browser-window-preview {
     margin: 2rem auto 0;
     padding: 0 15px;
-    margin-bottom: -120px;
   }
   
   
@@ -4422,7 +4223,8 @@ body .logo a:hover .logo-dot {
   }
   
   .browser-window-content {
-    height: 411px;
+    height: min(360px, 50vh);
+    max-height: 360px;
   }
   
   .spec-wrapper {

@@ -30,6 +30,9 @@ defaults:
       type: "posts"
     values:
       layout: "post"
+      perf_shell: lean
+      skip_firebase: true
+      skip_credits: true
   - scope:
       path: ""
       type: "guides"

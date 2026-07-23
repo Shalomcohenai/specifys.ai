@@ -40,6 +40,84 @@
   line-height: 1.55;
 }
 
+.mcp-two-click {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.mcp-two-click-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: #fff8f3;
+  border: 1px solid #f0d9c8;
+  border-radius: 10px;
+}
+
+.mcp-two-click-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ff6b35;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mcp-two-click-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mcp-two-click-body strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #1a1510;
+}
+
+.mcp-two-click-body p {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  color: #6b5e54;
+  line-height: 1.4;
+}
+
+.mcp-two-click-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+a.mcp-cursor-deeplink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.mcp-setup-steps {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  color: #444;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.mcp-setup-steps li {
+  margin-bottom: 6px;
+}
+
+.mcp-modal-json-wrap.revealed {
+  opacity: 1;
+  max-height: none;
+}
+
 .mcp-modal-key-block {
   margin-bottom: 1.25rem;
   padding: 1rem 1.25rem;

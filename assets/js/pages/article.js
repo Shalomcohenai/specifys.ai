@@ -326,7 +326,27 @@ class ArticlePage {
             <div class="article-body">
                 ${contentHtml}
             </div>
+            <aside class="product-cta" aria-label="Try Specifys">
+                <p class="product-cta-lead">Generate this PRD automatically →</p>
+                <p class="product-cta-copy">Turn your idea into a complete spec — overview, user stories, database, API, and flows — in minutes.</p>
+                <div class="product-cta-actions">
+                    <a href="/?autoStart=true" class="product-cta-btn product-cta-btn--primary">Try Free</a>
+                    <a href="/" class="product-cta-btn product-cta-btn--secondary">Create your Spec</a>
+                </div>
+            </aside>
         `;
+
+        // LCP: lazy-load non-first images in article body
+        const bodyImgs = articleContent.querySelectorAll('.article-body img');
+        bodyImgs.forEach((img, index) => {
+            if (index === 0) {
+                img.setAttribute('fetchpriority', 'high');
+                img.setAttribute('decoding', 'async');
+            } else {
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+            }
+        });
 
         // Initialize Mermaid diagrams if available
         if (typeof mermaid !== 'undefined') {

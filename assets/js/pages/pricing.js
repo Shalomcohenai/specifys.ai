@@ -410,7 +410,10 @@ function handleCheckoutRedirect() {
     const redirectMessage = params.get('message');
     if (redirectReason || redirectMessage) {
         const alertType = redirectReason === 'insufficient_credits' ? 'error' : 'info';
-        showPricingAlert(redirectMessage || 'Please choose a plan to continue.', alertType);
+        const defaultMsg = redirectReason === 'insufficient_credits'
+            ? 'Your free credit is used up. Pro unlocks Database Design, Export to Cursor, Unlimited Specs, AI Review, and Team Collaboration.'
+            : 'Please choose a plan to continue.';
+        showPricingAlert(redirectMessage || defaultMsg, alertType);
     }
 
     if (checkoutStatus) {
@@ -993,53 +996,41 @@ async function wakeUpServer() {
 }
 
 var PRO_FEATURES = {
+    database: {
+        icon: 'fa-database',
+        title: 'Unlock Database Design',
+        desc: 'Go beyond overview — get schema, relationships, and data model guidance so Cursor and your team build on a solid foundation.',
+        highlights: ['Technical + architecture depth', 'Data model ready for implementation', 'Tied to your approved overview']
+    },
+    cursor: {
+        icon: 'fa-terminal',
+        title: 'Export to Cursor',
+        desc: 'Ship IDE-ready prompts and MCP config so Cursor can build from your full specification.',
+        highlights: ['Copy prompts for Cursor', 'MCP JSON in two clicks', 'Export packs for Windsurf too']
+    },
     unlimited: {
         icon: 'fa-infinity',
         title: 'Unlimited Specifications',
         desc: 'Create as many app specs as you need. No credit limits, no per-spec fees - iterate freely on every idea.',
         highlights: ['Unlimited spec generation', 'Full PRD-level detail every time', 'Tools Map & Tool Finder included']
     },
-    edit: {
-        icon: 'fa-pen-to-square',
-        title: 'Edit & Customize Specs',
-        desc: 'Refine your PRD as your product evolves. Update features, user flows, and technical details anytime.',
-        highlights: ['Live editing in the spec viewer', 'Changes saved to your account', 'Re-export after every update']
+    aireview: {
+        icon: 'fa-wand-magic-sparkles',
+        title: 'AI Review',
+        desc: 'Deeper technical, market, design, and architecture coverage — not just an overview draft.',
+        highlights: ['Full pipeline after overview', 'Market + design research', 'Architecture & visibility insights']
     },
-    mockups: {
-        icon: 'fa-image',
-        title: 'Mockup Generation',
-        desc: 'Turn your specification into visual mockups. See your app before writing a single line of code.',
-        highlights: ['AI-generated UI mockups', 'Tied to your spec content', 'Share with stakeholders instantly']
-    },
-    visibility: {
-        icon: 'fa-chart-line',
-        title: 'GEO & SEO Visibility Engine',
-        desc: 'Analyze how your app can rank and get discovered. Get actionable SEO and geographic visibility insights.',
-        highlights: ['Keyword & market visibility analysis', 'GEO targeting recommendations', 'Pro-only advanced engine']
-    },
-    prompts: {
-        icon: 'fa-code',
-        title: 'Development Prompts',
-        desc: 'Generate ready-to-use prompts for Cursor, Windsurf, and your AI coding workflow - straight from your spec.',
-        highlights: ['Structured dev prompts from your PRD', 'Apply brain dump insights to specs', 'Export for any AI IDE']
-    },
-    export: {
-        icon: 'fa-file-export',
-        title: 'Export Anywhere',
-        desc: 'Take your spec wherever your team works - HTML, Jira, Cursor, Windsurf, and full prompts export.',
-        highlights: ['HTML & Jira export', 'Cursor & Windsurf integration', 'Full prompts export for app building']
+    team: {
+        icon: 'fa-users',
+        title: 'Team Collaboration',
+        desc: 'Share specs, keep stakeholders aligned, and hand off to developers without losing context.',
+        highlights: ['Shareable spec links', 'Export for stakeholders', 'Single source of product truth']
     },
     mcp: {
         icon: 'fa-plug',
         title: 'MCP Integration',
         desc: 'Connect Specifys to Cursor and Claude via MCP. Your specs become context inside your AI coding tools.',
         highlights: ['Model Context Protocol support', 'Works with Cursor & Claude', 'Specs as live project context']
-    },
-    support: {
-        icon: 'fa-headset',
-        title: 'Priority Support',
-        desc: 'Get help when you need it. Pro subscribers receive faster responses and dedicated support.',
-        highlights: ['Priority email support', 'Faster response times', 'Help with specs & integrations']
     }
 };
 
