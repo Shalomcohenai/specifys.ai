@@ -399,9 +399,9 @@
     const products = [
       {
         key: 'pro_monthly',
-        label: 'Upgrade to Specifys Pro',
+        label: 'Subscribe to Pro',
         price: '$1.99/mo',
-        description: 'Unlimited specs + Database Design, Cursor export, AI Review & collaboration'
+        description: 'Unlimited specs · Database Design · Cursor export'
       }
     ];
 
@@ -425,24 +425,24 @@
       if (!statusEl) return;
       if (text) {
         statusEl.textContent = text;
-        statusEl.style.display = 'block';
+        statusEl.hidden = false;
       } else {
         statusEl.textContent = '';
-        statusEl.style.display = 'none';
+        statusEl.hidden = true;
       }
     }
 
     function showError(text) {
       if (messageEl) {
         messageEl.textContent = text;
-        messageEl.classList.add('error');
+        messageEl.classList.add('is-alert');
       }
     }
 
     function handleSuccess() {
       if (messageEl) {
         messageEl.textContent = 'Checkout opened. Complete purchase to unlock Pro benefits on the work you already started.';
-        messageEl.classList.remove('error');
+        messageEl.classList.remove('is-alert');
       }
     }
 
@@ -486,76 +486,126 @@
     container.hidden = false;
   }
 
+  function onPaywallKeydown(event) {
+    if (event.key === 'Escape') {
+      closePaywall();
+    }
+  }
+
+  function buildPaywallModal() {
+    const paywallModal = document.createElement('div');
+    paywallModal.id = 'paywall-modal';
+    paywallModal.className = 'paywall-modal';
+    paywallModal.setAttribute('role', 'dialog');
+    paywallModal.setAttribute('aria-modal', 'true');
+    paywallModal.setAttribute('aria-labelledby', 'paywall-title');
+    paywallModal.innerHTML = `
+      <div class="paywall-dialog">
+        <header class="paywall-header">
+          <div class="paywall-header-text">
+            <span class="paywall-badge">Specifys Pro</span>
+            <h2 id="paywall-title" class="paywall-title">Unlock Specifys Pro</h2>
+          </div>
+          <button type="button" class="paywall-close" data-paywall-close aria-label="Close">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div class="paywall-body">
+          <div class="paywall-main">
+            <p id="paywall-message" class="paywall-reason"></p>
+            <div id="paywall-preview" class="paywall-preview" hidden></div>
+            <p class="paywall-benefits-heading">Everything in Pro</p>
+            <ul class="paywall-benefits" id="paywall-benefits"></ul>
+          </div>
+          <aside class="paywall-aside">
+            <p class="paywall-aside-label">One plan. Cancel anytime.</p>
+            <div class="paywall-price" aria-label="1.99 US dollars per month">
+              <span class="paywall-price-currency">$</span>
+              <span class="paywall-price-amount">1.99</span>
+              <span class="paywall-price-period">/ month</span>
+            </div>
+            <p class="paywall-price-note">30-day money-back guarantee</p>
+            <div id="paywall-status" class="paywall-status" hidden></div>
+            <div class="paywall-products"></div>
+            <div class="paywall-aside-links">
+              <a href="/pages/pricing.html?reason=insufficient_credits" class="pricing-link">Compare Pro benefits</a>
+              <button type="button" class="paywall-dismiss" data-paywall-close>Not now</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    `;
+
+    paywallModal.addEventListener('click', (event) => {
+      if (event.target === paywallModal || event.target.closest('[data-paywall-close]')) {
+        closePaywall();
+      }
+    });
+
+    const benefitsEl = paywallModal.querySelector('#paywall-benefits');
+    if (benefitsEl) {
+      benefitsEl.innerHTML = PRO_PAYWALL_BENEFITS.map((b) => `
+        <li>
+          <span class="paywall-benefit-icon" aria-hidden="true"><i class="fa ${b.icon}"></i></span>
+          <span>
+            <strong>${escapePaywallHtml(b.title)}</strong>
+            <span class="paywall-benefit-detail">${escapePaywallHtml(b.detail)}</span>
+          </span>
+        </li>
+      `).join('');
+    }
+
+    const productsContainer = paywallModal.querySelector('.paywall-products');
+    renderPaywallButtons(productsContainer);
+    attachPaywallButtonHandlers(paywallModal);
+
+    return paywallModal;
+  }
+
   function showPaywall(paywallData) {
     ensurePaywallStyles();
     const data = paywallData || {};
     let paywallModal = document.getElementById('paywall-modal');
 
+    if (paywallModal && !paywallModal.querySelector('.paywall-aside')) {
+      paywallModal.remove();
+      paywallModal = null;
+    }
+
     if (!paywallModal) {
-      paywallModal = document.createElement('div');
-      paywallModal.id = 'paywall-modal';
-      paywallModal.className = 'modal';
-      paywallModal.setAttribute('role', 'dialog');
-      paywallModal.setAttribute('aria-modal', 'true');
-      paywallModal.setAttribute('aria-labelledby', 'paywall-title');
-      paywallModal.innerHTML = `
-        <div class="modal-content paywall-content">
-          <div class="modal-header">
-            <h3 id="paywall-title"><i class="fa fa-rocket" aria-hidden="true"></i> Unlock Specifys Pro</h3>
-            <button type="button" class="close" onclick="closePaywall()" aria-label="Close">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p id="paywall-message" class="paywall-reason"></p>
-            <div id="paywall-preview" class="paywall-preview" hidden></div>
-            <ul class="paywall-benefits" id="paywall-benefits"></ul>
-            <div id="paywall-status" class="paywall-status" style="display:none;"></div>
-            <div class="paywall-products"></div>
-            <div class="paywall-footer">
-              <a href="/pages/pricing.html?reason=insufficient_credits" class="pricing-link">Compare Pro benefits</a>
-            </div>
-            <div class="paywall-actions">
-              <button type="button" onclick="closePaywall()" class="btn btn-secondary">Not now</button>
-            </div>
-          </div>
-        </div>
-      `;
+      paywallModal = buildPaywallModal();
       document.body.appendChild(paywallModal);
-
-      const benefitsEl = paywallModal.querySelector('#paywall-benefits');
-      if (benefitsEl) {
-        benefitsEl.innerHTML = PRO_PAYWALL_BENEFITS.map((b) => `
-          <li>
-            <i class="fa ${b.icon}" aria-hidden="true"></i>
-            <span><strong>${escapePaywallHtml(b.title)}</strong> — ${escapePaywallHtml(b.detail)}</span>
-          </li>
-        `).join('');
-      }
-
-      const productsContainer = paywallModal.querySelector('.paywall-products');
-      renderPaywallButtons(productsContainer);
-      attachPaywallButtonHandlers(paywallModal);
     }
 
     const messageEl = document.getElementById('paywall-message');
     if (messageEl) {
       messageEl.textContent = buildExhaustedMessage(data);
-      messageEl.classList.toggle('error', data.reason === 'insufficient_credits' || data.reason === 'error');
+      messageEl.classList.toggle('is-alert', data.reason === 'error');
     }
 
     renderPaywallPreview(document.getElementById('paywall-preview'), data);
 
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    paywallModal.style.display = 'grid';
+    paywallModal.classList.add('is-open');
+    paywallModal.style.display = '';
+    document.addEventListener('keydown', onPaywallKeydown);
+
+    const closeBtn = paywallModal.querySelector('.paywall-close');
+    if (closeBtn) {
+      closeBtn.focus();
+    }
   }
 
   function closePaywall() {
     const paywallModal = document.getElementById('paywall-modal');
     if (paywallModal) {
+      paywallModal.classList.remove('is-open');
       paywallModal.style.display = 'none';
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     }
+    document.removeEventListener('keydown', onPaywallKeydown);
   }
 
   window.checkEntitlement = checkEntitlement;

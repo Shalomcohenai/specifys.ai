@@ -22,6 +22,7 @@ const { ArticleWriterJob, classifyArticleJobError } = require('./articles-automa
 const { CreditsSyncJob } = require('./credits-sync-job');
 const { collectDailyStats, collectWeeklyStats } = require('./stats-collector');
 const { fromZonedTime, toZonedTime } = require('date-fns-tz');
+const weeklyAiNewsletter = require('./weekly-ai-newsletter');
 
 let paymentsSyncInterval = null;
 let inactiveUsersCheckInterval = null;
@@ -31,6 +32,8 @@ let articleWriterInterval = null;
 let creditsSyncInterval = null;
 let dailyReportInterval = null;
 let weeklyReportInterval = null;
+let weeklyAiNewsletterTimeout = null;
+let weeklyAiNewsletterInterval = null;
 let pipelineCanaryTimeout = null;
 let pipelineCanaryInterval = null;
 let lifecycleActivationTimeout = null;
@@ -61,6 +64,9 @@ function startScheduledJobs() {
 
   // Weekly report (runs every Sunday at 9:00 AM)
   startWeeklyReportJob();
+
+  // Weekly AI newsletter draft for admin approval (Monday by default)
+  startWeeklyAiNewsletterJob();
 
   // Pipeline canary (optional — expensive full spec generation)
   startPipelineCanaryScheduledJob();
@@ -123,6 +129,15 @@ function stopScheduledJobs() {
   if (weeklyReportInterval) {
     clearInterval(weeklyReportInterval);
     weeklyReportInterval = null;
+  }
+
+  if (weeklyAiNewsletterTimeout) {
+    clearTimeout(weeklyAiNewsletterTimeout);
+    weeklyAiNewsletterTimeout = null;
+  }
+  if (weeklyAiNewsletterInterval) {
+    clearInterval(weeklyAiNewsletterInterval);
+    weeklyAiNewsletterInterval = null;
   }
 
   if (pipelineCanaryTimeout) {
@@ -866,6 +881,77 @@ function startWeeklyReportJob() {
 }
 
 /**
+ * Weekly AI newsletter draft job - generates pending_approval doc for admin Yes/No.
+ * Default: every Monday at WEEKLY_AI_NEWSLETTER_HOUR (default 8) in REPORT_TIMEZONE.
+ * Set WEEKLY_AI_NEWSLETTER_ENABLED=false to disable.
+ */
+function startWeeklyAiNewsletterJob() {
+  const enabled = process.env.WEEKLY_AI_NEWSLETTER_ENABLED !== 'false';
+  const hour = parseInt(process.env.WEEKLY_AI_NEWSLETTER_HOUR, 10);
+  const validHour = Number.isFinite(hour) && hour >= 0 && hour <= 23 ? hour : 8;
+  const timezone = process.env.REPORT_TIMEZONE || 'UTC';
+  // 1 = Monday
+  const targetDow = parseInt(process.env.WEEKLY_AI_NEWSLETTER_DOW, 10);
+  const dayOfWeek = Number.isFinite(targetDow) && targetDow >= 0 && targetDow <= 6 ? targetDow : 1;
+
+  if (!enabled) {
+    logger.info('[scheduled-jobs] Weekly AI newsletter job disabled via WEEKLY_AI_NEWSLETTER_ENABLED');
+    return;
+  }
+
+  const days7 = 7 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const tzNow = toZonedTime(now, timezone);
+
+  let daysUntil = (dayOfWeek - tzNow.getDay() + 7) % 7;
+  if (daysUntil === 0 && tzNow.getHours() >= validHour) {
+    daysUntil = 7;
+  }
+
+  const nextLocal = new Date(tzNow);
+  nextLocal.setDate(tzNow.getDate() + daysUntil);
+  nextLocal.setHours(validHour, 0, 0, 0);
+  nextLocal.setSeconds(0, 0);
+  nextLocal.setMilliseconds(0);
+
+  const nextRun = fromZonedTime(nextLocal, timezone);
+  const msUntilNext = Math.max(0, nextRun.getTime() - now.getTime());
+
+  weeklyAiNewsletterTimeout = setTimeout(() => {
+    runWeeklyAiNewsletterJob();
+    weeklyAiNewsletterInterval = setInterval(() => {
+      runWeeklyAiNewsletterJob();
+    }, days7);
+  }, msUntilNext);
+
+  logger.info({
+    nextRun: nextRun.toISOString(),
+    hour: validHour,
+    dayOfWeek,
+    timezone
+  }, `[scheduled-jobs] Weekly AI newsletter job started - day ${dayOfWeek} at ${validHour}:00 ${timezone}`);
+}
+
+async function runWeeklyAiNewsletterJob() {
+  const requestId = `weekly-ai-newsletter-${Date.now()}`;
+  try {
+    logger.info({ requestId }, '[scheduled-jobs] Starting weekly AI newsletter draft job');
+    const result = await weeklyAiNewsletter.generateWeeklyAiNewsletterDraft({
+      createdBy: 'scheduled-job',
+      createdByEmail: 'system@specifys-ai.com'
+    });
+    logger.info({
+      requestId,
+      skipped: result.skipped,
+      newsletterId: result.newsletter?.id,
+      reason: result.reason || null
+    }, '[scheduled-jobs] Weekly AI newsletter draft job finished');
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[scheduled-jobs] Weekly AI newsletter draft job failed');
+  }
+}
+
+/**
  * Run weekly report job once
  * Collects statistics from the past week and sends email report
  */
@@ -1018,6 +1104,8 @@ module.exports = {
   runDailyReportJob,
   startWeeklyReportJob,
   runWeeklyReportJob,
+  startWeeklyAiNewsletterJob,
+  runWeeklyAiNewsletterJob,
   getNextScheduledTime,
   runPipelineCanaryAndCleanup,
   startPipelineCanaryScheduledJob,

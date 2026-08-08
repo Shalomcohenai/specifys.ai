@@ -50,7 +50,7 @@
     "category": "Prompt-to-App Builders",
     "description": "Low-code platform with integrated backend for vibe-style app building.",
     "link": "https://base44.pxf.io/c/6434420/2049275/25619?trafcat=base",
-    "rating": 5.0,
+    "rating": 5,
     "pros": [
       "Built-in DB/auth/analytics",
       "One-click launch"
@@ -61,7 +61,7 @@
     "special": "popular",
     "stats": {
       "users": "250K users",
-      "globalRating": 5.0,
+      "globalRating": 5,
       "monthlyUsage": "N/A",
       "ARR": "Acquired by Wix"
     }
@@ -183,7 +183,7 @@
     "category": "Deployment & Marketing Integrations",
     "description": "AI-enhanced ad campaign management.",
     "link": "https://ads.google.com?utm_source=specifys.ai",
-    "rating": 4.0,
+    "rating": 4,
     "pros": [
       "Wide global reach",
       "Smart targeting with AI"
@@ -248,7 +248,7 @@
     "id": 12,
     "name": "Uizard",
     "category": "Prototyping Tools",
-    "description": "AI-powered UI design tool\u2014turn text, screenshots, or wireframes into designs.",
+    "description": "AI-powered UI design tool—turn text, screenshots, or wireframes into designs.",
     "link": "https://uizard.io?utm_source=specifys.ai",
     "rating": 4.7,
     "pros": [
@@ -286,7 +286,7 @@
     "stats": {
       "users": "20M+ Discord users",
       "globalRating": 4.8,
-      "monthlyUsage": "1.2\u20132.5M DAU",
+      "monthlyUsage": "1.2–2.5M DAU",
       "ARR": "$300M"
     }
   },
@@ -355,7 +355,7 @@
     "category": "Prompt-to-App Builders",
     "description": "Cloud IDE for prompt-based app generation.",
     "link": "https://rocket.new?utm_source=specifys.ai",
-    "rating": 4.0,
+    "rating": 4,
     "pros": [
       "Quick scaffold",
       "Collaboration"
@@ -365,7 +365,7 @@
     ],
     "stats": {
       "users": "N/A",
-      "globalRating": 4.0
+      "globalRating": 4
     }
   },
   {
@@ -392,7 +392,7 @@
     "id": 19,
     "name": "Canva AI",
     "category": "User Design",
-    "description": "AI tools inside Canva\u2014Magic Studio, Sheets, design assistant.",
+    "description": "AI tools inside Canva—Magic Studio, Sheets, design assistant.",
     "link": "https://canva.com?utm_source=specifys.ai",
     "rating": 4.7,
     "pros": [
@@ -719,7 +719,7 @@
     "category": "AI Agent & Workflow Tools",
     "description": "Asynchronous code assistant from Google for codebase tasks.",
     "link": "https://google.com/jules?utm_source=specifys.ai",
-    "rating": 4.0,
+    "rating": 4,
     "pros": [
       "Runs asynchronously",
       "Backed by Google LLM"
@@ -730,7 +730,7 @@
     ],
     "stats": {
       "users": "Limited beta",
-      "globalRating": 4.0
+      "globalRating": 4
     }
   },
   {
@@ -1085,28 +1085,6 @@
     "stats": {
       "users": "13M+ users",
       "globalRating": 4.5,
-      "monthlyUsage": "N/A",
-      "ARR": "N/A"
-    }
-  },
-  {
-    "id": 52,
-    "name": "Figma",
-    "category": "User Design",
-    "description": "Collaborative design tool with vector editing, prototyping, and Dev Mode.",
-    "link": "https://figma.com?utm_source=specifys.ai",
-    "rating": 4.7,
-    "pros": [
-      "Real-time collaboration",
-      "Integrated prototyping & Dev Mode"
-    ],
-    "cons": [
-      "Can be heavy on large files",
-      "Enterprise cost"
-    ],
-    "stats": {
-      "users": "20M+ designers",
-      "globalRating": 4.7,
       "monthlyUsage": "N/A",
       "ARR": "N/A"
     }
@@ -1580,6 +1558,7 @@
     }
   },
   {
+    "id": 73,
     "name": "Devv AI",
     "category": "Prompt-to-App Builders",
     "description": "React/Next.js app generator with Supabase support and interactive chat.",
@@ -1593,10 +1572,10 @@
     "cons": [
       "Limited backend flexibility"
     ],
-    "added": "2025-07-07",
-    "id": 73
+    "added": "2025-07-07"
   },
   {
+    "id": 74,
     "name": "Builder.io AI",
     "category": "Prompt-to-App Builders",
     "description": "Visual builder with AI generation and CMS integration.",
@@ -1609,10 +1588,10 @@
     "cons": [
       "Enterprise pricing"
     ],
-    "added": "2025-07-07",
-    "id": 74
+    "added": "2025-07-07"
   },
   {
+    "id": 75,
     "name": "Magician (Figma Plugin)",
     "category": "Prototyping Tools",
     "description": "Figma plugin to generate icons, UI, and content with AI.",
@@ -1625,10 +1604,10 @@
     "cons": [
       "Plugin dependency"
     ],
-    "added": "2025-07-07",
-    "id": 75
+    "added": "2025-07-07"
   },
   {
+    "id": 76,
     "name": "Galileo AI",
     "category": "Prototyping Tools",
     "description": "Transforms prompts into polished UI screens.",
@@ -1641,10 +1620,10 @@
     "cons": [
       "Limited control on structure"
     ],
-    "added": "2025-07-07",
-    "id": 76
+    "added": "2025-07-07"
   },
   {
+    "id": 77,
     "name": "CodeGeeX",
     "category": "AI-Augmented IDEs & Code Assistants",
     "description": "Free AI assistant supporting multiple programming languages.",
@@ -1657,10 +1636,10 @@
     "cons": [
       "Less known ecosystem"
     ],
-    "added": "2025-07-07",
-    "id": 77
+    "added": "2025-07-07"
   },
   {
+    "id": 78,
     "name": "Continue.dev",
     "category": "AI-Augmented IDEs & Code Assistants",
     "description": "Chat-based open source AI assistant for local IDE use.",
@@ -1673,10 +1652,10 @@
     "cons": [
       "Early stage"
     ],
-    "added": "2025-07-07",
-    "id": 78
+    "added": "2025-07-07"
   },
   {
+    "id": 79,
     "name": "Smol Developer",
     "category": "AI Agent & Workflow Tools",
     "description": "LLM-based agent that generates full projects from prompts.",
@@ -1689,10 +1668,10 @@
     "cons": [
       "Limited language support"
     ],
-    "added": "2025-07-07",
-    "id": 79
+    "added": "2025-07-07"
   },
   {
+    "id": 80,
     "name": "Diagram AI",
     "category": "Misc Tools",
     "description": "Generate diagrams and system designs from natural language.",
@@ -1705,10 +1684,10 @@
     "cons": [
       "Limited export options"
     ],
-    "added": "2025-07-07",
-    "id": 80
+    "added": "2025-07-07"
   },
   {
+    "id": 81,
     "name": "AskUI",
     "category": "AI Agent & Workflow Tools",
     "description": "Automates UI tasks with text commands.",
@@ -1721,8 +1700,7 @@
     "cons": [
       "Learning curve"
     ],
-    "added": "2025-07-07",
-    "id": 81
+    "added": "2025-07-07"
   },
   {
     "id": 81,
@@ -1851,7 +1829,6 @@
     "category": "AI-Augmented IDEs & Code Assistants",
     "description": "AI-driven software development environment that transforms AI-generated prototypes into production-ready systems with automated project plans and technical diagrams.",
     "link": "https://kiro.dev/",
-    "rating": null,
     "pros": [],
     "cons": [],
     "special": "Launched July 2025",
@@ -1868,7 +1845,6 @@
     "category": "Prompt-to-App Builders",
     "description": "Enables creation of small AI apps without coding, using prompts, AI models, and visual editing. Includes affiliate marketing program with undisclosed commission rates.",
     "link": "https://opal.withgoogle.com/landing/",
-    "rating": null,
     "pros": [],
     "cons": [],
     "special": "Launched July 2025, ",
@@ -1885,7 +1861,6 @@
     "category": "AI Agent Workflow Tools",
     "description": "AI assistant for creating virtual services via natural language prompts, enhancing testing environments.",
     "link": "https://www.parasoft.com/products/parasoft-virtualize/",
-    "rating": null,
     "pros": [],
     "cons": [],
     "special": "Launched July 2025",
@@ -2017,265 +1992,1589 @@
     }
   },
   {
-  "id": 94,
-  "name": "Sourcegraph Cody",
-  "category": "AI-Augmented IDEs & Code Assistants",
-  "description": "Enterprise-focused AI coding assistant that integrates with development workflows to provide contextual code answers, suggestions, and automated refactoring.",
-  "link": "https://about.sourcegraph.com/cody",
-  "rating": 4.7,
-  "pros": [
-    "Team prompt sharing and reuse",
-    "Handles large codebases with RAG",
-    "Works across IDEs (VS Code, IntelliJ)"
-  ],
-  "cons": [
-    "Enterprise pricing",
-    "Less suitable for solo developers"
-  ],
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.7,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
+    "id": 94,
+    "name": "Sourcegraph Cody",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Enterprise-focused AI coding assistant that integrates with development workflows to provide contextual code answers, suggestions, and automated refactoring.",
+    "link": "https://about.sourcegraph.com/cody",
+    "rating": 4.7,
+    "pros": [
+      "Team prompt sharing and reuse",
+      "Handles large codebases with RAG",
+      "Works across IDEs (VS Code, IntelliJ)"
+    ],
+    "cons": [
+      "Enterprise pricing",
+      "Less suitable for solo developers"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 95,
+    "name": "Amazon CodeWhisperer",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-powered coding companion by AWS that provides real-time code suggestions and security scans, optimized for cloud and enterprise development.",
+    "link": "https://aws.amazon.com/codewhisperer",
+    "rating": 4.1,
+    "pros": [
+      "Free for individual developers",
+      "Built-in vulnerability scanning",
+      "Deep AWS integration"
+    ],
+    "cons": [
+      "Suggests less sophisticated code than GPT-4",
+      "Best for AWS and limited for other stacks"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.1,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 96,
+    "name": "Lazy AI",
+    "category": "Prompt-to-App Builders",
+    "description": "Natural language app builder that generates full-stack web applications (UI, logic, and database) from a prompt, with one-click deployment and integration options.",
+    "link": "https://getlazy.ai",
+    "rating": 4.5,
+    "pros": [
+      "End-to-end app generation",
+      "Instant hosting & deployment",
+      "Supports API and DB integrations"
+    ],
+    "cons": [
+      "Limited customization for complex apps",
+      "Token-based usage limits"
+    ],
+    "special": "Launched 2023",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 97,
+    "name": "Vercel v0",
+    "category": "UI/UX + Code Tools",
+    "description": "AI-driven generative UI tool that creates React/Next.js interface components and layouts from natural language descriptions, enabling rapid front-end prototyping with editable code blocks.",
+    "link": "https://v0.dev",
+    "rating": 4.6,
+    "pros": [
+      "Speeds up UI development",
+      "Generates production-ready React code",
+      "Interactive editing of generated components"
+    ],
+    "cons": [
+      "Focused on front-end only",
+      "Requires manual integration into projects",
+      "Paid plans for high usage"
+    ],
+    "special": "Beta since 2023",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 98,
+    "name": "Augment Code",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Comprehensive AI coding platform with codebase-aware autocompletion and autonomous agent capabilities, integrating into popular IDEs and CLI to perform multi-file edits and code generation.",
+    "link": "https://augmentcode.com",
+    "rating": 4.8,
+    "pros": [
+      "Advanced context engine for large codebases",
+      "Combines agentic tasks with autocomplete",
+      "Integrates with VS Code, JetBrains, Vim, etc."
+    ],
+    "cons": [
+      "Premium pricing model",
+      "Steeper learning curve for setup"
+    ],
+    "special": "Launched 2024",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.8,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 99,
+    "name": "Roo Code",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Open-source VS Code extension that brings a team of AI agents into the editor to generate, refactor, document, and debug code autonomously through multiple specialized modes.",
+    "link": "https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline",
+    "rating": 4.6,
+    "pros": [
+      "Free and open-source",
+      "Multiple modes (Code, Debug, Architect, etc.)",
+      "Active community support (Discord, Reddit)"
+    ],
+    "cons": [
+      "Requires configuring API keys or local models",
+      "Can be complex to fine-tune modes"
+    ],
+    "stats": {
+      "users": "873K VS Code installs",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 100,
+    "name": "Cline",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Open-source AI coding agent that runs locally, understanding entire codebases to plan and execute multi-step code changes with full transparency and model flexibility.",
+    "link": "https://cline.bot",
+    "rating": 4.8,
+    "pros": [
+      "Client-side only (code never leaves machine)",
+      "Model-agnostic (use Claude, Gemini, etc.)",
+      "Plans changes with user approval (compliance-friendly)"
+    ],
+    "cons": [
+      "Setup requires providing LLM API or local model",
+      "No built-in model (bring your own AI)"
+    ],
+    "stats": {
+      "users": "3.2M VS Code installs, 48K GitHub stars",
+      "globalRating": 4.8,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 101,
+    "name": "GPT-Engineer",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Open-source CLI tool that generates entire software projects from a prompt by iteratively refining requirements and code through an automated agent loop.",
+    "link": "https://github.com/AntonOsika/gpt-engineer",
+    "rating": 4.3,
+    "pros": [
+      "Autonomous project scaffolding",
+      "Highly extensible open-source project",
+      "Great for quick MVP prototypes"
+    ],
+    "cons": [
+      "Not reliable for complex or large-scale apps",
+      "Requires human review and iteration",
+      "Runs as CLI (no GUI interface)"
+    ],
+    "stats": {
+      "users": "50K+ GitHub stars",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 102,
+    "name": "Auto-GPT",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Experimental open-source agent that uses GPT-4 to autonomously pursue goals by generating code, executing it, and adjusting based on feedback without continuous user input.",
+    "link": "https://github.com/Significant-Gravitas/Auto-GPT",
+    "rating": 4,
+    "pros": [
+      "Demonstrates autonomous multi-step coding",
+      "Can self-run code and web actions to achieve goals",
+      "Huge open-source community and extensions"
+    ],
+    "cons": [
+      "Frequently goes off-track or gets stuck",
+      "High resource usage (API calls, memory)",
+      "Requires careful setup and prompting"
+    ],
+    "stats": {
+      "users": "150K+ GitHub stars",
+      "globalRating": 4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 103,
+    "name": "OpenAI ChatGPT Code Interpreter",
+    "category": "AI Agent & Workflow Tools",
+    "description": "ChatGPT-based development assistant that can execute Python code within a sandbox, enabling data analysis, prototyping, and code generation entirely through conversational prompts.",
+    "link": "https://openai.com/blog/chatgpt-plugins#code-interpreter",
+    "rating": 4.7,
+    "pros": [
+      "Executes code and returns results within chat",
+      "Excels at data analysis and visualization tasks",
+      "No local setup – runs in OpenAI's environment"
+    ],
+    "cons": [
+      "Limited to ChatGPT Plus users",
+      "Execution environment has resource and access constraints",
+      "Not integrated into IDE (browser-based interface)"
+    ],
+    "stats": {
+      "users": "100M+ ChatGPT user base",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 104,
+    "name": "Firebase Studio",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Google's cloud-based development workspace (formerly Project IDX) that integrates generative AI (Gemini) for code completion, chat assistance, and an agent to prototype full-stack applications.",
+    "link": "https://studio.firebase.google.com",
+    "rating": 4.4,
+    "pros": [
+      "Cloud IDE accessible from any device",
+      "AI pair-programmer (Codey/Gemini) built-in",
+      "Supports web, mobile and backend frameworks with emulators"
+    ],
+    "cons": [
+      "Still in beta, evolving features",
+      "Tied to Google Cloud/Firebase ecosystem",
+      "Browser IDE can be less responsive for very large projects"
+    ],
+    "special": "Rebranded from Project IDX (2024)",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 105,
+    "name": "Rodney v0.4.0",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A command-line interface that enables AI coding agents to drive Chrome and capture screenshots to validate their work.",
+    "link": "https://www.implicator.ai/simon-willison-ships-rodney-v0-4-0-a-browser-automation-cli-built-for-coding-agents/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-05-08",
+    "added": "2026-05-13"
+  },
+  {
+    "id": 106,
+    "name": "Raindrop Workshop",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An open-source tool that allows developers to debug and evaluate AI agents locally, providing real-time streaming of agent activities to a local dashboard.",
+    "link": "https://venturebeat.com/technology/developers-can-now-debug-and-evaluate-ai-agents-locally-with-raindrops-open-source-tool-workshop",
+    "pros": [
+      "Open-source",
+      "Local debugging",
+      "Real-time streaming"
+    ],
+    "cons": [
+      "Limited to local environments",
+      "May require setup and configuration"
+    ],
+    "special": "launched-2026-05-14",
+    "added": "2026-05-15"
+  },
+  {
+    "id": 107,
+    "name": "Cursor 3",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A reimagined AI-powered development environment that serves as a unified agent orchestration workspace, featuring parallel multi-agent execution and a plugin marketplace.",
+    "link": "https://business20channel.tv/cursor-3-launched-as-ai-agent-builder-06-04-2026",
+    "pros": [
+      "Unified workspace",
+      "Parallel multi-agent execution",
+      "Plugin marketplace"
+    ],
+    "cons": [
+      "May require adaptation for existing workflows",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-04-02",
+    "added": "2026-05-15"
+  },
+  {
+    "id": 108,
+    "name": "Cursor Automations",
+    "category": "AI Agent Workflow Tools",
+    "description": "A tool that automates agentic coding workflows by allowing agents to launch automatically in response to events like code additions or scheduled timers, facilitating tasks such as automated bug reviews and security audits.",
+    "link": "https://dig.watch/updates/cursor-launches-tool-to-automate-agentic-coding-workflows",
+    "pros": [
+      "Automates coding workflows",
+      "Integrates with various tools",
+      "Enhances productivity"
+    ],
+    "cons": [
+      "May require configuration",
+      "Potential learning curve"
+    ],
+    "special": "launched-2026-03-09",
+    "added": "2026-05-19"
+  },
+  {
+    "id": 109,
+    "name": "OpenCode v1.15.1",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "An open-source code editor with a polished TUI, supporting 75+ LLM providers via AI SDK, LSP integration, and GitHub/GitLab integrations, offering features like prompt editing and image auto-resize.",
+    "link": "https://changelogs.directory/",
+    "pros": [
+      "Open-source",
+      "Supports multiple LLM providers",
+      "Rich feature set"
+    ],
+    "cons": [
+      "May require setup",
+      "Limited to supported platforms"
+    ],
+    "special": "new version",
+    "added": "2026-05-19"
+  },
+  {
+    "id": 110,
+    "name": "Windsurf 2.0",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An agentic IDE that combines the best of copilot and agent systems to help developers ship products faster, leveraging better context to provide better suggestions.",
+    "link": "https://www.producthunt.com/products/codeium/launches",
+    "rating": 4.7,
+    "pros": [
+      "AI collaboration",
+      "Enhanced productivity",
+      "Context-aware suggestions"
+    ],
+    "cons": [
+      "May require adaptation",
+      "Potential integration issues"
+    ],
+    "special": "new version",
+    "added": "2026-05-21"
+  },
+  {
+    "id": 111,
+    "name": "Windsurf",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An agentic integrated development environment (IDE) that enables developers to collaborate with AI agents, combining the best of copilot and agent systems to help ship products faster by leveraging better context for improved suggestions.",
+    "link": "https://windsurf.dev",
+    "pros": [
+      "AI collaboration",
+      "Enhanced productivity",
+      "Improved code suggestions"
+    ],
+    "cons": [
+      "New tool",
+      "May have a learning curve"
+    ],
+    "special": "launched-2026-04-16",
+    "added": "2026-05-22"
+  },
+  {
+    "id": 112,
+    "name": "Gemini 3.5 Flash & Antigravity Tools",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Google's latest AI tools, including Gemini 3.5 Flash and Antigravity 2.0, designed to enhance software development by enabling agents to perform tasks beyond simple prompt responses, facilitating the creation of production-ready applications.",
+    "link": "https://itbrief.co.uk/story/google-launches-gemini-3-5-flash-antigravity-tools",
+    "pros": [
+      "Outperforms previous models on benchmarks",
+      "Runs four times faster than other frontier models"
+    ],
+    "cons": [],
+    "special": "launched-2026-05-21",
+    "added": "2026-05-23"
+  },
+  {
+    "id": 113,
+    "name": "Antigravity 2.0",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An agentic IDE that integrates AI agents into the development environment, enhancing productivity and code quality.",
+    "link": "https://console.dev/",
+    "pros": [
+      "Integrates AI agents into the development environment",
+      "Enhances productivity and code quality"
+    ],
+    "cons": [
+      "Specific features and user feedback not available"
+    ],
+    "special": "launched-2026-05-21",
+    "added": "2026-05-26"
+  },
+  {
+    "id": 114,
+    "name": "MagenticLite",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An agentic system optimized for small models, supporting efficient agent workflows across browsers and local file systems.",
+    "link": "https://neurosignal.dev/",
+    "pros": [
+      "Optimized for small models",
+      "Supports efficient agent workflows across browsers and local file systems"
+    ],
+    "cons": [
+      "Specific features and user feedback not available"
+    ],
+    "special": "launched-2026-05-21",
+    "added": "2026-05-26"
+  },
+  {
+    "id": 115,
+    "name": "Jules Tools",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Google's AI coding agent, Jules, now includes a command-line interface and public API, integrating into developer workflows.",
+    "link": "https://techcrunch.com/2025/10/02/googles-jules-enters-developers-toolchains-as-ai-coding-agent-competition-heats-up/",
+    "pros": [
+      "Integrates into developer workflows",
+      "Offers command-line interface and public API"
+    ],
+    "cons": [
+      "Specific features and user feedback not available"
+    ],
+    "special": "launched-2025-10-02",
+    "added": "2026-05-26"
+  },
+  {
+    "id": 116,
+    "name": "StackScope.dev",
+    "category": "Business Process Automation",
+    "description": "Analyzes new product launches to provide insights into tech stacks, AI signals, security headers, hosting, domains, and delivery infrastructure.",
+    "link": "https://stackscope.dev/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-05-25",
+    "added": "2026-05-28"
+  },
+  {
+    "id": 117,
+    "name": "Changelogger",
+    "category": "Business Process Automation",
+    "description": "Tracks software updates and changelogs for over 100 AI tools, including ChatGPT, Claude, Cursor, and more, providing breaking change alerts and RSS feeds.",
+    "link": "https://changelogger.live/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-05-26",
+    "added": "2026-05-28"
+  },
+  {
+    "id": 118,
+    "name": "AWS Kiro",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI developer platform that integrates with GitHub and issue assignments, offering autonomous agents for individual developers.",
+    "link": "https://www.constellationr.com/insights/news/aws-kiro-launches-autonomous-agents-individual-developers",
+    "pros": [
+      "Integrates with GitHub",
+      "Offers autonomous agents for individual developers",
+      "Standardizes developer experience"
+    ],
+    "cons": [
+      "May require AWS account",
+      "Focuses on AWS ecosystem"
+    ],
+    "special": "launched-2025-12-02",
+    "stats": {
+      "globalRating": null,
+      "monthlyUsage": null,
+      "users": null,
+      "ARR": null
+    },
+    "added": "2026-05-29"
+  },
+  {
+    "id": 119,
+    "name": "Riveter YC Update Tracker",
+    "category": "Business Process Automation",
+    "description": "Provides live updates on new Y Combinator companies and changes, powered by Riveter monitoring, with current and future batches updated throughout the day.",
+    "link": "https://yc-update-tracker.lovable.app/",
+    "pros": [
+      "Real-time updates on Y Combinator companies",
+      "Comprehensive coverage of current and future batches"
+    ],
+    "cons": [
+      "Limited to Y Combinator companies",
+      "May not cover all startup ecosystems"
+    ],
+    "special": "launched-2026-05-29",
+    "stats": {
+      "monthlyUsage": 1500,
+      "users": 2000,
+      "globalRating": 4,
+      "ARR": 50000
+    },
+    "added": "2026-05-30"
+  },
+  {
+    "id": 120,
+    "name": "Claude Opus 4.8",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Anthropic's latest AI model, featuring 'Dynamic Workflows' for parallel subagent execution, improved coding accuracy, and enhanced multi-agent performance.",
+    "link": "https://dev.to/claude/anthropic-just-dropped-claude-opus-48-the-era-of-dynamic-workflows-is-here-rocket-5b5d",
+    "pros": [
+      "Improved coding accuracy",
+      "Enhanced multi-agent workflow performance",
+      "Parallel subagent execution"
+    ],
+    "cons": [
+      "Pricing remains at $5 per million input tokens and $25 per million output tokens"
+    ],
+    "special": "launched-2026-05-30",
+    "added": "2026-05-31"
+  },
+  {
+    "id": 121,
+    "name": "Gemini 3.5 Flash",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Google's latest AI model, outperforming Gemini 3.1 Pro on most benchmarks and running four times faster than other frontier models.",
+    "link": "https://itbrief.ca/story/google-launches-gemini-35-flash-antigravity-tools",
+    "pros": [
+      "Superior performance over previous models",
+      "Faster execution compared to competitors"
+    ],
+    "cons": [
+      "Specific use cases and limitations not detailed"
+    ],
+    "special": "launched-2026-05-21",
+    "added": "2026-05-31"
+  },
+  {
+    "id": 122,
+    "name": "Windows Copilot",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Microsoft's AI-powered assistant integrated into Windows 11, providing a Bing AI-powered chatbot accessible from the taskbar on compatible devices.",
+    "link": "https://www.techradar.com/pro/10-products-that-launched-at-microsoft-build-and-what-happened-to-them",
+    "pros": [
+      "Integrated into Windows 11",
+      "Accessible from the taskbar",
+      "AI-powered assistance"
+    ],
+    "cons": [
+      "Compatibility limited to Windows 11 devices",
+      "Specific features and limitations not detailed"
+    ],
+    "special": "launched-2023-05-23",
+    "added": "2026-05-31"
+  },
+  {
+    "id": 123,
+    "name": "ToolVitals",
+    "category": "Misc Tools",
+    "description": "A platform that tracks the health and updates of over 3,000 open-source tools, providing insights into their maintenance, shipping velocity, and hosted pricing changes.",
+    "link": "https://toolvitals.com/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-01"
+  },
+  {
+    "id": 124,
+    "name": "ToolJet",
+    "category": "Data-Driven App Builders",
+    "description": "An open-source platform that enables rapid development of internal tools with a focus on AI app builder features, allowing for quick creation and deployment of data-driven applications.",
+    "link": "https://tooljet.com",
+    "pros": [
+      "Open-source",
+      "Rapid development",
+      "AI app builder features"
+    ],
+    "cons": [
+      "Limited community support",
+      "May require technical expertise"
+    ],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-02"
+  },
+  {
+    "id": 125,
+    "name": "Jitsu",
+    "category": "Data-Driven App Builders",
+    "description": "A platform offering a fast beta train for open-source data ingestion, facilitating efficient data collection and integration for application development.",
+    "link": "https://jitsu.com",
+    "pros": [
+      "Open-source",
+      "Fast data ingestion",
+      "Efficient integration"
+    ],
+    "cons": [
+      "May require technical expertise",
+      "Limited community support"
+    ],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-02"
+  },
+  {
+    "id": 126,
+    "name": "Storybook 10.4",
+    "category": "UI/UX + Code Tools",
+    "description": "The latest version of Storybook, shifting UI review towards AI agent setup, enhancing the development and testing of user interfaces with AI-driven capabilities.",
+    "link": "https://storybook.js.org",
+    "pros": [
+      "AI-driven UI review",
+      "Enhanced development process",
+      "Improved testing capabilities"
+    ],
+    "cons": [
+      "May require technical expertise",
+      "Limited community support"
+    ],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-02"
+  },
+  {
+    "id": 127,
+    "name": "Superset",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An open-source IDE designed for the AI agents era, providing tools and features to develop and manage AI agents effectively.",
+    "link": "https://superset.io",
+    "pros": [
+      "Open-source",
+      "AI agent management",
+      "Comprehensive IDE features"
+    ],
+    "cons": [
+      "May require technical expertise",
+      "Limited community support"
+    ],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-02"
+  },
+  {
+    "id": 128,
+    "name": "TesterArmy",
+    "category": "Business Process Automation",
+    "description": "A platform that allows testing of applications with AI, enabling the detection of bugs before users encounter them, thereby improving software quality.",
+    "link": "https://testerarmy.com",
+    "pros": [
+      "AI-driven testing",
+      "Early bug detection",
+      "Improved software quality"
+    ],
+    "cons": [
+      "May require technical expertise",
+      "Limited community support"
+    ],
+    "special": "launched-2026-06-01",
+    "added": "2026-06-02"
+  },
+  {
+    "id": 129,
+    "name": "Google Gemini 3.5 Flash",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An advanced AI model that outperforms its predecessor on most benchmarks while running four times faster, designed to enhance AI agent capabilities in development workflows.",
+    "link": "https://itbrief.ca/story/google-launches-gemini-3-5-flash-antigravity-tools",
+    "pros": [
+      "Improved performance over previous versions",
+      "Faster processing speeds",
+      "Enhanced AI agent capabilities"
+    ],
+    "cons": [
+      "May require hardware upgrades to fully utilize",
+      "Potential compatibility issues with existing systems"
+    ],
+    "special": "launched-2026-05-21",
+    "added": "2026-06-04"
+  },
+  {
+    "id": 130,
+    "name": "Cursor 3.7",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI-powered development environment that enables developers to manage multiple AI agents across various repositories and environments, streamlining the coding process.",
+    "link": "https://cursor.so",
+    "pros": [
+      "Unified workspace for AI agents",
+      "Supports multi-repository and multi-workspace environments",
+      "Reduces need for manual coding"
+    ],
+    "cons": [
+      "May require learning curve for new users",
+      "Potential performance issues with large projects"
+    ],
+    "special": "launched-2026-06-04",
+    "added": "2026-06-05"
+  },
+  {
+    "id": 131,
+    "name": "GitHub Copilot Agent Mode",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An autonomous and asynchronous agent workflow introduced by GitHub Copilot, allowing developers to focus more on prompting, reviewing, and validating code rather than writing it manually.",
+    "link": "https://github.com/copilot",
+    "pros": [
+      "Enhances developer productivity",
+      "Integrates seamlessly with existing workflows",
+      "Supports natural language prompts"
+    ],
+    "cons": [
+      "May produce incorrect code snippets",
+      "Requires oversight to ensure code quality"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-05"
+  },
+  {
+    "id": 132,
+    "name": "Azure AI Foundry",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A platform that enables production-ready multi-agent orchestration, allowing developers to define agents in YAML and provision compute resources for deployment.",
+    "link": "https://azure.microsoft.com/en-us/products/ai-foundry/",
+    "pros": [
+      "Facilitates multi-agent orchestration",
+      "Supports YAML for agent definitions",
+      "Integrates with Azure cloud services"
+    ],
+    "cons": [
+      "May require Azure-specific knowledge",
+      "Potential costs associated with cloud resources"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-05"
+  },
+  {
+    "id": 133,
+    "name": "Windows Copilot Runtime",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Provides APIs that route AI inference to the NPU in AI-capable Windows machines, enabling on-device AI capabilities for edge devices.",
+    "link": "https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk/",
+    "pros": [
+      "Enhances on-device AI processing",
+      "Reduces reliance on cloud services",
+      "Supports various AI models"
+    ],
+    "cons": [
+      "Limited to Windows devices with NPU support",
+      "May require hardware upgrades for some users"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-05"
+  },
+  {
+    "id": 134,
+    "name": "Microsoft Agent Framework 1.0",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A commercial-grade SDK for .NET and Python developers, converging AutoGen and Semantic Kernel into a single runtime for building AI agents.",
+    "link": "https://developer.microsoft.com/en-us/changelog",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-04-01",
+    "added": "2026-06-07"
+  },
+  {
+    "id": 135,
+    "name": "ClariMarkets",
+    "category": "Business Process Automation",
+    "description": "A tool designed to clarify financial markets, providing insights and analytics to assist in financial decision-making.",
+    "link": "https://launchtry.com/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-06",
+    "added": "2026-06-08"
+  },
+  {
+    "id": 136,
+    "name": "Cognition Devin Desktop",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A team-layer coding agent platform that provides a unified console for managing AI agents, facilitating collaborative development.",
+    "link": "https://thenewstack.io/coding-agents-team-infrastructure/",
+    "pros": [
+      "Centralized management of AI agents",
+      "Supports collaborative development"
+    ],
+    "cons": [
+      "May require team-wide adoption",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-11"
+  },
+  {
+    "id": 137,
+    "name": "Windows Developer Configurations",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A new tool introduced by Microsoft to streamline the development environment setup on Windows 11, enhancing productivity for developers.",
+    "link": "https://www.windowscentral.com/microsoft/windows-11/4-tools-for-windows-11-that-stood-out-to-me-during-build-2026",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-06",
+    "added": "2026-06-14"
+  },
+  {
+    "id": 138,
+    "name": "FormJet",
+    "category": "Prompt-to-App Builders",
+    "description": "An AI form builder with flat pricing, enabling users to create forms effortlessly.",
+    "link": "https://justlaunched.fyi/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-10",
+    "added": "2026-06-15"
+  },
+  {
+    "id": 139,
+    "name": "Devloop",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A local code/review loop for Codex and Claude Code, enabling efficient AI-driven code development and review processes.",
+    "link": "https://stackscope.dev/hn/devloop",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-16",
+    "added": "2026-06-16"
+  },
+  {
+    "id": 140,
+    "name": "Grok Build Plugin Marketplace",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A terminal-based hub for developers to manage third-party tools, featuring plugins like MongoDB, Vercel, Sentry, and Chrome DevTools to optimize databases, deploy applications, debug code, and control browsers.",
+    "link": "https://www.kucoin.com/news/flash/xai-launches-grok-build-plugin-marketplace-with-built-in-security-and-developer-tools",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-12",
+    "added": "2026-06-18"
+  },
+  {
+    "id": 141,
+    "name": "Grok Build",
+    "category": "AI Agent & Workflow Tools",
+    "description": "xAI's first CLI coding agent with a terminal-native, multi-agent architecture, capable of spawning up to 8 concurrent agents for parallel tasks.",
+    "link": "https://sloppish.com/tool-diff-2026-05-19.html",
+    "pros": [
+      "Supports up to 8 concurrent agents",
+      "Built on Grok 4.3 beta with a 2 million token context window"
+    ],
+    "cons": [
+      "New entrant with limited user feedback",
+      "Pricing may be a concern for some users"
+    ],
+    "special": "launched-2026-05-14",
+    "added": "2026-06-19"
+  },
+  {
+    "id": 142,
+    "name": "Compound Engineering Plugin",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A specialized plugin designed to integrate with AI-assisted development environments including Claude Code, Codex, and Cursor, aiming to streamline compound engineering workflows within these platforms.",
+    "link": "https://aitoolly.com/ai-news/article/2026-06-02-everyinc-launches-official-compound-engineering-plugin-for-claude-code-codex-and-cursor-ai-tools",
+    "pros": [
+      "Enhances compound engineering workflows",
+      "Integrates with multiple AI coding platforms"
+    ],
+    "cons": [
+      "May require existing familiarity with Claude Code, Codex, or Cursor",
+      "Specific compatibility details not provided"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-22"
+  },
+  {
+    "id": 143,
+    "name": "Smol Launch",
+    "category": "Deployment & Marketing Integrations",
+    "description": "A platform that helps developers launch their products weekly, providing exposure to over 2,500 makers and facilitating early user acquisition and feedback.",
+    "link": "https://smollaunch.com/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-16",
+    "added": "2026-06-23"
+  },
+  {
+    "id": 144,
+    "name": "Execlave",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI Agent Management Platform designed for Governance and Enforcement, enabling efficient management of AI agents within organizational workflows.",
+    "link": "https://stackscope.dev/hn-execlave-show-hn-ai-agent-management-platform-for-governance-and-enforcement-jun-24-2026-developer-tools/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-24",
+    "added": "2026-06-25"
+  },
+  {
+    "id": 145,
+    "name": "Vlayer",
+    "category": "Code Security Tools",
+    "description": "An open-source HIPAA compliance scanner for codebases, assisting developers in ensuring their applications meet HIPAA standards.",
+    "link": "https://stackscope.dev/hn-vlayer-show-hn-open-source-hipaa-compliance-scanner-for-your-codebase-jun-24-2026-developer-tools/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-06-24",
+    "added": "2026-06-25"
+  },
+  {
+    "id": 146,
+    "name": "Red Hat Desktop",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A commercial support platform for local container and AI development, providing a reliable foundation for building local AI agents.",
+    "link": "https://www.nasdaq.com/press-release/red-hat-launches-new-developer-tools-agentic-ai-2026-05-12",
+    "pros": [
+      "Commercial support for local AI development",
+      "Reliable foundation for building AI agents"
+    ],
+    "cons": [
+      "Limited to Red Hat ecosystem",
+      "May require familiarity with Red Hat tools"
+    ],
+    "special": "launched-2026-05-12",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 147,
+    "name": "Scout",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI assistant built on the OpenClaw framework, designed to work alongside users with a persistent identity and style within the Microsoft 365 ecosystem.",
+    "link": "https://techcrunch.com/2026/06/02/microsoft-launches-scout-an-openclaw-inspired-personal-assistant/",
+    "pros": [
+      "Persistent identity and style",
+      "Integrated within Microsoft 365 ecosystem"
+    ],
+    "cons": [
+      "Limited to Microsoft 365 users",
+      "May require adaptation to new AI assistant"
+    ],
+    "special": "launched-2026-06-02",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 148,
+    "name": "PTC Orbit and PTC Jetstream",
+    "category": "AI Agent & Workflow Tools",
+    "description": "New AI platforms introduced by PTC, featuring 12 AI agents and 10 new integrations to enhance the Intelligent Product Lifecycle for manufacturers.",
+    "link": "https://www.nasdaq.com/press-release/ptc-unveils-wave-product-innovations-give-manufacturers-new-ai-capabilities-and",
+    "pros": [
+      "Comprehensive AI capabilities",
+      "Enhanced product lifecycle management"
+    ],
+    "cons": [
+      "May require existing PTC infrastructure",
+      "Complexity in integration"
+    ],
+    "special": "launched-2026-06-10",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 149,
+    "name": "Gainsight Developer Studio",
+    "category": "Business Process Automation",
+    "description": "An AI-native customization toolkit that enables strategic community vision execution without technical dependencies, enhancing customer retention efforts.",
+    "link": "https://www.globenewswire.com/news-release/2026/05/21/3299396/0/en/Gainsight-Brings-Vibe-Coding-to-Customer-Communities-Product-with-Launch-of-Developer-Studio-and-Announces-New-Skilljar-Integration.html",
+    "pros": [
+      "Eliminates technical dependencies",
+      "Enhances customer retention efforts"
+    ],
+    "cons": [
+      "May require learning new platform",
+      "Integration with existing systems needed"
+    ],
+    "special": "launched-2026-05-21",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 150,
+    "name": "Google Antigravity 2.0",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A full agentic development platform with a revamped desktop app, new CLI built in Go, and an SDK for building custom agents, transforming Antigravity into a comprehensive developer tool.",
+    "link": "https://thenextweb.com/news/google-antigravity-2-desktop-cli-sdk-io-2026",
+    "pros": [
+      "Comprehensive development platform",
+      "Supports custom agent creation"
+    ],
+    "cons": [
+      "May require adaptation to new tools",
+      "CLI built in Go may have learning curve"
+    ],
+    "special": "launched-2026-05-19",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 151,
+    "name": "AWS Agentic AI Suite",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A suite of eight new agentic AI products spanning security, knowledge, and orchestration, including AWS Continuum, AWS Context, and Amazon Quick, enhancing AI capabilities across various domains.",
+    "link": "https://the-agent-report.com/2026/06/aws-summit-nyc-2026-agentic-ai/",
+    "pros": [
+      "Comprehensive suite of AI products",
+      "Enhances capabilities across multiple domains"
+    ],
+    "cons": [
+      "May require AWS infrastructure",
+      "Complexity in managing multiple products"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 152,
+    "name": "Pega Infinity Studio",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "An intuitive, AI-powered development environment for quickly building mission-critical applications without AI coding risks or extended learning curves.",
+    "link": "https://www.nasdaq.com/press-release/pega-harnesses-best-practices-and-ai-coding-agents-build-apps-mission-critical",
+    "pros": [
+      "Intuitive AI-powered environment",
+      "Reduces AI coding risks"
+    ],
+    "cons": [
+      "May require adaptation to new platform",
+      "Limited to Pega ecosystem"
+    ],
+    "special": "launched-2026-06-08",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 153,
+    "name": "Datadog Bits AI",
+    "category": "Code Security Tools",
+    "description": "New AI, log management, and security capabilities that provide visibility and autonomous operations to detect, investigate, and resolve issues across the development loop and data lifecycle.",
+    "link": "https://datadog.gcs-web.com/news-releases/news-release-details/datadog-launches-100-capabilities-help-customers-drive-autonomy",
+    "pros": [
+      "Enhanced visibility and autonomous operations",
+      "Comprehensive security capabilities"
+    ],
+    "cons": [
+      "May require Datadog infrastructure",
+      "Complexity in integration"
+    ],
+    "special": "launched-2026-06-09",
+    "added": "2026-06-27"
+  },
+  {
+    "id": 154,
+    "name": "Elon Musk’s xAI Grok Build",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An early-beta coding agent launched by xAI, designed to assist developers in building software by interpreting plain language commands within project folders.",
+    "link": "https://www.eweek.com/news/xai-grok-build-coding-agent/",
+    "pros": [
+      "Assists in building software with plain language commands",
+      "Integrates into project folders",
+      "Developed by xAI"
+    ],
+    "cons": [
+      "Early-beta status may have stability issues",
+      "Limited availability to SuperGrok Heavy subscribers"
+    ],
+    "special": "launched-2026-05-18",
+    "added": "2026-06-29"
+  },
+  {
+    "id": 155,
+    "name": "Agentforce Vibes",
+    "category": "UI/UX Code Tools",
+    "description": "Salesforce's new vibe coding IDE plug-in integrated into the CRM platform, featuring Vibe Codey as a pair-programmer agent and multi-model support, aiming to streamline app and agent development within Salesforce.",
+    "link": "https://www.idlen.io/news/salesforce-agentforce-vibes-vibe-coding-claude-gpt-5-mcp-may-2026/",
+    "pros": [
+      "Integrated into Salesforce",
+      "Multi-model support"
+    ],
+    "cons": [
+      "May require Salesforce ecosystem familiarity"
+    ],
+    "special": "launched-2026-05-01",
+    "added": "2026-06-30"
+  },
+  {
+    "id": 156,
+    "name": "Siri AI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Apple's redesigned Siri AI, introduced at WWDC 2026, offering advanced capabilities such as multi-step task handling, contextual understanding, and chatbot-like interactivity across iPhone, iPad, and Mac platforms.",
+    "link": "https://www.creativebloq.com/live/news/tech/apple-wwdc-june-2026",
+    "pros": [
+      "Advanced capabilities",
+      "Cross-platform integration"
+    ],
+    "cons": [
+      "Limited initial availability in Europe and China"
+    ],
+    "special": "launched-2026-06-05",
+    "added": "2026-06-30"
+  },
+  {
+    "id": 157,
+    "name": "OpenAI Codex Micro",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A compact, programmable macro pad developed by OpenAI in collaboration with Work Louder, set for full launch on July 15, 2026, designed to enhance AI coding agent workflows.",
+    "link": "https://www.techtimes.com/articles/319389/20260630/openai-codex-micro-launches-july-15-macro-pad-built-work-louder.htm",
+    "pros": [
+      "Compact design",
+      "Enhances AI coding workflows"
+    ],
+    "cons": [
+      "Limited information on specifications"
+    ],
+    "special": "launched-2026-06-29",
+    "added": "2026-07-01"
+  },
+  {
+    "id": 158,
+    "name": "AWS Continuum",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI-native security product introduced by AWS, offering threat modeling and an extensive set of vulnerability management features, designed to enhance security within the AWS ecosystem.",
+    "link": "https://www.techtarget.com/searchitoperations/news/366644756/AWS-AI-Agents-hone-DevSecOps-chops-amid-GitHub-troubles",
+    "pros": [
+      "Comprehensive security features",
+      "Integrated within AWS ecosystem"
+    ],
+    "cons": [
+      "Potential complexity for new users"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-01"
+  },
+  {
+    "id": 159,
+    "name": "Codex Micro",
+    "category": "AI Agent & Workflow Tools",
+    "description": "OpenAI's first hardware release, the Codex Micro, is a programmable macro pad designed to enhance the usability of OpenAI’s AI coding assistant, Codex, offering quicker access to coding shortcuts. It includes 13 programmable mechanical keys, an analog joystick, a rotary encoder, and a touch sensor for layer switching. The device is set to launch on July 15, 2026.",
+    "link": "https://www.creativebloq.com/tech/openais-first-hardware-isnt-the-revolutionary-iphone-killer-we-expected",
+    "pros": [
+      "Enhances usability of Codex AI assistant",
+      "Offers quick access to coding shortcuts",
+      "Programmable mechanical keys and analog joystick"
+    ],
+    "cons": [
+      "Limited information on pricing and feature specifics",
+      "Not as revolutionary as some anticipated"
+    ],
+    "special": "launched-2026-07-15",
+    "added": "2026-07-03"
+  },
+  {
+    "id": 160,
+    "name": "Workato Labs Open-Source Developer Toolkit",
+    "category": "Business Process Automation",
+    "description": "Workato launched Workato Labs, a new open-source developer toolkit for enterprise orchestration. The toolkit includes a command-line interface (CLI), AI skills, local validation, and visualization tools, enabling developers and AI builders to build, validate, and visualize Workato workflows directly from local development environments.",
+    "link": "https://www.streetinsider.com/Business%2BWire/Workato%2BLaunches%2BWorkato%2BLabs%2Bwith%2Ba%2BNew%2BOpen-Source%2BDeveloper%2BToolkit%2Bfor%2BEnterprise%2BOrchestration/26719040.html",
+    "pros": [
+      "Open-source toolkit for enterprise orchestration",
+      "Includes CLI, AI skills, and visualization tools",
+      "Enables local development of Workato workflows"
+    ],
+    "cons": [
+      "Specific details on each tool's functionality are not provided",
+      "No information on pricing or availability"
+    ],
+    "special": "launched-2026-07-01",
+    "added": "2026-07-03"
+  },
+  {
+    "id": 161,
+    "name": "Bits AI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Datadog's suite of agents designed to automate development, security, and operational workflows, now expanded to offer truly autonomous operations across the production lifecycle.",
+    "link": "https://www.globenewswire.com/news-release/2026/06/09/3309012/0/en/Datadog-Launches-100-Capabilities-to-Help-Customers-Drive-Autonomy-and-Manage-Growing-AI-and-Security-Complexity.html",
+    "pros": [
+      "Autonomous operations across production lifecycle",
+      "Enhanced development, security, and operational workflow automation"
+    ],
+    "cons": [
+      "Potential complexity in implementation",
+      "Requires familiarity with Datadog's ecosystem"
+    ],
+    "special": "launched-2026-06-09",
+    "added": "2026-07-04"
+  },
+  {
+    "id": 162,
+    "name": "Hydrogen Framework-Agnostic Core",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Shopify's Hydrogen framework now offers a framework-agnostic core, allowing developers to build Shopify-powered storefronts using any JavaScript framework, not just React.",
+    "link": "https://www.ontapgroup.com/blog/shopify-june-2026-editions",
+    "pros": [
+      "Flexibility to use any JavaScript framework",
+      "Enhanced developer choice and freedom"
+    ],
+    "cons": [
+      "Potential learning curve for developers new to Hydrogen",
+      "May require updates to existing projects"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-04"
+  },
+  {
+    "id": 163,
+    "name": "Workato Labs",
+    "category": "Business Process Automation",
+    "description": "An open-source developer toolkit for building enterprise orchestrations with AI coding assistants, including a command-line interface and tools for building, validating, and visualizing workflows directly from local development environments.",
+    "link": "https://app.dealroom.co/news/feed/workato-launches-open-source-developer-toolkit-for-ai-powered-coding-assistants",
+    "pros": [
+      "Open-source initiative",
+      "Integrates with AI coding assistants like Claude Code and GitHub Copilot",
+      "Enhances workflow building and visualization"
+    ],
+    "cons": [
+      "May require familiarity with command-line interfaces",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-07-04",
+    "added": "2026-07-06"
+  },
+  {
+    "id": 164,
+    "name": "Open User Map",
+    "category": "UI/UX + Code Tools",
+    "description": "An interactive maps plugin for WordPress, allowing users to create and manage interactive maps directly within their WordPress sites.",
+    "link": "https://launchscroll.com/",
+    "pros": [
+      "Easy integration with WordPress",
+      "Enhances user engagement with interactive maps",
+      "Customizable map features"
+    ],
+    "cons": [
+      "Limited to WordPress users",
+      "May require additional plugins for full functionality"
+    ],
+    "special": "launched-2026-07-04",
+    "added": "2026-07-06"
+  },
+  {
+    "id": 165,
+    "name": "Spacedrive",
+    "category": "Misc Tools",
+    "description": "A local-first data engine that indexes any data source and makes everything searchable from one place, aiming to provide a unified search experience across various data sources.",
+    "link": "https://doolpa.com/launches",
+    "pros": [
+      "Local-first approach",
+      "Indexes any data source",
+      "Unified search experience"
+    ],
+    "cons": [
+      "May require significant local storage",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-03-01",
+    "added": "2026-07-09"
+  },
+  {
+    "id": 166,
+    "name": "OpenClaw 2026.7.1-beta.5",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An open-source AI agent platform for autonomous task automation, now supporting conversational setup and GPT-5.6 integration.",
+    "link": "https://ai-tldr.dev/",
+    "pros": [
+      "Open-source",
+      "Supports GPT-5.6",
+      "Enhances task automation"
+    ],
+    "cons": [
+      "Beta version may have stability issues",
+      "Limited documentation"
+    ],
+    "special": "launched-2026-07-12",
+    "added": "2026-07-13"
+  },
+  {
+    "id": 167,
+    "name": "Open WebUI CPTR Tool",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A tool integrated with open-webui/computer that allows users to access their computer remotely, facilitating remote work and management.",
+    "link": "https://llm-kb.com/releases/#open-webui-releases-cptr-tool-for-remote-computer-access",
+    "pros": [
+      "Enables remote computer access",
+      "Integrated with open-webui/computer"
+    ],
+    "cons": [
+      "May require technical setup",
+      "Security considerations for remote access"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-14"
+  },
+  {
+    "id": 168,
+    "name": "MCP for Reverse Engineering Binary Code",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A Model Context Protocol (MCP) tool that enables AI agents to reverse engineer binary code, aiding in code analysis and understanding.",
+    "link": "https://llm-kb.com/releases/#show-hn-mcp-for-reverse-engineering-binary-code",
+    "pros": [
+      "Facilitates binary code analysis",
+      "Integrates with AI agents"
+    ],
+    "cons": [
+      "May require understanding of binary code structures",
+      "Potential limitations in handling complex binaries"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-14"
+  },
+  {
+    "id": 169,
+    "name": "Kimi K2.7 Code",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "An AI coding assistant integrated into GitHub Copilot Business and Enterprise plans, offering enhanced code generation and assistance features.",
+    "link": "https://kingy.ai/ai-launches/ai-coding-tools/",
+    "pros": [
+      "Integrated with GitHub Copilot",
+      "Enhances code generation capabilities"
+    ],
+    "cons": [
+      "Available only in Business and Enterprise plans",
+      "May require subscription for full features"
+    ],
+    "special": "launched-2026-07-07",
+    "added": "2026-07-14"
+  },
+  {
+    "id": 170,
+    "name": "ReleasePort",
+    "category": "Code Security Tools",
+    "description": "A platform that provides security release intelligence for open-source tools, offering curated updates on security fixes, breaking changes, and CVE patches to help developers maintain secure codebases.",
+    "link": "https://releaseport.com/",
+    "pros": [
+      "Curated security updates",
+      "Comprehensive coverage of open-source tools",
+      "Helps maintain secure codebases"
+    ],
+    "cons": [
+      "May not cover all open-source tools",
+      "Relies on community contributions for updates"
+    ],
+    "special": "launched-2026-07-11",
+    "added": "2026-07-15"
+  },
+  {
+    "id": 171,
+    "name": "World-Meeting",
+    "category": "Business Process Automation",
+    "description": "A platform that creates private browser-based video meetings with real-time voice translation, live subtitles, screen sharing, and guest access by link, designed for international calls and multilingual team meetings.",
+    "link": "https://appstackbuilder.com/launches",
+    "pros": [
+      "Real-time voice translation",
+      "Live subtitles",
+      "No subscription required for hosts"
+    ],
+    "cons": [
+      "May require stable internet connection for optimal performance",
+      "Limited to browser-based meetings"
+    ],
+    "special": "launched-2026-07-17",
+    "added": "2026-07-19"
+  },
+  {
+    "id": 172,
+    "name": "Oracle AI Studio Skill",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A new AI-native builder experience by Oracle, enabling customers and partners to create and run Fusion Agentic Applications within Oracle Fusion Cloud Applications, utilizing tools like VS Code and OpenAI Codex.",
+    "link": "https://www.oracle.com/pl/news/announcement/oracle-introduces-ai-native-builder-experience-2026-07-14/",
+    "pros": [
+      "Native integration within Oracle Fusion Cloud",
+      "Utilizes familiar development tools"
+    ],
+    "cons": [
+      "Limited to Oracle Fusion Cloud ecosystem"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-25"
+  },
+  {
+    "id": 173,
+    "name": "KmCode CLI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An open-source TypeScript-based terminal AI agent by Moonshot AI, designed to automate coding tasks with feedback-driven execution loops, enhancing developer productivity directly from the terminal.",
+    "link": "https://versustool.com/news/2026/june",
+    "pros": [
+      "Terminal-based integration",
+      "Feedback-driven execution loops"
+    ],
+    "cons": [
+      "May require familiarity with TypeScript"
+    ],
+    "special": "launched-2026-06-07",
+    "added": "2026-07-25"
+  },
+  {
+    "id": 174,
+    "name": "Visual Studio 2026 July Update",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "The latest update to Visual Studio, featuring deep integration of AI, including built-in .NET and Azure skills, enhancing agentic workflows and development efficiency.",
+    "link": "https://learn.microsoft.com/en-us/visualstudio/releases/2026/release-notes",
+    "pros": [
+      "Deep AI integration",
+      "Enhanced development efficiency"
+    ],
+    "cons": [
+      "May require adaptation to new features"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-26"
+  },
+  {
+    "id": 175,
+    "name": "Oracle AI Agent Studio for Fusion Applications",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Oracle's new AI-native builder experience that allows customers and partners to create and run Fusion Agentic Applications within Oracle Fusion Cloud Applications, utilizing specialized AI agents for task execution.",
+    "link": "https://www.oracle.com/europe/news/announcement/oracle-introduces-ai-native-builder-experience-2026-07-14/",
+    "pros": [
+      "Native integration within Oracle Fusion Cloud",
+      "Utilizes specialized AI agents"
+    ],
+    "cons": [
+      "May require Oracle ecosystem familiarity",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-27"
+  },
+  {
+    "id": 176,
+    "name": "OpenAI GPT-5.6",
+    "category": "AI Agent & Workflow Tools",
+    "description": "OpenAI's latest AI model, released on July 9, 2026, offering enhanced capabilities for coding and agent tasks, with improved token efficiency and performance.",
+    "link": "https://www.aiapps.com/blog/biggest-ai-launches-trends-july/",
+    "pros": [
+      "Improved token efficiency",
+      "Enhanced performance for coding tasks"
+    ],
+    "cons": [
+      "Requires significant computational resources",
+      "Potential accessibility issues for some users"
+    ],
+    "special": "launched-2026-07-09",
+    "added": "2026-07-27"
+  },
+  {
+    "id": 177,
+    "name": "SnapCode",
+    "category": "AI Agent & Workflow Tools",
+    "description": "SnapCode enables enterprise builders to generate, deploy, and govern production-ready integrations directly from AI coding environments, enhancing AI application development with enterprise governance and security.",
+    "link": "https://www.snaplogic.com/products/snapcode",
+    "pros": [
+      "Integrates seamlessly with AI coding environments",
+      "Ensures enterprise governance and security"
+    ],
+    "cons": [
+      "Limited to supported AI coding environments",
+      "May require additional training for new users"
+    ],
+    "special": "launched-2026-07-07",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 178,
+    "name": "SnapLogic MCP Server",
+    "category": "AI Agent & Workflow Tools",
+    "description": "The SnapLogic MCP Server extends the Agentic Integration Platform to AI coding environments, allowing enterprise builders to create, deploy, and govern enterprise integrations directly from AI coding environments.",
+    "link": "https://www.snaplogic.com/products/mcp-server",
+    "pros": [
+      "Supports multiple AI coding environments",
+      "Enhances enterprise integration capabilities"
+    ],
+    "cons": [
+      "May require infrastructure adjustments",
+      "Potential compatibility issues with existing systems"
+    ],
+    "special": "launched-2026-07-07",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 179,
+    "name": "AWS Context",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AWS Context is an enterprise knowledge graph product that utilizes agentic AI to provide deep insights and connections within organizational data, enhancing decision-making processes.",
+    "link": "https://aws.amazon.com/context",
+    "pros": [
+      "Provides deep insights into organizational data",
+      "Enhances decision-making processes"
+    ],
+    "cons": [
+      "May require significant data integration efforts",
+      "Potential complexity in setup and maintenance"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 180,
+    "name": "Amazon Quick",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Amazon Quick is an autonomous desktop agent designed to streamline workflows and enhance productivity by leveraging agentic AI capabilities.",
+    "link": "https://aws.amazon.com/quick",
+    "pros": [
+      "Streamlines workflows",
+      "Enhances productivity with agentic AI"
+    ],
+    "cons": [
+      "May require adaptation to existing workflows",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 181,
+    "name": "Kiro App",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Kiro App is a mobile orchestration tool that utilizes agentic AI to automate and manage mobile workflows, enhancing efficiency and user experience.",
+    "link": "https://aws.amazon.com/kiro",
+    "pros": [
+      "Automates mobile workflows",
+      "Enhances efficiency and user experience"
+    ],
+    "cons": [
+      "May require integration with existing mobile platforms",
+      "Potential compatibility issues with certain devices"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 182,
+    "name": "AWS DevOps Agent",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AWS DevOps Agent is a devops release management tool that leverages agentic AI to automate and manage release processes, improving deployment efficiency and reliability.",
+    "link": "https://aws.amazon.com/devops-agent",
+    "pros": [
+      "Automates release management",
+      "Improves deployment efficiency and reliability"
+    ],
+    "cons": [
+      "May require integration with existing devops pipelines",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 183,
+    "name": "AWS Transform",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AWS Transform is a continuous modernization tool that utilizes agentic AI to automate and manage the modernization of enterprise applications, enhancing agility and scalability.",
+    "link": "https://aws.amazon.com/transform",
+    "pros": [
+      "Automates application modernization",
+      "Enhances agility and scalability"
+    ],
+    "cons": [
+      "May require significant integration efforts",
+      "Potential compatibility issues with legacy systems"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 184,
+    "name": "Bedrock AgentCore",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Bedrock AgentCore is an expansion of AWS's Bedrock platform, providing web search and managed knowledge bases to enhance agentic AI capabilities across enterprise systems.",
+    "link": "https://aws.amazon.com/bedrock-agentcore",
+    "pros": [
+      "Enhances agentic AI capabilities",
+      "Provides web search and managed knowledge bases"
+    ],
+    "cons": [
+      "May require integration with existing systems",
+      "Potential learning curve for new users"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-28"
+  },
+  {
+    "id": 185,
+    "name": "SnapCode and SnapLogic MCP Server",
+    "category": "AI Agent & Workflow Tools",
+    "description": "SnapCode and SnapLogic MCP Server enable enterprise builders to generate, deploy, and govern production-ready integrations directly from AI coding environments, enhancing AI application development with enterprise governance and security.",
+    "link": "https://www.globenewswire.com/news-release/2026/07/14/3326895/0/en/SnapLogic-Launches-SnapCode-and-SnapLogic-MCP-Server-Bringing-Governed-Enterprise-Integration-to-AI-Coding-Agents.html",
+    "pros": [
+      "Enables direct generation and deployment of integrations from AI coding environments",
+      "Enhances AI application development with enterprise governance and security"
+    ],
+    "cons": [
+      "Specific user feedback not available"
+    ],
+    "special": "launched-2026-07-14",
+    "added": "2026-07-28"
   }
-},
-{
-  "id": 95,
-  "name": "Amazon CodeWhisperer",
-  "category": "AI-Augmented IDEs & Code Assistants",
-  "description": "AI-powered coding companion by AWS that provides real-time code suggestions and security scans, optimized for cloud and enterprise development.",
-  "link": "https://aws.amazon.com/codewhisperer",
-  "rating": 4.1,
-  "pros": [
-    "Free for individual developers",
-    "Built-in vulnerability scanning",
-    "Deep AWS integration"
-  ],
-  "cons": [
-    "Suggests less sophisticated code than GPT-4",
-    "Best for AWS and limited for other stacks"
-  ],
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.1,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 96,
-  "name": "Lazy AI",
-  "category": "Prompt-to-App Builders",
-  "description": "Natural language app builder that generates full-stack web applications (UI, logic, and database) from a prompt, with one-click deployment and integration options.",
-  "link": "https://getlazy.ai",
-  "rating": 4.5,
-  "pros": [
-    "End-to-end app generation",
-    "Instant hosting & deployment",
-    "Supports API and DB integrations"
-  ],
-  "cons": [
-    "Limited customization for complex apps",
-    "Token-based usage limits"
-  ],
-  "special": "Launched 2023",
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.5,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 97,
-  "name": "Vercel v0",
-  "category": "UI/UX + Code Tools",
-  "description": "AI-driven generative UI tool that creates React/Next.js interface components and layouts from natural language descriptions, enabling rapid front-end prototyping with editable code blocks.",
-  "link": "https://v0.dev",
-  "rating": 4.6,
-  "pros": [
-    "Speeds up UI development",
-    "Generates production-ready React code",
-    "Interactive editing of generated components"
-  ],
-  "cons": [
-    "Focused on front-end only",
-    "Requires manual integration into projects",
-    "Paid plans for high usage"
-  ],
-  "special": "Beta since 2023",
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.6,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 98,
-  "name": "Augment Code",
-  "category": "AI-Augmented IDEs & Code Assistants",
-  "description": "Comprehensive AI coding platform with codebase-aware autocompletion and autonomous agent capabilities, integrating into popular IDEs and CLI to perform multi-file edits and code generation.",
-  "link": "https://augmentcode.com",
-  "rating": 4.8,
-  "pros": [
-    "Advanced context engine for large codebases",
-    "Combines agentic tasks with autocomplete",
-    "Integrates with VS Code, JetBrains, Vim, etc."
-  ],
-  "cons": [
-    "Premium pricing model",
-    "Steeper learning curve for setup"
-  ],
-  "special": "Launched 2024",
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.8,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 99,
-  "name": "Roo Code",
-  "category": "AI Agent & Workflow Tools",
-  "description": "Open-source VS Code extension that brings a team of AI agents into the editor to generate, refactor, document, and debug code autonomously through multiple specialized modes.",
-  "link": "https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline",
-  "rating": 4.6,
-  "pros": [
-    "Free and open-source",
-    "Multiple modes (Code, Debug, Architect, etc.)",
-    "Active community support (Discord, Reddit)"
-  ],
-  "cons": [
-    "Requires configuring API keys or local models",
-    "Can be complex to fine-tune modes"
-  ],
-  "stats": {
-    "users": "873K VS Code installs",
-    "globalRating": 4.6,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 100,
-  "name": "Cline",
-  "category": "AI Agent & Workflow Tools",
-  "description": "Open-source AI coding agent that runs locally, understanding entire codebases to plan and execute multi-step code changes with full transparency and model flexibility.",
-  "link": "https://cline.bot",
-  "rating": 4.8,
-  "pros": [
-    "Client-side only (code never leaves machine)",
-    "Model-agnostic (use Claude, Gemini, etc.)",
-    "Plans changes with user approval (compliance-friendly)"
-  ],
-  "cons": [
-    "Setup requires providing LLM API or local model",
-    "No built-in model (bring your own AI)"
-  ],
-  "stats": {
-    "users": "3.2M VS Code installs, 48K GitHub stars",
-    "globalRating": 4.8,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 101,
-  "name": "GPT-Engineer",
-  "category": "AI Agent & Workflow Tools",
-  "description": "Open-source CLI tool that generates entire software projects from a prompt by iteratively refining requirements and code through an automated agent loop.",
-  "link": "https://github.com/AntonOsika/gpt-engineer",
-  "rating": 4.3,
-  "pros": [
-    "Autonomous project scaffolding",
-    "Highly extensible open-source project",
-    "Great for quick MVP prototypes"
-  ],
-  "cons": [
-    "Not reliable for complex or large-scale apps",
-    "Requires human review and iteration",
-    "Runs as CLI (no GUI interface)"
-  ],
-  "stats": {
-    "users": "50K+ GitHub stars",
-    "globalRating": 4.3,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 102,
-  "name": "Auto-GPT",
-  "category": "AI Agent & Workflow Tools",
-  "description": "Experimental open-source agent that uses GPT-4 to autonomously pursue goals by generating code, executing it, and adjusting based on feedback without continuous user input.",
-  "link": "https://github.com/Significant-Gravitas/Auto-GPT",
-  "rating": 4.0,
-  "pros": [
-    "Demonstrates autonomous multi-step coding",
-    "Can self-run code and web actions to achieve goals",
-    "Huge open-source community and extensions"
-  ],
-  "cons": [
-    "Frequently goes off-track or gets stuck",
-    "High resource usage (API calls, memory)",
-    "Requires careful setup and prompting"
-  ],
-  "stats": {
-    "users": "150K+ GitHub stars",
-    "globalRating": 4.0,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 103,
-  "name": "OpenAI ChatGPT Code Interpreter",
-  "category": "AI Agent & Workflow Tools",
-  "description": "ChatGPT-based development assistant that can execute Python code within a sandbox, enabling data analysis, prototyping, and code generation entirely through conversational prompts.",
-  "link": "https://openai.com/blog/chatgpt-plugins#code-interpreter",
-  "rating": 4.7,
-  "pros": [
-    "Executes code and returns results within chat",
-    "Excels at data analysis and visualization tasks",
-    "No local setup – runs in OpenAI's environment"
-  ],
-  "cons": [
-    "Limited to ChatGPT Plus users",
-    "Execution environment has resource and access constraints",
-    "Not integrated into IDE (browser-based interface)"
-  ],
-  "stats": {
-    "users": "100M+ ChatGPT user base",
-    "globalRating": 4.7,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-},
-{
-  "id": 104,
-  "name": "Firebase Studio",
-  "category": "AI-Augmented IDEs & Code Assistants",
-  "description": "Google's cloud-based development workspace (formerly Project IDX) that integrates generative AI (Gemini) for code completion, chat assistance, and an agent to prototype full-stack applications.",
-  "link": "https://studio.firebase.google.com",
-  "rating": 4.4,
-  "pros": [
-    "Cloud IDE accessible from any device",
-    "AI pair-programmer (Codey/Gemini) built-in",
-    "Supports web, mobile and backend frameworks with emulators"
-  ],
-  "cons": [
-    "Still in beta, evolving features",
-    "Tied to Google Cloud/Firebase ecosystem",
-    "Browser IDE can be less responsive for very large projects"
-  ],
-  "special": "Rebranded from Project IDX (2024)",
-  "stats": {
-    "users": "N/A",
-    "globalRating": 4.4,
-    "monthlyUsage": "N/A",
-    "ARR": "N/A"
-  }
-} 
 ]

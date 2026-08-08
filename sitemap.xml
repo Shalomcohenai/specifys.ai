@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://specifys-ai.com/</loc>
-    <lastmod>2026-06-28</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/blog/</loc>
-    <lastmod>2026-06-28</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/blog/" />
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -51,7 +51,7 @@
   </url>
   <url>
     <loc>https://specifys-ai.com/pages/pricing.html</loc>
-    <lastmod>2026-06-28</lastmod>
+    <lastmod>2026-07-23</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/pages/pricing.html" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -1044,6 +1044,20 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/</loc>
+    <lastmod>2026-07-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/</loc>
+    <lastmod>2026-07-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/" />
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/academy/guides/accessibility-basics/</loc>
     <lastmod>2026-06-29</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/academy/guides/accessibility-basics/" />
@@ -1898,6 +1912,27 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-ai-generated-code-a-wake-up-call-1782896421815</loc>
+    <lastmod>2026-07-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-ai-generated-code-a-wake-up-call-1782896421815" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=claude-sonnet-5-anthropics-leap-to-autonomous-digital-agents</loc>
+    <lastmod>2026-07-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=claude-sonnet-5-anthropics-leap-to-autonomous-digital-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=nvidias-nemoclaw-enterprise-ai-agents-now-secure-and-scalable</loc>
+    <lastmod>2026-07-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=nvidias-nemoclaw-enterprise-ai-agents-now-secure-and-scalable" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-flaw-lets-malicious-sites-run-code-on-your-machine</loc>
     <lastmod>2026-06-25</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-autogen-studio-flaw-lets-malicious-sites-run-code-on-your-machine" />
@@ -1919,6 +1954,13 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-chatgpt-work-boosting-developer-productivity-with-ai-1784710812503</loc>
+    <lastmod>2026-07-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-chatgpt-work-boosting-developer-productivity-with-ai-1784710812503" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents</loc>
     <lastmod>2026-06-16</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents" />
@@ -1929,6 +1971,20 @@
     <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development</loc>
     <lastmod>2026-05-24</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-revolutionizing-secure-cost-effective-ai-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-generated-code-vibe-coding-challenges-intensify</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-generated-code-vibe-coding-challenges-intensify" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai</loc>
+    <lastmod>2026-07-17</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1975,9 +2031,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=awss-kiro-ide-introduces-agentic-ai-to-revolutionize-vibe-coding</loc>
+    <lastmod>2026-07-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=awss-kiro-ide-introduces-agentic-ai-to-revolutionize-vibe-coding" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai-1784797213170</loc>
+    <lastmod>2026-07-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai-1784797213170" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity</loc>
     <lastmod>2026-06-09</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=asanas-dash-ai-chief-of-staff-boosting-enterprise-productivity" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-a-wake-up-call-for-vibe-coders</loc>
+    <lastmod>2026-07-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-a-wake-up-call-for-vibe-coders" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1996,9 +2073,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=openai-presence-deploy-ai-agents-in-enterprise-workflows-now</loc>
+    <lastmod>2026-07-26</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openai-presence-deploy-ai-agents-in-enterprise-workflows-now" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows</loc>
     <lastmod>2026-06-06</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=microsofts-build-2026-intent-first-development-revolutionizes-ai-workflows" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-chatgpt-work-automate-your-workflows-with-ai-agents</loc>
+    <lastmod>2026-07-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-chatgpt-work-automate-your-workflows-with-ai-agents" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-chatgpt-work-boosting-developer-productivity-with-ai</loc>
+    <lastmod>2026-07-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-chatgpt-work-boosting-developer-productivity-with-ai" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2010,9 +2108,23 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai-1784538012108</loc>
+    <lastmod>2026-07-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-usage-soars-marking-shift-to-agentic-ai-1784538012108" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779354015142</loc>
     <lastmod>2026-05-21</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development-1779354015142" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundations-ai-ban-a-wake-up-call-for-vibe-coders</loc>
+    <lastmod>2026-07-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundations-ai-ban-a-wake-up-call-for-vibe-coders" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2024,9 +2136,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-rapid-ai-generated-code-adoption</loc>
+    <lastmod>2026-06-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=enterprises-struggle-to-govern-and-secure-rapid-ai-generated-code-adoption" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-contributions-amid-vibe-coding-surge</loc>
+    <lastmod>2026-07-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-contributions-amid-vibe-coding-surge" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents-1781686812389</loc>
     <lastmod>2026-06-17</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-ona-acquisition-supercharges-codex-with-persistent-ai-agents-1781686812389" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=gitlab-study-shows-ai-code-generation-outpacing-controls</loc>
+    <lastmod>2026-07-02</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=gitlab-study-shows-ai-code-generation-outpacing-controls" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2073,6 +2206,13 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-generated-code-vibe-coding-challenges-ahead</loc>
+    <lastmod>2026-07-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-generated-code-vibe-coding-challenges-ahead" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-codex-knowledge-workers-embrace-ai-powered-productivity</loc>
     <lastmod>2026-06-04</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-knowledge-workers-embrace-ai-powered-productivity" />
@@ -2087,9 +2227,23 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=aws-kiros-agentic-ai-ide-ending-vibe-coding-chaos-with-spec-driven-development</loc>
+    <lastmod>2026-07-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=aws-kiros-agentic-ai-ide-ending-vibe-coding-chaos-with-spec-driven-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development</loc>
     <lastmod>2026-05-20</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=dells-deskside-agentic-ai-secure-cost-effective-ai-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-a-wake-up-call-for-vibe-coders-1783328412699</loc>
+    <lastmod>2026-07-06</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=godot-foundation-bans-ai-code-a-wake-up-call-for-vibe-coders-1783328412699" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2122,6 +2276,13 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=metas-muse-spark-11-boosting-ai-coding-and-complexity-handling</loc>
+    <lastmod>2026-07-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=metas-muse-spark-11-boosting-ai-coding-and-complexity-handling" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=googles-gemini-35-flash-unleashing-ai-agent-efficiency</loc>
     <lastmod>2026-05-26</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=googles-gemini-35-flash-unleashing-ai-agent-efficiency" />
@@ -2143,9 +2304,37 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-chatgpt-work-revolutionizing-autonomous-ai-development</loc>
+    <lastmod>2026-07-12</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-chatgpt-work-revolutionizing-autonomous-ai-development" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=openai-presence-integrate-ai-agents-into-your-enterprise-workflows-now</loc>
+    <lastmod>2026-07-27</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openai-presence-integrate-ai-agents-into-your-enterprise-workflows-now" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=aws-kiros-spec-driven-development-revolutionizing-agentic-ai-ides</loc>
+    <lastmod>2026-07-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=aws-kiros-spec-driven-development-revolutionizing-agentic-ai-ides" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-from-code-to-complex-tasks-now-empowering-non-developers</loc>
     <lastmod>2026-06-26</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-ai-agents-from-code-to-complex-tasks-now-empowering-non-developers" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=amds-rocmai-unveils-ai-driven-tools-to-supercharge-developer-workflows</loc>
+    <lastmod>2026-07-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=amds-rocmai-unveils-ai-driven-tools-to-supercharge-developer-workflows" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2171,9 +2360,23 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/article.html?slug=openais-chatgpt-work-revolutionizing-autonomous-ai-development-tools</loc>
+    <lastmod>2026-07-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-chatgpt-work-revolutionizing-autonomous-ai-development-tools" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/article.html?slug=openais-codex-transforms-agentic-coding-with-autonomous-task-execution</loc>
     <lastmod>2026-06-02</lastmod>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=openais-codex-transforms-agentic-coding-with-autonomous-task-execution" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/article.html?slug=nvidias-nemoclaw-enterprise-ai-agents-revolutionized</loc>
+    <lastmod>2026-07-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://specifys-ai.com/article.html?slug=nvidias-nemoclaw-enterprise-ai-agents-revolutionized" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

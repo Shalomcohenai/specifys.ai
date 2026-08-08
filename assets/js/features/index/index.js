@@ -375,6 +375,16 @@ function showPlanningInterface() {
       if (typeof renderPredefinedPages === 'function') {
         renderPredefinedPages();
       }
+      function bootLivingBrief(attempt) {
+        if (window.LivingBrief && typeof window.LivingBrief.init === 'function') {
+          window.LivingBrief.init();
+          return;
+        }
+        if ((attempt || 0) < 20) {
+          setTimeout(function () { bootLivingBrief((attempt || 0) + 1); }, 100);
+        }
+      }
+      bootLivingBrief(0);
     }
   }, 500);
 }

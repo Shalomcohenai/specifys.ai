@@ -1217,18 +1217,19 @@ function trackPreference(preferenceName, preferenceValue) {
 
     
     
-    <!-- Extra JavaScript (defer so config.js in head runs first) -->
-    
-      
-        <script defer src="/assets/js/features/index/index.js"></script>
-      
-        <script defer src="/assets/js/pages/toolpicker.js"></script>
-      
-        <script defer src="/assets/js/utils/typingEffect.js"></script>
-      
+    <!-- Extra JavaScript (defer so config.js in head runs first); ?v= busts Vercel immutable asset cache -->
     
     
-    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
+      
+        <script defer src="/assets/js/features/index/index.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/pages/toolpicker.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/utils/typingEffect.js?v=1786231747"></script>
+      
+    
+    
+    <!-- Idle / on-demand scripts (homepage planning, etc.) - load after LCP or on demand -->
     
     <!-- Custom JavaScript Modules -->
     

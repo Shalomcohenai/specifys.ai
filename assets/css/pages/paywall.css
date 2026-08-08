@@ -1,142 +1,350 @@
-/* Sprint B — Pro paywall (benefit-led, preview of user's work) */
+/* Specifys Pro paywall — matches site modals + pricing */
 
-.paywall-content {
-  width: min(520px, 94vw);
-  max-height: 90vh;
-  overflow-y: auto;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #e8e4df;
-  box-shadow: 0 24px 48px rgba(20, 16, 12, 0.18);
+#paywall-modal.paywall-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-sizing: border-box;
 }
 
-.paywall-content .modal-header {
+#paywall-modal.paywall-modal.is-open {
+  display: flex;
+}
+
+#paywall-modal *,
+#paywall-modal *::before,
+#paywall-modal *::after {
+  box-sizing: border-box;
+}
+
+.paywall-dialog {
+  position: relative;
+  width: min(820px, 100%);
+  max-height: min(92vh, 740px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: paywall-slide-in 0.3s ease;
+}
+
+@keyframes paywall-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header — same pattern as contact modal */
+.paywall-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 12px;
-  border-bottom: 1px solid #f0ebe6;
+  gap: 1rem;
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border-light, #e9ecef);
+  flex-shrink: 0;
 }
 
-.paywall-content .modal-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
+.paywall-header-text {
+  min-width: 0;
+}
+
+.paywall-badge {
+  display: inline-block;
+  margin: 0 0 0.4rem;
+  padding: 0.28rem 0.7rem;
+  background: var(--primary-color, #ff6b35);
+  color: #fff;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #1a1510;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.paywall-title {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.paywall-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-color, #333);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.paywall-content .modal-header h3 i {
-  color: #ff6b35;
+.paywall-close:hover {
+  background: var(--light-gray, #e9ecef);
+  color: var(--text-color, #333);
 }
 
-.paywall-content .modal-body {
-  padding: 16px 24px 24px;
+.paywall-close:focus-visible {
+  outline: 2px solid var(--primary-color, #ff6b35);
+  outline-offset: 2px;
+}
+
+/* Body — two columns on desktop */
+.paywall-body {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.paywall-main {
+  padding: 28px 28px 24px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-light, #e9ecef);
+}
+
+.paywall-aside {
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(165deg, #fff 0%, #fff8f5 55%, #fff 100%);
+  overflow-y: auto;
 }
 
 .paywall-reason {
-  margin: 0 0 16px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #4a4038;
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #666);
 }
 
-.paywall-reason.error {
-  color: #b42318;
+.paywall-reason.is-alert {
+  color: var(--danger-color, #dc3545);
 }
 
+/* Preview */
 .paywall-preview {
-  background: linear-gradient(135deg, #fff8f3 0%, #f7f3ef 100%);
-  border: 1px solid #f0d9c8;
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.15rem;
+  background: var(--primary-light, #fff4f0);
+  border: 1px solid rgba(255, 107, 53, 0.25);
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
 }
 
 .paywall-preview-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #a65a2e;
-  margin: 0 0 6px;
+  color: var(--primary-color, #ff6b35);
 }
 
 .paywall-preview-title {
-  margin: 0 0 4px;
-  font-size: 1rem;
-  font-weight: 650;
-  color: #1a1510;
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  line-height: 1.35;
 }
 
 .paywall-preview-meta {
   margin: 0;
-  font-size: 0.85rem;
-  color: #6b5e54;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.4;
 }
 
 .paywall-preview-empty {
   margin: 0;
-  font-size: 0.9rem;
-  color: #6b5e54;
+  font-size: 0.95rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+}
+
+/* Benefits — 2-column grid */
+.paywall-benefits-heading {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #999);
 }
 
 .paywall-benefits {
   list-style: none;
-  margin: 0 0 18px;
+  margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
 .paywall-benefits li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  font-size: 0.92rem;
+  gap: 0.7rem;
+  padding: 0.85rem 0.9rem;
+  background: var(--bg-secondary, #f5f5f5);
+  border: 1px solid var(--border-light, #e9ecef);
+  border-radius: 12px;
+  font-size: 0.875rem;
   line-height: 1.4;
-  color: #2a221c;
+  color: var(--text-color, #333);
 }
 
-.paywall-benefits li i {
-  color: #ff6b35;
-  margin-top: 3px;
+.paywall-benefit-icon {
   flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--primary-light, #fff4f0);
+  color: var(--primary-color, #ff6b35);
+  font-size: 0.9rem;
 }
 
 .paywall-benefits strong {
-  font-weight: 650;
+  display: block;
+  margin-bottom: 0.15rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+}
+
+.paywall-benefit-detail {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-secondary, #666);
+  line-height: 1.35;
+}
+
+/* Aside — price + CTA (pricing hero language) */
+.paywall-aside-label {
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+}
+
+.paywall-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.15rem;
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+
+.paywall-price-currency {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color, #ff6b35);
+}
+
+.paywall-price-amount {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--primary-color, #ff6b35);
+  letter-spacing: -0.02em;
+}
+
+.paywall-price-period {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-muted, #999);
+  margin-left: 0.15rem;
+}
+
+.paywall-price-note {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted, #999);
+  line-height: 1.4;
+}
+
+.paywall-status {
+  margin: 0 0 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
 }
 
 .paywall-products {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .paywall-product-btn {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
   width: 100%;
-  padding: 14px 16px;
+  min-height: 56px;
+  padding: 0.95rem 1.25rem;
   border: none;
-  border-radius: 12px;
-  background: #ff6b35;
+  border-radius: 5px;
+  background: var(--primary-color, #ff6b35);
   color: #fff;
+  font-family: "Montserrat", sans-serif;
   cursor: pointer;
-  text-align: left;
-  transition: background 0.2s ease, transform 0.15s ease;
+  text-align: center;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .paywall-product-btn:hover {
-  background: #e55a2b;
-  transform: translateY(-1px);
+  background: var(--primary-hover, #ff8551);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.35);
+}
+
+.paywall-product-btn:focus-visible {
+  outline: 2px solid var(--text-color, #333);
+  outline-offset: 2px;
+}
+
+.paywall-product-btn:active {
+  transform: translateY(0);
 }
 
 .paywall-product-btn:disabled,
@@ -144,6 +352,7 @@
   opacity: 0.7;
   cursor: wait;
   transform: none;
+  box-shadow: none;
 }
 
 .paywall-product-btn .label {
@@ -152,47 +361,112 @@
 }
 
 .paywall-product-btn .price {
-  font-size: 0.95rem;
-  font-weight: 600;
-  opacity: 0.95;
+  display: none;
 }
 
 .paywall-product-btn .description {
-  font-size: 0.8rem;
-  opacity: 0.9;
+  font-size: 0.78rem;
+  font-weight: 500;
+  opacity: 0.92;
+  line-height: 1.3;
 }
 
-.paywall-status {
-  margin: 0 0 10px;
-  font-size: 0.85rem;
-  color: #6b5e54;
-}
-
-.paywall-footer {
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.paywall-footer .pricing-link {
-  color: #ff6b35;
-  font-size: 0.9rem;
-  text-decoration: underline;
-}
-
-.paywall-actions {
+.paywall-aside-links {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.25rem;
 }
 
-.paywall-actions .btn-secondary {
+.paywall-aside-links .pricing-link {
+  color: var(--primary-color, #ff6b35);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.paywall-aside-links .pricing-link:hover {
+  text-decoration: underline;
+  color: var(--primary-hover, #ff8551);
+}
+
+.paywall-dismiss {
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border: none;
+  border-radius: 5px;
   background: transparent;
-  border: 1px solid #d9d0c8;
-  color: #4a4038;
-  padding: 8px 18px;
-  border-radius: 8px;
+  color: var(--text-secondary, #666);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
-.paywall-actions .btn-secondary:hover {
-  background: #f7f3ef;
+.paywall-dismiss:hover {
+  color: var(--text-color, #333);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.paywall-dismiss:focus-visible {
+  outline: 2px solid var(--primary-color, #ff6b35);
+  outline-offset: 2px;
+}
+
+/* Mobile / tablet — stack, still spacious */
+@media (max-width: 800px) {
+  #paywall-modal.paywall-modal {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .paywall-dialog {
+    width: 100%;
+    max-height: min(94vh, 820px);
+    border-radius: 16px 16px 12px 12px;
+  }
+
+  .paywall-header {
+    padding: 18px 20px;
+  }
+
+  .paywall-title {
+    font-size: 1.3rem;
+  }
+
+  .paywall-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .paywall-main {
+    border-right: none;
+    border-bottom: 1px solid var(--border-light, #e9ecef);
+    padding: 20px;
+  }
+
+  .paywall-aside {
+    padding: 22px 20px 20px;
+    justify-content: flex-start;
+  }
+
+  .paywall-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .paywall-price-amount {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .paywall-benefits li {
+    padding: 0.75rem;
+  }
+
+  .paywall-header {
+    padding: 16px 18px;
+  }
 }

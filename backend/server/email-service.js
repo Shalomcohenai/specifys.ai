@@ -156,6 +156,51 @@ class EmailService {
   }
 
   /**
+   * Create + send a Resend Broadcast to the configured segment/audience.
+   * Uses Broadcast quota (separate from transactional emails.send).
+   *
+   * @param {{ segmentId?: string, subject: string, html: string, name?: string, from?: string }} opts
+   * @returns {Promise<{success: boolean, broadcastId?: string, error?: string}>}
+   */
+  async sendResendBroadcast(opts = {}) {
+    if (!this.isConfigured()) {
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    const segmentId = opts.segmentId || this.getResendAudienceId();
+    if (!segmentId) {
+      return { success: false, error: 'RESEND_AUDIENCE_ID / RESEND_SEGMENT_ID not configured' };
+    }
+    if (!opts.subject || !opts.html) {
+      return { success: false, error: 'subject and html are required' };
+    }
+
+    try {
+      const payload = {
+        segmentId,
+        from: opts.from || this.fromEmail,
+        subject: opts.subject,
+        html: opts.html,
+        send: true
+      };
+      if (opts.name) payload.name = opts.name;
+
+      const { data, error } = await this.resend.broadcasts.create(payload);
+      if (error) {
+        logger.error({ error }, '[EmailService] Resend broadcast failed');
+        return { success: false, error: error.message || JSON.stringify(error) };
+      }
+
+      const broadcastId = data?.id || null;
+      logger.info({ broadcastId, segmentId, subject: opts.subject }, '[EmailService] Resend broadcast sent');
+      return { success: true, broadcastId };
+    } catch (err) {
+      logger.error({ err: err.message }, '[EmailService] Resend broadcast exception');
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
    * Send welcome email to new user
    * @param {string} userEmail - User's email address
    * @param {string} userName - User's display name

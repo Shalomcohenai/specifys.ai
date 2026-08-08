@@ -985,8 +985,8 @@ window.generateJSON = function() {
                 count: capped.length,
                 list: capped,
                 explanation: capped.length > 0
-                    ? `${capped.length} screenshot reference(s) with UI/visual requirements derived from images and user notes.`
-                    : 'No screenshot references were confirmed for this application.'
+                    ? `${capped.length} reference(s) with UI/product requirements derived from images, text notes, and user instructions.`
+                    : 'No screenshot or text references were confirmed for this application.'
             };
         })()
     };
@@ -1091,7 +1091,7 @@ window.generatePlanningText = function() {
     }
 
     if (data.screenshots && data.screenshots.list && data.screenshots.list.length > 0) {
-        text += `UI Screenshot References (${data.screenshots.count}):\n`;
+        text += `UI / Product References (${data.screenshots.count}):\n`;
         data.screenshots.list.forEach((ref) => {
             text += `${ref.index}. `;
             if (ref.userNote) {

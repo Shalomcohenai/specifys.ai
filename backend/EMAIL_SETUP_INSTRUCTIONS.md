@@ -23,6 +23,23 @@ BASE_URL=https://specifys-ai.com
 - Never commit `.env` or real API keys.
 - Click tracking uses `GET /api/email/track` (writes `email_clicks`). Successful sends write `email_sent`.
 
+## Weekly AI newsletter (admin approval → Broadcast)
+
+Each Monday (configurable) the server drafts an AI-news HTML newsletter into Firestore `newsletters` with `status: pending_approval`. Review under **Admin → Newsletter**, then Yes (Resend Broadcast) or No (reject).
+
+```bash
+# Optional env
+WEEKLY_AI_NEWSLETTER_ENABLED=true          # default on unless set to false
+WEEKLY_AI_NEWSLETTER_HOUR=8                # local hour in REPORT_TIMEZONE
+WEEKLY_AI_NEWSLETTER_DOW=1                 # 0=Sun … 1=Mon (default)
+OPENAI_WEEKLY_NEWSLETTER_MODEL=            # defaults to OPENAI_SPEC_GENERATION_MODEL / gpt-5.6-luna
+OPENAI_WEEKLY_NEWSLETTER_SEARCH_MODEL=gpt-4o-mini-search-preview
+RESEND_AUDIENCE_ID=aud_xxx                 # required to approve/send Broadcast
+```
+
+Manual generate: `POST /api/admin/newsletters/generate-weekly` `{ "force": false }`.
+Approve: `POST /api/admin/newsletters/:id/approve`. Reject: `POST /api/admin/newsletters/:id/reject`.
+
 ## Verify integration
 
 ```bash

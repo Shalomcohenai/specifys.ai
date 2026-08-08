@@ -6,6 +6,7 @@ const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const emailService = require('./email-service');
 const emailTracking = require('./email-tracking-service');
+const weeklyAiNewsletter = require('./weekly-ai-newsletter');
 
 /**
  * GET /api/admin/newsletters
@@ -44,6 +45,96 @@ router.get('/', requireAdmin, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: error.message }, '[newsletter-routes] Failed to get newsletters');
     next(createError('Failed to get newsletters', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/newsletters/generate-weekly
+ * Generate weekly AI-news draft (pending_approval). Optional body: { force?: boolean }
+ */
+router.post('/generate-weekly', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `newsletter-generate-${Date.now()}`;
+  try {
+    const force = Boolean(req.body?.force);
+    const result = await weeklyAiNewsletter.generateWeeklyAiNewsletterDraft({
+      force,
+      createdBy: req.adminUser?.uid,
+      createdByEmail: req.adminUser?.email
+    });
+    logger.info(
+      { requestId, newsletterId: result.newsletter?.id, skipped: result.skipped },
+      '[newsletter-routes] Weekly AI newsletter generate'
+    );
+    res.json(result);
+  } catch (error) {
+    logger.error({ requestId, error: error.message }, '[newsletter-routes] generate-weekly failed');
+    if (error.code === 'CONFIGURATION_ERROR') {
+      return next(createError(error.message, ERROR_CODES.CONFIGURATION_ERROR, 500));
+    }
+    next(createError('Failed to generate weekly newsletter', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/newsletters/:id/approve
+ * Approve pending weekly newsletter and send via Resend Broadcast
+ */
+router.post('/:id/approve', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `newsletter-approve-${Date.now()}`;
+  const { id } = req.params;
+  try {
+    const result = await weeklyAiNewsletter.approveAndSendBroadcast(id, {
+      uid: req.adminUser?.uid,
+      email: req.adminUser?.email
+    });
+    logger.info({ requestId, newsletterId: id, broadcastId: result.broadcastId }, '[newsletter-routes] Newsletter approved + broadcast');
+    res.json(result);
+  } catch (error) {
+    logger.error({ requestId, newsletterId: id, error: error.message }, '[newsletter-routes] approve failed');
+    if (error.code === 'NOT_FOUND') {
+      return next(createError('Newsletter not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    if (error.code === 'ALREADY_SENT' || error.code === 'REJECTED') {
+      return next(createError(error.message, ERROR_CODES.INVALID_REQUEST, 400));
+    }
+    if (error.code === 'CONFIGURATION_ERROR') {
+      return next(createError(error.message, ERROR_CODES.CONFIGURATION_ERROR, 500));
+    }
+    next(createError(error.message || 'Failed to approve newsletter', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * POST /api/admin/newsletters/:id/reject
+ * Reject a pending newsletter (no send)
+ */
+router.post('/:id/reject', requireAdmin, async (req, res, next) => {
+  const requestId = req.requestId || `newsletter-reject-${Date.now()}`;
+  const { id } = req.params;
+  try {
+    const reason = typeof req.body?.reason === 'string' ? req.body.reason.trim() : '';
+    const result = await weeklyAiNewsletter.rejectNewsletter(
+      id,
+      { uid: req.adminUser?.uid, email: req.adminUser?.email },
+      reason
+    );
+    logger.info({ requestId, newsletterId: id }, '[newsletter-routes] Newsletter rejected');
+    res.json(result);
+  } catch (error) {
+    logger.error({ requestId, newsletterId: id, error: error.message }, '[newsletter-routes] reject failed');
+    if (error.code === 'NOT_FOUND') {
+      return next(createError('Newsletter not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    if (error.code === 'ALREADY_SENT') {
+      return next(createError(error.message, ERROR_CODES.INVALID_REQUEST, 400));
+    }
+    next(createError('Failed to reject newsletter', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

@@ -5,6 +5,7 @@ const { createError, ERROR_CODES, asyncHandler } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
 const { verifyFirebaseToken } = require('./middleware/auth');
+const livingBrief = require('./living-brief-service');
 
 let fetch;
 if (typeof globalThis.fetch === 'function') {
@@ -137,6 +138,70 @@ router.post(
     res.json({
       success: true,
       description: text
+    });
+  })
+);
+
+/**
+ * POST /api/planning/living-brief
+ * Chat turn for the living brief intake (guest-friendly).
+ * Body: { messages: [{role, content}], draft?: object }
+ */
+router.post(
+  '/living-brief',
+  rateLimiters.general,
+  asyncHandler(async (req, res) => {
+    const requestId = req.requestId || `living-brief-${Date.now()}`;
+    const messages = req.body?.messages;
+    const draft = req.body?.draft;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw createError('messages array is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400);
+    }
+
+    const started = Date.now();
+    const result = await livingBrief.processTurn({
+      messages,
+      draft,
+      apiKey: process.env.OPENAI_API_KEY
+    });
+
+    logger.info(
+      {
+        requestId,
+        engine: result.engine,
+        ms: Date.now() - started,
+        proposals: result.proposals?.length || 0,
+        score: result.readiness?.score
+      },
+      '[planning-routes] living-brief turn ok'
+    );
+
+    res.json({
+      success: true,
+      reply: result.reply,
+      proposals: result.proposals || [],
+      draftPatch: result.draftPatch || {},
+      readiness: result.readiness,
+      engine: result.engine,
+      warning: result.warning || null
+    });
+  })
+);
+
+/**
+ * POST /api/planning/living-brief/readiness
+ * Recompute readiness for a draft without a chat turn.
+ */
+router.post(
+  '/living-brief/readiness',
+  rateLimiters.general,
+  asyncHandler(async (req, res) => {
+    const draft = livingBrief.normalizeDraft(req.body?.draft);
+    res.json({
+      success: true,
+      readiness: livingBrief.computeReadiness(draft),
+      draft
     });
   })
 );

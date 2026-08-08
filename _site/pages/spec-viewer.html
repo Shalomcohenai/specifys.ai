@@ -1780,36 +1780,37 @@ function trackPreference(preferenceName, preferenceValue) {
     <!-- Firebase SDK & Auth (skipped on lean content shells for LCP) -->
     
     
-    <!-- Extra JavaScript (defer so config.js in head runs first) -->
-    
-      
-        <script defer src="/assets/js/script.js"></script>
-      
-        <script defer src="/assets/js/services/spec-cache.js"></script>
-      
-        <script defer src="/assets/js/services/spec-firestore-listener.js"></script>
-      
-        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-      
-        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-      
-        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-firebase.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-api-helper.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-scroll.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-auth.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-tour.js"></script>
-      
-        <script defer src="/assets/js/features/spec-viewer/spec-viewer-main.js"></script>
-      
+    <!-- Extra JavaScript (defer so config.js in head runs first); ?v= busts Vercel immutable asset cache -->
     
     
-    <!-- Idle / on-demand scripts (homepage planning, etc.) — load after LCP or on demand -->
+      
+        <script defer src="/assets/js/script.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/services/spec-cache.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/services/spec-firestore-listener.js?v=1786231747"></script>
+      
+        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js?v=1786231747"></script>
+      
+        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js?v=1786231747"></script>
+      
+        <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-firebase.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-api-helper.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-scroll.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-auth.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-tour.js?v=1786231747"></script>
+      
+        <script defer src="/assets/js/features/spec-viewer/spec-viewer-main.js?v=1786231747"></script>
+      
+    
+    
+    <!-- Idle / on-demand scripts (homepage planning, etc.) - load after LCP or on demand -->
     
     <!-- Custom JavaScript Modules -->
     

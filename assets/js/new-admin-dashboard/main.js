@@ -20,6 +20,7 @@ import { AcademyView } from './views/AcademyView.js';
 import { ToolsView } from './views/ToolsView.js';
 import { ContactView } from './views/ContactView.js';
 import { UnsubscribeView } from './views/UnsubscribeView.js';
+import { NewsletterView } from './views/NewsletterView.js';
 import { BrandView } from './views/BrandView.js';
 import { UsageIntelligenceView } from './views/UsageIntelligenceView.js';
 
@@ -412,6 +413,11 @@ class NewAdminDashboard {
       const unsubscribeView = new UnsubscribeView(this.dataManager, this.stateManager);
       this.views.set('email', unsubscribeView);
       window.unsubscribeView = unsubscribeView;
+
+      // Weekly AI newsletter approve / reject
+      const newsletterView = new NewsletterView(this.dataManager, this.stateManager);
+      this.views.set('newsletter', newsletterView);
+      window.newsletterView = newsletterView;
 
       // Brand kit view — static, lazily renders on first show()
       const brandView = new BrandView(this.dataManager, this.stateManager);
