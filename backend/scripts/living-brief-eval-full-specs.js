@@ -313,20 +313,14 @@ function evaluateOverview(caseDef, overviewObj, userInput) {
   }
 
   const hits = keywordHits(blob, caseDef.mustMention);
-  // Product-scope only: titles/features/screens/epics. Narrative may correctly say
-  // "not payroll" / "not a public marketplace" when rejecting out-of-scope ideas.
+  // Product-scope only: title, feature strings, screen/epic/story names.
+  // Descriptions/narrative may correctly say "without payroll" / "not a marketplace".
   const productScopeBlob = JSON.stringify({
     shortTitle: overviewObj.shortTitle,
     coreFeaturesOverview: overviewObj.coreFeaturesOverview,
-    screens: (overviewObj.screenDescriptions?.screens || []).map((s) => ({
-      name: s?.name,
-      description: s?.description
-    })),
-    epics: (overviewObj.epics || []).map((e) => ({
-      name: e?.name,
-      description: e?.description,
-      stories: (e?.stories || []).map((st) => st?.title)
-    }))
+    screenNames: (overviewObj.screenDescriptions?.screens || []).map((s) => s?.name),
+    epicNames: (overviewObj.epics || []).map((e) => e?.name),
+    storyTitles: (overviewObj.epics || []).flatMap((e) => (e?.stories || []).map((st) => st?.title))
   }).toLowerCase();
   const badHits = keywordHits(productScopeBlob, caseDef.mustNotBe);
   if (hits.length < Math.ceil((caseDef.mustMention || []).length * 0.66)) {
