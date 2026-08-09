@@ -50,7 +50,7 @@ IMPORTANT: All output must be in English regardless of the input language.
 
 INPUT STRUCTURE:
 The user input below is structured into clear sections:
-- "App Description:" - The main application description/vision
+- "App Description:" - The main application description/vision (treat legacy "Vision:" as the same section)
 - "Pages:" - Specific pages the user has defined (if provided)
 - "Workflows:" - Specific workflows with steps the user has defined (if provided)
 - "Features:" - Specific features the user has selected/defined (if provided)
@@ -84,7 +84,7 @@ For each section that EXISTS in the user input:
 - If user provided target audience details → those EXACT values must appear in targetAudience
 - If user provided UI screenshot references → EVERY reference MUST be reflected in screenDescriptions (matching screens or new screen objects), valueProposition/visual language where relevant, and coreFeaturesOverview when the reference implies functionality (e.g. charts, metrics). Do NOT ignore colors, typography, or layout described in those lines.
 
-STEP 3: MUST / MAY / INFERRED (CRITICAL)
+STEP 3: MUST / MAY / GAP-FILL (CRITICAL)
 After including all user-provided data, apply these priority rules:
 
 MUST (mandatory — never omit or contradict):
@@ -97,9 +97,10 @@ MAY (only when needed for coherence):
 - Add features ONLY when required for user-defined pages/workflows to function.
 - Keep additions minimal — prefer fewer, focused additions over padding lists.
 
-INFERRED (not requested by user):
-- Any screen, feature, workflow step, or integration NOT in user input MUST be marked with "[INFERRED]" in its name or description.
-- List every inferred item in overview.inferredItems (array of short strings describing what was added and why).
+GAP-FILL METADATA (not user-facing labels):
+- When you add a screen, feature, workflow step, or integration that the user did not request, list it ONLY in overview.inferredItems as a short plain string (what was added and why).
+- NEVER prefix names, titles, descriptions, persona names, feature strings, screen names, epic/story titles, or glossary terms with "[INFERRED]", "INFERRED:", "TODO", "TBD", or "loading".
+- User-facing copy must read as a clean finished PRD — no meta tags, placeholders, or generation artifacts.
 - Do NOT add auth, real-time collaboration, AI, or mobile unless user requested them OR App Description explicitly requires them.
 
 STEP 4: FILL GAPS (ONLY WHERE USER DATA DOES NOT EXIST)
@@ -159,7 +160,7 @@ Create a comprehensive and detailed overview based on the user input. Follow the
       "toInclude": [],
       "notToInclude": ["Optional feature with brief description", "Another optional feature to consider"]
     },
-    "inferredItems": ["Short description of each inferred screen/feature/step/integration added because user did not provide it — empty array if none"],
+    "inferredItems": ["Plain metadata only: short description of each gap-fill addition — empty array if none. Never put [INFERRED] tags in other fields"],
     "personas": [
       {
         "name": "Persona name",
@@ -203,21 +204,22 @@ Create a comprehensive and detailed overview based on the user input. Follow the
 }
 
 IMPORTANT DETAILED REQUIREMENTS: 
+- OUTPUT ORDER / PRIORITY: Lead with a crisp product overview. shortTitle + ideaSummary + problemStatement + valueProposition + coreFeaturesOverview are the spine. Enriched fields (personas, epics, glossary, permissions, metrics) support the overview — they must not replace or bloat it.
 - shortTitle MUST be a concise display title in 3-8 words (e.g. "Task Management for Teams", "Healthcare Patient Portal"). It will be shown as the spec title in the UI—do not use the first sentence of ideaSummary; create a dedicated catchy title.
-- ideaSummary should be 250-750 characters with concise explanation of purpose, functionality, benefits, and value
+- ideaSummary should be 250-750 characters: efficient, purposeful, and scannable — what the app is, who it is for, the core job, and the main benefit. Avoid filler, hedging, and laundry lists.
 - problemStatement should be 2-3 paragraphs (400-800 characters) covering: the problem, why it matters, pain points (practical and emotional), current workarounds, and solution gap
 - targetAudience.ageRange should include reasoning for the age group
 - targetAudience.sector should be specific with industry context
 - targetAudience.interests should be 5-7 detailed interests or professional activities
 - targetAudience.needs should be 5-7 specific needs with explanations
 - valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
-- coreFeaturesOverview: REQUIRED non-empty array of 4–8 feature strings with brief descriptions. NEVER return []. Include ALL user-provided features; add [INFERRED] features only when needed for coherence. Prefer populating this field over epics alone — epics complement features, they do not replace them.
+- coreFeaturesOverview: REQUIRED non-empty array of 4–8 feature strings with brief descriptions. NEVER return []. Include ALL user-provided features; add gap-fill features only when needed for coherence and list those in inferredItems (do NOT prefix feature strings with [INFERRED]). Prefer populating this field over epics alone — epics complement features, they do not replace them.
 - userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
 - detailedUserFlow.steps: REQUIRED non-empty array of at least 3 concise steps (1-2 sentences each). NEVER return []. These steps display as a visual journey rail.
 - screenDescriptions.screens MUST be a REQUIRED non-empty array of at least 3 screen objects (NEVER []). Each object: name, description, uiComponents array, emptyState (string|null), errorState (string|null), edgeCases (array|null)
 - Each screen object MUST include at least 2-3 uiComponents specific to that screen
 - For each screen: emptyState and errorState should describe real UX copy/behavior when relevant; use null only when truly N/A. edgeCases should list 1–3 realistic edge cases or null
-- screenDescriptions.screens: include ALL user-provided pages; when Pages: is absent, infer 3–6 primary screens from the App Description and mark them [INFERRED] — never leave screens empty
+- screenDescriptions.screens: include ALL user-provided pages; when Pages: is absent, infer 3–6 primary screens from the App Description and list gap-fills in inferredItems — never leave screens empty; never put [INFERRED] in screen names
 - screenDescriptions.navigationStructure MUST be comprehensive with detailed navigation paths
 - complexityScore MUST be an object with four numeric values (0-100) representing:
   * architecture: Frontend only = 20, Frontend+Backend = 60, Full stack with database = 90
@@ -227,13 +229,14 @@ IMPORTANT DETAILED REQUIREMENTS:
 - suggestionsIdeaSummary and suggestionsCoreFeatures MUST be objects with exactly "toInclude" (array) and "notToInclude" (array). Put all generated suggestions in notToInclude (user can add them later). toInclude stays empty [].
 - suggestionsIdeaSummary.notToInclude: 3-5 short, concrete phrases or sentences (one line each) that DEVELOP THIS SPECIFIC IDEA. Each suggestion must: (a) be directly derived from this app's ideaSummary, valueProposition, or problemStatement; (b) be something that could be merged into the idea summary to deepen or refine it (e.g. a specific benefit, differentiator, or angle for this app). Do NOT suggest generic directions (e.g. "add target audience" or "mention scalability"); every item must be specific content that extends this idea.
 - suggestionsCoreFeatures.notToInclude: 3-5 optional features with brief descriptions (same format as coreFeaturesOverview items) that fit the app but were not included in the main list.
-- personas: 2–4 personas with name, role, goals[], pains[], jtbd — grounded in targetAudience and App Description (null only if impossible)
-- epics: 2–5 epics; each epic has stories with title, description, and acceptanceCriteria[] (testable Given/When/Then or checklist). Map stories to user-provided features/pages when present
+- personas: 2–4 personas with clean human names (never "[INFERRED] …"), role, goals[] (2–3), pains[] (2–3), jtbd — grounded in targetAudience and App Description (null only if impossible)
+- epics: 2–4 focused epics (not 5+ filler); each epic has 2–4 stories with title, description, and 2–4 acceptanceCriteria[] (testable Given/When/Then or checklist). Map stories to user-provided features/pages when present. Do NOT invent parallel epic trees that restate the same features three ways.
 - nonGoals: 3–6 explicit v1 non-goals (what we will NOT build)
 - successMetrics: northStar string + leading[] indicators tied to this product
 - permissionsMatrix: role → permissions[] for every meaningful role (Owner/Admin/Member/Viewer as applicable); null only if no user system
-- glossary: 4–10 domain terms specific to THIS product
-- All content should be detailed, comprehensive, and provide substantial value
+- glossary: 4–8 domain terms that are genuinely specific to THIS product (no generic words like User, Page, Button, App, Dashboard unless they have a product-specific meaning). Prefer precision over padding.
+- NEVER output placeholder tokens such as "loading", "loading...", "TODO", "TBD", "N/A" as content values (null is allowed where the schema permits).
+- All content should be detailed and useful, but concise — prefer sharp specificity over padded prose
 - Nullable enriched fields (personas, epics, nonGoals, successMetrics, permissionsMatrix, glossary, screen empty/error/edgeCases) may be null when truly inapplicable — prefer populated values
 - All other values must be strings, numbers, or arrays as shown — never omit required keys
 
@@ -245,9 +248,9 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
      * EVERY page from "Pages:" MUST appear in screenDescriptions.screens as an object with name, description, and uiComponents
      * Use the exact page names provided
      * For each user-provided page, create a screen object with: name (page name), description (detailed screen description), uiComponents (array of 2-3 components for that screen), plus empty/error/edgeCases
-     * MAY add [INFERRED] screens only to connect user pages — list each in inferredItems
+     * MAY add connecting screens only to connect user pages — list each in inferredItems (clean names, no [INFERRED] prefix)
    - IF "Pages:" section DOES NOT EXIST:
-     * Create 3–6 screens based on App Description analysis; mark each as [INFERRED] in inferredItems
+     * Create 3–6 screens based on App Description analysis; list gap-fills in inferredItems
      * NEVER return an empty screens array
 
 2. detailedUserFlow.steps:
@@ -257,7 +260,7 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
    - IF "Workflows:" section EXISTS in user input:
      * EVERY workflow from "Workflows:" MUST appear in detailedUserFlow.steps
      * Include ALL steps from each workflow exactly as provided
-     * MAY add [INFERRED] steps only to bridge gaps — list in inferredItems
+     * MAY add bridging steps only to fill gaps — list in inferredItems
    - IF "Workflows:" section DOES NOT EXIST:
      * Create at least 3–6 workflow steps based on App Description; mark additions in inferredItems
 
@@ -267,9 +270,9 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
      * EVERY feature from "Features:" MUST appear in coreFeaturesOverview
      * Use the exact feature names provided
      * You may add brief descriptions, but feature names MUST match exactly
-     * MAY add [INFERRED] features only when needed — list in inferredItems
+     * MAY add gap-fill features only when needed — list in inferredItems (no [INFERRED] prefix in the feature string)
    - IF "Features:" section DOES NOT EXIST:
-     * Infer 4–8 features from App Description; mark each in inferredItems
+     * Infer 4–8 features from App Description; list each in inferredItems
      * Do NOT leave coreFeaturesOverview empty even if you also fill epics
 4. Design Style (in screenDescriptions and valueProposition):
    - IF "Design Style:" section EXISTS in user input:
@@ -318,15 +321,17 @@ DETAILED FIELD REQUIREMENTS WITH USER DATA PRIORITY:
 10. personas, epics, nonGoals, successMetrics, permissionsMatrix, glossary:
    - Ground personas and epics in user-provided features, pages, workflows, and target audience
    - Epic stories MUST trace to coreFeaturesOverview / screens where possible
+   - Keep epics/stories/glossary tight — no redundant epics that restate coreFeaturesOverview
    - acceptanceCriteria MUST be testable
    - nonGoals MUST NOT contradict MUST user requirements
-   - permissionsMatrix MUST match any auth/roles implied by App Description (mark inferred roles in inferredItems if added)
+   - permissionsMatrix MUST match any auth/roles implied by App Description (list gap-fill roles in inferredItems if added)
 
 VALIDATION CHECKLIST (Before generating output):
 ✓ Did I include shortTitle as a 3-8 word display title (not the start of ideaSummary)?
+✓ Is ideaSummary concise, purposeful, and free of filler?
 ✓ Did I check if "Pages:" section exists? If yes, did I include ALL pages in screenDescriptions.screens?
 ✓ Is screenDescriptions.screens a non-empty array with at least 3 screen objects? (NEVER return [])
-✓ Did I mark any non-user screens with [INFERRED] and list them in inferredItems?
+✓ Did I list gap-fill additions in inferredItems WITHOUT putting [INFERRED] in any user-facing name/description?
 ✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps?
 ✓ Is detailedUserFlow.steps a non-empty array with at least 3 steps?
 ✓ Did I check if "Features:" section exists? If yes, did I include ALL features in coreFeaturesOverview?
@@ -335,14 +340,15 @@ VALIDATION CHECKLIST (Before generating output):
 ✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?
 ✓ Did I check if "Target Audience:" section exists? If yes, did I use EXACT values?
 ✓ Did I check if "UI Screenshot References:" exists? If yes, did I apply EVERY reference?
-✓ Did I base ideaSummary, problemStatement, and valueProposition on "App Description:"?
+✓ Did I base ideaSummary, problemStatement, and valueProposition on "App Description:" (also accept "Vision:" as the same)?
 ✓ Did I avoid adding auth/real-time/AI/mobile unless user requested or App Description requires?
-✓ Did I populate inferredItems for every [INFERRED] addition (empty array if none)?
+✓ Did I avoid placeholder junk ("loading", "TODO", "TBD") in any field?
+✓ Are glossary ≤8 product-specific terms and epics 2–4 focused epics (not bloated)?
 ✓ Did I add suggestionsIdeaSummary and suggestionsCoreFeatures with toInclude: [] and notToInclude?
 ✓ Did each screen include emptyState, errorState, and edgeCases (or null where N/A)?
 ✓ Did I include personas, epics (with stories + acceptanceCriteria), nonGoals, successMetrics, permissionsMatrix, and glossary?
 
-REMEMBER: User-provided data is MANDATORY. Additions must be minimal, marked [INFERRED], and listed in inferredItems.
+REMEMBER: User-provided data is MANDATORY. Gap-fill additions must be minimal, listed only in inferredItems, and never tagged with [INFERRED] in user-facing fields.
 
 User Input:
 ${userInput}

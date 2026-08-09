@@ -200,9 +200,117 @@ class SpecGenerationServiceV2 {
     if (!Array.isArray(screens) || screens.length === 0) {
       throw new Error('Overview generation returned empty screenDescriptions.screens');
     }
+    // Strip leaked generation artifacts from user-facing overview copy.
+    this._sanitizeOverviewUserFacing(overviewObj);
     const specification = JSON.stringify(overviewObj);
     logger.info({ requestId, specId, duration: `${Date.now() - startTime}ms` }, '[SpecGenV2] Overview completed');
     return specification;
+  }
+
+  /**
+   * Remove [INFERRED]/placeholder junk from user-facing overview fields.
+   * inferredItems metadata is left intact (cleaned of redundant tag prefixes).
+   * @param {object} overviewObj
+   */
+  _sanitizeOverviewUserFacing(overviewObj) {
+    if (!overviewObj || typeof overviewObj !== 'object') return;
+
+    const stripTag = (s) =>
+      String(s ?? '')
+        .replace(/^\s*\[INFERRED\]\s*/i, '')
+        .replace(/^\s*INFERRED:\s*/i, '')
+        .replace(/\b\[INFERRED\]\s*/gi, '')
+        .replace(/^\s*(loading(\.\.\.|…)?)\s*$/i, '')
+        .trim();
+
+    const cleanString = (s) => {
+      if (typeof s !== 'string') return s;
+      const next = stripTag(s);
+      return next;
+    };
+
+    const cleanArrayOfStrings = (arr) =>
+      Array.isArray(arr) ? arr.map(cleanString).filter((x) => x && !/^(loading(\.\.\.|…)?|todo|tbd)$/i.test(x)) : arr;
+
+    ['shortTitle', 'ideaSummary', 'problemStatement', 'valueProposition', 'userJourneySummary'].forEach((k) => {
+      if (typeof overviewObj[k] === 'string') overviewObj[k] = cleanString(overviewObj[k]);
+    });
+
+    overviewObj.coreFeaturesOverview = cleanArrayOfStrings(overviewObj.coreFeaturesOverview);
+
+    if (overviewObj.detailedUserFlow && Array.isArray(overviewObj.detailedUserFlow.steps)) {
+      overviewObj.detailedUserFlow.steps = cleanArrayOfStrings(overviewObj.detailedUserFlow.steps);
+    }
+
+    if (overviewObj.screenDescriptions && Array.isArray(overviewObj.screenDescriptions.screens)) {
+      overviewObj.screenDescriptions.screens = overviewObj.screenDescriptions.screens.map((screen) => {
+        if (!screen || typeof screen !== 'object') return screen;
+        return {
+          ...screen,
+          name: cleanString(screen.name),
+          description: cleanString(screen.description),
+          emptyState: typeof screen.emptyState === 'string' ? cleanString(screen.emptyState) || null : screen.emptyState,
+          errorState: typeof screen.errorState === 'string' ? cleanString(screen.errorState) || null : screen.errorState,
+          uiComponents: cleanArrayOfStrings(screen.uiComponents),
+          edgeCases: cleanArrayOfStrings(screen.edgeCases)
+        };
+      });
+      if (typeof overviewObj.screenDescriptions.navigationStructure === 'string') {
+        overviewObj.screenDescriptions.navigationStructure = cleanString(
+          overviewObj.screenDescriptions.navigationStructure
+        );
+      }
+    }
+
+    if (Array.isArray(overviewObj.personas)) {
+      overviewObj.personas = overviewObj.personas.map((p) => {
+        if (!p || typeof p !== 'object') return p;
+        return {
+          ...p,
+          name: cleanString(p.name),
+          role: cleanString(p.role),
+          jtbd: cleanString(p.jtbd),
+          goals: cleanArrayOfStrings(p.goals),
+          pains: cleanArrayOfStrings(p.pains)
+        };
+      });
+    }
+
+    if (Array.isArray(overviewObj.epics)) {
+      overviewObj.epics = overviewObj.epics.map((epic) => {
+        if (!epic || typeof epic !== 'object') return epic;
+        return {
+          ...epic,
+          name: cleanString(epic.name),
+          description: cleanString(epic.description),
+          stories: Array.isArray(epic.stories)
+            ? epic.stories.map((st) => ({
+                ...st,
+                title: cleanString(st.title),
+                description: cleanString(st.description),
+                acceptanceCriteria: cleanArrayOfStrings(st.acceptanceCriteria)
+              }))
+            : epic.stories
+        };
+      });
+    }
+
+    if (Array.isArray(overviewObj.glossary)) {
+      overviewObj.glossary = overviewObj.glossary.map((g) => {
+        if (!g || typeof g !== 'object') return g;
+        return { ...g, term: cleanString(g.term), definition: cleanString(g.definition) };
+      });
+    }
+
+    if (Array.isArray(overviewObj.nonGoals)) {
+      overviewObj.nonGoals = cleanArrayOfStrings(overviewObj.nonGoals);
+    }
+
+    if (Array.isArray(overviewObj.inferredItems)) {
+      overviewObj.inferredItems = overviewObj.inferredItems
+        .map((item) => cleanString(item))
+        .filter(Boolean);
+    }
   }
 
   /**

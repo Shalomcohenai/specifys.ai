@@ -87,6 +87,15 @@ export function renderDetailedUserFlowRail(steps, opts = {}) {
  * Normalize overview field aliases so UI can render older / drifted payloads.
  * Mutates a shallow copy — does not mutate the original object deeply beyond arrays assigned.
  */
+function stripInferredDisplayPrefix(value) {
+  if (typeof value !== 'string') return value;
+  return value
+    .replace(/^\s*\[INFERRED\]\s*/i, '')
+    .replace(/^\s*INFERRED:\s*/i, '')
+    .replace(/\b\[INFERRED\]\s*/gi, '')
+    .trim();
+}
+
 export function normalizeOverviewDisplayFields(overview) {
   if (!overview || typeof overview !== 'object') return overview;
   const o = { ...overview };
@@ -127,13 +136,61 @@ export function normalizeOverviewDisplayFields(overview) {
   if (Array.isArray(o.coreFeaturesOverview)) {
     o.coreFeaturesOverview = o.coreFeaturesOverview
       .map((f) => {
-        if (typeof f === 'string') return f.trim();
+        if (typeof f === 'string') return stripInferredDisplayPrefix(f.trim());
         if (f && typeof f === 'object') {
-          return [f.name, f.description || f.summary].filter(Boolean).join(': ');
+          return stripInferredDisplayPrefix(
+            [f.name, f.description || f.summary].filter(Boolean).join(': ')
+          );
         }
-        return String(f ?? '').trim();
+        return stripInferredDisplayPrefix(String(f ?? '').trim());
       })
       .filter(Boolean);
+  }
+
+  // Strip leaked [INFERRED] tags from enriched/user-facing display fields (legacy payloads)
+  if (Array.isArray(o.personas)) {
+    o.personas = o.personas.map((p) =>
+      p && typeof p === 'object'
+        ? {
+            ...p,
+            name: stripInferredDisplayPrefix(p.name),
+            role: stripInferredDisplayPrefix(p.role),
+            jtbd: stripInferredDisplayPrefix(p.jtbd)
+          }
+        : p
+    );
+  }
+  if (Array.isArray(o.epics)) {
+    o.epics = o.epics.map((epic) => {
+      if (!epic || typeof epic !== 'object') return epic;
+      return {
+        ...epic,
+        name: stripInferredDisplayPrefix(epic.name),
+        description: stripInferredDisplayPrefix(epic.description),
+        stories: Array.isArray(epic.stories)
+          ? epic.stories.map((st) =>
+              st && typeof st === 'object'
+                ? {
+                    ...st,
+                    title: stripInferredDisplayPrefix(st.title),
+                    description: stripInferredDisplayPrefix(st.description)
+                  }
+                : st
+            )
+          : epic.stories
+      };
+    });
+  }
+  if (Array.isArray(o.glossary)) {
+    o.glossary = o.glossary.map((g) =>
+      g && typeof g === 'object'
+        ? {
+            ...g,
+            term: stripInferredDisplayPrefix(g.term),
+            definition: stripInferredDisplayPrefix(g.definition)
+          }
+        : g
+    );
   }
 
   // screenDescriptions: accept top-level screens[] or screens as object map
@@ -156,8 +213,8 @@ export function normalizeOverviewDisplayFields(overview) {
         }
         if (!s || typeof s !== 'object') return null;
         return {
-          name: s.name || s.title || `Screen ${i + 1}`,
-          description: s.description || s.purpose || s.summary || '',
+          name: stripInferredDisplayPrefix(s.name || s.title || `Screen ${i + 1}`),
+          description: stripInferredDisplayPrefix(s.description || s.purpose || s.summary || ''),
           uiComponents: Array.isArray(s.uiComponents)
             ? s.uiComponents
             : Array.isArray(s.components)

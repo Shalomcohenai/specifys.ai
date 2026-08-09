@@ -55,11 +55,24 @@ export function renderOverviewBody({
   const unwrapped = data?.overview && typeof data.overview === 'object' ? data.overview : data;
   const normalized = normalizeOverviewDisplayFields(unwrapped);
   const enriched = renderEnrichedOverview(normalized);
-  // Pass normalized object so formatTextContent sees healed features/screens
+  // Core overview (idea summary, features, screens…) MUST come first.
+  // Enriched blocks (personas, epics, glossary…) are supporting sections after the spine.
+  let legacyPayload = normalized;
+  if (enriched && legacyPayload && typeof legacyPayload === 'object') {
+    legacyPayload = omitKeys(legacyPayload, [
+      'personas',
+      'epics',
+      'nonGoals',
+      'successMetrics',
+      'permissionsMatrix',
+      'glossary',
+      'inferredItems'
+    ]);
+  }
   const formattedContent = formatTextContent(
-    data?.overview && typeof data.overview === 'object' ? { overview: normalized } : normalized
+    data?.overview && typeof data.overview === 'object' ? { overview: legacyPayload } : legacyPayload
   );
-  container.innerHTML = (enriched || '') + formattedContent;
+  container.innerHTML = (formattedContent || '') + (enriched || '');
   const complexityScore = calculateComplexityScore(normalized);
   const complexityHTML = renderComplexityScore(complexityScore);
   container.insertAdjacentHTML('beforeend', complexityHTML);

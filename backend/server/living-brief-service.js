@@ -857,23 +857,45 @@ function draftToUserInput(draft, messages) {
   const d = normalizeDraft(draft);
   const userBits = userMessagesCorpus(messages);
   const parts = [];
-  if (d.vision) parts.push(`Vision: ${d.vision}`);
-  else if (userBits) parts.push(`Vision: ${userBits}`);
+  // Match planning → SpecGenV2 input shape (index.js uses "App Description:")
+  if (d.vision) parts.push(`App Description: ${d.vision}`);
+  else if (userBits) parts.push(`App Description: ${userBits}`);
+  if (d.pages.length) {
+    parts.push(
+      'Pages:\n' +
+        d.pages
+          .map((p, i) => `${i + 1}. ${p.name}${p.description ? ' - ' + p.description : ''}`)
+          .join('\n')
+    );
+  }
   if (d.workflows.length) {
     parts.push(
       'Workflows:\n' +
         d.workflows
-          .map((w) => `- ${w.name}: ${(w.steps || []).join(' → ')}`)
-          .join('\n')
+          .map((w, i) => {
+            let text = `${i + 1}. ${w.name || 'Unnamed Workflow'}`;
+            if (w.steps && w.steps.length) {
+              text += '\n' + w.steps.map((s, si) => `   Step ${si + 1}: ${s}`).join('\n');
+            }
+            return text;
+          })
+          .join('\n\n')
     );
   }
-  if (d.pages.length) {
-    parts.push('Pages: ' + d.pages.map((p) => p.name).join(', '));
+  if (d.features.length) {
+    parts.push('Features:\n' + d.features.map((f, i) => `${i + 1}. ${f}`).join('\n'));
   }
-  if (d.features.length) parts.push('Features: ' + d.features.join(', '));
-  if (d.audience.platform) parts.push(`Platform: ${d.audience.platform}`);
-  if (d.design) parts.push(`Design: ${d.design}`);
+  if (d.design) parts.push(`Design Style: ${d.design}`);
   if (d.integrations.length) parts.push('Integrations: ' + d.integrations.join(', '));
+  if (d.audience.platform || d.audience.interests.length || d.audience.ageRange) {
+    const audienceLines = ['Target Audience:'];
+    if (d.audience.platform) audienceLines.push(`Platform: ${d.audience.platform}`);
+    if (d.audience.interests.length) {
+      audienceLines.push(`Interests: ${d.audience.interests.join(', ')}`);
+    }
+    if (d.audience.ageRange) audienceLines.push(`Age Range: ${d.audience.ageRange}`);
+    parts.push(audienceLines.join('\n'));
+  }
   if (userBits && d.vision && !String(d.vision).toLowerCase().includes(userBits.slice(0, 40))) {
     parts.push(`User notes: ${userBits.slice(0, 1500)}`);
   }
