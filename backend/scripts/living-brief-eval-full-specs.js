@@ -246,14 +246,6 @@ function countLoadingJunk(value) {
   return matches ? matches.length : 0;
 }
 
-/** Ignore nonGoals / out-of-scope mentions when checking mustNotBe domain leaks. */
-function contentForDomainCheck(overviewObj) {
-  const clone = JSON.parse(JSON.stringify(overviewObj || {}));
-  delete clone.nonGoals;
-  delete clone.inferredItems;
-  return JSON.stringify(clone);
-}
-
 function keywordHits(text, keys) {
   const hay = String(text || '').toLowerCase();
   return (keys || []).filter((k) => hay.includes(String(k).toLowerCase()));
