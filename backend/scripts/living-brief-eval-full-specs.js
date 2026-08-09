@@ -320,26 +320,30 @@ function evaluateOverview(caseDef, overviewObj, userInput) {
     issues.push(`personas sparse (${personas.length} < ${caseDef.minPersonas})`);
   }
 
-  const domainBlob = contentForDomainCheck(overviewObj);
   const hits = keywordHits(blob, caseDef.mustMention);
-  const badHits = keywordHits(domainBlob, caseDef.mustNotBe);
+  // Product-scope only: titles/features/screens/epics. Narrative may correctly say
+  // "not payroll" / "not a public marketplace" when rejecting out-of-scope ideas.
+  const productScopeBlob = JSON.stringify({
+    shortTitle: overviewObj.shortTitle,
+    coreFeaturesOverview: overviewObj.coreFeaturesOverview,
+    screens: (overviewObj.screenDescriptions?.screens || []).map((s) => ({
+      name: s?.name,
+      description: s?.description
+    })),
+    epics: (overviewObj.epics || []).map((e) => ({
+      name: e?.name,
+      description: e?.description,
+      stories: (e?.stories || []).map((st) => st?.title)
+    }))
+  }).toLowerCase();
+  const badHits = keywordHits(productScopeBlob, caseDef.mustNotBe);
   if (hits.length < Math.ceil((caseDef.mustMention || []).length * 0.66)) {
     issues.push(`missing keywords (hit ${hits.join('|') || 'none'})`);
   }
   if (badHits.length) issues.push(`wrong-domain keywords (${badHits.join('|')})`);
 
-  // Conflicting concepts matter if they appear as product scope (features/screens/title),
-  // not when rejected in problemStatement / nonGoals.
-  const scopeBlob = JSON.stringify({
-    shortTitle: overviewObj.shortTitle,
-    ideaSummary: overviewObj.ideaSummary,
-    valueProposition: overviewObj.valueProposition,
-    coreFeaturesOverview: overviewObj.coreFeaturesOverview,
-    screens: overviewObj.screenDescriptions?.screens,
-    epics: overviewObj.epics
-  }).toLowerCase();
   for (const phrase of caseDef.preferAbsent || []) {
-    if (scopeBlob.includes(phrase.toLowerCase())) {
+    if (productScopeBlob.includes(phrase.toLowerCase())) {
       issues.push(`conflicting concept present in product scope: ${phrase}`);
     }
   }
