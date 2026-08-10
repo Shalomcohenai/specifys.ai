@@ -97,12 +97,12 @@
     <!-- Custom JavaScript Modules -->
     {% if page.custom_js_modules %}
       {% for js in page.custom_js_modules %}
-        <script type="module" src="{{ js | relative_url }}"></script>
+        <script type="module" src="{{ js | relative_url }}?v={{ asset_v }}"></script>
       {% endfor %}
     {% endif %}
     {% if layout.custom_js_modules %}
       {% for js in layout.custom_js_modules %}
-        <script type="module" src="{{ js | relative_url }}"></script>
+        <script type="module" src="{{ js | relative_url }}?v={{ asset_v }}"></script>
       {% endfor %}
     {% endif %}
 </body>

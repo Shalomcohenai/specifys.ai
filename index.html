@@ -423,32 +423,34 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
 
         <div class="living-brief" id="livingBrief">
             <div class="living-brief-shell">
+                <div class="lb-confetti" id="lbConfetti" aria-hidden="true"></div>
                 <div class="lb-layout" id="lbLayout">
                     <div class="lb-main">
                         <div class="lb-topbar">
                             <div class="lb-brand">
                                 <p class="lb-brand-title">Living Brief</p>
                             </div>
-                            <div class="lb-progress" id="lbProgress" aria-label="Brief progress">
+                            <div class="lb-progress is-idle" id="lbProgress" aria-label="Brief progress" aria-hidden="true">
                                 <div class="lb-progress-row">
-                                    <div class="lb-ring" id="lbRing" aria-hidden="false">
+                                    <div class="lb-ring" id="lbRing" aria-hidden="true">
+                                        <span class="lb-ring-energy" aria-hidden="true"></span>
+                                        <svg class="lb-ring-svg" viewBox="0 0 36 36" aria-hidden="true" focusable="false">
+                                            <circle class="lb-ring-track" cx="18" cy="18" r="15.5" fill="none"></circle>
+                                            <circle class="lb-ring-meter" id="lbRingMeter" cx="18" cy="18" r="15.5" fill="none" pathLength="100"></circle>
+                                        </svg>
                                         <span class="lb-ring-waves" aria-hidden="true">
                                             <span class="lb-ring-wave"></span>
                                             <span class="lb-ring-wave"></span>
                                             <span class="lb-ring-wave"></span>
                                         </span>
-                                        <span class="lb-ring-orbit" aria-hidden="true"></span>
-                                        <span class="lb-ring-core">
-                                            <span class="lb-score"><strong id="lbRingScore">0%</strong></span>
-                                        </span>
+                                        <span class="lb-score"><strong id="lbRingScore">0%</strong></span>
                                     </div>
-                                    <div class="lb-dots" id="lbDots" aria-label="Brief coverage"></div>
+                                    <div class="lb-dots" id="lbDots" aria-label="Brief coverage" hidden></div>
                                 </div>
                                 <p class="lb-ready-msg" id="lbReadyMsg" hidden>You're ready to create a spec!</p>
                             </div>
-                            <div class="lb-confetti" id="lbConfetti" aria-hidden="true"></div>
-                            <div class="lb-top-actions">
-                                <button type="button" class="lb-generate" id="lbGenerate">Generate</button>
+                            <div class="lb-top-actions is-idle" id="lbTopActions" aria-hidden="true">
+                                <button type="button" class="lb-generate" id="lbGenerate" tabindex="-1">Generate</button>
                             </div>
                         </div>
 
@@ -470,14 +472,6 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                         <div class="lb-capture-strip" id="lbChips" hidden aria-hidden="true"></div>
 
                         <div class="lb-composer" id="lbComposer">
-                            <div class="lb-tags" id="lbTags" role="group" aria-label="Topic tags">
-                                <button type="button" class="lb-tag" data-tag="pages"><span class="lb-tag-plus">+</span>pages</button>
-                                <button type="button" class="lb-tag" data-tag="workflows"><span class="lb-tag-plus">+</span>workflow</button>
-                                <button type="button" class="lb-tag" data-tag="features"><span class="lb-tag-plus">+</span>feature</button>
-                                <button type="button" class="lb-tag" data-tag="design"><span class="lb-tag-plus">+</span>design</button>
-                                <button type="button" class="lb-tag" data-tag="integrations"><span class="lb-tag-plus">+</span>integration</button>
-                                <button type="button" class="lb-tag" data-tag="audience"><span class="lb-tag-plus">+</span>audience</button>
-                            </div>
                             <div class="lb-refs" id="lbRefs" hidden aria-label="Attached references"></div>
                             <div class="lb-ref-panel" id="lbRefPanel" hidden>
                                 <div class="lb-ref-panel-head">
@@ -515,7 +509,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                                         maxlength="6000"
                                         autocomplete="off"
                                         enterkeyhint="send"
-                                        placeholder="What are we building?"
+                                        placeholder="A CRM for freelance designers…"
                                         aria-label="Message Living Brief"></textarea>
                                     <button type="submit" class="lb-send" id="lbSend" aria-label="Send" aria-disabled="true">
                                         <svg class="lb-send-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -524,6 +518,14 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                                     </button>
                                 </div>
                             </form>
+                            <div class="lb-tags" id="lbTags" role="group" aria-label="Topic tags">
+                                <button type="button" class="lb-tag" data-tag="pages"><span class="lb-tag-plus">+</span>pages</button>
+                                <button type="button" class="lb-tag" data-tag="workflows"><span class="lb-tag-plus">+</span>workflow</button>
+                                <button type="button" class="lb-tag" data-tag="features"><span class="lb-tag-plus">+</span>feature</button>
+                                <button type="button" class="lb-tag" data-tag="design"><span class="lb-tag-plus">+</span>design</button>
+                                <button type="button" class="lb-tag" data-tag="integrations"><span class="lb-tag-plus">+</span>integration</button>
+                                <button type="button" class="lb-tag" data-tag="audience"><span class="lb-tag-plus">+</span>audience</button>
+                            </div>
                         </div>
                     </div>
 

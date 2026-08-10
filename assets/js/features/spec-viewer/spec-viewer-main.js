@@ -40,6 +40,69 @@ function updateCurrentSpecData(newData) {
     return currentSpecData;
 }
 
+/**
+ * True while overview is generating, or after overview approval while any advanced
+ * pipeline stage is still pending/generating. Used to keep the progress banner visible.
+ */
+function isSpecGenerationInFlight(spec) {
+    const data = spec || currentSpecData;
+    if (!data || typeof data !== 'object') return false;
+    const status = data.status || {};
+    if (status.overview === 'generating') return true;
+    if (!data.overviewApproved) return false;
+
+    const core = ['technical', 'market', 'design', 'architecture'];
+    if (core.some((stage) => {
+        const s = status[stage];
+        return s === 'generating' || s === 'pending';
+    })) {
+        return true;
+    }
+
+    // Downstream stages: only while actively generating, or still queued after a successful prior stage.
+    if (status.visibility === 'generating' || status.prompts === 'generating') return true;
+    if (status.architecture === 'ready' && status.visibility === 'pending') return true;
+    if (status.visibility === 'ready' && status.prompts === 'pending') return true;
+
+    return false;
+}
+
+/**
+ * Advanced tab body should show a skeleton (not a lock) while the stage is generating
+ * or still queued after overview approval.
+ */
+function isAdvancedStageLoading(stage, data) {
+    const spec = data || currentSpecData;
+    if (!spec) return false;
+    const status = spec.status?.[stage];
+    if (status === 'generating') return true;
+    if (spec.overviewApproved && status === 'pending' && !spec[stage]) return true;
+    return false;
+}
+
+function syncGenerationProgressUi(spec) {
+    const data = spec || currentSpecData;
+    if (isSpecGenerationInFlight(data)) {
+        startProgressBar();
+        const bubblesContainer = document.getElementById('chat-bubbles-container');
+        if (bubblesContainer) bubblesContainer.style.display = 'flex';
+        try { renderSpecGenerationProgress(data); } catch (e) { /* no-op */ }
+        return;
+    }
+    stopProgressBar();
+    const bubblesContainer = document.getElementById('chat-bubbles-container');
+    if (bubblesContainer) bubblesContainer.style.display = 'none';
+}
+
+function enableAdvancedSpecTab(stage) {
+    const tabButton = document.getElementById(`${stage}Tab`);
+    if (tabButton) tabButton.disabled = false;
+    if (stage === 'technical') {
+        const mindmapTab = document.getElementById('mindmapTab');
+        if (mindmapTab) mindmapTab.disabled = false;
+    }
+}
+
 function readinessApi() {
     return window.overviewReadiness || null;
 }
@@ -985,13 +1048,8 @@ async function loadSpec(specId) {
                         console.log('[Firestore Listener] Overview became ready, displaying...');
                         updateSpecTitleDisplay(updatedData);
                         try { displayOverview(updatedData.overview); } catch (e) { console.warn('[Listener] displayOverview failed:', e); }
-                        // Hide progress bar and chat bubbles when overview is ready
-                        stopProgressBar();
-                        const bubblesContainer = document.getElementById('chat-bubbles-container');
-                        if (bubblesContainer) {
-                            bubblesContainer.style.display = 'none';
-                            console.log('[Firestore Listener] Progress bar and chat bubbles hidden - overview ready');
-                        }
+                        // Keep the banner if advanced generation is already in flight after approval.
+                        syncGenerationProgressUi(updatedData);
                         syncOverviewReadyBanner(updatedData);
                         try {
                             if (hasRenderableOverviewContent(updatedData.overview)) {
@@ -1001,16 +1059,10 @@ async function loadSpec(specId) {
                     } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
                         console.log('[Firestore Listener] Overview started generating, showing skeleton...');
                         syncOverviewReadyBanner(updatedData);
-                        startProgressBar();
-                        // Show chat bubbles during generation
-                        const bubblesContainer = document.getElementById('chat-bubbles-container');
-                        if (bubblesContainer) {
-                            bubblesContainer.style.display = 'flex';
-                            console.log('[Firestore Listener] Chat bubbles shown - overview generating');
-                        }
+                        syncGenerationProgressUi(updatedData);
                     } else if (newOverviewStatus === 'error' && prevOverviewStatus !== 'error') {
                         syncOverviewReadyBanner(updatedData);
-                        stopProgressBar();
+                        syncGenerationProgressUi(updatedData);
                         updateStageRecoveryBanner(updatedData);
                     }
                     
@@ -1025,26 +1077,19 @@ async function loadSpec(specId) {
                             // Update notification dot
                             updateNotificationDot(stage, 'ready');
                             updateTabLoadingState(stage, false);
+                            enableAdvancedSpecTab(stage);
                             
                             // Update tab states + render the section content into its tab body
                             // (without this, the locked/skeleton content from the initial render
                             // stays in place and the user sees "Please approve the Overview..."
                             // until they refresh).
                             if (stage === 'technical') {
-                                const technicalTab = document.getElementById('technicalTab');
-                                const mindmapTab = document.getElementById('mindmapTab');
-                                if (technicalTab) technicalTab.disabled = false;
-                                if (mindmapTab) mindmapTab.disabled = false;
                                 setTabStatus('technicalTab', 'success');
                                 try { displayTechnical(updatedData.technical); } catch (e) { console.warn('[Listener] displayTechnical failed:', e); }
                             } else if (stage === 'market') {
-                                const marketTab = document.getElementById('marketTab');
-                                if (marketTab) marketTab.disabled = false;
                                 setTabStatus('marketTab', 'success');
                                 try { displayMarket(updatedData.market); } catch (e) { console.warn('[Listener] displayMarket failed:', e); }
                             } else if (stage === 'design') {
-                                const designTab = document.getElementById('designTab');
-                                if (designTab) designTab.disabled = false;
                                 refreshTabsAfterDesignReady();
                                 try { displayDesign(updatedData.design); } catch (e) { console.warn('[Listener] displayDesign failed:', e); }
                             }
@@ -1054,29 +1099,8 @@ async function loadSpec(specId) {
                             
                             // Update export checkboxes
                             updateExportCheckboxes();
-                            // Note: Upload and "all done" notification run below when all stages including architecture are terminal (ready or error).
-                            // Update progress bar based on current status
-                            // Only show progress bar and bubbles if overview is still generating
-                            // Once overview is ready, hide them even if other stages are generating
-                            const isOverviewGenerating = newStatus.overview === 'generating';
-                            if (isOverviewGenerating) {
-                                console.log('[Firestore Listener] Overview still generating, starting progress bar...');
-                                startProgressBar();
-                                // Show chat bubbles during generation
-                                const bubblesContainer = document.getElementById('chat-bubbles-container');
-                                if (bubblesContainer) {
-                                    bubblesContainer.style.display = 'flex';
-                                    console.log('[Firestore Listener] Chat bubbles shown');
-                                }
-                            } else if (newStatus.overview === 'ready') {
-                                // Overview is ready - hide progress bar and bubbles
-                                stopProgressBar();
-                                const bubblesContainer = document.getElementById('chat-bubbles-container');
-                                if (bubblesContainer) {
-                                    bubblesContainer.style.display = 'none';
-                                    console.log('[Firestore Listener] Progress bar and chat bubbles hidden - overview ready');
-                                }
-                            }
+                            // Keep the progress banner visible for remaining advanced stages
+                            syncGenerationProgressUi(updatedData);
                             
                             // Enable diagrams tab if technical and market are ready
                             if (newStatus.technical === 'ready' && newStatus.market === 'ready') {
@@ -1088,15 +1112,34 @@ async function loadSpec(specId) {
                         } else if (newStageStatus === 'error' && prevStageStatus !== 'error') {
                             updateNotificationDot(stage, 'error');
                             updateTabLoadingState(stage, false);
+                            enableAdvancedSpecTab(stage);
                             showNotification(`Failed to generate ${stage} specification. You can retry using the retry buttons.`, 'error');
+                            syncGenerationProgressUi(updatedData);
                         } else if (newStageStatus === 'generating' && prevStageStatus !== 'generating') {
                             console.log('[Firestore Listener] Stage started generating:', stage);
                             updateNotificationDot(stage, 'generating');
                             updateTabLoadingState(stage, true);
-
-                            // Start progress bar if not already started
-                            console.log('[Firestore Listener] Starting progress bar for stage:', stage);
-                            startProgressBar();
+                            enableAdvancedSpecTab(stage);
+                            // Show in-tab skeleton so opening Market/Design isn't a dead lock screen
+                            try {
+                                if (stage === 'technical') displayTechnical(null);
+                                else if (stage === 'market') displayMarket(null);
+                                else if (stage === 'design') displayDesign(null);
+                            } catch (e) { /* no-op */ }
+                            syncGenerationProgressUi(updatedData);
+                        } else if (
+                            // Content arrived after status was already ready (async Firestore write race)
+                            newStageStatus === 'ready' &&
+                            updatedData[stage] &&
+                            previousData?.[stage] !== updatedData[stage]
+                        ) {
+                            enableAdvancedSpecTab(stage);
+                            try {
+                                if (stage === 'technical') displayTechnical(updatedData.technical);
+                                else if (stage === 'market') displayMarket(updatedData.market);
+                                else if (stage === 'design') displayDesign(updatedData.design);
+                            } catch (e) { /* no-op */ }
+                            syncGenerationProgressUi(updatedData);
                         }
                     });
 
@@ -1116,12 +1159,17 @@ async function loadSpec(specId) {
                         try { displayPromptsFromData(updatedData); } catch (e) { /* no-op */ }
                         try { displayRaw(updatedData); } catch (e) { /* no-op */ }
                         updateExportCheckboxes();
+                        syncGenerationProgressUi(updatedData);
                     } else if (newArchStatus === 'generating' && prevArchStatus !== 'generating') {
                         updateNotificationDot('architecture', 'generating');
                         updateTabLoadingState('architecture', true);
+                        const architectureTab = document.getElementById('architectureTab');
+                        if (architectureTab) architectureTab.disabled = false;
+                        syncGenerationProgressUi(updatedData);
                     } else if (newArchStatus === 'error' && prevArchStatus !== 'error') {
                         updateNotificationDot('architecture', 'error');
                         updateTabLoadingState('architecture', false);
+                        syncGenerationProgressUi(updatedData);
                     }
 
                     // Visibility: unlock GEO/SEO tab and Prompts nav without a full page refresh
@@ -1135,10 +1183,13 @@ async function loadSpec(specId) {
                         try { displayPromptsFromData(updatedData); } catch (e) { /* no-op */ }
                         try { displayRaw(updatedData); } catch (e) { /* no-op */ }
                         updateExportCheckboxes();
+                        syncGenerationProgressUi(updatedData);
                     } else if (newVisStatus === 'generating' && prevVisStatus !== 'generating') {
                         updateNotificationDot('visibility-engine', 'generating');
+                        syncGenerationProgressUi(updatedData);
                     } else if (newVisStatus === 'error' && prevVisStatus !== 'error') {
                         updateNotificationDot('visibility-engine', 'error');
+                        syncGenerationProgressUi(updatedData);
                     }
 
                     // Prompts: enable tab and render when auto-generation completes
@@ -1151,13 +1202,16 @@ async function loadSpec(specId) {
                         try { displayPromptsFromData(updatedData); } catch (e) { console.warn('[Listener] displayPromptsFromData failed:', e); }
                         try { displayRaw(updatedData); } catch (e) { /* no-op */ }
                         updateExportCheckboxes();
+                        syncGenerationProgressUi(updatedData);
                     } else if (newPromptsStatus === 'generating' && prevPromptsStatus !== 'generating') {
                         updateNotificationDot('prompts', 'generating');
                         updateTabLoadingState('prompts', true);
+                        syncGenerationProgressUi(updatedData);
                     } else if (newPromptsStatus === 'error' && prevPromptsStatus !== 'error') {
                         updateNotificationDot('prompts', 'error');
                         updateTabLoadingState('prompts', false);
                         refreshTabsAfterDesignReady();
+                        syncGenerationProgressUi(updatedData);
                     }
 
                     // Upload only after all stages (including architecture) are finished (ready or error). Enables manual retry/upload of missing parts.
@@ -1170,9 +1224,7 @@ async function loadSpec(specId) {
                             ? 'All specifications generated successfully!'
                             : 'Some specifications failed. You can retry failed sections or upload what exists.', allSuccessful ? 'success' : 'error');
                         hideApproveButton();
-                        stopProgressBar();
-                        const bubblesContainer = document.getElementById('chat-bubbles-container');
-                        if (bubblesContainer) bubblesContainer.style.display = 'none';
+                        syncGenerationProgressUi(updatedData);
                         dataService.stopStatusPolling();
                         triggerOpenAIUploadForSpec(updatedData.id).catch(err => console.warn('Failed to upload spec to OpenAI:', err));
                     }
@@ -1307,10 +1359,7 @@ function displaySpec(data) {
     
     // Check if any section is still generating OR spec was just created
     const status = data.status || {};
-    const isGenerating = status.overview === 'generating' || 
-                        status.technical === 'generating' || 
-                        status.market === 'generating' || 
-                        status.design === 'generating';
+    const isGenerating = isSpecGenerationInFlight(data);
     
     // Show progress bar if generating OR if spec was just created (to show new UX)
     const shouldShowProgress = isGenerating || isRecentlyCreated;
@@ -1331,36 +1380,25 @@ function displaySpec(data) {
         // Start progress bar after a small delay to ensure DOM is ready
         setTimeout(() => {
             console.log('[displaySpec] Starting progress bar');
-            startProgressBar();
-            // startProgressBar already paints the initial percentage from currentSpecData,
-            // but re-render here with the fresh `data` argument in case it differs (e.g. polling reload).
-            try { renderSpecGenerationProgress(data); } catch (e) { /* no-op */ }
+            syncGenerationProgressUi(data);
         }, 100);
-        // Show chat bubbles during generation
-        const bubblesContainer = document.getElementById('chat-bubbles-container');
-        if (bubblesContainer) {
-            bubblesContainer.style.display = 'flex';
-        }
         
-        // If spec was just created but overview exists, show it after a delay
+        // If spec was just created but overview exists and nothing else is in flight, show briefly then stop
         if (isRecentlyCreated && !isGenerating && data.overview) {
             console.log('[displaySpec] Spec recently created with overview, will show after delay');
             setTimeout(() => {
-                console.log('[displaySpec] Stopping progress bar after delay');
-                stopProgressBar();
-                const bubblesContainer = document.getElementById('chat-bubbles-container');
-                if (bubblesContainer) {
-                    bubblesContainer.style.display = 'none';
+                if (!isSpecGenerationInFlight(currentSpecData)) {
+                    console.log('[displaySpec] Stopping progress bar after delay');
+                    stopProgressBar();
+                    const bubblesContainer = document.getElementById('chat-bubbles-container');
+                    if (bubblesContainer) {
+                        bubblesContainer.style.display = 'none';
+                    }
                 }
             }, 3000); // Show progress for 3 seconds even if content exists
         }
     } else {
-        stopProgressBar();
-        // Hide chat bubbles when generation is complete
-        const bubblesContainer = document.getElementById('chat-bubbles-container');
-        if (bubblesContainer) {
-            bubblesContainer.style.display = 'none';
-        }
+        syncGenerationProgressUi(data);
     }
     
     // Display content for each tab
@@ -1393,31 +1431,27 @@ function displaySpec(data) {
         // Enable AI Chat and Brain Dump when overview is approved or spec already has technical
         enableChatTabOnly();
         
+        // After approval, advanced tabs stay clickable (skeleton while loading; content when ready)
+        if (data.overviewApproved || isAdvancedStageLoading('technical', data) || data.status?.technical === 'ready') {
+            enableAdvancedSpecTab('technical');
+        }
+        if (data.overviewApproved || isAdvancedStageLoading('market', data) || data.status?.market === 'ready') {
+            enableAdvancedSpecTab('market');
+        }
+        if (data.overviewApproved || isAdvancedStageLoading('design', data) || data.status?.design === 'ready') {
+            enableAdvancedSpecTab('design');
+        }
+        if (data.status?.design === 'ready') {
+            // Mockups stage is hidden by default (Sprint C); updateMockupTab respects SPECIFYS_ENABLE_MOCKUPS
+            updateMockupTab();
+        }
         // Only enable other tabs if their specs are ready
         if (data.status?.technical === 'ready') {
-            const technicalTab = document.getElementById('technicalTab');
-            if (technicalTab) {
-                technicalTab.disabled = false;
-            }
             // Enable Mind Map tab when technical is ready
             const mindmapTab = document.getElementById('mindmapTab');
             if (mindmapTab) {
                 mindmapTab.disabled = false;
             }
-        }
-        if (data.status?.market === 'ready') {
-            const marketTab = document.getElementById('marketTab');
-            if (marketTab) {
-                marketTab.disabled = false;
-            }
-        }
-        if (data.status?.design === 'ready') {
-            const designTab = document.getElementById('designTab');
-            if (designTab) {
-                designTab.disabled = false;
-            }
-            // Mockups stage is hidden by default (Sprint C); updateMockupTab respects SPECIFYS_ENABLE_MOCKUPS
-            updateMockupTab();
         }
         updateVisibilityEngineTab();
         
@@ -1715,6 +1749,7 @@ function displayOverview(overview) {
     // Update mockup tab based on PRO access
     updateMockupTab();
 }
+window.displayOverview = displayOverview;
 
 function calculateComplexityScore(overview) {
     // Parse overview if it's a string
@@ -1865,24 +1900,10 @@ function renderComplexityScore(score) {
                         ></circle>
                     </svg>
                     <div class="circle-content">
-                        <div class="circle-score ${getColorClass(score.total)}">${score.total}</div>
-                        <div class="circle-label">/ 100</div>
+                        <div class="circle-score ${getColorClass(score.total)}">
+                            <span class="circle-score-value">${score.total}</span><span class="circle-score-unit" aria-hidden="true">%</span>
+                        </div>
                         <div class="circle-level ${getColorClass(score.total)}">${getLevelLabel(score.total)}</div>
-                    </div>
-                </div>
-                
-                <div class="complexity-legend">
-                    <div class="legend-item">
-                        <span class="legend-color score-low"></span>
-                        <span class="legend-text">Low (0-40)</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color score-medium"></span>
-                        <span class="legend-text">Medium (41-70)</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color score-high"></span>
-                        <span class="legend-text">High (71-100)</span>
                     </div>
                 </div>
             </div>
@@ -1980,10 +2001,10 @@ function displayTechnical(technical) {
     }
     
     if (!technical) {
-        // Check if technical is in generating state - show skeleton
+        // Show skeleton while generating or queued after overview approval
         const specData = currentSpecData;
-        if (specData && specData.status && specData.status.technical === 'generating') {
-            console.log('[displayTechnical] Technical is generating, showing skeleton...');
+        if (isAdvancedStageLoading('technical', specData)) {
+            console.log('[displayTechnical] Technical is generating/queued, showing skeleton...');
             displaySkeleton('technical-data', 'technical');
             displaySectionLoading(headerElement, true);
         } else {
@@ -2107,10 +2128,10 @@ function displayMarket(market) {
     }
     
     if (!market) {
-        // Check if market is in generating state - show skeleton
+        // Show skeleton while generating or queued after overview approval
         const specData = currentSpecData;
-        if (specData && specData.status && specData.status.market === 'generating') {
-            console.log('[displayMarket] Market is generating, showing skeleton...');
+        if (isAdvancedStageLoading('market', specData)) {
+            console.log('[displayMarket] Market is generating/queued, showing skeleton...');
             displaySkeleton('market-data', 'market');
             displaySectionLoading(headerElement, true);
         } else {
@@ -2480,10 +2501,10 @@ function displayDesign(design) {
     }
     
     if (!design) {
-        // Check if design is in generating state - show skeleton
+        // Show skeleton while generating or queued after overview approval
         const specData = currentSpecData;
-        if (specData && specData.status && specData.status.design === 'generating') {
-            console.log('[displayDesign] Design is generating, showing skeleton...');
+        if (isAdvancedStageLoading('design', specData)) {
+            console.log('[displayDesign] Design is generating/queued, showing skeleton...');
             displaySkeleton('design-data', 'design');
             displaySectionLoading(headerElement, true);
         } else {
@@ -5953,15 +5974,16 @@ function updateAllNotificationDots() {
 }
 
 function updateTabLoadingState(type, isLoading) {
-    // Tab loading animations removed - using notification system instead
+    // Keep tabs clickable during generation so users can open the in-tab skeleton/spinner.
+    // Visual feedback comes from notification dots + section skeletons, not disabled buttons.
     const tabButton = document.getElementById(`${type}Tab`);
     if (!tabButton) return;
-    
-    // Minimal visual feedback - just enable/disable the tab
+
+    tabButton.disabled = false;
     if (isLoading) {
-        tabButton.disabled = true;
+        tabButton.classList.add('loading');
     } else {
-        tabButton.disabled = false;
+        tabButton.classList.remove('loading');
     }
 }
 
@@ -6900,15 +6922,21 @@ async function approveOverview() {
         // Enable AI Chat immediately after overview approval
         enableChatTabOnly();
         
-        // Update UI
+        // Keep advanced tabs clickable and show in-tab skeletons (do not disable tabs).
+        enableAdvancedSpecTab('technical');
+        enableAdvancedSpecTab('market');
+        enableAdvancedSpecTab('design');
         updateTabLoadingState('technical', true);
         updateTabLoadingState('market', true);
         updateTabLoadingState('design', true);
-        
-        // Update notification dots to show generating state
         updateNotificationDot('technical', 'generating');
         updateNotificationDot('market', 'generating');
         updateNotificationDot('design', 'generating');
+        try {
+            displayTechnical(null);
+            displayMarket(null);
+            displayDesign(null);
+        } catch (e) { /* no-op */ }
         
         // Start generation via server queue (runs in background, continues even if user closes window)
         showNotification('Starting generation pipeline: Technical, Market, Design, Architecture, Visibility, then Prompts...', 'info');
@@ -6945,12 +6973,7 @@ async function approveOverview() {
 
                 // Show the real-progress bar straight away so the user never sees a gap between
                 // the approval banner disappearing and the listener catching up.
-                startProgressBar();
-                const bubblesContainer = document.getElementById('chat-bubbles-container');
-                if (bubblesContainer) {
-                    bubblesContainer.style.display = 'flex';
-                }
-                try { renderSpecGenerationProgress(currentSpecData); } catch (e) { /* no-op */ }
+                syncGenerationProgressUi(currentSpecData);
 
                 // Start polling as backup (in case Firestore listener doesn't work)
                 startSpecStatusPolling(currentSpecData.id);

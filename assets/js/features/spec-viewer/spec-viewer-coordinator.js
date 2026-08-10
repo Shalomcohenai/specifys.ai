@@ -19,6 +19,20 @@ window.diagramEngine = DiagramEngine;
 window.promptEngine = PromptEngine;
 window.overviewReadiness = OverviewReadiness;
 
+// main.js (deferred classic) can render Overview before this module assigns uiRenderer.
+// Re-render once so enriched sections (personas, epics) appear in the correct core-first order.
+if (
+  typeof window.displayOverview === 'function' &&
+  window.currentSpecData &&
+  window.currentSpecData.overview
+) {
+  try {
+    window.displayOverview(window.currentSpecData.overview);
+  } catch (e) {
+    console.warn('[coordinator] overview re-render after uiRenderer load failed:', e);
+  }
+}
+
 // Global bridge: TabManager.showTab for programmatic callers; nav clicks use delegation in spec-viewer-event-handlers.js.
 window.addEventListener('load', () => {
   attachUiBridge(window);

@@ -2,16 +2,23 @@
 /**
  * Living Brief → full advanced SpecGenV2 quality evaluation.
  *
- * Simulates extreme chat conversations, generates overview + advanced sections
- * (technical, market, design, architecture, visibility, prompts), then scores
- * structure/order, [INFERRED]/loading junk, glossary/epics bloat, and completeness.
+ * Covers:
+ *   - Normal user chats vs edge-case chats
+ *   - Free-style usage (casual / thin intake) vs Pro-style usage (structured / detailed)
+ *   - Full pipeline: overview + advanced (technical, market, design, architecture,
+ *     visibility, prompts)
+ *   - Fidelity: chat requirements → overview AND advanced sections
  *
  * Usage:
  *   node backend/scripts/living-brief-eval-full-specs.js
  *   node backend/scripts/living-brief-eval-full-specs.js --keep
  *   node backend/scripts/living-brief-eval-full-specs.js --overview-only
- *   node backend/scripts/living-brief-eval-full-specs.js --cases=long-chat,minimal
+ *   node backend/scripts/living-brief-eval-full-specs.js --cases=normal-free-habit,edge-pro-conflict
+ *   node backend/scripts/living-brief-eval-full-specs.js --persona=pro
+ *   node backend/scripts/living-brief-eval-full-specs.js --kind=edge
  *   node backend/scripts/living-brief-eval-full-specs.js --skip-chat   # use canned userInput
+ *   node backend/scripts/living-brief-eval-full-specs.js --free-overview-only
+ *     # free-persona cases stop after overview (product-accurate free path)
  */
 const path = require('path');
 const fs = require('fs');
@@ -23,8 +30,11 @@ const specGenerationServiceV2 = require('../server/spec-generation-service-v2');
 
 const keep = process.argv.includes('--keep');
 const overviewOnly = process.argv.includes('--overview-only');
+const freeOverviewOnly = process.argv.includes('--free-overview-only');
 const skipChat = process.argv.includes('--skip-chat');
 const casesArg = (process.argv.find((a) => a.startsWith('--cases=')) || '').split('=')[1];
+const personaArg = (process.argv.find((a) => a.startsWith('--persona=')) || '').split('=')[1];
+const kindArg = (process.argv.find((a) => a.startsWith('--kind=')) || '').split('=')[1];
 const caseFilter = casesArg
   ? casesArg.split(',').map((s) => s.trim()).filter(Boolean)
   : null;
@@ -56,10 +66,126 @@ const ENRICHED_OVERVIEW_KEYS = [
 
 const ADVANCED_STAGES = ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'];
 
+/**
+ * Case schema:
+ *   id, label, kind ('normal'|'edge'), persona ('free'|'pro')
+ *   turns[] — simulated Living Brief user messages
+ *   mustMention / mustNotBe — overview product-scope keywords
+ *   chatRequirements — fidelity checklist vs full advanced output:
+ *     mustCarry[]     — phrases that must appear somewhere in overview+advanced
+ *     mustNotCarry[]  — phrases that must NOT appear in product scope / advanced
+ *     preferInStages{} — optional stage-specific keyword hints (soft fail if missing)
+ *   preferAbsent[] — overview product-scope conflicts
+ *   sizing bounds: maxGlossary, maxEpics, maxInferredTags, min/maxIdeaSummary, minPersonas?
+ */
 const CASES = [
+  // ─── Normal + Free (casual everyday users) ─────────────────────────────
   {
-    id: 'long-chat',
-    label: 'Very long chat with lots of text',
+    id: 'normal-free-habit',
+    label: 'Normal free user — simple habit tracker',
+    kind: 'normal',
+    persona: 'free',
+    turns: [
+      'I want a habit tracker app',
+      'Helps me stick to daily habits instead of forgetting them in notes',
+      'Add habit → check in each day → see streak. Mobile. Reminders are must-have.'
+    ],
+    mustMention: ['habit', 'streak', 'reminder'],
+    mustNotBe: ['soc2', 'agency milestone', 'marketplace checkout'],
+    chatRequirements: {
+      mustCarry: ['habit', 'streak', 'reminder', 'mobile'],
+      mustNotCarry: ['enterprise sso', 'soc2 evidence locker'],
+      preferInStages: {
+        technical: ['mobile', 'push'],
+        design: ['mobile']
+      }
+    },
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 80,
+    maxIdeaSummary: 900
+  },
+  {
+    id: 'normal-free-freelancer-crm',
+    label: 'Normal free user — freelancer CRM',
+    kind: 'normal',
+    persona: 'free',
+    turns: [
+      'simple crm for freelancers',
+      'so deals dont die in spreadsheets — today everything is excel',
+      'sign up → add contact → create deal → move to won. web. contact timeline + pipeline board.'
+    ],
+    mustMention: ['crm', 'contact', 'deal', 'pipeline'],
+    mustNotBe: ['ceo calendar', 'receipt ocr', 'soc2'],
+    chatRequirements: {
+      mustCarry: ['contact', 'deal', 'pipeline', 'freelancer'],
+      mustNotCarry: ['public marketplace', 'multi-tenant enterprise sso'],
+      preferInStages: {
+        technical: ['web'],
+        market: ['freelancer']
+      }
+    },
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 100,
+    maxIdeaSummary: 900
+  },
+
+  // ─── Edge + Free ───────────────────────────────────────────────────────
+  {
+    id: 'edge-free-minimal',
+    label: 'Edge free user — almost no text',
+    kind: 'edge',
+    persona: 'free',
+    turns: ['Habit tracker'],
+    mustMention: ['habit'],
+    mustNotBe: ['ceo calendar', 'marketplace lens', 'soc2'],
+    chatRequirements: {
+      mustCarry: ['habit'],
+      mustNotCarry: ['agency project status', 'compliance evidence']
+    },
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 80,
+    maxIdeaSummary: 900
+  },
+  {
+    id: 'edge-free-vague-pivot',
+    label: 'Edge free user — vague then abrupt pivot',
+    kind: 'edge',
+    persona: 'free',
+    turns: [
+      'maybe something for teachers?',
+      'actually no — invoice reminder tool for freelancers who forget to bill clients',
+      'web. list invoices → send reminder → mark paid. no accounting suite.'
+    ],
+    mustMention: ['invoice', 'reminder', 'freelancer'],
+    mustNotBe: ['lms', 'gradebook', 'classroom'],
+    chatRequirements: {
+      mustCarry: ['invoice', 'reminder', 'paid'],
+      mustNotCarry: ['teacher gradebook', 'student roster', 'lms'],
+      preferInStages: {
+        technical: ['email', 'web'],
+        market: ['freelancer']
+      }
+    },
+    preferAbsent: ['gradebook', 'classroom', 'student portal'],
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 100,
+    maxIdeaSummary: 900
+  },
+
+  // ─── Normal + Pro (structured power users) ─────────────────────────────
+  {
+    id: 'normal-pro-agency',
+    label: 'Normal pro user — detailed agency status hub',
+    kind: 'normal',
+    persona: 'pro',
     turns: [
       'I need an app for my company, something about projects maybe?',
       'Actually let me explain more. We are a 40-person digital agency. Account managers live in Notion, Slack, Google Sheets, and email. Every client project has a kickoff, weekly status, deliverable reviews, and invoicing handoff to finance. Today status is tribal knowledge.',
@@ -73,6 +199,25 @@ const CASES = [
     ],
     mustMention: ['project', 'milestone', 'client', 'approval', 'agency'],
     mustNotBe: ['payroll', 'crm pipeline', 'fitness'],
+    chatRequirements: {
+      mustCarry: [
+        'project',
+        'milestone',
+        'approval',
+        'slack',
+        'csv',
+        'client'
+      ],
+      mustNotCarry: ['payroll module', 'hr onboarding', 'time tracking as v1 core'],
+      preferInStages: {
+        technical: ['slack', 'web', 'csv'],
+        design: ['calm', 'professional'],
+        architecture: ['client', 'approval'],
+        market: ['agency', 'b2b'],
+        prompts: ['milestone', 'approval']
+      }
+    },
+    preferAbsent: ['payroll', 'full crm'],
     maxGlossary: 8,
     maxEpics: 5,
     maxInferredTags: 0,
@@ -80,39 +225,10 @@ const CASES = [
     maxIdeaSummary: 900
   },
   {
-    id: 'minimal',
-    label: 'Almost no text / minimal chat',
-    turns: ['Habit tracker'],
-    mustMention: ['habit'],
-    mustNotBe: ['ceo calendar', 'marketplace lens'],
-    maxGlossary: 8,
-    maxEpics: 5,
-    maxInferredTags: 0,
-    minIdeaSummary: 80,
-    maxIdeaSummary: 900
-  },
-  {
-    id: 'ambiguous-conflict',
-    label: 'Ambiguous / conflicting requirements',
-    turns: [
-      'Build a marketplace for freelancers.',
-      'Wait — actually it is not a marketplace. It is an internal tool for one company to staff freelancers onto projects.',
-      'Buyers and sellers? No. Only internal PMs request freelancers; freelancers apply; ops approves.',
-      'But also add public listings so freelancers can browse open gigs like Upwork.',
-      'Final decision: internal-only staffing. No public marketplace. No payments in v1 — just request → apply → approve → assign.'
-    ],
-    mustMention: ['freelance', 'approve', 'assign', 'internal'],
-    mustNotBe: ['upwork clone payments', 'public checkout'],
-    maxGlossary: 8,
-    maxEpics: 5,
-    maxInferredTags: 0,
-    minIdeaSummary: 100,
-    maxIdeaSummary: 900,
-    preferAbsent: ['public marketplace', 'stripe checkout', 'buyer reviews']
-  },
-  {
-    id: 'b2b-multipersona',
-    label: 'Complex multi-persona B2B app',
+    id: 'normal-pro-b2b-multipersona',
+    label: 'Normal pro user — multi-persona B2B compliance',
+    kind: 'normal',
+    persona: 'pro',
     turns: [
       'B2B compliance evidence locker for SOC2 startups.',
       'Helps security engineers collect audit evidence; today they chase screenshots in Slack and shared drives.',
@@ -122,6 +238,16 @@ const CASES = [
     ],
     mustMention: ['evidence', 'control', 'auditor', 'sso', 'compliance'],
     mustNotBe: ['fitness workout', 'camera marketplace'],
+    chatRequirements: {
+      mustCarry: ['evidence', 'control', 'auditor', 'sso', 'version'],
+      mustNotCarry: ['mobile-first consumer', 'split bill'],
+      preferInStages: {
+        technical: ['sso', 'web'],
+        architecture: ['auditor', 'evidence'],
+        visibility: ['auditor', 'role'],
+        market: ['soc2', 'compliance']
+      }
+    },
     maxGlossary: 10,
     maxEpics: 5,
     maxInferredTags: 0,
@@ -129,9 +255,43 @@ const CASES = [
     maxIdeaSummary: 900,
     minPersonas: 3
   },
+
+  // ─── Edge + Pro ────────────────────────────────────────────────────────
   {
-    id: 'mobile-consumer',
-    label: 'Mobile-first consumer edge case',
+    id: 'edge-pro-ambiguous-conflict',
+    label: 'Edge pro user — conflicting marketplace vs internal',
+    kind: 'edge',
+    persona: 'pro',
+    turns: [
+      'Build a marketplace for freelancers.',
+      'Wait — actually it is not a marketplace. It is an internal tool for one company to staff freelancers onto projects.',
+      'Buyers and sellers? No. Only internal PMs request freelancers; freelancers apply; ops approves.',
+      'But also add public listings so freelancers can browse open gigs like Upwork.',
+      'Final decision: internal-only staffing. No public marketplace. No payments in v1 — just request → apply → approve → assign.'
+    ],
+    mustMention: ['freelance', 'approve', 'assign', 'internal'],
+    mustNotBe: ['upwork clone payments', 'public checkout'],
+    chatRequirements: {
+      mustCarry: ['internal', 'approve', 'assign', 'freelance'],
+      mustNotCarry: ['stripe checkout', 'public marketplace', 'buyer reviews'],
+      preferInStages: {
+        technical: ['internal', 'web'],
+        market: ['staffing', 'internal'],
+        architecture: ['approve', 'assign']
+      }
+    },
+    preferAbsent: ['public marketplace', 'stripe checkout', 'buyer reviews'],
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 100,
+    maxIdeaSummary: 900
+  },
+  {
+    id: 'edge-pro-mobile-consumer',
+    label: 'Edge pro user — mobile-first consumer split bills',
+    kind: 'edge',
+    persona: 'pro',
     turns: [
       'Consumer app: split dinner bills with friends after restaurants.',
       'Helps groups settle who paid what without awkward Venmo math; today they use calculator screenshots in group chat.',
@@ -140,6 +300,16 @@ const CASES = [
     ],
     mustMention: ['receipt', 'split', 'balance', 'mobile', 'friend'],
     mustNotBe: ['enterprise sso', 'soc2 evidence'],
+    chatRequirements: {
+      mustCarry: ['receipt', 'ocr', 'balance', 'mobile', 'push'],
+      mustNotCarry: ['web dashboard as v1', 'enterprise sso'],
+      preferInStages: {
+        technical: ['ocr', 'mobile', 'push'],
+        design: ['mobile'],
+        architecture: ['receipt', 'balance'],
+        prompts: ['receipt', 'split']
+      }
+    },
     maxGlossary: 8,
     maxEpics: 5,
     maxInferredTags: 0,
@@ -147,8 +317,10 @@ const CASES = [
     maxIdeaSummary: 900
   },
   {
-    id: 'hebrew-long',
-    label: 'Hebrew-heavy long intake (edge language)',
+    id: 'edge-pro-hebrew-clinic',
+    label: 'Edge pro user — Hebrew-heavy clinic intake',
+    kind: 'edge',
+    persona: 'pro',
     turns: [
       'אפליקציה לניהול תורים למרפאה קטנה',
       'עוזרת לקליטה לקבוע ולשנות תורים בלי טלפונים; היום הכל ביומן נייר וווטסאפ.',
@@ -157,6 +329,44 @@ const CASES = [
     ],
     mustMention: ['appointment', 'clinic', 'reminder'],
     mustNotBe: ['marketplace', 'soc2'],
+    chatRequirements: {
+      mustCarry: ['appointment', 'clinic', 'reminder', 'sms'],
+      mustNotCarry: ['public marketplace', 'patient mobile app as v1 core'],
+      preferInStages: {
+        technical: ['sms', 'web'],
+        architecture: ['appointment', 'reminder'],
+        market: ['clinic']
+      }
+    },
+    maxGlossary: 8,
+    maxEpics: 5,
+    maxInferredTags: 0,
+    minIdeaSummary: 100,
+    maxIdeaSummary: 900
+  },
+  {
+    id: 'edge-pro-scope-explosion',
+    label: 'Edge pro user — tries to boil the ocean then constrains',
+    kind: 'edge',
+    persona: 'pro',
+    turns: [
+      'We need an all-in-one OS for restaurants: POS, inventory, staff, delivery, loyalty, accounting, and a customer social network.',
+      'Priority is only table-side ordering for dine-in guests on tablets — skip POS hardware, skip delivery fleet, skip social.',
+      'Flow: Seat guest → open table order on tablet → send to kitchen → pay at table. Web/tablet. Kitchen ticket print + simple item modifiers are must-haves. No loyalty in v1.'
+    ],
+    mustMention: ['table', 'order', 'kitchen', 'tablet'],
+    mustNotBe: ['delivery fleet', 'social network', 'full accounting'],
+    chatRequirements: {
+      mustCarry: ['table', 'order', 'kitchen', 'tablet', 'modifier'],
+      mustNotCarry: ['delivery fleet', 'loyalty program', 'customer social network'],
+      preferInStages: {
+        technical: ['tablet', 'print', 'web'],
+        architecture: ['kitchen', 'order'],
+        design: ['tablet'],
+        market: ['restaurant']
+      }
+    },
+    preferAbsent: ['loyalty', 'delivery fleet', 'social feed'],
     maxGlossary: 8,
     maxEpics: 5,
     maxInferredTags: 0,
@@ -198,7 +408,7 @@ function cannedUserInput(caseDef) {
   return `App Description: ${caseDef.turns.join(' ')}`;
 }
 
-async function createSpecDoc(caseId, userInput) {
+async function createSpecDoc(caseId, userInput, caseDef) {
   const ref = db.collection('specs').doc();
   const payload = {
     title: `[LB-FULL-EVAL] ${caseId}`,
@@ -224,7 +434,13 @@ async function createSpecDoc(caseId, userInput) {
     mode: 'unified',
     answers: [userInput, '', ''],
     generationVersion: 'v2',
-    tags: ['living-brief-eval', 'full-spec', caseId],
+    tags: [
+      'living-brief-eval',
+      'full-spec',
+      caseId,
+      `persona:${caseDef.persona || 'unknown'}`,
+      `kind:${caseDef.kind || 'unknown'}`
+    ],
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   };
@@ -251,6 +467,11 @@ function keywordHits(text, keys) {
   return (keys || []).filter((k) => hay.includes(String(k).toLowerCase()));
 }
 
+function keywordMisses(text, keys) {
+  const hay = String(text || '').toLowerCase();
+  return (keys || []).filter((k) => !hay.includes(String(k).toLowerCase()));
+}
+
 function parseMaybe(json) {
   if (json == null) return null;
   if (typeof json === 'object') return json;
@@ -258,6 +479,16 @@ function parseMaybe(json) {
     return JSON.parse(json);
   } catch (_) {
     return null;
+  }
+}
+
+function flattenForSearch(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  try {
+    return JSON.stringify(value);
+  } catch (_) {
+    return String(value);
   }
 }
 
@@ -392,7 +623,88 @@ function stageHasContent(raw) {
   return false;
 }
 
-function evaluateAdvanced(processed) {
+/**
+ * Compare original chat requirements to the full advanced artifact set.
+ * Hard fails on mustCarry / mustNotCarry; soft notes on preferInStages misses.
+ */
+function evaluateChatVsAdvanced(caseDef, overviewObj, processed) {
+  const req = caseDef.chatRequirements || {};
+  const issues = [];
+  const softIssues = [];
+  const byStage = {};
+
+  const overviewBlob = flattenForSearch(overviewObj);
+  const stageBlobs = {};
+  for (const stage of ADVANCED_STAGES) {
+    const raw = processed?.[stage];
+    stageBlobs[stage] = flattenForSearch(raw);
+    byStage[stage] = {
+      chars: stageBlobs[stage].length,
+      present: stageHasContent(raw)
+    };
+  }
+
+  const fullBlob = [overviewBlob, ...Object.values(stageBlobs)].join('\n').toLowerCase();
+  const advancedOnlyBlob = Object.values(stageBlobs).join('\n').toLowerCase();
+
+  const mustCarry = req.mustCarry || caseDef.mustMention || [];
+  const carried = keywordHits(fullBlob, mustCarry);
+  const missingCarry = keywordMisses(fullBlob, mustCarry);
+  // Require ~70% of chat requirements to survive into overview+advanced
+  const carryThreshold = Math.ceil(mustCarry.length * 0.7);
+  if (carried.length < carryThreshold) {
+    issues.push(
+      `chat→spec fidelity: only ${carried.length}/${mustCarry.length} requirements carried (${missingCarry.join('|') || 'none'})`
+    );
+  }
+
+  // Prefer that advanced sections (not only overview) retain core requirements
+  if (processed && mustCarry.length) {
+    const advancedHits = keywordHits(advancedOnlyBlob, mustCarry);
+    const advancedThreshold = Math.ceil(mustCarry.length * 0.5);
+    if (advancedHits.length < advancedThreshold) {
+      issues.push(
+        `chat→advanced fidelity: advanced sections weak on requirements (hit ${advancedHits.join('|') || 'none'})`
+      );
+    }
+  }
+
+  const mustNotCarry = req.mustNotCarry || [];
+  const leaked = keywordHits(fullBlob, mustNotCarry);
+  if (leaked.length) {
+    issues.push(`chat→spec forbidden concepts leaked (${leaked.join('|')})`);
+  }
+
+  const preferInStages = req.preferInStages || {};
+  const stageCoverage = {};
+  for (const [stage, keys] of Object.entries(preferInStages)) {
+    const hay = (stageBlobs[stage] || '').toLowerCase();
+    const hits = keywordHits(hay, keys);
+    const misses = keywordMisses(hay, keys);
+    stageCoverage[stage] = { hits, misses };
+    // Soft: missing preferred stage keywords — only hard-fail when stage is empty of all prefs
+    if (keys.length && hits.length === 0 && stageHasContent(processed?.[stage])) {
+      softIssues.push(`${stage}: none of preferred chat cues present (${keys.join('|')})`);
+    }
+  }
+
+  return {
+    ok: issues.length === 0,
+    issues,
+    softIssues,
+    metrics: {
+      carried,
+      missingCarry,
+      leaked,
+      stageCoverage,
+      byStage,
+      mustCarryCount: mustCarry.length,
+      carriedCount: carried.length
+    }
+  };
+}
+
+function evaluateAdvanced(caseDef, processed, overviewObj) {
   const issues = [];
   const present = {};
   for (const stage of ADVANCED_STAGES) {
@@ -428,24 +740,44 @@ function evaluateAdvanced(processed) {
     issues.push(`prompts.fullPrompt too short (${String(fullPrompt).length})`);
   }
 
-  return { ok: issues.length === 0, issues, present };
+  const fidelity = evaluateChatVsAdvanced(caseDef, overviewObj, processed);
+  issues.push(...fidelity.issues);
+
+  return {
+    ok: issues.length === 0,
+    issues,
+    softIssues: fidelity.softIssues,
+    present,
+    fidelity: fidelity.metrics
+  };
 }
 
-function conclusionFor(caseDef, overviewEval, advancedEval, error) {
+function shouldSkipAdvanced(caseDef) {
+  if (overviewOnly) return true;
+  if (freeOverviewOnly && caseDef.persona === 'free') return true;
+  return false;
+}
+
+function conclusionFor(caseDef, overviewEval, advancedEval, fidelityNote, error) {
   if (error) {
     return `FAILED to generate: ${error}. Pipeline/infra issue, not just prompt quality.`;
   }
   const oIssues = overviewEval?.issues || [];
   const aIssues = advancedEval?.issues || [];
+  const soft = advancedEval?.softIssues || [];
+  const tag = `[${caseDef.kind}/${caseDef.persona}]`;
   if (!oIssues.length && (!advancedEval || !aIssues.length)) {
-    return `PASS — ${caseDef.label}: core overview is purposeful, no [INFERRED]/loading junk, glossary/epics bounded, advanced sections complete.`;
+    const softBit = soft.length ? ` (soft notes: ${soft.slice(0, 2).join('; ')})` : '';
+    return `PASS ${tag} — ${caseDef.label}: overview healthy, advanced complete, chat requirements carried into advanced${softBit}.`;
   }
-  const top = [...oIssues, ...aIssues].slice(0, 4).join('; ');
-  return `FAIL modes for ${caseDef.label}: ${top}`;
+  const top = [...oIssues, ...aIssues].slice(0, 5).join('; ');
+  return `FAIL ${tag} ${caseDef.label}: ${top}`;
 }
 
 async function runCase(caseDef) {
-  console.log(`\n======== ${caseDef.id} — ${caseDef.label} ========`);
+  console.log(
+    `\n======== ${caseDef.id} — ${caseDef.label} [${caseDef.kind}/${caseDef.persona}] ========`
+  );
   let brief;
   if (skipChat) {
     brief = {
@@ -465,7 +797,7 @@ async function runCase(caseDef) {
   console.log(`   userInput head: ${brief.userInput.slice(0, 160).replace(/\n/g, ' | ')}`);
 
   console.log('2) Creating Firestore spec…');
-  const specId = await createSpecDoc(caseDef.id, brief.userInput);
+  const specId = await createSpecDoc(caseDef.id, brief.userInput, caseDef);
   console.log(`   specId=${specId}`);
 
   const started = Date.now();
@@ -485,7 +817,7 @@ async function runCase(caseDef) {
       specId,
       ok: false,
       error: err.message,
-      conclusion: conclusionFor(caseDef, null, null, err.message)
+      conclusion: conclusionFor(caseDef, null, null, null, err.message)
     };
   }
 
@@ -510,8 +842,9 @@ async function runCase(caseDef) {
 
   let advancedEval = null;
   let processed = null;
-  if (!overviewOnly) {
-    console.log('4) SpecGenV2 generateAllSpecs (advanced)…');
+  const skipAdv = shouldSkipAdvanced(caseDef);
+  if (!skipAdv) {
+    console.log('4) SpecGenV2 generateAllSpecs (advanced) + chat→advanced fidelity…');
     try {
       processed = await specGenerationServiceV2.generateAllSpecs(
         specId,
@@ -530,11 +863,17 @@ async function runCase(caseDef) {
         }
       }
       await db.collection('specs').doc(specId).update(patch);
-      advancedEval = evaluateAdvanced(processed);
+      advancedEval = evaluateAdvanced(caseDef, processed, overviewObj || {});
       console.log(
         `   advanced: ${advancedEval.ok ? 'PASS' : 'FAIL'} · present=${JSON.stringify(advancedEval.present)}`
       );
       advancedEval.issues.forEach((i) => console.log(`     - ${i}`));
+      (advancedEval.softIssues || []).forEach((i) => console.log(`     ~ soft: ${i}`));
+      if (advancedEval.fidelity) {
+        console.log(
+          `   fidelity: carried ${advancedEval.fidelity.carriedCount}/${advancedEval.fidelity.mustCarryCount} · missing=${(advancedEval.fidelity.missingCarry || []).join('|') || 'none'}`
+        );
+      }
       if (processed.errors?.length) {
         console.log(
           `   generation errors: ${processed.errors.map((e) => e.stage + ':' + e.error?.message).join('; ')}`
@@ -542,23 +881,38 @@ async function runCase(caseDef) {
       }
     } catch (err) {
       console.error(`   ADVANCED FAILED: ${err.message}`);
-      advancedEval = { ok: false, issues: [err.message], present: {} };
+      advancedEval = { ok: false, issues: [err.message], present: {}, softIssues: [] };
     }
   } else {
-    console.log('4) Skipping advanced (--overview-only)');
+    const reason = overviewOnly
+      ? '--overview-only'
+      : '--free-overview-only (free persona)';
+    console.log(`4) Skipping advanced (${reason})`);
+    // Still score overview-only fidelity against chat requirements
+    const fidelity = evaluateChatVsAdvanced(caseDef, overviewObj || {}, null);
+    if (!fidelity.ok) {
+      overviewEval.issues.push(...fidelity.issues);
+      overviewEval.ok = overviewEval.issues.length === 0;
+    }
+    overviewEval.metrics.fidelity = fidelity.metrics;
+    fidelity.issues.forEach((i) => console.log(`     - ${i}`));
   }
 
-  const ok = overviewEval.ok && (overviewOnly || (advancedEval && advancedEval.ok));
-  const conclusion = conclusionFor(caseDef, overviewEval, advancedEval, null);
+  const ok = overviewEval.ok && (skipAdv || (advancedEval && advancedEval.ok));
+  const conclusion = conclusionFor(caseDef, overviewEval, advancedEval, null, null);
 
   const report = {
     caseId: caseDef.id,
     label: caseDef.label,
+    kind: caseDef.kind,
+    persona: caseDef.persona,
     specId,
     title,
     durationMs: Date.now() - started,
     readiness: brief.readiness.score,
     userInput: brief.userInput,
+    chatTurns: caseDef.turns,
+    chatRequirements: caseDef.chatRequirements || null,
     overviewEval,
     advancedEval,
     conclusion,
@@ -591,7 +945,9 @@ async function runCase(caseDef) {
             stage: e.stage,
             message: e.error?.message || String(e.error)
           })),
-          present: advancedEval?.present
+          present: advancedEval?.present,
+          fidelity: advancedEval?.fidelity || null,
+          softIssues: advancedEval?.softIssues || []
         },
         null,
         2
@@ -611,14 +967,26 @@ async function main() {
     process.exit(1);
   }
 
-  const selected = CASES.filter((c) => !caseFilter || caseFilter.includes(c.id));
+  let selected = CASES.filter((c) => !caseFilter || caseFilter.includes(c.id));
+  if (personaArg) {
+    selected = selected.filter((c) => c.persona === personaArg);
+  }
+  if (kindArg) {
+    selected = selected.filter((c) => c.kind === kindArg);
+  }
   if (!selected.length) {
-    console.error('No cases selected. Available:', CASES.map((c) => c.id).join(', '));
+    console.error(
+      'No cases selected. Available:',
+      CASES.map((c) => `${c.id}(${c.kind}/${c.persona})`).join(', ')
+    );
     process.exit(1);
   }
 
   console.log(
-    `Mode: ${overviewOnly ? 'overview-only' : 'full-advanced'} · cases=${selected.map((c) => c.id).join(', ')}`
+    `Mode: ${overviewOnly ? 'overview-only' : freeOverviewOnly ? 'full (free→overview)' : 'full-advanced'} · cases=${selected.map((c) => c.id).join(', ')}`
+  );
+  console.log(
+    `Matrix: normal=${selected.filter((c) => c.kind === 'normal').length} edge=${selected.filter((c) => c.kind === 'edge').length} · free=${selected.filter((c) => c.persona === 'free').length} pro=${selected.filter((c) => c.persona === 'pro').length}`
   );
 
   const results = [];
@@ -630,11 +998,15 @@ async function main() {
   const summary = results.map((r) => ({
     caseId: r.caseDef.id,
     label: r.caseDef.label,
+    kind: r.caseDef.kind,
+    persona: r.caseDef.persona,
     specId: r.specId,
     ok: r.ok,
     conclusion: r.conclusion || r.report?.conclusion,
     overviewIssues: r.report?.overviewEval?.issues || [],
     advancedIssues: r.report?.advancedEval?.issues || [],
+    softIssues: r.report?.advancedEval?.softIssues || [],
+    fidelity: r.report?.advancedEval?.fidelity || r.report?.overviewEval?.metrics?.fidelity || null,
     metrics: r.report?.overviewEval?.metrics || null,
     error: r.error || null,
     viewerHint: r.specId ? `/pages/spec-viewer.html?id=${r.specId}` : null
@@ -643,8 +1015,13 @@ async function main() {
 
   console.log('\n======== SUMMARY ========');
   summary.forEach((s) => {
-    console.log(`${s.ok ? 'PASS' : 'FAIL'}  ${s.caseId}`);
+    console.log(`${s.ok ? 'PASS' : 'FAIL'}  ${s.caseId} [${s.kind}/${s.persona}]`);
     console.log(`       ${s.conclusion}`);
+    if (s.fidelity) {
+      console.log(
+        `       fidelity carried ${s.fidelity.carriedCount}/${s.fidelity.mustCarryCount}`
+      );
+    }
     if (s.viewerHint) console.log(`       open: ${s.viewerHint}`);
   });
   console.log(`summary → ${summaryPath}`);

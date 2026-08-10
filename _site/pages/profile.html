@@ -606,9 +606,8 @@ function trackPreference(preferenceName, preferenceValue) {
     <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
-            <a href="/pages/auth.html" class="auth-btn">Log in/Sign up</a>
+        <div class="auth-buttons auth-buttons--pending" id="auth-buttons" role="group" aria-label="Authentication buttons" aria-busy="true">
+            <!-- Empty until Firebase auth resolves — avoids false "logged out" flash -->
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="/pages/how.html">How</a>
@@ -1171,9 +1170,9 @@ function trackPreference(preferenceName, preferenceValue) {
     
     
       
-        <script defer src="/assets/js/script.js?v=1786231747"></script>
+        <script defer src="/assets/js/script.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/features/profile/profile-scroll.js?v=1786231747"></script>
+        <script defer src="/assets/js/features/profile/profile-scroll.js?v=1786357358"></script>
       
     
     
@@ -1182,7 +1181,7 @@ function trackPreference(preferenceName, preferenceValue) {
     <!-- Custom JavaScript Modules -->
     
       
-        <script type="module" src="/assets/js/features/profile/profile.js"></script>
+        <script type="module" src="/assets/js/features/profile/profile.js?v=1786357358"></script>
       
     
     

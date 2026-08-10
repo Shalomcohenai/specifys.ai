@@ -602,9 +602,8 @@ function trackPreference(preferenceName, preferenceValue) {
     <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
-            <a href="/pages/auth.html" class="auth-btn">Log in/Sign up</a>
+        <div class="auth-buttons auth-buttons--pending" id="auth-buttons" role="group" aria-label="Authentication buttons" aria-busy="true">
+            <!-- Empty until Firebase auth resolves — avoids false "logged out" flash -->
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="/pages/how.html">How</a>
@@ -651,6 +650,40 @@ function trackPreference(preferenceName, preferenceValue) {
     </div>
     
     <!-- Legacy Jekyll posts (old system - don't modify, appear after new posts) -->
+    
+    <div class="article-preview">
+      <h2 class="article-title">
+        <a href="/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/">AWS Kiro Tackles 'Vibe Coding' with Spec-Driven Development</a>
+      </h2>
+      <div class="article-date">
+        August 10, 2026
+      </div>
+      
+      <div class="article-intro">
+        Introduction
+
+
+      </div>
+      
+      <a href="/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': 'AWS Kiro Tackles 'Vibe Coding' with Spec-Driven Development'})">Read More</a>
+    </div>
+    
+    <div class="article-preview">
+      <h2 class="article-title">
+        <a href="/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/">AWS Kiro Spec-Driven AI Coding Agents: A Game Changer</a>
+      </h2>
+      <div class="article-date">
+        August 09, 2026
+      </div>
+      
+      <div class="article-intro">
+        Introduction
+
+
+      </div>
+      
+      <a href="/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': 'AWS Kiro Spec-Driven AI Coding Agents: A Game Changer'})">Read More</a>
+    </div>
     
     <div class="article-preview">
       <h2 class="article-title">

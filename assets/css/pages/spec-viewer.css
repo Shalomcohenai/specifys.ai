@@ -1087,8 +1087,9 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .total-score-circle {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
 }
 
 .circular-chart {
@@ -1099,13 +1100,13 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .circle-bg {
   fill: none;
-  stroke: #e9ecef;
-  stroke-width: 8;
+  stroke: #ece8e6;
+  stroke-width: 7;
 }
 
 .circle-progress {
   fill: none;
-  stroke-width: 8;
+  stroke-width: 7;
   stroke-linecap: round;
   transition: stroke-dashoffset 1s ease-in-out;
   animation: progressAnimation 1.5s ease-out;
@@ -1119,69 +1120,86 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .circle-content {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  pointer-events: none;
 }
 
 .circle-score {
-  font-size: 48px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  line-height: 0.95;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.circle-score-value {
+  font-size: 64px;
   font-weight: 800;
-  line-height: 1;
-  margin-bottom: 4px;
+  letter-spacing: -0.04em;
+  color: inherit;
+}
+
+.circle-score-unit {
+  font-size: 22px;
+  font-weight: 700;
+  opacity: 0.72;
+  margin-left: 1px;
+  transform: translateY(-0.35em);
 }
 
 .circle-score.score-low {
-  color: #10B981;
+  color: #0f9f6e;
 }
 
 .circle-score.score-medium {
-  color: #F59E0B;
+  color: #d97706;
 }
 
 .circle-score.score-high {
-  color: #EF4444;
+  color: #dc2626;
 }
 
 .circle-label {
-  font-size: 18px;
-  color: #6b7280;
-  font-weight: 500;
-  margin-bottom: 8px;
+  display: none;
 }
 
 .circle-level {
-  font-size: 14px;
-  font-weight: 600;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 4px 12px;
-  border-radius: 12px;
-  display: inline-block;
+  letter-spacing: 0.12em;
+  padding: 0;
+  border-radius: 0;
+  display: block;
+  background: transparent;
 }
 
 .circle-level.score-low {
-  color: #10B981;
-  background: #d1fae5;
+  color: #0f9f6e;
+  background: transparent;
 }
 
 .circle-level.score-medium {
-  color: #F59E0B;
-  background: #fef3c7;
+  color: #d97706;
+  background: transparent;
 }
 
 .circle-level.score-high {
-  color: #EF4444;
-  background: #fee2e2;
+  color: #dc2626;
+  background: transparent;
 }
 
-/* Legend */
+/* Legend dots next to the score circle — hidden for a cleaner focus on the number */
 .complexity-legend {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: none;
 }
 
 .legend-item {
@@ -1373,16 +1391,20 @@ body:has(.side-menu) .thematic-header .header-right {
   }
   
   .total-score-circle {
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
   }
   
-  .circle-score {
-    font-size: 40px;
+  .circle-score-value {
+    font-size: 52px;
+  }
+
+  .circle-score-unit {
+    font-size: 18px;
   }
   
   .complexity-legend {
-    gap: 16px;
+    display: none;
   }
   
   .metric-item {

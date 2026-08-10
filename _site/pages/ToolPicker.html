@@ -639,9 +639,8 @@ function trackPreference(preferenceName, preferenceValue) {
     <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
-            <a href="/pages/auth.html" class="auth-btn">Log in/Sign up</a>
+        <div class="auth-buttons auth-buttons--pending" id="auth-buttons" role="group" aria-label="Authentication buttons" aria-busy="true">
+            <!-- Empty until Firebase auth resolves — avoids false "logged out" flash -->
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="/pages/how.html">How</a>
@@ -948,6 +947,9 @@ function trackPreference(preferenceName, preferenceValue) {
   function updateAuthUI(user) {
     const authButtons = document.getElementById('auth-buttons');
     if (!authButtons) return;
+
+    authButtons.classList.remove('auth-buttons--pending');
+    authButtons.removeAttribute('aria-busy');
     
     if (user) {
       // User is logged in
@@ -960,11 +962,19 @@ function trackPreference(preferenceName, preferenceValue) {
           <span>${displayName}</span>
         </a>
       `;
+      try {
+        localStorage.setItem('specifys_auth_hint', JSON.stringify({
+          displayName,
+          firstLetter,
+          at: Date.now()
+        }));
+      } catch (_) { /* ignore */ }
     } else {
       // User is not logged in
       authButtons.innerHTML = `
         <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
       `;
+      try { localStorage.removeItem('specifys_auth_hint'); } catch (_) { /* ignore */ }
     }
   }
 
@@ -1179,13 +1189,31 @@ function trackPreference(preferenceName, preferenceValue) {
     window.addEventListener('firebase-ready', setupAuthListener);
   }
 
-  // Initialize auth buttons with default state (only if auth listener hasn't run yet)
+  // Initialize auth buttons — prefer last-known session hint; never flash Login before auth resolves
   document.addEventListener('DOMContentLoaded', function() {
     const authButtons = document.getElementById('auth-buttons');
     if (!authButtons) return;
     
     const authInstance = getFirebaseAuthCompat();
     if (authInstance) {
+      // Optimistic hint so returning home after spec-viewer does not look logged out
+      if (authButtons.classList.contains('auth-buttons--pending') || !authButtons.innerHTML.trim()) {
+        try {
+          const hintRaw = localStorage.getItem('specifys_auth_hint');
+          if (hintRaw) {
+            const hint = JSON.parse(hintRaw);
+            if (hint && hint.displayName && hint.firstLetter && (Date.now() - (hint.at || 0)) < 7 * 24 * 60 * 60 * 1000) {
+              authButtons.innerHTML = `
+                <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                  <div class="user-avatar">${hint.firstLetter}</div>
+                  <span>${hint.displayName}</span>
+                </a>
+              `;
+              authButtons.classList.remove('auth-buttons--pending');
+            }
+          }
+        } catch (_) { /* ignore */ }
+      }
       // Auth is available, set up a one-time listener to check current state
       // This ensures we get the auth state even if it's still loading
       const unsubscribe = authInstance.onAuthStateChanged((user) => {
@@ -1197,8 +1225,10 @@ function trackPreference(preferenceName, preferenceValue) {
       return;
     }
     
-    // Only set default if buttons are empty and we don't have auth yet
+    // Only set default login CTA after we know auth is unavailable
     if (!authButtons.innerHTML.trim()) {
+      authButtons.classList.remove('auth-buttons--pending');
+      authButtons.removeAttribute('aria-busy');
       authButtons.innerHTML = `
         <button class="auth-btn login-btn">Log in/Sign up</button>
       `;
@@ -1221,11 +1251,11 @@ function trackPreference(preferenceName, preferenceValue) {
     
     
       
-        <script defer src="/assets/js/features/index/index.js?v=1786231747"></script>
+        <script defer src="/assets/js/features/index/index.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/pages/toolpicker.js?v=1786231747"></script>
+        <script defer src="/assets/js/pages/toolpicker.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/utils/typingEffect.js?v=1786231747"></script>
+        <script defer src="/assets/js/utils/typingEffect.js?v=1786357358"></script>
       
     
     

@@ -160,11 +160,24 @@ router.post(
     }
 
     const started = Date.now();
-    const result = await livingBrief.processTurn({
-      messages,
-      draft,
-      apiKey: process.env.OPENAI_API_KEY
-    });
+    let result;
+    try {
+      result = await livingBrief.processTurn({
+        messages,
+        draft,
+        apiKey: process.env.OPENAI_API_KEY
+      });
+    } catch (err) {
+      if (err && err.code === 'LIVING_BRIEF_MESSAGE_LIMIT') {
+        throw createError(
+          err.message || `Message limit of ${livingBrief.MAX_USER_MESSAGES} reached. Click Generate to continue.`,
+          ERROR_CODES.RATE_LIMIT_EXCEEDED,
+          err.statusCode || 429,
+          { requestId, limit: livingBrief.MAX_USER_MESSAGES }
+        );
+      }
+      throw err;
+    }
 
     logger.info(
       {

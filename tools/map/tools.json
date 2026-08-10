@@ -3576,5 +3576,282 @@
     ],
     "special": "launched-2026-07-14",
     "added": "2026-07-28"
+  },
+  {
+    "id": 186,
+    "name": "AWS DevOps Agent Release Management",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AWS DevOps Agent Release Management is an AI-driven tool that automates testing and validation of code, identifying issues before they reach production, thereby enhancing DevSecOps practices.",
+    "link": "https://aws.amazon.com/devops/agent-release-management/",
+    "pros": [
+      "Automates code testing and validation",
+      "Integrates with AWS DevOps services"
+    ],
+    "cons": [
+      "May require AWS infrastructure",
+      "Dependent on AWS ecosystem"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-29"
+  },
+  {
+    "id": 187,
+    "name": "Kiro Pro Max",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Kiro Pro Max is a spec-driven AI IDE that allows developers to manage, review, and approve agent work from mobile devices, enhancing flexibility in development workflows.",
+    "link": "https://www.amazon.com/kiro-pro-max",
+    "pros": [
+      "Mobile access to development workflows",
+      "Spec-driven AI integration"
+    ],
+    "cons": [
+      "Requires subscription",
+      "May have a learning curve for new users"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-07-30"
+  },
+  {
+    "id": 188,
+    "name": "Kiro for iOS",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Kiro for iOS is a native application that allows developers to manage, review, and approve agent work from their mobile devices, providing flexibility and mobility in development workflows.",
+    "link": "https://www.techpillow.co/blog/amazon-kiro-aws-summit-nyc-spec-driven-2026",
+    "pros": [
+      "Mobile management of agent work",
+      "Enhances development flexibility",
+      "Improves workflow mobility"
+    ],
+    "cons": [
+      "Limited to iOS devices",
+      "May require adaptation for users familiar with other platforms"
+    ],
+    "special": "launched-2026-06-17",
+    "added": "2026-08-01"
+  },
+  {
+    "id": 189,
+    "name": "PulseGate",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A platform providing live intelligence on AI-era software, tracking AI models, apps, infrastructure, and workflow tools since 2022.",
+    "link": "https://www.pulsegate.ai/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2022-01-01",
+    "added": "2026-08-04"
+  },
+  {
+    "id": 190,
+    "name": "Changes.Watch",
+    "category": "Business Process Automation",
+    "description": "A community-rated changelog for the software ecosystem, allowing users to discover, rate, discuss, and subscribe to important changes across various tools and platforms.",
+    "link": "https://www.changes.watch/",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-07-28",
+    "added": "2026-08-04"
+  },
+  {
+    "id": 191,
+    "name": "GitHub Copilot Browser Tools",
+    "category": "AI Agent & Workflow Tools",
+    "description": "GitHub's Copilot agents now have browser access to verify code functionality without leaving the VS Code editor, enhancing autonomous developer workflows.",
+    "link": "https://www.techtimes.com/articles/319982/20260709/github-closes-agentic-loop-vs-code-browser-tools-go-ga-sessions-run-parallel.htm",
+    "pros": [],
+    "cons": [],
+    "special": "launched-2026-07-01",
+    "added": "2026-08-04"
+  },
+  {
+    "id": 192,
+    "name": "Postman Autonomous API Engineer",
+    "category": "AI Agent & Workflow Tools",
+    "description": "A cloud-native AI agent that automates the full surface area of API work, including development, testing, documentation, exploration, and CI/CD integration, enabling teams to move faster and improve quality.",
+    "link": "https://sdtimes.com/api/postman-expands-its-ai-native-platform-with-autonomous-api-engineer/",
+    "pros": [
+      "Automates comprehensive API tasks",
+      "Enhances team efficiency",
+      "Improves API quality"
+    ],
+    "cons": [
+      "May require adaptation to existing workflows",
+      "New tool with limited user feedback"
+    ],
+    "special": "launched-2026-06-08",
+    "added": "2026-08-05"
+  },
+  {
+    "id": 193,
+    "name": "Polygraph",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Provides AI agents with cross-repository visibility and persistent memory, enhancing their ability to understand and manage complex codebases.",
+    "link": "https://toollist.ai/v4/launches",
+    "pros": [
+      "Improves AI agents' understanding of code across multiple repositories",
+      "Enhances memory capabilities for better context retention"
+    ],
+    "cons": [
+      "May require significant computational resources",
+      "Integration complexity with existing workflows"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-07"
+  },
+  {
+    "id": 194,
+    "name": "OpenAdLibrary",
+    "category": "Business Process Automation",
+    "description": "A tool that automates the management and analysis of advertising campaigns, providing insights and optimization recommendations.",
+    "link": "https://openadlibrary.com",
+    "pros": [
+      "Automates ad campaign management",
+      "Provides actionable insights",
+      "Optimizes ad performance"
+    ],
+    "cons": [
+      "May require integration with existing systems",
+      "Learning curve for new users"
+    ],
+    "special": "launched-2026-07-29",
+    "added": "2026-08-08"
+  },
+  {
+    "id": 195,
+    "name": "Aicontentfootprint",
+    "category": "Data-Driven App Builders",
+    "description": "A platform that analyzes and visualizes the environmental impact of AI-generated content, helping creators make sustainable choices.",
+    "link": "https://aicontentfootprint.com",
+    "pros": [
+      "Raises awareness about AI's environmental impact",
+      "Provides actionable data for content creators",
+      "Supports sustainable content creation"
+    ],
+    "cons": [
+      "Limited to AI-generated content",
+      "May not account for all environmental factors"
+    ],
+    "special": "launched-2026-07-29",
+    "added": "2026-08-08"
+  },
+  {
+    "id": 196,
+    "name": "Kedge",
+    "category": "Deployment & Marketing Integrations",
+    "description": "A tool that streamlines the deployment process and integrates marketing strategies, enhancing product launch efficiency.",
+    "link": "https://kedge.io",
+    "pros": [
+      "Simplifies deployment workflows",
+      "Integrates marketing strategies",
+      "Enhances product launch efficiency"
+    ],
+    "cons": [
+      "May require adaptation to existing processes",
+      "Potential integration challenges"
+    ],
+    "special": "launched-2026-07-29",
+    "added": "2026-08-08"
+  },
+  {
+    "id": 197,
+    "name": "Best AI Email Assistant",
+    "category": "Business Process Automation",
+    "description": "An AI-powered assistant that helps local service businesses manage emails, calls, and web forms to generate prioritized leads and customer replies.",
+    "link": "https://bestaiemailassistant.xyz",
+    "pros": [
+      "Automates lead generation",
+      "Improves response times",
+      "Tailored for local service businesses"
+    ],
+    "cons": [
+      "May require customization for specific industries",
+      "Dependence on AI accuracy"
+    ],
+    "special": "launched-2026-07-28",
+    "added": "2026-08-08"
+  },
+  {
+    "id": 198,
+    "name": "Nuvio",
+    "category": "Data-Driven App Builders",
+    "description": "A tool that automatically updates your social media bios with live revenue and traffic data.",
+    "link": "https://toollist.ai/v4/launches/nuvio",
+    "pros": [
+      "Automates bio updates",
+      "Provides real-time data"
+    ],
+    "cons": [
+      "Limited to social media platforms",
+      "May not support all revenue sources"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-09"
+  },
+  {
+    "id": 199,
+    "name": "Bono AI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI writing assistant that records once and publishes content across multiple platforms automatically.",
+    "link": "https://toollist.ai/v4/launches/bono-ai",
+    "pros": [
+      "Saves time on content distribution",
+      "Supports multiple platforms"
+    ],
+    "cons": [
+      "May require manual adjustments",
+      "Subscription-based pricing"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-09"
+  },
+  {
+    "id": 200,
+    "name": "TryCase",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Provides disposable Linux test environments so AI coding agents can verify code in isolated settings.",
+    "link": "https://toollist.ai/v4/launches/trycase",
+    "pros": [
+      "Ensures code safety",
+      "Easy to set up"
+    ],
+    "cons": [
+      "Limited to Linux environments",
+      "May incur additional costs"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-09"
+  },
+  {
+    "id": 201,
+    "name": "Fini",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI customer support agent with a self-evolving knowledge base for continuous improvement.",
+    "link": "https://toollist.ai/v4/launches/fini",
+    "pros": [
+      "Reduces manual support workload",
+      "Learns from interactions"
+    ],
+    "cons": [
+      "May require initial training",
+      "Subscription-based pricing"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-09"
+  },
+  {
+    "id": 202,
+    "name": "Ogment AI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "An AI tool designed to augment human capabilities in various tasks and workflows.",
+    "link": "https://toollist.ai/v4/launches/ogment-ai",
+    "pros": [
+      "Enhances productivity",
+      "Supports multiple tasks"
+    ],
+    "cons": [
+      "May have a learning curve",
+      "Limited integration options"
+    ],
+    "special": "launched-2026-07-24",
+    "added": "2026-08-09"
   }
 ]

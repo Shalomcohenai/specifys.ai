@@ -5,6 +5,14 @@
 
 const AIService = require('./ai-service');
 
+/** Max user chat turns per Living Brief session (token / abuse guard). */
+const MAX_USER_MESSAGES = 15;
+
+function countUserMessages(messages) {
+  if (!Array.isArray(messages)) return 0;
+  return messages.filter((m) => m && m.role === 'user' && String(m.content || '').trim()).length;
+}
+
 function emptyDraft() {
   return {
     vision: '',
@@ -85,18 +93,46 @@ function corpusFrom(draft, messages) {
   return userMessagesCorpus(messages);
 }
 
+function describesProductCapability(text) {
+  const t = String(text || '');
+  // Concrete “what it does” — not just a category title like “מערכת לניהול X”
+  if (
+    /(מאפשר|מאפשרת|מאפשרים|מנהל את|מנהלת את|לנהל את|עוזר ל|עוזרת ל|עוזרים ל|מארגן|מארגנת|שומר על|עוקב אחרי|מיועדת? ל|נותנת ל|כוללת את|מרכזת את)/.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  return /\b(allows?|enables?|lets?\s+(users?|people|teams?)|helps?\s+(users?|people|teams?|you)|manages?\s+\w+|tracks?\s+\w+|organi[sz]es?|keeps?\s+track|designed\s+to|so\s+that)\b/i.test(
+    t
+  );
+}
+
+function isAlreadyAnsweredText(text) {
+  return /(כתבתי לך|כבר כתבתי|כבר אמרתי|כבר עניתי|אמרתי לך|עניתי כבר|I already (told|said|answered|wrote)|already (told|said|answered) you|I just (told|said|wrote)|as I (already )?(said|wrote)|I (already )?gave you)/i.test(
+    String(text || '')
+  );
+}
+
 function isThinProductPitch(text) {
   const t = String(text || '')
     .replace(/\s+/g, ' ')
     .trim();
   if (!t) return true;
-  if (t.length < 80) return true;
-  // Long category titles still count as thin until job + current alternative show up
+
   const hasJobOrPain =
     /\b(helps?|lets?|so that|instead of|today|currently|workaround|problem|pain|replace|without|because)\b/i.test(
       t
     ) || /(במקום|היום|בעיה|כדי ש|עוזר|בלי |במקום לעבוד)/.test(t);
-  if (t.length < 140 && !hasJobOrPain) return true;
+  const hasCapability = describesProductCapability(t);
+
+  // Real product job/capability — accept even when short (common in Hebrew replies)
+  if ((hasJobOrPain || hasCapability) && t.length >= 28) return false;
+
+  // Pure short category pitches stay incomplete
+  if (t.length < 80) return true;
+  // Long category titles still count as thin until job + current alternative show up
+  if (t.length < 140 && !hasJobOrPain && !hasCapability) return true;
   return false;
 }
 
@@ -118,67 +154,112 @@ function classifyFollowUpTopic(text) {
     return 'structure';
   }
   if (
-    /product in one line|what job does it|current workaround|core job|one sentence|what (are we|does this product) do|what problem|painful alternative|people use today instead/.test(
+    /product in one line|what job does it|current workaround|core job|one sentence|what (are we|does this product) do|what problem|painful alternative|people use today instead|מה המוצר בשורה|מה העבודה המרכזית|במקום מה/.test(
       t
     )
   ) {
     return 'vision';
   }
-  if (/who is it for|must-have feature|web\/mobile|platform|who.?s it for|target audience|2 must-have/.test(t)) {
+  if (/who is it for|must-have feature|web\/mobile|platform|who.?s it for|target audience|2 must-have|למי זה|ווב או מובייל/.test(t)) {
     return 'audience';
   }
   return null;
 }
 
+function lastAssistantMessage(messages) {
+  if (!Array.isArray(messages)) return '';
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i] && messages[i].role === 'assistant' && messages[i].content) {
+      return String(messages[i].content).trim();
+    }
+  }
+  return '';
+}
+
+function countAssistantAsksForTopic(messages, topicId) {
+  if (!Array.isArray(messages) || !topicId) return 0;
+  return messages.filter((m) => m && m.role === 'assistant' && classifyFollowUpTopic(m.content) === topicId)
+    .length;
+}
+
 /**
- * Keep the assistant's closing question on the readiness timeline.
- * Prevents jumping to flow while vision is still thin.
+ * Keep the assistant roughly on the readiness topic — but trust its own wording.
+ * Only hard-correct when it clearly asks the wrong pillar, or asks nothing at all.
+ * Never paste the long CRM template repeatedly.
  */
-function enforceFollowUpQuestion(reply, nextQuestion) {
+function enforceFollowUpQuestion(reply, nextQuestion, opts = {}) {
   const ask = nextQuestion && nextQuestion.text ? String(nextQuestion.text).trim() : '';
-  if (!ask) return String(reply || '').trim();
+  if (!ask && !(nextQuestion && nextQuestion.nudge)) return String(reply || '').trim();
   let base = String(reply || '').trim();
   const want = nextQuestion.id;
   const have = classifyFollowUpTopic(base);
+  const softNudge = String(nextQuestion.nudge || '').trim() || ask;
+  const priorAssistant = String(opts.priorAssistant || '').trim();
+  const alreadyAskedSame =
+    want &&
+    (classifyFollowUpTopic(priorAssistant) === want ||
+      (softNudge && priorAssistant.includes(softNudge.slice(0, 28))) ||
+      (ask && priorAssistant.includes(ask.slice(0, 36))));
 
-  if (have === want) {
-    // Already asking the right gap — keep AI wording
+  // Already on the right topic (in its own words) — keep it
+  if (have === want) return base;
+
+  const hasQuestion = /\?/.test(base);
+  const clearlyWrong =
+    (want === 'vision' && have === 'structure') ||
+    (want === 'vision' && have === 'audience') ||
+    (want === 'structure' && have === 'vision' && !hasQuestion) ||
+    (want === 'audience' && have === 'vision' && !/who|audience|for |platform|feature/i.test(base));
+
+  if (hasQuestion && !clearlyWrong) {
+    // Curious / deepening question that isn't a clear pillar skip — keep AI wording
     return base;
   }
 
-  // Keep acknowledgments; drop sentences/paragraphs that ask a different gap
-  const scrubChunk = (chunk) => {
-    const sentences = String(chunk).match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) || [chunk];
-    return sentences
-      .map((s) => s.trim())
-      .filter((s) => {
-        if (!s) return false;
-        const topic = classifyFollowUpTopic(s);
-        if (topic && topic !== want) return false;
-        if (/\?/.test(s) && topic !== want) return false;
-        return true;
-      })
-      .join(' ')
-      .trim();
-  };
+  if (clearlyWrong) {
+    const scrubChunk = (chunk) => {
+      const sentences = String(chunk).match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) || [chunk];
+      return sentences
+        .map((s) => s.trim())
+        .filter((s) => {
+          if (!s) return false;
+          const topic = classifyFollowUpTopic(s);
+          if (topic && topic !== want && /\?/.test(s)) return false;
+          return true;
+        })
+        .join(' ')
+        .trim();
+    };
 
-  base = base
-    .split(/\n\n+/)
-    .map(scrubChunk)
-    .filter(Boolean)
-    .join('\n\n')
-    .trim();
-
-  if (want === 'vision') {
     base = base
-      .replace(/\s*(To move forward|Almost there|Next)[,:]?[^.?!]*\?/gi, '')
-      .replace(/\s*could you outline[^.?!]*\?/gi, '')
+      .split(/\n\n+/)
+      .map(scrubChunk)
+      .filter(Boolean)
+      .join('\n\n')
       .trim();
+
+    if (want === 'vision') {
+      base = base
+        .replace(/\s*(To move forward|Almost there|Next)[,:]?[^.?!]*\?/gi, '')
+        .replace(/\s*could you outline[^.?!]*\?/gi, '')
+        .trim();
+    }
+
+    if (classifyFollowUpTopic(base) === want || (/\?/.test(base) && !classifyFollowUpTopic(base))) {
+      return base;
+    }
   }
 
-  if (!base) return ask;
-  if (base.includes(ask) || classifyFollowUpTopic(base) === want) return base;
-  return `${base}\n\n${ask}`;
+  // Do not re-paste the same vision/structure script if we already asked it last turn
+  if (alreadyAskedSame) {
+    return base || softNudge;
+  }
+
+  // No usable question left — append a short nudge only (never the long example template twice)
+  if (!base) return softNudge;
+  if (/\?/.test(base)) return base;
+  if (base.includes(softNudge.slice(0, 28))) return base;
+  return `${base}\n\n${softNudge}`;
 }
 
 function isWaiverText(text) {
@@ -246,7 +327,10 @@ function computeReadiness(draft, opts = {}) {
   const userTurns = messages.filter((m) => m && m.role === 'user').length;
 
   // Vision only from what the USER wrote — never from AI draft.vision paraphrases
-  const hasVision = !isThinProductPitch(userText);
+  const hasVision =
+    !isThinProductPitch(userText) ||
+    Boolean(waivers.vision) ||
+    (userTurns >= 2 && describesProductCapability(userText));
 
   const hasStructureDraft =
     d.workflows.some((wf) => (wf.steps || []).length >= 2) || d.pages.length >= 2;
@@ -283,7 +367,14 @@ function computeReadiness(draft, opts = {}) {
   }
 
   let score = 0;
-  if (hasVision) score += 40;
+  if (hasVision) {
+    score += 40;
+  } else if (userTurns >= 1 && userLen >= 8) {
+    // First-message momentum — progress before vision is fully covered
+    if (userLen >= 70) score += 22;
+    else if (userLen >= 35) score += 16;
+    else score += 12;
+  }
   if (hasStructure) score += 35;
   if (hasScope) score += 25;
 
@@ -310,6 +401,10 @@ function pickNextFollowUp(ctx) {
   if (miss.some((m) => /vision/i.test(m))) {
     return {
       id: 'vision',
+      topic: 'vision',
+      guidance:
+        'Topic: product vision. Explore the job-to-be-done, who hurts today, and what they use instead. Write your own curious question from their words — do not paste a template.',
+      nudge: 'What’s the core job this product does, and what do people improvise with today?',
       text:
         'Curious — what’s the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
     };
@@ -317,12 +412,20 @@ function pickNextFollowUp(ctx) {
   if (miss.some((m) => /flow|page/i.test(m)) && !waivers?.structure) {
     return {
       id: 'structure',
+      topic: 'structure',
+      guidance:
+        'Topic: main user journey / screens. Ask for the happiest path in concrete steps, or dig into a moment they already mentioned. Phrase it yourself for this product.',
+      nudge: `Walk me through the main path in a few steps — ${flowExampleForCorpus(userText)}`,
       text: `Almost there — list the main path in 3–4 steps (first → next → done). ${flowExampleForCorpus(userText)} Or say “you decide” and I’ll draft one.`
     };
   }
-  if (miss.some((m) => /who it is for|platform|feature/i.test(m)) && !waivers?.audience) {
+  if (miss.some((m) => /who it is for|platform|feature|audience/i.test(m)) && !waivers?.audience) {
     return {
       id: 'audience',
+      topic: 'audience',
+      guidance:
+        'Topic: audience & launch scope. Explore who it’s for, web/mobile/both, and 1–2 must-have capabilities. Ask naturally from their product context — clarifying or deepening questions are welcome.',
+      nudge: 'Who is this for first, web or mobile (or both), and what’s a must-have at launch?',
       text:
         'I’d love to know who it’s for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
     };
@@ -603,17 +706,28 @@ function heuristicTurn(messages, draftInput) {
 function optsWaiversFromMessages(messages) {
   const waivers = {};
   const last = lastUserMessage(messages);
-  const priorAssistant = [...(messages || [])]
-    .reverse()
-    .find((m) => m && m.role === 'assistant' && m.content);
+  const priorAssistant = lastAssistantMessage(messages);
   if (
     priorAssistant &&
-    /happiest path|first,\s*then|plain steps|key (screens|pages)|user do first/i.test(
-      String(priorAssistant.content)
-    )
+    /happiest path|first,\s*then|plain steps|key (screens|pages)|user do first/i.test(priorAssistant)
   ) {
     waivers.structureAsked = true;
   }
+
+  // User insists they already answered — accept current vision and move on
+  if (isAlreadyAnsweredText(last)) {
+    waivers.vision = true;
+  }
+
+  // Don't keep hammering vision after two assistant asks if they already described a capability
+  const userCorpus = userMessagesCorpus(messages);
+  if (
+    countAssistantAsksForTopic(messages, 'vision') >= 2 &&
+    (describesProductCapability(userCorpus) || userCorpus.replace(/\s+/g, ' ').trim().length >= 45)
+  ) {
+    waivers.vision = true;
+  }
+
   if (!isWaiverText(last)) return waivers;
   // User can't / won't answer the last ask — don't punish structure/audience gaps
   waivers.structure = true;
@@ -671,8 +785,8 @@ function buildHeuristicReply(userText, draft, readiness, proposals) {
 
   const ask = readiness.nextQuestion;
   if (ask && ask.text) {
-    bits.push(ask.text);
-  } else if (readiness.ready || readiness.score >= 80) {
+    bits.push(ask.nudge || ask.text);
+  } else if (readiness.ready) {
     bits.push("We have enough to generate a full specification whenever you're ready — or keep refining.");
   }
 
@@ -683,29 +797,34 @@ const SYSTEM_PROMPT = `You are Specifys Living Brief — a sharp product partner
 
 Tone: warm, concise, alive. 2–4 short paragraphs max.
 Never invent company names or fake metrics. Prefer concrete product language.
-Sound like a curious collaborator — fold in what they said, then ask the next useful question gently.
+Sound like a curious collaborator: react to what they just said, then ask ONE useful follow-up in your own words.
 Never frame remaining questions as progress toward “100%”, “for 100%”, “last piece for 100%”, or a completion score. Progress is internal only; user-facing copy must not nag about percentages.
 
-QUESTION TIMELINE (strict — do not skip ahead):
-You MUST ask ONLY the gap in readiness.nextQuestion (id + text). Order is always:
-1) vision — if nextQuestion.id is "vision"
-2) structure/flow — only after vision is satisfied
-3) who + platform + must-have features — only after flow is satisfied
+TOPICS (not scripts):
+readiness.nextQuestion tells you the CURRENT TOPIC to explore (id + guidance). Stay on that topic until it is satisfied — but YOU write the question.
+- vision — job-to-be-done, pain, current workaround. Dig deeper if their pitch is thin or generic.
+- structure — main user journey / key screens. You may ask for steps, or clarify a moment they already mentioned.
+- audience — who it’s for, web/mobile/both, and must-have launch capabilities.
 
-A short category / job-title pitch is NOT vision yet (e.g. “CEO calendar tool”, “מערכת לניהול לוז של מנכלים”, “I want a CRM”).
-When nextQuestion.id is "vision", DO NOT ask for user flows, steps, pages, or screens — deepen the product job + current workaround first.
-When nextQuestion.id is "structure", ask for 3–4 concrete steps (first → next → done) with a product-specific example.
-When nextQuestion.id is "audience", ask who + web/mobile/both + 2 launch features.
-If readiness.nextQuestion is null, celebrate briefly and invite Generate — still allow refining.
+Within the current topic you MAY:
+- Ask a clarifying or deepening question based on their last message
+- Challenge a vague claim gently (“who exactly?”, “what happens after that?”)
+- Offer a concrete example tailored to THEIR product, then ask them to confirm or correct it
 
-Do NOT ask about design style or integrations unless the user brings it up — those are optional and must not block progress.
-If the user says they don't know / you decide / doesn't matter, accept it, propose a sensible default workflow/features in proposals, and move to the next gap (or invite Generate).
-Never re-ask for flow if the user already described a sequence of actions.
-Ideas the UI shows must match your question — so your closing question must match nextQuestion.
+You must NOT:
+- Paste readiness.nextQuestion.text verbatim (that is a fallback example only)
+- Skip ahead to a later topic while an earlier one is still open (e.g. don’t ask for flows while vision is still thin)
+- Ask about design style or integrations unless the user brings them up
+
+A short category / job-title pitch is NOT vision yet (e.g. “CEO calendar tool”, “I want a CRM”).
+If the user says they don't know / you decide / doesn't matter, accept it, propose a sensible default in proposals, and move on (or invite Generate when ready).
+Never re-ask the same follow-up verbatim. If the user already described what the product does (even briefly, including Hebrew), accept it and move to the next topic.
+If the user says they already answered / “כתבתי לך” / “I already told you”, apologize briefly, accept their last description as vision, and ask the NEXT topic — never repeat the vision template.
+Never paste the CRM freelancers example script. Write a fresh question in your own words for THIS product.
 
 Return ONLY valid JSON with this shape:
 {
-  "reply": "assistant message to the user (markdown ok, keep light) — MUST end with the one follow-up question when gaps remain",
+  "reply": "assistant message (markdown ok) — end with ONE natural follow-up question when a topic remains",
   "draftPatch": {
     "vision": "updated cumulative vision paragraph or omit",
     "pages": [{"name":"","description":""}],
@@ -730,7 +849,7 @@ Rules:
 - Use draftPatch.vision to maintain a running product vision summary.
 - Only propose NEW items not already in the current draft.
 - If the user describes a multi-step journey, propose a workflow with clear steps.
-- When structure is missing, ask for the happiest path; if they waive, invent a reasonable default workflow in proposals.
+- When structure is missing, explore the happiest path; if they waive, invent a reasonable default workflow in proposals.
 - currentDraft.references may include image/text references (note + description). Treat them as hard UI/product constraints; mention them briefly when relevant. Do not ask the user to re-paste attached references.
 - If ready enough and no critical gaps, celebrate briefly and invite them to generate — still allow refining.`;
 
@@ -742,14 +861,22 @@ async function aiTurn(messages, draftInput, apiKey) {
   const userPayload = JSON.stringify({
     currentDraft: draft,
     readiness: readinessBefore,
-    nextQuestion: readinessBefore.nextQuestion,
+    nextQuestion: readinessBefore.nextQuestion
+      ? {
+          id: readinessBefore.nextQuestion.id,
+          topic: readinessBefore.nextQuestion.topic || readinessBefore.nextQuestion.id,
+          guidance: readinessBefore.nextQuestion.guidance || null,
+          nudge: readinessBefore.nextQuestion.nudge || null
+          // Intentionally omit .text so the model invents the question
+        }
+      : null,
     recentMessages: (messages || []).slice(-12)
   });
 
   const raw = await ai.callJsonChatCompletion({
     system: SYSTEM_PROMPT,
     user: userPayload,
-    temperature: 0.55,
+    temperature: 0.72,
     model: process.env.OPENAI_AUX_MODEL || 'gpt-4o-mini'
   });
 
@@ -795,7 +922,9 @@ async function aiTurn(messages, draftInput, apiKey) {
   if (!reply) {
     reply = buildHeuristicReply(lastUserMessage(messages), nextDraft, readiness, proposals);
   } else {
-    reply = enforceFollowUpQuestion(reply, question);
+    reply = enforceFollowUpQuestion(reply, question, {
+      priorAssistant: lastAssistantMessage(messages)
+    });
   }
 
   return {
@@ -835,12 +964,21 @@ function applyProposalToDraft(draft, proposal) {
 }
 
 async function processTurn({ messages, draft, apiKey }) {
-  const normalizedMessages = Array.isArray(messages)
-    ? messages
-        .filter((m) => m && m.content && (m.role === 'user' || m.role === 'assistant'))
-        .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
-        .slice(-20)
-    : [];
+  const rawMessages = Array.isArray(messages) ? messages : [];
+  const userCount = countUserMessages(rawMessages);
+  if (userCount > MAX_USER_MESSAGES) {
+    const err = new Error(
+      `Living Brief allows up to ${MAX_USER_MESSAGES} messages. Click Generate to create your specification.`
+    );
+    err.code = 'LIVING_BRIEF_MESSAGE_LIMIT';
+    err.statusCode = 429;
+    throw err;
+  }
+
+  const normalizedMessages = rawMessages
+    .filter((m) => m && m.content && (m.role === 'user' || m.role === 'assistant'))
+    .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
+    .slice(-20);
 
   if (apiKey) {
     try {
@@ -915,9 +1053,13 @@ module.exports = {
   conversationText,
   userMessagesCorpus,
   isThinProductPitch,
+  describesProductCapability,
+  isAlreadyAnsweredText,
   classifyFollowUpTopic,
   enforceFollowUpQuestion,
   draftToUserInput,
   pickNextFollowUp,
-  describesUserFlow
+  describesUserFlow,
+  MAX_USER_MESSAGES,
+  countUserMessages
 };

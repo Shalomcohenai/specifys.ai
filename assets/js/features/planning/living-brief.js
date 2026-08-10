@@ -6,6 +6,17 @@
 
   const OPENING = "What are we building?";
 
+  const PLACEHOLDER_EXAMPLES = [
+    'A CRM for freelance designers…',
+    'Marketplace for local artisans…',
+    'Habit tracker for remote teams…',
+    'Booking app for yoga studios…',
+    'Expense splitter for roommates…',
+    'Meal planner with grocery lists…',
+    'Client portal for agencies…',
+    'Inventory app for small shops…'
+  ];
+
   const TAG_DEFS = [
     { tag: 'pages', types: ['page'] },
     { tag: 'workflows', types: ['workflow'] },
@@ -17,6 +28,8 @@
 
   const SUGGEST_KEY = 'livingBriefSuggestionsOn';
   const MAX_REFS = 10;
+  /** Max user chat turns before composer locks (Generate still allowed). */
+  const MAX_USER_MESSAGES = 15;
 
   const state = {
     messages: [],
@@ -40,7 +53,13 @@
     ideaTopic: null,
     flowCaptured: false,
     confettiPlayed: false,
-    pendingRef: null
+    pendingRef: null,
+    limitNoticeShown: false,
+    ringDisplayPct: 0,
+    ringAnimFrame: null,
+    energyTimer: null,
+    placeholderTimer: null,
+    placeholderIndex: 0
   };
 
   function emptyDraft() {
@@ -75,6 +94,7 @@
       send: document.getElementById('lbSend'),
       generate: document.getElementById('lbGenerate'),
       score: document.getElementById('lbRingScore'),
+      meter: document.getElementById('lbRingMeter'),
       progress: document.getElementById('lbProgress'),
       ring: document.getElementById('lbRing'),
       dots: document.getElementById('lbDots'),
@@ -86,7 +106,9 @@
       readyMsg: document.getElementById('lbReadyMsg'),
       confetti: document.getElementById('lbConfetti'),
       composer: document.getElementById('lbComposer'),
+      limitMsg: document.getElementById('lbLimitMsg'),
       pitch: document.getElementById('main-pitch'),
+      topActions: document.getElementById('lbTopActions'),
       refs: document.getElementById('lbRefs'),
       attach: document.getElementById('lbAttach'),
       attachMenu: document.getElementById('lbAttachMenu'),
@@ -194,6 +216,40 @@
     );
   }
 
+  /**
+   * When chat invites Generate, treat the brief as complete for the progress ring.
+   * AI can invite slightly before local heuristics mark all pillars — keep UI aligned.
+   */
+  function markBriefReadyForGenerate(opts) {
+    const options = opts || {};
+    const missing = (state.readiness && state.readiness.missing) || [];
+    if (missing.some((m) => /flow|page|structure/i.test(String(m)))) {
+      state.waivers.structure = true;
+      state.flowCaptured = true;
+    }
+    if (missing.some((m) => /audience|scope|feature|who/i.test(String(m)))) {
+      state.waivers.audience = true;
+      state.waivers.polish = true;
+    }
+    state.readiness = computeLocalReadiness(state.draft);
+    if (!state.readiness.ready || state.readiness.score < 100) {
+      state.readiness = {
+        ...state.readiness,
+        score: 100,
+        ready: true,
+        nextQuestion: null,
+        missing: [],
+        checks: [
+          { id: 'vision', label: 'Vision', done: true },
+          { id: 'structure', label: 'Flow', done: true },
+          { id: 'audience', label: 'Scope', done: true }
+        ]
+      };
+    }
+    state.lastAskedGap = null;
+    renderStatus({ skipConfetti: !!options.skipConfetti });
+  }
+
   function appendInlineGenerate(row) {
     if (!row || row.querySelector('.lb-inline-generate')) return;
     const wrap = document.createElement('div');
@@ -209,6 +265,8 @@
     wrap.appendChild(btn);
     row.appendChild(wrap);
     scrollChatToEnd();
+    // Prefer celebrating from the inline Generate CTA once it lands in chat
+    requestAnimationFrame(() => celebrateReady(btn));
   }
 
   function userCorpus(draft) {
@@ -331,13 +389,37 @@
     return 'e.g. “Sign up → reach the main screen → finish the core action → see success.”';
   }
 
+  function describesProductCapability(text) {
+    const t = String(text || '');
+    if (
+      /(מאפשר|מאפשרת|מאפשרים|מנהל את|מנהלת את|לנהל את|עוזר ל|עוזרת ל|עוזרים ל|מארגן|מארגנת|שומר על|עוקב אחרי|מיועדת? ל|נותנת ל|כוללת את|מרכזת את)/.test(
+        t
+      )
+    ) {
+      return true;
+    }
+    return /\b(allows?|enables?|lets?\s+(users?|people|teams?)|helps?\s+(users?|people|teams?|you)|manages?\s+\w+|tracks?\s+\w+|organi[sz]es?|keeps?\s+track|designed\s+to|so\s+that)\b/i.test(
+      t
+    );
+  }
+
+  function isAlreadyAnsweredText(text) {
+    return /(כתבתי לך|כבר כתבתי|כבר אמרתי|כבר עניתי|אמרתי לך|עניתי כבר|I already (told|said|answered|wrote)|already (told|said|answered) you|I just (told|said|wrote)|as I (already )?(said|wrote)|I (already )?gave you)/i.test(
+      String(text || '')
+    );
+  }
+
   function pickNextFollowUp(missing, waivers) {
     const miss = missing || [];
     const w = waivers || state.waivers || {};
-    // Ask the single highest-leverage gap (score stays internal — never say “for 100%”)
+    // Topic briefs — the model (or local heuristic) should invent the wording
     if (miss.includes('vision') || miss.some((m) => /vision/i.test(m))) {
       return {
         id: 'vision',
+        topic: 'vision',
+        guidance:
+          'Topic: product vision. Explore the job-to-be-done, who hurts today, and what they use instead.',
+        nudge: 'What’s the core job this product does, and what do people improvise with today?',
         text:
           'Curious — what’s the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
       };
@@ -345,12 +427,19 @@
     if ((miss.includes('flows') || miss.some((m) => /flow|page/i.test(m))) && !w.structure && !state.flowCaptured) {
       return {
         id: 'structure',
+        topic: 'structure',
+        guidance: 'Topic: main user journey / screens. Ask for the happiest path or dig into a moment they mentioned.',
+        nudge: `Walk me through the main path in a few steps — ${flowExampleForProduct()}`,
         text: `Almost there — list the main path in 3–4 steps (first → next → done). ${flowExampleForProduct()} Or say “you decide” and I’ll draft one.`
       };
     }
     if ((miss.includes('audience') || miss.some((m) => /audience|platform|feature/i.test(m))) && !w.audience) {
       return {
         id: 'audience',
+        topic: 'audience',
+        guidance:
+          'Topic: audience & launch scope. Explore who it’s for, web/mobile/both, and must-have launch capabilities.',
+        nudge: 'Who is this for first, web or mobile (or both), and what’s a must-have at launch?',
         text:
           'I’d love to know who it’s for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
       };
@@ -362,6 +451,7 @@
    * Realistic “enough info to generate a spec?” score.
    * Uses USER text + draft only (assistant questions must not inflate the score).
    * Vision 40 · Flow 35 · Scope 25 — 100% only when all three are truly covered.
+   * Partial vision credit after the first user message so the ring shows early momentum.
    */
   function computeLocalReadiness(draft) {
     const d = draft || state.draft;
@@ -377,17 +467,22 @@
     const waivers = state.waivers || {};
     const userLower = userText.toLowerCase();
 
-    // Vision: USER text only — short category pitches stay incomplete
-    const thinVision =
-      userLen < 80 ||
-      (userLen < 140 &&
-        !/\b(helps?|lets?|so that|instead of|today|currently|workaround|problem|pain|replace|without|because)\b/i.test(
-          userLower
-        ) &&
-        !/(במקום|היום|בעיה|כדי ש|עוזר|בלי )/.test(userText));
+    // Vision: USER text only — short category pitches stay incomplete;
+    // concrete “what it does” (incl. Hebrew) counts even when short.
+    const hasJobOrPain =
+      /\b(helps?|lets?|so that|instead of|today|currently|workaround|problem|pain|replace|without|because)\b/i.test(
+        userLower
+      ) || /(במקום|היום|בעיה|כדי ש|עוזר|בלי )/.test(userText);
+    const hasCapability = describesProductCapability(userText);
+    const thinVision = (() => {
+      if (!userText) return true;
+      if ((hasJobOrPain || hasCapability) && userLen >= 28) return false;
+      if (userLen < 80) return true;
+      if (userLen < 140 && !hasJobOrPain && !hasCapability) return true;
+      return false;
+    })();
     const hasVision =
-      !thinVision &&
-      (userLen >= 80 || (userTurns >= 2 && userLen >= 50) || (userTurns >= 3 && userLen >= 35));
+      Boolean(waivers.vision) || !thinVision || (userTurns >= 2 && hasCapability);
 
     const hasStructureDraft =
       (d.workflows && d.workflows.some((wf) => (wf.steps || []).length >= 2)) ||
@@ -428,7 +523,14 @@
     }
 
     let score = 0;
-    if (hasVision) score += 40;
+    if (hasVision) {
+      score += 40;
+    } else if (userTurns >= 1 && userLen >= 8) {
+      // First-message momentum — ring should move even before vision is "done"
+      if (userLen >= 70) score += 22;
+      else if (userLen >= 35) score += 16;
+      else score += 12;
+    }
     if (hasStructure) score += 35;
     if (hasScope) score += 25;
 
@@ -570,10 +672,10 @@
         : "Noted — I'm updating your brief.";
 
     if (readiness.nextQuestion && readiness.nextQuestion.text) {
-      reply += `\n\n${readiness.nextQuestion.text}`;
+      reply += `\n\n${readiness.nextQuestion.nudge || readiness.nextQuestion.text}`;
       state.lastAskedGap = readiness.nextQuestion.id;
       state.askedGaps[readiness.nextQuestion.id] = true;
-    } else if (readiness.score >= 80) {
+    } else if (readiness.ready) {
       reply += `\n\nWe have enough to generate whenever you're ready — or keep refining.`;
       state.lastAskedGap = null;
     }
@@ -807,9 +909,60 @@
   }
 
   function readinessTone(pct) {
-    if (pct >= 50) return 'ready';
-    if (pct >= 30) return 'warm';
-    return 'low';
+    // Kept for compatibility; visual tone no longer shifts to green.
+    if (pct >= 100) return 'complete';
+    return 'progress';
+  }
+
+  function setRingMeter(pct) {
+    const { meter, score } = els();
+    if (!meter) return;
+    const target = Math.max(0, Math.min(100, Number(pct) || 0));
+    const from = typeof state.ringDisplayPct === 'number' ? state.ringDisplayPct : 0;
+
+    if (state.ringAnimFrame) {
+      cancelAnimationFrame(state.ringAnimFrame);
+      state.ringAnimFrame = null;
+    }
+
+    // Instant settle when already there (avoid tiny restarts)
+    if (Math.abs(from - target) < 0.15) {
+      state.ringDisplayPct = target;
+      meter.style.strokeDasharray = '100';
+      meter.style.strokeDashoffset = String(100 - target);
+      if (score) score.textContent = `${Math.round(target)}%`;
+      return;
+    }
+
+    // Always start from the current drawn value so the arc visibly “stretches”
+    meter.style.strokeDasharray = '100';
+    meter.style.strokeDashoffset = String(100 - from);
+    // Force a paint so the next frames interpolate from `from`
+    void meter.getBoundingClientRect();
+
+    const delta = Math.abs(target - from);
+    const duration = Math.min(1100, Math.max(520, 420 + delta * 7));
+    const start = performance.now();
+    // Ease-out quint — grows fast at first, then settles into place
+    const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const value = from + (target - from) * easeOut(t);
+      state.ringDisplayPct = value;
+      meter.style.strokeDashoffset = String(100 - value);
+      if (score) score.textContent = `${Math.round(value)}%`;
+      if (t < 1) {
+        state.ringAnimFrame = requestAnimationFrame(tick);
+      } else {
+        state.ringDisplayPct = target;
+        meter.style.strokeDashoffset = String(100 - target);
+        if (score) score.textContent = `${Math.round(target)}%`;
+        state.ringAnimFrame = null;
+      }
+    };
+
+    state.ringAnimFrame = requestAnimationFrame(tick);
   }
 
   function setProgressThinking(on) {
@@ -833,74 +986,142 @@
     }
   }
 
-  function burstOrangeConfetti() {
-    const { confetti } = els();
+  function burstOrangeConfetti(originEl) {
+    const { confetti, ring, generate } = els();
     if (!confetti) return;
     confetti.innerHTML = '';
-    const colors = ['#ff6b35', '#ff8a5b', '#ff9f1c', '#e85d04', '#f4a261', '#ffb703'];
+
+    const origin = originEl || ring || generate || confetti;
+    const layerRect = confetti.getBoundingClientRect();
+    const originRect = origin.getBoundingClientRect();
+    const ox = originRect.left + originRect.width / 2 - layerRect.left;
+    const oy = originRect.top + originRect.height / 2 - layerRect.top;
+
+    const colors = ['#ff6b35', '#ff8a5b', '#ff9f1c', '#e85d04', '#f4a261', '#ffb703', '#ffa07a'];
     const count = 48;
     for (let i = 0; i < count; i++) {
       const piece = document.createElement('span');
       piece.className = 'lb-confetti-piece';
-      const left = Math.random() * 100;
-      const drift = (Math.random() - 0.5) * 120;
-      const rot = 180 + Math.random() * 520;
-      const delay = Math.random() * 0.25;
-      const dur = 1.1 + Math.random() * 0.9;
-      piece.style.left = `${left}%`;
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.45;
+      const dist = 48 + Math.random() * 170;
+      const driftX = Math.cos(angle) * dist;
+      const driftY = Math.sin(angle) * dist * 0.8 + 40 + Math.random() * 120;
+      const rot = 160 + Math.random() * 560;
+      const delay = Math.random() * 0.28;
+      const dur = 2.1 + Math.random() * 1.4;
+      piece.style.left = `${ox}px`;
+      piece.style.top = `${oy}px`;
       piece.style.background = colors[i % colors.length];
-      piece.style.setProperty('--lb-cx', `${drift}px`);
+      piece.style.setProperty('--lb-cx', `${driftX}px`);
+      piece.style.setProperty('--lb-cy', `${driftY}px`);
       piece.style.setProperty('--lb-cr', `${rot}deg`);
       piece.style.animationDuration = `${dur}s`;
       piece.style.animationDelay = `${delay}s`;
-      if (Math.random() > 0.55) {
-        piece.style.width = '5px';
-        piece.style.height = '5px';
+      if (Math.random() > 0.45) {
+        piece.style.width = `${10 + Math.random() * 8}px`;
+        piece.style.height = `${10 + Math.random() * 8}px`;
         piece.style.borderRadius = '50%';
+      } else {
+        piece.style.width = `${11 + Math.random() * 7}px`;
+        piece.style.height = `${14 + Math.random() * 8}px`;
       }
       confetti.appendChild(piece);
     }
     window.setTimeout(() => {
       if (confetti) confetti.innerHTML = '';
-    }, 2200);
+    }, 4200);
   }
 
-  function renderStatus() {
+  function celebrateReady(originEl) {
+    if (state.confettiPlayed) return;
+    state.confettiPlayed = true;
+
+    const { ring, progress } = els();
+    const origin = ring || originEl;
+    const progressEl = progress || (ring && ring.closest('.lb-progress'));
+
+    if (progressEl) {
+      progressEl.classList.remove('is-thinking');
+      progressEl.classList.add('is-complete', 'is-energizing');
+      progressEl.classList.remove('is-charged');
+    }
+
+    if (state.energyTimer) {
+      window.clearTimeout(state.energyTimer);
+      state.energyTimer = null;
+    }
+
+    // Charge the ring with energy, then burst confetti from it
+    state.energyTimer = window.setTimeout(() => {
+      state.energyTimer = null;
+      if (progressEl) {
+        progressEl.classList.remove('is-energizing');
+        progressEl.classList.add('is-charged');
+      }
+      burstOrangeConfetti(origin);
+    }, 820);
+  }
+
+  function syncProgressVisibility() {
+    const { progress, ring, topActions, generate } = els();
+    const revealed = countUserMessages() >= 1;
+
+    if (progress) {
+      progress.classList.toggle('is-idle', !revealed);
+      progress.classList.toggle('is-visible', revealed);
+      progress.setAttribute('aria-hidden', revealed ? 'false' : 'true');
+    }
+    if (ring) ring.setAttribute('aria-hidden', revealed ? 'false' : 'true');
+
+    if (topActions) {
+      topActions.classList.toggle('is-idle', !revealed);
+      topActions.classList.toggle('is-visible', revealed);
+      topActions.setAttribute('aria-hidden', revealed ? 'false' : 'true');
+    }
+    if (generate) {
+      generate.tabIndex = revealed ? 0 : -1;
+      generate.setAttribute('aria-hidden', revealed ? 'false' : 'true');
+    }
+  }
+
+  function renderStatus(opts) {
+    const options = opts || {};
     const { score, dots, generate, readyMsg, progress } = els();
     const readiness = state.readiness || computeLocalReadiness(state.draft);
     state.readiness = readiness;
     const pct = Math.round(readiness.score || 0);
-    const tone = readinessTone(pct);
     const isComplete = pct >= 100;
 
-    if (score) {
-      score.textContent = `${pct}%`;
-      const progressEl = progress || score.closest('.lb-progress');
-      if (progressEl) progressEl.setAttribute('data-tone', tone);
+    syncProgressVisibility();
+
+    // Arc + % animate together via setRingMeter (stretch into place)
+    setRingMeter(pct);
+
+    const progressEl = progress || (score && score.closest('.lb-progress'));
+    if (progressEl) {
+      progressEl.classList.toggle('is-complete', isComplete);
+      progressEl.removeAttribute('data-tone');
+      if (isComplete) {
+        progressEl.classList.remove('is-thinking');
+      } else {
+        progressEl.classList.remove('is-energizing', 'is-charged');
+      }
     }
 
     if (dots) {
-      const map = [
-        { id: 'vision', title: 'Vision' },
-        { id: 'structure', title: 'Flow' },
-        { id: 'audience', title: 'Scope' }
-      ];
-      dots.innerHTML = map
-        .map(({ id, title }) => {
-          const check = (readiness.checks || []).find((c) => c.id === id);
-          return `<span class="lb-dot ${check && check.done ? 'is-on' : ''}" title="${title}"></span>`;
-        })
-        .join('');
+      dots.hidden = true;
+      dots.innerHTML = '';
     }
 
     if (readyMsg) {
       readyMsg.hidden = !isComplete;
     }
-    if (isComplete && !state.confettiPlayed) {
-      state.confettiPlayed = true;
-      burstOrangeConfetti();
-    }
-    if (!isComplete) {
+    if (isComplete) {
+      if (!options.skipConfetti) {
+        const { ring, generate: genBtn } = els();
+        celebrateReady(ring || genBtn);
+      }
+    } else {
       state.confettiPlayed = false;
     }
 
@@ -912,8 +1133,9 @@
 
   async function requestTurn(userText) {
     const base = apiBase();
+    // state.messages already includes the latest user turn (pushed in handleSend)
     const payload = {
-      messages: state.messages.concat([{ role: 'user', content: userText }]),
+      messages: state.messages,
       draft: state.draft,
       tags: parseTags(userText)
     };
@@ -924,6 +1146,15 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        const err = new Error(
+          (data && data.error && data.error.message) ||
+            `Message limit of ${MAX_USER_MESSAGES} reached. Click Generate to create your spec.`
+        );
+        err.code = 'LIVING_BRIEF_MESSAGE_LIMIT';
+        throw err;
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data || !data.success) throw new Error('Bad response');
@@ -935,13 +1166,14 @@
         engine: data.engine
       };
     } catch (err) {
+      if (err && err.code === 'LIVING_BRIEF_MESSAGE_LIMIT') throw err;
       return localHeuristicTurn(userText);
     }
   }
 
   function insertTag(tag) {
     const { input } = els();
-    if (!input) return;
+    if (!input || isChatLimitReached()) return;
     const token = `@${tag}`;
     const has = new RegExp(`@${tag}\\b`, 'i').test(input.value);
     if (has) {
@@ -985,6 +1217,10 @@
   async function handleSend() {
     const { input } = els();
     if (!input || state.busy) return;
+    if (isChatLimitReached()) {
+      applyChatLimitState();
+      return;
+    }
     const text = input.value.trim();
     if (!text) return;
 
@@ -1001,6 +1237,10 @@
 
     appendMessage('user', text);
     state.messages.push({ role: 'user', content: text });
+    state.readiness = computeLocalReadiness(state.draft);
+    renderStatus({ skipConfetti: true });
+    syncProgressVisibility();
+    applyChatLimitState();
 
     // If the user can't answer the last gap, don't let it hurt the score
     if (isWaiverText(text)) {
@@ -1011,6 +1251,9 @@
       }
       if (gap === 'audience' || !gap) state.waivers.audience = true;
       state.waivers.polish = true;
+    } else if (isAlreadyAnsweredText(text)) {
+      // “I already told you” — accept vision and stop re-asking the template
+      state.waivers.vision = true;
     } else if (
       state.lastAskedGap === 'structure' ||
       describesUserFlow(text) ||
@@ -1018,6 +1261,16 @@
     ) {
       // Credit + capture flow whenever the user describes a path (or answers a flow question)
       captureFlowFromUserText(text);
+    }
+
+    // After a capability answer (or a second user turn with product language), clear vision gap
+    if (
+      describesProductCapability(text) ||
+      (state.askedGaps.vision &&
+        countUserMessages() >= 2 &&
+        userCorpus(state.draft).replace(/\s+/g, ' ').trim().length >= 45)
+    ) {
+      state.waivers.vision = true;
     }
 
     const typing = appendMessage('assistant', '', { typing: true });
@@ -1058,33 +1311,70 @@
 
       state.readiness = computeLocalReadiness(state.draft);
       let replyText = result.reply || '…';
+      // Strip the stuck English vision template if it was already asked
+      if (state.askedGaps.vision) {
+        replyText = replyText
+          .split(/\n\n+/)
+          .filter(
+            (p) =>
+              !/product in one line|CRM for freelancers|people use today instead|Curious — what’s the product/i.test(
+                p
+              )
+          )
+          .join('\n\n')
+          .trim() || replyText;
+      }
       const localReady = computeLocalReadiness(state.draft);
+      const aiInvitesGenerate = replyInvitesGenerate(replyText);
       const forcedAsk = localReady.nextQuestion || state.readiness.nextQuestion;
-      // Keep chat on the vision→flow→scope timeline even if the model jumps ahead
-      if (forcedAsk && forcedAsk.text) {
+
+      // If the model already invites Generate, trust that signal: don't re-ask gaps
+      // and snap the progress ring to 100% so Generate ↔ score stay aligned.
+      if (aiInvitesGenerate || (localReady.ready && !localReady.nextQuestion)) {
+        state.readiness = { ...localReady, nextQuestion: null };
+        state.lastAskedGap = null;
+        // Snap ring now; wait for Generate CTA (or final render) to fire confetti
+        markBriefReadyForGenerate({ skipConfetti: true });
+      } else if (forcedAsk && forcedAsk.text) {
+        // Soft topic guard: keep AI wording when it already asks something useful.
+        // Only inject a nudge if there is no question, or the ask clearly skipped the topic.
         const askTopic = forcedAsk.id;
+        const hasQuestion = /\?/.test(replyText);
         const replyLooksFlow = /main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(
           replyText
         );
         const replyLooksVision = /product in one line|what job|workaround|one sentence|core job/i.test(
           replyText
         );
-        const mismatch =
+        const replyLooksAudience =
+          /\b(who (is|are)|audience|for (my|our|sales|teachers)|web or mobile|web\/mobile|must-have|launch feature)/i.test(
+            replyText
+          );
+        const clearlyWrong =
           (askTopic === 'vision' && replyLooksFlow && !replyLooksVision) ||
           (askTopic === 'structure' && replyLooksVision && !replyLooksFlow) ||
-          !/\?/.test(replyText);
-        if (mismatch || !replyText.includes(forcedAsk.text.slice(0, 40))) {
-          if (askTopic === 'vision' && replyLooksFlow) {
-            replyText = replyText
-              .split(/\n\n+/)
-              .filter((p) => !/main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(p))
-              .join('\n\n')
-              .trim();
-          }
-          if (!replyText.includes(forcedAsk.text.slice(0, 40))) {
-            replyText = `${replyText}\n\n${forcedAsk.text}`.trim();
+          (askTopic === 'audience' && (replyLooksFlow || replyLooksVision) && !replyLooksAudience);
+
+        if (clearlyWrong && askTopic === 'vision' && replyLooksFlow) {
+          replyText = replyText
+            .split(/\n\n+/)
+            .filter((p) => !/main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(p))
+            .join('\n\n')
+            .trim();
+        }
+
+        const alreadyAskedThisGap = Boolean(state.askedGaps[askTopic]);
+        const softNudge = forcedAsk.nudge || forcedAsk.text;
+        // Never re-paste the long CRM vision template once we've already asked vision
+        if (
+          (!/\?/.test(replyText) || clearlyWrong) &&
+          !(alreadyAskedThisGap && askTopic === 'vision')
+        ) {
+          if (softNudge && !replyText.includes(softNudge.slice(0, 28))) {
+            replyText = `${replyText}\n\n${softNudge}`.trim();
           }
         }
+
         state.readiness = { ...state.readiness, ...localReady, nextQuestion: forcedAsk };
         state.lastAskedGap = forcedAsk.id;
         state.askedGaps[forcedAsk.id] = true;
@@ -1096,15 +1386,36 @@
       await typeIntoBubble(assistant.bubble, replyText);
       state.messages.push({ role: 'assistant', content: replyText });
 
-      state.readiness = computeLocalReadiness(state.draft);
-      renderStatus();
-
       const inviteGenerate =
-        replyInvitesGenerate(replyText) ||
+        aiInvitesGenerate ||
         (state.readiness && state.readiness.score >= 100) ||
         (state.readiness && state.readiness.ready && !state.readiness.nextQuestion);
-      if (inviteGenerate && assistant.row) {
-        appendInlineGenerate(assistant.row);
+      if (inviteGenerate) {
+        markBriefReadyForGenerate({ skipConfetti: true });
+        if (assistant.row) {
+          appendInlineGenerate(assistant.row);
+        } else {
+          const { ring, generate: genBtn } = els();
+          celebrateReady(ring || genBtn);
+        }
+      } else {
+        state.readiness = computeLocalReadiness(state.draft);
+        renderStatus();
+      }
+
+      if (isChatLimitReached() && !state.limitNoticeShown) {
+        state.limitNoticeShown = true;
+        markBriefReadyForGenerate({ skipConfetti: true });
+        const limitRow = appendMessage(
+          'assistant',
+          `You've reached the ${MAX_USER_MESSAGES}-message limit. Click Generate to create your specification.`
+        );
+        if (limitRow && limitRow.row) {
+          appendInlineGenerate(limitRow.row);
+        } else {
+          const { ring, generate: genBtn } = els();
+          celebrateReady(ring || genBtn);
+        }
       }
 
       // Ideas only after the first completed user turn; new round (max 3) after each send
@@ -1121,12 +1432,21 @@
       if (typing && typing.row) typing.row.remove();
       state.readiness = computeLocalReadiness(state.draft);
       renderStatus();
-      appendMessage('assistant', 'Something hiccuped on my side — try sending that again?');
+      if (err && err.code === 'LIVING_BRIEF_MESSAGE_LIMIT') {
+        applyChatLimitState();
+        appendMessage(
+          'assistant',
+          `You've reached the ${MAX_USER_MESSAGES}-message limit. Click Generate to create your specification.`
+        );
+      } else {
+        appendMessage('assistant', 'Something hiccuped on my side — try sending that again?');
+      }
     } finally {
       setProgressThinking(false);
       state.busy = false;
+      applyChatLimitState();
       updateSendReady();
-      if (input) input.focus();
+      if (input && !isChatLimitReached()) input.focus();
     }
   }
 
@@ -1141,23 +1461,217 @@
     syncPitch();
   }
 
+  function showCreatingSpecStatus() {
+    const { messages, generate } = els();
+    if (generate) {
+      generate.disabled = true;
+      generate.setAttribute('aria-busy', 'true');
+    }
+    document.querySelectorAll('.lb-inline-generate').forEach((btn) => {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    });
+
+    if (!messages) return null;
+    const existing = messages.querySelector('.lb-msg--creating');
+    if (existing) {
+      scrollChatToEnd();
+      return existing;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'lb-msg lb-msg--assistant lb-msg--creating';
+    row.setAttribute('role', 'status');
+    row.setAttribute('aria-live', 'polite');
+    row.innerHTML = `
+      <div class="lb-creating" aria-label="Creating your spec">
+        <div class="lb-creating-row">
+          <span class="lb-creating-orbit" aria-hidden="true"></span>
+          <span class="lb-creating-copy">
+            <span class="lb-creating-label">Creating your spec</span>
+            <span class="lb-creating-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+          </span>
+        </div>
+        <span class="lb-creating-bar" aria-hidden="true"><span class="lb-creating-bar-fill"></span></span>
+      </div>
+    `;
+    messages.appendChild(row);
+    scrollChatToEnd();
+    return row;
+  }
+
   function handleGenerate() {
     if (state.busy) return;
+    state.busy = true;
     // Accept anything still pending — user asked to generate; system completes the rest
     [...state.proposals].forEach((p) => acceptProposal(p.id, { silent: true }));
     ensureVisionForGenerate();
     syncDraftFromDom();
     syncPitch();
+    showCreatingSpecStatus();
+    setProgressThinking(true);
 
-    if (typeof window.generateSpecFromPlanning === 'function') {
-      window.generateSpecFromPlanning();
+    // Let the in-chat “Creating…” cue paint before the heavier generate handoff
+    window.setTimeout(() => {
+      if (typeof window.generateSpecFromPlanning === 'function') {
+        window.generateSpecFromPlanning();
+      } else {
+        state.busy = false;
+        setProgressThinking(false);
+        alert('Error: Could not generate specification.');
+      }
+    }, 720);
+  }
+
+  function countUserMessages() {
+    return (state.messages || []).filter(
+      (m) => m && m.role === 'user' && String(m.content || '').trim()
+    ).length;
+  }
+
+  function isChatLimitReached() {
+    return countUserMessages() >= MAX_USER_MESSAGES;
+  }
+
+  function ensureLimitNotice() {
+    const { composer, limitMsg } = els();
+    if (limitMsg) return limitMsg;
+    if (!composer) return null;
+    const el = document.createElement('p');
+    el.id = 'lbLimitMsg';
+    el.className = 'lb-limit-msg';
+    el.hidden = true;
+    el.setAttribute('role', 'status');
+    el.textContent =
+      'Message limit reached (15). You can still click Generate to create your spec.';
+    composer.insertAdjacentElement('afterbegin', el);
+    return el;
+  }
+
+  function stopPlaceholderRotation() {
+    if (state.placeholderTimer) {
+      window.clearTimeout(state.placeholderTimer);
+      state.placeholderTimer = null;
+    }
+    const { input } = els();
+    if (input) input.classList.remove('is-placeholder-fading');
+  }
+
+  function canRotatePlaceholder() {
+    const { input } = els();
+    if (!input || isChatLimitReached()) return false;
+    return !String(input.value || '').trim();
+  }
+
+  function setPlaceholderExample(text, { animate } = { animate: true }) {
+    const { input } = els();
+    if (!input) return;
+    const next = String(text || '').trim();
+    if (!next) return;
+
+    if (!animate) {
+      input.classList.remove('is-placeholder-fading');
+      input.placeholder = next;
+      return;
+    }
+
+    input.classList.add('is-placeholder-fading');
+    window.setTimeout(() => {
+      if (!canRotatePlaceholder()) {
+        input.classList.remove('is-placeholder-fading');
+        return;
+      }
+      input.placeholder = next;
+      input.classList.remove('is-placeholder-fading');
+    }, 220);
+  }
+
+  function schedulePlaceholderRotation() {
+    stopPlaceholderRotation();
+    if (!canRotatePlaceholder()) return;
+
+    const tick = () => {
+      if (!canRotatePlaceholder()) {
+        state.placeholderTimer = null;
+        return;
+      }
+      state.placeholderIndex = (state.placeholderIndex + 1) % PLACEHOLDER_EXAMPLES.length;
+      setPlaceholderExample(PLACEHOLDER_EXAMPLES[state.placeholderIndex], { animate: true });
+      state.placeholderTimer = window.setTimeout(tick, 3200);
+    };
+
+    state.placeholderTimer = window.setTimeout(tick, 3200);
+  }
+
+  function startPlaceholderRotation() {
+    const { input } = els();
+    if (!input) return;
+    if (isChatLimitReached()) {
+      stopPlaceholderRotation();
+      input.placeholder = 'Message limit reached — click Generate';
+      return;
+    }
+    if (!canRotatePlaceholder()) {
+      stopPlaceholderRotation();
+      return;
+    }
+    if (!PLACEHOLDER_EXAMPLES.includes(input.placeholder)) {
+      state.placeholderIndex = 0;
+      setPlaceholderExample(PLACEHOLDER_EXAMPLES[0], { animate: false });
+    }
+    schedulePlaceholderRotation();
+  }
+
+  function applyChatLimitState() {
+    const { input, send, composer, tags, attach, generate } = els();
+    const capped = isChatLimitReached();
+    const notice = ensureLimitNotice();
+    if (notice) notice.hidden = !capped;
+    if (composer) composer.classList.toggle('is-chat-capped', capped);
+    if (input) {
+      input.disabled = capped;
+      input.readOnly = capped;
+      input.setAttribute('aria-disabled', capped ? 'true' : 'false');
+      if (capped) {
+        stopPlaceholderRotation();
+        input.placeholder = 'Message limit reached — click Generate';
+        input.value = '';
+        autoGrowInput();
+      } else {
+        startPlaceholderRotation();
+      }
+    }
+    if (send) {
+      send.disabled = capped;
+      send.classList.toggle('is-ready', false);
+      send.setAttribute('aria-disabled', 'true');
+    }
+    if (tags) {
+      tags.querySelectorAll('.lb-tag').forEach((btn) => {
+        btn.disabled = capped;
+        btn.setAttribute('aria-disabled', capped ? 'true' : 'false');
+      });
+    }
+    if (attach) {
+      attach.disabled = capped;
+      attach.setAttribute('aria-disabled', capped ? 'true' : 'false');
+    }
+    if (generate) {
+      generate.disabled = false;
+      generate.setAttribute('aria-disabled', 'false');
+      generate.classList.toggle('is-limit-cta', capped);
     }
   }
 
   function updateSendReady() {
     const { input, send } = els();
     if (!send || !input) return;
+    if (isChatLimitReached()) {
+      applyChatLimitState();
+      return;
+    }
     const has = input.value.trim().length > 0 && !state.busy;
+    send.disabled = false;
     send.classList.toggle('is-ready', has);
     send.setAttribute('aria-disabled', has ? 'false' : 'true');
   }
@@ -1165,12 +1679,16 @@
   function autoGrowInput() {
     const { input } = els();
     if (!input || input.tagName !== 'TEXTAREA') return;
-    const max = Math.min(window.innerHeight * 0.4, 220);
+    const max = Math.min(window.innerHeight * 0.36, 200);
+    const minH = Math.round(
+      (parseFloat(window.getComputedStyle(input).lineHeight) ||
+        (parseFloat(window.getComputedStyle(input).fontSize) || 16) * 1.45)
+    );
     const prev = input.offsetHeight;
     // Measure without transition so scrollHeight is accurate
     input.style.transition = 'none';
     input.style.height = '0px';
-    const measured = Math.max(input.scrollHeight, 22);
+    const measured = Math.max(input.scrollHeight, minH);
     const next = Math.min(measured, max);
     input.style.height = prev + 'px';
     // Force reflow, then animate to target height
@@ -1858,7 +2376,12 @@
 
     if (input) {
       input.addEventListener('input', () => {
-        if (input.value.trim()) dismissActiveIdeas();
+        if (input.value.trim()) {
+          dismissActiveIdeas();
+          stopPlaceholderRotation();
+        } else {
+          startPlaceholderRotation();
+        }
         updateSendReady();
         refreshTagButtons();
         autoGrowInput();
@@ -1872,6 +2395,7 @@
             composer.classList.remove('is-focused');
           }
         }, 120);
+        if (!String(input.value || '').trim()) startPlaceholderRotation();
       });
       // Enter sends; Shift+Enter inserts a new line
       input.addEventListener('keydown', (e) => {
@@ -1943,6 +2467,7 @@
       attach.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (isChatLimitReached()) return;
         toggleAttachMenu();
       });
     }
@@ -2036,10 +2561,12 @@
     setSuggestionsOn(state.suggestionsOn);
     renderStatus();
     mountOpening();
+    applyChatLimitState();
+    startPlaceholderRotation();
     updateSendReady();
     // Do not render ideas on open — only after the first user message
     setTimeout(() => {
-      if (input) input.focus();
+      if (input && !isChatLimitReached()) input.focus();
     }, 350);
 
     try {

@@ -23,11 +23,11 @@ const emailService = require('../server/email-service');
 const emailTemplates = require('../server/email-templates');
 const emailTracking = require('../server/email-tracking-service');
 
-const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://www.specifys-ai.com';
 
-const DEFAULT_SUBJECT = 'Specifys just got smarter - now powered by GPT-5.6';
-const DEFAULT_HEADER = 'Now powered by GPT-5.6';
-const CAMPAIGN_ID = 'broadcast-gpt56-upgrade';
+const DEFAULT_SUBJECT = 'Your idea. One chat. A full spec.';
+const DEFAULT_HEADER = 'Living Brief is live';
+const CAMPAIGN_ID = 'broadcast-living-brief-launch';
 
 function parseArgs(argv) {
   const args = {
@@ -69,59 +69,28 @@ function wantsNewsletter(userData, args) {
 }
 
 function buildHtml({ userName, userId, campaignId }) {
-  const uid = userId || 'anonymous';
-
-  const startUrl = emailTracking.generateTrackingUrl(
-    `${baseUrl}/`,
-    campaignId,
-    uid,
-    'start-building'
-  );
-  const proUrl = emailTracking.generateTrackingUrl(
-    `${baseUrl}/pages/pricing.html`,
-    campaignId,
-    uid,
-    'upgrade-pro'
-  );
-  const unsubscribeUrl = emailTracking.generateTrackingUrl(
-    `${baseUrl}/pages/unsubscribe.html`,
-    campaignId,
-    uid,
-    'unsubscribe'
-  );
+  // Direct site links — tracking redirect (/api/email/track) 404s on the static host
+  const startUrl = `${baseUrl.replace(/\/$/, '')}/`;
+  const proUrl = `${baseUrl.replace(/\/$/, '')}/pages/pricing.html`;
+  const unsubscribeUrl = `${baseUrl.replace(/\/$/, '')}/pages/unsubscribe.html`;
 
   const bodyContent = `
       <p class="content-text" style="text-align:center;">
         Hello ${userName},
       </p>
       <p class="content-text" style="text-align:center;">
-        Specifys just got a major upgrade. Spec generation now runs on
-        <strong>GPT-5.6</strong> - the most advanced model available today.
+        Specifys just got faster. Meet <strong>Living Brief</strong> -
+        describe your product in a chat, and get a full build-ready specification.
       </p>
       <p class="content-text" style="text-align:center;">
-        That means sharper product specs, stronger architecture, and Cursor-ready prompts -
-        so you can go from idea to a buildable plan faster than ever.
-      </p>
-      <div class="content-title" style="text-align:center;">What you get now</div>
-      <ul style="color:#333;font-size:16px;line-height:1.9;max-width:420px;margin:0 auto 20px auto;padding-left:24px;text-align:left;">
-        <li><strong>GPT-5.6</strong> behind every specification</li>
-        <li>Clearer technical + prompt output for Cursor / MCP</li>
-        <li>A faster path from brief → shippable plan</li>
-      </ul>
-      <p class="content-text" style="text-align:center;">
-        Don’t leave your next app idea waiting. Open Specifys and create a full specification in minutes.
+        No long forms. Just talk, refine, and generate.
       </p>
       <div class="btn-container">
-        <a href="${startUrl}" class="btn">Start building free</a>
+        <a href="${startUrl}" class="btn">Try Living Brief free</a>
       </div>
-      <div class="content-title" style="text-align:center;">Ready to go unlimited?</div>
       <p class="content-text" style="text-align:center;">
-        <strong>Specifys Pro</strong> unlocks unlimited specs, editing, export to Cursor, AI review, and everything that finishes the product -
-        for <strong>$1.99/month</strong>.
+        Want unlimited specs? <a href="${proUrl}" style="color:#FF6B35;font-weight:600;text-decoration:none;">Go Pro for $1.99/mo</a>
       </p>
-      <div class="btn-container">
-        <a href="${proUrl}" class="btn">Upgrade to Pro - $1.99/mo</a>
-      </div>
       <p class="content-text" style="text-align:center;">
         Happy building,<br>
         <strong>The Specifys.ai Team</strong>
