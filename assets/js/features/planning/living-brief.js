@@ -75,6 +75,8 @@
       send: document.getElementById('lbSend'),
       generate: document.getElementById('lbGenerate'),
       score: document.getElementById('lbRingScore'),
+      progress: document.getElementById('lbProgress'),
+      ring: document.getElementById('lbRing'),
       dots: document.getElementById('lbDots'),
       chips: document.getElementById('lbChips'),
       tags: document.getElementById('lbTags'),
@@ -332,12 +334,12 @@
   function pickNextFollowUp(missing, waivers) {
     const miss = missing || [];
     const w = waivers || state.waivers || {};
-    // Ask the single gap that unlocks the most progress toward 100%
+    // Ask the single highest-leverage gap (score stays internal — never say “for 100%”)
     if (miss.includes('vision') || miss.some((m) => /vision/i.test(m))) {
       return {
         id: 'vision',
         text:
-          'For 100% we still need the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
+          'Curious — what’s the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
       };
     }
     if ((miss.includes('flows') || miss.some((m) => /flow|page/i.test(m))) && !w.structure && !state.flowCaptured) {
@@ -350,7 +352,7 @@
       return {
         id: 'audience',
         text:
-          'Last piece for 100%: who is it for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
+          'I’d love to know who it’s for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
       };
     }
     return null;
@@ -810,6 +812,27 @@
     return 'low';
   }
 
+  function setProgressThinking(on) {
+    const { progress } = els();
+    if (!progress) return;
+    if (on) {
+      progress.classList.remove('is-settling');
+      progress.classList.add('is-thinking');
+      progress.setAttribute('aria-busy', 'true');
+      return;
+    }
+    const wasThinking = progress.classList.contains('is-thinking');
+    progress.classList.remove('is-thinking');
+    progress.removeAttribute('aria-busy');
+    if (wasThinking) {
+      progress.classList.add('is-settling');
+      window.setTimeout(() => {
+        const p = els().progress;
+        if (p) p.classList.remove('is-settling');
+      }, 560);
+    }
+  }
+
   function burstOrangeConfetti() {
     const { confetti } = els();
     if (!confetti) return;
@@ -843,7 +866,7 @@
   }
 
   function renderStatus() {
-    const { score, dots, generate, readyMsg } = els();
+    const { score, dots, generate, readyMsg, progress } = els();
     const readiness = state.readiness || computeLocalReadiness(state.draft);
     state.readiness = readiness;
     const pct = Math.round(readiness.score || 0);
@@ -852,8 +875,8 @@
 
     if (score) {
       score.textContent = `${pct}%`;
-      const progress = score.closest('.lb-progress');
-      if (progress) progress.setAttribute('data-tone', tone);
+      const progressEl = progress || score.closest('.lb-progress');
+      if (progressEl) progressEl.setAttribute('data-tone', tone);
     }
 
     if (dots) {
@@ -969,6 +992,7 @@
 
     const tags = parseTags(text);
     state.busy = true;
+    setProgressThinking(true);
     input.value = '';
     autoGrowInput();
     state.activeTags = [];
@@ -997,105 +1021,113 @@
     }
 
     const typing = appendMessage('assistant', '', { typing: true });
-    const result = await requestTurn(text);
-    if (typing && typing.row) typing.row.remove();
+    try {
+      const result = await requestTurn(text);
+      if (typing && typing.row) typing.row.remove();
 
-    applyDraftPatch(result.draftPatch);
+      applyDraftPatch(result.draftPatch);
 
-    const incoming = Array.isArray(result.proposals) ? result.proposals : [];
-    incoming.forEach((p) => {
-      if (!state.proposals.some((x) => x.summary === p.summary)) state.proposals.push(p);
-    });
-
-    if (
-      state.waivers.structure &&
-      !(state.draft.workflows && state.draft.workflows.length) &&
-      !state.proposals.some((p) => p.type === 'workflow')
-    ) {
-      state.proposals.push({
-        id: `lb-default-flow-${Date.now()}`,
-        type: 'workflow',
-        label: 'Workflow',
-        value: {
-          name: 'Core happy path',
-          steps: ['Land on home', 'Complete the main action', 'See confirmation / next step']
-        },
-        summary: 'Add flow: Core happy path'
+      const incoming = Array.isArray(result.proposals) ? result.proposals : [];
+      incoming.forEach((p) => {
+        if (!state.proposals.some((x) => x.summary === p.summary)) state.proposals.push(p);
       });
-    }
 
-    // Auto-apply everything — features announce with a checked row (no Add/Skip)
-    [...state.proposals].forEach((p) => {
-      acceptProposal(p.id, { silent: true, announceFeature: p.type === 'feature' });
-    });
-
-    syncDraftFromDom();
-
-    state.readiness = computeLocalReadiness(state.draft);
-    let replyText = result.reply || '…';
-    const localReady = computeLocalReadiness(state.draft);
-    const forcedAsk = localReady.nextQuestion || state.readiness.nextQuestion;
-    // Keep chat on the vision→flow→scope timeline even if the model jumps ahead
-    if (forcedAsk && forcedAsk.text) {
-      const askTopic = forcedAsk.id;
-      const replyLooksFlow = /main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(
-        replyText
-      );
-      const replyLooksVision = /product in one line|what job|workaround|one sentence|core job/i.test(
-        replyText
-      );
-      const mismatch =
-        (askTopic === 'vision' && replyLooksFlow && !replyLooksVision) ||
-        (askTopic === 'structure' && replyLooksVision && !replyLooksFlow) ||
-        !/\?/.test(replyText);
-      if (mismatch || !replyText.includes(forcedAsk.text.slice(0, 40))) {
-        if (askTopic === 'vision' && replyLooksFlow) {
-          replyText = replyText
-            .split(/\n\n+/)
-            .filter((p) => !/main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(p))
-            .join('\n\n')
-            .trim();
-        }
-        if (!replyText.includes(forcedAsk.text.slice(0, 40))) {
-          replyText = `${replyText}\n\n${forcedAsk.text}`.trim();
-        }
+      if (
+        state.waivers.structure &&
+        !(state.draft.workflows && state.draft.workflows.length) &&
+        !state.proposals.some((p) => p.type === 'workflow')
+      ) {
+        state.proposals.push({
+          id: `lb-default-flow-${Date.now()}`,
+          type: 'workflow',
+          label: 'Workflow',
+          value: {
+            name: 'Core happy path',
+            steps: ['Land on home', 'Complete the main action', 'See confirmation / next step']
+          },
+          summary: 'Add flow: Core happy path'
+        });
       }
-      state.readiness = { ...state.readiness, ...localReady, nextQuestion: forcedAsk };
-      state.lastAskedGap = forcedAsk.id;
-      state.askedGaps[forcedAsk.id] = true;
-    } else {
-      state.lastAskedGap = null;
-    }
 
-    const assistant = appendMessage('assistant', '');
-    await typeIntoBubble(assistant.bubble, replyText);
-    state.messages.push({ role: 'assistant', content: replyText });
+      // Auto-apply everything — features announce with a checked row (no Add/Skip)
+      [...state.proposals].forEach((p) => {
+        acceptProposal(p.id, { silent: true, announceFeature: p.type === 'feature' });
+      });
 
-    state.readiness = computeLocalReadiness(state.draft);
-    renderStatus();
+      syncDraftFromDom();
 
-    const inviteGenerate =
-      replyInvitesGenerate(replyText) ||
-      (state.readiness && state.readiness.score >= 100) ||
-      (state.readiness && state.readiness.ready && !state.readiness.nextQuestion);
-    if (inviteGenerate && assistant.row) {
-      appendInlineGenerate(assistant.row);
-    }
-
-    // Ideas only after the first completed user turn; new round (max 3) after each send
-    if (!state.ideasUnlocked) {
-      state.ideasUnlocked = true;
-      renderSuggestions({ refresh: true });
-    } else {
-      if (Math.random() < 0.45 || tags.includes('features')) {
-        state.ideaSeed = (state.ideaSeed || 0) + 1 + Math.floor(Math.random() * 2);
+      state.readiness = computeLocalReadiness(state.draft);
+      let replyText = result.reply || '…';
+      const localReady = computeLocalReadiness(state.draft);
+      const forcedAsk = localReady.nextQuestion || state.readiness.nextQuestion;
+      // Keep chat on the vision→flow→scope timeline even if the model jumps ahead
+      if (forcedAsk && forcedAsk.text) {
+        const askTopic = forcedAsk.id;
+        const replyLooksFlow = /main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(
+          replyText
+        );
+        const replyLooksVision = /product in one line|what job|workaround|one sentence|core job/i.test(
+          replyText
+        );
+        const mismatch =
+          (askTopic === 'vision' && replyLooksFlow && !replyLooksVision) ||
+          (askTopic === 'structure' && replyLooksVision && !replyLooksFlow) ||
+          !/\?/.test(replyText);
+        if (mismatch || !replyText.includes(forcedAsk.text.slice(0, 40))) {
+          if (askTopic === 'vision' && replyLooksFlow) {
+            replyText = replyText
+              .split(/\n\n+/)
+              .filter((p) => !/main path|3–4 steps|3-4 steps|happiest path|outline the main|user flow/i.test(p))
+              .join('\n\n')
+              .trim();
+          }
+          if (!replyText.includes(forcedAsk.text.slice(0, 40))) {
+            replyText = `${replyText}\n\n${forcedAsk.text}`.trim();
+          }
+        }
+        state.readiness = { ...state.readiness, ...localReady, nextQuestion: forcedAsk };
+        state.lastAskedGap = forcedAsk.id;
+        state.askedGaps[forcedAsk.id] = true;
+      } else {
+        state.lastAskedGap = null;
       }
-      scheduleSuggestions({ refresh: true });
-    }
 
-    state.busy = false;
-    updateSendReady();
-    if (input) input.focus();
+      const assistant = appendMessage('assistant', '');
+      await typeIntoBubble(assistant.bubble, replyText);
+      state.messages.push({ role: 'assistant', content: replyText });
+
+      state.readiness = computeLocalReadiness(state.draft);
+      renderStatus();
+
+      const inviteGenerate =
+        replyInvitesGenerate(replyText) ||
+        (state.readiness && state.readiness.score >= 100) ||
+        (state.readiness && state.readiness.ready && !state.readiness.nextQuestion);
+      if (inviteGenerate && assistant.row) {
+        appendInlineGenerate(assistant.row);
+      }
+
+      // Ideas only after the first completed user turn; new round (max 3) after each send
+      if (!state.ideasUnlocked) {
+        state.ideasUnlocked = true;
+        renderSuggestions({ refresh: true });
+      } else {
+        if (Math.random() < 0.45 || tags.includes('features')) {
+          state.ideaSeed = (state.ideaSeed || 0) + 1 + Math.floor(Math.random() * 2);
+        }
+        scheduleSuggestions({ refresh: true });
+      }
+    } catch (err) {
+      if (typing && typing.row) typing.row.remove();
+      state.readiness = computeLocalReadiness(state.draft);
+      renderStatus();
+      appendMessage('assistant', 'Something hiccuped on my side — try sending that again?');
+    } finally {
+      setProgressThinking(false);
+      state.busy = false;
+      updateSendReady();
+      if (input) input.focus();
+    }
   }
 
   function ensureVisionForGenerate() {

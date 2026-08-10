@@ -1438,6 +1438,7 @@ async function generateSpecification() {
             userName: user.displayName || user.email || 'Unknown User',
             mode: 'unified',
             answers: answers,
+            userInput: rawUserInputForApi,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           };
@@ -1499,6 +1500,7 @@ async function generateSpecification() {
               userName: user.displayName || user.email || 'Unknown User',
               mode: 'unified',
               answers: answers,
+              userInput: rawUserInputForApi,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -1519,15 +1521,13 @@ async function generateSpecification() {
                 specIdForQueue = directSpecId;
                 useQueue = true;
               } else {
-                // Queue API failed, but we have specId - use direct API in background
-                // We'll update the spec after redirect
+                // Queue API failed — do not orphan a generating doc without a job
                 data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: rawUserInputForApi };
                 specIdForQueue = directSpecId;
                 useQueue = true;
               }
             } catch (queueError) {
-              console.warn('Queue API failed for direct flow, will use direct API in background:', queueError);
-              // Queue API failed, but we have specId - use direct API in background
+              console.warn('Queue API failed for direct flow, will retry before redirect:', queueError);
               data = { specification: null, pending: true, specId: directSpecId, useDirectAPI: true, userInput: rawUserInputForApi };
               specIdForQueue = directSpecId;
               useQueue = true;
@@ -1623,6 +1623,30 @@ async function generateSpecification() {
     if (data && data.pending && specIdForQueue) {
       firebaseId = specIdForQueue;
       overviewContent = null; // Will be updated by queue
+
+      // Dead path fix: useDirectAPI meant generation never started — retry once before redirect
+      if (data.useDirectAPI && data.userInput) {
+        try {
+          const retry = await window.api.post('/api/specs/generate-overview', {
+            userInput: data.userInput,
+            specId: firebaseId
+          });
+          if (!retry?.success) {
+            await firebase.firestore().collection('specs').doc(firebaseId).update({
+              'status.overview': 'error',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        } catch (startErr) {
+          console.error('Failed to start overview generation before redirect:', startErr);
+          try {
+            await firebase.firestore().collection('specs').doc(firebaseId).update({
+              'status.overview': 'error',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          } catch (_) { /* ignore */ }
+        }
+      }
       
       // Credit was already consumed before creating spec - no need to consume again
       // Update store

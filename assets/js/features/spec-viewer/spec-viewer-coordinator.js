@@ -8,6 +8,7 @@ import * as TabManager from './modules/TabManager.js';
 import * as UiRenderer from './modules/UiRenderer.js';
 import * as DiagramEngine from './modules/DiagramEngine.js';
 import * as PromptEngine from './modules/PromptEngine.js';
+import * as OverviewReadiness from './modules/overviewReadiness.js';
 
 window.SPEC_SCROLL_ORDER = SPEC_SCROLL_ORDER;
 
@@ -16,6 +17,7 @@ window.tabManager = TabManager;
 window.uiRenderer = UiRenderer;
 window.diagramEngine = DiagramEngine;
 window.promptEngine = PromptEngine;
+window.overviewReadiness = OverviewReadiness;
 
 // Global bridge: TabManager.showTab for programmatic callers; nav clicks use delegation in spec-viewer-event-handlers.js.
 window.addEventListener('load', () => {

@@ -1,9 +1,8 @@
 <!-- Header: user left, nav, centered logo, credits right -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
-        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
-            <!-- Static fallback for lean shells / before Firebase auth hydrates -->
-            <a href="{{ '/pages/auth.html' | relative_url }}" class="auth-btn">Log in/Sign up</a>
+        <div class="auth-buttons auth-buttons--pending" id="auth-buttons" role="group" aria-label="Authentication buttons" aria-busy="true">
+            <!-- Empty until Firebase auth resolves — avoids false "logged out" flash -->
         </div>
         <nav class="header-nav" aria-label="Site navigation">
             <a href="{{ '/pages/how.html' | relative_url }}">How</a>

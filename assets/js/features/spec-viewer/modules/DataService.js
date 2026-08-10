@@ -271,6 +271,8 @@ export function startStatusPolling(specId, callbacks = {}) {
   stopStatusPolling();
   let pollCount = 0;
   const maxPolls = 120;
+  let lastOverviewStatus = _state.spec?.status?.overview;
+  let lastHadOverview = Boolean(_state.spec?.overview);
 
   _state.pollInterval = setInterval(async () => {
     pollCount += 1;
@@ -279,7 +281,6 @@ export function startStatusPolling(specId, callbacks = {}) {
       if (statusResponse.job) {
         const jobStatus = statusResponse.job.status;
         if (jobStatus === 'completed' || jobStatus === 'failed') {
-          stopStatusPolling();
           if (_state.spec && _state.spec.id === specId) {
             const doc = await getFirestore().collection('specs').doc(specId).get();
             if (doc.exists) {
@@ -288,18 +289,42 @@ export function startStatusPolling(specId, callbacks = {}) {
               await callbacks.onSpecReloaded?.(updatedData);
             }
           }
+          stopStatusPolling();
           callbacks.onDone?.();
+          return;
         }
       }
 
       if (_state.spec && _state.spec.id === specId) {
         const doc = await getFirestore().collection('specs').doc(specId).get();
         if (doc.exists) {
-          const specData = doc.data();
+          const specData = { id: doc.id, ...doc.data() };
           const status = specData.status || {};
-          const allDone = ['technical', 'market', 'design'].every((stage) =>
-            status[stage] === 'ready' || status[stage] === 'error');
-          if (allDone) {
+          const hasOverview = Boolean(specData.overview);
+          const overviewChanged =
+            status.overview !== lastOverviewStatus || hasOverview !== lastHadOverview;
+          lastOverviewStatus = status.overview;
+          lastHadOverview = hasOverview;
+
+          if (overviewChanged) {
+            setSpec(specData);
+            await callbacks.onSpecReloaded?.(specData);
+          }
+
+          const advancedGenerating = ['technical', 'market', 'design', 'architecture'].some(
+            (stage) => status[stage] === 'generating'
+          );
+          const advancedAllDone = ['technical', 'market', 'design'].every(
+            (stage) => status[stage] === 'ready' || status[stage] === 'error'
+          );
+          const overviewTerminal = status.overview === 'ready' || status.overview === 'error';
+          const advancedNeverStarted = ['technical', 'market', 'design'].every(
+            (stage) => !status[stage] || status[stage] === 'pending'
+          );
+
+          // Stop when advanced pipeline finishes, or when overview settles and advanced never began
+          // (overview uses fire-and-forget generate-overview, not the queue job map).
+          if (advancedAllDone || (overviewTerminal && advancedNeverStarted && !advancedGenerating)) {
             stopStatusPolling();
             callbacks.onDone?.();
           }

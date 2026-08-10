@@ -622,7 +622,7 @@ body:has(.side-menu) .thematic-header .header-right {
   padding-right: 20px;
 }
 
-/* Approval container styling */
+/* Approval container styling — stay hidden until JS proves overview content is ready */
 .approval-container {
   background: white;
   border-radius: 12px;
@@ -642,6 +642,11 @@ body:has(.side-menu) .thematic-header .header-right {
   box-sizing: border-box;
   overflow-x: hidden;
   min-width: 0;
+}
+
+.approval-container.hidden,
+.approval-container[hidden] {
+  display: none;
 }
 
 .approval-message {

@@ -203,7 +203,7 @@ async function staticGuards() {
     'Great to hear about your system for managing CEOs schedules! To move forward, could you outline the main user flow in 3–4 steps?';
   const visionQ = {
     id: 'vision',
-    text: 'For 100% we still need the product in one line: what job does it do, and what do people use today instead?'
+    text: 'Curious — what’s the product in one line: what job does it do, and what do people use today instead?'
   };
   const fixed = livingBrief.enforceFollowUpQuestion(fakeAiFlow, visionQ);
   ok(

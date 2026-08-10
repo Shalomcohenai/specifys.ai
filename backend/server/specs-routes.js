@@ -14,6 +14,7 @@ const emailService = require('./email-service');
 const { getTitleFromOverview } = require('./spec-overview-utils');
 const { attachSpecQueueFirestoreListeners } = require('./spec-queue-firestore-listeners');
 const { verifyFirebaseToken } = require('./middleware/auth');
+const { classifyOpenAIError, formatOpenAIErrorForLogs } = require('./openai-error-utils');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
@@ -580,11 +581,7 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
 
     try {
         const userId = req.user.uid;
-        const { userInput, specId } = req.body;
-
-        if (!userInput) {
-            return next(createError('userInput is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
-        }
+        let { userInput, specId } = req.body;
 
         // If specId provided, verify ownership AND commit status before background job starts.
         // Writing status.overview:'generating' before firing the background task serves two purposes:
@@ -601,13 +598,30 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                 return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
             }
 
+            // Resume/retry: recover brief text from the spec doc when body omits userInput
+            if (!userInput) {
+                if (typeof specData.userInput === 'string' && specData.userInput.trim()) {
+                    userInput = specData.userInput.trim();
+                } else if (Array.isArray(specData.answers) && typeof specData.answers[0] === 'string' && specData.answers[0].trim()) {
+                    userInput = specData.answers[0].trim();
+                }
+            }
+
             // Anchor write: confirms doc is committed before background job starts.
             // If this fails with NOT_FOUND the error is caught by the outer try/catch
             // and a 500 is returned — preventing a ghost background job.
             await db.collection('specs').doc(specId).update({
                 'status.overview': 'generating',
+                'generationErrors.overview': admin.firestore.FieldValue.delete(),
+                ...(typeof userInput === 'string' && userInput.trim() && !specData.userInput
+                    ? { userInput: userInput.trim() }
+                    : {}),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
             });
+        }
+
+        if (!userInput) {
+            return next(createError('userInput is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
         }
 
         // Generate overview in background (v2 requires specId for thread; fallback to legacy when missing)
@@ -627,11 +641,16 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                         logger.warn({ requestId, specId }, '[specs-routes] Spec not found when trying to update overview - likely deleted due to error');
                         return overviewContent; // Return the generated content but don't update non-existent spec
                     }
+
+                    if (!overviewContent || (typeof overviewContent === 'string' && overviewContent.trim().length < 40)) {
+                        throw new Error('Overview generation returned empty content');
+                    }
                     
                     const specTitle = getTitleFromOverview(overviewContent);
                     await db.collection('specs').doc(specId).update({
                         overview: overviewContent,
                         'status.overview': 'ready',
+                        'generationErrors.overview': admin.firestore.FieldValue.delete(),
                         title: specTitle,
                         generationVersion: 'v2',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -643,14 +662,31 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
                 
                 return overviewContent;
             } catch (error) {
-                logger.error({ requestId, error: error.message, specId }, '[specs-routes] Overview generation failed');
+                const classified = classifyOpenAIError(error);
+                const logMessage = formatOpenAIErrorForLogs(error);
+                logger.error({
+                    requestId,
+                    error: logMessage,
+                    errorCode: error.code || classified.code || null,
+                    specId
+                }, '[specs-routes] Overview generation failed');
                 if (specId) {
                     // Verify spec exists before updating error status
                     try {
                         const specDoc = await db.collection('specs').doc(specId).get();
                         if (specDoc.exists) {
+                            const userFacing =
+                                classified.userMessage ||
+                                (typeof error.message === 'string' && error.message.length < 280
+                                    ? error.message
+                                    : 'Overview generation failed. Retry in a moment.');
                             await db.collection('specs').doc(specId).update({
                                 'status.overview': 'error',
+                                'generationErrors.overview': {
+                                    message: userFacing,
+                                    code: error.code || classified.code || 'overview_failed',
+                                    at: new Date().toISOString()
+                                },
                                 updatedAt: admin.firestore.FieldValue.serverTimestamp()
                             });
                             specEvents.emitSpecError(specId, 'overview', error);
@@ -667,7 +703,11 @@ router.post('/generate-overview', rateLimiters.generation, verifyFirebaseToken, 
 
         // Start generation in background (fire and forget)
         generateOverview().catch(err => {
-            logger.error({ requestId, error: err.message }, '[specs-routes] Background overview generation error');
+            logger.error({
+                requestId,
+                error: formatOpenAIErrorForLogs(err),
+                errorCode: err.code || classifyOpenAIError(err).code || null
+            }, '[specs-routes] Background overview generation error');
         });
 
         const totalTime = Date.now() - startTime;

@@ -493,6 +493,15 @@ Always reference specific parts of the spec when relevant.`,
             `Original: ${errorText}`
         );
       }
+      const { classifyOpenAIError } = require('./openai-error-utils');
+      const classified = classifyOpenAIError(errorText);
+      if (classified.userMessage) {
+        const err = new Error(classified.userMessage);
+        err.code = classified.code;
+        err.providerStatus = chatResponse.status;
+        err.providerBody = errorText;
+        throw err;
+      }
       throw new Error(`Chat completions failed: ${errorText}`);
     }
 

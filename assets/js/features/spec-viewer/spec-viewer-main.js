@@ -40,6 +40,151 @@ function updateCurrentSpecData(newData) {
     return currentSpecData;
 }
 
+function readinessApi() {
+    return window.overviewReadiness || null;
+}
+
+function hasRenderableOverviewContent(overview) {
+    const api = readinessApi();
+    if (api && typeof api.hasRenderableOverview === 'function') {
+        return api.hasRenderableOverview(overview);
+    }
+    if (overview == null) return false;
+    if (typeof overview === 'string') return overview.trim().length > 40;
+    if (typeof overview === 'object') {
+        return !!(overview.ideaSummary || overview.shortTitle || (overview.coreFeaturesOverview && overview.coreFeaturesOverview.length));
+    }
+    return false;
+}
+
+function shouldShowOverviewReadyBannerFor(data) {
+    const api = readinessApi();
+    if (api && typeof api.shouldShowOverviewReadyBanner === 'function') {
+        return api.shouldShowOverviewReadyBanner(data);
+    }
+    return !!(data && hasRenderableOverviewContent(data.overview) && data.status?.overview === 'ready' && !data.overviewApproved);
+}
+
+function syncOverviewReadyBanner(data) {
+    const approvalContainer = document.getElementById('approval-container');
+    if (!approvalContainer) return;
+    const show = shouldShowOverviewReadyBannerFor(data);
+    if (show) {
+        showApproveButton();
+        approvalContainer.classList.remove('hidden');
+        approvalContainer.hidden = false;
+        approvalContainer.setAttribute('aria-hidden', 'false');
+        approvalContainer.style.display = 'flex';
+    } else {
+        approvalContainer.classList.add('hidden');
+        approvalContainer.hidden = true;
+        approvalContainer.setAttribute('aria-hidden', 'true');
+        approvalContainer.style.display = 'none';
+    }
+}
+
+function extractSpecUserInput(data) {
+    const api = readinessApi();
+    if (api && typeof api.extractOverviewUserInput === 'function') {
+        return api.extractOverviewUserInput(data);
+    }
+    if (typeof data?.userInput === 'string' && data.userInput.trim()) return data.userInput.trim();
+    if (Array.isArray(data?.answers) && typeof data.answers[0] === 'string') return data.answers[0].trim();
+    return '';
+}
+
+async function retryOverviewGeneration() {
+    if (!currentSpecData?.id) {
+        showNotification('No spec loaded', 'error');
+        return;
+    }
+    const userInput = extractSpecUserInput(currentSpecData);
+    if (!userInput) {
+        showNotification('Cannot retry overview — missing original brief text. Start a new spec from the homepage.', 'error');
+        return;
+    }
+    try {
+        showNotification('Retrying overview generation…', 'info');
+        if (currentSpecData.status) currentSpecData.status.overview = 'generating';
+        syncOverviewReadyBanner(currentSpecData);
+        startProgressBar();
+        await window.api.post('/api/specs/generate-overview', {
+            userInput,
+            specId: currentSpecData.id
+        });
+        if (!window.dataService?.isPolling?.()) {
+            startSpecStatusPolling(currentSpecData.id);
+        }
+    } catch (error) {
+        console.error('[retryOverviewGeneration] failed:', error);
+        showNotification(error?.message || 'Failed to restart overview generation', 'error');
+    }
+}
+
+async function maybeResumeOverviewGeneration(specData) {
+    const api = readinessApi();
+    const OVERVIEW_STUCK_MS = 5 * 60 * 1000;
+    const attention = api?.getOverviewGenerationAttention
+        ? api.getOverviewGenerationAttention(specData, { stuckMs: OVERVIEW_STUCK_MS })
+        : { needsAttention: !hasRenderableOverviewContent(specData?.overview) && specData?.status?.overview !== 'generating', reason: 'missing' };
+
+    if (specData?.status?.overview === 'generating' && !hasRenderableOverviewContent(specData?.overview)) {
+        if (!window.dataService?.isPolling?.()) {
+            startSpecStatusPolling(specData.id);
+        }
+        // One delayed re-check so a dead fire-and-forget job surfaces retry/auto-resume
+        const watchKey = `overviewStuckWatch:${specData.id}`;
+        let alreadyWatching = false;
+        try {
+            alreadyWatching = sessionStorage.getItem(watchKey) === '1';
+            if (!alreadyWatching) sessionStorage.setItem(watchKey, '1');
+        } catch (_) { /* ignore */ }
+        if (!alreadyWatching) {
+            const specId = specData.id;
+            setTimeout(() => {
+                try { sessionStorage.removeItem(watchKey); } catch (_) { /* ignore */ }
+                if (!currentSpecData || currentSpecData.id !== specId) return;
+                if (hasRenderableOverviewContent(currentSpecData.overview)) return;
+                updateStageRecoveryBanner(currentSpecData);
+                maybeResumeOverviewGeneration(currentSpecData).catch(() => {});
+            }, OVERVIEW_STUCK_MS + 1000);
+        }
+    }
+
+    if (!attention.needsAttention) return;
+    if (attention.reason === 'generating') return;
+
+    const retryKey = `overviewAutoRetry:${specData.id}`;
+    try {
+        if (sessionStorage.getItem(retryKey) === '1') return;
+        sessionStorage.setItem(retryKey, '1');
+    } catch (_) { /* ignore */ }
+
+    const userInput = extractSpecUserInput(specData);
+    if (!userInput) return;
+
+    console.warn('[maybeResumeOverviewGeneration] Resuming overview:', attention.reason);
+    showNotification(
+        attention.reason === 'stuck'
+            ? 'Overview generation looks stuck — restarting…'
+            : 'Overview incomplete — restarting generation…',
+        'info'
+    );
+    try {
+        await window.api.post('/api/specs/generate-overview', {
+            userInput,
+            specId: specData.id
+        });
+        if (!window.dataService?.isPolling?.()) {
+            startSpecStatusPolling(specData.id);
+        }
+    } catch (error) {
+        console.error('[maybeResumeOverviewGeneration] resume failed:', error);
+    }
+}
+
+window.retryOverviewGeneration = retryOverviewGeneration;
+
 /** Admin emails allowed to view debug tools (Export tab advanced row data, etc.). Keep in sync with loadSpec permission check. */
 const SPECVIEWER_ADMIN_EMAILS = ['specifysai@gmail.com'];
 
@@ -847,8 +992,15 @@ async function loadSpec(specId) {
                             bubblesContainer.style.display = 'none';
                             console.log('[Firestore Listener] Progress bar and chat bubbles hidden - overview ready');
                         }
+                        syncOverviewReadyBanner(updatedData);
+                        try {
+                            if (hasRenderableOverviewContent(updatedData.overview)) {
+                                sessionStorage.removeItem(`overviewAutoRetry:${updatedData.id}`);
+                            }
+                        } catch (_) { /* ignore */ }
                     } else if (newOverviewStatus === 'generating' && prevOverviewStatus !== 'generating') {
                         console.log('[Firestore Listener] Overview started generating, showing skeleton...');
+                        syncOverviewReadyBanner(updatedData);
                         startProgressBar();
                         // Show chat bubbles during generation
                         const bubblesContainer = document.getElementById('chat-bubbles-container');
@@ -856,6 +1008,10 @@ async function loadSpec(specId) {
                             bubblesContainer.style.display = 'flex';
                             console.log('[Firestore Listener] Chat bubbles shown - overview generating');
                         }
+                    } else if (newOverviewStatus === 'error' && prevOverviewStatus !== 'error') {
+                        syncOverviewReadyBanner(updatedData);
+                        stopProgressBar();
+                        updateStageRecoveryBanner(updatedData);
                     }
                     
                     // Check for status changes and update UI accordingly
@@ -1033,12 +1189,20 @@ async function loadSpec(specId) {
             }
         });
         
-        // Start polling as backup (especially if generation is in progress)
-        if (specData.status?.technical === 'generating' ||
+        // Start polling as backup (especially if generation is in progress) — include overview
+        if (specData.status?.overview === 'generating' ||
+            specData.status?.technical === 'generating' ||
             specData.status?.market === 'generating' ||
             specData.status?.design === 'generating' ||
             specData.status?.architecture === 'generating') {
             startSpecStatusPolling(specId);
+        }
+
+        // Resume/retry overview when status is error/stuck/missing content after refresh
+        try {
+            await maybeResumeOverviewGeneration(specData);
+        } catch (resumeErr) {
+            console.warn('[loadSpec] overview resume check failed:', resumeErr);
         }
         
         console.log('[loadSpec] Calling displaySpec...');
@@ -1125,13 +1289,13 @@ function displaySpec(data) {
     // Display spec title (from overview or user edit); fallback when empty or placeholder
     updateSpecTitleDisplay(data);
     
-        // Update status indicators
-        updateStatus('overview', data.status?.overview || 'ready');
+        // Update status indicators — never invent "ready" when status is missing
+        updateStatus('overview', data.status?.overview || 'pending');
         updateStatus('technical', data.status?.technical || 'pending');
         updateStatus('market', data.status?.market || 'pending');
         
         // Update tab statuses
-        setTabStatus('overviewTab', data.status?.overview === 'ready' ? 'success' : 'pending');
+        setTabStatus('overviewTab', data.status?.overview === 'ready' && hasRenderableOverviewContent(data.overview) ? 'success' : 'pending');
         setTabStatus('technicalTab', data.status?.technical === 'ready' ? 'success' : 'pending');
         setTabStatus('marketTab', data.status?.market === 'ready' ? 'success' : 'pending');
     updateStatus('design', data.status?.design || 'pending');
@@ -1221,8 +1385,10 @@ function displaySpec(data) {
     // Email notifications are now sent automatically when spec is created via /api/specs/:id/record-activity
     // No need to send email here - it would trigger every time user visits the spec page
     
-    // Handle approval state (include fallback for existing specs that may lack overviewApproved)
-    const overviewReady = data.overviewApproved || data.status?.overview === 'ready' || data.status?.technical === 'ready';
+    // Handle approval state — "Overview ready" only when content is truly present
+    const hasOverviewContent = hasRenderableOverviewContent(data.overview);
+    const overviewStatusReady = data.status?.overview === 'ready' && hasOverviewContent;
+    const overviewReady = data.overviewApproved || overviewStatusReady || data.status?.technical === 'ready';
     if (overviewReady) {
         // Enable AI Chat and Brain Dump when overview is approved or spec already has technical
         enableChatTabOnly();
@@ -1324,21 +1490,12 @@ function displaySpec(data) {
         if (approvalAlreadyRegistered) {
             hideApproveButton();
         } else {
-            showApproveButton();
-            const approvalContainer = document.getElementById('approval-container');
-            if (approvalContainer) {
-                approvalContainer.style.display = 'flex';
-            }
-            showNotification('Advanced specifications are still being generated. Please wait or click Approve again if generation was interrupted.', 'info');
+            syncOverviewReadyBanner(data);
         }
     } else {
-        showApproveButton();
         disableTechnicalTabs();
-        // Show approval container when overview is not approved
-        const approvalContainer = document.getElementById('approval-container');
-        if (approvalContainer) {
-            approvalContainer.style.display = 'flex';
-        }
+        // Never claim "Overview ready" while overview is still generating / empty
+        syncOverviewReadyBanner(data);
     }
     
     // Show overview tab by default (no auto-scroll; use Previous/Next for scroll-to-top)
@@ -1356,6 +1513,8 @@ function displaySpec(data) {
         const tourDelayMs = (isRecentlyCreated && !isGenerating) ? 3200 : 700;
         window.maybeStartSpecViewerTour({ delayMs: tourDelayMs });
     }
+
+    updateStageRecoveryBanner(data);
     
     // Spec is already saved to Firebase from processing page
 }
@@ -6612,6 +6771,9 @@ function hideApproveButton() {
     // Hide the entire approval container after approval
     const approvalContainer = document.getElementById('approval-container');
     if (approvalContainer) {
+        approvalContainer.classList.add('hidden');
+        approvalContainer.hidden = true;
+        approvalContainer.setAttribute('aria-hidden', 'true');
         approvalContainer.style.display = 'none';
     }
 }
@@ -6772,6 +6934,9 @@ async function approveOverview() {
                 // and confusion — the user has already approved and the request is in flight.
                 const approvalContainer = document.getElementById('approval-container');
                 if (approvalContainer) {
+                    approvalContainer.classList.add('hidden');
+                    approvalContainer.hidden = true;
+                    approvalContainer.setAttribute('aria-hidden', 'true');
                     approvalContainer.style.display = 'none';
                 }
                 if (approveBtn) {
@@ -9573,7 +9738,7 @@ function renderSpecGenerationProgress(spec) {
 }
 
 /**
- * Show recovery CTA when stages are error/stuck generating after overview approval.
+ * Show recovery CTA when stages are error/stuck generating (including overview).
  */
 function updateStageRecoveryBanner(spec) {
     const banner = document.getElementById('stage-recovery-banner');
@@ -9582,12 +9747,26 @@ function updateStageRecoveryBanner(spec) {
     const failed = [];
     const stuck = [];
     const STUCK_MS = 12 * 60 * 1000;
+    const OVERVIEW_STUCK_MS = 5 * 60 * 1000;
     const updatedAt = spec?.updatedAt?.toDate ? spec.updatedAt.toDate() : (spec?.updatedAt ? new Date(spec.updatedAt) : null);
+    const ageMs = updatedAt ? Date.now() - updatedAt.getTime() : 0;
+
+    const overviewAttention = readinessApi()?.getOverviewGenerationAttention
+        ? readinessApi().getOverviewGenerationAttention(spec, { stuckMs: OVERVIEW_STUCK_MS })
+        : null;
+    if (overviewAttention?.needsAttention) {
+        if (overviewAttention.reason === 'error' || overviewAttention.reason === 'missing') failed.push('overview');
+        if (overviewAttention.reason === 'stuck') stuck.push('overview');
+    } else if (status.overview === 'error') {
+        failed.push('overview');
+    } else if (status.overview === 'generating' && ageMs > OVERVIEW_STUCK_MS) {
+        stuck.push('overview');
+    }
 
     ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].forEach((key) => {
         const s = status[key];
         if (s === 'error') failed.push(key);
-        if (s === 'generating' && updatedAt && (Date.now() - updatedAt.getTime() > STUCK_MS)) {
+        if (s === 'generating' && updatedAt && ageMs > STUCK_MS) {
             stuck.push(key);
         }
     });
@@ -9600,14 +9779,34 @@ function updateStageRecoveryBanner(spec) {
 
     const titleEl = document.getElementById('stage-recovery-title');
     const msgEl = document.getElementById('stage-recovery-message');
+    const retryBtn = document.getElementById('stage-recovery-retry-btn');
+    const overviewNeedsRetry = failed.includes('overview') || stuck.includes('overview');
     if (titleEl) {
-        titleEl.textContent = failed.length ? 'Stage error — recover and continue' : 'Generation looks stuck';
+        titleEl.textContent = overviewNeedsRetry
+            ? (failed.includes('overview') ? 'Overview failed — retry to continue' : 'Overview looks stuck')
+            : (failed.length ? 'Stage error — recover and continue' : 'Generation looks stuck');
     }
     if (msgEl) {
         const parts = [];
         if (failed.length) parts.push(`Failed: ${failed.join(', ')}`);
         if (stuck.length) parts.push(`Possibly stuck: ${stuck.join(', ')}`);
-        msgEl.textContent = `${parts.join('. ')}. Retry to continue toward Prompts, then Copy to Cursor / Connect MCP.`;
+        const overviewErrMsg =
+            typeof spec?.generationErrors?.overview?.message === 'string'
+                ? spec.generationErrors.overview.message.trim()
+                : '';
+        if (overviewNeedsRetry && overviewErrMsg) {
+            msgEl.textContent = overviewErrMsg;
+        } else {
+            msgEl.textContent = overviewNeedsRetry
+                ? `${parts.join('. ')}. Retry overview generation, then Continue to Technical + Prompts.`
+                : `${parts.join('. ')}. Retry to continue toward Prompts, then Copy to Cursor / Connect MCP.`;
+        }
+    }
+    if (retryBtn) {
+        retryBtn.setAttribute('onclick', overviewNeedsRetry ? 'retryOverviewGeneration()' : 'retryStuckOrFailedStages()');
+        retryBtn.innerHTML = overviewNeedsRetry
+            ? '<i class="fa fa-refresh" aria-hidden="true"></i> Retry overview'
+            : '<i class="fa fa-refresh" aria-hidden="true"></i> Retry failed stages';
     }
     banner.hidden = false;
     banner.classList.remove('hidden');
@@ -9619,6 +9818,16 @@ async function retryStuckOrFailedStages() {
         return;
     }
     const status = currentSpecData.status || {};
+    const overviewBroken = status.overview === 'error'
+        || status.overview === 'generating'
+        || (status.overview === 'ready' && !hasRenderableOverviewContent(currentSpecData.overview))
+        || !hasRenderableOverviewContent(currentSpecData.overview);
+    if (overviewBroken && status.overview !== 'ready') {
+        return retryOverviewGeneration();
+    }
+    if (status.overview === 'ready' && !hasRenderableOverviewContent(currentSpecData.overview)) {
+        return retryOverviewGeneration();
+    }
     const needsRetry = ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].some((k) => {
         return status[k] === 'error' || status[k] === 'generating';
     });

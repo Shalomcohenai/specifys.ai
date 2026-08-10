@@ -100,6 +100,9 @@ console.log('\n=== B3 Overview → Prompts cliff ===');
   assert('activation checklist', viewerJs.includes('prompts-activation-checklist'));
   assert('retry stuck stages helper', viewerJs.includes('retryStuckOrFailedStages'));
   assert('recovery banner updater', viewerJs.includes('updateStageRecoveryBanner'));
+  assert('overview ready banner gated on content', viewerJs.includes('syncOverviewReadyBanner') && viewerJs.includes('hasRenderableOverviewContent'));
+  assert('approval container starts hidden', viewerHtml.includes('id="approval-container"') && viewerHtml.includes('approval-container hidden'));
+  assert('overview retry helper', viewerJs.includes('retryOverviewGeneration'));
 
   // Stage order sanity (pipeline default path)
   const stages = ['overview', 'technical', 'market', 'design', 'architecture', 'visibility', 'prompts'];

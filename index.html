@@ -429,9 +429,19 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                             <div class="lb-brand">
                                 <p class="lb-brand-title">Living Brief</p>
                             </div>
-                            <div class="lb-progress" aria-label="Brief progress">
+                            <div class="lb-progress" id="lbProgress" aria-label="Brief progress">
                                 <div class="lb-progress-row">
-                                    <div class="lb-score"><strong id="lbRingScore">0%</strong></div>
+                                    <div class="lb-ring" id="lbRing" aria-hidden="false">
+                                        <span class="lb-ring-waves" aria-hidden="true">
+                                            <span class="lb-ring-wave"></span>
+                                            <span class="lb-ring-wave"></span>
+                                            <span class="lb-ring-wave"></span>
+                                        </span>
+                                        <span class="lb-ring-orbit" aria-hidden="true"></span>
+                                        <span class="lb-ring-core">
+                                            <span class="lb-score"><strong id="lbRingScore">0%</strong></span>
+                                        </span>
+                                    </div>
                                     <div class="lb-dots" id="lbDots" aria-label="Brief coverage"></div>
                                 </div>
                                 <p class="lb-ready-msg" id="lbReadyMsg" hidden>You're ready to create a spec!</p>

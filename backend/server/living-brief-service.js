@@ -311,7 +311,7 @@ function pickNextFollowUp(ctx) {
     return {
       id: 'vision',
       text:
-        'For 100% we still need the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
+        'Curious — what’s the product in one line: what job does it do, and what do people use today instead? (e.g. “A CRM for freelancers — today they track deals in spreadsheets.”)'
     };
   }
   if (miss.some((m) => /flow|page/i.test(m)) && !waivers?.structure) {
@@ -324,7 +324,7 @@ function pickNextFollowUp(ctx) {
     return {
       id: 'audience',
       text:
-        'Last piece for 100%: who is it for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
+        'I’d love to know who it’s for + web/mobile/both, and 2 must-have features at launch? (e.g. “Sales teams on web — pipeline board + follow-up reminders.”)'
     };
   }
   return null;
@@ -683,6 +683,8 @@ const SYSTEM_PROMPT = `You are Specifys Living Brief — a sharp product partner
 
 Tone: warm, concise, alive. 2–4 short paragraphs max.
 Never invent company names or fake metrics. Prefer concrete product language.
+Sound like a curious collaborator — fold in what they said, then ask the next useful question gently.
+Never frame remaining questions as progress toward “100%”, “for 100%”, “last piece for 100%”, or a completion score. Progress is internal only; user-facing copy must not nag about percentages.
 
 QUESTION TIMELINE (strict — do not skip ahead):
 You MUST ask ONLY the gap in readiness.nextQuestion (id + text). Order is always:
