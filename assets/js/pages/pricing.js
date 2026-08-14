@@ -191,7 +191,8 @@ function resolveCurrentPricingPlan(creditsData) {
     }
 
     if (creditsData.unlimited === true && isActiveProSubscription(creditsData.subscription)) {
-        return { kind: 'pro' };
+        const cancelAtPeriodEnd = !!(creditsData.subscription && creditsData.subscription.cancelAtPeriodEnd);
+        return { kind: 'pro', cancelAtPeriodEnd };
     }
 
     return { kind: 'free' };
@@ -287,7 +288,9 @@ async function applyCurrentPlanHighlight() {
             updateCurrentPlanButton(btn, true);
         });
         if (statusEl) {
-            statusEl.textContent = 'You are on Specifys Pro. Enjoy unlimited access.';
+            statusEl.textContent = plan.cancelAtPeriodEnd
+                ? 'Your Pro plan is cancelled and will not renew. Access continues until the end of the current period.'
+                : 'You are on Specifys Pro. Enjoy unlimited access.';
             statusEl.hidden = false;
         }
         return;

@@ -8,6 +8,11 @@
 
 const { db } = require('./firebase-admin');
 const admin = require('firebase-admin');
+const {
+  resolveSubscriptionActivityAction,
+  buildSubscriptionActivityTitle,
+  periodKeyFromMetadata
+} = require('./subscription-activity');
 
 const ADMIN_ACTIVITY_LOG_COLLECTION = 'admin_activity_log';
 
@@ -232,13 +237,23 @@ async function recordPurchase(purchaseId, userId, userEmail, productName, total,
  * @param {Object} metadata - Additional metadata (subscriptionId is used for idempotency when present)
  */
 async function recordSubscriptionChange(userId, userEmail, subscriptionType, subscriptionStatus, metadata = {}) {
-  const action = subscriptionStatus === 'active' ? 'activated' : subscriptionStatus === 'cancelled' ? 'cancelled' : 'changed';
+  const action = resolveSubscriptionActivityAction(subscriptionStatus, metadata);
+  const title = buildSubscriptionActivityTitle(subscriptionType, action);
 
   const subscriptionId = metadata && metadata.subscriptionId ? String(metadata.subscriptionId) : null;
   const typeKey = subscriptionType || 'unknown';
+  const periodKey = action === 'renewed' ? periodKeyFromMetadata(metadata) : null;
 
   let idempotencyKey;
-  if (subscriptionId) {
+  if (action === 'renewed') {
+    if (subscriptionId) {
+      idempotencyKey = `sub_${subscriptionId}_${typeKey}_renewed_${periodKey}`;
+    } else if (userId) {
+      idempotencyKey = `sub_user_${userId}_${typeKey}_renewed_${periodKey}`;
+    } else {
+      idempotencyKey = null;
+    }
+  } else if (subscriptionId) {
     idempotencyKey = `sub_${subscriptionId}_${typeKey}_${action}`;
   } else if (userId) {
     const dayKey = new Date().toISOString().slice(0, 10);
@@ -247,16 +262,23 @@ async function recordSubscriptionChange(userId, userEmail, subscriptionType, sub
     idempotencyKey = null;
   }
 
+  const tagByAction = {
+    activated: 'upgrade',
+    renewed: 'renewal',
+    cancelled: 'downgrade'
+  };
+
   return recordActivity({
     type: 'subscription',
-    title: `Subscription ${action} · ${subscriptionType || 'Unknown'}`,
+    title,
     description: userEmail || userId,
     userId,
     userEmail,
-    tags: ['subscription', 'payment', subscriptionStatus === 'active' ? 'upgrade' : 'downgrade'],
+    tags: ['subscription', 'payment', tagByAction[action] || action],
     metadata: {
       subscriptionType,
       subscriptionStatus,
+      action,
       ...metadata
     },
     idempotencyKey
@@ -403,6 +425,8 @@ module.exports = {
   recordSpecCreation,
   recordPurchase,
   recordSubscriptionChange,
+  resolveSubscriptionActivityAction,
+  buildSubscriptionActivityTitle,
   recordCreditConsumption,
   getActivityEvents,
   ADMIN_ACTIVITY_LOG_COLLECTION

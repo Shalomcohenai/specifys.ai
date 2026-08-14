@@ -5,6 +5,7 @@
 
 import { firebaseService } from './FirebaseService.js';
 import { ActivityService } from '../services/ActivityService.js';
+import { apiService } from '../services/ApiService.js';
 
 export class DataManager {
   constructor() {
@@ -284,12 +285,59 @@ export class DataManager {
   }
   
   /**
-   * Load user credits
+   * Canonical credits from balances (ignore stale `total`).
+   */
+  ingestCanonicalCredits(userId, credits = {}) {
+    if (!userId) return;
+
+    const balances = credits.balances || {};
+    const free = Number(credits.free ?? balances.free) || 0;
+    const paid = Number(credits.paid ?? balances.paid) || 0;
+    const bonus = Number(credits.bonus ?? balances.bonus) || 0;
+    const unlimited = Boolean(credits.unlimited);
+    const normalized = {
+      userId,
+      balances: { free, paid, bonus },
+      total: unlimited ? null : (free + paid + bonus),
+      unlimited,
+      updatedAt: this.toDate(credits.updatedAt),
+      metadata: credits.metadata || credits
+    };
+    this.data.userCredits.set(userId, normalized);
+    return normalized;
+  }
+
+  getCreditsForUser(userId) {
+    return this.data.userCredits.get(userId) || null;
+  }
+
+  /**
+   * Load user credits from the admin API (same source as User Details).
    */
   async loadUserCredits() {
     this.loadingStates.userCredits = true;
     this.emit('loading', { source: 'userCredits', loading: true });
-    
+
+    try {
+      const response = await apiService.get('/api/admin/credits');
+      const creditsList = Array.isArray(response?.credits) ? response.credits : [];
+      this.data.userCredits.clear();
+      creditsList.forEach((credits) => {
+        this.ingestCanonicalCredits(credits.userId, credits);
+      });
+
+      this.loadingStates.userCredits = false;
+      this.errors.delete('userCredits');
+      this.emit('data', { source: 'userCredits', data: Array.from(this.data.userCredits.values()) });
+      this.emit('loading', { source: 'userCredits', loading: false });
+    } catch (error) {
+      this.loadingStates.userCredits = false;
+      console.error('[DataManager] Failed to load user credits from admin API:', error);
+      this.errors.set('userCredits', error);
+      this.emit('error', { source: 'userCredits', error });
+      this.emit('loading', { source: 'userCredits', loading: false });
+    }
+
     try {
       await firebaseService.subscribe(
         this.collections.USER_CREDITS,
@@ -298,61 +346,28 @@ export class DataManager {
             if (change.type === 'removed') {
               this.data.userCredits.delete(change.doc.id);
             } else {
-              const data = change.doc.data();
-              const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
-              const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
-              
-              const balances = {
-                free: Number(data.balances?.free) || 0,
-                paid: Number(data.balances?.paid) || 0,
-                bonus: Number(data.balances?.bonus) || 0
-              };
-              const normalizedStatus = (subscriptionStatus || '').toLowerCase();
-              this.data.userCredits.set(change.doc.id, {
-                userId: change.doc.id,
-                balances,
-                total: balances.free + balances.paid + balances.bonus,
+              const data = change.doc.data() || {};
+              const subscriptionType = data.subscription?.type;
+              const subscriptionStatus = (data.subscription?.status || '').toLowerCase();
+              this.ingestCanonicalCredits(change.doc.id, {
+                ...data,
                 unlimited: subscriptionType === 'pro' &&
-                  (normalizedStatus === 'active' || normalizedStatus === 'paid' || normalizedStatus === 'on_trial'),
-                updatedAt: this.toDate(data.metadata?.updatedAt),
-                metadata: data
+                  (subscriptionStatus === 'active' || subscriptionStatus === 'paid' || subscriptionStatus === 'on_trial')
               });
             }
           });
-          
-          this.loadingStates.userCredits = false;
-          this.errors.delete('userCredits');
-          const userCreditsArray = Array.from(this.data.userCredits.values());
-          console.log('[DataManager] userCredits loaded from V3 (user_credits_v3):', userCreditsArray.length, 'users');
-          this.emit('data', { source: 'userCredits', data: userCreditsArray });
-          this.emit('loading', { source: 'userCredits', loading: false });
+
+          this.emit('data', { source: 'userCredits', data: Array.from(this.data.userCredits.values()) });
         },
         {},
         (error) => {
-          // Handle permission errors gracefully
-          this.loadingStates.userCredits = false;
-          if (error?.code === 'permission-denied') {
-            // Permission denied for userCredits
-            this.emit('restricted', { source: 'userCredits', error });
-          } else {
-            this.errors.set('userCredits', error);
-            this.emit('error', { source: 'userCredits', error });
+          if (error?.code !== 'permission-denied') {
+            console.warn('[DataManager] Live user_credits_v3 subscription error:', error);
           }
-          this.emit('loading', { source: 'userCredits', loading: false });
         }
       );
     } catch (error) {
-      this.loadingStates.userCredits = false;
-      console.error('[DataManager] Exception loading userCredits from V3 (user_credits_v3):', error);
-      if (error?.code === 'permission-denied') {
-        // Permission denied for userCredits
-        console.warn('[DataManager] Permission denied for user_credits_v3 collection');
-        this.emit('restricted', { source: 'userCredits', error });
-      } else {
-        this.errors.set('userCredits', error);
-        this.emit('error', { source: 'userCredits', error });
-      }
-      this.emit('loading', { source: 'userCredits', loading: false });
+      console.warn('[DataManager] Could not subscribe to user_credits_v3:', error);
     }
   }
   

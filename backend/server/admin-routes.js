@@ -1489,6 +1489,34 @@ router.post('/credits-sync/user/:userId', requireAdmin, async (req, res, next) =
 });
 
 /**
+ * List canonical credits for all users (admin only)
+ * GET /api/admin/credits
+ */
+router.get('/credits', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /credits');
+  logger.info({
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /credits - Fetching canonical user credits');
+
+  try {
+    const snapshot = await db.collection('user_credits_v3').get();
+    const credits = snapshot.docs.map((doc) =>
+      creditsV3Service.summarizeCreditsForAdmin(doc.id, doc.data() || {})
+    );
+
+    logger.info({ requestId, count: credits.length }, '[admin-routes] GET /credits - Success');
+    res.json({ success: true, credits });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /credits - Error');
+    next(createError('Failed to fetch user credits', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * Get user analytics (admin only)
  * GET /api/admin/users/:userId/analytics
  */

@@ -27,11 +27,13 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const livingBrief = require('../server/living-brief-service');
 const { db, admin } = require('../server/firebase-admin');
 const specGenerationServiceV2 = require('../server/spec-generation-service-v2');
+const AIService = require('../server/ai-service');
 
 const keep = process.argv.includes('--keep');
 const overviewOnly = process.argv.includes('--overview-only');
 const freeOverviewOnly = process.argv.includes('--free-overview-only');
 const skipChat = process.argv.includes('--skip-chat');
+const skipUxJudge = process.argv.includes('--skip-ux-judge');
 const casesArg = (process.argv.find((a) => a.startsWith('--cases=')) || '').split('=')[1];
 const personaArg = (process.argv.find((a) => a.startsWith('--persona=')) || '').split('=')[1];
 const kindArg = (process.argv.find((a) => a.startsWith('--kind=')) || '').split('=')[1];
@@ -472,6 +474,30 @@ function keywordMisses(text, keys) {
   return (keys || []).filter((k) => !hay.includes(String(k).toLowerCase()));
 }
 
+/** True when phrase appears as an affirmative product concept, not inside a negation window. */
+function phrasePresentPositively(text, phrase) {
+  const hay = String(text || '').toLowerCase();
+  const p = String(phrase || '').toLowerCase();
+  if (!p) return false;
+  let idx = 0;
+  while ((idx = hay.indexOf(p, idx)) !== -1) {
+    const before = hay.slice(Math.max(0, idx - 48), idx);
+    const after = hay.slice(idx + p.length, Math.min(hay.length, idx + p.length + 180));
+    const negatedBefore =
+      /\b(not|no|without|exclude|excludes|excluding|instead of|rather than|never|avoid|out of scope|non-?goals?|deliberately)\b[\s\w,/"'-]{0,48}$/i.test(
+        before
+      ) ||
+      /not as a\s*$/i.test(before) ||
+      /do not [^\n]{0,80}$/i.test(before);
+    const negatedAfter =
+      /^\s*[^\n.]{0,160}\b(are|is|was|were)\s+not\b/i.test(after) ||
+      /^\s*[^\n.]{0,160}\b(out of scope|excluded|not in (v1|scope)|not appropriate|not part of)\b/i.test(after);
+    if (!negatedBefore && !negatedAfter) return true;
+    idx += p.length;
+  }
+  return false;
+}
+
 function parseMaybe(json) {
   if (json == null) return null;
   if (typeof json === 'object') return json;
@@ -560,7 +586,7 @@ function evaluateOverview(caseDef, overviewObj, userInput) {
   if (badHits.length) issues.push(`wrong-domain keywords (${badHits.join('|')})`);
 
   for (const phrase of caseDef.preferAbsent || []) {
-    if (productScopeBlob.includes(phrase.toLowerCase())) {
+    if (phrasePresentPositively(productScopeBlob, phrase)) {
       issues.push(`conflicting concept present in product scope: ${phrase}`);
     }
   }
@@ -646,6 +672,27 @@ function evaluateChatVsAdvanced(caseDef, overviewObj, processed) {
 
   const fullBlob = [overviewBlob, ...Object.values(stageBlobs)].join('\n').toLowerCase();
   const advancedOnlyBlob = Object.values(stageBlobs).join('\n').toLowerCase();
+  // Product-scope for forbidden concepts: exclude market (competitor comparisons are allowed)
+  // and overview nonGoals (rejected directions belong there).
+  const productScopeForBan = [
+    flattenForSearch({
+      shortTitle: overviewObj?.shortTitle,
+      ideaSummary: overviewObj?.ideaSummary,
+      valueProposition: overviewObj?.valueProposition,
+      coreFeaturesOverview: overviewObj?.coreFeaturesOverview,
+      detailedUserFlow: overviewObj?.detailedUserFlow,
+      screenDescriptions: overviewObj?.screenDescriptions,
+      personas: overviewObj?.personas,
+      epics: overviewObj?.epics
+    }),
+    stageBlobs.technical || '',
+    stageBlobs.design || '',
+    stageBlobs.architecture || '',
+    stageBlobs.visibility || '',
+    stageBlobs.prompts || ''
+  ]
+    .join('\n')
+    .toLowerCase();
 
   const mustCarry = req.mustCarry || caseDef.mustMention || [];
   const carried = keywordHits(fullBlob, mustCarry);
@@ -670,7 +717,7 @@ function evaluateChatVsAdvanced(caseDef, overviewObj, processed) {
   }
 
   const mustNotCarry = req.mustNotCarry || [];
-  const leaked = keywordHits(fullBlob, mustNotCarry);
+  const leaked = mustNotCarry.filter((phrase) => phrasePresentPositively(productScopeForBan, phrase));
   if (leaked.length) {
     issues.push(`chat→spec forbidden concepts leaked (${leaked.join('|')})`);
   }
@@ -758,19 +805,156 @@ function shouldSkipAdvanced(caseDef) {
   return false;
 }
 
-function conclusionFor(caseDef, overviewEval, advancedEval, fidelityNote, error) {
+function clip(value, max = 1400) {
+  const s = flattenForSearch(value);
+  if (s.length <= max) return s;
+  return `${s.slice(0, max)}…`;
+}
+
+/**
+ * Human-UX judge: clarity, intent match, advanced fidelity to the original chat.
+ * Soft by default; hard-fails the case when overall < 55.
+ */
+async function judgeUxExperience(caseDef, chatTurns, userInput, overviewObj, processed) {
+  if (skipUxJudge) {
+    return {
+      skipped: true,
+      overall: null,
+      clarity: null,
+      intentMatch: null,
+      advancedMatch: null,
+      verdict: 'skipped',
+      strengths: [],
+      problems: [],
+      userWouldFeel: '',
+      notes: 'UX judge skipped (--skip-ux-judge)'
+    };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_SPEC_API_KEY;
+  const ai = new AIService(apiKey);
+  const advancedDigest = processed
+    ? {
+        technical: clip(processed.technical, 900),
+        market: clip(processed.market, 700),
+        design: clip(processed.design, 700),
+        architecture: clip(processed.architecture, 900),
+        visibility: clip(processed.visibility, 500),
+        prompts: clip(processed.prompts, 700)
+      }
+    : null;
+
+  const raw = await ai.callJsonChatCompletion({
+    system: `You are a product UX reviewer for Specifys — an AI that turns chat into product specs.
+Judge as a founder reading their generated PRD after a Living Brief chat.
+
+Score 0–100 for:
+- clarity: are titles, ideaSummary, features, and advanced prose clear and non-generic?
+- intentMatch: does the overview match what the user actually asked for (final decisions win over earlier contradictions)?
+- advancedMatch: do technical/market/design/architecture/visibility/prompts stay faithful to the chat (stack, platform, constraints, out-of-scope)?
+
+Return ONLY JSON:
+{
+  "clarity": 0,
+  "intentMatch": 0,
+  "advancedMatch": 0,
+  "overall": 0,
+  "verdict": "good|weak|bad",
+  "strengths": ["..."],
+  "problems": ["..."],
+  "userWouldFeel": "one short sentence from the user's POV",
+  "notes": "2-4 sentences, concrete"
+}
+
+Penalize: wrong product category, ignored final constraints, jargon soup, generic SaaS filler, inventing major features the user rejected.
+Reward: crisp shortTitle, faithful must-haves, clear flows, advanced sections that sound like THIS product.`,
+    user: JSON.stringify({
+      caseId: caseDef.id,
+      kind: caseDef.kind,
+      persona: caseDef.persona,
+      chatTurns,
+      chatRequirements: caseDef.chatRequirements || null,
+      livingBriefUserInput: clip(userInput, 1800),
+      overview: {
+        shortTitle: overviewObj?.shortTitle,
+        ideaSummary: overviewObj?.ideaSummary,
+        problemStatement: overviewObj?.problemStatement,
+        valueProposition: overviewObj?.valueProposition,
+        coreFeaturesOverview: overviewObj?.coreFeaturesOverview,
+        detailedUserFlow: overviewObj?.detailedUserFlow,
+        targetAudience: overviewObj?.targetAudience,
+        personas: overviewObj?.personas,
+        nonGoals: overviewObj?.nonGoals,
+        screens: overviewObj?.screenDescriptions?.screens
+      },
+      advancedDigest
+    }),
+    temperature: 0.15
+  });
+
+  try {
+    const parsed = JSON.parse(raw);
+    const overall =
+      typeof parsed.overall === 'number'
+        ? parsed.overall
+        : Math.round(
+            ((Number(parsed.clarity) || 0) +
+              (Number(parsed.intentMatch) || 0) +
+              (Number(parsed.advancedMatch) || 0)) /
+              3
+          );
+    return {
+      skipped: false,
+      clarity: Number(parsed.clarity) || 0,
+      intentMatch: Number(parsed.intentMatch) || 0,
+      advancedMatch: Number(parsed.advancedMatch) || 0,
+      overall,
+      verdict: parsed.verdict || (overall >= 75 ? 'good' : overall >= 55 ? 'weak' : 'bad'),
+      strengths: parsed.strengths || [],
+      problems: parsed.problems || [],
+      userWouldFeel: parsed.userWouldFeel || '',
+      notes: parsed.notes || ''
+    };
+  } catch (err) {
+    return {
+      skipped: false,
+      clarity: 0,
+      intentMatch: 0,
+      advancedMatch: 0,
+      overall: 0,
+      verdict: 'bad',
+      strengths: [],
+      problems: [`UX judge parse failed: ${err.message}`],
+      userWouldFeel: 'Confused — judge failed',
+      notes: String(raw).slice(0, 300)
+    };
+  }
+}
+
+function conclusionFor(caseDef, overviewEval, advancedEval, uxJudge, error) {
   if (error) {
     return `FAILED to generate: ${error}. Pipeline/infra issue, not just prompt quality.`;
   }
   const oIssues = overviewEval?.issues || [];
   const aIssues = advancedEval?.issues || [];
   const soft = advancedEval?.softIssues || [];
+  const uxBad = uxJudge && !uxJudge.skipped && uxJudge.overall < 55;
   const tag = `[${caseDef.kind}/${caseDef.persona}]`;
-  if (!oIssues.length && (!advancedEval || !aIssues.length)) {
+  const uxBit =
+    uxJudge && !uxJudge.skipped
+      ? ` UX ${uxJudge.overall}/100 (${uxJudge.verdict})`
+      : '';
+  if (!oIssues.length && (!advancedEval || !aIssues.length) && !uxBad) {
     const softBit = soft.length ? ` (soft notes: ${soft.slice(0, 2).join('; ')})` : '';
-    return `PASS ${tag} — ${caseDef.label}: overview healthy, advanced complete, chat requirements carried into advanced${softBit}.`;
+    return `PASS ${tag} — ${caseDef.label}: overview healthy, advanced complete, chat→advanced fidelity ok.${uxBit}${softBit}`;
   }
-  const top = [...oIssues, ...aIssues].slice(0, 5).join('; ');
+  const top = [
+    ...oIssues,
+    ...aIssues,
+    ...(uxBad ? [`UX overall ${uxJudge.overall}: ${(uxJudge.problems || []).slice(0, 2).join('; ')}`] : [])
+  ]
+    .slice(0, 5)
+    .join('; ');
   return `FAIL ${tag} ${caseDef.label}: ${top}`;
 }
 
@@ -898,8 +1082,46 @@ async function runCase(caseDef) {
     fidelity.issues.forEach((i) => console.log(`     - ${i}`));
   }
 
-  const ok = overviewEval.ok && (skipAdv || (advancedEval && advancedEval.ok));
-  const conclusion = conclusionFor(caseDef, overviewEval, advancedEval, null, null);
+  let uxJudge = null;
+  if (overviewObj) {
+    console.log('5) UX experience judge (clarity / intent / advanced match)…');
+    try {
+      uxJudge = await judgeUxExperience(
+        caseDef,
+        caseDef.turns,
+        brief.userInput,
+        overviewObj,
+        processed
+      );
+      if (uxJudge.skipped) {
+        console.log('   UX judge skipped');
+      } else {
+        console.log(
+          `   UX: overall=${uxJudge.overall} clarity=${uxJudge.clarity} intent=${uxJudge.intentMatch} advanced=${uxJudge.advancedMatch} · ${uxJudge.verdict}`
+        );
+        console.log(`   feel: ${uxJudge.userWouldFeel}`);
+        (uxJudge.problems || []).slice(0, 4).forEach((p) => console.log(`     ! ${p}`));
+      }
+    } catch (err) {
+      console.error(`   UX JUDGE FAILED: ${err.message}`);
+      uxJudge = {
+        skipped: false,
+        overall: 0,
+        clarity: 0,
+        intentMatch: 0,
+        advancedMatch: 0,
+        verdict: 'bad',
+        strengths: [],
+        problems: [err.message],
+        userWouldFeel: 'Judge failed',
+        notes: err.message
+      };
+    }
+  }
+
+  const uxOk = !uxJudge || uxJudge.skipped || uxJudge.overall >= 55;
+  const ok = overviewEval.ok && (skipAdv || (advancedEval && advancedEval.ok)) && uxOk;
+  const conclusion = conclusionFor(caseDef, overviewEval, advancedEval, uxJudge, null);
 
   const report = {
     caseId: caseDef.id,
@@ -915,6 +1137,7 @@ async function runCase(caseDef) {
     chatRequirements: caseDef.chatRequirements || null,
     overviewEval,
     advancedEval,
+    uxJudge,
     conclusion,
     checks: { ok },
     viewerHint: `/pages/spec-viewer.html?id=${specId}`,
@@ -1007,6 +1230,7 @@ async function main() {
     advancedIssues: r.report?.advancedEval?.issues || [],
     softIssues: r.report?.advancedEval?.softIssues || [],
     fidelity: r.report?.advancedEval?.fidelity || r.report?.overviewEval?.metrics?.fidelity || null,
+    uxJudge: r.report?.uxJudge || null,
     metrics: r.report?.overviewEval?.metrics || null,
     error: r.error || null,
     viewerHint: r.specId ? `/pages/spec-viewer.html?id=${r.specId}` : null
@@ -1020,6 +1244,11 @@ async function main() {
     if (s.fidelity) {
       console.log(
         `       fidelity carried ${s.fidelity.carriedCount}/${s.fidelity.mustCarryCount}`
+      );
+    }
+    if (s.uxJudge && !s.uxJudge.skipped) {
+      console.log(
+        `       UX ${s.uxJudge.overall}/100 · ${s.uxJudge.userWouldFeel || ''}`
       );
     }
     if (s.viewerHint) console.log(`       open: ${s.viewerHint}`);

@@ -398,14 +398,39 @@ class SpecGenerationServiceV2 {
     if (processed.technical && processed.market && processed.design) {
       specEvents.emitSpecUpdate(specId, 'architecture', 'generating', null);
       try {
-        const architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design, answers);
+        let architecture;
+        try {
+          architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design, answers);
+        } catch (firstErr) {
+          const empty =
+            /No assistant response content|empty content|Model refused/i.test(firstErr.message || '');
+          if (!empty) throw firstErr;
+          logger.warn(
+            { requestId, specId, error: firstErr.message },
+            '[SpecGenV2] Architecture empty/refused — retrying once'
+          );
+          architecture = await this.generateArchitecture(
+            specId,
+            overview,
+            processed.technical,
+            processed.market,
+            processed.design,
+            answers
+          );
+        }
         processed.architecture = architecture;
         specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
         processed.successes.push({ stage: 'architecture', content: architecture });
       } catch (err) {
         logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Architecture failed');
         specEvents.emitSpecError(specId, 'architecture', err);
-        processed.errors.push({ stage: 'architecture', error: err, retryable: false });
+        processed.errors.push({
+          stage: 'architecture',
+          error: err,
+          retryable: /No assistant response content|timeout|network|ECONNREFUSED|ETIMEDOUT|AbortError/i.test(
+            err.message || ''
+          )
+        });
       }
     }
 

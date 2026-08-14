@@ -34,8 +34,18 @@
      - ⚠️ ודא שה-URL נכון
    - [ ] **Secret**: `testpassword123` (או מה שהגדרת ב-Render)
      - ⚠️ **חייב להיות זהה** ל-`LEMON_WEBHOOK_SECRET` ב-Render!
-   - [ ] **Events**: בחר **`order_created`** (חובה!)
-     - ⚠️ בלי זה לא יגיעו webhooks!
+   - [ ] **Events**: select at least:
+     - `order_created`
+     - `subscription_created`
+     - `subscription_updated`
+     - `subscription_cancelled`
+     - `subscription_expired`
+     - `subscription_paused`
+     - `subscription_payment_success`
+     - `subscription_payment_failed`
+     - `subscription_payment_recovered`
+     - `subscription_payment_refunded`
+     - ⚠️ `order_created` alone is not enough. Cancel, expiry, failed payment, and monthly renewal will not update the site or admin activity without the `subscription_*` events.
    - [ ] **Test Mode**: השאר unchecked (או סמן אם זה רק לבדיקות)
 
 3. **שמור את ה-Webhook:**

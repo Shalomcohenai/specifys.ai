@@ -88,8 +88,13 @@ STEP 3: MUST / MAY / GAP-FILL (CRITICAL)
 After including all user-provided data, apply these priority rules:
 
 MUST (mandatory — never omit or contradict):
-- Every page, workflow step, feature, integration, design style, target audience detail, and UI screenshot reference from user input MUST appear verbatim/traceable in the output.
-- User-provided names MUST match exactly (page names, feature names, integration names).
+- Every page, workflow step, feature, integration, design style, target audience detail, and UI screenshot reference from user input MUST appear verbatim/traceable in the output — UNLESS a later "User notes:" / "Constraints / Non-goals:" / "final decision" explicitly rejects it.
+- User-provided names MUST match exactly (page names, feature names, integration names) when they are still in-scope.
+
+CONFLICT RESOLUTION (CRITICAL — final decisions win):
+- If "User notes:", "Constraints / Non-goals:", or phrases like "final decision", "not a …", "no public …", "internal-only" reject an earlier Features:/Workflows: item, DROP or RENAME that item to match the final scope.
+- Example: Features lists "Public listings…" but User notes say "final decision: internal-only staffing. No public marketplace" → use "Internal gig board" (or similar), put public marketplace in nonGoals, and NEVER keep "Public listings" / "public marketplace" as a core feature name.
+- App Description + Constraints / Non-goals + latest User notes OVERRIDE stale earlier Features when they conflict.
 
 MAY (only when needed for coherence):
 - Add screens ONLY to connect user-provided pages (e.g. navigation between two user-defined screens).
@@ -334,7 +339,8 @@ VALIDATION CHECKLIST (Before generating output):
 ✓ Did I list gap-fill additions in inferredItems WITHOUT putting [INFERRED] in any user-facing name/description?
 ✓ Did I check if "Workflows:" section exists? If yes, did I include ALL workflows and steps?
 ✓ Is detailedUserFlow.steps a non-empty array with at least 3 steps?
-✓ Did I check if "Features:" section exists? If yes, did I include ALL features in coreFeaturesOverview?
+✓ Did I check if "Features:" section exists? If yes, did I include ALL still-in-scope features in coreFeaturesOverview (dropping ones rejected by User notes / Constraints / Non-goals / final decisions)?
+✓ Did final-scope conflicts resolve in favor of User notes / Constraints (no rejected “public marketplace” / payments / etc. left as core feature names)?
 ✓ Is coreFeaturesOverview a non-empty array with at least 4 feature strings? (NEVER return [] — epics do not replace this field)
 ✓ Did I check if "Design Style:" section exists? If yes, did I incorporate it in design descriptions?
 ✓ Did I check if "Integrations:" section exists? If yes, did I include ALL integrations?

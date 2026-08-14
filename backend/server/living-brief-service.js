@@ -745,7 +745,15 @@ function applyDraftPatch(draft, patch) {
     next.workflows = uniqueByName([...next.workflows, ...patch.workflows.map(normalizeWorkflow)]);
   }
   if (Array.isArray(patch.features)) {
-    next.features = [...new Set([...next.features, ...patch.features.map(String)])];
+    if (patch.featuresReplace === true) {
+      next.features = [...new Set(patch.features.map(String).filter(Boolean))];
+    } else {
+      next.features = [...new Set([...next.features, ...patch.features.map(String)])];
+    }
+  }
+  if (Array.isArray(patch.removeFeatures) && patch.removeFeatures.length) {
+    const drop = new Set(patch.removeFeatures.map((f) => String(f).toLowerCase()));
+    next.features = next.features.filter((f) => !drop.has(String(f).toLowerCase()));
   }
   if (patch.design) next.design = String(patch.design);
   if (Array.isArray(patch.integrations)) {
@@ -756,6 +764,58 @@ function applyDraftPatch(draft, patch) {
     if (Array.isArray(patch.audience.interests)) {
       next.audience.interests = [...new Set([...next.audience.interests, ...patch.audience.interests])];
     }
+  }
+  return next;
+}
+
+/**
+ * When the user rejects / narrows scope in later turns, drop stale features that
+ * contradict the final decision (e.g. "public listings" after "no public marketplace").
+ */
+const SCOPE_REJECTION_RULES = [
+  {
+    when: /final decision[:\s].{0,120}internal[- ]only|no public marketplace|not a marketplace|internal[- ]only staffing|no public listings?/i,
+    dropFeature: /public\s+listing|marketplace|upwork|buyer|seller|public\s+gig/i,
+    constraint: 'Internal-only staffing — no public marketplace or public gig listings'
+  },
+  {
+    when: /no payments?\b|no payment in v1|without payments?/i,
+    dropFeature: /\b(payment|payments|stripe|checkout|escrow|billing)\b/i,
+    constraint: 'No payments / checkout in v1'
+  },
+  {
+    when: /no (full )?crm\b|do not want a full crm|not a (full )?crm/i,
+    dropFeature: /\bcrm pipeline\b|sales pipeline board/i,
+    constraint: 'Not a full CRM'
+  },
+  {
+    when: /no loyalty\b|skip loyalty|without loyalty/i,
+    dropFeature: /\bloyalty\b/i,
+    constraint: 'No loyalty program in v1'
+  },
+  {
+    when: /no (delivery fleet|social network)|skip (delivery|social)\b/i,
+    dropFeature: /delivery fleet|social network|social feed/i,
+    constraint: 'Out of scope: delivery fleet / social network'
+  }
+];
+
+function extractScopeConstraints(messages) {
+  const corpus = userMessagesCorpus(messages || []);
+  const constraints = [];
+  for (const rule of SCOPE_REJECTION_RULES) {
+    if (rule.when.test(corpus) && rule.constraint) constraints.push(rule.constraint);
+  }
+  return [...new Set(constraints)];
+}
+
+function scrubDraftAgainstUserCorpus(draft, messages) {
+  const next = normalizeDraft(draft);
+  const corpus = userMessagesCorpus(messages || []);
+  if (!corpus) return next;
+  for (const rule of SCOPE_REJECTION_RULES) {
+    if (!rule.when.test(corpus)) continue;
+    next.features = next.features.filter((f) => !rule.dropFeature.test(String(f)));
   }
   return next;
 }
@@ -822,6 +882,12 @@ Never re-ask the same follow-up verbatim. If the user already described what the
 If the user says they already answered / “כתבתי לך” / “I already told you”, apologize briefly, accept their last description as vision, and ask the NEXT topic — never repeat the vision template.
 Never paste the CRM freelancers example script. Write a fresh question in your own words for THIS product.
 
+SCOPE CHANGES (critical):
+When the user rejects or narrows scope (“final decision…”, “not a marketplace”, “no payments in v1”, “ignore X”), UPDATE the draft to match the FINAL decision:
+- Remove conflicting features (use draftPatch.removeFeatures and/or featuresReplace: true with the corrected feature list)
+- Rewrite draftPatch.vision so it no longer describes the rejected direction
+- Do NOT keep stale “Public listings” / marketplace / payment features after the user killed them
+
 Return ONLY valid JSON with this shape:
 {
   "reply": "assistant message (markdown ok) — end with ONE natural follow-up question when a topic remains",
@@ -830,6 +896,8 @@ Return ONLY valid JSON with this shape:
     "pages": [{"name":"","description":""}],
     "workflows": [{"name":"","steps":["..."]}],
     "features": ["..."],
+    "featuresReplace": false,
+    "removeFeatures": ["optional exact feature names to drop"],
     "design": "one of: Minimal|SaaS Soft|Cyberpunk|Corporate|Toy/Playful|Glassmorphic|Neo-Brutalist|Elegant or omit",
     "integrations": ["..."],
     "audience": { "platform": "mobile|web|both", "interests": [] }
@@ -994,8 +1062,9 @@ async function processTurn({ messages, draft, apiKey }) {
 }
 
 function draftToUserInput(draft, messages) {
-  const d = normalizeDraft(draft);
+  const d = scrubDraftAgainstUserCorpus(draft, messages);
   const userBits = userMessagesCorpus(messages);
+  const constraints = extractScopeConstraints(messages);
   const parts = [];
   // Match planning → SpecGenV2 input shape (index.js uses "App Description:")
   if (d.vision) parts.push(`App Description: ${d.vision}`);
@@ -1036,6 +1105,9 @@ function draftToUserInput(draft, messages) {
     if (d.audience.ageRange) audienceLines.push(`Age Range: ${d.audience.ageRange}`);
     parts.push(audienceLines.join('\n'));
   }
+  if (constraints.length) {
+    parts.push('Constraints / Non-goals:\n' + constraints.map((c, i) => `${i + 1}. ${c}`).join('\n'));
+  }
   if (userBits && d.vision && !String(d.vision).toLowerCase().includes(userBits.slice(0, 40))) {
     parts.push(`User notes: ${userBits.slice(0, 1500)}`);
   }
@@ -1050,6 +1122,8 @@ module.exports = {
   processTurn,
   applyDraftPatch,
   applyProposalToDraft,
+  scrubDraftAgainstUserCorpus,
+  extractScopeConstraints,
   conversationText,
   userMessagesCorpus,
   isThinProductPitch,

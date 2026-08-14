@@ -244,24 +244,33 @@ function parseWebhookPayload(event) {
     }
 
     const attributes = eventData.attributes;
+    const relationships = eventData.relationships || {};
     const customData =
       event.meta?.custom_data ||
       attributes.custom ||
       attributes.checkout_data?.custom ||
       {};
 
+    const isPaymentEvent = eventName.startsWith('subscription_payment_');
+    const subscriptionId = isPaymentEvent
+      ? (attributes.subscription_id || relationships.subscription?.data?.id || null)
+      : eventData.id;
+
     const subscriptionData = {
-      subscriptionId: eventData.id,
-      status: attributes.status || null,
-      cancelAtPeriodEnd: attributes.cancel_at_period_end ?? attributes.cancelled ?? false,
+      subscriptionId,
+      invoiceId: isPaymentEvent ? eventData.id : null,
+      billingReason: attributes.billing_reason || null,
+      status: isPaymentEvent ? (attributes.status || null) : (attributes.status || null),
+      cancelAtPeriodEnd: !!(attributes.cancel_at_period_end || attributes.cancelled),
       endsAt: attributes.ends_at || attributes.ends_at_formatted || null,
-      renewsAt: attributes.renews_at || null,
+      renewsAt: attributes.renews_at || attributes.renewed_at || null,
       productId: attributes.product_id || null,
       variantId: attributes.variant_id || null,
       storeId: attributes.store_id || null,
       customerId: attributes.customer_id || null,
       orderId: attributes.order_id || null,
       userId: customData.user_id || customData.userId || null,
+      isPaymentEvent,
       raw: eventData
     };
 

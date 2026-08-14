@@ -963,8 +963,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
             const statusEl = document.getElementById('info-status');
             if (statusEl) {
-                statusEl.textContent = unlimited ? 'Active' : 'Free tier';
-                statusEl.className = `status-badge ${unlimited ? 'active' : 'free'}`;
+                if (unlimited && sub && sub.cancelAtPeriodEnd) {
+                    statusEl.textContent = 'Cancels at period end';
+                    statusEl.className = 'status-badge cancelled';
+                } else {
+                    statusEl.textContent = unlimited ? 'Active' : 'Free tier';
+                    statusEl.className = `status-badge ${unlimited ? 'active' : 'free'}`;
+                }
             }
 
             // Update renewal date and cost for Pro users

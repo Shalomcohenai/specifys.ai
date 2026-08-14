@@ -15,7 +15,12 @@ export class UsersView {
     this.currentPage = 1;
     this.perPage = 25;
     this.selectedUsers = new Set();
-    this.userDetailsModal = new UserDetailsModal();
+    this.userDetailsModal = new UserDetailsModal({
+      onCreditsLoaded: (userId, credits) => {
+        this.dataManager.ingestCanonicalCredits(userId, credits);
+        this.render();
+      }
+    });
     
     this.init();
   }
@@ -282,7 +287,7 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      const userCredits = this.dataManager.getCreditsForUser(user.id);
       const specCount = allData.specsByUser[user.id]?.length || 0;
       const creditsDisplay = helpers.getCanonicalCredits(userCredits).display;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
@@ -443,8 +448,7 @@ export class UsersView {
     }
     
     // Get current values from user_credits_v3 (same source as users see)
-    const allData = this.dataManager.getAllData();
-    const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+    const userCredits = this.dataManager.getCreditsForUser(user.id);
     const currentCredits = helpers.getCanonicalCredits(userCredits).total || 0;
     const currentPlan = (user.plan || 'free').toLowerCase();
     
@@ -866,7 +870,7 @@ export class UsersView {
     
     const headers = ['Email', 'Name', 'Plan', 'Specs', 'Credits', 'Created', 'Last Active'];
     const rows = users.map(user => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      const userCredits = this.dataManager.getCreditsForUser(user.id);
       const specCount = allData.specsByUser[user.id]?.length || 0;
       const credits = helpers.getCanonicalCredits(userCredits);
       const creditsDisplay = credits.unlimited ? 'unlimited' : credits.display;

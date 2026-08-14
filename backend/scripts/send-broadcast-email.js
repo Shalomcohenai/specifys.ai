@@ -35,6 +35,7 @@ function parseArgs(argv) {
     send: false,
     allUsers: false,
     forcePrefs: false,
+    skipSent: false,
     subject: DEFAULT_SUBJECT,
     to: null,
     limit: null,
@@ -48,6 +49,7 @@ function parseArgs(argv) {
     else if (arg === '--send') args.send = true;
     else if (arg === '--all-users') args.allUsers = true;
     else if (arg === '--force-prefs') args.forcePrefs = true;
+    else if (arg === '--skip-sent') args.skipSent = true;
     else if (arg.startsWith('--subject=')) args.subject = arg.slice('--subject='.length);
     else if (arg.startsWith('--to=')) args.to = arg.slice('--to='.length).trim().toLowerCase();
     else if (arg.startsWith('--limit=')) args.limit = Number(arg.slice('--limit='.length));
@@ -105,6 +107,31 @@ function buildHtml({ userName, userId, campaignId }) {
   };
 }
 
+async function loadAlreadySentEmails(campaignId) {
+  const sent = new Set();
+  try {
+    const snap = await db.collection('email_sent').where('category', '==', campaignId).get();
+    snap.forEach((doc) => {
+      const email = String(doc.data().recipientEmail || '')
+        .trim()
+        .toLowerCase();
+      if (email) sent.add(email);
+    });
+  } catch (err) {
+    console.warn(`Could not query email_sent by category (${err.message}) — scanning…`);
+    const snap = await db.collection('email_sent').limit(20000).get();
+    snap.forEach((doc) => {
+      const data = doc.data();
+      if (data.category !== campaignId) return;
+      const email = String(data.recipientEmail || '')
+        .trim()
+        .toLowerCase();
+      if (email) sent.add(email);
+    });
+  }
+  return sent;
+}
+
 async function loadRecipients(args) {
   if (args.to) {
     const snap = await db.collection('users').where('email', '==', args.to).limit(1).get();
@@ -126,6 +153,11 @@ async function loadRecipients(args) {
     }];
   }
 
+  const alreadySent = args.skipSent ? await loadAlreadySentEmails(args.campaignId) : new Set();
+  if (args.skipSent) {
+    console.log(`Skipping ${alreadySent.size} addresses already sent for ${args.campaignId}`);
+  }
+
   const snap = await db.collection('users').get();
   const recipients = [];
 
@@ -134,6 +166,7 @@ async function loadRecipients(args) {
     const email = (data.email || '').trim().toLowerCase();
     if (!email || !email.includes('@')) continue;
     if (!wantsNewsletter(data, args)) continue;
+    if (alreadySent.has(email)) continue;
 
     recipients.push({
       userId: doc.id,
@@ -212,12 +245,15 @@ async function main() {
   let sent = 0;
   let failed = 0;
   let listed = 0;
+  let stopForQuota = false;
 
   for (let i = 0; i < recipients.length; i += args.batchSize) {
+    if (stopForQuota) break;
     const batch = recipients.slice(i, i + args.batchSize);
 
     await Promise.all(
       batch.map(async (r) => {
+        if (stopForQuota) return;
         const result = await sendOne(r, args);
         if (result.dryRun) {
           listed++;
@@ -230,16 +266,19 @@ async function main() {
         } else {
           failed++;
           console.warn(`✗ ${r.email}  ${result.error || 'unknown error'}`);
+          if (/daily email sending quota|rate.?limit/i.test(result.error || '')) {
+            stopForQuota = true;
+          }
         }
       })
     );
 
-    if (i + args.batchSize < recipients.length) {
+    if (i + args.batchSize < recipients.length && !stopForQuota) {
       await new Promise((resolve) => setTimeout(resolve, args.delayMs));
     }
   }
 
-  console.log(`\nDone. sent=${sent} failed=${failed} dryRunListed=${listed}`);
+  console.log(`\nDone. sent=${sent} failed=${failed} dryRunListed=${listed}${stopForQuota ? ' (stopped: quota)' : ''}`);
 }
 
 main().catch((err) => {

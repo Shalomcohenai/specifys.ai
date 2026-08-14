@@ -75,6 +75,7 @@ async function fetchSubscriptionStatus(subscriptionId, apiKey) {
     
     // Check if subscription is active
     const isActive = status === 'active' || status === 'paid' || status === 'on_trial';
+    const isUnpaid = status === 'past_due' || status === 'unpaid' || status === 'paused';
     
     // Check if expired
     let isExpired = false;
@@ -88,8 +89,9 @@ async function fetchSubscriptionStatus(subscriptionId, apiKey) {
     return {
       subscriptionId: result.id.toString(),
       status: status,
-      isActive: isActive && !isExpired,
+      isActive: isActive && !isExpired && !isUnpaid,
       isExpired: isExpired,
+      isUnpaid: isUnpaid,
       endsAt: endsAt,
       renewsAt: renewsAt,
       cancelAtPeriodEnd: cancelAtPeriodEnd,
@@ -152,18 +154,23 @@ async function syncUserCredits(userId, options = {}) {
       subscriptionStatus = await fetchSubscriptionStatus(lemonSubscriptionId, apiKey);
     }
 
-    // Determine if subscription should be active
+    // Determine if subscription should be active.
+    // Only disable when Lemon confirmed the subscription is inactive.
+    // A failed/missing Lemon lookup must not strip Pro from a paying user.
+    const lemonConfirmed = subscriptionStatus !== null;
     const shouldHaveActiveSubscription = subscriptionStatus?.isActive === true;
     const currentSubscriptionActive = 
       currentCredits.subscription?.type === 'pro' && 
-      (currentCredits.subscription?.status === 'active' || currentCredits.subscription?.status === 'paid');
+      (currentCredits.subscription?.status === 'active' ||
+        currentCredits.subscription?.status === 'paid' ||
+        currentCredits.subscription?.status === 'on_trial');
 
     // Check if paid credits need fixing
     const paidCreditsDiff = expectedPaidCredits - currentPaidCredits;
     const needsCreditsFix = Math.abs(paidCreditsDiff) > 0.01; // Allow small floating point differences
 
     // Check if subscription needs fixing
-    const needsSubscriptionFix = shouldHaveActiveSubscription !== currentSubscriptionActive;
+    const needsSubscriptionFix = lemonConfirmed && shouldHaveActiveSubscription !== currentSubscriptionActive;
 
     // If nothing needs fixing, return early
     if (!needsCreditsFix && !needsSubscriptionFix) {
@@ -228,7 +235,9 @@ async function syncUserCredits(userId, options = {}) {
           // Disable subscription
           await disableProSubscription(userId, {
             subscriptionId: lemonSubscriptionId,
-            cancelReason: subscriptionStatus?.isExpired ? 'expired' : 'cancelled'
+            cancelReason: subscriptionStatus?.isUnpaid
+              ? 'payment_failed'
+              : (subscriptionStatus?.isExpired ? 'expired' : 'cancelled')
           });
           syncResult.subscriptionFixed = true;
           syncResult.changes.push('Disabled Pro subscription');

@@ -8,10 +8,11 @@ import { firebaseService } from '../core/FirebaseService.js';
 import { apiService } from '../services/ApiService.js';
 
 export class UserDetailsModal {
-  constructor() {
+  constructor(options = {}) {
     this.modal = null;
     this.isOpen = false;
     this.currentUserId = null;
+    this.onCreditsLoaded = options.onCreditsLoaded || null;
   }
 
   /**
@@ -894,6 +895,10 @@ export class UserDetailsModal {
       
       // Store analytics for copy button
       this.currentAnalytics = analytics;
+
+      if (this.currentUserId && analytics.credits && typeof this.onCreditsLoaded === 'function') {
+        this.onCreditsLoaded(this.currentUserId, analytics.credits);
+      }
       
       // Render user data
       this.renderUserData(analytics);

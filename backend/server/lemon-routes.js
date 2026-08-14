@@ -25,7 +25,9 @@ const {
   upsertSubscriptionFromWebhook,
   buildSubscriptionUpdateFromRecord,
   hasActiveStatus,
-  hasCancelledStatus
+  hasCancelledStatus,
+  hasUnpaidStatus,
+  findUserIdByLemonSubscriptionId
 } = require('./lemon-subscription-resolver');
 const { verifyFirebaseToken } = require('./middleware/auth');
 
@@ -1257,7 +1259,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     else if (parsed.subscriptionData) {
       const { subscriptionData, customData } = parsed;
       const subscriptionRecord = subscriptionData.raw;
-      const subscriptionUserId =
+      let subscriptionUserId =
         subscriptionData.userId ||
         customData?.user_id ||
         customData?.userId ||
@@ -1265,31 +1267,42 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       const webhookRequestId = `webhook_${subscriptionData.subscriptionId || Date.now()}`;
       const isTestEvent = event.meta?.test_mode === true;
       const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
+      const eventName = parsed.eventName || '';
+      const isPaymentFailed = eventName === 'subscription_payment_failed' || eventName === 'subscription_payment_refunded';
+      const isPaymentSuccess = eventName === 'subscription_payment_success' || eventName === 'subscription_payment_recovered';
 
       if (isTestEvent && !allowTestPurchases) {
         return res.status(200).json({ received: true, handled: false, reason: 'Test mode disabled' });
+      }
+
+      if (!subscriptionUserId && subscriptionData.subscriptionId) {
+        try {
+          subscriptionUserId = await findUserIdByLemonSubscriptionId(db, subscriptionData.subscriptionId);
+        } catch (lookupErr) {
+          logger.warn({ webhookRequestId, error: lookupErr.message }, '[lemon-routes] Failed to resolve user from lemon subscription id');
+        }
       }
 
       if (!subscriptionUserId) {
         return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
       }
 
-
-      const upsertResult = await upsertSubscriptionFromWebhook({
-        db,
-        admin,
-        fetch,
-        userId: subscriptionUserId,
-        subscriptionRecord: subscriptionRecord || event.data,
-        storeId: subscriptionData.storeId || null,
-        mode: isTestEvent ? 'test' : 'live',
-        logger: logger,
-        requestId: webhookRequestId
-      });
+      if (subscriptionRecord && subscriptionRecord.attributes && !subscriptionData.isPaymentEvent) {
+        await upsertSubscriptionFromWebhook({
+          db,
+          admin,
+          fetch,
+          userId: subscriptionUserId,
+          subscriptionRecord: subscriptionRecord || event.data,
+          storeId: subscriptionData.storeId || null,
+          mode: isTestEvent ? 'test' : 'live',
+          logger: logger,
+          requestId: webhookRequestId
+        });
+      }
 
       const resolvedVariantId =
         subscriptionData.variantId ||
-        upsertResult?.attributes?.variant_id ||
         null;
 
       const resolvedProductKey =
@@ -1304,27 +1317,42 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
       const isActive = hasActiveStatus(subscriptionData.status);
       const isCancelled = hasCancelledStatus(subscriptionData.status);
+      const isUnpaid = hasUnpaidStatus(subscriptionData.status);
+      const periodEndRaw = subscriptionData.endsAt || subscriptionData.renewsAt || null;
+      const periodEndDate = periodEndRaw ? new Date(periodEndRaw) : null;
+      const periodEnded = periodEndDate && !Number.isNaN(periodEndDate.getTime()) && periodEndDate < new Date();
 
-      // Check if user.plan is 'pro' (fallback for missing product_key)
-      let isProUser = false;
+      let currentlyPro = false;
+      let currentCancelAtPeriodEnd = false;
       try {
-        const userDoc = await db.collection('users').doc(subscriptionUserId).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          isProUser = userData.plan === 'pro' || userData.plan === 'Pro';
-        }
-      } catch (userCheckError) {
-        logger.warn({ webhookRequestId, userId: subscriptionUserId, error: userCheckError.message }, '[lemon-routes] Failed to check user.plan (non-critical)');
+        const currentCredits = await creditsV3Service.getUserCredits(subscriptionUserId, false);
+        currentlyPro = !!(currentCredits?.subscription &&
+          currentCredits.subscription.type === 'pro' &&
+          creditsV3Service.isProStatusActive(currentCredits.subscription.status));
+        currentCancelAtPeriodEnd = !!(currentCredits?.subscription && currentCredits.subscription.cancelAtPeriodEnd);
+      } catch (creditsErr) {
+        logger.warn({ webhookRequestId, userId: subscriptionUserId, error: creditsErr.message }, '[lemon-routes] Could not load current credits for webhook');
       }
 
-      // Enable Pro subscription if: (explicit Pro product) OR (user.plan is Pro AND subscription is active)
-      if (isActive && (resolvedProductKey || isProUser)) {
+      const cancelAtPeriodEnd = subscriptionData.isPaymentEvent
+        ? currentCancelAtPeriodEnd
+        : !!subscriptionData.cancelAtPeriodEnd;
+
+      const shouldDisable = isPaymentFailed || isCancelled || isUnpaid || (cancelAtPeriodEnd && periodEnded);
+
+      if (shouldDisable) {
         try {
-          // Extract renewal/expiration date from subscription data
-          // Prioritize renewsAt (for active subscriptions), then endsAt (for cancelled)
-          const renewalDate = subscriptionData.renewsAt || subscriptionData.endsAt || null;
-          
-          const enableProOptions = {
+          await creditsV3Service.disableProSubscription(subscriptionUserId, {
+            subscriptionId: subscriptionData.subscriptionId,
+            cancelReason: isPaymentFailed || isUnpaid ? 'payment_failed' : 'webhook'
+          });
+          logger.info({ webhookRequestId, userId: subscriptionUserId, eventName }, '[lemon-routes] V3 subscription disabled from webhook');
+        } catch (disableErr) {
+          logger.error({ webhookRequestId, error: disableErr.message }, '[lemon-routes] Failed to disable Pro from webhook');
+        }
+      } else if (cancelAtPeriodEnd && currentlyPro) {
+        try {
+          await creditsV3Service.enableProSubscription(subscriptionUserId, {
             plan: 'pro',
             orderId: subscriptionData.orderId || null,
             productId: subscriptionData.productId || productConfig?.product_id || null,
@@ -1333,42 +1361,47 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             productType: productConfig?.type || null,
             variantId: resolvedVariantId || null,
             subscriptionId: subscriptionData.subscriptionId,
-            subscriptionStatus: subscriptionData.status || 'active',
+            subscriptionStatus: 'active',
             subscriptionInterval: productConfig?.billing_interval || null,
-            currentPeriodEnd: renewalDate, // Pass renewal date as currentPeriodEnd
-            cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
-            total: null,
-            currency: null,
+            currentPeriodEnd: periodEndRaw,
+            cancelAtPeriodEnd: true,
+            activityAction: 'cancelled'
+          });
+          logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] Marked Pro as cancelling at period end');
+        } catch (enableErr) {
+          logger.error({ webhookRequestId, error: enableErr.message }, '[lemon-routes] Failed to mark cancel-at-period-end');
+        }
+      } else if (isActive && !cancelAtPeriodEnd) {
+        try {
+          const renewalDate = subscriptionData.renewsAt || subscriptionData.endsAt || null;
+          const billingReason = (subscriptionData.billingReason || '').toLowerCase();
+          const activityAction = isPaymentSuccess && (billingReason === 'renewal' || currentlyPro)
+            ? 'renewed'
+            : undefined;
+
+          await creditsV3Service.enableProSubscription(subscriptionUserId, {
+            plan: 'pro',
+            orderId: subscriptionData.orderId || null,
+            productId: subscriptionData.productId || productConfig?.product_id || null,
+            productKey: resolvedProductKey,
+            productName: productConfig?.name || null,
+            productType: productConfig?.type || null,
+            variantId: resolvedVariantId || null,
+            subscriptionId: subscriptionData.subscriptionId,
+            subscriptionStatus: 'active',
+            subscriptionInterval: productConfig?.billing_interval || null,
+            currentPeriodEnd: renewalDate,
+            cancelAtPeriodEnd: false,
+            activityAction,
             metadata: {
               lemonCustomerId: subscriptionData.customerId || null,
-              webhookRequestId
+              webhookRequestId,
+              billingReason: subscriptionData.billingReason || null
             }
-          };
-          
-          // Update V3 subscription.
-          // Note: enableProSubscription is the single source of truth for activity logging;
-          // do NOT re-record here or we'll write duplicate rows to admin_activity_log
-          // (Lemon Squeezy fires multiple subscription_* webhooks per real state change).
-          await creditsV3Service.enableProSubscription(subscriptionUserId, enableProOptions);
-          logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription enabled from webhook');
+          });
+          logger.info({ webhookRequestId, userId: subscriptionUserId, activityAction: activityAction || 'activated' }, '[lemon-routes] V3 subscription enabled from webhook');
         } catch (enableErr) {
-        }
-      } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
-        try {
-          const disableProOptions = {
-            subscriptionId: subscriptionData.subscriptionId,
-            cancelReason: 'webhook',
-            restoreCredits: null
-          };
-          
-          // Update V3 subscription.
-          // Note: disableProSubscription is the single source of truth for activity logging;
-          // do NOT re-record here. Lemon fires subscription_updated + subscription_cancelled
-          // + subscription_expired for one cancellation and we want one log row per logical
-          // cancellation, deduped via the idempotency key in admin-activity-service.
-          await creditsV3Service.disableProSubscription(subscriptionUserId, disableProOptions);
-          logger.info({ webhookRequestId, userId: subscriptionUserId }, '[lemon-routes] V3 subscription disabled from webhook');
-        } catch (disableErr) {
+          logger.error({ webhookRequestId, error: enableErr.message }, '[lemon-routes] Failed to enable Pro from webhook');
         }
       }
 

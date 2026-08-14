@@ -1,0 +1,334 @@
+---
+layout: default
+title: "Overview Vision Surface Demo v2 (temp)"
+description: "Temporary minimal Overview demo — Vision Surface. Delete after review."
+permalink: /pages/overview-vision-demo.html
+robots: noindex, nofollow
+page_class: demo-spec-page overview-vision-demo-page
+extra_css:
+  - /assets/css/pages/spec-viewer.css
+  - /assets/css/pages/demo-spec.css
+  - /assets/css/pages/overview-vision-demo.css
+---
+
+<div class="demo-container ovd-page">
+  <div class="demo-header ovd-demo-header">
+    <p class="ovd-temp-tag">Temp demo v2 · product map · raw: 7471a3t2CzOz7MOXJ3S6</p>
+    <h1>Application Overview</h1>
+    <p>Vision-first: summary, problem/value, product map, in/out, flow, who it’s for.</p>
+  </div>
+
+  <div id="ovdRoot" class="spec-content ovd-root" aria-live="polite">
+    <p class="ovd-loading">Loading overview…</p>
+  </div>
+</div>
+
+<script type="application/json" id="ovdRawJson">
+{
+  "shortTitle": "SOC 2 Evidence Locker",
+  "ideaSummary": "SOC 2 Evidence Locker is a web app for startup security teams that turns scattered audit proof into a control-centered workflow. Instead of hunting screenshots in Slack and shared drives, the team maps applicable SOC 2 controls, attaches versioned evidence to each one, and tracks which controls are ready for review. When the pack is prepared, auditors open a read-only share link — they can inspect evidence by control without editing anything inside the workspace. Built for four roles on web only: admin (SSO and seats), security lead (controls and readiness), engineer (uploads), and auditor (review).",
+  "problemStatement": "Audit evidence lives in Slack and drives. Engineers chase screenshots; leads can’t see what’s ready. Teams need controls → evidence → readiness → auditor review in one place.",
+  "valueProposition": "One control-centered locker: SSO, mapped controls, versioned evidence, readiness, and a read-only auditor link — instead of general-purpose file hunting.",
+  "productMap": {
+    "screens": [
+      {
+        "id": "team",
+        "name": "Team and SSO",
+        "purpose": "Invite people, set roles, connect SSO.",
+        "features": ["SSO", "Team & roles"],
+        "roles": ["Admin"]
+      },
+      {
+        "id": "library",
+        "name": "Control Library",
+        "purpose": "Map controls and see what’s ready.",
+        "features": ["Control library", "Readiness"],
+        "roles": ["Security lead"]
+      },
+      {
+        "id": "evidence",
+        "name": "Evidence Workspace",
+        "purpose": "Upload and review evidence for one control.",
+        "features": ["Evidence by control", "Evidence versioning", "Readiness"],
+        "roles": ["Engineer", "Security lead"]
+      },
+      {
+        "id": "auditor",
+        "name": "Auditor Review Pack",
+        "purpose": "Read-only pack via share link.",
+        "features": ["Auditor share link"],
+        "roles": ["Auditor"]
+      }
+    ],
+    "features": [
+      { "id": "sso", "name": "SSO", "blurb": "Team signs in; access matches roles." },
+      { "id": "library-f", "name": "Control library", "blurb": "Map the SOC 2 controls you must prove." },
+      { "id": "versioning", "name": "Evidence versioning", "blurb": "Artifacts stay attached to a control with history." },
+      { "id": "share", "name": "Auditor share link", "blurb": "Read-only pack for external review." },
+      { "id": "roles", "name": "Team & roles", "blurb": "Invite admins, leads, engineers, auditors." },
+      { "id": "ready", "name": "Readiness", "blurb": "Lead marks a control ready when evidence is enough." },
+      { "id": "by-control", "name": "Evidence by control", "blurb": "Upload to the control — not to a random folder." }
+    ]
+  },
+  "io": {
+    "inputs": [
+      "Team invites & role assignment",
+      "SSO connection",
+      "Mapped SOC 2 controls",
+      "Evidence uploads (screenshots, exports, docs)"
+    ],
+    "outputs": [
+      "Controls marked ready for audit",
+      "Versioned evidence history per control",
+      "Read-only auditor review pack (share link)"
+    ]
+  },
+  "detailedUserFlow": {
+    "steps": [
+      "Admin invites team: seats and roles via SSO.",
+      "Security lead maps controls: applicable SOC 2 controls in the library.",
+      "Engineer uploads evidence: artifact tied to a control, with versions.",
+      "Security lead marks ready: control is prepared for audit.",
+      "Auditor reviews pack: opens the read-only share link."
+    ]
+  },
+  "personas": [
+    {
+      "name": "Maya Chen",
+      "role": "Security lead",
+      "jtbd": "Map controls, review evidence, mark ready, share a complete pack."
+    },
+    {
+      "name": "Jordan Patel",
+      "role": "Security engineer",
+      "jtbd": "Upload evidence to the right control without Slack chase."
+    },
+    {
+      "name": "Elena Rossi",
+      "role": "Auditor",
+      "jtbd": "Review a read-only pack organized by control."
+    },
+    {
+      "name": "Alex Morgan",
+      "role": "Admin",
+      "jtbd": "Invite the team and manage SSO access."
+    }
+  ]
+}
+</script>
+
+<script>
+(function () {
+  function esc(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function parseFlowStep(step, index) {
+    const n = index + 1;
+    let raw = String(step ?? "").trim();
+    if (!raw) return { n, title: "Step " + n, detail: "" };
+    raw = raw.replace(/^Step\s+\d+\s*[:.\u2013\u2014\-]\s*/i, "").trim();
+    const titled = raw.match(/^(.{3,72}?):\s+(.+)$/s);
+    if (titled) return { n, title: titled[1].trim(), detail: titled[2].trim() };
+    return { n, title: raw.replace(/[.!?]+$/, "").trim(), detail: "" };
+  }
+
+  const o = JSON.parse(document.getElementById("ovdRawJson").textContent);
+  const steps = (o.detailedUserFlow && o.detailedUserFlow.steps) || [];
+  const map = o.productMap;
+  let html = "";
+
+  /* Vision */
+  html += '<section class="ovd-vision enriched-block">';
+  html += '<p class="ovd-kicker">Application overview</p>';
+  html += '<h2 class="ovd-title">' + esc(o.shortTitle) + "</h2>";
+  html += '<div class="ovd-summary-hero"><p>' + esc(o.ideaSummary) + "</p></div>";
+  html += "</section>";
+
+  /* Problem + value */
+  html += '<section class="ovd-pair enriched-block">';
+  html +=
+    '<article class="ovd-pair-card"><h3 class="enriched-heading">Problem</h3><p>' +
+    esc(o.problemStatement) +
+    "</p></article>";
+  html +=
+    '<article class="ovd-pair-card"><h3 class="enriched-heading">Value</h3><p>' +
+    esc(o.valueProposition) +
+    "</p></article>";
+  html += "</section>";
+
+  /* Product map */
+  html += '<section class="enriched-block ovd-map-section">';
+  html += '<h3 class="enriched-heading">Product map</h3>';
+  html +=
+    '<p class="ovd-map-hint">Screens in the center. Select a screen to see its features and roles.</p>';
+  html += '<div class="ovd-product-map" id="ovdProductMap">';
+
+  html += '<div class="ovd-map-rail ovd-map-features" aria-label="Features">';
+  html += '<p class="ovd-map-rail-label">Features</p>';
+  html += '<div class="ovd-map-rail-items">';
+  map.features.forEach(function (f) {
+    html +=
+      '<button type="button" class="ovd-map-node ovd-map-feature" data-feature="' +
+      esc(f.name) +
+      '" title="' +
+      esc(f.blurb) +
+      '"><span>' +
+      esc(f.name) +
+      "</span><small>" +
+      esc(f.blurb) +
+      "</small></button>";
+  });
+  html += "</div></div>";
+
+  html += '<div class="ovd-map-center" aria-label="Screens">';
+  html += '<p class="ovd-map-rail-label">Screens</p>';
+  html += '<div class="ovd-map-screens">';
+  map.screens.forEach(function (s, i) {
+    html +=
+      '<button type="button" class="ovd-map-screen' +
+      (i === 0 ? " is-active" : "") +
+      '" data-screen="' +
+      esc(s.id) +
+      '" aria-pressed="' +
+      (i === 0 ? "true" : "false") +
+      '">';
+    html += '<span class="ovd-screen-index">' + (i + 1) + "</span>";
+    html += "<strong>" + esc(s.name) + "</strong>";
+    html += "<span>" + esc(s.purpose) + "</span>";
+    html += "</button>";
+  });
+  html += "</div>";
+  html += '<div class="ovd-map-detail" id="ovdMapDetail"></div>';
+  html += "</div>";
+
+  html += '<div class="ovd-map-rail ovd-map-roles" aria-label="Roles">';
+  html += '<p class="ovd-map-rail-label">Roles</p>';
+  html += '<div class="ovd-map-rail-items">';
+  ["Admin", "Security lead", "Engineer", "Auditor"].forEach(function (role) {
+    html +=
+      '<button type="button" class="ovd-map-node ovd-map-role" data-role="' +
+      esc(role) +
+      '">' +
+      esc(role) +
+      "</button>";
+  });
+  html += "</div></div>";
+
+  html += "</div></section>";
+
+  /* In / Out */
+  html += '<section class="enriched-block ovd-io-section">';
+  html += '<h3 class="enriched-heading">What goes in / what comes out</h3>';
+  html += '<div class="ovd-io">';
+  html += '<div class="ovd-io-col ovd-io-in">';
+  html += '<h4>In</h4><ul>';
+  o.io.inputs.forEach(function (x) {
+    html += "<li>" + esc(x) + "</li>";
+  });
+  html += "</ul></div>";
+  html += '<div class="ovd-io-arrow" aria-hidden="true">→</div>';
+  html += '<div class="ovd-io-col ovd-io-out">';
+  html += "<h4>Out</h4><ul>";
+  o.io.outputs.forEach(function (x) {
+    html += "<li>" + esc(x) + "</li>";
+  });
+  html += "</ul></div></div></section>";
+
+  /* Flow */
+  html += '<section class="content-section detailed-user-flow-section enriched-block">';
+  html +=
+    '<h3 class="enriched-heading user-flow-rail-heading"><i class="fa fa-sitemap" aria-hidden="true"></i> User flow</h3>';
+  html += '<ol class="user-flow-rail" aria-label="User flow">';
+  steps.forEach(function (step, i) {
+    const parsed = parseFlowStep(step, i);
+    const isLast = i === steps.length - 1;
+    html += '<li class="user-flow-rail-step' + (isLast ? " is-last" : "") + '">';
+    html += '<div class="user-flow-rail-track" aria-hidden="true">';
+    html +=
+      '<span class="user-flow-rail-node"><span class="user-flow-rail-index">' +
+      parsed.n +
+      "</span></span>";
+    if (!isLast) html += '<span class="user-flow-rail-line"></span>';
+    html += '</div><div class="user-flow-rail-content">';
+    html += '<h4 class="user-flow-rail-title">' + esc(parsed.title) + "</h4>";
+    if (parsed.detail) {
+      html += '<p class="user-flow-rail-detail">' + esc(parsed.detail) + "</p>";
+    }
+    html += "</div></li>";
+  });
+  html += "</ol></section>";
+
+  /* Personas */
+  html += '<section class="enriched-block enriched-personas">';
+  html += '<h3 class="enriched-heading">Who it’s for</h3>';
+  html += '<div class="persona-card-grid">';
+  o.personas.forEach(function (p) {
+    html += '<article class="persona-card">';
+    html += "<h4>" + esc(p.name) + "</h4>";
+    html += '<p class="persona-role">' + esc(p.role) + "</p>";
+    html += '<p class="persona-jtbd">' + esc(p.jtbd) + "</p></article>";
+  });
+  html += "</div></section>";
+
+  document.getElementById("ovdRoot").innerHTML = html;
+
+  const root = document.getElementById("ovdProductMap");
+  const detail = document.getElementById("ovdMapDetail");
+
+  function setActiveScreen(id) {
+    const screen = map.screens.find(function (s) {
+      return s.id === id;
+    });
+    if (!screen) return;
+
+    root.querySelectorAll(".ovd-map-screen").forEach(function (btn) {
+      const on = btn.getAttribute("data-screen") === id;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+
+    root.querySelectorAll(".ovd-map-feature").forEach(function (btn) {
+      const name = btn.getAttribute("data-feature");
+      btn.classList.toggle("is-linked", screen.features.indexOf(name) !== -1);
+      btn.classList.toggle("is-dim", screen.features.indexOf(name) === -1);
+    });
+
+    root.querySelectorAll(".ovd-map-role").forEach(function (btn) {
+      const role = btn.getAttribute("data-role");
+      btn.classList.toggle("is-linked", screen.roles.indexOf(role) !== -1);
+      btn.classList.toggle("is-dim", screen.roles.indexOf(role) === -1);
+    });
+
+    detail.innerHTML =
+      "<strong>" +
+      esc(screen.name) +
+      "</strong> · " +
+      esc(screen.purpose) +
+      '<div class="ovd-map-detail-tags">' +
+      screen.features
+        .map(function (f) {
+          return '<span class="chip">' + esc(f) + "</span>";
+        })
+        .join("") +
+      screen.roles
+        .map(function (r) {
+          return '<span class="chip chip-muted">' + esc(r) + "</span>";
+        })
+        .join("") +
+      "</div>";
+  }
+
+  root.querySelectorAll(".ovd-map-screen").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setActiveScreen(btn.getAttribute("data-screen"));
+    });
+  });
+
+  setActiveScreen(map.screens[0].id);
+})();
+</script>

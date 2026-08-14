@@ -120,7 +120,27 @@ function getInitialCreditsForNewUser(userId) {
  * Calculate total credits from balances
  */
 function calculateTotal(balances) {
-  return (balances.paid || 0) + (balances.free || 0) + (balances.bonus || 0);
+  return (Number(balances?.paid) || 0) + (Number(balances?.free) || 0) + (Number(balances?.bonus) || 0);
+}
+
+/**
+ * Canonical credit summary for admin UI. Always derived from balances, not stale `total`.
+ */
+function summarizeCreditsForAdmin(userId, credits = {}) {
+  const balances = {
+    free: Number(credits.balances?.free) || 0,
+    paid: Number(credits.balances?.paid) || 0,
+    bonus: Number(credits.balances?.bonus) || 0
+  };
+  const unlimited = credits.subscription?.type === 'pro' &&
+    isProStatusActive(credits.subscription?.status);
+
+  return {
+    userId,
+    balances,
+    total: unlimited ? null : calculateTotal(balances),
+    unlimited
+  };
 }
 
 /**
@@ -1601,6 +1621,7 @@ module.exports = {
   getDefaultCredits,
   getInitialCreditsForNewUser,
   calculateTotal,
+  summarizeCreditsForAdmin,
   selectCreditType,
   determineCreditType
 };

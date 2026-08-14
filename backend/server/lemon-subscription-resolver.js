@@ -1,8 +1,10 @@
 const { URLSearchParams } = require('url');
 const { getProductByKey } = require('./lemon-products-config');
 
-const ACTIVE_STATUSES = new Set(['active', 'on_trial', 'paused', 'past_due', 'paid']);
+const ENTITLED_STATUSES = new Set(['active', 'on_trial']);
+const ACTIVE_STATUSES = ENTITLED_STATUSES;
 const CANCELLED_STATUSES = new Set(['cancelled', 'expired', 'unpaid']);
+const UNPAID_STATUSES = new Set(['past_due', 'unpaid', 'paused']);
 
 function normalizeStatus(status) {
   if (!status || typeof status !== 'string') return '';
@@ -15,11 +17,16 @@ function normalizeStatus(status) {
 }
 
 function hasActiveStatus(status) {
-  return ACTIVE_STATUSES.has(normalizeStatus(status));
+  return ENTITLED_STATUSES.has(normalizeStatus(status));
 }
 
 function hasCancelledStatus(status) {
   return CANCELLED_STATUSES.has(normalizeStatus(status));
+}
+
+function hasUnpaidStatus(status) {
+  const raw = (status || '').trim().toLowerCase();
+  return UNPAID_STATUSES.has(raw);
 }
 
 function buildLogger(logger, requestId) {
@@ -819,7 +826,8 @@ async function upsertSubscriptionFromWebhook({
     }
     
     // Sync if: (explicit Pro product) OR (user.plan is Pro AND subscription is active)
-    if (isActive && (isProProduct || isProUser)) {
+    // Do not re-enable cancelled-at-period-end subscriptions that were already turned off locally.
+    if (isActive && !payload.update.cancel_at_period_end && (isProProduct || isProUser)) {
       // Check if user_credits needs syncing
       try {
         const creditsDoc = await db.collection('user_credits_v3').doc(userId).get();
@@ -1137,6 +1145,29 @@ async function listSubscriptionInvoices({ fetch, apiKey, storeId, subscriptionId
   }
 }
 
+async function findUserIdByLemonSubscriptionId(db, subscriptionId) {
+  if (!db || !subscriptionId) return null;
+  const id = String(subscriptionId);
+
+  const creditsSnap = await db.collection('user_credits_v3')
+    .where('subscription.lemonSubscriptionId', '==', id)
+    .limit(1)
+    .get();
+  if (!creditsSnap.empty) {
+    return creditsSnap.docs[0].id;
+  }
+
+  const archiveSnap = await db.collection('subscriptions_v3')
+    .where('lemon_subscription_id', '==', id)
+    .limit(1)
+    .get();
+  if (!archiveSnap.empty) {
+    return archiveSnap.docs[0].id;
+  }
+
+  return null;
+}
+
 module.exports = {
   resolveSubscription,
   upsertSubscriptionFromWebhook,
@@ -1148,7 +1179,10 @@ module.exports = {
   listSubscriptionInvoices,
   ACTIVE_STATUSES,
   CANCELLED_STATUSES,
+  UNPAID_STATUSES,
   hasActiveStatus,
-  hasCancelledStatus
+  hasCancelledStatus,
+  hasUnpaidStatus,
+  findUserIdByLemonSubscriptionId
 };
 

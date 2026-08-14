@@ -171,6 +171,41 @@ async function main() {
     livingBrief.classifyFollowUpTopic(enforced) === 'vision' && !/main user flow/i.test(enforced)
   );
 
+  // --- Scope scrub after conflicting chat ---
+  const conflictMsgs = [
+    { role: 'user', content: 'Build a marketplace for freelancers.' },
+    { role: 'user', content: 'Final decision: internal-only staffing. No public marketplace. No payments in v1.' }
+  ];
+  let conflictDraft = livingBrief.emptyDraft();
+  conflictDraft.vision = 'Internal staffing tool';
+  conflictDraft.features = [
+    'Public listings for freelancers to browse gigs',
+    'Internal request system for project managers',
+    'Stripe checkout'
+  ];
+  const scrubbed = livingBrief.scrubDraftAgainstUserCorpus(conflictDraft, conflictMsgs);
+  ok(
+    'scrub drops public marketplace features',
+    !scrubbed.features.some((f) => /public listing|marketplace/i.test(f))
+  );
+  ok(
+    'scrub drops payments after no-payments decision',
+    !scrubbed.features.some((f) => /stripe|checkout|payment/i.test(f))
+  );
+  ok(
+    'scrub keeps in-scope internal request feature',
+    scrubbed.features.some((f) => /internal request/i.test(f))
+  );
+  const conflictInput = livingBrief.draftToUserInput(conflictDraft, conflictMsgs);
+  ok(
+    'draftToUserInput emits Constraints / Non-goals',
+    /Constraints \/ Non-goals/i.test(conflictInput) && /internal-only/i.test(conflictInput)
+  );
+  ok(
+    'draftToUserInput does not list public listings feature',
+    !/Features:[\s\S]*Public listings/i.test(conflictInput)
+  );
+
   // --- processTurn without API key uses heuristic ---
   const processed = await livingBrief.processTurn({
     messages: [{ role: 'user', content: 'A mobile fitness app with notifications and dark mode vibe that is playful.' }],
