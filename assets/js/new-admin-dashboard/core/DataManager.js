@@ -302,16 +302,18 @@ export class DataManager {
               const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
               const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
               
+              const balances = {
+                free: Number(data.balances?.free) || 0,
+                paid: Number(data.balances?.paid) || 0,
+                bonus: Number(data.balances?.bonus) || 0
+              };
+              const normalizedStatus = (subscriptionStatus || '').toLowerCase();
               this.data.userCredits.set(change.doc.id, {
                 userId: change.doc.id,
-                balances: {
-                  free: data.balances?.free || 0,
-                  paid: data.balances?.paid || 0,
-                  bonus: data.balances?.bonus || 0
-                },
-                total: data.total !== undefined ? data.total : ((data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0)),  // Use total from Firestore (single source of truth), fallback to calculation for backward compatibility
-                // "paid" status also means active subscription
-                unlimited: subscriptionType === 'pro' && (subscriptionStatus === 'active' || subscriptionStatus === 'paid'),
+                balances,
+                total: balances.free + balances.paid + balances.bonus,
+                unlimited: subscriptionType === 'pro' &&
+                  (normalizedStatus === 'active' || normalizedStatus === 'paid' || normalizedStatus === 'on_trial'),
                 updatedAt: this.toDate(data.metadata?.updatedAt),
                 metadata: data
               });

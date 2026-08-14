@@ -68,7 +68,7 @@ router.get('/credits', async (req, res) => {
                 proUsers++;
             }
             // Check if user has any credits - use total from document (single source of truth)
-            const total = credits.total !== undefined ? credits.total : ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0));
+            const total = (credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0);
             if (total > 0) {
                 creditUsers++;
             }

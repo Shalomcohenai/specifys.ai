@@ -282,67 +282,11 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Get credits from user_credits_v3 collection (same source as users see)
-      // This matches what users see in their profile via /api/v3/credits
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
-      
-      // Debug: Log if userCredits not found for specific user
-      if (!userCredits && user.id === 'Xrj0xL0j56WkjnVZOAaMAc13Rxr1') {
-        console.warn('[UsersView] userCredits not found for user:', user.id, {
-          userCreditsCount: allData.userCredits.length,
-          userCreditsUserIds: allData.userCredits.map(uc => uc.userId),
-          searchingFor: user.id
-        });
-      }
-      
       const specCount = allData.specsByUser[user.id]?.length || 0;
-      
-      // Display the same value the user sees in header (from /api/v3/credits)
-      // This matches what users see: credits.total from user_credits_v3
-      let creditsDisplay = '0';
-      if (userCredits) {
-        if (userCredits.unlimited) {
-          // Pro users with unlimited access
-          creditsDisplay = '∞';
-        } else if (typeof userCredits.total === 'number') {
-          // Display total credits (same as user sees in header)
-          creditsDisplay = userCredits.total.toString();
-        } else {
-          // Fallback: calculate from balances if total is not available
-          const calculatedTotal = (userCredits.balances?.paid || 0) + 
-                                  (userCredits.balances?.free || 0) + 
-                                  (userCredits.balances?.bonus || 0);
-          creditsDisplay = calculatedTotal.toString();
-        }
-      } else {
-        // Debug: Log if userCredits not found (only for specific problematic user)
-        if (user.id === 'Xrj0xL0j56WkjnVZOAaMAc13Rxr1') {
-          console.warn('[UsersView] userCredits not found for user:', user.id, {
-            userCreditsCount: allData.userCredits?.length || 0,
-            userCreditsUserIds: allData.userCredits?.map(uc => uc.userId) || [],
-            searchingFor: user.id,
-            allDataKeys: Object.keys(allData)
-          });
-        }
-        // Fallback: if user_credits not loaded yet, show 0
-        // This should not happen if userCredits loaded properly
-        creditsDisplay = '0';
-      }
-      // Check plan from user document
+      const creditsDisplay = helpers.getCanonicalCredits(userCredits).display;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       const isSelected = this.selectedUsers.has(user.id);
-      
-      // Check if data is from V3
-      // Since DataManager uses user_credits_v3 collection (collections.USER_CREDITS = "user_credits_v3"),
-      // we're ALWAYS reading from V3. The badge should show V3 unless there's an error.
-      // If userCredits doesn't exist for this user, it means:
-      // 1. User doesn't have a document in user_credits_v3 (not migrated or new user)
-      // 2. Data is still loading
-      // In both cases, we're still using V3 system, just this user doesn't have data yet
-      const hasAnyUserCredits = allData.userCredits && allData.userCredits.length > 0;
-      // Always show V3 because we're subscribed to user_credits_v3 collection
-      // Only show V2 if we explicitly know we're using fallback (which shouldn't happen)
-      const dataSourceBadge = '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>';
       
       return `
         <tr data-user-id="${user.id}">
@@ -358,12 +302,7 @@ export class UsersView {
           <td>${helpers.formatDate(user.createdAt)}</td>
           <td><span class="plan-badge plan-${plan.toLowerCase()}">${plan}</span></td>
           <td>${specCount}</td>
-          <td>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span>${creditsDisplay}</span>
-              ${dataSourceBadge}
-            </div>
-          </td>
+          <td>${creditsDisplay}</td>
           <td>${helpers.formatRelative(user.lastActive)}</td>
           <td>
             <div class="action-buttons">
@@ -383,32 +322,6 @@ export class UsersView {
     }).join('');
     
     this.table.innerHTML = html;
-    
-    // Inject styles for data source badge if not already added
-    if (!document.getElementById('data-source-badge-styles')) {
-      const style = document.createElement('style');
-      style.id = 'data-source-badge-styles';
-      style.textContent = `
-        .data-source-badge {
-          display: inline-block;
-          padding: 2px 6px;
-          border-radius: 3px;
-          font-size: 0.7rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .data-source-badge.v3 {
-          background-color: #10b981;
-          color: white;
-        }
-        .data-source-badge.v2 {
-          background-color: #f59e0b;
-          color: white;
-        }
-      `;
-      document.head.appendChild(style);
-    }
     
     // Add checkbox listeners
     this.table.querySelectorAll('.user-checkbox').forEach(checkbox => {
@@ -532,11 +445,7 @@ export class UsersView {
     // Get current values from user_credits_v3 (same source as users see)
     const allData = this.dataManager.getAllData();
     const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
-    const currentCredits = userCredits && typeof userCredits.total === 'number' 
-      ? userCredits.total 
-      : (userCredits?.balances ? 
-          ((userCredits.balances.paid || 0) + (userCredits.balances.free || 0) + (userCredits.balances.bonus || 0)) 
-          : 0);
+    const currentCredits = helpers.getCanonicalCredits(userCredits).total || 0;
     const currentPlan = (user.plan || 'free').toLowerCase();
     
     // Create modal HTML
@@ -567,9 +476,9 @@ export class UsersView {
               </select>
             </div>
             <div class="form-group">
-              <label>Free Specs Remaining (Credits)</label>
+              <label>Credits</label>
               <input type="number" id="edit-user-credits" min="0" step="1" value="${currentCredits}">
-              <small class="field-hint">Number of free specs the user can create</small>
+              <small class="field-hint">Remaining credits (free + paid + bonus)</small>
             </div>
           </div>
           <div class="modal-footer">
@@ -957,32 +866,10 @@ export class UsersView {
     
     const headers = ['Email', 'Name', 'Plan', 'Specs', 'Credits', 'Created', 'Last Active'];
     const rows = users.map(user => {
-      // Get credits from user_credits collection (same source as users see)
       const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
-      
       const specCount = allData.specsByUser[user.id]?.length || 0;
-      
-      // Display the same value the user sees in header (from /api/v3/credits)
-      // This matches what users see: credits.total from user_credits_v3
-      let creditsDisplay = '0';
-      if (userCredits) {
-        if (userCredits.unlimited) {
-          creditsDisplay = 'unlimited';
-        } else if (typeof userCredits.total === 'number') {
-          // Display total credits (same as user sees in header)
-          creditsDisplay = userCredits.total.toString();
-        } else {
-          // Fallback: calculate from balances if total is not available
-          const calculatedTotal = (userCredits.balances?.paid || 0) + 
-                                  (userCredits.balances?.free || 0) + 
-                                  (userCredits.balances?.bonus || 0);
-          creditsDisplay = calculatedTotal.toString();
-        }
-      } else {
-        // Fallback: if user_credits not loaded yet, show 0
-        // This should not happen if userCredits loaded properly
-        creditsDisplay = '0';
-      }
+      const credits = helpers.getCanonicalCredits(userCredits);
+      const creditsDisplay = credits.unlimited ? 'unlimited' : credits.display;
       const plan = (user.plan === 'pro' || user.plan === 'Pro') ? 'Pro' : 'Free';
       
       return [

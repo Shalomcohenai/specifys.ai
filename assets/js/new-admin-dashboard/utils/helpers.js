@@ -148,6 +148,27 @@ export const helpers = {
    */
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+  /**
+   * Canonical remaining credits from user_credits_v3.
+   * Always sum balances (free + paid + bonus). Ignore stale `total` leftovers.
+   */
+  getCanonicalCredits(userCredits) {
+    if (!userCredits) {
+      return { unlimited: false, total: 0, display: '0' };
+    }
+
+    if (userCredits.unlimited) {
+      return { unlimited: true, total: null, display: '∞' };
+    }
+
+    const balances = userCredits.balances || {};
+    const total = (Number(balances.paid) || 0) +
+      (Number(balances.free) || 0) +
+      (Number(balances.bonus) || 0);
+
+    return { unlimited: false, total, display: String(total) };
   }
 };
 

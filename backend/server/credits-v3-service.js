@@ -132,6 +132,53 @@ function isProStatusActive(status) {
   return normalized === 'active' || normalized === 'paid' || normalized === 'on_trial';
 }
 
+function toDateMs(value) {
+  if (!value) return null;
+  if (value instanceof Date) {
+    const ms = value.getTime();
+    return Number.isNaN(ms) ? null : ms;
+  }
+  if (typeof value.toDate === 'function') {
+    const date = value.toDate();
+    return date && !Number.isNaN(date.getTime()) ? date.getTime() : null;
+  }
+  if (typeof value.seconds === 'number') {
+    return value.seconds * 1000;
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.getTime();
+}
+
+function resolveProActivityAction({
+  alreadyUnlimited,
+  cancelAtPeriodEnd,
+  previousCancelAtPeriodEnd,
+  previousRenewsAt,
+  nextPeriodEnd,
+  explicitAction
+}) {
+  if (explicitAction === 'renewed' || explicitAction === 'activated' || explicitAction === 'cancelled') {
+    if (explicitAction === 'renewed' && !alreadyUnlimited) return 'activated';
+    if (explicitAction === 'cancelled' && !alreadyUnlimited && !cancelAtPeriodEnd) return 'cancelled';
+    return explicitAction;
+  }
+  if (cancelAtPeriodEnd && !previousCancelAtPeriodEnd) {
+    return 'cancelled';
+  }
+  if (!alreadyUnlimited) {
+    return 'activated';
+  }
+  const previousMs = toDateMs(previousRenewsAt);
+  const nextMs = toDateMs(nextPeriodEnd);
+  if (nextMs && previousMs && Math.abs(nextMs - previousMs) > 24 * 60 * 60 * 1000) {
+    return 'renewed';
+  }
+  if (nextMs && !previousMs) {
+    return 'renewed';
+  }
+  return null;
+}
+
 /**
  * Select which credit type to consume based on priority
  * @param {Object} balances - Current balances
@@ -247,6 +294,19 @@ async function getUserCredits(userId, autoCreate = true) {
   const creditsData = creditsDoc.data();
   const totalCredits = calculateTotal(creditsData.balances);
   logger.debug({ userId, totalCredits, breakdown: creditsData.balances }, '[CREDITS-V3] getUserCredits - Existing credits summary');
+
+  if (creditsData.total !== totalCredits) {
+    creditsData.total = totalCredits;
+    try {
+      await creditsRef.update({
+        total: totalCredits,
+        'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+      });
+      logger.info({ userId, totalCredits }, '[CREDITS-V3] getUserCredits - Healed stale total field from balances');
+    } catch (healError) {
+      logger.warn({ userId, error: healError.message }, '[CREDITS-V3] getUserCredits - Failed to heal stale total field');
+    }
+  }
   
   return creditsData;
 }
@@ -283,7 +343,7 @@ async function getAvailableCredits(userId) {
         // Subscription expired, disable unlimited
         await updateSubscriptionStatus(userId, 'expired');
         // Use total from document if available, otherwise calculate
-        const total = credits.total !== undefined ? credits.total : calculateTotal(credits.balances);
+        const total = calculateTotal(credits.balances);
         return {
           unlimited: false,
           total: total,
@@ -307,8 +367,7 @@ async function getAvailableCredits(userId) {
     };
   }
   
-  // Use total from document if available, otherwise calculate (for backward compatibility)
-  const total = credits.total !== undefined ? credits.total : calculateTotal(credits.balances);
+  const total = calculateTotal(credits.balances);
   
   return {
     unlimited: false,
@@ -362,8 +421,20 @@ async function updateSubscriptionStatus(userId, status) {
   await creditsRef.update({
     subscription: subscriptionUpdate,
     balances: credits.balances, // Preserve balances
+    permissions: status === 'expired' ? {
+      canEdit: false,
+      canCreateUnlimited: false
+    } : (credits.permissions || {}),
     'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
   });
+
+  if (status === 'expired') {
+    try {
+      await db.collection(USERS_COLLECTION).doc(userId).update({ plan: 'free' });
+    } catch (planErr) {
+      logger.warn({ userId, error: planErr.message }, '[CREDITS-V3] Failed to set users.plan=free after expiry');
+    }
+  }
 }
 
 /**
@@ -471,7 +542,7 @@ async function consumeCredit(userId, specId, options = {}) {
           const creditsDoc = await transaction.get(creditsRef);
           if (creditsDoc.exists) {
             const credits = creditsDoc.data();
-            remaining = credits.total !== undefined ? credits.total : calculateTotal(credits.balances || {});
+            remaining = calculateTotal(credits.balances || {});
           }
         }
         return {
@@ -1299,8 +1370,8 @@ async function enableProSubscription(userId, options = {}) {
         productKey: productKey || null,
         productName: productName || null,
         billingInterval: subscriptionInterval || null,
-        renewsAt: finalPeriodEnd, // Use period end as renewsAt
-        endsAt: null,
+        renewsAt: cancelAtPeriodEnd ? null : finalPeriodEnd,
+        endsAt: cancelAtPeriodEnd ? finalPeriodEnd : null,
         cancelAtPeriodEnd: cancelAtPeriodEnd
       },
       permissions: {
@@ -1346,38 +1417,60 @@ async function enableProSubscription(userId, options = {}) {
     // Update users.plan to 'pro'
     transaction.update(userRef, { plan: 'pro' });
     
+    const previousRenewsAt = credits.subscription && credits.subscription.renewsAt
+      ? credits.subscription.renewsAt
+      : null;
+    const previousCancelAtPeriodEnd = !!(credits.subscription && credits.subscription.cancelAtPeriodEnd);
+
     return {
       previouslyUnlimited: alreadyUnlimited,
       previousCredits: currentCredits,
-      preservedCredits: preservedCredits
+      preservedCredits: preservedCredits,
+      previousRenewsAt,
+      previousCancelAtPeriodEnd,
+      finalPeriodEnd
     };
   });
   
   logger.info({ requestId, userId, result }, '[CREDITS-V3] Pro access enabled');
-  
-  // Record activity for subscription activation
-  try {
-    const userDoc = await db.collection(USERS_COLLECTION).doc(userId).get();
-    const userEmail = userDoc.exists ? userDoc.data().email : null;
-    
-    recordSubscriptionChange(
-      userId,
-      userEmail,
-      'pro',
-      subscriptionStatus || 'active',
-      {
-        subscriptionId,
-        productKey,
-        productName,
-        variantId,
-        subscriptionInterval,
-        orderId
-      }
-    ).catch(err => {
-      logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Failed to record subscription activation activity');
-    });
-  } catch (err) {
-    logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Failed to get user email for activity recording');
+
+  const activityAction = resolveProActivityAction({
+    alreadyUnlimited: result.previouslyUnlimited,
+    cancelAtPeriodEnd,
+    previousCancelAtPeriodEnd: result.previousCancelAtPeriodEnd,
+    previousRenewsAt: result.previousRenewsAt,
+    nextPeriodEnd: result.finalPeriodEnd,
+    explicitAction: options.activityAction || metadata.activityAction || null
+  });
+
+  if (activityAction) {
+    try {
+      const userDoc = await db.collection(USERS_COLLECTION).doc(userId).get();
+      const userEmail = userDoc.exists ? userDoc.data().email : null;
+
+      recordSubscriptionChange(
+        userId,
+        userEmail,
+        'pro',
+        activityAction === 'renewed' ? 'renewed' : (activityAction === 'cancelled' ? 'cancelled' : 'active'),
+        {
+          action: activityAction,
+          cancelAtPeriodEnd,
+          subscriptionId,
+          productKey,
+          productName,
+          variantId,
+          subscriptionInterval,
+          orderId,
+          renewsAt: result.finalPeriodEnd,
+          currentPeriodEnd: result.finalPeriodEnd
+        }
+      ).catch(err => {
+        logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Failed to record subscription activity');
+      });
+    } catch (err) {
+      logger.warn({ requestId, userId, error: err.message }, '[CREDITS-V3] Failed to get user email for activity recording');
+    }
   }
   
   return result;
@@ -1504,6 +1597,7 @@ module.exports = {
   getCreditLedger,
   enableProSubscription,
   disableProSubscription,
+  isProStatusActive,
   getDefaultCredits,
   getInitialCreditsForNewUser,
   calculateTotal,

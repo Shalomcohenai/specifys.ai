@@ -979,11 +979,7 @@ export class UserDetailsModal {
       <div class="user-details-section">
         <h3 class="user-details-section-title">
           <i class="fas fa-coins"></i>
-          Credits & Usage
-          ${analytics.rawData?.user_credits_v3?.exists !== false ? 
-            '<span class="data-source-badge v3" title="Data from V3 system (user_credits_v3)">V3</span>' : 
-            '<span class="data-source-badge v2" title="Data from V2 system (fallback)">V2</span>'
-          }
+          Credits
         </h3>
         <div class="user-details-grid">
           ${credits ? `

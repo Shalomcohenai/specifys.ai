@@ -407,11 +407,8 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 _isNewUser: isNewUser
             };
             
-            // Use total from document (single source of truth), fallback to calculation for backward compatibility
-            const totalCreditsInResult = result.credits 
-                ? (result.credits.total !== undefined 
-                    ? result.credits.total 
-                    : ((result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0)))
+            const totalCreditsInResult = result.credits
+                ? ((result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0))
                 : 0;
             
             console.log(`[user-management] User ${uid}: Result object built - created=${result.created}, updated=${result.updated}, unchanged=${result.unchanged}, isNewUser=${result._isNewUser}, totalCredits=${totalCreditsInResult}`);
