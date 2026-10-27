@@ -15,7 +15,6 @@ extra_js:
   - /assets/js/features/index/audience-picker.js
   - /assets/js/features/index/index.js
   - /assets/js/features/index/index-vanta.js
-  - /assets/js/features/index/index-access-code.js
   - /assets/js/features/index/index-mermaid.js
 idle_js:
   - /assets/js/services/prompts.js
@@ -25,24 +24,6 @@ idle_js:
   - /assets/js/features/index/example-templates.js
 defer_vanta: true
 ---
-
-<!-- Access Code Modal -->
-<div class="access-code-modal" id="accessCodeModal" role="dialog" aria-modal="true" aria-labelledby="access-code-title" aria-hidden="true">
-    <div class="access-code-content">
-        <div class="access-code-header">
-            <h3 id="access-code-title">🔒 Access Required</h3>
-        </div>
-        <div class="access-code-body">
-            <p>The site is under maintenance. Please enter the access code to continue.</p>
-            <label for="accessCodeInput" class="visually-hidden">Access code</label>
-            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off" aria-label="Enter access code" aria-describedby="access-code-error" aria-required="true">
-            <div class="access-code-error hidden" id="accessCodeError" role="alert" aria-live="assertive">Incorrect code. Please try again.</div>
-        </div>
-        <div class="access-code-actions">
-            <button class="access-code-btn" id="accessCodeSubmit" aria-label="Submit access code">Enter</button>
-        </div>
-    </div>
-</div>
 
 <!-- Skip to main content for accessibility -->
 <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
@@ -541,7 +522,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
             <div id="section-panel" class="section-panel hidden-el">
                 <div class="section-header">
                     <div class="section-title-group">
-                        <h2 id="sec-title" class="section-title">Title</h2>
+                        <h2 id="sec-title" class="section-title">Section</h2>
                         <p id="sec-description" class="section-description">Description text goes here.</p>
                     </div>
                 </div>

@@ -548,7 +548,7 @@ function generateWindsurfInfo(specData) {
 function generateReadme(specData) {
     const title = specData.title || 'Application';
     let content = `# ${title}\n\n`;
-    content += `This project was generated using [Specifys.ai](https://specifys-ai.com).\n\n`;
+    content += `This project was generated using [Specifys.ai](https://www.specifys-ai.com).\n\n`;
     content += `Generated on: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
     content += `---\n\n`;
 

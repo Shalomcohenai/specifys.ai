@@ -69,7 +69,10 @@ extra_js:
     </aside>
     
     <div class="post-body" id="post-body">
-        {{ content }}
+        {% assign post_content = content %}
+        {% comment %}Remove duplicate H1 from markdown content (layout already has H1){% endcomment %}
+        {% assign post_content = post_content | replace_first: '<h1', '<p class="visually-hidden"' | replace_first: '</h1>', '</p>' %}
+        {{ post_content }}
     </div>
 
     {% include product-cta.html %}
