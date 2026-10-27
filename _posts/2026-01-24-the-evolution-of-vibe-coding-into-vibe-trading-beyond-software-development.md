@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/
+canonical_url: https://www.specifys-ai.com/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/
 source: automation
 ---
 

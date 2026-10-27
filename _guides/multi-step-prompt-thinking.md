@@ -4,7 +4,7 @@ title: Multi-Step Prompt Thinking
 description: Multi-step prompt thinking involves breaking down complex AI tasks into manageable steps, enhancing efficiency and effectiveness.
 level: Intermediate
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/multi-step-prompt-thinking/
+canonical_url: https://www.specifys-ai.com/academy/guides/multi-step-prompt-thinking/
 source: academy
 ---
 

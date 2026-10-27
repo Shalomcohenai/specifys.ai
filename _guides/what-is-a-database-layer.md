@@ -4,7 +4,7 @@ title: What is a Database Layer
 description: The database layer is the part of an application that manages data retrieval and storage, similar to a librarian organizing books in a library.
 level: Beginner
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-database-layer/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-database-layer/
 source: academy
 ---
 

@@ -4,7 +4,7 @@ title: "Page Structure & Metadata"
 description: Page structure and metadata are essential for creating accessible, search-friendly websites. They guide both users and AI in understanding and navigating content effectively.
 level: Beginner
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/page-structure-metadata/
+canonical_url: https://www.specifys-ai.com/academy/guides/page-structure-metadata/
 source: academy
 ---
 

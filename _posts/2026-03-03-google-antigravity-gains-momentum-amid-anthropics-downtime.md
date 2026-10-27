@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/
+canonical_url: https://www.specifys-ai.com/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: Webhooks (conceptual)
 description: Webhooks are real-time event notifications between systems, crucial for efficient AI applications.
 level: Intermediate
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/webhooks-conceptual/
+canonical_url: https://www.specifys-ai.com/academy/guides/webhooks-conceptual/
 source: academy
 ---
 

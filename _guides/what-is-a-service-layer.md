@@ -4,7 +4,7 @@ title: What is a Service Layer
 description: A service layer acts as the middleman, managing business logic between the frontend and backend, ensuring smooth operation and scalability.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-service-layer/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-service-layer/
 source: academy
 ---
 

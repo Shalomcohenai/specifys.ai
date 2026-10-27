@@ -4,7 +4,7 @@ title: Indexes (simple explanation)
 description: Indexes act like a library catalog for databases, enabling fast data retrieval and enhancing performance, crucial for efficient AI-driven applications.
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/indexes-simple-explanation/
+canonical_url: https://www.specifys-ai.com/academy/guides/indexes-simple-explanation/
 source: academy
 ---
 

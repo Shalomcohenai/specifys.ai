@@ -4,7 +4,7 @@ title: How Apps Scale
 description: Discover how apps scale effectively to handle increased demand, using AI-driven strategies for optimal performance.
 level: Advanced
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/how-apps-scale/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-apps-scale/
 source: academy
 ---
 

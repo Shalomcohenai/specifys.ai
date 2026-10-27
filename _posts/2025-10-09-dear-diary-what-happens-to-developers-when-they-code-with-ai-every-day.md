@@ -11,7 +11,7 @@ author: "specifys.ai Team"
 # Dear Diary: What Happens to Developers When They Code With AI Every Day
 
 ## TL;DR
-This study highlights a critical tension in AI-assisted development: measurable productivity gains can coexist with reduced creative ownership and team interaction quality. Sustainable adoption requires intentional rituals such as shared reviews and reasoning checkpoints, not just faster tooling. For planning-first workflows that preserve team alignment, see [How Specifys works](https://specifys-ai.com/pages/how.html).
+This study highlights a critical tension in AI-assisted development: measurable productivity gains can coexist with reduced creative ownership and team interaction quality. Sustainable adoption requires intentional rituals such as shared reviews and reasoning checkpoints, not just faster tooling. For planning-first workflows that preserve team alignment, see [How Specifys works](https://www.specifys-ai.com/pages/how.html).
 
 A groundbreaking RCT study followed developers for weeks as they worked with AI tools — revealing subtle emotional, cognitive, and creative shifts.
 

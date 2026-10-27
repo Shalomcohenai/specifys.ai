@@ -4,7 +4,7 @@ title: Refining AI Output
 description: Refining AI output is an iterative process that improves the quality and relevance of AI-generated features, ensuring they meet user needs and industry standards.
 level: Intermediate
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/refining-ai-output/
+canonical_url: https://www.specifys-ai.com/academy/guides/refining-ai-output/
 source: academy
 ---
 

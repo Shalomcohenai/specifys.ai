@@ -4,7 +4,7 @@ title: "Headers & Cookies"
 description: Headers and cookies are essential for managing state and communication in web applications, enabling personalization and efficient data exchange.
 level: Intermediate
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/headers-cookies/
+canonical_url: https://www.specifys-ai.com/academy/guides/headers-cookies/
 source: academy
 ---
 

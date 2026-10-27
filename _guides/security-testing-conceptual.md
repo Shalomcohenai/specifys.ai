@@ -4,7 +4,7 @@ title: Security Testing (conceptual)
 description: Security testing acts as a digital defense check-up, ensuring applications are protected from vulnerabilities by using both automated tools and human expertise.
 level: Advanced
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/security-testing-conceptual/
+canonical_url: https://www.specifys-ai.com/academy/guides/security-testing-conceptual/
 source: academy
 ---
 

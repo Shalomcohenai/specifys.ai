@@ -4,7 +4,7 @@ title: What is Analytics
 description: Analytics is the process of discovering insights from data, much like a detective solving a mystery, crucial for informed decision-making in AI development.
 level: Beginner
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/what-is-analytics/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-analytics/
 source: academy
 ---
 

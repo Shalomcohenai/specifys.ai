@@ -4,7 +4,7 @@ title: What is an Error
 description: Understanding errors in software is like recognizing roadblocks that prevent smooth operation, helping ensure reliable and efficient applications.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-an-error/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-an-error/
 source: academy
 ---
 

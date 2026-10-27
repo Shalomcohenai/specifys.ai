@@ -4,7 +4,7 @@ title: Accessibility Basics
 description: Accessibility in UI/UX ensures everyone can use digital products, enhancing inclusivity and compliance. AI aids in embedding these principles effectively.
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/accessibility-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/accessibility-basics/
 source: academy
 ---
 

@@ -52,7 +52,7 @@ async function main() {
   const apiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'Specifys-Ai-Team@specifys-ai.com';
   const audienceId = process.env.RESEND_AUDIENCE_ID || process.env.RESEND_SEGMENT_ID || null;
-  const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+  const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://www.specifys-ai.com';
 
   console.log('\n=== Specifys Resend email verification ===\n');
   console.log('Config:');

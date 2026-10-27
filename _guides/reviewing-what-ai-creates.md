@@ -4,7 +4,7 @@ title: Reviewing What AI Creates
 description: This guide helps understand the process and importance of reviewing AI-generated content by using mental models and real-world analogies.
 level: Intermediate
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/reviewing-what-ai-creates/
+canonical_url: https://www.specifys-ai.com/academy/guides/reviewing-what-ai-creates/
 source: academy
 ---
 

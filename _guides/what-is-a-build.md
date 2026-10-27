@@ -4,7 +4,7 @@ title: What is a Build
 description: A build is the process of assembling code into a complete application, essential for ensuring functionality and integration in AI development.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-build/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-build/
 source: academy
 ---
 

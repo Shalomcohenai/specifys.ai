@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/
+canonical_url: https://www.specifys-ai.com/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/
 source: automation
 ---
 

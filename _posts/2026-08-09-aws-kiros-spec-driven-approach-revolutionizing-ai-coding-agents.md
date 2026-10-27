@@ -10,7 +10,7 @@ tags:
   - software development
   - developer tools
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/
+canonical_url: https://www.specifys-ai.com/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/
 source: automation
 ---
 

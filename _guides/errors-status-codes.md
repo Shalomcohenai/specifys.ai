@@ -4,7 +4,7 @@ title: "Errors & Status Codes"
 description: Errors and status codes are essential for understanding API communication, guiding AI systems to manage interactions effectively.
 level: Intermediate
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/errors-status-codes/
+canonical_url: https://www.specifys-ai.com/academy/guides/errors-status-codes/
 source: academy
 ---
 

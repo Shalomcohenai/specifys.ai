@@ -4,7 +4,7 @@ title: What is a Repository
 description: A repository is like a digital library shelf that stores and manages all project files, enabling collaborative development and seamless AI integration.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-repository/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-repository/
 source: academy
 ---
 

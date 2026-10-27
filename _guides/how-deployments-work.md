@@ -4,7 +4,7 @@ title: How Deployments Work
 description: Understand how software deployments work and their crucial role in delivering applications to users efficiently and reliably.
 level: Intermediate
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/how-deployments-work/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-deployments-work/
 source: academy
 ---
 

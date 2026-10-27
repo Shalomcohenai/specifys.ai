@@ -4,7 +4,7 @@ title: Testing Features with AI
 description: Understand how AI-driven testing ensures the quality and functionality of applications by automating the verification process and identifying issues before release.
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/testing-features-with-ai/
+canonical_url: https://www.specifys-ai.com/academy/guides/testing-features-with-ai/
 source: academy
 ---
 

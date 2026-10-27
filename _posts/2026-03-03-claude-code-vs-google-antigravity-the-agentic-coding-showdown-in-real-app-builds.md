@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/
+canonical_url: https://www.specifys-ai.com/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/
 source: automation
 ---
 

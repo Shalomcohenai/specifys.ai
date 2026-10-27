@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/
+canonical_url: https://www.specifys-ai.com/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/
 source: automation
 ---
 

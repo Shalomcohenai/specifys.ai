@@ -83,7 +83,7 @@ description: "${description}"
 date: ${dateStr}
 tags: [${tags.map(tag => `"${tag}"`).join(', ')}]
 author: "${author}"
-canonical_url: "https://specifys-ai.com/blog/${filename.replace('.md', '.html')}"
+canonical_url: "https://www.specifys-ai.com/blog/${filename.replace('.md', '.html')}"
 ---
 
 # ${title}

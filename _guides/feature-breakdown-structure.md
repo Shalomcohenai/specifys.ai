@@ -4,7 +4,7 @@ title: Feature Breakdown Structure
 description: A Feature Breakdown Structure (FBS) is like a blueprint for AI development, organizing all tasks and components needed to efficiently build a feature.
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/feature-breakdown-structure/
+canonical_url: https://www.specifys-ai.com/academy/guides/feature-breakdown-structure/
 source: academy
 ---
 

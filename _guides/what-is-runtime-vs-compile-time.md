@@ -4,7 +4,7 @@ title: What is Runtime vs Compile Time
 description: Runtime is when programs execute, while compile time is the preparation phase. Understanding both enhances performance and efficiency in AI development.
 level: Intermediate
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-runtime-vs-compile-time/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-runtime-vs-compile-time/
 source: academy
 ---
 

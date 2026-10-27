@@ -4,7 +4,7 @@ title: HTTP Methods (GET/POST/PATCH…)
 description: HTTP methods are like different types of requests in a restaurant, each serving a unique role in web communication, crucial for smooth AI application development.
 level: Beginner
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/http-methods-get-post-patch/
+canonical_url: https://www.specifys-ai.com/academy/guides/http-methods-get-post-patch/
 source: academy
 ---
 

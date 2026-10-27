@@ -4,7 +4,7 @@ title: Mental Models for Tech
 description: Understanding the backend is like knowing how a kitchen operates; essential for creating effective AI-driven applications.
 level: Intermediate
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/mental-models-for-tech/
+canonical_url: https://www.specifys-ai.com/academy/guides/mental-models-for-tech/
 source: academy
 ---
 

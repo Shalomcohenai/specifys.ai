@@ -4,7 +4,7 @@ title: "Monitoring & Logs"
 description: Monitoring and logs are vital for ensuring the health and reliability of applications in AI-driven development, acting as the eyes and ears of the system.
 level: Intermediate
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/monitoring-logs/
+canonical_url: https://www.specifys-ai.com/academy/guides/monitoring-logs/
 source: academy
 ---
 

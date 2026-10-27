@@ -4,7 +4,7 @@ title: SEO Basics
 description: SEO is the way to make your website visible and attractive to search engines, using techniques that AI can optimize to draw the right audience.
 level: Beginner
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/seo-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/seo-basics/
 source: academy
 ---
 

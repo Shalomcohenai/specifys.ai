@@ -15,7 +15,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { db, auth, admin } = require('../server/firebase-admin');
 const emailService = require('../server/email-service');
 
-const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
+const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://www.specifys-ai.com';
 
 function parseArgs(argv) {
   const args = {

@@ -4,7 +4,7 @@ title: Cohorts
 description: Cohort analysis involves grouping users with shared characteristics to understand behavior over time, providing valuable insights for AI-driven development.
 level: Intermediate
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/cohorts/
+canonical_url: https://www.specifys-ai.com/academy/guides/cohorts/
 source: academy
 ---
 

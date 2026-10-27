@@ -4,7 +4,7 @@ title: How AI Builds Apps for You
 description: Understand how AI acts like an architect, using strategic planning and resources to build applications efficiently.
 level: Beginner
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/how-ai-builds-apps-for-you/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-ai-builds-apps-for-you/
 source: academy
 ---
 

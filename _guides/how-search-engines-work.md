@@ -4,7 +4,7 @@ title: How Search Engines Work
 description: Learn how search engines work like digital librarians, organizing and finding information efficiently to support AI systems.
 level: Beginner
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/how-search-engines-work/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-search-engines-work/
 source: academy
 ---
 

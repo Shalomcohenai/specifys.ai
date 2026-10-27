@@ -4,7 +4,7 @@ title: Understanding Model Limitations
 description: Understanding model limitations helps in setting realistic AI expectations, ensuring effective deployment and guiding developers in making informed decisions.
 level: Intermediate
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/understanding-model-limitations/
+canonical_url: https://www.specifys-ai.com/academy/guides/understanding-model-limitations/
 source: academy
 ---
 

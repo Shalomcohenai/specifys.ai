@@ -4,7 +4,7 @@ title: How Systems Fail
 description: Understanding system failures is key to designing resilient AI applications, ensuring reliability and user satisfaction.
 level: Intermediate
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/how-systems-fail/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-systems-fail/
 source: academy
 ---
 

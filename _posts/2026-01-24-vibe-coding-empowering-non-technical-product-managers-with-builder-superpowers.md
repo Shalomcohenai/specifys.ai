@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/
+canonical_url: https://www.specifys-ai.com/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/
 source: automation
 ---
 

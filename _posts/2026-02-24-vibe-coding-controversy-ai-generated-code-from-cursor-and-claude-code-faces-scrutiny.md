@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/
+canonical_url: https://www.specifys-ai.com/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/
 source: automation
 ---
 

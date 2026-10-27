@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/
+canonical_url: https://www.specifys-ai.com/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/
 source: automation
 ---
 

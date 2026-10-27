@@ -4,7 +4,7 @@ title: "Page Speed & Performance"
 description: Understand the crucial role of page speed and performance in web applications, and how AI can optimize these aspects for better user experiences.
 level: Intermediate
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/page-speed-performance/
+canonical_url: https://www.specifys-ai.com/academy/guides/page-speed-performance/
 source: academy
 ---
 

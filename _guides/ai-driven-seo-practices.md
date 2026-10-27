@@ -4,7 +4,7 @@ title: AI-Driven SEO Practices
 description: AI-driven SEO uses artificial intelligence to enhance and automate search engine optimization strategies, allowing for data-driven decision-making and adaptable strategies.
 level: Intermediate
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/ai-driven-seo-practices/
+canonical_url: https://www.specifys-ai.com/academy/guides/ai-driven-seo-practices/
 source: academy
 ---
 

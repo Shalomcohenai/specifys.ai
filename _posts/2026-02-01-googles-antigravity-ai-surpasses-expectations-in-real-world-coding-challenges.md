@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/
+canonical_url: https://www.specifys-ai.com/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/
 source: automation
 ---
 

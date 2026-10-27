@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/
+canonical_url: https://www.specifys-ai.com/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/
 source: automation
 ---
 

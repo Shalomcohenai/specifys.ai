@@ -13,7 +13,7 @@ tags:
   - Automation
   - Tech News
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/
+canonical_url: https://www.specifys-ai.com/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/
 source: automation
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/
+canonical_url: https://www.specifys-ai.com/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/
 source: automation
 ---
 

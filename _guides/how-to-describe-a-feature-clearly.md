@@ -4,7 +4,7 @@ title: How to Describe a Feature Clearly
 description: Learn how to effectively describe a feature for AI development, ensuring accurate and efficient creation of desired functionalities.
 level: Beginner
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/how-to-describe-a-feature-clearly/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-to-describe-a-feature-clearly/
 source: academy
 ---
 

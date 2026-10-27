@@ -4,7 +4,7 @@ title: Keyword Research
 description: Keyword research is like discovering a treasure map of popular search terms, guiding content creation to align with user interests.
 level: Beginner
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/keyword-research/
+canonical_url: https://www.specifys-ai.com/academy/guides/keyword-research/
 source: academy
 ---
 

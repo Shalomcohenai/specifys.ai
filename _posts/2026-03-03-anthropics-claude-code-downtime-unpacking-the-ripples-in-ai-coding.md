@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/
+canonical_url: https://www.specifys-ai.com/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/
 robots: noindex, follow
 source: automation
 ---

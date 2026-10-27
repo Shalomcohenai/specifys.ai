@@ -4,7 +4,7 @@ title: Relations (1-1, 1-N, N-N)
 description: Understand how database relationships organize data for efficient AI application use, connecting entities like people, books, and courses in real life.
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/relations-1-1-1-n-n-n/
+canonical_url: https://www.specifys-ai.com/academy/guides/relations-1-1-1-n-n-n/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/
+canonical_url: https://www.specifys-ai.com/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/
 source: automation
 ---
 

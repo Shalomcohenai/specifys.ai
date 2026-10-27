@@ -4,7 +4,7 @@ title: "Authentication & Authorization"
 description: Authentication verifies identity, and authorization determines access. Both are crucial for securing modern applications and play a vital role in AI-driven development.
 level: Intermediate
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/authentication-authorization/
+canonical_url: https://www.specifys-ai.com/academy/guides/authentication-authorization/
 source: academy
 ---
 

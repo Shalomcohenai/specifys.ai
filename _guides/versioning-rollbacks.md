@@ -4,7 +4,7 @@ title: "Versioning & Rollbacks"
 description: Versioning and rollbacks are crucial for managing software changes and ensuring stability, especially in AI-driven development.
 level: Intermediate
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/versioning-rollbacks/
+canonical_url: https://www.specifys-ai.com/academy/guides/versioning-rollbacks/
 source: academy
 ---
 

@@ -13,7 +13,7 @@ tags:
   - vibe-coding
   - ai-coding
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/
+canonical_url: https://www.specifys-ai.com/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/
 source: automation
 ---
 

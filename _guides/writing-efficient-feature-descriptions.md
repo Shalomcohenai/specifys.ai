@@ -4,7 +4,7 @@ title: Writing Efficient Feature Descriptions
 description: Understanding and writing efficient feature descriptions are essential for guiding AI systems to create accurate software functionalities, much like blueprints guide construction projects.
 level: Intermediate
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/writing-efficient-feature-descriptions/
+canonical_url: https://www.specifys-ai.com/academy/guides/writing-efficient-feature-descriptions/
 source: academy
 ---
 

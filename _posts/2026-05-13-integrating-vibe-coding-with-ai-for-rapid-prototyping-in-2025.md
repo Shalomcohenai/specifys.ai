@@ -10,7 +10,7 @@ tags:
   - 2025 Development
   - Developer Tools
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/
+canonical_url: https://www.specifys-ai.com/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/
 source: automation
 ---
 

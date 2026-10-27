@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/
+canonical_url: https://www.specifys-ai.com/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/
 source: automation
 ---
 

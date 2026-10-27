@@ -4,7 +4,7 @@ title: "Endpoints & Routes"
 description: Endpoints and routes are like addresses and directions in a city, crucial for enabling communication in AI-driven applications.
 level: Beginner
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/endpoints-routes/
+canonical_url: https://www.specifys-ai.com/academy/guides/endpoints-routes/
 source: academy
 ---
 

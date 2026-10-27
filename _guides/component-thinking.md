@@ -4,7 +4,7 @@ title: Component Thinking
 description: Component thinking is about using reusable UI pieces to build scalable and consistent applications, much like assembling LEGO bricks to form a complete structure.
 level: Intermediate
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/component-thinking/
+canonical_url: https://www.specifys-ai.com/academy/guides/component-thinking/
 source: academy
 ---
 

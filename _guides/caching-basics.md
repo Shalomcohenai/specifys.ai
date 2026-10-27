@@ -4,7 +4,7 @@ title: Caching Basics
 description: Caching temporarily stores data for quick access, boosting efficiency and speed in AI applications.
 level: Beginner
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/caching-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/caching-basics/
 source: academy
 ---
 

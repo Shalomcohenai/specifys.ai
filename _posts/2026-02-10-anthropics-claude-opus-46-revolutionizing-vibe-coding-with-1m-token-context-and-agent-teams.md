@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/
+canonical_url: https://www.specifys-ai.com/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/
 source: automation
 ---
 

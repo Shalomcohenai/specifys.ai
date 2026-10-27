@@ -4,7 +4,7 @@ title: What is a Database
 description: A database is a structured system for storing and organizing data, essential for modern applications to function efficiently and effectively.
 level: Beginner
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-database/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-database/
 source: academy
 ---
 

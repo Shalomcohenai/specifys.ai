@@ -4,7 +4,7 @@ title: Funnels
 description: Funnels are essential tools in data analytics that help visualize and optimize user journeys, providing insights into behavior and improving conversion rates.
 level: Intermediate
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/funnels/
+canonical_url: https://www.specifys-ai.com/academy/guides/funnels/
 source: academy
 ---
 

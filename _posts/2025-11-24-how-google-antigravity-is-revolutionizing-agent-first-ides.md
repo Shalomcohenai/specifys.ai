@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/
+canonical_url: https://www.specifys-ai.com/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/
 source: automation
 ---
 

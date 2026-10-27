@@ -4,7 +4,7 @@ title: How AI Creates Code
 description: "Understanding AI-generated code involves recognizing AI's role as a smart assistant that efficiently assembles applications based on given instructions."
 level: Beginner
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/how-ai-creates-code/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-ai-creates-code/
 source: academy
 ---
 

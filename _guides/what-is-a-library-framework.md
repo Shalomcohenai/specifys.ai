@@ -4,7 +4,7 @@ title: "What is a Library & Framework"
 description: A library provides tools for specific tasks, while a framework offers a structured approach, each with unique roles in AI development.
 level: Intermediate
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-library-framework/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-library-framework/
 source: academy
 ---
 

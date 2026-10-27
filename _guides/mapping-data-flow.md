@@ -4,7 +4,7 @@ title: Mapping Data Flow
 description: "Understanding data flow is key to designing efficient applications and leveraging AI for intelligent solutions. It's like managing a kitchen where ingredients flow seamlessly to create a dish."
 level: Intermediate
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/mapping-data-flow/
+canonical_url: https://www.specifys-ai.com/academy/guides/mapping-data-flow/
 source: academy
 ---
 

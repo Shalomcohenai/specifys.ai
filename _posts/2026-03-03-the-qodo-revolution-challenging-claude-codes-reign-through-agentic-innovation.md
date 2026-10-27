@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/
+canonical_url: https://www.specifys-ai.com/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/
 source: automation
 ---
 

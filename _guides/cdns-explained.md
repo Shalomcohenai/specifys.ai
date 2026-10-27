@@ -4,7 +4,7 @@ title: CDNs Explained
 description: CDNs are global networks that deliver website content faster by using distributed servers, crucial for modern web efficiency.
 level: Beginner
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/cdns-explained/
+canonical_url: https://www.specifys-ai.com/academy/guides/cdns-explained/
 source: academy
 ---
 

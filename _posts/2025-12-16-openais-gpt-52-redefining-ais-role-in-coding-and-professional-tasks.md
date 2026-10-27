@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/16/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/
+canonical_url: https://www.specifys-ai.com/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/
 source: automation
 ---
 

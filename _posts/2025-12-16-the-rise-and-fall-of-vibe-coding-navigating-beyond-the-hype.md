@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/16/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/
+canonical_url: https://www.specifys-ai.com/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: Reviewing AI-Generated Code (conceptually)
 description: Reviewing AI-generated code is like quality control, ensuring it meets project standards and functions properly, much like a baker checks the quality of bread.
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/reviewing-ai-generated-code-conceptually/
+canonical_url: https://www.specifys-ai.com/academy/guides/reviewing-ai-generated-code-conceptually/
 source: academy
 ---
 

@@ -4,7 +4,7 @@ title: Query Lifecycle
 description: "The query lifecycle is like a letter's journey through a post office, crucial for efficient data handling in AI systems."
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/query-lifecycle/
+canonical_url: https://www.specifys-ai.com/academy/guides/query-lifecycle/
 source: academy
 ---
 

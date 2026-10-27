@@ -13,7 +13,7 @@ tags:
   - vibe-coding
   - ai-coding
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/
+canonical_url: https://www.specifys-ai.com/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/
 source: automation
 ---
 

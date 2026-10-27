@@ -4,7 +4,7 @@ title: User Flows
 description: "User flows are the navigational maps of apps, guiding users smoothly to their goals and enhancing user experience with AI's help."
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/user-flows/
+canonical_url: https://www.specifys-ai.com/academy/guides/user-flows/
 source: academy
 ---
 

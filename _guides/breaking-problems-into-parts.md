@@ -4,7 +4,7 @@ title: Breaking Problems into Parts
 description: Learn how breaking problems into parts helps AI systems process tasks efficiently and effectively.
 level: Beginner
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/breaking-problems-into-parts/
+canonical_url: https://www.specifys-ai.com/academy/guides/breaking-problems-into-parts/
 source: academy
 ---
 

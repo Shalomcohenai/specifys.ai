@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/
+canonical_url: https://www.specifys-ai.com/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/
 source: automation
 ---
 

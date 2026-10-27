@@ -11,7 +11,7 @@ author: "specifys.ai Team"
 # Agentic Pipelines: When AI Teams Code Together Across Frontend, Backend, and DevOps
 
 ## TL;DR
-Agentic pipelines move teams from \"AI autocomplete\" to coordinated AI execution across frontend, backend, QA, and deployment. The main advantage is parallel throughput with fewer bottlenecks, but the new skill is orchestration quality, not prompt volume. For implementation planning templates, review [Specifys pricing and plan options](https://specifys-ai.com/pages/pricing.html).
+Agentic pipelines move teams from \"AI autocomplete\" to coordinated AI execution across frontend, backend, QA, and deployment. The main advantage is parallel throughput with fewer bottlenecks, but the new skill is orchestration quality, not prompt volume. For implementation planning templates, review [Specifys pricing and plan options](https://www.specifys-ai.com/pages/pricing.html).
 
 Forget the solo-coder fantasy. The real revolution in 2025 isn’t about one engineer working faster with AI — it’s about AI agents collaborating like an actual development team.
 Welcome to agentic pipelines, the latest evolution of vibe coding. It’s where your frontend designer, your backend architect, your QA tester, and even your deployment engineer… are all AI — communicating, negotiating, and building in real time.

@@ -4,7 +4,7 @@ title: Rate Limiting
 description: Rate limiting is a traffic control mechanism for servers, ensuring stability and fairness in handling requests, crucial for effective AI-driven applications.
 level: Intermediate
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/rate-limiting/
+canonical_url: https://www.specifys-ai.com/academy/guides/rate-limiting/
 source: academy
 ---
 

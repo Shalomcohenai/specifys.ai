@@ -11,7 +11,7 @@ author: "specifys.ai Team"
 # AlphaEvolve by DeepMind: The AI That Invents New Algorithms
 
 ## TL;DR
-AlphaEvolve extends AI coding from generation to algorithm discovery, using evolutionary search loops to produce new optimization strategies. This shifts the developer role toward goal framing, guardrails, and verification of emergent solutions. For a practical framework to define goals before implementation, see [How Specifys works](https://specifys-ai.com/pages/how.html).
+AlphaEvolve extends AI coding from generation to algorithm discovery, using evolutionary search loops to produce new optimization strategies. This shifts the developer role toward goal framing, guardrails, and verification of emergent solutions. For a practical framework to define goals before implementation, see [How Specifys works](https://www.specifys-ai.com/pages/how.html).
 
 DeepMind’s AlphaEvolve pushes Vibe Coding beyond human imitation - it autonomously designs, tests, and optimizes brand-new algorithms.
 

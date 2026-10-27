@@ -4,7 +4,7 @@ title: "Content Clusters & Internal Linking"
 description: Content clusters and internal linking organize website content like a library, improving both user experience and SEO by creating clear pathways between related pages.
 level: Intermediate
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/content-clusters-internal-linking/
+canonical_url: https://www.specifys-ai.com/academy/guides/content-clusters-internal-linking/
 source: academy
 ---
 

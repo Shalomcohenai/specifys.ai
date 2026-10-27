@@ -18,7 +18,7 @@ async function loadOctokit() {
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const POSTS_DIR = path.join(ROOT_DIR, '_posts');
-const DEFAULT_BASE_URL = 'https://specifys-ai.com';
+const DEFAULT_BASE_URL = 'https://www.specifys-ai.com';
 
 function escapeYamlString(value) {
   if (value == null) return '""';

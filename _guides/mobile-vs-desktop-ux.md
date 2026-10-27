@@ -4,7 +4,7 @@ title: Mobile vs Desktop UX
 description: Understanding mobile vs desktop UX helps tailor user experiences to different devices, enhancing usability and satisfaction across platforms.
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/mobile-vs-desktop-ux/
+canonical_url: https://www.specifys-ai.com/academy/guides/mobile-vs-desktop-ux/
 source: academy
 ---
 

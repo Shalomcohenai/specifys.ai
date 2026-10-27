@@ -4,7 +4,7 @@ title: What is the Cloud
 description: Understanding the Cloud is like knowing how to use a global warehouse to store and access your digital data and services efficiently.
 level: Beginner
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/what-is-the-cloud/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-the-cloud/
 source: academy
 ---
 

@@ -4,7 +4,7 @@ title: How AI Handles Errors
 description: "AI error handling ensures smooth functioning by identifying and managing errors, akin to a navigator adjusting a ship's course through challenges."
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/how-ai-handles-errors/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-ai-handles-errors/
 source: academy
 ---
 
