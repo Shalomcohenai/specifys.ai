@@ -197,7 +197,7 @@ function escapeXml(unsafe) {
  * @param {string} baseUrl - Base URL for the site
  * @returns {Promise<string>} XML content
  */
-async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
+async function generateSitemapXml(baseUrl = 'https://www.specifys-ai.com') {
     const today = new Date().toISOString().split('T')[0];
 
     const staticUrls = buildStaticUrls(baseUrl, today);
@@ -206,22 +206,9 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
     const jekyllSlugs = getJekyllPostSlugSet();
 
     // Legacy Firebase article URLs only when no static Jekyll post exists for that slug
-    const articlesSnapshot = await db.collection('articles')
-        .where('status', '==', 'published')
-        .get();
-
-    const articleUrls = articlesSnapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((data) => data.slug && !jekyllSlugs.has(data.slug))
-        .map((data) => {
-            const lastmod = toIsoDate(data.publishedAt || data.createdAt) || today;
-            return {
-                loc: `${baseUrl}/article.html?slug=${data.slug}`,
-                lastmod,
-                changefreq: 'monthly',
-                priority: '0.8'
-            };
-        });
+    // EXCLUDED from sitemap entirely - article.html?slug= URLs are not canonical
+    // (article.html JS redirects to Jekyll permalink when available; Firebase-only articles get noindex)
+    const articleUrls = [];
 
     const allUrls = [...staticUrls, ...jekyllPostUrls, ...jekyllGuideUrls, ...articleUrls];
 
@@ -259,7 +246,7 @@ async function generateSitemapXml(baseUrl = 'https://specifys-ai.com') {
  */
 async function generateAndSaveSitemap(outputPath = null, baseUrl = null) {
     try {
-        const finalBaseUrl = baseUrl || process.env.SITE_URL || 'https://specifys-ai.com';
+        const finalBaseUrl = baseUrl || process.env.SITE_URL || 'https://www.specifys-ai.com';
         const finalOutputPath = outputPath || path.join(__dirname, '..', '..', 'sitemap.xml');
         
         const xml = await generateSitemapXml(finalBaseUrl);

@@ -86,6 +86,17 @@ class ArticlePage {
         const publishedDate = article.publishedAt || article.createdAt;
         const tags = article.tags || [];
 
+        // Add noindex for Firebase-only articles (no Jekyll permalink)
+        if (!article.jekyll_permalink) {
+            let robotsMeta = document.querySelector('meta[name="robots"]');
+            if (!robotsMeta) {
+                robotsMeta = document.createElement('meta');
+                robotsMeta.setAttribute('name', 'robots');
+                document.head.appendChild(robotsMeta);
+            }
+            robotsMeta.setAttribute('content', 'noindex, follow');
+        }
+
         // Update page title
         document.title = `${articleTitle} - Specifys.ai`;
 
@@ -225,14 +236,14 @@ class ArticlePage {
             "author": {
                 "@type": "Organization",
                 "name": "Specifys.ai",
-                "url": "https://specifys-ai.com"
+                "url": "https://www.specifys-ai.com"
             },
             "publisher": {
                 "@type": "Organization",
                 "name": "Specifys.ai",
                 "logo": {
                     "@type": "ImageObject",
-                    "url": "https://specifys-ai.com/favicon.ico"
+                    "url": "https://www.specifys-ai.com/favicon.ico"
                 }
             },
             "mainEntityOfPage": {

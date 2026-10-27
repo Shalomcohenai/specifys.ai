@@ -9,7 +9,7 @@ const { generateAndSaveSitemap } = require('../server/sitemap-generator');
 
 async function main() {
   try {
-    const baseUrl = process.env.SITE_URL || 'https://specifys-ai.com';
+    const baseUrl = process.env.SITE_URL || 'https://www.specifys-ai.com';
     console.log('Generating sitemap for:', baseUrl);
     
     const result = await generateAndSaveSitemap();

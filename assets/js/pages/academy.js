@@ -17,7 +17,7 @@ class AcademyApp {
 
     getGuideUrl(guide) {
         if (guide.jekyll_permalink) {
-            return guide.jekyll_permalink.replace('https://specifys-ai.com', '');
+            return guide.jekyll_permalink.replace('https://www.specifys-ai.com', '');
         }
         if (guide.jekyll_slug) {
             return `/academy/guides/${guide.jekyll_slug}/`;
@@ -1253,7 +1253,7 @@ class AcademyApp {
         if (ogTitle) ogTitle.setAttribute('content', title);
         if (ogDesc) ogDesc.setAttribute('content', description);
         if (ogUrl) ogUrl.setAttribute('content', window.location.href);
-        if (ogImage) ogImage.setAttribute('content', 'https://specifys-ai.com/assets/images/og-image.png');
+        if (ogImage) ogImage.setAttribute('content', 'https://www.specifys-ai.com/assets/images/og-image.png');
 
         // Twitter Card
         const twitterTitle = document.querySelector('meta[name="twitter:title"]');
@@ -1307,7 +1307,7 @@ class AcademyApp {
                 "@type": "ListItem",
                 "position": index + 1,
                 "name": item.name,
-                "item": `https://specifys-ai.com${item.url}`
+                "item": `https://www.specifys-ai.com${item.url}`
             }))
         };
 
@@ -1330,7 +1330,7 @@ class AcademyApp {
             "@type": "CollectionPage",
             "name": "Specifys Academy",
             "description": `Learn how modern apps work without writing code. Explore ${categories.length} categories with ${guides.length} comprehensive guides.`,
-            "url": "https://specifys-ai.com/academy.html",
+            "url": "https://www.specifys-ai.com/academy.html",
             "mainEntity": {
                 "@type": "ItemList",
                 "numberOfItems": categories.length,
@@ -1338,7 +1338,7 @@ class AcademyApp {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": cat.title,
-                    "url": `https://specifys-ai.com/academy/category.html?category=${cat.id}`
+                    "url": `https://www.specifys-ai.com/academy/category.html?category=${cat.id}`
                 }))
             },
             "about": {
@@ -1367,7 +1367,7 @@ class AcademyApp {
             "@type": "CollectionPage",
             "name": category.title,
             "description": category.description || `Explore ${guides.length} guides about ${category.title.toLowerCase()}.`,
-            "url": `https://specifys-ai.com/academy/category.html?category=${category.id}`,
+            "url": `https://www.specifys-ai.com/academy/category.html?category=${category.id}`,
             "mainEntity": {
                 "@type": "ItemList",
                 "numberOfItems": guides.length,
@@ -1375,7 +1375,7 @@ class AcademyApp {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": guide.title,
-                    "url": `https://specifys-ai.com/academy/guide.html?guide=${guide.id}`,
+                    "url": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`,
                     "description": guide.summary || guide.description || ""
                 }))
             },
@@ -1405,23 +1405,23 @@ class AcademyApp {
             "@type": "Article",
             "headline": guide.title,
             "description": guide.summary || guide.description || `Learn about ${guide.title.toLowerCase()}.`,
-            "url": `https://specifys-ai.com/academy/guide.html?guide=${guide.id}`,
+            "url": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`,
             "author": {
                 "@type": "Organization",
                 "name": "Specifys.ai",
-                "url": "https://specifys-ai.com"
+                "url": "https://www.specifys-ai.com"
             },
             "publisher": {
                 "@type": "Organization",
                 "name": "Specifys.ai",
                 "logo": {
                     "@type": "ImageObject",
-                    "url": "https://specifys-ai.com/favicon.ico"
+                    "url": "https://www.specifys-ai.com/favicon.ico"
                 }
             },
             "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://specifys-ai.com/academy/guide.html?guide=${guide.id}`
+                "@id": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`
             },
             "educationalLevel": guide.level || "Beginner",
             "learningResourceType": "Tutorial",

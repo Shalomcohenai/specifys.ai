@@ -38,12 +38,12 @@ export function injectSpecSeo(specData = {}) {
     creator: {
       '@type': 'Organization',
       name: 'Specifys.ai',
-      url: 'https://specifys-ai.com'
+      url: 'https://www.specifys-ai.com'
     },
     isPartOf: {
       '@type': 'WebSite',
       name: 'Specifys.ai',
-      url: 'https://specifys-ai.com'
+      url: 'https://www.specifys-ai.com'
     }
   });
 }

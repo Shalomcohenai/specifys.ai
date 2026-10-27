@@ -8,7 +8,7 @@ Disallow: /pages/new-admin-dashboard.html
 Disallow: /pages/legacy-viewer.html
 
 # Sitemap
-Sitemap: https://specifys-ai.com/sitemap.xml
+Sitemap: https://www.specifys-ai.com/sitemap.xml
 
 # AI discovery index
 # https://specifys-ai.com/llms.txt
