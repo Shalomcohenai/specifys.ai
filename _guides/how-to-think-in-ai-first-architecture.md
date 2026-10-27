@@ -4,7 +4,7 @@ title: "How to Think in \"AI-First\" Architecture"
 description: AI-First Architecture integrates intelligent components to optimize system performance, enhancing user experience and adaptability.
 level: Intermediate
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/how-to-think-in-ai-first-architecture/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-to-think-in-ai-first-architecture/
 source: academy
 ---
 

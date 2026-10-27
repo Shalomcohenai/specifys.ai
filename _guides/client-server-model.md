@@ -4,7 +4,7 @@ title: Client–Server Model
 description: The client-server model is a foundational structure for modern applications, enabling efficient data exchange between users and central systems.
 level: Beginner
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/client-server-model/
+canonical_url: https://www.specifys-ai.com/academy/guides/client-server-model/
 source: academy
 ---
 

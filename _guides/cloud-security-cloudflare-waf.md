@@ -4,7 +4,7 @@ title: Cloud Security (Cloudflare, WAF)
 description: Cloudflare and WAF are essential tools for securing cloud applications, acting like customs and security checks to ensure safe and efficient web traffic management.
 level: Advanced
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/cloud-security-cloudflare-waf/
+canonical_url: https://www.specifys-ai.com/academy/guides/cloud-security-cloudflare-waf/
 source: academy
 ---
 

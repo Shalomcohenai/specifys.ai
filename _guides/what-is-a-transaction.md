@@ -4,7 +4,7 @@ title: What is a Transaction
 description: Understanding transactions in databases is key to ensuring data integrity and consistency, which is vital for reliable AI application development.
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-transaction/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-transaction/
 source: academy
 ---
 

@@ -13,7 +13,7 @@ tags:
   - vibe-coding
   - ai-coding
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/
+canonical_url: https://www.specifys-ai.com/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/
 source: automation
 ---
 

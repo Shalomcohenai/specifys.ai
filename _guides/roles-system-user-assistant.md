@@ -4,7 +4,7 @@ title: Roles (System, User, Assistant)
 description: Understanding the roles of System, User, and Assistant in AI helps create seamless and efficient interactions, crucial for effective AI applications.
 level: Beginner
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/roles-system-user-assistant/
+canonical_url: https://www.specifys-ai.com/academy/guides/roles-system-user-assistant/
 source: academy
 ---
 

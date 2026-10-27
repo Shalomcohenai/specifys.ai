@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/
+canonical_url: https://www.specifys-ai.com/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/
 source: automation
 ---
 

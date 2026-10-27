@@ -4,7 +4,7 @@ title: Flow-Based Thinking
 description: Flow-based thinking in AI development is about understanding and optimizing interconnected processes, much like a conductor leading a symphony.
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/flow-based-thinking/
+canonical_url: https://www.specifys-ai.com/academy/guides/flow-based-thinking/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/
+canonical_url: https://www.specifys-ai.com/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/
 source: automation
 ---
 

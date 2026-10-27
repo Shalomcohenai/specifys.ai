@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/
+canonical_url: https://www.specifys-ai.com/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/
 source: automation
 ---
 

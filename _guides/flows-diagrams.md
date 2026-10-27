@@ -4,7 +4,7 @@ title: "Flows & Diagrams"
 description: Flow diagrams are visual tools that simplify the understanding and planning of complex systems in AI development.
 level: Beginner
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/flows-diagrams/
+canonical_url: https://www.specifys-ai.com/academy/guides/flows-diagrams/
 source: academy
 ---
 

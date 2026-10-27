@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/
+canonical_url: https://www.specifys-ai.com/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/
 source: automation
 ---
 

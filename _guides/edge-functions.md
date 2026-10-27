@@ -4,7 +4,7 @@ title: Edge Functions
 description: Edge functions are decentralized computing units that process data closer to users, enhancing speed and efficiency in AI-driven applications.
 level: Intermediate
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/edge-functions/
+canonical_url: https://www.specifys-ai.com/academy/guides/edge-functions/
 source: academy
 ---
 

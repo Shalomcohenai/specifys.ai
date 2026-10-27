@@ -4,7 +4,7 @@ title: Layout Systems
 description: Layout systems are the blueprints organizing web elements, crucial for responsive design and seamless user experiences.
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/layout-systems/
+canonical_url: https://www.specifys-ai.com/academy/guides/layout-systems/
 source: academy
 ---
 

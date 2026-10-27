@@ -4,7 +4,7 @@ title: Identifying Bottlenecks
 description: Understanding bottlenecks helps improve system performance by identifying and resolving points of delay, crucial for enhancing AI-driven applications.
 level: Intermediate
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/identifying-bottlenecks/
+canonical_url: https://www.specifys-ai.com/academy/guides/identifying-bottlenecks/
 source: academy
 ---
 

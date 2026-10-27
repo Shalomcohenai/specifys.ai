@@ -4,7 +4,7 @@ title: "DNS & Domains"
 description: "DNS acts as the internet's phonebook, translating domain names into IP addresses, ensuring seamless access to websites and applications."
 level: Beginner
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/dns-domains/
+canonical_url: https://www.specifys-ai.com/academy/guides/dns-domains/
 source: academy
 ---
 

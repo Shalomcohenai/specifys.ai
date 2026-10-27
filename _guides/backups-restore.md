@@ -4,7 +4,7 @@ title: "Backups & Restore"
 description: Backups and restore processes ensure data reliability and protection in AI systems, enabling quick recovery from data loss.
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/backups-restore/
+canonical_url: https://www.specifys-ai.com/academy/guides/backups-restore/
 source: academy
 ---
 

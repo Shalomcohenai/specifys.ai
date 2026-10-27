@@ -4,7 +4,7 @@ title: "Color & Typography"
 description: Understanding color and typography is key to creating engaging and user-friendly digital interfaces. These elements shape the visual identity and usability of apps in AI development.
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/color-typography/
+canonical_url: https://www.specifys-ai.com/academy/guides/color-typography/
 source: academy
 ---
 

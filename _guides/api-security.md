@@ -4,7 +4,7 @@ title: API Security
 description: API security acts as the digital bouncer, ensuring only authorized access to your application, protecting data, and maintaining trust.
 level: Intermediate
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/api-security/
+canonical_url: https://www.specifys-ai.com/academy/guides/api-security/
 source: academy
 ---
 

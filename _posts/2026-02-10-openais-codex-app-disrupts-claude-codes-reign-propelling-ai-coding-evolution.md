@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/
+canonical_url: https://www.specifys-ai.com/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: Prompt Basics
 description: "Prompts are essential tools for guiding AI's responses, like giving clear instructions to a barista to get your perfect coffee."
 level: Beginner
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/prompt-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/prompt-basics/
 source: academy
 ---
 

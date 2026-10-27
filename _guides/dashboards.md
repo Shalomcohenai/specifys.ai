@@ -4,7 +4,7 @@ title: Dashboards
 description: Dashboards are like car dashboards for business data, helping visualize complex information for informed decision-making.
 level: Beginner
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/dashboards/
+canonical_url: https://www.specifys-ai.com/academy/guides/dashboards/
 source: academy
 ---
 

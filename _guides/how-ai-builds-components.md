@@ -4,7 +4,7 @@ title: How AI Builds Components
 description: Learn how AI constructs application components like a chef crafting a dish, using available resources and tools to meet specific needs and ensure seamless integration.
 level: Intermediate
 category_title: AI Feature Development
-canonical_url: https://specifys-ai.com/academy/guides/how-ai-builds-components/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-ai-builds-components/
 source: academy
 ---
 

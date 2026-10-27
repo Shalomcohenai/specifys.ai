@@ -4,7 +4,7 @@ title: Trigger → Action Logic
 description: Trigger → Action Logic is the backbone of automation, linking events to responses in AI-driven systems.
 level: Beginner
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/trigger-action-logic/
+canonical_url: https://www.specifys-ai.com/academy/guides/trigger-action-logic/
 source: academy
 ---
 

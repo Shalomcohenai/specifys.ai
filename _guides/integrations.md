@@ -4,7 +4,7 @@ title: Integrations
 description: Integrations act like conductors in a symphony, enabling different software components to communicate and work together seamlessly in AI-driven applications.
 level: Intermediate
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/integrations/
+canonical_url: https://www.specifys-ai.com/academy/guides/integrations/
 source: academy
 ---
 

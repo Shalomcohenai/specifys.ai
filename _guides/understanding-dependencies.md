@@ -4,7 +4,7 @@ title: Understanding Dependencies
 description: Understanding dependencies is like mastering the art of cooking; each component plays a vital role in the final product. Proper management ensures stability and efficiency.
 level: Intermediate
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/understanding-dependencies/
+canonical_url: https://www.specifys-ai.com/academy/guides/understanding-dependencies/
 source: academy
 ---
 

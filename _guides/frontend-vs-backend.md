@@ -4,7 +4,7 @@ title: Frontend vs Backend
 description: Frontend and backend are like the dining area and kitchen of an app, working together to create a seamless user experience.
 level: Beginner
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/frontend-vs-backend/
+canonical_url: https://www.specifys-ai.com/academy/guides/frontend-vs-backend/
 source: academy
 ---
 

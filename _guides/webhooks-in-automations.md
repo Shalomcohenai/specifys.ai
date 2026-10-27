@@ -4,7 +4,7 @@ title: Webhooks in Automations
 description: Webhooks act as digital messengers, triggering automated actions between systems, crucial for efficient AI workflows.
 level: Intermediate
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/webhooks-in-automations/
+canonical_url: https://www.specifys-ai.com/academy/guides/webhooks-in-automations/
 source: academy
 ---
 

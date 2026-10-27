@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/
+canonical_url: https://www.specifys-ai.com/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/
 source: automation
 ---
 

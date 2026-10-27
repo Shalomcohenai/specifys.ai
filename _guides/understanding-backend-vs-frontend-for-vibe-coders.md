@@ -4,7 +4,7 @@ title: Understanding Backend vs Frontend (For Vibe Coders)
 description: Understanding the backend and frontend is like seeing both the dining room and kitchen of a restaurant. Both are vital for creating seamless user experiences in AI-driven apps.
 level: Beginner
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/
+canonical_url: https://www.specifys-ai.com/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/
 source: academy
 ---
 

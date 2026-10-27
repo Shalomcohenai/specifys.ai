@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/
+canonical_url: https://www.specifys-ai.com/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/
 source: automation
 ---
 

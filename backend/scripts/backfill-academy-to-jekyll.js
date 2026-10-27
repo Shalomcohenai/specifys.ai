@@ -38,7 +38,7 @@ async function main() {
 
     await doc.ref.update({
       jekyll_slug: slug,
-      jekyll_permalink: `https://specifys-ai.com/academy/guides/${slug}/`,
+      jekyll_permalink: `https://www.specifys-ai.com/academy/guides/${slug}/`,
       jekyll_guide_path: `_guides/${slug}.md`
     });
 

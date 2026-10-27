@@ -4,7 +4,7 @@ title: Database Security
 description: Database security is the multi-layered protection system for data, essential in AI applications to prevent unauthorized access and ensure compliance.
 level: Intermediate
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/database-security/
+canonical_url: https://www.specifys-ai.com/academy/guides/database-security/
 source: academy
 ---
 

@@ -4,7 +4,7 @@ title: The Role of the Vibe Developer
 description: A Vibe Developer understands how systems fit together and guides AI to build applications that meet user needs without coding.
 level: Beginner
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/the-role-of-the-vibe-developer/
+canonical_url: https://www.specifys-ai.com/academy/guides/the-role-of-the-vibe-developer/
 source: academy
 ---
 

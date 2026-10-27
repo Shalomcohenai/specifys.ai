@@ -4,7 +4,7 @@ title: What is an API Layer
 description: The API Layer acts as a crucial connector within systems, enabling seamless communication and integration, especially in AI-driven applications.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/what-is-an-api-layer/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-an-api-layer/
 source: academy
 ---
 

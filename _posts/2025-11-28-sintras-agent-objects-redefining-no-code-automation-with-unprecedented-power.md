@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/
+canonical_url: https://www.specifys-ai.com/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/
 source: automation
 ---
 

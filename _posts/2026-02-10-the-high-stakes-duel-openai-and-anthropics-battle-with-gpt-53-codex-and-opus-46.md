@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/
+canonical_url: https://www.specifys-ai.com/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/
 source: automation
 ---
 

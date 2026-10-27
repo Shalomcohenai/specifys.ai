@@ -4,7 +4,7 @@ title: Architecture Prompts (conceptual)
 description: Explore AI architecture through intuitive analogies, understanding how systems interact to create scalable, efficient applications.
 level: Advanced
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/architecture-prompts-conceptual/
+canonical_url: https://www.specifys-ai.com/academy/guides/architecture-prompts-conceptual/
 source: academy
 ---
 

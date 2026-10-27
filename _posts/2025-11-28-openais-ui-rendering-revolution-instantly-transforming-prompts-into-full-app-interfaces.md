@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/
+canonical_url: https://www.specifys-ai.com/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/
 source: automation
 ---
 

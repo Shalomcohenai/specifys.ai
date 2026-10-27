@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/
+canonical_url: https://www.specifys-ai.com/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/
 source: automation
 ---
 

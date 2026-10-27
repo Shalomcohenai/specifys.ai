@@ -4,7 +4,7 @@ title: Database Errors (conceptual)
 description: Understanding database errors is crucial for maintaining data integrity in AI systems, ensuring accurate and efficient functionality.
 level: Intermediate
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/database-errors-conceptual/
+canonical_url: https://www.specifys-ai.com/academy/guides/database-errors-conceptual/
 source: academy
 ---
 

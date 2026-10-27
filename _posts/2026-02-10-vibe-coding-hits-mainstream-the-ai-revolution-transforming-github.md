@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/
+canonical_url: https://www.specifys-ai.com/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/
 source: automation
 ---
 

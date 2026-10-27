@@ -5,89 +5,1602 @@
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "_site",
   "redirects": [
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "ai-generated-code-the-silent-revolution-in-production-systems"}], "destination": "/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "ai-native-software-why-2025-is-the-year-apps-build-themselves"}], "destination": "/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding"}], "destination": "/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation"}], "destination": "/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams"}], "destination": "/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code"}], "destination": "/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding"}], "destination": "/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool"}], "destination": "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers"}], "destination": "/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd"}], "destination": "/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency"}], "destination": "/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds"}], "destination": "/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model"}], "destination": "/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost"}], "destination": "/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency"}], "destination": "/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "claudes-code-voice-feature-transforms-programming-through-natural-language-conversations"}], "destination": "/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability"}], "destination": "/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development"}], "destination": "/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing"}], "destination": "/2025/12/16/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation"}], "destination": "/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities"}], "destination": "/2025/12/16/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding"}], "destination": "/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development"}], "destination": "/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language"}], "destination": "/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "google-antigravity-gains-momentum-amid-anthropics-downtime"}], "destination": "/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code"}], "destination": "/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges"}], "destination": "/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026"}], "destination": "/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding"}], "destination": "/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape"}], "destination": "/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways"}], "destination": "/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "how-google-antigravity-is-revolutionizing-agent-first-ides"}], "destination": "/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding"}], "destination": "/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together"}], "destination": "/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025"}], "destination": "/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters"}], "destination": "/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing"}], "destination": "/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance"}], "destination": "/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity"}], "destination": "/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases"}], "destination": "/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution"}], "destination": "/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency"}], "destination": "/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks"}], "destination": "/2025/12/16/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows"}], "destination": "/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces"}], "destination": "/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code"}], "destination": "/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "qodo-21-update-transforming-developer-workflows-with-precision"}], "destination": "/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026"}], "destination": "/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "replit-agents-20-the-dawn-of-autonomous-feature-development"}], "destination": "/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "security-in-the-age-of-vibe-coding-who-holds-the-reins"}], "destination": "/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power"}], "destination": "/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development"}], "destination": "/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-ascendancy-of-planning-tools-over-traditional-coding-instruments"}], "destination": "/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development"}], "destination": "/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world"}], "destination": "/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-death-of-the-blank-file-how-ai-ended-starting-from-scratch"}], "destination": "/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking"}], "destination": "/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development"}], "destination": "/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding"}], "destination": "/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46"}], "destination": "/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding"}], "destination": "/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers"}], "destination": "/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation"}], "destination": "/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development"}], "destination": "/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation"}], "destination": "/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future"}], "destination": "/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration"}], "destination": "/2025/12/16/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype"}], "destination": "/2025/12/16/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents"}], "destination": "/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code"}], "destination": "/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-silent-revolution-ai-generated-code-in-production-systems"}], "destination": "/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers"}], "destination": "/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration"}], "destination": "/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills"}], "destination": "/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products"}], "destination": "/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026"}], "destination": "/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding"}], "destination": "/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny"}], "destination": "/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers"}], "destination": "/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vibe-coding-hits-mainstream-the-ai-revolution-transforming-github"}], "destination": "/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vibe-coding-platforms-revolutionize-development-with-claude-code-agents"}], "destination": "/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "vibe-coding-the-revolutionary-force-reshaping-software-jobs"}], "destination": "/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs", "permanent": true},
-    {"source": "/article.html", "has": [{"type": "query", "key": "slug", "value": "web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app"}], "destination": "/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app", "permanent": true}
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "ai-generated-code-the-silent-revolution-in-production-systems"
+        }
+      ],
+      "destination": "/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "ai-native-software-why-2025-is-the-year-apps-build-themselves"
+        }
+      ],
+      "destination": "/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding"
+        }
+      ],
+      "destination": "/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation"
+        }
+      ],
+      "destination": "/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams"
+        }
+      ],
+      "destination": "/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code"
+        }
+      ],
+      "destination": "/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding"
+        }
+      ],
+      "destination": "/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool"
+        }
+      ],
+      "destination": "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers"
+        }
+      ],
+      "destination": "/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd"
+        }
+      ],
+      "destination": "/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency"
+        }
+      ],
+      "destination": "/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds"
+        }
+      ],
+      "destination": "/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model"
+        }
+      ],
+      "destination": "/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost"
+        }
+      ],
+      "destination": "/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency"
+        }
+      ],
+      "destination": "/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "claudes-code-voice-feature-transforms-programming-through-natural-language-conversations"
+        }
+      ],
+      "destination": "/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability"
+        }
+      ],
+      "destination": "/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development"
+        }
+      ],
+      "destination": "/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing"
+        }
+      ],
+      "destination": "/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation"
+        }
+      ],
+      "destination": "/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities"
+        }
+      ],
+      "destination": "/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding"
+        }
+      ],
+      "destination": "/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development"
+        }
+      ],
+      "destination": "/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language"
+        }
+      ],
+      "destination": "/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "google-antigravity-gains-momentum-amid-anthropics-downtime"
+        }
+      ],
+      "destination": "/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code"
+        }
+      ],
+      "destination": "/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges"
+        }
+      ],
+      "destination": "/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026"
+        }
+      ],
+      "destination": "/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding"
+        }
+      ],
+      "destination": "/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape"
+        }
+      ],
+      "destination": "/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways"
+        }
+      ],
+      "destination": "/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "how-google-antigravity-is-revolutionizing-agent-first-ides"
+        }
+      ],
+      "destination": "/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding"
+        }
+      ],
+      "destination": "/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together"
+        }
+      ],
+      "destination": "/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025"
+        }
+      ],
+      "destination": "/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters"
+        }
+      ],
+      "destination": "/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing"
+        }
+      ],
+      "destination": "/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance"
+        }
+      ],
+      "destination": "/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity"
+        }
+      ],
+      "destination": "/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases"
+        }
+      ],
+      "destination": "/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution"
+        }
+      ],
+      "destination": "/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency"
+        }
+      ],
+      "destination": "/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks"
+        }
+      ],
+      "destination": "/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows"
+        }
+      ],
+      "destination": "/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces"
+        }
+      ],
+      "destination": "/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code"
+        }
+      ],
+      "destination": "/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "qodo-21-update-transforming-developer-workflows-with-precision"
+        }
+      ],
+      "destination": "/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026"
+        }
+      ],
+      "destination": "/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "replit-agents-20-the-dawn-of-autonomous-feature-development"
+        }
+      ],
+      "destination": "/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "security-in-the-age-of-vibe-coding-who-holds-the-reins"
+        }
+      ],
+      "destination": "/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power"
+        }
+      ],
+      "destination": "/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development"
+        }
+      ],
+      "destination": "/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-ascendancy-of-planning-tools-over-traditional-coding-instruments"
+        }
+      ],
+      "destination": "/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development"
+        }
+      ],
+      "destination": "/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world"
+        }
+      ],
+      "destination": "/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-death-of-the-blank-file-how-ai-ended-starting-from-scratch"
+        }
+      ],
+      "destination": "/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking"
+        }
+      ],
+      "destination": "/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development"
+        }
+      ],
+      "destination": "/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding"
+        }
+      ],
+      "destination": "/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46"
+        }
+      ],
+      "destination": "/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding"
+        }
+      ],
+      "destination": "/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers"
+        }
+      ],
+      "destination": "/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation"
+        }
+      ],
+      "destination": "/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development"
+        }
+      ],
+      "destination": "/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation"
+        }
+      ],
+      "destination": "/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future"
+        }
+      ],
+      "destination": "/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration"
+        }
+      ],
+      "destination": "/2025/12/15/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype"
+        }
+      ],
+      "destination": "/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents"
+        }
+      ],
+      "destination": "/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code"
+        }
+      ],
+      "destination": "/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-silent-revolution-ai-generated-code-in-production-systems"
+        }
+      ],
+      "destination": "/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers"
+        }
+      ],
+      "destination": "/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration"
+        }
+      ],
+      "destination": "/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills"
+        }
+      ],
+      "destination": "/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products"
+        }
+      ],
+      "destination": "/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026"
+        }
+      ],
+      "destination": "/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding"
+        }
+      ],
+      "destination": "/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny"
+        }
+      ],
+      "destination": "/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers"
+        }
+      ],
+      "destination": "/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-hits-mainstream-the-ai-revolution-transforming-github"
+        }
+      ],
+      "destination": "/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-platforms-revolutionize-development-with-claude-code-agents"
+        }
+      ],
+      "destination": "/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-the-revolutionary-force-reshaping-software-jobs"
+        }
+      ],
+      "destination": "/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app"
+        }
+      ],
+      "destination": "/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "lovable-vibe-coding-2025"
+        }
+      ],
+      "destination": "/2025/01/14/lovable-vibe-coding-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "ai-coding-assistants-2025"
+        }
+      ],
+      "destination": "/2025/01/19/ai-coding-assistants-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "automating-devops-vibe-coding"
+        }
+      ],
+      "destination": "/2025/01/19/automating-devops-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "base44-supabase-migration-sdk"
+        }
+      ],
+      "destination": "/2025/01/19/base44-supabase-migration-sdk/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "gpt5-vibe-coding-revolution"
+        }
+      ],
+      "destination": "/2025/01/19/gpt5-vibe-coding-revolution/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "no-code-ai-agent-builders"
+        }
+      ],
+      "destination": "/2025/01/19/no-code-ai-agent-builders/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "open-source-vibe-coding-agents"
+        }
+      ],
+      "destination": "/2025/01/19/open-source-vibe-coding-agents/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "prompt-coding-evolution-vibe-coding"
+        }
+      ],
+      "destination": "/2025/01/19/prompt-coding-evolution-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "security-challenges-vibe-coding"
+        }
+      ],
+      "destination": "/2025/01/19/security-challenges-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-game-development"
+        }
+      ],
+      "destination": "/2025/01/19/vibe-coding-game-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-web3-dapps"
+        }
+      ],
+      "destination": "/2025/01/19/vibe-coding-web3-dapps/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article11"
+        }
+      ],
+      "destination": "/2025/07/12/article11/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article12"
+        }
+      ],
+      "destination": "/2025/07/14/article12/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "chatgpt-5-app-development"
+        }
+      ],
+      "destination": "/2025/08/06/chatgpt-5-app-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article1"
+        }
+      ],
+      "destination": "/2025/09/26/article1/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article2"
+        }
+      ],
+      "destination": "/2025/09/26/article2/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article3"
+        }
+      ],
+      "destination": "/2025/09/26/article3/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article4"
+        }
+      ],
+      "destination": "/2025/09/26/article4/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article5"
+        }
+      ],
+      "destination": "/2025/09/26/article5/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article6"
+        }
+      ],
+      "destination": "/2025/09/26/article6/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article7"
+        }
+      ],
+      "destination": "/2025/09/26/article7/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article8"
+        }
+      ],
+      "destination": "/2025/09/26/article8/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "article9"
+        }
+      ],
+      "destination": "/2025/09/26/article9/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "base44-ai-powered-saas-builder"
+        }
+      ],
+      "destination": "/2025/09/26/base44-ai-powered-saas-builder/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "bolt-ai-vibe-coding-scalability-challenges"
+        }
+      ],
+      "destination": "/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "cursor-ai-support-fiasco-insights"
+        }
+      ],
+      "destination": "/2025/09/26/cursor-ai-support-fiasco-insights/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "lovable-new-features-2025"
+        }
+      ],
+      "destination": "/2025/09/26/lovable-new-features-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "top-vibe-coding-tools-2025"
+        }
+      ],
+      "destination": "/2025/09/26/top-vibe-coding-tools-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-app-case-study-2025"
+        }
+      ],
+      "destination": "/2025/09/26/vibe-coding-app-case-study-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-revolution-2025-impact"
+        }
+      ],
+      "destination": "/2025/09/26/vibe-coding-revolution-2025-impact/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "vibe-coding-vs-traditional-programming-2025"
+        }
+      ],
+      "destination": "/2025/09/26/vibe-coding-vs-traditional-programming-2025/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "windsurf-double-acquisition-impact"
+        }
+      ],
+      "destination": "/2025/09/26/windsurf-double-acquisition-impact/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms"
+        }
+      ],
+      "destination": "/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "bugbot-by-cursor-the-ai-that-debugs-its-own-code"
+        }
+      ],
+      "destination": "/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day"
+        }
+      ],
+      "destination": "/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "devmate-by-meta-when-ai-assistants-learn-to-work-together"
+        }
+      ],
+      "destination": "/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold"
+        }
+      ],
+      "destination": "/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "gitclear-report-2025-the-truth-about-ai-written-code-quality"
+        }
+      ],
+      "destination": "/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai"
+        }
+      ],
+      "destination": "/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding"
+        }
+      ],
+      "destination": "/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself"
+        }
+      ],
+      "destination": "/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "windsurf-and-pearai-the-rise-of-agentic-ides"
+        }
+      ],
+      "destination": "/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops"
+        }
+      ],
+      "destination": "/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding"
+        }
+      ],
+      "destination": "/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openai-presence-revolutionizing-enterprise-ai-integration"
+        }
+      ],
+      "destination": "/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "amds-rocmai-ai-driven-development-tools-for-developers"
+        }
+      ],
+      "destination": "/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents"
+        }
+      ],
+      "destination": "/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "aws-kiro-tackles-vibe-coding-with-spec-driven-development"
+        }
+      ],
+      "destination": "/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openai-presence-build-and-deploy-ai-agents-in-your-workflows"
+        }
+      ],
+      "destination": "/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/",
+      "permanent": true
+    },
+    {
+      "source": "/article.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "slug",
+          "value": "openais-frontier-transforming-enterprise-ai-agent-integration"
+        }
+      ],
+      "destination": "/2026/08/14/openais-frontier-transforming-enterprise-ai-agent-integration/",
+      "permanent": true
+    }
   ],
   "rewrites": [
     {

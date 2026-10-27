@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/
+canonical_url: https://www.specifys-ai.com/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: "Inputs & Outputs"
 description: Inputs and outputs are the exchanges between users and systems, vital for creating responsive and efficient AI-driven applications.
 level: Beginner
 category_title: System Thinking
-canonical_url: https://specifys-ai.com/academy/guides/inputs-outputs/
+canonical_url: https://www.specifys-ai.com/academy/guides/inputs-outputs/
 source: academy
 ---
 

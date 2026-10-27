@@ -4,7 +4,7 @@ title: "Secure Storage & Secrets"
 description: Understand how secure storage acts like a vault, protecting sensitive information in AI-driven development through encryption and careful management.
 level: Intermediate
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/secure-storage-secrets/
+canonical_url: https://www.specifys-ai.com/academy/guides/secure-storage-secrets/
 source: academy
 ---
 

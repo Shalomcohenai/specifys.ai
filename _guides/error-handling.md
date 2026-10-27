@@ -4,7 +4,7 @@ title: Error Handling
 description: Error handling is like air traffic control for applications, ensuring smooth operations by managing unexpected issues and maintaining user trust.
 level: Intermediate
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/error-handling/
+canonical_url: https://www.specifys-ai.com/academy/guides/error-handling/
 source: academy
 ---
 

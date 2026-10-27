@@ -4,7 +4,7 @@ title: State (Client / Server)
 description: Understanding client-server state is key to creating seamless, responsive applications, with AI playing a crucial role in managing and predicting state changes.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/state-client-server/
+canonical_url: https://www.specifys-ai.com/academy/guides/state-client-server/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/
+canonical_url: https://www.specifys-ai.com/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/
 source: automation
 ---
 

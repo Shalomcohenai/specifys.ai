@@ -4,7 +4,7 @@ title: What is an API
 description: APIs act as bridges allowing different software applications to communicate, crucial for seamless modern technology integration.
 level: Beginner
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/what-is-an-api/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-an-api/
 source: academy
 ---
 

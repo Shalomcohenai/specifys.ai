@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/
+canonical_url: https://www.specifys-ai.com/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/
 source: automation
 ---
 

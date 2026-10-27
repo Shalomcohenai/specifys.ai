@@ -4,7 +4,7 @@ title: What is Automation
 description: Automation simplifies tasks by using systems to perform repetitive actions, crucial for efficiency in AI-driven development.
 level: Beginner
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/what-is-automation/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-automation/
 source: academy
 ---
 

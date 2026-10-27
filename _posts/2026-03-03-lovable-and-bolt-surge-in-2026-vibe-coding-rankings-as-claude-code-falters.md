@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/
+canonical_url: https://www.specifys-ai.com/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: CI/CD Basics
 description: CI/CD enables continuous software development and deployment, like an automated bakery that never stops serving fresh products.
 level: Intermediate
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/ci-cd-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/ci-cd-basics/
 source: academy
 ---
 

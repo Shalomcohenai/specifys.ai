@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/
+canonical_url: https://www.specifys-ai.com/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/
 source: automation
 ---
 

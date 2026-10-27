@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/16/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/
+canonical_url: https://www.specifys-ai.com/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/
 source: automation
 ---
 

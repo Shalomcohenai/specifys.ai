@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/
+canonical_url: https://www.specifys-ai.com/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/
 source: automation
 ---
 

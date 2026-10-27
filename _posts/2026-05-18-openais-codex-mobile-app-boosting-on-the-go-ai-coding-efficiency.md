@@ -13,7 +13,7 @@ tags:
   - vibe-coding
   - ai-coding
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/
+canonical_url: https://www.specifys-ai.com/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/
 source: automation
 ---
 

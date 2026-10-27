@@ -4,7 +4,7 @@ title: What is Version Control
 description: Version control is like a time machine for software projects, allowing developers to track, manage, and revert changes safely.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-version-control/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-version-control/
 source: academy
 ---
 

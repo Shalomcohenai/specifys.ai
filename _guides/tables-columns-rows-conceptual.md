@@ -4,7 +4,7 @@ title: Tables, Columns, Rows (conceptual)
 description: Understanding tables, columns, and rows is key to organizing data efficiently, enabling effective AI-driven application development.
 level: Beginner
 category_title: Databases
-canonical_url: https://specifys-ai.com/academy/guides/tables-columns-rows-conceptual/
+canonical_url: https://www.specifys-ai.com/academy/guides/tables-columns-rows-conceptual/
 source: academy
 ---
 

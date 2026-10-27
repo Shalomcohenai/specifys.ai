@@ -4,7 +4,7 @@ title: Retention
 description: Understanding retention is key to sustaining user engagement in AI-driven applications, focusing on data-driven insights to minimize user drop-off.
 level: Intermediate
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/retention/
+canonical_url: https://www.specifys-ai.com/academy/guides/retention/
 source: academy
 ---
 

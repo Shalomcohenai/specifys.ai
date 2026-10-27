@@ -4,7 +4,7 @@ title: "Vibe Coding Pitfalls & Best Practices"
 description: "Mastering AI development involves understanding pitfalls and best practices to optimize systems, akin to orchestrating a city's infrastructure."
 level: Advanced
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/vibe-coding-pitfalls-best-practices/
+canonical_url: https://www.specifys-ai.com/academy/guides/vibe-coding-pitfalls-best-practices/
 source: academy
 ---
 

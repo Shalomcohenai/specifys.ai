@@ -4,7 +4,7 @@ title: Request–Response Lifecycle
 description: The Request-Response Lifecycle is the communication process between user interfaces and servers, essential for interactive web experiences.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/request-response-lifecycle/
+canonical_url: https://www.specifys-ai.com/academy/guides/request-response-lifecycle/
 source: academy
 ---
 

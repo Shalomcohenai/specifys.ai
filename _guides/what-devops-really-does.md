@@ -4,7 +4,7 @@ title: What DevOps Really Does
 description: DevOps acts as the bridge between development and operations, streamlining processes and enhancing collaboration in AI-driven development.
 level: Beginner
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/what-devops-really-does/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-devops-really-does/
 source: academy
 ---
 

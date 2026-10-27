@@ -4,7 +4,7 @@ title: What is Vibe Coding
 description: Vibe Coding is about understanding how apps work, focusing on systems, not code. It empowers you to manage AI-driven development effectively.
 level: Beginner
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/what-is-vibe-coding/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-vibe-coding/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/
+canonical_url: https://www.specifys-ai.com/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/
 source: automation
 ---
 

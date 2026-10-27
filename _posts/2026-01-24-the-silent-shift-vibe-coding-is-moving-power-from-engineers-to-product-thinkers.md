@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/
+canonical_url: https://www.specifys-ai.com/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/
 source: automation
 ---
 

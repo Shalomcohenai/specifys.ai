@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/
+canonical_url: https://www.specifys-ai.com/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/
 source: automation
 ---
 

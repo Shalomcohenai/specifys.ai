@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/
+canonical_url: https://www.specifys-ai.com/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/
 source: automation
 ---
 

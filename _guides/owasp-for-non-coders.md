@@ -4,7 +4,7 @@ title: OWASP for Non-Coders
 description: OWASP provides a framework for identifying and mitigating security risks in applications, ensuring they remain safe and trustworthy.
 level: Intermediate
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/owasp-for-non-coders/
+canonical_url: https://www.specifys-ai.com/academy/guides/owasp-for-non-coders/
 source: academy
 ---
 

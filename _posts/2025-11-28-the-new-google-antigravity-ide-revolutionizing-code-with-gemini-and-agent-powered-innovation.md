@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/
+canonical_url: https://www.specifys-ai.com/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/
 source: automation
 ---
 

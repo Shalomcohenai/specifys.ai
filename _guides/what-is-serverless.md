@@ -4,7 +4,7 @@ title: What is Serverless
 description: Serverless computing allows developers to focus on code functionality by handling server management dynamically, crucial for scalable AI applications.
 level: Intermediate
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/what-is-serverless/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-serverless/
 source: academy
 ---
 

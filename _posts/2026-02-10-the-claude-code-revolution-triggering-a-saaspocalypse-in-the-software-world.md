@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/
+canonical_url: https://www.specifys-ai.com/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/
 source: automation
 ---
 

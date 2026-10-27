@@ -4,7 +4,7 @@ title: Scheduling
 description: Scheduling in apps is like a calendar that ensures tasks happen at the right time, enabling efficient and automated processes.
 level: Beginner
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/scheduling/
+canonical_url: https://www.specifys-ai.com/academy/guides/scheduling/
 source: academy
 ---
 

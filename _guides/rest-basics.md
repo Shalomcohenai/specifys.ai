@@ -4,7 +4,7 @@ title: REST Basics
 description: REST is like a universal language for web systems, enabling efficient communication, crucial for building seamless, user-friendly applications.
 level: Beginner
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/rest-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/rest-basics/
 source: academy
 ---
 

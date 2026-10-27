@@ -4,7 +4,7 @@ title: Connecting APIs
 description: Connecting APIs is like building bridges between systems, enabling seamless communication crucial for AI development.
 level: Intermediate
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/connecting-apis/
+canonical_url: https://www.specifys-ai.com/academy/guides/connecting-apis/
 source: academy
 ---
 

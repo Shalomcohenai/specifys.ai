@@ -4,7 +4,7 @@ title: Basic UX Principles
 description: Understanding basic UX principles helps create seamless and satisfying user interactions in applications, vital for user engagement and retention.
 level: Beginner
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/basic-ux-principles/
+canonical_url: https://www.specifys-ai.com/academy/guides/basic-ux-principles/
 source: academy
 ---
 

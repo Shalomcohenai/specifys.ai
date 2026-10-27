@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/12/16/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/
+canonical_url: https://www.specifys-ai.com/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/
 source: automation
 ---
 

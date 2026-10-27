@@ -4,7 +4,7 @@ title: Request/Response Structure
 description: Understand the request/response structure in API communication, crucial for seamless interaction in AI-driven applications.
 level: Intermediate
 category_title: "API Design & Communication"
-canonical_url: https://specifys-ai.com/academy/guides/request-response-structure/
+canonical_url: https://www.specifys-ai.com/academy/guides/request-response-structure/
 source: academy
 ---
 

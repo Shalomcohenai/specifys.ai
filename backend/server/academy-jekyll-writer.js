@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const GUIDES_DIR = path.join(ROOT_DIR, '_guides');
-const DEFAULT_BASE_URL = 'https://specifys-ai.com';
+const DEFAULT_BASE_URL = 'https://www.specifys-ai.com';
 
 function slugify(title) {
   return String(title)

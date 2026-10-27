@@ -4,7 +4,7 @@ title: "Events & Tracking"
 description: Events and tracking are vital for understanding user interactions in digital products, enabling data-driven improvements.
 level: Beginner
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/events-tracking/
+canonical_url: https://www.specifys-ai.com/academy/guides/events-tracking/
 source: academy
 ---
 

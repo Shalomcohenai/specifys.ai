@@ -13,7 +13,7 @@ tags:
   - vibe-coding
   - ai-coding
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/
+canonical_url: https://www.specifys-ai.com/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/
 source: automation
 ---
 

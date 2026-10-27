@@ -4,7 +4,7 @@ title: Communicating with AI Tools
 description: Communicating with AI tools involves using APIs as translators, enabling systems to interact seamlessly and create cohesive user experiences.
 level: Intermediate
 category_title: Vibe Coding Essentials
-canonical_url: https://specifys-ai.com/academy/guides/communicating-with-ai-tools/
+canonical_url: https://www.specifys-ai.com/academy/guides/communicating-with-ai-tools/
 source: academy
 ---
 

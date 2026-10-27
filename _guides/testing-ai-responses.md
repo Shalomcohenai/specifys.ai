@@ -4,7 +4,7 @@ title: Testing AI Responses
 description: Testing AI responses ensures accuracy and reliability, much like quality control in a restaurant, ensuring AI interprets and delivers as expected.
 level: Intermediate
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/testing-ai-responses/
+canonical_url: https://www.specifys-ai.com/academy/guides/testing-ai-responses/
 source: academy
 ---
 

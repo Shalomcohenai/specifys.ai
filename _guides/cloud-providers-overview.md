@@ -4,7 +4,7 @@ title: Cloud Providers Overview
 description: Cloud providers are like digital service hosts, offering scalable and flexible resources essential for AI development.
 level: Beginner
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/cloud-providers-overview/
+canonical_url: https://www.specifys-ai.com/academy/guides/cloud-providers-overview/
 source: academy
 ---
 

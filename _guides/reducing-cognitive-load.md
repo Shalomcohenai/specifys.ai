@@ -4,7 +4,7 @@ title: Reducing Cognitive Load
 description: Understanding cognitive load in UI/UX helps streamline user experiences, enhancing satisfaction and efficiency by minimizing mental effort.
 level: Intermediate
 category_title: UI/UX Foundations
-canonical_url: https://specifys-ai.com/academy/guides/reducing-cognitive-load/
+canonical_url: https://www.specifys-ai.com/academy/guides/reducing-cognitive-load/
 source: academy
 ---
 

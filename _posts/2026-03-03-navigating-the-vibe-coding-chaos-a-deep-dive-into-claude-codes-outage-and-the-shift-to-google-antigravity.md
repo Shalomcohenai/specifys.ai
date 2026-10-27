@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/
+canonical_url: https://www.specifys-ai.com/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/
 source: automation
 ---
 

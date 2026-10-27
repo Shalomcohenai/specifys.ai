@@ -4,7 +4,7 @@ title: Multi-Step Workflows
 description: Multi-step workflows are orchestrated sequences of tasks that ensure efficient, scalable, and reliable execution of complex processes in AI systems.
 level: Intermediate
 category_title: Automations
-canonical_url: https://specifys-ai.com/academy/guides/multi-step-workflows/
+canonical_url: https://www.specifys-ai.com/academy/guides/multi-step-workflows/
 source: academy
 ---
 

@@ -4,7 +4,7 @@ title: Avoiding Hallucinations
 description: Understanding AI hallucinations is vital to ensure reliable and accurate outputs in AI-driven applications, preventing misinformation and errors.
 level: Intermediate
 category_title: Prompt Engineering
-canonical_url: https://specifys-ai.com/academy/guides/avoiding-hallucinations/
+canonical_url: https://www.specifys-ai.com/academy/guides/avoiding-hallucinations/
 source: academy
 ---
 

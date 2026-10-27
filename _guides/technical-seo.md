@@ -4,7 +4,7 @@ title: Technical SEO
 description: Technical SEO is like the infrastructure of a city, crucial for efficient navigation and accessibility, impacting how AI-driven tools interact with websites.
 level: Intermediate
 category_title: "SEO & Growth"
-canonical_url: https://specifys-ai.com/academy/guides/technical-seo/
+canonical_url: https://www.specifys-ai.com/academy/guides/technical-seo/
 source: academy
 ---
 

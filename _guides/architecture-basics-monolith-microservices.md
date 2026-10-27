@@ -4,7 +4,7 @@ title: Architecture Basics (Monolith / Microservices)
 description: This guide explains the difference between monolithic and microservices architectures, highlighting their unique benefits and trade-offs in modern AI-driven development.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/architecture-basics-monolith-microservices/
+canonical_url: https://www.specifys-ai.com/academy/guides/architecture-basics-monolith-microservices/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/
+canonical_url: https://www.specifys-ai.com/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/
 source: automation
 ---
 

@@ -4,7 +4,7 @@ title: How Websites Load
 description: Understand how websites load by exploring the roles of browsers, servers, and the internet, and learn why this process is vital in AI development.
 level: Beginner
 category_title: "Cloud & Hosting"
-canonical_url: https://specifys-ai.com/academy/guides/how-websites-load/
+canonical_url: https://www.specifys-ai.com/academy/guides/how-websites-load/
 source: academy
 ---
 

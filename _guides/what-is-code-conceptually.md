@@ -4,7 +4,7 @@ title: What is Code (conceptually)
 description: Code is a set of instructions that tells computers what to do, enabling the creation of applications and the advancement of AI technologies.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-code-conceptually/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-code-conceptually/
 source: academy
 ---
 

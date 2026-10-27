@@ -4,7 +4,7 @@ title: What is a Package
 description: A package is like a pre-assembled kit in software development, simplifying complex tasks by bundling necessary resources, crucial for efficient AI-driven applications.
 level: Beginner
 category_title: Software Fundamentals (For Non-Coders)
-canonical_url: https://specifys-ai.com/academy/guides/what-is-a-package/
+canonical_url: https://www.specifys-ai.com/academy/guides/what-is-a-package/
 source: academy
 ---
 

@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/
+canonical_url: https://www.specifys-ai.com/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/
 source: automation
 ---
 

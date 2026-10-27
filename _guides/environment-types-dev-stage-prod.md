@@ -4,7 +4,7 @@ title: Environment Types (Dev/Stage/Prod)
 description: Understand the roles of development, staging, and production environments to ensure smooth and reliable AI application deployment.
 level: Beginner
 category_title: "DevOps & Deployment"
-canonical_url: https://specifys-ai.com/academy/guides/environment-types-dev-stage-prod/
+canonical_url: https://www.specifys-ai.com/academy/guides/environment-types-dev-stage-prod/
 source: academy
 ---
 

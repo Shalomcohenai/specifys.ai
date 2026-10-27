@@ -4,7 +4,7 @@ title: App Security Basics
 description: App security is like having a security system for your app, ensuring only trusted users access and keeping data safe, crucial for modern AI applications.
 level: Beginner
 category_title: Security
-canonical_url: https://specifys-ai.com/academy/guides/app-security-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/app-security-basics/
 source: academy
 ---
 

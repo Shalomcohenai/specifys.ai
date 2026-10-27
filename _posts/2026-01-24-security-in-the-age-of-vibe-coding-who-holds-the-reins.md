@@ -9,7 +9,7 @@ tags:
   - LLMs
   - software future
 author: "Specifys.ai Team"
-canonical_url: https://specifys-ai.com/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/
+canonical_url: https://www.specifys-ai.com/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/
 source: automation
 ---
 

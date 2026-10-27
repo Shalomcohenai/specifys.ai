@@ -4,7 +4,7 @@ title: User Behavior Analysis
 description: User behavior analysis is like a detective story, where AI deciphers user interactions to improve digital experiences.
 level: Intermediate
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/user-behavior-analysis/
+canonical_url: https://www.specifys-ai.com/academy/guides/user-behavior-analysis/
 source: academy
 ---
 

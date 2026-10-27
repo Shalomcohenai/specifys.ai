@@ -4,7 +4,7 @@ title: Understanding API Endpoints
 description: API endpoints are the gateways that allow systems to exchange data, playing a pivotal role in AI development by enabling seamless communication and integration.
 level: Intermediate
 category_title: App Structure
-canonical_url: https://specifys-ai.com/academy/guides/understanding-api-endpoints/
+canonical_url: https://www.specifys-ai.com/academy/guides/understanding-api-endpoints/
 source: academy
 ---
 

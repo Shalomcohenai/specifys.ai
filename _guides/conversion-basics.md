@@ -4,7 +4,7 @@ title: Conversion Basics
 description: Understanding conversion is key to optimizing how visitors become customers, impacting business success significantly.
 level: Beginner
 category_title: "Data & Analytics"
-canonical_url: https://specifys-ai.com/academy/guides/conversion-basics/
+canonical_url: https://www.specifys-ai.com/academy/guides/conversion-basics/
 source: academy
 ---
 
