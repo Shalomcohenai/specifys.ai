@@ -3633,11 +3633,11 @@
     "id": 189,
     "name": "PulseGate",
     "category": "AI Agent & Workflow Tools",
-    "description": "A platform providing live intelligence on AI-era software, tracking AI models, apps, infrastructure, and workflow tools since 2022.",
+    "description": "The global software index: a live index of public software - apps, AI models, agents and infrastructure - indexed as it ships, with a live state for each project.",
     "link": "https://www.pulsegate.ai/",
     "pros": [],
     "cons": [],
-    "special": "launched-2022-01-01",
+    "special": null,
     "added": "2026-08-04"
   },
   {
