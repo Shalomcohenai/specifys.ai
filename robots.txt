@@ -11,7 +11,7 @@ Disallow: /pages/legacy-viewer.html
 Sitemap: https://www.specifys-ai.com/sitemap.xml
 
 # AI discovery index
-# https://specifys-ai.com/llms.txt
+# https://www.specifys-ai.com/llms.txt
 
 # Specific rules for major search engines
 User-agent: Googlebot
