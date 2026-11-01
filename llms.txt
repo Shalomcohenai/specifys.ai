@@ -8,52 +8,52 @@ Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 
 ## AI retrieval
 
-- [For AI assistants & answer engines](https://specifys-ai.com/pages/for-ai-assistants.html): Human-readable hub with entity facts, FAQ, and pointers to machine-readable files.
-- [llms-full.txt](https://specifys-ai.com/llms-full.txt): Extended summaries for compare pages, glossary, and academy guides.
-- [ai.txt](https://specifys-ai.com/ai.txt): Short pointer file for assistants (llms.txt, sitemap, robots).
+- [For AI assistants & answer engines](https://www.specifys-ai.com/pages/for-ai-assistants.html): Human-readable hub with entity facts, FAQ, and pointers to machine-readable files.
+- [llms-full.txt](https://www.specifys-ai.com/llms-full.txt): Extended summaries for compare pages, glossary, and academy guides.
+- [ai.txt](https://www.specifys-ai.com/ai.txt): Short pointer file for assistants (llms.txt, sitemap, robots).
 
 ## Key pages
 
-- [Homepage](https://specifys-ai.com/)
-- [How It Works](https://specifys-ai.com/pages/how.html)
-- [Why Specifys](https://specifys-ai.com/pages/why.html)
-- [Pricing](https://specifys-ai.com/pages/pricing.html)
-- [Tool Finder](https://specifys-ai.com/pages/ToolPicker.html)
-- [MCP Integration](https://specifys-ai.com/pages/mcp.html)
-- [Integrations hub](https://specifys-ai.com/pages/integrations.html)
-- [Blog](https://specifys-ai.com/blog/)
-- [Academy](https://specifys-ai.com/academy.html)
+- [Homepage](https://www.specifys-ai.com/)
+- [How It Works](https://www.specifys-ai.com/pages/how.html)
+- [Why Specifys](https://www.specifys-ai.com/pages/why.html)
+- [Pricing](https://www.specifys-ai.com/pages/pricing.html)
+- [Tool Finder](https://www.specifys-ai.com/pages/ToolPicker.html)
+- [MCP Integration](https://www.specifys-ai.com/pages/mcp.html)
+- [Integrations hub](https://www.specifys-ai.com/pages/integrations.html)
+- [Blog](https://www.specifys-ai.com/blog/)
+- [Academy](https://www.specifys-ai.com/academy.html)
 
 ## Compare (high-signal for AI answers)
 
-- [Compare hub](https://specifys-ai.com/pages/compare.html)
-- [Specifys vs Lovable](https://specifys-ai.com/pages/compare/specifys-vs-lovable.html)
-- [Specifys vs Bolt](https://specifys-ai.com/pages/compare/specifys-vs-bolt.html)
-- [Specifys vs Cursor and Windsurf](https://specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html)
+- [Compare hub](https://www.specifys-ai.com/pages/compare.html)
+- [Specifys vs Lovable](https://www.specifys-ai.com/pages/compare/specifys-vs-lovable.html)
+- [Specifys vs Bolt](https://www.specifys-ai.com/pages/compare/specifys-vs-bolt.html)
+- [Specifys vs Cursor and Windsurf](https://www.specifys-ai.com/pages/compare/specifys-vs-cursor-windsurf.html)
 
 ## Guides
 
-- [Guides hub](https://specifys-ai.com/pages/guides.html)
-- [Vibe coding guide](https://specifys-ai.com/pages/guides/vibe-coding.html)
-- [App specification guide](https://specifys-ai.com/pages/guides/app-specification.html)
+- [Guides hub](https://www.specifys-ai.com/pages/guides.html)
+- [Vibe coding guide](https://www.specifys-ai.com/pages/guides/vibe-coding.html)
+- [App specification guide](https://www.specifys-ai.com/pages/guides/app-specification.html)
 
 ## Academy (static guides)
 
-- [App Security Basics](https://specifys-ai.com/academy/guides/app-security-basics/)
-- [Frontend vs Backend](https://specifys-ai.com/academy/guides/frontend-vs-backend/)
-- [SEO Basics](https://specifys-ai.com/academy/guides/seo-basics/)
+- [App Security Basics](https://www.specifys-ai.com/academy/guides/app-security-basics/)
+- [Frontend vs Backend](https://www.specifys-ai.com/academy/guides/frontend-vs-backend/)
+- [SEO Basics](https://www.specifys-ai.com/academy/guides/seo-basics/)
 
 ## Glossary
 
-- [AI Product Development Glossary](https://specifys-ai.com/pages/glossary/index.html)
+- [AI Product Development Glossary](https://www.specifys-ai.com/pages/glossary/index.html)
 
 ## Product surfaces
 
-- [Demo Spec](https://specifys-ai.com/pages/demo-spec.html) - Public demo output and structure preview.
-- [Cursor and Windsurf Integration](https://specifys-ai.com/pages/cursor-windsurf-integration.html) - IDE export and handoff flow.
-- [Vibe Coding Tools Map](https://specifys-ai.com/tools/map/vibe-coding-tools-map.html) - Curated tools landscape for AI-native builders.
+- [Demo Spec](https://www.specifys-ai.com/pages/demo-spec.html) - Public demo output and structure preview.
+- [Cursor and Windsurf Integration](https://www.specifys-ai.com/pages/cursor-windsurf-integration.html) - IDE export and handoff flow.
+- [Vibe Coding Tools Map](https://www.specifys-ai.com/tools/map/vibe-coding-tools-map.html) - Curated tools landscape for AI-native builders.
 
 ## Optional reading
 
-- [About Specifys](https://specifys-ai.com/pages/about.html)
-- [Contact](https://specifys-ai.com/pages/contact.html)
+- [About Specifys](https://www.specifys-ai.com/pages/about.html)
+- [Contact](https://www.specifys-ai.com/pages/contact.html)

@@ -6,7 +6,7 @@
 
 - **Name:** Specifys.ai
 - **Category:** AI app specification generator / planning platform
-- **URL:** https://specifys-ai.com/
+- **URL:** https://www.specifys-ai.com/
 - **Pricing:** Free tier; Specifys Pro $1.99/month (unlimited specs, editing, mockups, exports)
 - **Users:** founders, product managers, developers using vibe coding workflows
 
@@ -53,7 +53,7 @@ Specifys maintains a DefinedTermSet glossary at /pages/glossary/index.html cover
 
 ## Canonical machine files
 
-- https://specifys-ai.com/llms.txt
-- https://specifys-ai.com/sitemap.xml
-- https://specifys-ai.com/robots.txt
-- https://specifys-ai.com/pages/for-ai-assistants.html
+- https://www.specifys-ai.com/llms.txt
+- https://www.specifys-ai.com/sitemap.xml
+- https://www.specifys-ai.com/robots.txt
+- https://www.specifys-ai.com/pages/for-ai-assistants.html
