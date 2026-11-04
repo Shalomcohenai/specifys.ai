@@ -118,18 +118,8 @@
     
     <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
     
-    <!-- Canonical URL -->
-    {% assign canonical_base = site.url | default: 'https://www.specifys-ai.com' %}
-    {% if page.canonical_url %}
-    {% assign canonical_href = page.canonical_url %}
-    {% else %}
-    {% assign canonical_path = page.url | replace:'index.html','' | replace:'index.htm','' %}
-    {% assign canonical_path = canonical_path | strip %}
-    {% if canonical_path == '' %}
-      {% assign canonical_path = '/' %}
-    {% endif %}
-    {% assign canonical_href = canonical_base | append: canonical_path %}
-    {% endif %}
+    <!-- Canonical URL: the absolute www URL this response serves, with a trailing slash on directory permalinks. -->
+    {% include canonical-href.html %}
     <link rel="canonical" href="{{ canonical_href }}">
     <link rel="alternate" hreflang="en" href="{{ canonical_href }}">
     <link rel="alternate" hreflang="x-default" href="{{ canonical_href }}">

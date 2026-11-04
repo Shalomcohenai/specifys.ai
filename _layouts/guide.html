@@ -55,19 +55,20 @@ extra_js:
     </footer>
 </article>
 
+{% include canonical-href.html %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "LearningResource",
   "name": {{ page.title | jsonify }},
   "description": {{ page.description | default: page.summary | jsonify }},
-  "url": "{{ page.url | absolute_url }}",
+  "url": "{{ canonical_href }}",
   "learningResourceType": "Guide",
   "isAccessibleForFree": true,
   "provider": {
     "@type": "Organization",
     "name": "Specifys.ai",
-    "url": "https://www.specifys-ai.com"
+    "url": "https://www.specifys-ai.com/"
   }
 }
 </script>

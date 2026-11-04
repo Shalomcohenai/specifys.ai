@@ -28,7 +28,8 @@
     "test:e2e": "playwright test",
     "build:packages": "npm run build --workspaces --if-present",
     "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite",
-    "build:vercel": "npm run build:css:min && (npm run build:vite || true) && bundle exec jekyll build"
+    "build:vercel": "npm run build:css:min && (npm run build:vite || true) && bundle exec jekyll build",
+    "verify:seo": "node scripts/seo/verify-legacy-redirects.mjs"
   },
   "keywords": [
     "specifys",
@@ -40,6 +41,7 @@
   "license": "ISC",
   "description": "Clean Specifys.ai website - ready for user system integration",
   "dependencies": {
+    "@vercel/functions": "^3.10.6",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",

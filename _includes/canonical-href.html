@@ -1,0 +1,18 @@
+{% assign canonical_base = 'https://www.specifys-ai.com' %}
+{% assign canonical_path = page.url | default: '/' | replace: 'index.html', '' | replace: 'index.htm', '' | strip %}
+{% if canonical_path == '' %}
+{% assign canonical_path = '/' %}
+{% endif %}
+{% assign canonical_leaf = canonical_path | split: '/' | last %}
+{% assign canonical_last = canonical_path | slice: -1, 1 %}
+{% if canonical_leaf contains '.' %}
+{% if canonical_last == '/' %}
+{% assign canonical_trim = canonical_path | size | minus: 1 %}
+{% assign canonical_path = canonical_path | slice: 0, canonical_trim %}
+{% endif %}
+{% else %}
+{% unless canonical_last == '/' %}
+{% assign canonical_path = canonical_path | append: '/' %}
+{% endunless %}
+{% endif %}
+{% assign canonical_href = canonical_base | append: canonical_path %}

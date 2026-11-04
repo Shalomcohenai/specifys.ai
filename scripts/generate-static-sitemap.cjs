@@ -54,19 +54,47 @@ function buildStaticUrls(baseUrl, today) {
     }));
 }
 
+function readPostListing(fileName, postsDir) {
+    const match = fileName.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$/);
+    if (!match) return null;
+    const slug = match[4];
+    const content = fs.readFileSync(path.join(postsDir, fileName), 'utf8');
+    const frontEnd = content.indexOf('\n---', 3);
+    const front = content.startsWith('---') && frontEnd !== -1 ? content.slice(3, frontEnd) : '';
+    const dateMatch = front.match(/^date:\s*['"]?(\d{4})-(\d{2})-(\d{2})/m);
+    if (!dateMatch) return null;
+    const [, year, month, day] = dateMatch;
+    const served = `/${year}/${month}/${day}/${slug}/`;
+    const canonMatch = front.match(/^canonical_url:\s*(\S+)/m);
+    const robotsMatch = front.match(/^robots:\s*(.+)$/m);
+    let declared = served;
+    if (canonMatch) {
+        declared = canonMatch[1]
+            .replace(/^https?:\/\/(?:www\.)?specifys-ai\.com/i, '')
+            .trim();
+        if (!declared.endsWith('/')) declared += '/';
+    }
+    const noindex = Boolean(robotsMatch && /noindex/i.test(robotsMatch[1]));
+    return {
+        served,
+        noindex,
+        alias: declared !== served,
+        postDate: `${year}-${month}-${day}`
+    };
+}
+
 function getJekyllPostUrls(baseUrl, today) {
     const postsDir = path.join(ROOT_DIR, '_posts');
     if (!fs.existsSync(postsDir)) return [];
 
     const files = fs.readdirSync(postsDir).filter((name) => /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(name));
-    return files.map((fileName) => {
-        const match = fileName.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$/);
-        if (!match) return null;
-        const [, year, month, day, slug] = match;
-        const postDate = `${year}-${month}-${day}`;
+    const listings = files.map((fileName) => readPostListing(fileName, postsDir)).filter(Boolean);
+
+    return listings.map((post) => {
+        if (post.noindex || post.alias) return null;
         return {
-            loc: `${baseUrl}/${year}/${month}/${day}/${slug}/`,
-            lastmod: postDate || today,
+            loc: `${baseUrl}${post.served}`,
+            lastmod: post.postDate || today,
             changefreq: 'monthly',
             priority: '0.6'
         };
@@ -105,15 +133,32 @@ function escapeXml(unsafe) {
         .replace(/'/g, '&apos;');
 }
 
+function loadPreviousLastmods(outputPath) {
+    if (!fs.existsSync(outputPath)) return {};
+    const xml = fs.readFileSync(outputPath, 'utf8');
+    const previous = {};
+    for (const block of xml.split('<url>').slice(1)) {
+        const loc = (block.match(/<loc>(.*?)<\/loc>/) || [])[1];
+        const lastmod = (block.match(/<lastmod>(.*?)<\/lastmod>/) || [])[1];
+        if (loc && lastmod) previous[loc] = lastmod;
+    }
+    return previous;
+}
+
 function generateSitemap() {
     const today = new Date().toISOString().split('T')[0];
+    const outputPath = path.join(ROOT_DIR, 'sitemap.xml');
+    const previousLastmods = loadPreviousLastmods(outputPath);
     
     const staticUrls = buildStaticUrls(BASE_URL, today);
     const jekyllPostUrls = getJekyllPostUrls(BASE_URL, today);
     const jekyllGuideUrls = getJekyllGuideUrls(BASE_URL, today);
     
     // No Firebase article URLs - all articles are in Jekyll _posts
-    const allUrls = [...staticUrls, ...jekyllPostUrls, ...jekyllGuideUrls];
+    const allUrls = [...staticUrls, ...jekyllPostUrls, ...jekyllGuideUrls].map((url) => ({
+        ...url,
+        lastmod: previousLastmods[url.loc] || url.lastmod
+    }));
 
     // Generate XML
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

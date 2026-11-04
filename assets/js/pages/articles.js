@@ -2,15 +2,15 @@
 
 class ArticlesPage {
     getArticleHref(article) {
-        if (!article) return '/pages/articles.html';
-        if (article.jekyll_permalink) {
-            try {
-                return new URL(article.jekyll_permalink, window.location.origin).pathname;
-            } catch (e) {
-                return article.jekyll_permalink;
-            }
+        if (!article || !article.jekyll_permalink) return '/blog/';
+        try {
+            const url = new URL(article.jekyll_permalink, 'https://www.specifys-ai.com');
+            let path = url.pathname || '/blog/';
+            if (!path.endsWith('/') && !path.split('/').pop().includes('.')) path += '/';
+            return path;
+        } catch (e) {
+            return '/blog/';
         }
-        return `/article.html?slug=${encodeURIComponent(article.slug)}`;
     }
 
     constructor() {
@@ -345,9 +345,7 @@ class ArticlesPage {
     navigateToArticle(slug) {
         const article = this.allArticles.find((a) => a.slug === slug)
             || this.featuredArticles.find((a) => a.slug === slug);
-        window.location.href = article
-            ? this.getArticleHref(article)
-            : `/article.html?slug=${encodeURIComponent(slug)}`;
+        window.location.href = article ? this.getArticleHref(article) : '/blog/';
     }
 
     // Utility: Escape HTML

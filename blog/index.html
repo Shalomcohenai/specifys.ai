@@ -22,9 +22,16 @@ extra_css:
     
     <!-- Legacy Jekyll posts (old system - don't modify, appear after new posts) -->
     {% for post in site.posts %}
+    {% assign post_href = post.url %}
+    {% if post.canonical_url %}
+      {% assign declared_href = post.canonical_url | replace: 'https://www.specifys-ai.com', '' | replace: 'https://specifys-ai.com', '' %}
+      {% if declared_href != blank and declared_href != post.url %}
+        {% assign post_href = declared_href %}
+      {% endif %}
+    {% endif %}
     <div class="article-preview">
       <h2 class="article-title">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <a href="{{ post_href | relative_url }}">{{ post.title }}</a>
       </h2>
       <div class="article-date">
         {{ post.date | date: "%B %d, %Y" }}

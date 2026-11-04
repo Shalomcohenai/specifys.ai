@@ -1,0 +1,498 @@
+[
+  {
+    "id": "YaWC1gUJSn0GUT4VXZkn",
+    "slug": "accessibility-basics"
+  },
+  {
+    "id": "6T1DtRE3ASEAM2YxGcYT",
+    "slug": "ai-driven-seo-practices"
+  },
+  {
+    "id": "UO7k9s9mGi5NwNEcx0T5",
+    "slug": "api-security"
+  },
+  {
+    "id": "sRj5gl8DiXSdQtNghvnx",
+    "slug": "app-security-basics"
+  },
+  {
+    "id": "5EsK3kjmlwgIYXU0AE1i",
+    "slug": "architecture-basics-monolith-microservices"
+  },
+  {
+    "id": "DYAYbqnUBHeYtQGxKWM5",
+    "slug": "architecture-prompts-conceptual"
+  },
+  {
+    "id": "2NmFfCmBMe6qtmixclro",
+    "slug": "authentication-authorization"
+  },
+  {
+    "id": "2L11d9FF6DMu2md3q4U0",
+    "slug": "avoiding-hallucinations"
+  },
+  {
+    "id": "X2SCsbgehnHvZcfULPnc",
+    "slug": "backups-restore"
+  },
+  {
+    "id": "WKWk9trgxBwvUWZMAzv1",
+    "slug": "basic-ux-principles"
+  },
+  {
+    "id": "lXBANN8B1cHoFLFmli7R",
+    "slug": "breaking-problems-into-parts"
+  },
+  {
+    "id": "KnSy0jg6jU8miHK96dea",
+    "slug": "caching-basics"
+  },
+  {
+    "id": "AKntojtBuuWYYbAr2Cmm",
+    "slug": "cdns-explained"
+  },
+  {
+    "id": "B1w4QOvLRHupWMZrnYnZ",
+    "slug": "ci-cd-basics"
+  },
+  {
+    "id": "oW8dibCDjL0GuSwMlhkc",
+    "slug": "client-server-model"
+  },
+  {
+    "id": "hQXKKJhteZdhmYbFWxZF",
+    "slug": "cloud-providers-overview"
+  },
+  {
+    "id": "iWoz2f2iXEEaExx005Lk",
+    "slug": "cloud-security-cloudflare-waf"
+  },
+  {
+    "id": "fYX5lj8Jz3C9fgkCsqew",
+    "slug": "cohorts"
+  },
+  {
+    "id": "jPbIkLjPmP9OHbMY1j1m",
+    "slug": "color-typography"
+  },
+  {
+    "id": "6rRwS51hI5ttzzDXprpu",
+    "slug": "communicating-with-ai-tools"
+  },
+  {
+    "id": "HknLbUePMmF1ADHtO9wi",
+    "slug": "component-thinking"
+  },
+  {
+    "id": "NOAchhXT6AvosANQB5oz",
+    "slug": "connecting-apis"
+  },
+  {
+    "id": "oGERmFip5gNgFOVOWCBn",
+    "slug": "content-clusters-internal-linking"
+  },
+  {
+    "id": "8KnRtThFfJI2EFQOEiv5",
+    "slug": "conversion-basics"
+  },
+  {
+    "id": "AqT7tcK5Nt7kOUcgc7zc",
+    "slug": "dashboards"
+  },
+  {
+    "id": "K3IxrUEq2FbrXJ0l9iQH",
+    "slug": "database-errors-conceptual"
+  },
+  {
+    "id": "T3lL70P2N6cm3v4mDtWF",
+    "slug": "database-security"
+  },
+  {
+    "id": "fPpoKkJ00tNjSRQw0QHM",
+    "slug": "dns-domains"
+  },
+  {
+    "id": "d8RWlRbA0yR3fxXZSwSp",
+    "slug": "edge-functions"
+  },
+  {
+    "id": "RNvpCNEt4mopWp3TNnyH",
+    "slug": "endpoints-routes"
+  },
+  {
+    "id": "FsP4JzNTyvTjqdyrwWkl",
+    "slug": "environment-types-dev-stage-prod"
+  },
+  {
+    "id": "lThfdBIhxR2w5HfDCxmf",
+    "slug": "error-handling"
+  },
+  {
+    "id": "dNJUGN66sorGXPBFZrCY",
+    "slug": "errors-status-codes"
+  },
+  {
+    "id": "lwaKB9f81ogkUjMWBcQ4",
+    "slug": "events-tracking"
+  },
+  {
+    "id": "AtidAIsrBg5Vcu3Z2F20",
+    "slug": "feature-breakdown-structure"
+  },
+  {
+    "id": "aIZ8nMSPB9LvbqcrjbLq",
+    "slug": "flow-based-thinking"
+  },
+  {
+    "id": "8M67KSCM7QgVB5zYKZVL",
+    "slug": "flows-diagrams"
+  },
+  {
+    "id": "B90IzDDoz619NFLCac17",
+    "slug": "frontend-vs-backend"
+  },
+  {
+    "id": "Rv2A0fGLGcUriA979noP",
+    "slug": "funnels"
+  },
+  {
+    "id": "Ye6mxCTJkx85l8XjAeXI",
+    "slug": "headers-cookies"
+  },
+  {
+    "id": "SEwWTparXg93SqiEHth5",
+    "slug": "how-ai-builds-apps-for-you"
+  },
+  {
+    "id": "xW4hTjeePfw27VY25GL8",
+    "slug": "how-ai-builds-components"
+  },
+  {
+    "id": "KOGPLncqdqhaytNvJhml",
+    "slug": "how-ai-creates-code"
+  },
+  {
+    "id": "7qtkMy8OCPQvCpJOGCeD",
+    "slug": "how-ai-handles-errors"
+  },
+  {
+    "id": "x5FIhw40AHfIEz3snSKW",
+    "slug": "how-apps-scale"
+  },
+  {
+    "id": "oG4PbEPf9bNn6isgtZbo",
+    "slug": "how-deployments-work"
+  },
+  {
+    "id": "cg5ZJLddvQQYij8vw3mL",
+    "slug": "how-search-engines-work"
+  },
+  {
+    "id": "M7nHCXMh3xO12qQKlGS2",
+    "slug": "how-systems-fail"
+  },
+  {
+    "id": "jTgvMLP0cshSZAoUUBvX",
+    "slug": "how-to-describe-a-feature-clearly"
+  },
+  {
+    "id": "G1zRvWAGWq5yx7kpdH98",
+    "slug": "how-to-think-in-ai-first-architecture"
+  },
+  {
+    "id": "shX9kGoDOLjxAOebYT6Z",
+    "slug": "how-websites-load"
+  },
+  {
+    "id": "1KDNim3vehavBwdNHoUl",
+    "slug": "http-methods-get-post-patch"
+  },
+  {
+    "id": "UEM16LxqWm0upgMDVFxk",
+    "slug": "identifying-bottlenecks"
+  },
+  {
+    "id": "XICxSG1EWhOc9FhH1yru",
+    "slug": "indexes-simple-explanation"
+  },
+  {
+    "id": "NUrqlrJZjHm7n88ZohMa",
+    "slug": "inputs-outputs"
+  },
+  {
+    "id": "cYd1rD7F8JUwd4t7d6k7",
+    "slug": "integrations"
+  },
+  {
+    "id": "rgTGenlSoRba2CKMOh2a",
+    "slug": "keyword-research"
+  },
+  {
+    "id": "qjmsqqY4TM9SYZtjLC3b",
+    "slug": "layout-systems"
+  },
+  {
+    "id": "CU7nTgcUF6ha1LGeSUkP",
+    "slug": "mapping-data-flow"
+  },
+  {
+    "id": "txfooqGP5Avb15iCjFcj",
+    "slug": "mental-models-for-tech"
+  },
+  {
+    "id": "idUAuI8lthEzKP0EkEYn",
+    "slug": "mobile-vs-desktop-ux"
+  },
+  {
+    "id": "Qaw8GRlVZccohmVQTtIY",
+    "slug": "monitoring-logs"
+  },
+  {
+    "id": "gNmji8oOe3nUESZ5H7D1",
+    "slug": "multi-step-prompt-thinking"
+  },
+  {
+    "id": "nShrWsJEibtR5o71ZKp7",
+    "slug": "multi-step-workflows"
+  },
+  {
+    "id": "PyofHdEzfmn8Nc06vYPx",
+    "slug": "owasp-for-non-coders"
+  },
+  {
+    "id": "j66TKs3OFnnool6BB29l",
+    "slug": "page-speed-performance"
+  },
+  {
+    "id": "h0oytrTUVzLwxMRO2HYc",
+    "slug": "page-structure-metadata"
+  },
+  {
+    "id": "vxFMIGzl7OAHRGaHpDpc",
+    "slug": "prompt-basics"
+  },
+  {
+    "id": "08uWEEndFh3EKeRpqQ8g",
+    "slug": "query-lifecycle"
+  },
+  {
+    "id": "yzUuMgHo2GjUx7vTw5fJ",
+    "slug": "rate-limiting"
+  },
+  {
+    "id": "r4PhDoKYl8Xvih0lG7s2",
+    "slug": "reducing-cognitive-load"
+  },
+  {
+    "id": "Jb7Mem2DGZ0d0U0fzl9U",
+    "slug": "refining-ai-output"
+  },
+  {
+    "id": "TZxUyCGinDg4OLUCvSdH",
+    "slug": "relations-1-1-1-n-n-n"
+  },
+  {
+    "id": "HB9mOwuZV29PFMPWYdpQ",
+    "slug": "request-response-lifecycle"
+  },
+  {
+    "id": "UTELX96WbqJQvTsbTYAj",
+    "slug": "request-response-structure"
+  },
+  {
+    "id": "Q4O5oieMzwsfmdVWDHI0",
+    "slug": "rest-basics"
+  },
+  {
+    "id": "guuidx4eJxMAAT0zNH9b",
+    "slug": "retention"
+  },
+  {
+    "id": "fo1rhwOhqo0qGh5S7g9I",
+    "slug": "reviewing-ai-generated-code-conceptually"
+  },
+  {
+    "id": "E2940EAWZ1MczIiWIVhR",
+    "slug": "reviewing-what-ai-creates"
+  },
+  {
+    "id": "QjJWc9IIIIpFmVwhBpOd",
+    "slug": "roles-system-user-assistant"
+  },
+  {
+    "id": "i1hPffexGqUCbsjtaMbC",
+    "slug": "scheduling"
+  },
+  {
+    "id": "zm5dpSXJ0gvrsMEVLYmg",
+    "slug": "secure-storage-secrets"
+  },
+  {
+    "id": "GpuBKrtC5f76IPKKWjWi",
+    "slug": "security-testing-conceptual"
+  },
+  {
+    "id": "9pfM1ezuv08Bbuqgzmbv",
+    "slug": "seo-basics"
+  },
+  {
+    "id": "3XJX1h7r89p9akIagKiC",
+    "slug": "state-client-server"
+  },
+  {
+    "id": "z48rvXuDj39I2ROfcfwv",
+    "slug": "tables-columns-rows-conceptual"
+  },
+  {
+    "id": "Oy05yydtJiXIgY6rVFqi",
+    "slug": "technical-seo"
+  },
+  {
+    "id": "IpQArd56BsybAIFYtaIW",
+    "slug": "testing-ai-responses"
+  },
+  {
+    "id": "1vc28MLQFsCm2E4qR1Sb",
+    "slug": "testing-features-with-ai"
+  },
+  {
+    "id": "8Tg62pQSdhaue8g4GW72",
+    "slug": "the-role-of-the-vibe-developer"
+  },
+  {
+    "id": "OT9RxSHPyXhPplXBgL8d",
+    "slug": "trigger-action-logic"
+  },
+  {
+    "id": "DORzC6j16EvgSn5KtyWC",
+    "slug": "understanding-api-endpoints"
+  },
+  {
+    "id": "ZMf5geeNHyxblwiBuRBM",
+    "slug": "understanding-api-endpoints"
+  },
+  {
+    "id": "LMp4bXCxFB98CImZVjb3",
+    "slug": "understanding-backend-vs-frontend-for-vibe-coders"
+  },
+  {
+    "id": "WrTznmGjIS56eoFLxe3F",
+    "slug": "understanding-backend-vs-frontend-for-vibe-coders"
+  },
+  {
+    "id": "Q9oAo7hfjh7dNmtqlf0f",
+    "slug": "understanding-dependencies"
+  },
+  {
+    "id": "ae6HkPiUebuQa3AXQ8fK",
+    "slug": "understanding-model-limitations"
+  },
+  {
+    "id": "0XwyeW0M3rHexJ8YuTDn",
+    "slug": "user-behavior-analysis"
+  },
+  {
+    "id": "NBjXereyg91JGDBZMegT",
+    "slug": "user-flows"
+  },
+  {
+    "id": "ukCwk5S0j8KlQeehDdcc",
+    "slug": "versioning-rollbacks"
+  },
+  {
+    "id": "tg461StPsyCIqclT47QC",
+    "slug": "vibe-coding-pitfalls-best-practices"
+  },
+  {
+    "id": "LYs61iee8dWndputj0Bj",
+    "slug": "webhooks-conceptual"
+  },
+  {
+    "id": "QkCAeJ1FN26dMpWRBSyI",
+    "slug": "webhooks-in-automations"
+  },
+  {
+    "id": "i3IBcSOYWmw8wrp9BhwQ",
+    "slug": "what-devops-really-does"
+  },
+  {
+    "id": "iy3Oy0D6MHrU5aaoImP0",
+    "slug": "what-is-a-build"
+  },
+  {
+    "id": "tIHA7MNViiEtpWjaGw31",
+    "slug": "what-is-a-database"
+  },
+  {
+    "id": "yDSSlTjEN3oZ8MmkPzVB",
+    "slug": "what-is-a-database-layer"
+  },
+  {
+    "id": "m7IS4O0tVmaxNIAfn8SQ",
+    "slug": "what-is-a-library-framework"
+  },
+  {
+    "id": "CFis7gkLS5KGror6mOKy",
+    "slug": "what-is-a-package"
+  },
+  {
+    "id": "8tPYOfrDldjokEhkzhfb",
+    "slug": "what-is-a-repository"
+  },
+  {
+    "id": "kGPJ3KLge0LgcOqon8ij",
+    "slug": "what-is-a-service-layer"
+  },
+  {
+    "id": "jklOqNSEp2Cqm29FBWz6",
+    "slug": "what-is-a-transaction"
+  },
+  {
+    "id": "cavdj4DW6WlSy4a9UMp8",
+    "slug": "what-is-an-api"
+  },
+  {
+    "id": "4WsN3kOdPfiQDB2QaAuk",
+    "slug": "what-is-an-api-layer"
+  },
+  {
+    "id": "CMTecEw59sw9KiIEJ0cP",
+    "slug": "what-is-an-error"
+  },
+  {
+    "id": "ciLTMcQ76i148aXx4xLi",
+    "slug": "what-is-analytics"
+  },
+  {
+    "id": "Q4LCbwl76xSQPK0XvwNu",
+    "slug": "what-is-automation"
+  },
+  {
+    "id": "7ac6Kf5hOVfCBKtsNVQ9",
+    "slug": "what-is-code-conceptually"
+  },
+  {
+    "id": "V1S0epJeevhuNrf9BTBU",
+    "slug": "what-is-runtime-vs-compile-time"
+  },
+  {
+    "id": "Uu1NOrFCw7tg8xzIphM1",
+    "slug": "what-is-serverless"
+  },
+  {
+    "id": "oiqlwQoVerBNYdIsOjiJ",
+    "slug": "what-is-the-cloud"
+  },
+  {
+    "id": "IGunttfG4RqRgIUhIKsR",
+    "slug": "what-is-version-control"
+  },
+  {
+    "id": "y0dDJcXv97ymLaF68ESs",
+    "slug": "what-is-vibe-coding"
+  },
+  {
+    "id": "iT6RFOWHt2iirwhvM80j",
+    "slug": "writing-efficient-feature-descriptions"
+  }
+]

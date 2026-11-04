@@ -16,13 +16,28 @@ class AcademyApp {
     }
 
     getGuideUrl(guide) {
-        if (guide.jekyll_permalink) {
-            return guide.jekyll_permalink.replace('https://www.specifys-ai.com', '');
+        if (guide && guide.jekyll_permalink) {
+            try {
+                const path = new URL(guide.jekyll_permalink, 'https://www.specifys-ai.com').pathname;
+                if (path.startsWith('/academy/guides/')) {
+                    return path.endsWith('/') ? path : `${path}/`;
+                }
+            } catch (e) {
+                // fall through to slug
+            }
         }
-        if (guide.jekyll_slug) {
+        if (guide && guide.jekyll_slug) {
             return `/academy/guides/${guide.jekyll_slug}/`;
         }
-        return `/academy/guide.html?guide=${guide.id}`;
+        const slug = this.slugify(guide && guide.title);
+        if (slug) return `/academy/guides/${slug}/`;
+        return '/academy.html';
+    }
+
+    absoluteGuideUrl(guide) {
+        const path = this.getGuideUrl(guide);
+        if (path.startsWith('https://')) return path;
+        return `https://www.specifys-ai.com${path.startsWith('/') ? path : `/${path}`}`;
     }
 
     init() {
@@ -1170,17 +1185,11 @@ class AcademyApp {
         const keywords = `${category.title.toLowerCase()}, app development, programming guides, ${category.title.toLowerCase()} tutorials, learn ${category.title.toLowerCase()}, tech education`;
 
         this.updateMetaTags(title, description, keywords);
-        
-        // Update canonical URL with query params
-        const baseUrl = window.location.origin;
-        const categoryUrl = `${baseUrl}/academy/category.html?category=${category.id}`;
-        let canonical = document.querySelector('link[rel="canonical"]');
-        if (!canonical) {
-            canonical = document.createElement('link');
-            canonical.setAttribute('rel', 'canonical');
-            document.head.appendChild(canonical);
-        }
-        canonical.setAttribute('href', categoryUrl);
+        const categoryUrl = 'https://www.specifys-ai.com/academy/category.html';
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.setAttribute('href', categoryUrl);
+        const ogUrl = document.querySelector('meta[property="og:url"]');
+        if (ogUrl) ogUrl.setAttribute('content', categoryUrl);
         
         // Breadcrumbs removed per design requirements
         this.addCategoryPageStructuredData(category, guides);
@@ -1192,19 +1201,13 @@ class AcademyApp {
         const keywords = `${guide.title.toLowerCase()}, ${guide.level || 'Beginner'} guide, app development, programming tutorial, ${category ? category.title.toLowerCase() : ''}, learn coding`;
 
         this.updateMetaTags(title, description, keywords);
-        
-        // Update canonical URL with query params
-        const baseUrl = window.location.origin;
-        const guideUrl = `${baseUrl}/academy/guide.html?guide=${guide.id}`;
-        let canonical = document.querySelector('link[rel="canonical"]');
-        if (!canonical) {
-            canonical = document.createElement('link');
-            canonical.setAttribute('rel', 'canonical');
-            document.head.appendChild(canonical);
-        }
-        canonical.setAttribute('href', guideUrl);
-        
-        // Breadcrumbs removed per design requirements
+        // Unmapped ids stay on the noindex shell. Do not mint a distinct ?guide= canonical.
+        const shellUrl = 'https://www.specifys-ai.com/academy/guide.html';
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.setAttribute('href', shellUrl);
+        const ogUrl = document.querySelector('meta[property="og:url"]');
+        if (ogUrl) ogUrl.setAttribute('content', shellUrl);
+
         this.addGuidePageStructuredData(guide, category);
     }
 
@@ -1338,7 +1341,7 @@ class AcademyApp {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": cat.title,
-                    "url": `https://www.specifys-ai.com/academy/category.html?category=${cat.id}`
+                    "url": "https://www.specifys-ai.com/academy.html"
                 }))
             },
             "about": {
@@ -1367,7 +1370,7 @@ class AcademyApp {
             "@type": "CollectionPage",
             "name": category.title,
             "description": category.description || `Explore ${guides.length} guides about ${category.title.toLowerCase()}.`,
-            "url": `https://www.specifys-ai.com/academy/category.html?category=${category.id}`,
+            "url": "https://www.specifys-ai.com/academy/category.html",
             "mainEntity": {
                 "@type": "ItemList",
                 "numberOfItems": guides.length,
@@ -1375,7 +1378,7 @@ class AcademyApp {
                     "@type": "ListItem",
                     "position": index + 1,
                     "name": guide.title,
-                    "url": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`,
+                    "url": this.absoluteGuideUrl(guide),
                     "description": guide.summary || guide.description || ""
                 }))
             },
@@ -1405,7 +1408,7 @@ class AcademyApp {
             "@type": "Article",
             "headline": guide.title,
             "description": guide.summary || guide.description || `Learn about ${guide.title.toLowerCase()}.`,
-            "url": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`,
+            "url": this.absoluteGuideUrl(guide),
             "author": {
                 "@type": "Organization",
                 "name": "Specifys.ai",
@@ -1421,7 +1424,7 @@ class AcademyApp {
             },
             "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://www.specifys-ai.com/academy/guide.html?guide=${guide.id}`
+                "@id": this.absoluteGuideUrl(guide)
             },
             "educationalLevel": guide.level || "Beginner",
             "learningResourceType": "Tutorial",

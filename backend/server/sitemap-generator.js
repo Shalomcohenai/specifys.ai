@@ -69,18 +69,29 @@ function getJekyllPostUrls(baseUrl, today) {
         const match = fileName.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)\.md$/);
         if (!match) return null;
         const [, , , , slug] = match;
-        
-        // Read front matter date from file
+
+        // Read front matter date from file. Permalink follows this date, not the filename.
         const filePath = path.join(postsDir, fileName);
         const content = fs.readFileSync(filePath, 'utf8');
-        const dateMatch = content.match(/^date:\s*(\d{4})-(\d{2})-(\d{2})/m);
-        
+        const frontEnd = content.indexOf('\n---', 3);
+        const front = content.startsWith('---') && frontEnd !== -1 ? content.slice(3, frontEnd) : content;
+        const dateMatch = front.match(/^date:\s*(\d{4})-(\d{2})-(\d{2})/m);
+
         if (!dateMatch) return null;
         const [, year, month, day] = dateMatch;
+        const served = `/${year}/${month}/${day}/${slug}/`;
+        const canonMatch = front.match(/^canonical_url:\s*(\S+)/m);
+        const robotsMatch = front.match(/^robots:\s*(.+)$/m);
+        if (robotsMatch && /noindex/i.test(robotsMatch[1])) return null;
+        if (canonMatch) {
+            let declared = canonMatch[1].replace(/^https?:\/\/(?:www\.)?specifys-ai\.com/i, '').trim();
+            if (!declared.endsWith('/')) declared += '/';
+            if (declared !== served) return null;
+        }
         const postDate = `${year}-${month}-${day}`;
-        
+
         return {
-            loc: `${baseUrl}/${year}/${month}/${day}/${slug}/`,
+            loc: `${baseUrl}${served}`,
             lastmod: postDate || today,
             changefreq: 'monthly',
             priority: '0.6'

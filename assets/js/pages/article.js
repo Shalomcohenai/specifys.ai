@@ -69,12 +69,27 @@ class ArticlePage {
 
     // Update SEO meta tags
     getArticlePublicUrl(article) {
-        if (article.jekyll_permalink) {
-            return article.jekyll_permalink.startsWith('http')
-                ? article.jekyll_permalink
-                : `${window.location.origin}${article.jekyll_permalink}`;
+        const origin = 'https://www.specifys-ai.com';
+        if (article && article.jekyll_permalink) {
+            try {
+                const url = new URL(article.jekyll_permalink, origin);
+                if (!url.pathname.endsWith('/') && !url.pathname.split('/').pop().includes('.')) {
+                    url.pathname += '/';
+                }
+                return `${origin}${url.pathname}`;
+            } catch (e) {
+                return `${origin}/blog/`;
+            }
         }
-        return `${window.location.origin}/article.html?slug=${encodeURIComponent(article.slug)}`;
+        return `${origin}/blog/`;
+    }
+
+    articleHref(article) {
+        try {
+            return new URL(this.getArticlePublicUrl(article)).pathname;
+        } catch (e) {
+            return '/blog/';
+        }
     }
 
     updateSEOTags(article) {
@@ -428,10 +443,10 @@ class ArticlePage {
                         <span class="related-article-date">${date}</span>
                     </div>
                     <h3 class="related-article-title">
-                        <a href="/article.html?slug=${article.slug}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
+                        <a href="${this.articleHref(article)}">${this.escapeHTML(article.title || article.short_title || 'Untitled')}</a>
                     </h3>
                     ${teaser ? `<p class="related-article-teaser">${this.escapeHTML(teaser)}</p>` : ''}
-                    <a href="/article.html?slug=${article.slug}" class="related-article-link">
+                    <a href="${this.articleHref(article)}" class="related-article-link">
                         Read More <i class="fas fa-arrow-right"></i>
                     </a>
                 </article>
