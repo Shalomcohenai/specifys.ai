@@ -1,5 +1,5 @@
 import { next } from '@vercel/functions';
-import map from './assets/data/seo-redirects.json' with { type: 'json' };
+import map from './assets/data/seo-redirects.mjs';
 import { resolveLegacyUrl } from './scripts/seo/resolve-legacy.mjs';
 
 const SITE = 'https://www.specifys-ai.com';

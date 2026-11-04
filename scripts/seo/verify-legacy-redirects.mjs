@@ -5,9 +5,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveLegacyUrl } from './resolve-legacy.mjs';
+import map from '../../assets/data/seo-redirects.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const map = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/data/seo-redirects.json'), 'utf8'));
 const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
 const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
 
@@ -79,6 +79,17 @@ for (const loc of locs) {
 }
 if (locs.some((loc) => loc.includes('anthropics-claude-code-downtime'))) {
   failures.push('sitemap still lists the duplicate downtime URL');
+}
+
+const middleware = fs.readFileSync(path.join(ROOT, 'middleware.js'), 'utf8');
+if (!middleware.includes("from './assets/data/seo-redirects.mjs'")) {
+  failures.push('middleware must import assets/data/seo-redirects.mjs');
+}
+if (/with\s*\{\s*type:\s*['"]json['"]\s*\}/.test(middleware) || middleware.includes('seo-redirects.json')) {
+  failures.push('middleware must not use JSON import attributes; Vercel middleware cannot parse them');
+}
+if (!map || !map.articleSlugs || !map.guides) {
+  failures.push('seo-redirects.mjs default export is missing article or guide maps');
 }
 
 if (failures.length) {
