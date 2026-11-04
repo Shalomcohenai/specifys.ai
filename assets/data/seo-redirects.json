@@ -1,0 +1,3052 @@
+{
+  "articleSlugs": {
+    "lovable-vibe-coding-2025": "/2025/01/14/lovable-vibe-coding-2025/",
+    "ai-coding-assistants-2025": "/2025/01/19/ai-coding-assistants-2025/",
+    "automating-devops-vibe-coding": "/2025/01/19/automating-devops-vibe-coding/",
+    "base44-supabase-migration-sdk": "/2025/01/19/base44-supabase-migration-sdk/",
+    "gpt5-vibe-coding-revolution": "/2025/01/19/gpt5-vibe-coding-revolution/",
+    "no-code-ai-agent-builders": "/2025/01/19/no-code-ai-agent-builders/",
+    "open-source-vibe-coding-agents": "/2025/01/19/open-source-vibe-coding-agents/",
+    "prompt-coding-evolution-vibe-coding": "/2025/01/19/prompt-coding-evolution-vibe-coding/",
+    "security-challenges-vibe-coding": "/2025/01/19/security-challenges-vibe-coding/",
+    "vibe-coding-game-development": "/2025/01/19/vibe-coding-game-development/",
+    "vibe-coding-web3-dapps": "/2025/01/19/vibe-coding-web3-dapps/",
+    "article11": "/2025/07/12/article11/",
+    "article12": "/2025/07/14/article12/",
+    "chatgpt-5-app-development": "/2025/08/06/chatgpt-5-app-development/",
+    "article1": "/2025/09/26/article1/",
+    "article2": "/2025/09/26/article2/",
+    "article3": "/2025/09/26/article3/",
+    "article4": "/2025/09/26/article4/",
+    "article5": "/2025/09/26/article5/",
+    "article6": "/2025/09/26/article6/",
+    "article7": "/2025/09/26/article7/",
+    "article8": "/2025/09/26/article8/",
+    "article9": "/2025/09/26/article9/",
+    "base44-ai-powered-saas-builder": "/2025/09/26/base44-ai-powered-saas-builder/",
+    "bolt-ai-vibe-coding-scalability-challenges": "/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/",
+    "cursor-ai-support-fiasco-insights": "/2025/09/26/cursor-ai-support-fiasco-insights/",
+    "lovable-new-features-2025": "/2025/09/26/lovable-new-features-2025/",
+    "top-vibe-coding-tools-2025": "/2025/09/26/top-vibe-coding-tools-2025/",
+    "vibe-coding-app-case-study-2025": "/2025/09/26/vibe-coding-app-case-study-2025/",
+    "vibe-coding-revolution-2025-impact": "/2025/09/26/vibe-coding-revolution-2025-impact/",
+    "vibe-coding-vs-traditional-programming-2025": "/2025/09/26/vibe-coding-vs-traditional-programming-2025/",
+    "windsurf-double-acquisition-impact": "/2025/09/26/windsurf-double-acquisition-impact/",
+    "alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms": "/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/",
+    "bugbot-by-cursor-the-ai-that-debugs-its-own-code": "/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/",
+    "dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day": "/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/",
+    "devmate-by-meta-when-ai-assistants-learn-to-work-together": "/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/",
+    "from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold": "/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/",
+    "gitclear-report-2025-the-truth-about-ai-written-code-quality": "/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/",
+    "inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai": "/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/",
+    "kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding": "/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/",
+    "the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself": "/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/",
+    "windsurf-and-pearai-the-rise-of-agentic-ides": "/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/",
+    "agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops": "/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/",
+    "the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding": "/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/",
+    "claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model": "/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/",
+    "gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development": "/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/",
+    "how-google-antigravity-is-revolutionizing-agent-first-ides": "/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/",
+    "how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding": "/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/",
+    "inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together": "/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/",
+    "open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases": "/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/",
+    "the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development": "/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/",
+    "the-death-of-the-blank-file-how-ai-ended-starting-from-scratch": "/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/",
+    "the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents": "/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/",
+    "the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration": "/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/",
+    "the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products": "/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/",
+    "web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app": "/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/",
+    "ai-native-software-why-2025-is-the-year-apps-build-themselves": "/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/",
+    "cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development": "/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/",
+    "openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces": "/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/",
+    "replit-agents-20-the-dawn-of-autonomous-feature-development": "/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/",
+    "sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power": "/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/",
+    "the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation": "/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/",
+    "the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future": "/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/",
+    "vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding": "/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/",
+    "grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways": "/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/",
+    "the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development": "/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/",
+    "emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing": "/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/",
+    "exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities": "/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/",
+    "openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks": "/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/",
+    "the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration": "/2025/12/15/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/",
+    "the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype": "/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/",
+    "ai-generated-code-the-silent-revolution-in-production-systems": "/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/",
+    "the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers": "/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/",
+    "the-silent-revolution-ai-generated-code-in-production-systems": "/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/",
+    "vibe-coding-the-revolutionary-force-reshaping-software-jobs": "/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/",
+    "from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding": "/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/",
+    "security-in-the-age-of-vibe-coding-who-holds-the-reins": "/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/",
+    "the-ascendancy-of-planning-tools-over-traditional-coding-instruments": "/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/",
+    "the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking": "/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/",
+    "the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development": "/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/",
+    "the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development": "/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/",
+    "the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code": "/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/",
+    "the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers": "/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/",
+    "vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers": "/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/",
+    "claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers": "/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/",
+    "claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd": "/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/",
+    "claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency": "/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/",
+    "googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code": "/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/",
+    "googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges": "/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/",
+    "googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape": "/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/",
+    "lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing": "/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/",
+    "qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026": "/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/",
+    "the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills": "/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/",
+    "the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026": "/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/",
+    "anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams": "/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/",
+    "claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost": "/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/",
+    "googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026": "/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/",
+    "openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution": "/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/",
+    "openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows": "/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/",
+    "the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world": "/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/",
+    "the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding": "/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/",
+    "the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46": "/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/",
+    "vibe-coding-hits-mainstream-the-ai-revolution-transforming-github": "/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/",
+    "vibe-coding-platforms-revolutionize-development-with-claude-code-agents": "/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/",
+    "anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation": "/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/",
+    "claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency": "/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/",
+    "cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability": "/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/",
+    "emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation": "/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/",
+    "google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language": "/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/",
+    "googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding": "/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/",
+    "lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance": "/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/",
+    "qodo-21-update-transforming-developer-workflows-with-precision": "/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/",
+    "the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding": "/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/",
+    "vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny": "/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/",
+    "anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding": "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/",
+    "anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code": "/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/",
+    "claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool": "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/",
+    "claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds": "/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/",
+    "claudes-code-voice-feature-transforms-programming-through-natural-language-conversations": "/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/",
+    "google-antigravity-gains-momentum-amid-anthropics-downtime": "/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/",
+    "lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters": "/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/",
+    "navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity": "/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/",
+    "opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code": "/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/",
+    "the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation": "/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/",
+    "integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025": "/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/",
+    "aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding": "/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/",
+    "openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency": "/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/",
+    "openai-presence-revolutionizing-enterprise-ai-integration": "/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/",
+    "amds-rocmai-ai-driven-development-tools-for-developers": "/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/",
+    "aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents": "/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/",
+    "aws-kiro-tackles-vibe-coding-with-spec-driven-development": "/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/",
+    "openai-presence-build-and-deploy-ai-agents-in-your-workflows": "/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/",
+    "openais-frontier-transforming-enterprise-ai-agent-integration": "/2026/08/14/openais-frontier-transforming-enterprise-ai-agent-integration/"
+  },
+  "posts": [
+    {
+      "slug": "lovable-vibe-coding-2025",
+      "path": "/2025/01/14/lovable-vibe-coding-2025/",
+      "tokens": [
+        "lovable",
+        "vibe",
+        "coding",
+        "2025"
+      ]
+    },
+    {
+      "slug": "ai-coding-assistants-2025",
+      "path": "/2025/01/19/ai-coding-assistants-2025/",
+      "tokens": [
+        "coding",
+        "assistants",
+        "2025"
+      ]
+    },
+    {
+      "slug": "automating-devops-vibe-coding",
+      "path": "/2025/01/19/automating-devops-vibe-coding/",
+      "tokens": [
+        "automating",
+        "devops",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "base44-supabase-migration-sdk",
+      "path": "/2025/01/19/base44-supabase-migration-sdk/",
+      "tokens": [
+        "base44",
+        "supabase",
+        "migration",
+        "sdk"
+      ]
+    },
+    {
+      "slug": "gpt5-vibe-coding-revolution",
+      "path": "/2025/01/19/gpt5-vibe-coding-revolution/",
+      "tokens": [
+        "gpt5",
+        "vibe",
+        "coding",
+        "revolution"
+      ]
+    },
+    {
+      "slug": "no-code-ai-agent-builders",
+      "path": "/2025/01/19/no-code-ai-agent-builders/",
+      "tokens": [
+        "code",
+        "agent",
+        "builders"
+      ]
+    },
+    {
+      "slug": "open-source-vibe-coding-agents",
+      "path": "/2025/01/19/open-source-vibe-coding-agents/",
+      "tokens": [
+        "open",
+        "source",
+        "vibe",
+        "coding",
+        "agents"
+      ]
+    },
+    {
+      "slug": "prompt-coding-evolution-vibe-coding",
+      "path": "/2025/01/19/prompt-coding-evolution-vibe-coding/",
+      "tokens": [
+        "prompt",
+        "coding",
+        "evolution",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "security-challenges-vibe-coding",
+      "path": "/2025/01/19/security-challenges-vibe-coding/",
+      "tokens": [
+        "security",
+        "challenges",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "vibe-coding-game-development",
+      "path": "/2025/01/19/vibe-coding-game-development/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "game",
+        "development"
+      ]
+    },
+    {
+      "slug": "vibe-coding-web3-dapps",
+      "path": "/2025/01/19/vibe-coding-web3-dapps/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "web3",
+        "dapps"
+      ]
+    },
+    {
+      "slug": "article11",
+      "path": "/2025/07/12/article11/",
+      "tokens": [
+        "article11"
+      ]
+    },
+    {
+      "slug": "article12",
+      "path": "/2025/07/14/article12/",
+      "tokens": [
+        "article12"
+      ]
+    },
+    {
+      "slug": "chatgpt-5-app-development",
+      "path": "/2025/08/06/chatgpt-5-app-development/",
+      "tokens": [
+        "chatgpt",
+        "app",
+        "development"
+      ]
+    },
+    {
+      "slug": "article1",
+      "path": "/2025/09/26/article1/",
+      "tokens": [
+        "article1"
+      ]
+    },
+    {
+      "slug": "article2",
+      "path": "/2025/09/26/article2/",
+      "tokens": [
+        "article2"
+      ]
+    },
+    {
+      "slug": "article3",
+      "path": "/2025/09/26/article3/",
+      "tokens": [
+        "article3"
+      ]
+    },
+    {
+      "slug": "article4",
+      "path": "/2025/09/26/article4/",
+      "tokens": [
+        "article4"
+      ]
+    },
+    {
+      "slug": "article5",
+      "path": "/2025/09/26/article5/",
+      "tokens": [
+        "article5"
+      ]
+    },
+    {
+      "slug": "article6",
+      "path": "/2025/09/26/article6/",
+      "tokens": [
+        "article6"
+      ]
+    },
+    {
+      "slug": "article7",
+      "path": "/2025/09/26/article7/",
+      "tokens": [
+        "article7"
+      ]
+    },
+    {
+      "slug": "article8",
+      "path": "/2025/09/26/article8/",
+      "tokens": [
+        "article8"
+      ]
+    },
+    {
+      "slug": "article9",
+      "path": "/2025/09/26/article9/",
+      "tokens": [
+        "article9"
+      ]
+    },
+    {
+      "slug": "base44-ai-powered-saas-builder",
+      "path": "/2025/09/26/base44-ai-powered-saas-builder/",
+      "tokens": [
+        "base44",
+        "powered",
+        "saas",
+        "builder"
+      ]
+    },
+    {
+      "slug": "bolt-ai-vibe-coding-scalability-challenges",
+      "path": "/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/",
+      "tokens": [
+        "bolt",
+        "vibe",
+        "coding",
+        "scalability",
+        "challenges"
+      ]
+    },
+    {
+      "slug": "cursor-ai-support-fiasco-insights",
+      "path": "/2025/09/26/cursor-ai-support-fiasco-insights/",
+      "tokens": [
+        "cursor",
+        "support",
+        "fiasco",
+        "insights"
+      ]
+    },
+    {
+      "slug": "lovable-new-features-2025",
+      "path": "/2025/09/26/lovable-new-features-2025/",
+      "tokens": [
+        "lovable",
+        "features",
+        "2025"
+      ]
+    },
+    {
+      "slug": "top-vibe-coding-tools-2025",
+      "path": "/2025/09/26/top-vibe-coding-tools-2025/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "tools",
+        "2025"
+      ]
+    },
+    {
+      "slug": "vibe-coding-app-case-study-2025",
+      "path": "/2025/09/26/vibe-coding-app-case-study-2025/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "app",
+        "case",
+        "study",
+        "2025"
+      ]
+    },
+    {
+      "slug": "vibe-coding-revolution-2025-impact",
+      "path": "/2025/09/26/vibe-coding-revolution-2025-impact/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "revolution",
+        "2025",
+        "impact"
+      ]
+    },
+    {
+      "slug": "vibe-coding-vs-traditional-programming-2025",
+      "path": "/2025/09/26/vibe-coding-vs-traditional-programming-2025/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "traditional",
+        "programming",
+        "2025"
+      ]
+    },
+    {
+      "slug": "windsurf-double-acquisition-impact",
+      "path": "/2025/09/26/windsurf-double-acquisition-impact/",
+      "tokens": [
+        "windsurf",
+        "double",
+        "acquisition",
+        "impact"
+      ]
+    },
+    {
+      "slug": "alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms",
+      "path": "/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/",
+      "tokens": [
+        "alphaevolve",
+        "deepmind",
+        "invents",
+        "algorithms"
+      ]
+    },
+    {
+      "slug": "bugbot-by-cursor-the-ai-that-debugs-its-own-code",
+      "path": "/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/",
+      "tokens": [
+        "bugbot",
+        "cursor",
+        "debugs",
+        "own",
+        "code"
+      ]
+    },
+    {
+      "slug": "dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day",
+      "path": "/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/",
+      "tokens": [
+        "dear",
+        "diary",
+        "happens",
+        "developers",
+        "they",
+        "code",
+        "every",
+        "day"
+      ]
+    },
+    {
+      "slug": "devmate-by-meta-when-ai-assistants-learn-to-work-together",
+      "path": "/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/",
+      "tokens": [
+        "devmate",
+        "meta",
+        "assistants",
+        "learn",
+        "work",
+        "together"
+      ]
+    },
+    {
+      "slug": "from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold",
+      "path": "/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/",
+      "tokens": [
+        "communities",
+        "millions",
+        "lovable",
+        "base44",
+        "turned",
+        "vibe",
+        "coding",
+        "gold"
+      ]
+    },
+    {
+      "slug": "gitclear-report-2025-the-truth-about-ai-written-code-quality",
+      "path": "/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/",
+      "tokens": [
+        "gitclear",
+        "report",
+        "2025",
+        "truth",
+        "written",
+        "code",
+        "quality"
+      ]
+    },
+    {
+      "slug": "inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai",
+      "path": "/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/",
+      "tokens": [
+        "inside",
+        "vibe",
+        "coding",
+        "mindset",
+        "research",
+        "reveals",
+        "developers",
+        "really",
+        "work"
+      ]
+    },
+    {
+      "slug": "kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding",
+      "path": "/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/",
+      "tokens": [
+        "kiro",
+        "amazon",
+        "autonomous",
+        "ide",
+        "organizes",
+        "chaos",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself",
+      "path": "/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/",
+      "tokens": [
+        "end",
+        "typing",
+        "means",
+        "developer",
+        "code",
+        "writes",
+        "itself"
+      ]
+    },
+    {
+      "slug": "windsurf-and-pearai-the-rise-of-agentic-ides",
+      "path": "/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/",
+      "tokens": [
+        "windsurf",
+        "pearai",
+        "rise",
+        "agentic",
+        "ides"
+      ]
+    },
+    {
+      "slug": "agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops",
+      "path": "/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/",
+      "tokens": [
+        "agentic",
+        "pipelines",
+        "teams",
+        "code",
+        "together",
+        "across",
+        "frontend",
+        "backend",
+        "devops"
+      ]
+    },
+    {
+      "slug": "the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding",
+      "path": "/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/",
+      "tokens": [
+        "rise",
+        "multi",
+        "agent",
+        "coding",
+        "github",
+        "agent",
+        "powering",
+        "next",
+        "wave",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model",
+      "path": "/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/",
+      "tokens": [
+        "claude",
+        "haiku",
+        "pioneering",
+        "high",
+        "speed",
+        "vibe",
+        "coding",
+        "masses",
+        "lightweight",
+        "agent",
+        "model"
+      ]
+    },
+    {
+      "slug": "gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development",
+      "path": "/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/",
+      "tokens": [
+        "gemini",
+        "dawn",
+        "agent",
+        "first",
+        "coding",
+        "ushering",
+        "vibe",
+        "software",
+        "development"
+      ]
+    },
+    {
+      "slug": "how-google-antigravity-is-revolutionizing-agent-first-ides",
+      "path": "/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/",
+      "tokens": [
+        "google",
+        "antigravity",
+        "revolutionizing",
+        "agent",
+        "first",
+        "ides"
+      ]
+    },
+    {
+      "slug": "how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding",
+      "path": "/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/",
+      "tokens": [
+        "google",
+        "antigravity",
+        "reinvents",
+        "developer",
+        "ide",
+        "agent",
+        "first",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together",
+      "path": "/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/",
+      "tokens": [
+        "inside",
+        "pair",
+        "programming",
+        "room",
+        "cursor",
+        "claude",
+        "gpt",
+        "work",
+        "together"
+      ]
+    },
+    {
+      "slug": "open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases",
+      "path": "/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/",
+      "tokens": [
+        "open",
+        "source",
+        "proprietary",
+        "vibe",
+        "coding",
+        "navigating",
+        "recent",
+        "model",
+        "releases"
+      ]
+    },
+    {
+      "slug": "the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development",
+      "path": "/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/",
+      "tokens": [
+        "backendless",
+        "revolution",
+        "openais",
+        "realtime",
+        "api",
+        "transforming",
+        "app",
+        "development"
+      ]
+    },
+    {
+      "slug": "the-death-of-the-blank-file-how-ai-ended-starting-from-scratch",
+      "path": "/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/",
+      "tokens": [
+        "death",
+        "blank",
+        "file",
+        "ended",
+        "starting",
+        "scratch"
+      ]
+    },
+    {
+      "slug": "the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents",
+      "path": "/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/",
+      "tokens": [
+        "rise",
+        "enterprise",
+        "vibe",
+        "coding",
+        "transforming",
+        "major",
+        "firms",
+        "agents"
+      ]
+    },
+    {
+      "slug": "the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration",
+      "path": "/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/",
+      "tokens": [
+        "symbiotic",
+        "dance",
+        "real",
+        "time",
+        "agent",
+        "swarms",
+        "llm",
+        "collaboration"
+      ]
+    },
+    {
+      "slug": "the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products",
+      "path": "/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "economy",
+        "market",
+        "builders",
+        "templates",
+        "native",
+        "products"
+      ]
+    },
+    {
+      "slug": "web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app",
+      "path": "/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/",
+      "tokens": [
+        "web",
+        "based",
+        "coding",
+        "agents",
+        "mainstream",
+        "unlocking",
+        "potential",
+        "claude",
+        "code",
+        "web",
+        "app"
+      ]
+    },
+    {
+      "slug": "ai-native-software-why-2025-is-the-year-apps-build-themselves",
+      "path": "/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/",
+      "tokens": [
+        "native",
+        "software",
+        "why",
+        "2025",
+        "year",
+        "apps",
+        "build",
+        "themselves"
+      ]
+    },
+    {
+      "slug": "cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development",
+      "path": "/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/",
+      "tokens": [
+        "cursors",
+        "autonomous",
+        "coding",
+        "upgrade",
+        "leap",
+        "driven",
+        "development"
+      ]
+    },
+    {
+      "slug": "openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces",
+      "path": "/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/",
+      "tokens": [
+        "openais",
+        "rendering",
+        "revolution",
+        "instantly",
+        "transforming",
+        "prompts",
+        "full",
+        "app",
+        "interfaces"
+      ]
+    },
+    {
+      "slug": "replit-agents-20-the-dawn-of-autonomous-feature-development",
+      "path": "/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/",
+      "tokens": [
+        "replit",
+        "agents",
+        "dawn",
+        "autonomous",
+        "feature",
+        "development"
+      ]
+    },
+    {
+      "slug": "sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power",
+      "path": "/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/",
+      "tokens": [
+        "sintras",
+        "agent",
+        "objects",
+        "redefining",
+        "code",
+        "automation",
+        "unprecedented",
+        "power"
+      ]
+    },
+    {
+      "slug": "the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation",
+      "path": "/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/",
+      "tokens": [
+        "google",
+        "antigravity",
+        "ide",
+        "revolutionizing",
+        "code",
+        "gemini",
+        "agent",
+        "powered",
+        "innovation"
+      ]
+    },
+    {
+      "slug": "the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future",
+      "path": "/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/",
+      "tokens": [
+        "race",
+        "between",
+        "gemini",
+        "gpt",
+        "unpacking",
+        "their",
+        "role",
+        "vibe",
+        "codings",
+        "future"
+      ]
+    },
+    {
+      "slug": "vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding",
+      "path": "/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/",
+      "tokens": [
+        "vercels",
+        "nextjs",
+        "redefining",
+        "instant",
+        "full",
+        "stack",
+        "scaffolding"
+      ]
+    },
+    {
+      "slug": "grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways",
+      "path": "/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/",
+      "tokens": [
+        "grok",
+        "revolutionizing",
+        "vibe",
+        "coding",
+        "unprecedented",
+        "ways"
+      ]
+    },
+    {
+      "slug": "the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development",
+      "path": "/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/",
+      "tokens": [
+        "2025",
+        "vibe",
+        "trinity",
+        "continuedev",
+        "windsurf",
+        "aider",
+        "revolutionizing",
+        "development"
+      ]
+    },
+    {
+      "slug": "emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing",
+      "path": "/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/",
+      "tokens": [
+        "emergent",
+        "indian",
+        "startup",
+        "pioneering",
+        "vibe",
+        "coding",
+        "googles",
+        "backing"
+      ]
+    },
+    {
+      "slug": "exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities",
+      "path": "/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/",
+      "tokens": [
+        "exploring",
+        "safety",
+        "vibe",
+        "coding",
+        "deep",
+        "dive",
+        "agent",
+        "generated",
+        "code",
+        "vulnerabilities"
+      ]
+    },
+    {
+      "slug": "openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks",
+      "path": "/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/",
+      "tokens": [
+        "openais",
+        "gpt",
+        "redefining",
+        "ais",
+        "role",
+        "coding",
+        "professional",
+        "tasks"
+      ]
+    },
+    {
+      "slug": "the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration",
+      "path": "/2025/12/15/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/",
+      "tokens": [
+        "rise",
+        "fall",
+        "vibe",
+        "coding",
+        "tools",
+        "depth",
+        "exploration"
+      ]
+    },
+    {
+      "slug": "the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype",
+      "path": "/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/",
+      "tokens": [
+        "rise",
+        "fall",
+        "vibe",
+        "coding",
+        "navigating",
+        "beyond",
+        "hype"
+      ]
+    },
+    {
+      "slug": "ai-generated-code-the-silent-revolution-in-production-systems",
+      "path": "/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/",
+      "tokens": [
+        "generated",
+        "code",
+        "silent",
+        "revolution",
+        "production",
+        "systems"
+      ]
+    },
+    {
+      "slug": "the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers",
+      "path": "/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/",
+      "tokens": [
+        "inventor",
+        "vibe",
+        "coding",
+        "predicts",
+        "era",
+        "software",
+        "roles",
+        "builders",
+        "reviewers"
+      ]
+    },
+    {
+      "slug": "the-silent-revolution-ai-generated-code-in-production-systems",
+      "path": "/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/",
+      "tokens": [
+        "silent",
+        "revolution",
+        "generated",
+        "code",
+        "production",
+        "systems"
+      ]
+    },
+    {
+      "slug": "vibe-coding-the-revolutionary-force-reshaping-software-jobs",
+      "path": "/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "revolutionary",
+        "force",
+        "reshaping",
+        "software",
+        "jobs"
+      ]
+    },
+    {
+      "slug": "from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding",
+      "path": "/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/",
+      "tokens": [
+        "solo",
+        "builders",
+        "swarms",
+        "transformation",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "security-in-the-age-of-vibe-coding-who-holds-the-reins",
+      "path": "/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/",
+      "tokens": [
+        "security",
+        "age",
+        "vibe",
+        "coding",
+        "holds",
+        "reins"
+      ]
+    },
+    {
+      "slug": "the-ascendancy-of-planning-tools-over-traditional-coding-instruments",
+      "path": "/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/",
+      "tokens": [
+        "ascendancy",
+        "planning",
+        "tools",
+        "traditional",
+        "coding",
+        "instruments"
+      ]
+    },
+    {
+      "slug": "the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking",
+      "path": "/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/",
+      "tokens": [
+        "evolution",
+        "coding",
+        "tools",
+        "code",
+        "generation",
+        "system",
+        "thinking"
+      ]
+    },
+    {
+      "slug": "the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development",
+      "path": "/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/",
+      "tokens": [
+        "evolution",
+        "vibe",
+        "coding",
+        "vibe",
+        "trading",
+        "beyond",
+        "software",
+        "development"
+      ]
+    },
+    {
+      "slug": "the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development",
+      "path": "/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/",
+      "tokens": [
+        "post",
+        "ide",
+        "revolution",
+        "cursor",
+        "lovable",
+        "base44",
+        "redefining",
+        "software",
+        "development"
+      ]
+    },
+    {
+      "slug": "the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code",
+      "path": "/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/",
+      "tokens": [
+        "rise",
+        "prompt",
+        "driven",
+        "architecture",
+        "designing",
+        "apps",
+        "writing",
+        "code"
+      ]
+    },
+    {
+      "slug": "the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers",
+      "path": "/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/",
+      "tokens": [
+        "silent",
+        "shift",
+        "vibe",
+        "coding",
+        "moving",
+        "power",
+        "engineers",
+        "product",
+        "thinkers"
+      ]
+    },
+    {
+      "slug": "vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers",
+      "path": "/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "empowering",
+        "non",
+        "technical",
+        "product",
+        "managers",
+        "builder",
+        "superpowers"
+      ]
+    },
+    {
+      "slug": "claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers",
+      "path": "/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/",
+      "tokens": [
+        "claude",
+        "code",
+        "revolutionizes",
+        "local",
+        "llms",
+        "ollama",
+        "integration",
+        "privacy",
+        "driven",
+        "developers"
+      ]
+    },
+    {
+      "slug": "claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd",
+      "path": "/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/",
+      "tokens": [
+        "claude",
+        "code",
+        "revolutionizes",
+        "vibe",
+        "coding",
+        "parallel",
+        "agents",
+        "claudemd"
+      ]
+    },
+    {
+      "slug": "claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency",
+      "path": "/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/",
+      "tokens": [
+        "claude",
+        "code",
+        "revolutionizing",
+        "vibe",
+        "coding",
+        "unprecedented",
+        "speed",
+        "efficiency"
+      ]
+    },
+    {
+      "slug": "googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code",
+      "path": "/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/",
+      "tokens": [
+        "googles",
+        "coding",
+        "agent",
+        "propels",
+        "antigravity",
+        "development",
+        "developers",
+        "leave",
+        "code"
+      ]
+    },
+    {
+      "slug": "googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges",
+      "path": "/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/",
+      "tokens": [
+        "googles",
+        "antigravity",
+        "surpasses",
+        "expectations",
+        "real",
+        "world",
+        "coding",
+        "challenges"
+      ]
+    },
+    {
+      "slug": "googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape",
+      "path": "/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/",
+      "tokens": [
+        "googles",
+        "free",
+        "vibe",
+        "coding",
+        "tools",
+        "antigravity",
+        "reshapes",
+        "competitive",
+        "landscape"
+      ]
+    },
+    {
+      "slug": "lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing",
+      "path": "/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/",
+      "tokens": [
+        "lovable",
+        "hits",
+        "major",
+        "update",
+        "transforming",
+        "code",
+        "development",
+        "enhanced",
+        "auto",
+        "planning",
+        "browser",
+        "testing"
+      ]
+    },
+    {
+      "slug": "qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026",
+      "path": "/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/",
+      "tokens": [
+        "qodo",
+        "tool",
+        "revolutionizing",
+        "testing",
+        "refactoring",
+        "2026"
+      ]
+    },
+    {
+      "slug": "the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills",
+      "path": "/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "controversy",
+        "tools",
+        "like",
+        "claude",
+        "code",
+        "antigravity",
+        "threatening",
+        "developer",
+        "skills"
+      ]
+    },
+    {
+      "slug": "the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026",
+      "path": "/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "revolution",
+        "claude",
+        "code",
+        "clawdbot",
+        "stack",
+        "redefining",
+        "developer",
+        "workflows",
+        "2026"
+      ]
+    },
+    {
+      "slug": "anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams",
+      "path": "/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/",
+      "tokens": [
+        "anthropics",
+        "claude",
+        "opus",
+        "revolutionizing",
+        "vibe",
+        "coding",
+        "token",
+        "context",
+        "agent",
+        "teams"
+      ]
+    },
+    {
+      "slug": "claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost",
+      "path": "/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/",
+      "tokens": [
+        "claude",
+        "opus",
+        "revolutionizes",
+        "lovables",
+        "app",
+        "development",
+        "efficiency",
+        "boost"
+      ]
+    },
+    {
+      "slug": "googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026",
+      "path": "/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/",
+      "tokens": [
+        "googles",
+        "antigravity",
+        "gemini",
+        "cli",
+        "redefining",
+        "developer",
+        "workflows",
+        "2026"
+      ]
+    },
+    {
+      "slug": "openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution",
+      "path": "/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/",
+      "tokens": [
+        "openais",
+        "codex",
+        "app",
+        "disrupts",
+        "claude",
+        "codes",
+        "reign",
+        "propelling",
+        "coding",
+        "evolution"
+      ]
+    },
+    {
+      "slug": "openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows",
+      "path": "/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/",
+      "tokens": [
+        "openais",
+        "gpt",
+        "codex",
+        "self",
+        "building",
+        "revolutionizing",
+        "agentic",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world",
+      "path": "/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/",
+      "tokens": [
+        "claude",
+        "code",
+        "revolution",
+        "triggering",
+        "saaspocalypse",
+        "software",
+        "world"
+      ]
+    },
+    {
+      "slug": "the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding",
+      "path": "/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/",
+      "tokens": [
+        "high",
+        "stakes",
+        "duel",
+        "gpt",
+        "codex",
+        "opus",
+        "coding"
+      ]
+    },
+    {
+      "slug": "the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46",
+      "path": "/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/",
+      "tokens": [
+        "high",
+        "stakes",
+        "duel",
+        "openai",
+        "anthropics",
+        "battle",
+        "gpt",
+        "codex",
+        "opus"
+      ]
+    },
+    {
+      "slug": "vibe-coding-hits-mainstream-the-ai-revolution-transforming-github",
+      "path": "/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "hits",
+        "mainstream",
+        "revolution",
+        "transforming",
+        "github"
+      ]
+    },
+    {
+      "slug": "vibe-coding-platforms-revolutionize-development-with-claude-code-agents",
+      "path": "/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "platforms",
+        "revolutionize",
+        "development",
+        "claude",
+        "code",
+        "agents"
+      ]
+    },
+    {
+      "slug": "anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation",
+      "path": "/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/",
+      "tokens": [
+        "anthropics",
+        "claude",
+        "code",
+        "security",
+        "paradigm",
+        "shift",
+        "code",
+        "generation"
+      ]
+    },
+    {
+      "slug": "claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency",
+      "path": "/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/",
+      "tokens": [
+        "claude",
+        "sonnet",
+        "anthropics",
+        "latest",
+        "upgrade",
+        "transforms",
+        "coding",
+        "efficiency"
+      ]
+    },
+    {
+      "slug": "cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability",
+      "path": "/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/",
+      "tokens": [
+        "cline",
+        "coding",
+        "assistant",
+        "breach",
+        "cautionary",
+        "tale",
+        "supply",
+        "chain",
+        "vulnerability"
+      ]
+    },
+    {
+      "slug": "emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation",
+      "path": "/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/",
+      "tokens": [
+        "emergents",
+        "meteoric",
+        "rise",
+        "vibe",
+        "coding",
+        "startup",
+        "reshaped",
+        "code",
+        "generation"
+      ]
+    },
+    {
+      "slug": "google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language",
+      "path": "/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/",
+      "tokens": [
+        "google",
+        "antigravity",
+        "claude",
+        "code",
+        "lead",
+        "2026",
+        "rankings",
+        "expert",
+        "reviews",
+        "highlight",
+        "shift",
+        "agentic",
+        "programming",
+        "natural",
+        "language"
+      ]
+    },
+    {
+      "slug": "googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding",
+      "path": "/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/",
+      "tokens": [
+        "googles",
+        "antigravity",
+        "gemini",
+        "pro",
+        "transforms",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance",
+      "path": "/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/",
+      "tokens": [
+        "lovable",
+        "revolutionizes",
+        "vibe",
+        "coding",
+        "game",
+        "changer",
+        "2026",
+        "non",
+        "developer",
+        "renaissance"
+      ]
+    },
+    {
+      "slug": "qodo-21-update-transforming-developer-workflows-with-precision",
+      "path": "/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/",
+      "tokens": [
+        "qodo",
+        "update",
+        "transforming",
+        "developer",
+        "workflows",
+        "precision"
+      ]
+    },
+    {
+      "slug": "the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding",
+      "path": "/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/",
+      "tokens": [
+        "impact",
+        "tools",
+        "like",
+        "claude",
+        "code",
+        "developer",
+        "skill",
+        "mastery",
+        "future",
+        "vibe",
+        "coding"
+      ]
+    },
+    {
+      "slug": "vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny",
+      "path": "/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/",
+      "tokens": [
+        "vibe",
+        "coding",
+        "controversy",
+        "generated",
+        "code",
+        "cursor",
+        "claude",
+        "code",
+        "faces",
+        "scrutiny"
+      ]
+    },
+    {
+      "slug": "anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code",
+      "path": "/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/",
+      "tokens": [
+        "anthropics",
+        "voice",
+        "mode",
+        "revolutionizes",
+        "natural",
+        "language",
+        "programming",
+        "claude",
+        "code"
+      ]
+    },
+    {
+      "slug": "claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool",
+      "path": "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/",
+      "tokens": [
+        "claude",
+        "code",
+        "faces",
+        "major",
+        "outage",
+        "amid",
+        "surging",
+        "demand",
+        "challenge",
+        "anthropics",
+        "vibe",
+        "coding",
+        "tool"
+      ]
+    },
+    {
+      "slug": "claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds",
+      "path": "/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/",
+      "tokens": [
+        "claude",
+        "code",
+        "google",
+        "antigravity",
+        "agentic",
+        "coding",
+        "showdown",
+        "real",
+        "app",
+        "builds"
+      ]
+    },
+    {
+      "slug": "claudes-code-voice-feature-transforms-programming-through-natural-language-conversations",
+      "path": "/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/",
+      "tokens": [
+        "claudes",
+        "code",
+        "voice",
+        "feature",
+        "transforms",
+        "programming",
+        "through",
+        "natural",
+        "language",
+        "conversations"
+      ]
+    },
+    {
+      "slug": "google-antigravity-gains-momentum-amid-anthropics-downtime",
+      "path": "/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/",
+      "tokens": [
+        "google",
+        "antigravity",
+        "gains",
+        "momentum",
+        "amid",
+        "anthropics",
+        "downtime"
+      ]
+    },
+    {
+      "slug": "lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters",
+      "path": "/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/",
+      "tokens": [
+        "lovable",
+        "bolt",
+        "surge",
+        "2026",
+        "vibe",
+        "coding",
+        "rankings",
+        "claude",
+        "code",
+        "falters"
+      ]
+    },
+    {
+      "slug": "navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity",
+      "path": "/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/",
+      "tokens": [
+        "navigating",
+        "vibe",
+        "coding",
+        "chaos",
+        "deep",
+        "dive",
+        "claude",
+        "codes",
+        "outage",
+        "shift",
+        "google",
+        "antigravity"
+      ]
+    },
+    {
+      "slug": "opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code",
+      "path": "/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/",
+      "tokens": [
+        "opengradient",
+        "plugin",
+        "upgrade",
+        "transforming",
+        "vibe",
+        "coding",
+        "verifiable",
+        "outputs",
+        "claude",
+        "code"
+      ]
+    },
+    {
+      "slug": "the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation",
+      "path": "/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/",
+      "tokens": [
+        "qodo",
+        "revolution",
+        "challenging",
+        "claude",
+        "codes",
+        "reign",
+        "through",
+        "agentic",
+        "innovation"
+      ]
+    },
+    {
+      "slug": "integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025",
+      "path": "/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/",
+      "tokens": [
+        "integrating",
+        "vibe",
+        "coding",
+        "rapid",
+        "prototyping",
+        "2025"
+      ]
+    },
+    {
+      "slug": "aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding",
+      "path": "/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/",
+      "tokens": [
+        "aws",
+        "kiros",
+        "spec",
+        "driven",
+        "approach",
+        "revolutionizing",
+        "agentic",
+        "coding"
+      ]
+    },
+    {
+      "slug": "openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency",
+      "path": "/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/",
+      "tokens": [
+        "openais",
+        "codex",
+        "mobile",
+        "app",
+        "boosting",
+        "coding",
+        "efficiency"
+      ]
+    },
+    {
+      "slug": "openai-presence-revolutionizing-enterprise-ai-integration",
+      "path": "/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/",
+      "tokens": [
+        "openai",
+        "presence",
+        "revolutionizing",
+        "enterprise",
+        "integration"
+      ]
+    },
+    {
+      "slug": "amds-rocmai-ai-driven-development-tools-for-developers",
+      "path": "/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/",
+      "tokens": [
+        "amds",
+        "rocmai",
+        "driven",
+        "development",
+        "tools",
+        "developers"
+      ]
+    },
+    {
+      "slug": "aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents",
+      "path": "/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/",
+      "tokens": [
+        "aws",
+        "kiros",
+        "spec",
+        "driven",
+        "approach",
+        "revolutionizing",
+        "coding",
+        "agents"
+      ]
+    },
+    {
+      "slug": "aws-kiro-tackles-vibe-coding-with-spec-driven-development",
+      "path": "/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/",
+      "tokens": [
+        "aws",
+        "kiro",
+        "tackles",
+        "vibe",
+        "coding",
+        "spec",
+        "driven",
+        "development"
+      ]
+    },
+    {
+      "slug": "openai-presence-build-and-deploy-ai-agents-in-your-workflows",
+      "path": "/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/",
+      "tokens": [
+        "openai",
+        "presence",
+        "build",
+        "deploy",
+        "agents",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "openais-frontier-transforming-enterprise-ai-agent-integration",
+      "path": "/2026/08/14/openais-frontier-transforming-enterprise-ai-agent-integration/",
+      "tokens": [
+        "openais",
+        "frontier",
+        "transforming",
+        "enterprise",
+        "agent",
+        "integration"
+      ]
+    }
+  ],
+  "tokenFreq": {
+    "2025": 11,
+    "2026": 6,
+    "lovable": 7,
+    "vibe": 56,
+    "coding": 70,
+    "assistants": 2,
+    "automating": 1,
+    "devops": 2,
+    "base44": 4,
+    "supabase": 1,
+    "migration": 1,
+    "sdk": 1,
+    "gpt5": 1,
+    "revolution": 11,
+    "code": 34,
+    "agent": 13,
+    "builders": 4,
+    "open": 2,
+    "source": 2,
+    "agents": 8,
+    "prompt": 2,
+    "evolution": 4,
+    "security": 3,
+    "challenges": 3,
+    "game": 2,
+    "development": 15,
+    "web3": 1,
+    "dapps": 1,
+    "article11": 1,
+    "article12": 1,
+    "chatgpt": 1,
+    "app": 9,
+    "article1": 1,
+    "article2": 1,
+    "article3": 1,
+    "article4": 1,
+    "article5": 1,
+    "article6": 1,
+    "article7": 1,
+    "article8": 1,
+    "article9": 1,
+    "powered": 2,
+    "saas": 1,
+    "builder": 2,
+    "bolt": 2,
+    "scalability": 1,
+    "cursor": 5,
+    "support": 1,
+    "fiasco": 1,
+    "insights": 1,
+    "features": 1,
+    "tools": 8,
+    "case": 1,
+    "study": 1,
+    "impact": 3,
+    "traditional": 2,
+    "programming": 5,
+    "windsurf": 3,
+    "double": 1,
+    "acquisition": 1,
+    "alphaevolve": 1,
+    "deepmind": 1,
+    "invents": 1,
+    "algorithms": 1,
+    "bugbot": 1,
+    "debugs": 1,
+    "own": 1,
+    "dear": 1,
+    "diary": 1,
+    "happens": 1,
+    "developers": 5,
+    "they": 1,
+    "every": 1,
+    "day": 1,
+    "devmate": 1,
+    "meta": 1,
+    "learn": 1,
+    "work": 3,
+    "together": 3,
+    "communities": 1,
+    "millions": 1,
+    "turned": 1,
+    "gold": 1,
+    "gitclear": 1,
+    "report": 1,
+    "truth": 1,
+    "written": 1,
+    "quality": 1,
+    "inside": 2,
+    "mindset": 1,
+    "research": 1,
+    "reveals": 1,
+    "really": 1,
+    "kiro": 2,
+    "amazon": 1,
+    "autonomous": 3,
+    "ide": 4,
+    "organizes": 1,
+    "chaos": 2,
+    "end": 1,
+    "typing": 1,
+    "means": 1,
+    "developer": 8,
+    "writes": 1,
+    "itself": 1,
+    "pearai": 1,
+    "rise": 7,
+    "agentic": 7,
+    "ides": 2,
+    "pipelines": 1,
+    "teams": 2,
+    "across": 1,
+    "frontend": 1,
+    "backend": 1,
+    "multi": 1,
+    "github": 2,
+    "powering": 1,
+    "next": 1,
+    "wave": 1,
+    "claude": 25,
+    "haiku": 1,
+    "pioneering": 2,
+    "high": 3,
+    "speed": 2,
+    "masses": 1,
+    "lightweight": 1,
+    "model": 2,
+    "gemini": 5,
+    "dawn": 2,
+    "first": 3,
+    "ushering": 1,
+    "software": 7,
+    "google": 7,
+    "antigravity": 13,
+    "revolutionizing": 11,
+    "reinvents": 1,
+    "pair": 1,
+    "room": 1,
+    "gpt": 6,
+    "proprietary": 1,
+    "navigating": 3,
+    "recent": 1,
+    "releases": 1,
+    "backendless": 1,
+    "openais": 7,
+    "realtime": 1,
+    "api": 1,
+    "transforming": 8,
+    "death": 1,
+    "blank": 1,
+    "file": 1,
+    "ended": 1,
+    "starting": 1,
+    "scratch": 1,
+    "enterprise": 3,
+    "major": 3,
+    "firms": 1,
+    "symbiotic": 1,
+    "dance": 1,
+    "real": 3,
+    "time": 1,
+    "swarms": 2,
+    "llm": 1,
+    "collaboration": 1,
+    "economy": 1,
+    "market": 1,
+    "templates": 1,
+    "native": 2,
+    "products": 1,
+    "web": 1,
+    "based": 1,
+    "mainstream": 2,
+    "unlocking": 1,
+    "potential": 1,
+    "why": 1,
+    "year": 1,
+    "apps": 2,
+    "build": 2,
+    "themselves": 1,
+    "cursors": 1,
+    "upgrade": 3,
+    "leap": 1,
+    "driven": 7,
+    "rendering": 1,
+    "instantly": 1,
+    "prompts": 1,
+    "full": 2,
+    "interfaces": 1,
+    "replit": 1,
+    "feature": 2,
+    "sintras": 1,
+    "objects": 1,
+    "redefining": 6,
+    "automation": 1,
+    "unprecedented": 3,
+    "power": 2,
+    "innovation": 2,
+    "race": 1,
+    "between": 1,
+    "unpacking": 1,
+    "their": 1,
+    "role": 2,
+    "codings": 1,
+    "future": 2,
+    "vercels": 1,
+    "nextjs": 1,
+    "instant": 1,
+    "stack": 2,
+    "scaffolding": 1,
+    "grok": 1,
+    "ways": 1,
+    "trinity": 1,
+    "continuedev": 1,
+    "aider": 1,
+    "emergent": 1,
+    "indian": 1,
+    "startup": 2,
+    "googles": 6,
+    "backing": 1,
+    "exploring": 1,
+    "safety": 1,
+    "deep": 2,
+    "dive": 2,
+    "generated": 4,
+    "vulnerabilities": 1,
+    "ais": 1,
+    "professional": 1,
+    "tasks": 1,
+    "fall": 2,
+    "depth": 1,
+    "exploration": 1,
+    "beyond": 2,
+    "hype": 1,
+    "silent": 3,
+    "production": 2,
+    "systems": 2,
+    "inventor": 1,
+    "predicts": 1,
+    "era": 1,
+    "roles": 1,
+    "reviewers": 1,
+    "revolutionary": 1,
+    "force": 1,
+    "reshaping": 1,
+    "jobs": 1,
+    "solo": 1,
+    "transformation": 1,
+    "age": 1,
+    "holds": 1,
+    "reins": 1,
+    "ascendancy": 1,
+    "planning": 2,
+    "instruments": 1,
+    "generation": 3,
+    "system": 1,
+    "thinking": 1,
+    "trading": 1,
+    "post": 1,
+    "architecture": 1,
+    "designing": 1,
+    "writing": 1,
+    "shift": 4,
+    "moving": 1,
+    "engineers": 1,
+    "product": 2,
+    "thinkers": 1,
+    "empowering": 1,
+    "non": 2,
+    "technical": 1,
+    "managers": 1,
+    "superpowers": 1,
+    "revolutionizes": 5,
+    "local": 1,
+    "llms": 1,
+    "ollama": 1,
+    "integration": 3,
+    "privacy": 1,
+    "parallel": 1,
+    "claudemd": 1,
+    "efficiency": 4,
+    "propels": 1,
+    "leave": 1,
+    "surpasses": 1,
+    "expectations": 1,
+    "world": 2,
+    "free": 1,
+    "reshapes": 1,
+    "competitive": 1,
+    "landscape": 1,
+    "hits": 2,
+    "update": 2,
+    "enhanced": 1,
+    "auto": 1,
+    "browser": 1,
+    "testing": 2,
+    "qodo": 3,
+    "tool": 2,
+    "refactoring": 1,
+    "controversy": 2,
+    "like": 2,
+    "threatening": 1,
+    "skills": 1,
+    "clawdbot": 1,
+    "workflows": 5,
+    "anthropics": 7,
+    "opus": 4,
+    "token": 1,
+    "context": 1,
+    "lovables": 1,
+    "boost": 1,
+    "cli": 1,
+    "codex": 5,
+    "disrupts": 1,
+    "codes": 3,
+    "reign": 2,
+    "propelling": 1,
+    "self": 1,
+    "building": 1,
+    "triggering": 1,
+    "saaspocalypse": 1,
+    "stakes": 2,
+    "duel": 2,
+    "openai": 3,
+    "battle": 1,
+    "platforms": 1,
+    "revolutionize": 1,
+    "paradigm": 1,
+    "sonnet": 1,
+    "latest": 1,
+    "transforms": 3,
+    "cline": 1,
+    "assistant": 1,
+    "breach": 1,
+    "cautionary": 1,
+    "tale": 1,
+    "supply": 1,
+    "chain": 1,
+    "vulnerability": 1,
+    "emergents": 1,
+    "meteoric": 1,
+    "reshaped": 1,
+    "lead": 1,
+    "rankings": 2,
+    "expert": 1,
+    "reviews": 1,
+    "highlight": 1,
+    "natural": 3,
+    "language": 3,
+    "pro": 1,
+    "changer": 1,
+    "renaissance": 1,
+    "precision": 1,
+    "skill": 1,
+    "mastery": 1,
+    "faces": 2,
+    "scrutiny": 1,
+    "voice": 2,
+    "mode": 1,
+    "outage": 2,
+    "amid": 2,
+    "surging": 1,
+    "demand": 1,
+    "challenge": 1,
+    "showdown": 1,
+    "builds": 1,
+    "claudes": 1,
+    "through": 2,
+    "conversations": 1,
+    "gains": 1,
+    "momentum": 1,
+    "downtime": 1,
+    "surge": 1,
+    "falters": 1,
+    "opengradient": 1,
+    "plugin": 1,
+    "verifiable": 1,
+    "outputs": 1,
+    "challenging": 1,
+    "integrating": 1,
+    "rapid": 1,
+    "prototyping": 1,
+    "aws": 3,
+    "kiros": 2,
+    "spec": 3,
+    "approach": 2,
+    "mobile": 1,
+    "boosting": 1,
+    "presence": 2,
+    "amds": 1,
+    "rocmai": 1,
+    "tackles": 1,
+    "deploy": 1,
+    "frontier": 1
+  },
+  "guides": {
+    "YaWC1gUJSn0GUT4VXZkn": "/academy/guides/accessibility-basics/",
+    "6T1DtRE3ASEAM2YxGcYT": "/academy/guides/ai-driven-seo-practices/",
+    "UO7k9s9mGi5NwNEcx0T5": "/academy/guides/api-security/",
+    "sRj5gl8DiXSdQtNghvnx": "/academy/guides/app-security-basics/",
+    "5EsK3kjmlwgIYXU0AE1i": "/academy/guides/architecture-basics-monolith-microservices/",
+    "DYAYbqnUBHeYtQGxKWM5": "/academy/guides/architecture-prompts-conceptual/",
+    "2NmFfCmBMe6qtmixclro": "/academy/guides/authentication-authorization/",
+    "2L11d9FF6DMu2md3q4U0": "/academy/guides/avoiding-hallucinations/",
+    "X2SCsbgehnHvZcfULPnc": "/academy/guides/backups-restore/",
+    "WKWk9trgxBwvUWZMAzv1": "/academy/guides/basic-ux-principles/",
+    "lXBANN8B1cHoFLFmli7R": "/academy/guides/breaking-problems-into-parts/",
+    "KnSy0jg6jU8miHK96dea": "/academy/guides/caching-basics/",
+    "AKntojtBuuWYYbAr2Cmm": "/academy/guides/cdns-explained/",
+    "B1w4QOvLRHupWMZrnYnZ": "/academy/guides/ci-cd-basics/",
+    "oW8dibCDjL0GuSwMlhkc": "/academy/guides/client-server-model/",
+    "hQXKKJhteZdhmYbFWxZF": "/academy/guides/cloud-providers-overview/",
+    "iWoz2f2iXEEaExx005Lk": "/academy/guides/cloud-security-cloudflare-waf/",
+    "fYX5lj8Jz3C9fgkCsqew": "/academy/guides/cohorts/",
+    "jPbIkLjPmP9OHbMY1j1m": "/academy/guides/color-typography/",
+    "6rRwS51hI5ttzzDXprpu": "/academy/guides/communicating-with-ai-tools/",
+    "HknLbUePMmF1ADHtO9wi": "/academy/guides/component-thinking/",
+    "NOAchhXT6AvosANQB5oz": "/academy/guides/connecting-apis/",
+    "oGERmFip5gNgFOVOWCBn": "/academy/guides/content-clusters-internal-linking/",
+    "8KnRtThFfJI2EFQOEiv5": "/academy/guides/conversion-basics/",
+    "AqT7tcK5Nt7kOUcgc7zc": "/academy/guides/dashboards/",
+    "K3IxrUEq2FbrXJ0l9iQH": "/academy/guides/database-errors-conceptual/",
+    "T3lL70P2N6cm3v4mDtWF": "/academy/guides/database-security/",
+    "fPpoKkJ00tNjSRQw0QHM": "/academy/guides/dns-domains/",
+    "d8RWlRbA0yR3fxXZSwSp": "/academy/guides/edge-functions/",
+    "RNvpCNEt4mopWp3TNnyH": "/academy/guides/endpoints-routes/",
+    "FsP4JzNTyvTjqdyrwWkl": "/academy/guides/environment-types-dev-stage-prod/",
+    "lThfdBIhxR2w5HfDCxmf": "/academy/guides/error-handling/",
+    "dNJUGN66sorGXPBFZrCY": "/academy/guides/errors-status-codes/",
+    "lwaKB9f81ogkUjMWBcQ4": "/academy/guides/events-tracking/",
+    "AtidAIsrBg5Vcu3Z2F20": "/academy/guides/feature-breakdown-structure/",
+    "aIZ8nMSPB9LvbqcrjbLq": "/academy/guides/flow-based-thinking/",
+    "8M67KSCM7QgVB5zYKZVL": "/academy/guides/flows-diagrams/",
+    "B90IzDDoz619NFLCac17": "/academy/guides/frontend-vs-backend/",
+    "Rv2A0fGLGcUriA979noP": "/academy/guides/funnels/",
+    "Ye6mxCTJkx85l8XjAeXI": "/academy/guides/headers-cookies/",
+    "SEwWTparXg93SqiEHth5": "/academy/guides/how-ai-builds-apps-for-you/",
+    "xW4hTjeePfw27VY25GL8": "/academy/guides/how-ai-builds-components/",
+    "KOGPLncqdqhaytNvJhml": "/academy/guides/how-ai-creates-code/",
+    "7qtkMy8OCPQvCpJOGCeD": "/academy/guides/how-ai-handles-errors/",
+    "x5FIhw40AHfIEz3snSKW": "/academy/guides/how-apps-scale/",
+    "oG4PbEPf9bNn6isgtZbo": "/academy/guides/how-deployments-work/",
+    "cg5ZJLddvQQYij8vw3mL": "/academy/guides/how-search-engines-work/",
+    "M7nHCXMh3xO12qQKlGS2": "/academy/guides/how-systems-fail/",
+    "jTgvMLP0cshSZAoUUBvX": "/academy/guides/how-to-describe-a-feature-clearly/",
+    "G1zRvWAGWq5yx7kpdH98": "/academy/guides/how-to-think-in-ai-first-architecture/",
+    "shX9kGoDOLjxAOebYT6Z": "/academy/guides/how-websites-load/",
+    "1KDNim3vehavBwdNHoUl": "/academy/guides/http-methods-get-post-patch/",
+    "UEM16LxqWm0upgMDVFxk": "/academy/guides/identifying-bottlenecks/",
+    "XICxSG1EWhOc9FhH1yru": "/academy/guides/indexes-simple-explanation/",
+    "NUrqlrJZjHm7n88ZohMa": "/academy/guides/inputs-outputs/",
+    "cYd1rD7F8JUwd4t7d6k7": "/academy/guides/integrations/",
+    "rgTGenlSoRba2CKMOh2a": "/academy/guides/keyword-research/",
+    "qjmsqqY4TM9SYZtjLC3b": "/academy/guides/layout-systems/",
+    "CU7nTgcUF6ha1LGeSUkP": "/academy/guides/mapping-data-flow/",
+    "txfooqGP5Avb15iCjFcj": "/academy/guides/mental-models-for-tech/",
+    "idUAuI8lthEzKP0EkEYn": "/academy/guides/mobile-vs-desktop-ux/",
+    "Qaw8GRlVZccohmVQTtIY": "/academy/guides/monitoring-logs/",
+    "gNmji8oOe3nUESZ5H7D1": "/academy/guides/multi-step-prompt-thinking/",
+    "nShrWsJEibtR5o71ZKp7": "/academy/guides/multi-step-workflows/",
+    "PyofHdEzfmn8Nc06vYPx": "/academy/guides/owasp-for-non-coders/",
+    "j66TKs3OFnnool6BB29l": "/academy/guides/page-speed-performance/",
+    "h0oytrTUVzLwxMRO2HYc": "/academy/guides/page-structure-metadata/",
+    "vxFMIGzl7OAHRGaHpDpc": "/academy/guides/prompt-basics/",
+    "08uWEEndFh3EKeRpqQ8g": "/academy/guides/query-lifecycle/",
+    "yzUuMgHo2GjUx7vTw5fJ": "/academy/guides/rate-limiting/",
+    "r4PhDoKYl8Xvih0lG7s2": "/academy/guides/reducing-cognitive-load/",
+    "Jb7Mem2DGZ0d0U0fzl9U": "/academy/guides/refining-ai-output/",
+    "TZxUyCGinDg4OLUCvSdH": "/academy/guides/relations-1-1-1-n-n-n/",
+    "HB9mOwuZV29PFMPWYdpQ": "/academy/guides/request-response-lifecycle/",
+    "UTELX96WbqJQvTsbTYAj": "/academy/guides/request-response-structure/",
+    "Q4O5oieMzwsfmdVWDHI0": "/academy/guides/rest-basics/",
+    "guuidx4eJxMAAT0zNH9b": "/academy/guides/retention/",
+    "fo1rhwOhqo0qGh5S7g9I": "/academy/guides/reviewing-ai-generated-code-conceptually/",
+    "E2940EAWZ1MczIiWIVhR": "/academy/guides/reviewing-what-ai-creates/",
+    "QjJWc9IIIIpFmVwhBpOd": "/academy/guides/roles-system-user-assistant/",
+    "i1hPffexGqUCbsjtaMbC": "/academy/guides/scheduling/",
+    "zm5dpSXJ0gvrsMEVLYmg": "/academy/guides/secure-storage-secrets/",
+    "GpuBKrtC5f76IPKKWjWi": "/academy/guides/security-testing-conceptual/",
+    "9pfM1ezuv08Bbuqgzmbv": "/academy/guides/seo-basics/",
+    "3XJX1h7r89p9akIagKiC": "/academy/guides/state-client-server/",
+    "z48rvXuDj39I2ROfcfwv": "/academy/guides/tables-columns-rows-conceptual/",
+    "Oy05yydtJiXIgY6rVFqi": "/academy/guides/technical-seo/",
+    "IpQArd56BsybAIFYtaIW": "/academy/guides/testing-ai-responses/",
+    "1vc28MLQFsCm2E4qR1Sb": "/academy/guides/testing-features-with-ai/",
+    "8Tg62pQSdhaue8g4GW72": "/academy/guides/the-role-of-the-vibe-developer/",
+    "OT9RxSHPyXhPplXBgL8d": "/academy/guides/trigger-action-logic/",
+    "DORzC6j16EvgSn5KtyWC": "/academy/guides/understanding-api-endpoints/",
+    "ZMf5geeNHyxblwiBuRBM": "/academy/guides/understanding-api-endpoints/",
+    "LMp4bXCxFB98CImZVjb3": "/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/",
+    "WrTznmGjIS56eoFLxe3F": "/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/",
+    "Q9oAo7hfjh7dNmtqlf0f": "/academy/guides/understanding-dependencies/",
+    "ae6HkPiUebuQa3AXQ8fK": "/academy/guides/understanding-model-limitations/",
+    "0XwyeW0M3rHexJ8YuTDn": "/academy/guides/user-behavior-analysis/",
+    "NBjXereyg91JGDBZMegT": "/academy/guides/user-flows/",
+    "ukCwk5S0j8KlQeehDdcc": "/academy/guides/versioning-rollbacks/",
+    "tg461StPsyCIqclT47QC": "/academy/guides/vibe-coding-pitfalls-best-practices/",
+    "LYs61iee8dWndputj0Bj": "/academy/guides/webhooks-conceptual/",
+    "QkCAeJ1FN26dMpWRBSyI": "/academy/guides/webhooks-in-automations/",
+    "i3IBcSOYWmw8wrp9BhwQ": "/academy/guides/what-devops-really-does/",
+    "iy3Oy0D6MHrU5aaoImP0": "/academy/guides/what-is-a-build/",
+    "tIHA7MNViiEtpWjaGw31": "/academy/guides/what-is-a-database/",
+    "yDSSlTjEN3oZ8MmkPzVB": "/academy/guides/what-is-a-database-layer/",
+    "m7IS4O0tVmaxNIAfn8SQ": "/academy/guides/what-is-a-library-framework/",
+    "CFis7gkLS5KGror6mOKy": "/academy/guides/what-is-a-package/",
+    "8tPYOfrDldjokEhkzhfb": "/academy/guides/what-is-a-repository/",
+    "kGPJ3KLge0LgcOqon8ij": "/academy/guides/what-is-a-service-layer/",
+    "jklOqNSEp2Cqm29FBWz6": "/academy/guides/what-is-a-transaction/",
+    "cavdj4DW6WlSy4a9UMp8": "/academy/guides/what-is-an-api/",
+    "4WsN3kOdPfiQDB2QaAuk": "/academy/guides/what-is-an-api-layer/",
+    "CMTecEw59sw9KiIEJ0cP": "/academy/guides/what-is-an-error/",
+    "ciLTMcQ76i148aXx4xLi": "/academy/guides/what-is-analytics/",
+    "Q4LCbwl76xSQPK0XvwNu": "/academy/guides/what-is-automation/",
+    "7ac6Kf5hOVfCBKtsNVQ9": "/academy/guides/what-is-code-conceptually/",
+    "V1S0epJeevhuNrf9BTBU": "/academy/guides/what-is-runtime-vs-compile-time/",
+    "Uu1NOrFCw7tg8xzIphM1": "/academy/guides/what-is-serverless/",
+    "oiqlwQoVerBNYdIsOjiJ": "/academy/guides/what-is-the-cloud/",
+    "IGunttfG4RqRgIUhIKsR": "/academy/guides/what-is-version-control/",
+    "y0dDJcXv97ymLaF68ESs": "/academy/guides/what-is-vibe-coding/",
+    "iT6RFOWHt2iirwhvM80j": "/academy/guides/writing-efficient-feature-descriptions/"
+  },
+  "guideSlugs": {
+    "accessibility-basics": "/academy/guides/accessibility-basics/",
+    "ai-driven-seo-practices": "/academy/guides/ai-driven-seo-practices/",
+    "api-security": "/academy/guides/api-security/",
+    "app-security-basics": "/academy/guides/app-security-basics/",
+    "architecture-basics-monolith-microservices": "/academy/guides/architecture-basics-monolith-microservices/",
+    "architecture-prompts-conceptual": "/academy/guides/architecture-prompts-conceptual/",
+    "authentication-authorization": "/academy/guides/authentication-authorization/",
+    "avoiding-hallucinations": "/academy/guides/avoiding-hallucinations/",
+    "backups-restore": "/academy/guides/backups-restore/",
+    "basic-ux-principles": "/academy/guides/basic-ux-principles/",
+    "breaking-problems-into-parts": "/academy/guides/breaking-problems-into-parts/",
+    "caching-basics": "/academy/guides/caching-basics/",
+    "cdns-explained": "/academy/guides/cdns-explained/",
+    "ci-cd-basics": "/academy/guides/ci-cd-basics/",
+    "client-server-model": "/academy/guides/client-server-model/",
+    "cloud-providers-overview": "/academy/guides/cloud-providers-overview/",
+    "cloud-security-cloudflare-waf": "/academy/guides/cloud-security-cloudflare-waf/",
+    "cohorts": "/academy/guides/cohorts/",
+    "color-typography": "/academy/guides/color-typography/",
+    "communicating-with-ai-tools": "/academy/guides/communicating-with-ai-tools/",
+    "component-thinking": "/academy/guides/component-thinking/",
+    "connecting-apis": "/academy/guides/connecting-apis/",
+    "content-clusters-internal-linking": "/academy/guides/content-clusters-internal-linking/",
+    "conversion-basics": "/academy/guides/conversion-basics/",
+    "dashboards": "/academy/guides/dashboards/",
+    "database-errors-conceptual": "/academy/guides/database-errors-conceptual/",
+    "database-security": "/academy/guides/database-security/",
+    "dns-domains": "/academy/guides/dns-domains/",
+    "edge-functions": "/academy/guides/edge-functions/",
+    "endpoints-routes": "/academy/guides/endpoints-routes/",
+    "environment-types-dev-stage-prod": "/academy/guides/environment-types-dev-stage-prod/",
+    "error-handling": "/academy/guides/error-handling/",
+    "errors-status-codes": "/academy/guides/errors-status-codes/",
+    "events-tracking": "/academy/guides/events-tracking/",
+    "feature-breakdown-structure": "/academy/guides/feature-breakdown-structure/",
+    "flow-based-thinking": "/academy/guides/flow-based-thinking/",
+    "flows-diagrams": "/academy/guides/flows-diagrams/",
+    "frontend-vs-backend": "/academy/guides/frontend-vs-backend/",
+    "funnels": "/academy/guides/funnels/",
+    "headers-cookies": "/academy/guides/headers-cookies/",
+    "how-ai-builds-apps-for-you": "/academy/guides/how-ai-builds-apps-for-you/",
+    "how-ai-builds-components": "/academy/guides/how-ai-builds-components/",
+    "how-ai-creates-code": "/academy/guides/how-ai-creates-code/",
+    "how-ai-handles-errors": "/academy/guides/how-ai-handles-errors/",
+    "how-apps-scale": "/academy/guides/how-apps-scale/",
+    "how-deployments-work": "/academy/guides/how-deployments-work/",
+    "how-search-engines-work": "/academy/guides/how-search-engines-work/",
+    "how-systems-fail": "/academy/guides/how-systems-fail/",
+    "how-to-describe-a-feature-clearly": "/academy/guides/how-to-describe-a-feature-clearly/",
+    "how-to-think-in-ai-first-architecture": "/academy/guides/how-to-think-in-ai-first-architecture/",
+    "how-websites-load": "/academy/guides/how-websites-load/",
+    "http-methods-get-post-patch": "/academy/guides/http-methods-get-post-patch/",
+    "identifying-bottlenecks": "/academy/guides/identifying-bottlenecks/",
+    "indexes-simple-explanation": "/academy/guides/indexes-simple-explanation/",
+    "inputs-outputs": "/academy/guides/inputs-outputs/",
+    "integrations": "/academy/guides/integrations/",
+    "keyword-research": "/academy/guides/keyword-research/",
+    "layout-systems": "/academy/guides/layout-systems/",
+    "mapping-data-flow": "/academy/guides/mapping-data-flow/",
+    "mental-models-for-tech": "/academy/guides/mental-models-for-tech/",
+    "mobile-vs-desktop-ux": "/academy/guides/mobile-vs-desktop-ux/",
+    "monitoring-logs": "/academy/guides/monitoring-logs/",
+    "multi-step-prompt-thinking": "/academy/guides/multi-step-prompt-thinking/",
+    "multi-step-workflows": "/academy/guides/multi-step-workflows/",
+    "owasp-for-non-coders": "/academy/guides/owasp-for-non-coders/",
+    "page-speed-performance": "/academy/guides/page-speed-performance/",
+    "page-structure-metadata": "/academy/guides/page-structure-metadata/",
+    "prompt-basics": "/academy/guides/prompt-basics/",
+    "query-lifecycle": "/academy/guides/query-lifecycle/",
+    "rate-limiting": "/academy/guides/rate-limiting/",
+    "reducing-cognitive-load": "/academy/guides/reducing-cognitive-load/",
+    "refining-ai-output": "/academy/guides/refining-ai-output/",
+    "relations-1-1-1-n-n-n": "/academy/guides/relations-1-1-1-n-n-n/",
+    "request-response-lifecycle": "/academy/guides/request-response-lifecycle/",
+    "request-response-structure": "/academy/guides/request-response-structure/",
+    "rest-basics": "/academy/guides/rest-basics/",
+    "retention": "/academy/guides/retention/",
+    "reviewing-ai-generated-code-conceptually": "/academy/guides/reviewing-ai-generated-code-conceptually/",
+    "reviewing-what-ai-creates": "/academy/guides/reviewing-what-ai-creates/",
+    "roles-system-user-assistant": "/academy/guides/roles-system-user-assistant/",
+    "scheduling": "/academy/guides/scheduling/",
+    "secure-storage-secrets": "/academy/guides/secure-storage-secrets/",
+    "security-testing-conceptual": "/academy/guides/security-testing-conceptual/",
+    "seo-basics": "/academy/guides/seo-basics/",
+    "state-client-server": "/academy/guides/state-client-server/",
+    "tables-columns-rows-conceptual": "/academy/guides/tables-columns-rows-conceptual/",
+    "technical-seo": "/academy/guides/technical-seo/",
+    "testing-ai-responses": "/academy/guides/testing-ai-responses/",
+    "testing-features-with-ai": "/academy/guides/testing-features-with-ai/",
+    "the-role-of-the-vibe-developer": "/academy/guides/the-role-of-the-vibe-developer/",
+    "trigger-action-logic": "/academy/guides/trigger-action-logic/",
+    "understanding-api-endpoints": "/academy/guides/understanding-api-endpoints/",
+    "understanding-backend-vs-frontend-for-vibe-coders": "/academy/guides/understanding-backend-vs-frontend-for-vibe-coders/",
+    "understanding-dependencies": "/academy/guides/understanding-dependencies/",
+    "understanding-model-limitations": "/academy/guides/understanding-model-limitations/",
+    "user-behavior-analysis": "/academy/guides/user-behavior-analysis/",
+    "user-flows": "/academy/guides/user-flows/",
+    "versioning-rollbacks": "/academy/guides/versioning-rollbacks/",
+    "vibe-coding-pitfalls-best-practices": "/academy/guides/vibe-coding-pitfalls-best-practices/",
+    "webhooks-conceptual": "/academy/guides/webhooks-conceptual/",
+    "webhooks-in-automations": "/academy/guides/webhooks-in-automations/",
+    "what-devops-really-does": "/academy/guides/what-devops-really-does/",
+    "what-is-a-build": "/academy/guides/what-is-a-build/",
+    "what-is-a-database": "/academy/guides/what-is-a-database/",
+    "what-is-a-database-layer": "/academy/guides/what-is-a-database-layer/",
+    "what-is-a-library-framework": "/academy/guides/what-is-a-library-framework/",
+    "what-is-a-package": "/academy/guides/what-is-a-package/",
+    "what-is-a-repository": "/academy/guides/what-is-a-repository/",
+    "what-is-a-service-layer": "/academy/guides/what-is-a-service-layer/",
+    "what-is-a-transaction": "/academy/guides/what-is-a-transaction/",
+    "what-is-an-api": "/academy/guides/what-is-an-api/",
+    "what-is-an-api-layer": "/academy/guides/what-is-an-api-layer/",
+    "what-is-an-error": "/academy/guides/what-is-an-error/",
+    "what-is-analytics": "/academy/guides/what-is-analytics/",
+    "what-is-automation": "/academy/guides/what-is-automation/",
+    "what-is-code-conceptually": "/academy/guides/what-is-code-conceptually/",
+    "what-is-runtime-vs-compile-time": "/academy/guides/what-is-runtime-vs-compile-time/",
+    "what-is-serverless": "/academy/guides/what-is-serverless/",
+    "what-is-the-cloud": "/academy/guides/what-is-the-cloud/",
+    "what-is-version-control": "/academy/guides/what-is-version-control/",
+    "what-is-vibe-coding": "/academy/guides/what-is-vibe-coding/",
+    "writing-efficient-feature-descriptions": "/academy/guides/writing-efficient-feature-descriptions/"
+  },
+  "pathRedirects": [
+    [
+      "/blog/lovable-vibe-coding-2025.html",
+      "/2025/01/14/lovable-vibe-coding-2025/"
+    ],
+    [
+      "/blog/ai-coding-assistants-2025.html",
+      "/2025/01/19/ai-coding-assistants-2025/"
+    ],
+    [
+      "/blog/automating-devops-vibe-coding.html",
+      "/2025/01/19/automating-devops-vibe-coding/"
+    ],
+    [
+      "/blog/base44-supabase-migration-sdk.html",
+      "/2025/01/19/base44-supabase-migration-sdk/"
+    ],
+    [
+      "/blog/gpt5-vibe-coding-revolution.html",
+      "/2025/01/19/gpt5-vibe-coding-revolution/"
+    ],
+    [
+      "/blog/no-code-ai-agent-builders.html",
+      "/2025/01/19/no-code-ai-agent-builders/"
+    ],
+    [
+      "/blog/open-source-vibe-coding-agents.html",
+      "/2025/01/19/open-source-vibe-coding-agents/"
+    ],
+    [
+      "/blog/prompt-coding-evolution-vibe-coding.html",
+      "/2025/01/19/prompt-coding-evolution-vibe-coding/"
+    ],
+    [
+      "/blog/security-challenges-vibe-coding.html",
+      "/2025/01/19/security-challenges-vibe-coding/"
+    ],
+    [
+      "/blog/vibe-coding-game-development.html",
+      "/2025/01/19/vibe-coding-game-development/"
+    ],
+    [
+      "/blog/vibe-coding-web3-dapps.html",
+      "/2025/01/19/vibe-coding-web3-dapps/"
+    ],
+    [
+      "/blog/article11.html",
+      "/2025/07/12/article11/"
+    ],
+    [
+      "/blog/article12.html",
+      "/2025/07/14/article12/"
+    ],
+    [
+      "/blog/chatgpt-5-app-development.html",
+      "/2025/08/06/chatgpt-5-app-development/"
+    ],
+    [
+      "/blog/article1.html",
+      "/2025/09/26/article1/"
+    ],
+    [
+      "/blog/article2.html",
+      "/2025/09/26/article2/"
+    ],
+    [
+      "/blog/article3.html",
+      "/2025/09/26/article3/"
+    ],
+    [
+      "/blog/article4.html",
+      "/2025/09/26/article4/"
+    ],
+    [
+      "/blog/article5.html",
+      "/2025/09/26/article5/"
+    ],
+    [
+      "/blog/article6.html",
+      "/2025/09/26/article6/"
+    ],
+    [
+      "/blog/article7.html",
+      "/2025/09/26/article7/"
+    ],
+    [
+      "/blog/article8.html",
+      "/2025/09/26/article8/"
+    ],
+    [
+      "/blog/article9.html",
+      "/2025/09/26/article9/"
+    ],
+    [
+      "/blog/base44-ai-powered-saas-builder.html",
+      "/2025/09/26/base44-ai-powered-saas-builder/"
+    ],
+    [
+      "/blog/bolt-ai-vibe-coding-scalability-challenges.html",
+      "/2025/09/26/bolt-ai-vibe-coding-scalability-challenges/"
+    ],
+    [
+      "/blog/cursor-ai-support-fiasco-insights.html",
+      "/2025/09/26/cursor-ai-support-fiasco-insights/"
+    ],
+    [
+      "/blog/lovable-new-features-2025.html",
+      "/2025/09/26/lovable-new-features-2025/"
+    ],
+    [
+      "/blog/top-vibe-coding-tools-2025.html",
+      "/2025/09/26/top-vibe-coding-tools-2025/"
+    ],
+    [
+      "/blog/vibe-coding-app-case-study-2025.html",
+      "/2025/09/26/vibe-coding-app-case-study-2025/"
+    ],
+    [
+      "/blog/vibe-coding-revolution-2025-impact.html",
+      "/2025/09/26/vibe-coding-revolution-2025-impact/"
+    ],
+    [
+      "/blog/vibe-coding-vs-traditional-programming-2025.html",
+      "/2025/09/26/vibe-coding-vs-traditional-programming-2025/"
+    ],
+    [
+      "/blog/windsurf-double-acquisition-impact.html",
+      "/2025/09/26/windsurf-double-acquisition-impact/"
+    ],
+    [
+      "/blog/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms.html",
+      "/2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/"
+    ],
+    [
+      "/blog/bugbot-by-cursor-the-ai-that-debugs-its-own-code.html",
+      "/2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/"
+    ],
+    [
+      "/blog/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day.html",
+      "/2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/"
+    ],
+    [
+      "/blog/devmate-by-meta-when-ai-assistants-learn-to-work-together.html",
+      "/2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/"
+    ],
+    [
+      "/blog/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold.html",
+      "/2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/"
+    ],
+    [
+      "/blog/gitclear-report-2025-the-truth-about-ai-written-code-quality.html",
+      "/2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/"
+    ],
+    [
+      "/blog/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai.html",
+      "/2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/"
+    ],
+    [
+      "/blog/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding.html",
+      "/2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/"
+    ],
+    [
+      "/blog/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself.html",
+      "/2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/"
+    ],
+    [
+      "/blog/windsurf-and-pearai-the-rise-of-agentic-ides.html",
+      "/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/"
+    ],
+    [
+      "/blog/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops.html",
+      "/2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/"
+    ],
+    [
+      "/blog/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding.html",
+      "/2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/"
+    ],
+    [
+      "/blog/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model.html",
+      "/2025/11/24/claude-haiku-45-pioneering-high-speed-vibe-coding-for-the-masses-with-a-lightweight-agent-model/"
+    ],
+    [
+      "/blog/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development.html",
+      "/2025/11/24/gemini-3-the-dawn-of-agent-first-coding-ushering-a-new-vibe-in-software-development/"
+    ],
+    [
+      "/blog/how-google-antigravity-is-revolutionizing-agent-first-ides.html",
+      "/2025/11/24/how-google-antigravity-is-revolutionizing-agent-first-ides/"
+    ],
+    [
+      "/blog/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding.html",
+      "/2025/11/24/how-google-antigravity-reinvents-the-developer-ide-for-agent-first-vibe-coding/"
+    ],
+    [
+      "/blog/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together.html",
+      "/2025/11/24/inside-the-ai-pair-programming-room-when-cursor-claude-and-gpt-work-together/"
+    ],
+    [
+      "/blog/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases.html",
+      "/2025/11/24/open-source-vs-proprietary-in-vibe-coding-navigating-recent-model-releases/"
+    ],
+    [
+      "/blog/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development.html",
+      "/2025/11/24/the-backendless-revolution-how-openais-realtime-api-is-transforming-app-development/"
+    ],
+    [
+      "/blog/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch.html",
+      "/2025/11/24/the-death-of-the-blank-file-how-ai-ended-starting-from-scratch/"
+    ],
+    [
+      "/blog/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents.html",
+      "/2025/11/24/the-rise-of-enterprise-vibe-coding-transforming-major-firms-with-ai-agents/"
+    ],
+    [
+      "/blog/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration.html",
+      "/2025/11/24/the-symbiotic-dance-real-time-agent-swarms-and-llm-collaboration/"
+    ],
+    [
+      "/blog/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products.html",
+      "/2025/11/24/the-vibe-coding-economy-a-new-market-for-builders-templates-and-ai-native-products/"
+    ],
+    [
+      "/blog/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app.html",
+      "/2025/11/24/web-based-coding-agents-go-mainstream-unlocking-the-potential-of-claude-code-web-app/"
+    ],
+    [
+      "/blog/ai-native-software-why-2025-is-the-year-apps-build-themselves.html",
+      "/2025/11/28/ai-native-software-why-2025-is-the-year-apps-build-themselves/"
+    ],
+    [
+      "/blog/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development.html",
+      "/2025/11/28/cursors-autonomous-coding-upgrade-a-leap-in-ai-driven-development/"
+    ],
+    [
+      "/blog/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces.html",
+      "/2025/11/28/openais-ui-rendering-revolution-instantly-transforming-prompts-into-full-app-interfaces/"
+    ],
+    [
+      "/blog/replit-agents-20-the-dawn-of-autonomous-feature-development.html",
+      "/2025/11/28/replit-agents-20-the-dawn-of-autonomous-feature-development/"
+    ],
+    [
+      "/blog/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power.html",
+      "/2025/11/28/sintras-agent-objects-redefining-no-code-automation-with-unprecedented-power/"
+    ],
+    [
+      "/blog/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation.html",
+      "/2025/11/28/the-new-google-antigravity-ide-revolutionizing-code-with-gemini-and-agent-powered-innovation/"
+    ],
+    [
+      "/blog/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future.html",
+      "/2025/11/28/the-race-between-gemini-3-and-gpt-5-unpacking-their-role-in-vibe-codings-future/"
+    ],
+    [
+      "/blog/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding.html",
+      "/2025/11/28/vercels-v0-and-nextjs-16-redefining-instant-full-stack-scaffolding/"
+    ],
+    [
+      "/blog/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways.html",
+      "/2025/12/02/grok-4-is-revolutionizing-vibe-coding-in-unprecedented-ways/"
+    ],
+    [
+      "/blog/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development.html",
+      "/2025/12/02/the-2025-vibe-trinity-continuedev-windsurf-and-aider-revolutionizing-ai-development/"
+    ],
+    [
+      "/blog/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing.html",
+      "/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/"
+    ],
+    [
+      "/2025/12/16/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/",
+      "/2025/12/15/emergent-the-indian-startup-pioneering-vibe-coding-with-googles-backing/"
+    ],
+    [
+      "/blog/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities.html",
+      "/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/"
+    ],
+    [
+      "/2025/12/16/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/",
+      "/2025/12/15/exploring-the-safety-of-vibe-coding-a-deep-dive-into-agent-generated-code-vulnerabilities/"
+    ],
+    [
+      "/blog/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks.html",
+      "/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/"
+    ],
+    [
+      "/2025/12/16/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/",
+      "/2025/12/15/openais-gpt-52-redefining-ais-role-in-coding-and-professional-tasks/"
+    ],
+    [
+      "/blog/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration.html",
+      "/2025/12/15/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/"
+    ],
+    [
+      "/2025/12/16/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/",
+      "/2025/12/15/the-rise-and-fall-of-ai-vibe-coding-tools-an-in-depth-exploration/"
+    ],
+    [
+      "/blog/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype.html",
+      "/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/"
+    ],
+    [
+      "/2025/12/16/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/",
+      "/2025/12/15/the-rise-and-fall-of-vibe-coding-navigating-beyond-the-hype/"
+    ],
+    [
+      "/blog/ai-generated-code-the-silent-revolution-in-production-systems.html",
+      "/2025/12/28/ai-generated-code-the-silent-revolution-in-production-systems/"
+    ],
+    [
+      "/blog/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers.html",
+      "/2025/12/28/the-inventor-of-vibe-coding-predicts-a-new-era-of-software-roles-builders-and-reviewers/"
+    ],
+    [
+      "/blog/the-silent-revolution-ai-generated-code-in-production-systems.html",
+      "/2025/12/28/the-silent-revolution-ai-generated-code-in-production-systems/"
+    ],
+    [
+      "/blog/vibe-coding-the-revolutionary-force-reshaping-software-jobs.html",
+      "/2025/12/28/vibe-coding-the-revolutionary-force-reshaping-software-jobs/"
+    ],
+    [
+      "/blog/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding.html",
+      "/2026/01/24/from-solo-builders-to-ai-swarms-the-transformation-of-vibe-coding/"
+    ],
+    [
+      "/blog/security-in-the-age-of-vibe-coding-who-holds-the-reins.html",
+      "/2026/01/24/security-in-the-age-of-vibe-coding-who-holds-the-reins/"
+    ],
+    [
+      "/blog/the-ascendancy-of-planning-tools-over-traditional-coding-instruments.html",
+      "/2026/01/24/the-ascendancy-of-planning-tools-over-traditional-coding-instruments/"
+    ],
+    [
+      "/blog/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking.html",
+      "/2026/01/24/the-evolution-of-ai-coding-tools-from-code-generation-to-system-thinking/"
+    ],
+    [
+      "/blog/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development.html",
+      "/2026/01/24/the-evolution-of-vibe-coding-into-vibe-trading-beyond-software-development/"
+    ],
+    [
+      "/blog/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development.html",
+      "/2026/01/24/the-post-ide-revolution-how-cursor-lovable-and-base44-are-redefining-software-development/"
+    ],
+    [
+      "/blog/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code.html",
+      "/2026/01/24/the-rise-of-prompt-driven-architecture-designing-apps-before-writing-code/"
+    ],
+    [
+      "/blog/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers.html",
+      "/2026/01/24/the-silent-shift-vibe-coding-is-moving-power-from-engineers-to-product-thinkers/"
+    ],
+    [
+      "/blog/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers.html",
+      "/2026/01/24/vibe-coding-empowering-non-technical-product-managers-with-builder-superpowers/"
+    ],
+    [
+      "/blog/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers.html",
+      "/2026/02/01/claude-code-revolutionizes-local-llms-with-ollama-integration-for-privacy-driven-developers/"
+    ],
+    [
+      "/blog/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd.html",
+      "/2026/02/01/claude-code-revolutionizes-vibe-coding-with-parallel-agents-and-claudemd/"
+    ],
+    [
+      "/blog/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency.html",
+      "/2026/02/01/claude-code-revolutionizing-vibe-coding-with-unprecedented-speed-and-efficiency/"
+    ],
+    [
+      "/blog/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code.html",
+      "/2026/02/01/googles-ai-coding-agent-propels-antigravity-development-as-developers-leave-vs-code/"
+    ],
+    [
+      "/blog/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges.html",
+      "/2026/02/01/googles-antigravity-ai-surpasses-expectations-in-real-world-coding-challenges/"
+    ],
+    [
+      "/blog/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape.html",
+      "/2026/02/01/googles-free-vibe-coding-tools-antigravity-reshapes-the-competitive-landscape/"
+    ],
+    [
+      "/blog/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing.html",
+      "/2026/02/01/lovable-hits-major-update-transforming-no-code-development-with-enhanced-auto-planning-and-browser-testing/"
+    ],
+    [
+      "/blog/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026.html",
+      "/2026/02/01/qodo-the-ai-tool-revolutionizing-testing-and-refactoring-in-2026/"
+    ],
+    [
+      "/blog/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills.html",
+      "/2026/02/01/the-vibe-coding-controversy-are-tools-like-claude-code-and-antigravity-threatening-developer-skills/"
+    ],
+    [
+      "/blog/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026.html",
+      "/2026/02/01/the-vibe-coding-revolution-how-claude-code-and-clawdbot-stack-are-redefining-developer-workflows-in-2026/"
+    ],
+    [
+      "/blog/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams.html",
+      "/2026/02/10/anthropics-claude-opus-46-revolutionizing-vibe-coding-with-1m-token-context-and-agent-teams/"
+    ],
+    [
+      "/blog/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost.html",
+      "/2026/02/10/claude-opus-46-revolutionizes-lovables-app-development-with-21-efficiency-boost/"
+    ],
+    [
+      "/blog/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026.html",
+      "/2026/02/10/googles-antigravity-and-gemini-cli-redefining-developer-workflows-in-2026/"
+    ],
+    [
+      "/blog/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution.html",
+      "/2026/02/10/openais-codex-app-disrupts-claude-codes-reign-propelling-ai-coding-evolution/"
+    ],
+    [
+      "/blog/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows.html",
+      "/2026/02/10/openais-gpt-53-codex-a-self-building-ai-revolutionizing-agentic-workflows/"
+    ],
+    [
+      "/blog/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world.html",
+      "/2026/02/10/the-claude-code-revolution-triggering-a-saaspocalypse-in-the-software-world/"
+    ],
+    [
+      "/blog/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding.html",
+      "/2026/02/10/the-high-stakes-duel-gpt-53-codex-vs-opus-46-in-ai-coding/"
+    ],
+    [
+      "/blog/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46.html",
+      "/2026/02/10/the-high-stakes-duel-openai-and-anthropics-battle-with-gpt-53-codex-and-opus-46/"
+    ],
+    [
+      "/blog/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github.html",
+      "/2026/02/10/vibe-coding-hits-mainstream-the-ai-revolution-transforming-github/"
+    ],
+    [
+      "/blog/vibe-coding-platforms-revolutionize-development-with-claude-code-agents.html",
+      "/2026/02/10/vibe-coding-platforms-revolutionize-development-with-claude-code-agents/"
+    ],
+    [
+      "/blog/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation.html",
+      "/2026/02/24/anthropics-claude-code-security-a-paradigm-shift-in-ai-code-generation/"
+    ],
+    [
+      "/blog/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency.html",
+      "/2026/02/24/claude-sonnet-46-how-anthropics-latest-upgrade-transforms-coding-efficiency/"
+    ],
+    [
+      "/blog/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability.html",
+      "/2026/02/24/cline-ai-coding-assistant-breach-a-cautionary-tale-of-supply-chain-vulnerability/"
+    ],
+    [
+      "/blog/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation.html",
+      "/2026/02/24/emergents-meteoric-rise-how-a-vibe-coding-startup-reshaped-ai-code-generation/"
+    ],
+    [
+      "/blog/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language.html",
+      "/2026/02/24/google-antigravity-and-claude-code-lead-2026-rankings-expert-reviews-highlight-shift-to-agentic-programming-with-natural-language/"
+    ],
+    [
+      "/blog/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding.html",
+      "/2026/02/24/googles-antigravity-gemini-31-pro-transforms-ui-vibe-coding/"
+    ],
+    [
+      "/blog/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance.html",
+      "/2026/02/24/lovable-revolutionizes-vibe-coding-a-game-changer-in-the-2026-non-developer-renaissance/"
+    ],
+    [
+      "/blog/qodo-21-update-transforming-developer-workflows-with-precision.html",
+      "/2026/02/24/qodo-21-update-transforming-developer-workflows-with-precision/"
+    ],
+    [
+      "/blog/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding.html",
+      "/2026/02/24/the-impact-of-ai-tools-like-claude-code-on-developer-skill-mastery-and-the-future-of-vibe-coding/"
+    ],
+    [
+      "/blog/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny.html",
+      "/2026/02/24/vibe-coding-controversy-ai-generated-code-from-cursor-and-claude-code-faces-scrutiny/"
+    ],
+    [
+      "/blog/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding.html",
+      "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/"
+    ],
+    [
+      "/2026/03/03/anthropics-claude-code-downtime-unpacking-the-ripples-in-ai-coding/",
+      "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/"
+    ],
+    [
+      "/blog/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code.html",
+      "/2026/03/03/anthropics-voice-mode-revolutionizes-natural-language-programming-with-claude-code/"
+    ],
+    [
+      "/blog/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool.html",
+      "/2026/03/03/claude-code-faces-major-outage-amid-surging-demand-a-new-challenge-for-anthropics-vibe-coding-tool/"
+    ],
+    [
+      "/blog/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds.html",
+      "/2026/03/03/claude-code-vs-google-antigravity-the-agentic-coding-showdown-in-real-app-builds/"
+    ],
+    [
+      "/blog/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations.html",
+      "/2026/03/03/claudes-code-voice-feature-transforms-programming-through-natural-language-conversations/"
+    ],
+    [
+      "/blog/google-antigravity-gains-momentum-amid-anthropics-downtime.html",
+      "/2026/03/03/google-antigravity-gains-momentum-amid-anthropics-downtime/"
+    ],
+    [
+      "/blog/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters.html",
+      "/2026/03/03/lovable-and-bolt-surge-in-2026-vibe-coding-rankings-as-claude-code-falters/"
+    ],
+    [
+      "/blog/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity.html",
+      "/2026/03/03/navigating-the-vibe-coding-chaos-a-deep-dive-into-claude-codes-outage-and-the-shift-to-google-antigravity/"
+    ],
+    [
+      "/blog/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code.html",
+      "/2026/03/03/opengradient-plugin-upgrade-transforming-vibe-coding-with-verifiable-ai-outputs-in-claude-code/"
+    ],
+    [
+      "/blog/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation.html",
+      "/2026/03/03/the-qodo-revolution-challenging-claude-codes-reign-through-agentic-innovation/"
+    ],
+    [
+      "/blog/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025.html",
+      "/2026/05/13/integrating-vibe-coding-with-ai-for-rapid-prototyping-in-2025/"
+    ],
+    [
+      "/blog/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding.html",
+      "/2026/05/15/aws-kiros-spec-driven-approach-revolutionizing-agentic-ai-coding/"
+    ],
+    [
+      "/blog/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency.html",
+      "/2026/05/18/openais-codex-mobile-app-boosting-on-the-go-ai-coding-efficiency/"
+    ],
+    [
+      "/blog/openai-presence-revolutionizing-enterprise-ai-integration.html",
+      "/2026/07/26/openai-presence-revolutionizing-enterprise-ai-integration/"
+    ],
+    [
+      "/blog/amds-rocmai-ai-driven-development-tools-for-developers.html",
+      "/2026/07/28/amds-rocmai-ai-driven-development-tools-for-developers/"
+    ],
+    [
+      "/blog/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents.html",
+      "/2026/08/09/aws-kiros-spec-driven-approach-revolutionizing-ai-coding-agents/"
+    ],
+    [
+      "/blog/aws-kiro-tackles-vibe-coding-with-spec-driven-development.html",
+      "/2026/08/10/aws-kiro-tackles-vibe-coding-with-spec-driven-development/"
+    ],
+    [
+      "/blog/openai-presence-build-and-deploy-ai-agents-in-your-workflows.html",
+      "/2026/08/13/openai-presence-build-and-deploy-ai-agents-in-your-workflows/"
+    ],
+    [
+      "/blog/openais-frontier-transforming-enterprise-ai-agent-integration.html",
+      "/2026/08/14/openais-frontier-transforming-enterprise-ai-agent-integration/"
+    ]
+  ]
+}
