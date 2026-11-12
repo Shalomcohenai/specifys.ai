@@ -2580,19 +2580,19 @@ function triggerPlatformHint() {
   const scrollDelayInterval = 5000; // 5 seconds after scroll
 
   function switchTab(index) {
-    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    const tabButtons = document.querySelectorAll('button.browser-window-tab[role="tab"]');
     if (tabButtons.length === 0) return;
 
-    // Remove active class from all tabs
     tabButtons.forEach(tab => {
       tab.classList.remove('active');
       tab.setAttribute('aria-selected', 'false');
+      tab.tabIndex = -1;
     });
 
-    // Add active class to current tab
     if (tabButtons[index]) {
       tabButtons[index].classList.add('active');
       tabButtons[index].setAttribute('aria-selected', 'true');
+      tabButtons[index].tabIndex = 0;
     }
 
     // Show corresponding content
@@ -2600,9 +2600,12 @@ function triggerPlatformHint() {
     const currentTab = tabs[index];
     
     tabContents.forEach(content => {
-      content.classList.remove('active');
-      if (content.getAttribute('data-tab-content') === currentTab) {
-        content.classList.add('active');
+      const isActive = content.getAttribute('data-tab-content') === currentTab;
+      content.classList.toggle('active', isActive);
+      content.hidden = !isActive;
+      if (isActive) content.removeAttribute('aria-hidden');
+      else content.setAttribute('aria-hidden', 'true');
+      if (isActive) {
         
         // Render Mermaid diagrams if diagrams tab is active
         if (currentTab === 'diagrams') {
@@ -2743,7 +2746,7 @@ function triggerPlatformHint() {
 
   // Initialize tabs on page load
   document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    const tabButtons = document.querySelectorAll('button.browser-window-tab[role="tab"]');
     if (tabButtons.length === 0) return;
     
     

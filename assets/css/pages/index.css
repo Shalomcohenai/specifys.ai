@@ -291,7 +291,8 @@ body .logo a:hover .logo-dot {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background-color: #FF6B35;
+  /* #B33A00 with white is about 6:1 (WCAG AA) */
+  background-color: #B33A00;
   border-radius: 5px;
   color: white;
   font-weight: 600;
@@ -305,7 +306,7 @@ body .logo a:hover .logo-dot {
   transition: opacity 0.8s ease-out, transform 0.8s ease-out, background-color 0.5s ease;
 }
 
-/* Secondary Button */
+/* Secondary Button - Improved contrast for WCAG AA */
 .hero-cta-button-secondary {
   min-width: 160px;
   width: auto;
@@ -318,7 +319,8 @@ body .logo a:hover .logo-dot {
   background-color: white;
   border: none;
   border-radius: 5px;
-  color: #FF6B35;
+  /* #B33A00 on white is about 6:1 (WCAG AA) */
+  color: #B33A00;
   font-weight: 600;
   text-decoration: none;
   position: relative;
@@ -337,7 +339,7 @@ body .logo a:hover .logo-dot {
 
 .hero-cta-button-secondary:hover {
   background-color: #fff;
-  color: #FF8551;
+  color: #9A3412;
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
   text-decoration: none;
 }
@@ -398,7 +400,7 @@ body .logo a:hover .logo-dot {
 }
 
 .hero-cta-button-new:hover {
-  background-color: #FF8551;
+  background-color: #9A3412;
   transition-duration: 0.5s;
 }
 
@@ -2214,7 +2216,7 @@ body .logo a:hover .logo-dot {
     height: 50px;
     font-size: 1rem;
     background-color: white;
-    color: #FF6B35;
+    color: #B33A00;
     border: none;
   }
   .hero-description {
@@ -2348,7 +2350,7 @@ body .logo a:hover .logo-dot {
     height: 48px;
     font-size: 0.95rem;
     background-color: white;
-    color: #FF6B35;
+    color: #B33A00;
     border: none;
   }
   
@@ -3010,6 +3012,13 @@ body .logo a:hover .logo-dot {
   background: #27c93f;
 }
 
+.browser-window-tabbar {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: stretch;
+}
+
 .browser-window-tabs {
   display: flex;
   flex: 1;
@@ -3078,7 +3087,7 @@ body .logo a:hover .logo-dot {
 
 /* See More Tab - Orange style */
 .browser-window-tab.browser-window-tab-see-more {
-  background: #FF6B35;
+  background: #B33A00;
   color: white;
   text-decoration: none;
   flex: 0 0 auto;
@@ -3086,19 +3095,19 @@ body .logo a:hover .logo-dot {
 }
 
 .browser-window-tab.browser-window-tab-see-more:hover {
-  background: #FF8551;
+  background: #9A3412;
   color: white;
   text-decoration: none;
 }
 
 .browser-window-tab.browser-window-tab-see-more:active {
-  background: #FF6B35;
+  background: #9A3412;
   color: white;
   text-decoration: none;
 }
 
 .browser-window-tab.browser-window-tab-see-more.active {
-  background: #FF6B35;
+  background: #B33A00;
   color: white;
 }
 

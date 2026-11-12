@@ -72,19 +72,21 @@ defer_vanta: true
                         <span class="browser-control-dot browser-control-dot--minimize"></span>
                         <span class="browser-control-dot browser-control-dot--maximize"></span>
                 </div>
+                    <div class="browser-window-tabbar">
                     <div class="browser-window-tabs" id="browserWindowTabs" role="tablist" aria-label="Specification sections">
-                        <button class="browser-window-tab" data-tab="overview" role="tab" aria-selected="false" aria-controls="browser-overview">Overview</button>
-                        <button class="browser-window-tab" data-tab="technical" role="tab" aria-selected="false" aria-controls="browser-technical">Technical</button>
-                        <button class="browser-window-tab" data-tab="market" role="tab" aria-selected="false" aria-controls="browser-market">Market Research</button>
-                        <button class="browser-window-tab" data-tab="design" role="tab" aria-selected="false" aria-controls="browser-design">Design</button>
-                        <button class="browser-window-tab active" data-tab="diagrams" role="tab" aria-selected="true" aria-controls="browser-diagrams">Diagrams</button>
-                        <button class="browser-window-tab" data-tab="prompts" role="tab" aria-selected="false" aria-controls="browser-prompts">Prompts</button>
-                        <a href="/pages/demo-spec.html?example=relaydesk" class="browser-window-tab browser-window-tab-see-more" aria-label="See more">See more</a>
-                </div>
+                        <button class="browser-window-tab" id="browser-tab-overview" data-tab="overview" role="tab" aria-selected="false" aria-controls="browser-overview" tabindex="-1">Overview</button>
+                        <button class="browser-window-tab" id="browser-tab-technical" data-tab="technical" role="tab" aria-selected="false" aria-controls="browser-technical" tabindex="-1">Technical</button>
+                        <button class="browser-window-tab" id="browser-tab-market" data-tab="market" role="tab" aria-selected="false" aria-controls="browser-market" tabindex="-1">Market Research</button>
+                        <button class="browser-window-tab" id="browser-tab-design" data-tab="design" role="tab" aria-selected="false" aria-controls="browser-design" tabindex="-1">Design</button>
+                        <button class="browser-window-tab active" id="browser-tab-diagrams" data-tab="diagrams" role="tab" aria-selected="true" aria-controls="browser-diagrams" tabindex="0">Diagrams</button>
+                        <button class="browser-window-tab" id="browser-tab-prompts" data-tab="prompts" role="tab" aria-selected="false" aria-controls="browser-prompts" tabindex="-1">Prompts</button>
+                    </div>
+                    <a href="/pages/demo-spec.html?example=relaydesk" class="browser-window-tab browser-window-tab-see-more">See more</a>
+                    </div>
             </div>
                 <div class="browser-window-content">
                     <!-- Overview Tab Content -->
-                    <div class="browser-tab-content" data-tab-content="overview">
+                    <div class="browser-tab-content" id="browser-overview" role="tabpanel" aria-labelledby="browser-tab-overview" data-tab-content="overview" hidden>
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
@@ -120,7 +122,7 @@ defer_vanta: true
                     </div>
                     
                     <!-- Technical Tab Content -->
-                    <div class="browser-tab-content" data-tab-content="technical">
+                    <div class="browser-tab-content" id="browser-technical" role="tabpanel" aria-labelledby="browser-tab-technical" data-tab-content="technical" hidden>
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
@@ -160,7 +162,7 @@ defer_vanta: true
                     </div>
                     
                     <!-- Market Research Tab Content -->
-                    <div class="browser-tab-content" data-tab-content="market">
+                    <div class="browser-tab-content" id="browser-market" role="tabpanel" aria-labelledby="browser-tab-market" data-tab-content="market" hidden>
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
@@ -215,7 +217,7 @@ defer_vanta: true
                     </div>
                     
                     <!-- Design Tab Content (generic placeholder; real spec uses design from API) -->
-                    <div class="browser-tab-content" data-tab-content="design">
+                    <div class="browser-tab-content" id="browser-design" role="tabpanel" aria-labelledby="browser-tab-design" data-tab-content="design" hidden>
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
@@ -284,7 +286,7 @@ defer_vanta: true
                     </div>
                     
                     <!-- Diagrams Tab Content -->
-                    <div class="browser-tab-content active" data-tab-content="diagrams">
+                    <div class="browser-tab-content active" id="browser-diagrams" role="tabpanel" aria-labelledby="browser-tab-diagrams" data-tab-content="diagrams">
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
@@ -313,7 +315,7 @@ flowchart LR
             </div>
                     
                     <!-- Prompts Tab Content -->
-                    <div class="browser-tab-content" data-tab-content="prompts">
+                    <div class="browser-tab-content" id="browser-prompts" role="tabpanel" aria-labelledby="browser-tab-prompts" data-tab-content="prompts" hidden>
                         <div class="spec-wrapper">
                             <div class="spec-container">
                                 <div class="spec-label">Project Specifications</div>
