@@ -264,6 +264,13 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if false; // Only backend can write
     }
+
+    // Contact form messages. The public form writes through the API (Admin SDK),
+    // which bypasses these rules. Clients cannot read or write. Admins may read.
+    match /contactSubmissions/{submissionId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
   }
 }
 
