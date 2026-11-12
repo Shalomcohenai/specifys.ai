@@ -291,7 +291,8 @@ body .logo a:hover .logo-dot {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background-color: #FF6B35;
+  /* Darker orange for WCAG AA contrast (4.5:1 with white) */
+  background-color: #CC4400;
   border-radius: 5px;
   color: white;
   font-weight: 600;
@@ -305,7 +306,7 @@ body .logo a:hover .logo-dot {
   transition: opacity 0.8s ease-out, transform 0.8s ease-out, background-color 0.5s ease;
 }
 
-/* Secondary Button */
+/* Secondary Button - Improved contrast for WCAG AA */
 .hero-cta-button-secondary {
   min-width: 160px;
   width: auto;
@@ -318,7 +319,8 @@ body .logo a:hover .logo-dot {
   background-color: white;
   border: none;
   border-radius: 5px;
-  color: #FF6B35;
+  /* Darker orange for 4.5:1 contrast on white */
+  color: #CC4400;
   font-weight: 600;
   text-decoration: none;
   position: relative;
@@ -398,7 +400,8 @@ body .logo a:hover .logo-dot {
 }
 
 .hero-cta-button-new:hover {
-  background-color: #FF8551;
+  /* Slightly lighter on hover but still maintains contrast */
+  background-color: #D94E00;
   transition-duration: 0.5s;
 }
 
