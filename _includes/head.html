@@ -101,6 +101,8 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -183,6 +185,19 @@
     <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}">
     <!-- Components -->
     <link rel="stylesheet" href="{{ '/assets/css/components/buttons.css' | relative_url }}">
+    {% if optimize_lcp %}
+    <!-- Small utility sheets are not needed for first paint. .hidden is inlined in critical CSS. -->
+    <link rel="preload" href="{{ '/assets/css/utilities/display.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="{{ '/assets/css/utilities/text.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="{{ '/assets/css/utilities/display.css' | relative_url }}">
+      <link rel="stylesheet" href="{{ '/assets/css/utilities/text.css' | relative_url }}">
+      <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
+      <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
+    </noscript>
+    {% else %}
     <!-- Display Utilities -->
     <link rel="stylesheet" href="{{ '/assets/css/utilities/display.css' | relative_url }}">
     <!-- Text Utilities -->
@@ -191,6 +206,7 @@
     <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
     <!-- Visually Hidden Utility (for accessibility) -->
     <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
+    {% endif %}
     {% if optimize_lcp %}
     {% include critical-lcp-home.html %}
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
@@ -199,7 +215,7 @@
     {% if page.extra_css %}
       {% for css in page.extra_css %}
         {% if optimize_lcp %}
-          {% if css contains 'index-value' or css contains 'planning.css' or css contains 'paywall.css' %}
+          {% if css contains 'index-value' or css contains 'planning.css' or css contains 'paywall.css' or css contains 'living-brief' %}
         <link rel="preload" href="{{ css | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="{{ css | relative_url }}"></noscript>
           {% else %}
@@ -242,7 +258,7 @@
     <script defer src="{{ '/assets/js/core/store.js' | relative_url }}"></script>
     
     <!-- Safe localStorage utilities (must load early) -->
-    <script src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
     
     {% unless perf_shell == 'lean' %}
     <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
@@ -260,7 +276,7 @@
     <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
     {% endunless %}
     
-    {% unless perf_shell == 'lean' %}
+    {% unless perf_shell == 'lean' or optimize_lcp %}
     <!-- Security Utils -->
     <script type="module" src="{{ '/assets/js/core/security-utils.js' | relative_url }}"></script>
     {% endunless %}
@@ -271,8 +287,6 @@
     {% endif %}
     
     <!-- Fonts - fewer weights; async stylesheet to unblock LCP text paint with system fallback -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     {% assign font_css_href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap' %}
     <link rel="preload" as="style" href="{{ font_css_href }}">

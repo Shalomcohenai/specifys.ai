@@ -329,6 +329,9 @@ function handleStartButtonClick() {
   var startBtn = document.getElementById('startButton');
   if (startBtn) startBtn.disabled = true;
 
+  if (typeof window.__specifysEnsureFirestore === 'function') {
+    window.__specifysEnsureFirestore();
+  }
   var ensureLibs = (typeof window.__specifysEnsureIdleScripts === 'function')
     ? window.__specifysEnsureIdleScripts()
     : Promise.resolve();
@@ -2652,18 +2655,19 @@ function triggerPlatformHint() {
   }
 
   function renderBrowserDiagrams() {
+    const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
+    if (!diagramsContainer) return;
+    const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
+      return !el.querySelector('svg');
+    });
+    // Homepage ships a pre-rendered SVG. Do not download Mermaid (~1MB) until a raw diagram exists.
+    if (mermaidElements.length === 0) return;
+
     loadMermaidWithFallbacks().then(function (m) {
       if (!m && typeof mermaid !== 'undefined') m = mermaid;
       if (!m) return;
 
       try {
-        const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
-        if (!diagramsContainer) return;
-        
-        const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
-          return !el.querySelector('svg');
-        });
-        if (mermaidElements.length === 0) return;
 
         if (typeof window.sanitizeMermaidSource === 'function') {
           mermaidElements.forEach(function (el) {
