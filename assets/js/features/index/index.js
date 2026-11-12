@@ -403,10 +403,10 @@ window.generateSpecFromPlanning = function() {
   
   // Call generateSpecification
   if (typeof generateSpecification === 'function') {
-    generateSpecification();
-  } else {
-    alert('Error: Could not generate specification.');
+    return generateSpecification();
   }
+  reportGenerationStop('unavailable');
+  return { ok: false, code: 'unavailable' };
 }
 
 // ===== TEMPLATE PREFILLS (Example Specs) =====
@@ -1156,8 +1156,27 @@ function updateMicrophoneButton() {
 // (Demo function and all data permanently removed)
 
 // ===== API INTEGRATION =====
+function reportGenerationStop(input) {
+  if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.presentGenerationStop === 'function') {
+    window.SpecFlowFeedback.presentGenerationStop(input, {
+      onRetry: function () {
+        if (typeof generateSpecification === 'function') generateSpecification();
+      }
+    });
+  }
+}
+
+function markGenerationStage(index) {
+  if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.setGenerationStage === 'function') {
+    window.SpecFlowFeedback.setGenerationStage(index);
+  }
+}
+
 async function generateSpecification() {
   try {
+    if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.startGenerationProgress === 'function') {
+      window.SpecFlowFeedback.startGenerationProgress();
+    }
     // Clear any previous spec data to force creating a NEW spec
     localStorage.removeItem('currentSpecId');
     localStorage.removeItem('generatedOverviewContent');
@@ -1231,7 +1250,8 @@ async function generateSpecification() {
       } else {
         window.location.href = `/pages/auth.html?next=${next}&redirect=profile`;
       }
-      return;
+      reportGenerationStop('auth');
+      return { ok: false, code: 'auth' };
     }
     
     // Update store with loading state
@@ -1264,10 +1284,11 @@ async function generateSpecification() {
             });
             window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
           } catch (redirectError) {
-            alert(paywallPayload.message || 'Subscribe to Pro for unlimited specifications.');
+            reportGenerationStop('credits');
           }
         }
-        return;
+        reportGenerationStop('credits');
+        return { ok: false, code: 'credits' };
       }
     }
     
@@ -1399,17 +1420,20 @@ async function generateSpecification() {
               });
               window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
             } catch (redirectError) {
-              alert(paywallPayload.message);
+              reportGenerationStop('credits');
             }
           }
-          return;
+          reportGenerationStop('credits');
+          return { ok: false, code: 'credits' };
         }
         
         // Other errors
-        alert(errorMessage || 'Failed to consume credit. Please try again.');
-        return;
+        reportGenerationStop(creditError);
+        return { ok: false, code: 'network' };
       }
     }
+
+    markGenerationStage(1);
     
     // Generate specification - try queue API first, fallback to direct API
     // Now that credit is consumed, we can safely create spec and start background job
@@ -1587,9 +1611,10 @@ async function generateSpecification() {
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
         } catch (redirectError) {
-          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
+          reportGenerationStop('credits');
         }
-        return;
+        reportGenerationStop('credits');
+        return { ok: false, code: 'credits' };
       }
       // Handle other errors
       let errorMessage = error.message || 'Failed to generate specification';
@@ -1657,8 +1682,9 @@ async function generateSpecification() {
       
       // Redirect to spec viewer immediately - listener will update when ready
       // welcome=1 triggers the first-visit spotlight tour once
+      markGenerationStage(2);
       window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
-      return; // Exit early - queue will handle the rest
+      return { ok: true, specId: firebaseId }; // Exit early - queue will handle the rest
     }
     
     // Normal flow - direct API was used
@@ -1724,7 +1750,9 @@ async function generateSpecification() {
     
     // Redirect to spec viewer immediately with Firebase ID
     // welcome=1 triggers the first-visit spotlight tour once
+    markGenerationStage(2);
     window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
+    return { ok: true, specId: firebaseId };
     
   } catch (error) {
     // Reset button loading state
@@ -1733,10 +1761,8 @@ async function generateSpecification() {
       setButtonLoading(generateButton, false);
     }
     
-    const errorMessage = error.message || 'Error generating specification. Please try again.';
-    
-    // Show user-friendly error message
-    alert(`Error: ${errorMessage}\n\nPlease check the console for more details.`);
+    reportGenerationStop(error);
+    return { ok: false, code: 'generic' };
   }
 }
 

@@ -10,8 +10,10 @@ extra_css:
   - /assets/css/pages/planning.css
   - /assets/css/pages/living-brief.css
   - /assets/css/pages/paywall.css
+  - /assets/css/components/flow-states.css
 extra_js:
   # Critical homepage behavior only - planning/mermaid/paywall load idle or on Start
+  - /assets/js/features/spec-flow-feedback.js
   - /assets/js/features/index/audience-picker.js
   - /assets/js/features/index/index.js
   - /assets/js/features/index/index-vanta.js
@@ -407,6 +409,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                 <div class="lb-confetti" id="lbConfetti" aria-hidden="true"></div>
                 <div class="lb-layout" id="lbLayout">
                     <div class="lb-main">
+                        <div id="flow-generation-host" class="flow-generation-host" hidden></div>
                         <div class="lb-topbar">
                             <div class="lb-brand">
                                 <p class="lb-brand-title">Living Brief</p>

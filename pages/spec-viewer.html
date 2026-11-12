@@ -11,7 +11,9 @@ extra_css:
   - /assets/css/features/spec-viewer-navigation.css
   - /assets/css/features/spec-viewer-tour.css
   - /assets/css/pages/mcp-modal.css
+  - /assets/css/components/flow-states.css
 extra_js:
+  - /assets/js/features/spec-flow-feedback.js
   - /assets/js/script.js
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
   - /assets/js/services/spec-cache.js
@@ -114,11 +116,7 @@ custom_js_modules:
             </p>
         </div>
         
-        <div id="error" class="error hidden" role="alert" aria-live="assertive">
-            <h3><i class="fa fa-times-circle" aria-hidden="true"></i> Error</h3>
-            <p id="error-message"></p>
-            <button onclick="retryLoad()" class="btn btn-primary" aria-label="Retry loading specification">Retry</button>
-        </div>
+        <div id="error" class="error hidden" role="alert" aria-live="assertive"></div>
         
         <div id="content" class="hidden">
             <!-- Progress Bar with Rotating Messages -->
