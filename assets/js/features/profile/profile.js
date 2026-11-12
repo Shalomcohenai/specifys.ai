@@ -319,8 +319,16 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
 
                 
-                document.getElementById('workspace-container').innerHTML = 
-                    '<div class="error">Error loading workspace: ' + error.message + '</div>';
+                const workspaceContainer = document.getElementById('workspace-container');
+                if (workspaceContainer && window.SpecFlowFeedback) {
+                    window.SpecFlowFeedback.fillContainer(
+                        workspaceContainer,
+                        window.SpecFlowFeedback.renderNoticeHTML(window.SpecFlowFeedback.describeEmptyWorkspace('error')),
+                        { onRetry: function () { loadWorkspace(); } }
+                    );
+                } else if (workspaceContainer) {
+                    workspaceContainer.innerHTML = '<div class="error" role="alert"><p>Workspace could not load.</p><p>Next: retry, or start a new spec from the homepage.</p></div>';
+                }
             }
         }
 
@@ -438,16 +446,27 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const workspaceContainer = document.getElementById('workspace-container');
             
             if (items.length === 0) {
-                workspaceContainer.innerHTML = `
+                const model = window.SpecFlowFeedback
+                    ? window.SpecFlowFeedback.describeEmptyWorkspace('empty')
+                    : null;
+                if (model && window.SpecFlowFeedback.fillContainer) {
+                    window.SpecFlowFeedback.fillContainer(
+                        workspaceContainer,
+                        window.SpecFlowFeedback.renderNoticeHTML(model),
+                        { onCreate: () => { if (typeof window.goToCreateSpec === 'function') window.goToCreateSpec(); } }
+                    );
+                } else {
+                    workspaceContainer.innerHTML = `
                     <div class="no-specs">
                         <div class="no-specs-icon"><i class="fas fa-folder-open"></i></div>
-                        <h4>Your workspace is empty</h4>
-                        <p>Create your first specification to get started!</p>
+                        <h4>No specifications yet</h4>
+                        <p>Describe the product on the homepage, then choose Generate.</p>
                         <button class="btn" onclick="goToCreateSpec()">
-                            Create New Specification
+                            Create your first spec
                         </button>
                     </div>
                 `;
+                }
                 return;
             }
             

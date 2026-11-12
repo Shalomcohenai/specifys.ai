@@ -2018,7 +2018,7 @@ function displayTechnical(technical) {
     console.log('[displayTechnical] Technical has content, displaying...');
     
     if (technical === 'error') {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
+            container.innerHTML = stageFailureHtml('technical');
         displaySectionLoading(headerElement, false);
         const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
         if (retryTechnicalBtn) {
@@ -2145,7 +2145,7 @@ function displayMarket(market) {
     console.log('[displayMarket] Market has content, displaying...');
     
     if (market === 'error') {
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
+        container.innerHTML = stageFailureHtml('market');
         displaySectionLoading(headerElement, false);
         const retryMarketBtn = document.getElementById('retryMarketBtn');
         if (retryMarketBtn) {
@@ -2517,7 +2517,7 @@ function displayDesign(design) {
     
     if (design === 'error') {
         console.error('[displayDesign] Design generation error');
-        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Design Specification</h3><p>There was an error generating the design specification. Please try again.</p></div>';
+        container.innerHTML = stageFailureHtml('design');
         displaySectionLoading(headerElement, false);
         const retryDesignBtn = document.getElementById('retryDesignBtn');
         if (retryDesignBtn) {
@@ -7508,14 +7508,33 @@ function hideLoading() {
     }
 }
 
+function stageFailureHtml(stage) {
+    if (window.SpecFlowFeedback) {
+        return window.SpecFlowFeedback.renderNoticeHTML(window.SpecFlowFeedback.describeStageError(stage));
+    }
+    const label = stage ? stage.charAt(0).toUpperCase() + stage.slice(1) : 'This section';
+    return '<div class="locked-tab-message" role="alert"><h3>' + label + ' did not generate</h3><p>Next: use the Retry button in this section’s header.</p></div>';
+}
+
 function showError(message) {
     const loading = document.getElementById('loading');
     const error = document.getElementById('error');
-    const errorMessage = document.getElementById('error-message');
     const content = document.getElementById('content');
     if (loading) loading.style.display = 'none';
-    if (error) error.style.display = 'block';
-    if (errorMessage) errorMessage.textContent = message;
+    if (error) {
+        error.style.display = 'block';
+        error.classList.remove('hidden');
+        const model = window.SpecFlowFeedback
+            ? window.SpecFlowFeedback.describeLoadError(message)
+            : null;
+        if (model && window.SpecFlowFeedback.fillContainer) {
+            window.SpecFlowFeedback.fillContainer(error, window.SpecFlowFeedback.renderNoticeHTML(model), {
+                onRetry: () => { if (typeof retryLoad === 'function') retryLoad(); }
+            });
+        } else {
+            error.textContent = message || 'This spec didn’t load. Next: retry, or return to your workspace.';
+        }
+    }
     if (content) content.style.display = 'none';
     if (_specLoadingMessageInterval) {
         clearInterval(_specLoadingMessageInterval);

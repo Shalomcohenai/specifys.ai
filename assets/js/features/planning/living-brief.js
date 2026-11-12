@@ -1473,7 +1473,7 @@
     });
 
     if (!messages) return null;
-    const existing = messages.querySelector('.lb-msg--creating');
+    const existing = messages.querySelector('.lb-msg--creating, .lb-msg--flow');
     if (existing) {
       scrollChatToEnd();
       return existing;
@@ -1483,7 +1483,11 @@
     row.className = 'lb-msg lb-msg--assistant lb-msg--creating';
     row.setAttribute('role', 'status');
     row.setAttribute('aria-live', 'polite');
-    row.innerHTML = `
+    if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.mountProgress === 'function') {
+      window.SpecFlowFeedback.mountProgress(row);
+      window.SpecFlowFeedback.startGenerationProgress(row);
+    } else {
+      row.innerHTML = `
       <div class="lb-creating" aria-label="Creating your spec">
         <div class="lb-creating-row">
           <span class="lb-creating-orbit" aria-hidden="true"></span>
@@ -1495,9 +1499,24 @@
         <span class="lb-creating-bar" aria-hidden="true"><span class="lb-creating-bar-fill"></span></span>
       </div>
     `;
+    }
     messages.appendChild(row);
     scrollChatToEnd();
     return row;
+  }
+
+  function releaseGenerateControls() {
+    state.busy = false;
+    setProgressThinking(false);
+    const { generate } = els();
+    if (generate) {
+      generate.disabled = false;
+      generate.removeAttribute('aria-busy');
+    }
+    document.querySelectorAll('.lb-inline-generate').forEach((btn) => {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+    });
   }
 
   function handleGenerate() {
@@ -1513,13 +1532,18 @@
 
     // Let the in-chat “Creating…” cue paint before the heavier generate handoff
     window.setTimeout(() => {
-      if (typeof window.generateSpecFromPlanning === 'function') {
-        window.generateSpecFromPlanning();
-      } else {
-        state.busy = false;
-        setProgressThinking(false);
-        alert('Error: Could not generate specification.');
+      const run = window.generateSpecFromPlanning;
+      if (typeof run !== 'function') {
+        releaseGenerateControls();
+        if (window.SpecFlowFeedback) window.SpecFlowFeedback.presentGenerationStop('unavailable');
+        return;
       }
+      Promise.resolve(run()).then((result) => {
+        if (result && result.ok === false) releaseGenerateControls();
+      }).catch(() => {
+        releaseGenerateControls();
+        if (window.SpecFlowFeedback) window.SpecFlowFeedback.presentGenerationStop('generic');
+      });
     }, 720);
   }
 

@@ -8,7 +8,9 @@ custom_firebase: true
 extra_css:
   - /assets/css/pages/profile.css
   - /assets/css/pages/mcp-modal.css
+  - /assets/css/components/flow-states.css
 extra_js:
+  - /assets/js/features/spec-flow-feedback.js
   - /assets/js/script.js
   - /assets/js/features/profile/profile-scroll.js
 custom_js_modules:
@@ -102,7 +104,15 @@ custom_js_modules:
         </div>
 
         <div id="workspace-container" class="workspace-grid">
-            <div class="loading">Loading workspace...</div>
+            <div class="flow-loading" role="status" aria-live="polite">
+                <p class="flow-loading__label">Loading your specifications…</p>
+                <div class="flow-loading__track" aria-hidden="true"><span class="flow-loading__fill"></span></div>
+                <div class="flow-skeleton" aria-hidden="true">
+                    <div class="flow-skeleton__card"></div>
+                    <div class="flow-skeleton__card"></div>
+                    <div class="flow-skeleton__card"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Pagination -->
