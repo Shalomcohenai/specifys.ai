@@ -296,17 +296,8 @@ defer_vanta: true
                                     </h3>
                                     <p class="diagram-section-description">Enriched Technical + Architecture stages embed validated Mermaid diagrams (context, ER, auth, deploy).</p>
                                     <div class="diagram-container">
-                                        <div class="mermaid" id="mermaid-diagram-system-architecture">
-flowchart LR
-  User["Founder or Agent"] --> SPA["RelayDesk Web"]
-  SPA --> API["RelayDesk API"]
-  API --> DB[(Postgres)]
-  API --> Store[(Object Storage)]
-  Worker["Email Worker"] --> API
-  Worker --> Mail["Mail Provider"]
-  API --> Mail
-                </div>
-                </div>
+                                        {% include hero-relaydesk-diagram.html %}
+                                    </div>
             </div>
                 </div>
                 </div>

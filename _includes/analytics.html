@@ -1,4 +1,33 @@
-<!-- Google Analytics -->
+{% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
+{% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
+<!-- Google Analytics. Homepage delays the library until interaction so it stays out of the first-load main thread. Both measurement IDs are unchanged. -->
+{% if optimize_lcp %}
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+  gtag('config', 'G-4YR9LK63MR');
+  (function () {
+    var started = false;
+    function loadGtag() {
+      if (started) return;
+      started = true;
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7';
+      document.head.appendChild(script);
+    }
+    ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(function (evt) {
+      window.addEventListener(evt, loadGtag, { once: true, passive: true, capture: true });
+    });
+    window.addEventListener('load', function () {
+      setTimeout(loadGtag, 20000);
+    });
+  })();
+</script>
+{% else %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -7,6 +36,7 @@
   gtag('config', 'G-RWBT69JCM7');
   gtag('config', 'G-4YR9LK63MR');
 </script>
+{% endif %}
 
 <!-- Vercel Web Analytics (static site integration) -->
 <script>

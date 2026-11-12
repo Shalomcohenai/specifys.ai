@@ -2953,6 +2953,16 @@ body .logo a:hover .logo-dot {
   transform: translateY(0);
 }
 
+.hero-static-diagram {
+  overflow-x: auto;
+}
+
+.hero-static-diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .browser-window-frame {
   width: 100%;
   background: #1e1e1e;

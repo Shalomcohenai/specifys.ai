@@ -84,11 +84,19 @@
           var run = function () {
             if (window.__specifysEnsureIdleScripts) window.__specifysEnsureIdleScripts();
           };
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(run, { timeout: 4000 });
-          } else {
-            window.addEventListener('load', function () { setTimeout(run, 1500); });
+          var started = false;
+          function start() {
+            if (started) return;
+            started = true;
+            run();
           }
+          ['pointerdown', 'keydown', 'touchstart'].forEach(function (evt) {
+            window.addEventListener(evt, start, { once: true, passive: true, capture: true });
+          });
+          // Prefetch only after a long quiet period so first paint and input stay free.
+          window.addEventListener('load', function () {
+            setTimeout(start, 20000);
+          });
         }
         scheduleIdleLoad();
       })();
