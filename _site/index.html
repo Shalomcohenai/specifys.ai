@@ -118,34 +118,28 @@
     
     <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
     
-    <!-- Canonical URL: the absolute www URL this response serves, with a trailing slash on directory permalinks. -->
+    <!-- Canonical URL -->
     
-
-
-
-
-
-
-
-    <link rel="canonical" href="https://www.specifys-ai.com/">
-    <link rel="alternate" hreflang="en" href="https://www.specifys-ai.com/">
-    <link rel="alternate" hreflang="x-default" href="https://www.specifys-ai.com/">
-    <link rel="alternate" type="text/markdown" href="https://www.specifys-ai.com/llms.txt" title="LLM site index">
+    
+    <link rel="canonical" href="http://0.0.0.0:4000/">
+    <link rel="alternate" hreflang="en" href="http://0.0.0.0:4000/">
+    <link rel="alternate" hreflang="x-default" href="http://0.0.0.0:4000/">
+    <link rel="alternate" type="text/markdown" href="http://0.0.0.0:4000/llms.txt" title="LLM site index">
     
     <meta name="google-site-verification" content="8_O42wMHZTeWq6KipUYXmRqieXTY2PR0LPNLv6-HhRI">
     
     
     <meta name="msvalidate.01" content="">
     
-    <link type="application/atom+xml" rel="alternate" href="https://www.specifys-ai.com/feed.xml" title="Specifys.ai" />
+    <link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Specifys.ai" />
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="Plan Before AI Writes Code">
     <meta property="og:description" content="Stop prompting. Start planning. Specifys AI turns your idea into a complete PRD, user stories, architecture, and IDE-ready prompts - before a single line of code.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.specifys-ai.com/">
-    <meta property="og:image" content="https://www.specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Plan Before AI Writes Code - Specifys.ai">
@@ -158,7 +152,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Plan Before AI Writes Code">
     <meta name="twitter:description" content="Stop prompting. Start planning. Specifys AI turns your idea into a complete PRD, user stories, architecture, and IDE-ready prompts - before a single line of code.">
-    <meta name="twitter:image" content="https://www.specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Plan Before AI Writes Code - Specifys.ai">
     
     <!-- Favicon (transparent rounded-square "S", no white box around the squircle) -->
@@ -189,7 +183,7 @@
     <!-- Visually Hidden Utility (for accessibility) -->
     <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
     
-    
+    {# Inline critical CSS for homepage LCP — keep small; full styles still load via index.css #}
 <style id="critical-lcp-home">
   .hero-section {
     position: relative;
@@ -418,7 +412,6 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-RWBT69JCM7');
-  gtag('config', 'G-4YR9LK63MR');
 </script>
 
 <!-- Vercel Web Analytics (static site integration) -->
@@ -617,14 +610,11 @@ function trackPreference(preferenceName, preferenceValue) {
     {
       "@type": "Organization",
       "name": "Specifys.ai",
-      "url": "https://www.specifys-ai.com/",
-      "logo": "https://www.specifys-ai.com/favicon.ico",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
       "description": "AI-powered app planning and specification generation platform",
       "sameAs": [
-        "https://www.linkedin.com/company/specifys-ai/",
-        "https://prd.it.com/",
-        "https://rift-code.com/",
-        "https://www.adpulse-studio.com/"
+        "https://www.linkedin.com/company/specifys-ai/"
       ],
       "founder": {
         "@type": "Person",
@@ -643,11 +633,11 @@ function trackPreference(preferenceName, preferenceValue) {
     {
       "@type": "WebSite",
       "name": "Specifys.ai",
-      "url": "https://www.specifys-ai.com/",
+      "url": "https://specifys-ai.com",
       "description": "Plan your app smarter with AI-driven insights and tools",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://www.specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     },
@@ -825,7 +815,25 @@ function trackPreference(preferenceName, preferenceValue) {
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <!-- Skip to main content for accessibility -->
+        <!-- Access Code Modal -->
+<div class="access-code-modal" id="accessCodeModal" role="dialog" aria-modal="true" aria-labelledby="access-code-title" aria-hidden="true">
+    <div class="access-code-content">
+        <div class="access-code-header">
+            <h3 id="access-code-title">🔒 Access Required</h3>
+        </div>
+        <div class="access-code-body">
+            <p>The site is under maintenance. Please enter the access code to continue.</p>
+            <label for="accessCodeInput" class="visually-hidden">Access code</label>
+            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off" aria-label="Enter access code" aria-describedby="access-code-error" aria-required="true">
+            <div class="access-code-error hidden" id="accessCodeError" role="alert" aria-live="assertive">Incorrect code. Please try again.</div>
+        </div>
+        <div class="access-code-actions">
+            <button class="access-code-btn" id="accessCodeSubmit" aria-label="Submit access code">Enter</button>
+        </div>
+    </div>
+</div>
+
+<!-- Skip to main content for accessibility -->
 <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
 
 <!-- Hero Section -->
@@ -879,7 +887,7 @@ function trackPreference(preferenceName, preferenceValue) {
                         <button class="browser-window-tab" data-tab="design" role="tab" aria-selected="false" aria-controls="browser-design">Design</button>
                         <button class="browser-window-tab active" data-tab="diagrams" role="tab" aria-selected="true" aria-controls="browser-diagrams">Diagrams</button>
                         <button class="browser-window-tab" data-tab="prompts" role="tab" aria-selected="false" aria-controls="browser-prompts">Prompts</button>
-                        <a href="/pages/demo-spec.html?example=relaydesk" class="browser-window-tab browser-window-tab-see-more" aria-label="View full specification example">See more</a>
+                        <a href="/pages/demo-spec.html?example=relaydesk" class="browser-window-tab browser-window-tab-see-more" aria-label="See more">See more</a>
                 </div>
             </div>
                 <div class="browser-window-content">
@@ -1322,7 +1330,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
             <div id="section-panel" class="section-panel hidden-el">
                 <div class="section-header">
                     <div class="section-title-group">
-                        <h2 id="sec-title" class="section-title">Section</h2>
+                        <h2 id="sec-title" class="section-title">Title</h2>
                         <p id="sec-description" class="section-description">Description text goes here.</p>
                     </div>
                 </div>
@@ -2215,13 +2223,15 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
     
     
       
-        <script defer src="/assets/js/features/index/audience-picker.js?v=1794512275"></script>
+        <script defer src="/assets/js/features/index/audience-picker.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/features/index/index.js?v=1794512275"></script>
+        <script defer src="/assets/js/features/index/index.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/features/index/index-vanta.js?v=1794512275"></script>
+        <script defer src="/assets/js/features/index/index-vanta.js?v=1786357358"></script>
       
-        <script defer src="/assets/js/features/index/index-mermaid.js?v=1794512275"></script>
+        <script defer src="/assets/js/features/index/index-access-code.js?v=1786357358"></script>
+      
+        <script defer src="/assets/js/features/index/index-mermaid.js?v=1786357358"></script>
       
     
     
@@ -2230,7 +2240,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
     <script>
       (function () {
         var sources = ["/assets/js/services/prompts.js","/assets/js/paywall.js","/assets/js/features/planning/planning.js","/assets/js/features/planning/living-brief.js","/assets/js/features/index/example-templates.js"].map(function (src) {
-          return src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=1794512275';
+          return src + (src.indexOf('?') >= 0 ? '&' : '?') + 'v=1786357358';
         });
         if (!sources || !sources.length) return;
         var loading = null;
