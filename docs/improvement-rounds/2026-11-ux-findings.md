@@ -6,6 +6,31 @@
 
 ---
 
+## Lighthouse Baseline (External Measurement)
+**Source:** User-provided baseline from production  
+**URL:** https://www.specifys-ai.com/  
+**Device:** Mobile  
+**Date:** 2026-11-12
+
+| Metric | Score | Notes |
+|--------|-------|-------|
+| **Performance** | 66 | Below good threshold (90+) |
+| **Accessibility** | 75 | Below good threshold (90+) |
+| **Best Practices** | 73 | Below good threshold (90+) |
+| **SEO** | 92 | Good ✅ |
+
+**Key Performance Metrics:**
+- **Total Blocking Time (TBT):** ~1.1-1.2s (target: <300ms for 90+ score)
+- **Security Headers:** Only HSTS header set (missing other recommended headers)
+
+**Improvement Opportunities:**
+1. **Performance (66 → 90+):** Reduce TBT, optimize JavaScript execution, defer non-critical resources
+2. **Accessibility (75 → 90+):** Add missing ARIA labels, improve color contrast, ensure keyboard navigation
+3. **Best Practices (73 → 90+):** Add security headers (CSP, X-Content-Type-Options, etc.)
+4. **SEO (92):** Already in good range ✅
+
+---
+
 ## Executive Summary
 
 **Overall UX Status:** ✅ **GOOD** with improvement opportunities
