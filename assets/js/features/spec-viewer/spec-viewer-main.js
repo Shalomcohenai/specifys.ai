@@ -836,9 +836,10 @@ function showNotification(message, type = 'info') {
     // Add styles
     notification.style.cssText = `
         position: fixed !important;
-        bottom: 150px !important;
+        top: 76px !important;
+        bottom: auto !important;
         left: 50% !important;
-        transform: translateX(-50%) translateY(100px) !important;
+        transform: translateX(-50%) translateY(-16px) !important;
         background: #FF6B35 !important;
         backdrop-filter: blur(10px) !important;
         color: #ffffff !important;
@@ -910,7 +911,7 @@ function showNotification(message, type = 'info') {
         
         @keyframes slideUpIn {
             from {
-                transform: translateX(-50%) translateY(100px);
+                transform: translateX(-50%) translateY(-16px);
                 opacity: 0;
             }
             to {
@@ -925,7 +926,7 @@ function showNotification(message, type = 'info') {
                 opacity: 1;
             }
             to {
-                transform: translateX(-50%) translateY(100px);
+                transform: translateX(-50%) translateY(-16px);
                 opacity: 0;
             }
         }
