@@ -243,6 +243,89 @@
   line-height: 1.35;
 }
 
+/* ----- What a spec contains ----- */
+.deliverable-section {
+  padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
+  background: #fff8f3;
+  position: relative;
+  z-index: 2;
+}
+
+.deliverable-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.deliverable-lead {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-color, #333);
+  margin: 0 0 1.5rem;
+  max-width: 42rem;
+}
+
+.deliverable-stages {
+  list-style: none;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.deliverable-stage {
+  background: #fff;
+  border: 1px solid #f0d9c8;
+  border-radius: 12px;
+  padding: 1rem 1rem 1.1rem;
+}
+
+.deliverable-stage h3 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #B33A00;
+  margin: 0 0 0.4rem;
+}
+
+.deliverable-stage p {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-color, #333);
+  margin: 0;
+}
+
+.deliverable-list-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin: 0 0 0.75rem;
+}
+
+.deliverable-sections {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 1.25rem;
+}
+
+.deliverable-sections li {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text-color, #333);
+  margin: 0;
+}
+
+.deliverable-sections strong {
+  color: #1a1510;
+}
+
 /* ----- How it works (3 steps) ----- */
 .how-works-section {
   padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
@@ -570,6 +653,11 @@
   .how-works-steps {
     grid-template-columns: 1fr;
     gap: 1.75rem;
+  }
+
+  .deliverable-stages,
+  .deliverable-sections {
+    grid-template-columns: 1fr;
   }
 
   .value-numbers {
