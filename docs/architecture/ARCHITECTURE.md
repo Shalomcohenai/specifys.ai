@@ -571,7 +571,7 @@ Routes mounted at `/api/v3/credits` only when `CREDITS_V3_ENABLED=true`.
 4. `subscription_updated/cancelled/expired` → `upsertSubscriptionFromWebhook` → `enableProSubscription` / `disableProSubscription`
 5. Record in `purchases`, `subscriptions_v3`, `audit_logs`
 
-**Webhook secret env:** set `LEMON_WEBHOOK_SECRET` in production (see §10 — `LEMON_SQUEEZY_WEBHOOK_SECRET` in `env-check` is a warning-only alias mismatch).
+**Webhook secret env:** set `LEMON_WEBHOOK_SECRET` in production. `env-check.js` warns when that name is missing. The webhook also accepts `LEMON_SQUEEZY_WEBHOOK_SECRET` as a fallback.
 
 **External APIs:** Lemon Squeezy REST API (`api.lemonsqueezy.com/v1/`) for checkout, subscription cancel, order/subscription/customer lookups.
 
@@ -1269,7 +1269,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | `OPENAI_API_KEY` | OpenAI API |
 | `RESEND_API_KEY` | Email (Resend) |
 | `LEMON_SQUEEZY_API_KEY` | Lemon Squeezy API |
-| `LEMON_WEBHOOK_SECRET` | Webhook HMAC verification (**runtime** — `lemon-routes.js`). `env-check.js` warns on missing `LEMON_SQUEEZY_WEBHOOK_SECRET` (naming mismatch — set `LEMON_WEBHOOK_SECRET` in Render) |
+| `LEMON_WEBHOOK_SECRET` | Webhook HMAC verification (`lemon-routes.js`). `env-check.js` warns when this name is missing. `LEMON_SQUEEZY_WEBHOOK_SECRET` is a fallback alias only. |
 
 ### Optional
 
@@ -1346,7 +1346,7 @@ Frontend → POST /api/live-brief/summarize {text}
 | Duplicate files | Resolved — canonical shared files are under `assets/js/core/` |
 | spec-viewer-main.js | ~9,819 lines — nav moved to `_includes/spec-viewer-navigation.html`; DataService/TabManager/DiagramEngine/PromptEngine extracted; coordinator bridge remains; further prompt/diagram body migration ongoing |
 | Deploy workflows | `.github/workflows/deploy-*.yml` | Stubs only — production deploy is Render dashboard webhook / manual |
-| `LEMON_*` env naming | `env-check.js` vs `lemon-routes.js` | Warn uses `LEMON_SQUEEZY_WEBHOOK_SECRET`; runtime uses `LEMON_WEBHOOK_SECRET` |
+| `LEMON_*` env naming | Resolved — runtime and `env-check.js` both use `LEMON_WEBHOOK_SECRET`; `LEMON_SQUEEZY_WEBHOOK_SECRET` remains a webhook fallback |
 | Firestore indexes file | `firestore.indexes.json` | May list legacy collection groups (`specs_v2`, `apps`, …) not used by current flows |
 | `verifyFirebaseToken` | Resolved — centralized in `backend/server/middleware/auth.js` |
 | Worker URLs | Resolved — frontend uses `/api/auxiliary/*` |

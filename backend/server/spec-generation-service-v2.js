@@ -10,6 +10,7 @@ const { getSpecThreadManager } = require('./spec-thread-manager');
 const { STAGE_ROOT_KEYS, buildResponseFormat } = require('../schemas/spec-schemas');
 const { PROMPTS, formatUserRequirements, MERMAID_RULES_BLOCK } = require('../../packages/spec-prompts/index.cjs');
 const { runPromptStages, runIntegrations, assembleFullPrompt } = require('./prompts-stage-runner');
+const { mapWithConcurrency } = require('./async-pool');
 const {
   DIAGRAM_FIELDS,
   sanitizeMermaid,
@@ -56,6 +57,7 @@ class SpecGenerationServiceV2 {
 
     const tm = this._getThreadManager();
     const stats = { sanitized: 0, repaired: 0, dropped: 0, kept_invalid: 0 };
+    const pendingRepairs = [];
 
     for (const field of fields) {
       const original = getByPath(payload, field.path);
@@ -84,7 +86,10 @@ class SpecGenerationServiceV2 {
         continue;
       }
 
-      // Try one repair pass.
+      pendingRepairs.push({ field, sanitized, verdict });
+    }
+
+    await mapWithConcurrency(pendingRepairs, 4, async ({ field, sanitized, verdict }) => {
       logger.warn(
         { specId, requestId, stage, field: field.path, errors: verdict.errors },
         '[DiagramQA] Diagram failed validation — attempting repair'
@@ -106,7 +111,7 @@ class SpecGenerationServiceV2 {
         if (repairVerdict.ok) {
           setByPath(payload, field.path, repairedClean);
           stats.repaired += 1;
-          continue;
+          return;
         }
         logger.warn(
           { specId, requestId, stage, field: field.path, repairErrors: repairVerdict.errors },
@@ -131,7 +136,7 @@ class SpecGenerationServiceV2 {
           '[DiagramQA] Required diagram still invalid after repair — kept sanitized source for frontend fallback'
         );
       }
-    }
+    });
 
     if (stats.sanitized || stats.repaired || stats.dropped || stats.kept_invalid) {
       logger.info(
@@ -358,10 +363,10 @@ class SpecGenerationServiceV2 {
   }
 
   /**
-   * Generate all specs sequentially by dependency groups:
-   * Group A: technical -> market -> design (overview-only)
-   * Group B: architecture -> visibility (overview + technical)
-   * Group C: prompts (all generated specs)
+   * Generate specs in dependency waves:
+   * Wave A (parallel, overview only): technical, market, design
+   * Wave B (parallel): architecture (needs A) and visibility (needs technical; prompt does not use architecture)
+   * Wave C: prompts, after every prior stage succeeded
    * Emits spec.update / spec.complete / spec.error.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content string
@@ -384,68 +389,77 @@ class SpecGenerationServiceV2 {
     };
     const stages = ['technical', 'market', 'design'];
 
-    for (const stage of stages) {
-      specEvents.emitSpecUpdate(specId, stage, 'generating', null);
+    await Promise.all(stages.map(async (stage) => {
       try {
         const content = await this.generateSection(specId, stage, overview, answers);
         processed[stage] = content;
         processed.successes.push({ stage, content });
       } catch (err) {
-        processed.errors.push({ stage, error: err, retryable: /timeout|network|ECONNREFUSED|ETIMEDOUT|AbortError/i.test(err.message) });
+        processed.errors.push({ stage, error: err, retryable: /timeout|network|ECONNREFUSED|ETIMEDOUT|AbortError/i.test(err.message || '') });
       }
-    }
+    }));
+
+    const followUps = [];
 
     if (processed.technical && processed.market && processed.design) {
-      specEvents.emitSpecUpdate(specId, 'architecture', 'generating', null);
-      try {
-        let architecture;
+      followUps.push((async () => {
+        specEvents.emitSpecUpdate(specId, 'architecture', 'generating', null);
         try {
-          architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design, answers);
-        } catch (firstErr) {
-          const empty =
-            /No assistant response content|empty content|Model refused/i.test(firstErr.message || '');
-          if (!empty) throw firstErr;
-          logger.warn(
-            { requestId, specId, error: firstErr.message },
-            '[SpecGenV2] Architecture empty/refused — retrying once'
-          );
-          architecture = await this.generateArchitecture(
-            specId,
-            overview,
-            processed.technical,
-            processed.market,
-            processed.design,
-            answers
-          );
+          let architecture;
+          try {
+            architecture = await this.generateArchitecture(specId, overview, processed.technical, processed.market, processed.design, answers);
+          } catch (firstErr) {
+            const empty =
+              /No assistant response content|empty content|Model refused/i.test(firstErr.message || '');
+            if (!empty) throw firstErr;
+            logger.warn(
+              { requestId, specId, error: firstErr.message },
+              '[SpecGenV2] Architecture empty/refused — retrying once'
+            );
+            architecture = await this.generateArchitecture(
+              specId,
+              overview,
+              processed.technical,
+              processed.market,
+              processed.design,
+              answers
+            );
+          }
+          processed.architecture = architecture;
+          specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
+          processed.successes.push({ stage: 'architecture', content: architecture });
+        } catch (err) {
+          logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Architecture failed');
+          specEvents.emitSpecError(specId, 'architecture', err);
+          processed.errors.push({
+            stage: 'architecture',
+            error: err,
+            retryable: /No assistant response content|timeout|network|ECONNREFUSED|ETIMEDOUT|AbortError/i.test(
+              err.message || ''
+            )
+          });
         }
-        processed.architecture = architecture;
-        specEvents.emitSpecUpdate(specId, 'architecture', 'ready', architecture);
-        processed.successes.push({ stage: 'architecture', content: architecture });
-      } catch (err) {
-        logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Architecture failed');
-        specEvents.emitSpecError(specId, 'architecture', err);
-        processed.errors.push({
-          stage: 'architecture',
-          error: err,
-          retryable: /No assistant response content|timeout|network|ECONNREFUSED|ETIMEDOUT|AbortError/i.test(
-            err.message || ''
-          )
-        });
-      }
+      })());
     }
 
-    if (processed.technical && processed.architecture) {
-      specEvents.emitSpecUpdate(specId, 'visibility', 'generating', null);
-      try {
-        const visibility = await this.generateVisibility(specId, overview, processed.technical, answers);
-        processed.visibility = visibility;
-        specEvents.emitSpecUpdate(specId, 'visibility', 'ready', visibility);
-        processed.successes.push({ stage: 'visibility', content: visibility });
-      } catch (err) {
-        logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Visibility failed');
-        specEvents.emitSpecError(specId, 'visibility', err);
-        processed.errors.push({ stage: 'visibility', error: err, retryable: false });
-      }
+    if (processed.technical) {
+      followUps.push((async () => {
+        specEvents.emitSpecUpdate(specId, 'visibility', 'generating', null);
+        try {
+          const visibility = await this.generateVisibility(specId, overview, processed.technical, answers);
+          processed.visibility = visibility;
+          specEvents.emitSpecUpdate(specId, 'visibility', 'ready', visibility);
+          processed.successes.push({ stage: 'visibility', content: visibility });
+        } catch (err) {
+          logger.error({ requestId, specId, error: err.message }, '[SpecGenV2] Visibility failed');
+          specEvents.emitSpecError(specId, 'visibility', err);
+          processed.errors.push({ stage: 'visibility', error: err, retryable: false });
+        }
+      })());
+    }
+
+    if (followUps.length) {
+      await Promise.all(followUps);
     }
 
     if (processed.technical && processed.market && processed.design && processed.architecture && processed.visibility) {
@@ -949,19 +963,22 @@ ${requirementsBlock}
     const technical = ctx.technical || '';
     const design = ctx.design || '';
 
-    const generatedStages = await runPromptStages(tm, threadId, {
+    const stagesPromise = runPromptStages(tm, threadId, {
       overview,
       technical,
       design,
       specId
     });
+    const integrationsPromise = runIntegrations(tm, threadId, overview, technical);
+    const generatedStages = await stagesPromise;
 
     if (generatedStages.length === 0) {
+      integrationsPromise.catch(() => {});
       throw new Error('All PRD stages failed to generate');
     }
 
     const fullPrompt = assembleFullPrompt(generatedStages, overview, technical);
-    const thirdPartyIntegrations = await runIntegrations(tm, threadId, overview, technical);
+    const thirdPartyIntegrations = await integrationsPromise;
 
     const bundle = {
       generated: true,
