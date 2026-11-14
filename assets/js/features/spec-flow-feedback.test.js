@@ -37,6 +37,7 @@ test('load errors pick a different next step for auth, permission, and a missing
 test('empty workspace offers create and an example', () => {
   const empty = api.describeEmptyWorkspace('empty');
   assert.match(empty.nextStep, /Generate/);
+  assert.match(empty.message, /8 to 10 minutes/);
   assert.equal(empty.actions[0].action, 'create');
   assert.match(empty.actions[1].href, /demo-spec/);
   const failed = api.describeEmptyWorkspace('error');

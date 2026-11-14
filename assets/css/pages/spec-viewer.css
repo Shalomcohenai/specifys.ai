@@ -2439,10 +2439,16 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .progress-message {
   text-align: center;
-  color: #666;
+  color: #333;
   font-size: 0.95em;
   font-weight: 500;
+  line-height: 1.45;
   animation: fade-in-out 3.5s infinite;
+}
+
+.progress-message.is-status {
+  animation: none;
+  opacity: 1;
 }
 
 @keyframes fade-in-out {

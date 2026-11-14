@@ -14,6 +14,7 @@ extra_css:
   - /assets/css/components/flow-states.css
 extra_js:
   - /assets/js/features/spec-flow-feedback.js
+  - /assets/js/features/spec-generation-progress.js
   - /assets/js/script.js
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
   - /assets/js/services/spec-cache.js
@@ -123,7 +124,7 @@ custom_js_modules:
             <div id="spec-generation-progress" class="spec-generation-progress hidden" role="status" aria-live="polite">
                 <div class="progress-bar-header">
                     <span class="progress-bar-stage" id="progress-stage-label">Preparing your specifications...</span>
-                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Progress percentage">0%</span>
+                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Current section">Section 1 of 7</span>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>

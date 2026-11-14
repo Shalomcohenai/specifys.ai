@@ -9687,65 +9687,23 @@ const progressMessages = [
     'Finalizing specification...'
 ];
 
-// Pipeline stages displayed in the progress bar. Weights reflect typical generation
-// time so the percentage moves at a roughly steady pace as each section completes.
-// Total of weights MUST equal 100.
-const SPEC_PROGRESS_STAGES = [
-    { key: 'overview',     weight: 5,  label: 'Overview' },
-    { key: 'technical',    weight: 25, label: 'Technical Specification' },
-    { key: 'market',       weight: 20, label: 'Market Research' },
-    { key: 'design',       weight: 20, label: 'Design & Branding' },
-    { key: 'architecture', weight: 15, label: 'Architecture' },
-    { key: 'visibility',   weight: 8,  label: 'GEO & SEO' },
-    { key: 'prompts',      weight: 7,  label: 'Prompts' },
-];
-
-/**
- * Compute a percentage and contextual label from spec.status.
- * - ready / error counts as fully done (terminal)
- * - generating counts as half done (so the bar moves the moment a stage starts)
- * - pending / undefined counts as not started
- */
+// Stage list lives in spec-generation-progress.js (key: 'prompts' is the last section).
+// Completed sections move the bar. The section that is still running does not add a
+// fake partial percent, which used to leave Prompts looking stuck at 97%.
 function computeSpecGenerationProgress(spec) {
-    const status = spec?.status || {};
-    let earned = 0;
-    let totalWeight = 0;
-    let currentStage = null;
-    let completed = 0;
-
-    for (const stage of SPEC_PROGRESS_STAGES) {
-        totalWeight += stage.weight;
-        const s = status[stage.key];
-        if (s === 'ready' || s === 'error') {
-            earned += stage.weight;
-            completed += 1;
-        } else if (s === 'generating') {
-            earned += stage.weight * 0.5;
-            if (!currentStage) currentStage = stage;
-        }
+    if (window.SpecGenerationProgress && typeof window.SpecGenerationProgress.compute === 'function') {
+        return window.SpecGenerationProgress.compute(spec);
     }
-
-    if (!currentStage) {
-        // No stage is actively generating; pick the first non-terminal stage as "next up"
-        currentStage = SPEC_PROGRESS_STAGES.find(s => {
-            const st = status[s.key];
-            return st !== 'ready' && st !== 'error';
-        }) || SPEC_PROGRESS_STAGES[SPEC_PROGRESS_STAGES.length - 1];
-    }
-
-    const percent = totalWeight > 0
-        ? Math.max(0, Math.min(100, Math.round((earned / totalWeight) * 100)))
-        : 0;
-
     return {
-        percent,
-        currentStage,
-        completed,
-        total: SPEC_PROGRESS_STAGES.length,
-        allDone: SPEC_PROGRESS_STAGES.every(s => {
-            const st = status[s.key];
-            return st === 'ready' || st === 'error';
-        }),
+        percent: 0,
+        headline: 'Preparing your specification',
+        detail: '',
+        expectation: 'A full spec usually takes 8 to 10 minutes.',
+        background: 'You can leave this page. Generation continues in the background, and we email you when it is ready.',
+        completed: 0,
+        total: 7,
+        allDone: false,
+        currentStage: { key: 'overview', label: 'Overview' }
     };
 }
 
@@ -9760,22 +9718,22 @@ function renderSpecGenerationProgress(spec) {
     const stageLabel = document.getElementById('progress-stage-label');
     if (!fill || !percentLabel || !stageLabel) return;
 
-    const { percent, currentStage, completed, total, allDone } = computeSpecGenerationProgress(spec);
+    const model = computeSpecGenerationProgress(spec);
+    const percent = model.allDone ? 100 : Math.round((model.completed / model.total) * 100);
+    const sectionNumber = model.allDone ? model.total : Math.min(model.completed + 1, model.total);
 
     fill.style.width = `${percent}%`;
-    percentLabel.textContent = `${percent}%`;
+    fill.classList.toggle('is-working', !model.allDone);
+    percentLabel.textContent = model.allDone ? 'Done' : `Section ${sectionNumber} of ${model.total}`;
+    percentLabel.setAttribute('aria-label', percentLabel.textContent);
+    stageLabel.textContent = model.headline || 'Preparing your specification';
 
-    if (allDone) {
-        stageLabel.textContent = `All specifications ready · ${total}/${total}`;
-        updateStageRecoveryBanner(spec);
-        return;
+    const messageElement = document.getElementById('progress-message');
+    if (messageElement) {
+        const parts = [model.detail, model.expectation, model.background].filter(Boolean);
+        messageElement.textContent = parts.join(' ');
+        messageElement.classList.add('is-status');
     }
-
-    const status = spec?.status || {};
-    const stageStatus = currentStage ? status[currentStage.key] : undefined;
-    const verb = stageStatus === 'generating' ? 'Generating' : (stageStatus === 'error' ? 'Failed' : 'Queued');
-    const safeLabel = currentStage?.label || 'Next stage';
-    stageLabel.textContent = `${verb}: ${safeLabel} · ${completed}/${total} done`;
     updateStageRecoveryBanner(spec);
 }
 
@@ -9922,17 +9880,10 @@ function startProgressBar() {
         return;
     }
     
-    // Set initial message
-    messageElement.textContent = progressMessages[0];
+    // Status text comes from the real stage. Do not rotate placeholder sentences
+    // over a section that is still running.
+    messageElement.classList.add('is-status');
     currentProgressMessageIndex = 0;
-    console.log('[startProgressBar] Initial message set:', progressMessages[0]);
-    
-    // Rotate messages every 3.5 seconds
-    progressMessageInterval = setInterval(() => {
-        currentProgressMessageIndex = (currentProgressMessageIndex + 1) % progressMessages.length;
-        messageElement.textContent = progressMessages[currentProgressMessageIndex];
-        console.log('[startProgressBar] Message rotated to:', progressMessages[currentProgressMessageIndex]);
-    }, 3500);
     
     console.log('[startProgressBar] Progress bar started successfully');
 }
