@@ -348,11 +348,18 @@
         .map((s) => s.replace(/^[,.\s]+|[,.\s]+$/g, '').trim())
         .filter((s) => s.length > 1 && s.length < 120);
     } else if (describesUserFlow(body)) {
-      steps = body
+      const pieces = body
         .split(/[,;]|\band\b/i)
         .map((s) => s.trim())
-        .filter((s) => s.length > 2 && s.length < 100)
-        .slice(0, 6);
+        .filter((s) => s.length > 2 && s.length < 100);
+      const actionish = pieces.filter((piece) =>
+        /^(user|users|customer|admin|they|open|create|add|book|select|choose|view|sign|pay|confirm|see|start|browse|enter|submit|pick|tap|click)/i.test(piece)
+      );
+      // Only split when the pieces are actions. A normal sentence with commas
+      // is one step, not a pile of fragments.
+      if (actionish.length >= 2 && actionish.length >= pieces.length - 1) {
+        steps = pieces.slice(0, 6);
+      }
     }
     return steps.slice(0, 8);
   }
@@ -361,9 +368,9 @@
     const steps = extractFlowSteps(text);
     if (steps.length >= 2) {
       addWorkflowWithData('Core happy path', steps);
-    } else if (describesUserFlow(text) || (state.lastAskedGap === 'structure' && stripTags(text).length >= 28)) {
-      const one = stripTags(text).trim().slice(0, 160);
-      addWorkflowWithData('Core happy path', ['Start', one, 'Done']);
+    } else if (state.lastAskedGap === 'structure' && stripTags(text).length >= 28) {
+      const one = stripTags(text).trim().slice(0, 240);
+      if (one) addWorkflowWithData('Core happy path', [one]);
     } else {
       return false;
     }

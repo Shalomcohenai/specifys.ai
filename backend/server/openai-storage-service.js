@@ -1,5 +1,6 @@
 const FormData = require('form-data');
 const { logger } = require('./logger');
+const { applySpecCompletionLimits, DEFAULT_TIMEOUT_MS } = require('./spec-generation-call-options');
 
 class OpenAIStorageService {
   constructor(apiKey) {
@@ -417,9 +418,10 @@ Always reference specific parts of the spec when relevant.`,
    * @param {{ mode: 'assistant', assistantId: string } | { mode: 'direct', model: string, instructions: string }} target - Assistant ref or direct model
    * @param {string} userMessage - User message content
    * @param {object} [responseFormat] - Optional OpenAI response_format (e.g. { type: 'json_schema', json_schema: { name, strict: true, schema } })
+   * @param {{ maxCompletionTokens?: number, reasoningEffort?: string, timeoutMs?: number }} [callOptions]
    * @returns {Promise<string>} Model response text (JSON string for strict schema stages)
    */
-  async runSpecGeneration(_threadId, target, userMessage, responseFormat) {
+  async runSpecGeneration(_threadId, target, userMessage, responseFormat, callOptions = {}) {
     let model;
     let systemPrompt;
     /** @type {number | null} */
@@ -455,25 +457,57 @@ Always reference specific parts of the spec when relevant.`,
       body.response_format = responseFormat;
     }
 
-    const m = String(model).toLowerCase();
-    const usesCompletionTokens = /^o[0-9]/.test(m) || /^gpt-5/.test(m);
-    if (usesCompletionTokens) {
-      body.max_completion_tokens = 16384;
-    } else {
-      body.max_tokens = 16384;
-      if (assistantTemperature !== null) {
-        body.temperature = assistantTemperature;
-      }
+    applySpecCompletionLimits(body, model, callOptions);
+    if (body.max_tokens != null && assistantTemperature !== null) {
+      body.temperature = assistantTemperature;
     }
 
-    const chatResponse = await this._fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+    const timeoutMs = callOptions.timeoutMs || DEFAULT_TIMEOUT_MS;
+    const maxAttempts = 3;
+    const started = Date.now();
+    let chatResponse = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        chatResponse = await this._fetch(`${this.baseURL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+      } catch (err) {
+        if (err?.name === 'AbortError') {
+          throw new Error(`Chat completions timed out after ${timeoutMs}ms`);
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
+
+      const retryable = chatResponse.status === 429
+        || chatResponse.status === 500
+        || chatResponse.status === 502
+        || chatResponse.status === 503
+        || chatResponse.status === 504;
+      if (chatResponse.ok || !retryable || attempt === maxAttempts) break;
+
+      const retryAfterHeader = chatResponse.headers?.get?.('retry-after');
+      const retryAfterSec = Number(retryAfterHeader);
+      const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+        ? Math.min(retryAfterSec * 1000, 20000)
+        : 1000 * attempt;
+      logger.warn(
+        { attempt, status: chatResponse.status, waitMs, model },
+        '[openai-storage] retrying spec generation'
+      );
+      await chatResponse.text().catch(() => {});
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
 
     if (!chatResponse.ok) {
       const errorText = await chatResponse.text();
@@ -514,6 +548,17 @@ Always reference specific parts of the spec when relevant.`,
     if (!content || typeof content !== 'string') {
       throw new Error('No assistant response content from chat completions');
     }
+    logger.info({
+      model,
+      durationMs: Date.now() - started,
+      reasoningEffort: body.reasoning_effort || null,
+      maxCompletionTokens: body.max_completion_tokens || body.max_tokens || null,
+      promptChars: typeof userMessage === 'string' ? userMessage.length : 0,
+      outputChars: content.length,
+      promptTokens: chatData.usage?.prompt_tokens,
+      completionTokens: chatData.usage?.completion_tokens,
+      finishReason: chatData.choices?.[0]?.finish_reason || null
+    }, '[openai-storage] spec generation call completed');
     return content;
   }
 

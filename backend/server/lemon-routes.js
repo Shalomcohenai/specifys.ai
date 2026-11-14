@@ -11,10 +11,18 @@ if (typeof globalThis.fetch === 'function') {
 }
 // Lemon Squeezy official SDK
 const { lemonSqueezySetup, createCheckout } = require('@lemonsqueezy/lemonsqueezy.js');
-const { db, admin } = require('./firebase-admin');
+const { db, admin, auth } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
+const {
+  lemonCheckoutMode,
+  resolveLemonWebhookSecret,
+  shouldEnableProForOrder,
+  markProActivationError,
+  isProActivationError,
+  proActivationFailureBody
+} = require('./lemon-pro-grant');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId, resolveVariantIdForProduct } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
@@ -181,7 +189,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     }
     const successUrl = `${frontendUrl}${normalizedSuccessPath}?${successParams.toString()}`;
 
-    const useTestMode = process.env.LEMON_TEST_MODE !== 'false';
+    const useTestMode = lemonCheckoutMode() === 'test';
     logger.debug({ requestId, useTestMode, testModeEnv: process.env.LEMON_TEST_MODE }, '[lemon-routes] Test mode configuration');
 
     // Prepare checkout parameters
@@ -691,7 +699,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     
     // Get webhook signature
     const signature = req.headers['x-signature'];
-    const secret = process.env.LEMON_WEBHOOK_SECRET;
+    const secret = resolveLemonWebhookSecret();
 
     if (!signature || !secret) {
       logger.warn({}, '[lemon-routes] Webhook unauthorized - missing signature or secret');
@@ -766,8 +774,9 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
       // Get user email from Firebase Auth for additional context
       let userEmail = null;
+      let userRecord = null;
       try {
-        const userRecord = await auth.getUser(orderData.userId);
+        userRecord = await auth.getUser(orderData.userId);
         userEmail = userRecord.email || null;
         logger.info({ 
           webhookRequestId,
@@ -839,7 +848,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               userId: orderData.userId
             }, '[lemon-routes] 🔵 Calling recordPurchase...');
 
-            await recordPurchase({
+            const purchaseRecord = await recordPurchase({
               orderId: orderData.orderId,
               orderNumber: orderData.orderNumber,
               userId: orderData.userId,
@@ -873,8 +882,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               paymentEmail: orderData.email
             }, '[lemon-routes] ✅ recordPurchase completed successfully - Purchase saved to Firestore');
 
-            // Send purchase confirmation email (non-blocking)
-            if (userEmail && productConfig) {
+            // Send purchase confirmation email (non-blocking). Skip on webhook retries.
+            if (userEmail && productConfig && !purchaseRecord.alreadyRecorded) {
               const emailService = require('./email-service');
               const baseUrl = process.env.BASE_URL || process.env.SITE_URL || 'https://specifys-ai.com';
               const productName = productConfig.name || 'Product';
@@ -1100,7 +1109,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                   }, '[lemon-routes] ❌ grantCredits FAILED - throwing error');
                   throw creditError;
                 }
-              } else if (productConfig.type === 'subscription') {
+              } else if (shouldEnableProForOrder({ testMode: orderData.testMode, productType: productConfig.type })) {
                 logger.info({ 
                   webhookRequestId,
                   orderId: orderData.orderId,
@@ -1212,7 +1221,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                     userId: orderData.userId,
                     error: subscriptionError.message 
                   }, '[lemon-routes] Error enabling subscription from order webhook');
-                  throw subscriptionError;
+                  throw markProActivationError(subscriptionError);
                 }
               } else {
                 // productConfig.type is NOT 'one_time' OR creditsToGrant is null/0
@@ -1402,6 +1411,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
           logger.info({ webhookRequestId, userId: subscriptionUserId, activityAction: activityAction || 'activated' }, '[lemon-routes] V3 subscription enabled from webhook');
         } catch (enableErr) {
           logger.error({ webhookRequestId, error: enableErr.message }, '[lemon-routes] Failed to enable Pro from webhook');
+          const failure = proActivationFailureBody(webhookRequestId);
+          return res.status(failure.status).json(failure.body);
         }
       }
 
@@ -1418,7 +1429,11 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
   } catch (error) {
     logger.error({ webhookRequestId, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /webhook - Error');
-    // Still return 200 to prevent Lemon Squeezy from retrying (webhooks should not use error handler)
+    if (isProActivationError(error)) {
+      const failure = proActivationFailureBody(webhookRequestId);
+      return res.status(failure.status).json(failure.body);
+    }
+    // Acknowledge other processing errors so Lemon does not retry a payload we cannot apply.
     res.status(200).json({ received: true, error: error.message, requestId: webhookRequestId });
   }
 });
