@@ -3,13 +3,14 @@ layout: default
 title: "Specifys Pro | $1.99/month"
 description: "Upgrade to Specifys Pro for unlimited app specifications, editing, mockups, GEO and SEO visibility, development prompts, and more - $1.99 per month."
 permalink: /pages/pricing.html
+optimize_lcp: true
 extra_css:
   - /assets/css/pages/pricing.css
 extra_js:
   - /assets/js/pages/pricing.js
 ---
 
-<main class="pricing-page" id="main-content" role="main">
+<div class="pricing-page">
     <section class="pro-hero" id="pricing" aria-labelledby="pro-hero-title">
         <div class="pro-hero-inner">
             <div class="pro-hero-badge">Specifys Pro</div>
@@ -25,7 +26,7 @@ extra_js:
                 <p class="pro-hero-price-note">Cancel anytime · 30-day money-back guarantee</p>
             </div>
 
-            <button class="btn btn-primary btn-lg pro-hero-cta" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro for 1.99 dollars per month">
+            <button class="btn btn-primary btn-lg pro-hero-cta" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')">
                 <span class="btn-content">
                     <span class="btn-text">Subscribe Now</span>
                     <span class="btn-spinner" aria-hidden="true"></span>
@@ -99,19 +100,19 @@ extra_js:
             <h2 id="pricing-faq-heading">Questions</h2>
             <div class="faq-grid">
                 <div class="faq-item">
-                    <h4>How does Pro work?</h4>
+                    <h3>How does Pro work?</h3>
                     <p>One subscription at $1.99/month unlocks unlimited specifications and every Pro feature. Cancel anytime from your profile.</p>
                 </div>
                 <div class="faq-item">
-                    <h4>Can I edit my specifications?</h4>
+                    <h3>Can I edit my specifications?</h3>
                     <p>Yes - editing and customizing specs is a Pro-only feature. Update your PRD as your product evolves.</p>
                 </div>
                 <div class="faq-item">
-                    <h4>What payment methods do you accept?</h4>
+                    <h3>What payment methods do you accept?</h3>
                     <p>All major credit cards, PayPal, and more through our secure Lemon Squeezy checkout.</p>
                 </div>
                 <div class="faq-item">
-                    <h4>Is there a money-back guarantee?</h4>
+                    <h3>Is there a money-back guarantee?</h3>
                     <p>Yes - 30-day money-back guarantee on all Pro subscriptions.</p>
                 </div>
             </div>
@@ -121,7 +122,7 @@ extra_js:
     <section class="pro-footer-cta" aria-label="Subscribe to Pro">
         <div class="pro-footer-cta-inner">
             <p class="pro-footer-cta-text">Ready to unlock everything?</p>
-            <button class="btn btn-primary btn-lg pro-footer-cta-btn" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Specifys Pro">
+            <button class="btn btn-primary btn-lg pro-footer-cta-btn" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')">
                 <span class="btn-content">
                     <span class="btn-text">Get Pro - $1.99/mo</span>
                     <span class="btn-spinner" aria-hidden="true"></span>
@@ -129,4 +130,4 @@ extra_js:
             </button>
         </div>
     </section>
-</main>
+</div>
