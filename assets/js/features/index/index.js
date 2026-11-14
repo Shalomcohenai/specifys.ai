@@ -406,10 +406,10 @@ window.generateSpecFromPlanning = function() {
   
   // Call generateSpecification
   if (typeof generateSpecification === 'function') {
-    generateSpecification();
-  } else {
-    alert('Error: Could not generate specification.');
+    return generateSpecification();
   }
+  reportGenerationStop('unavailable');
+  return { ok: false, code: 'unavailable' };
 }
 
 // ===== TEMPLATE PREFILLS (Example Specs) =====
@@ -1169,8 +1169,27 @@ async function ensureFirestoreForSave() {
   }
 }
 
+function reportGenerationStop(input) {
+  if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.presentGenerationStop === 'function') {
+    window.SpecFlowFeedback.presentGenerationStop(input, {
+      onRetry: function () {
+        if (typeof generateSpecification === 'function') generateSpecification();
+      }
+    });
+  }
+}
+
+function markGenerationStage(index) {
+  if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.setGenerationStage === 'function') {
+    window.SpecFlowFeedback.setGenerationStage(index);
+  }
+}
+
 async function generateSpecification() {
   try {
+    if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.startGenerationProgress === 'function') {
+      window.SpecFlowFeedback.startGenerationProgress();
+    }
     // Clear any previous spec data to force creating a NEW spec
     localStorage.removeItem('currentSpecId');
     localStorage.removeItem('generatedOverviewContent');
@@ -1244,7 +1263,8 @@ async function generateSpecification() {
       } else {
         window.location.href = `/pages/auth.html?next=${next}&redirect=profile`;
       }
-      return;
+      reportGenerationStop('auth');
+      return { ok: false, code: 'auth' };
     }
     
     // Update store with loading state
@@ -1269,6 +1289,9 @@ async function generateSpecification() {
         };
         if (typeof window.showPaywall === 'function') {
           window.showPaywall(paywallPayload);
+          if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+            window.SpecFlowFeedback.dismissGenerationProgress();
+          }
         } else {
           try {
             const searchParams = new URLSearchParams({
@@ -1276,11 +1299,14 @@ async function generateSpecification() {
               message: paywallPayload.message || 'Your free credit is used up'
             });
             window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+            if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+              window.SpecFlowFeedback.dismissGenerationProgress();
+            }
           } catch (redirectError) {
-            alert(paywallPayload.message || 'Subscribe to Pro for unlimited specifications.');
+            reportGenerationStop('credits');
           }
         }
-        return;
+        return { ok: false, code: 'credits' };
       }
     }
     
@@ -1404,6 +1430,9 @@ async function generateSpecification() {
           };
           if (typeof window.showPaywall === 'function') {
             window.showPaywall(paywallPayload);
+            if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+              window.SpecFlowFeedback.dismissGenerationProgress();
+            }
           } else {
             try {
               const searchParams = new URLSearchParams({
@@ -1411,19 +1440,23 @@ async function generateSpecification() {
                 message: paywallPayload.message
               });
               window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+              if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+                window.SpecFlowFeedback.dismissGenerationProgress();
+              }
             } catch (redirectError) {
-              alert(paywallPayload.message);
+              reportGenerationStop('credits');
             }
           }
-          return;
+          return { ok: false, code: 'credits' };
         }
         
         // Other errors
-        alert(errorMessage || 'Failed to consume credit. Please try again.');
-        return;
+        reportGenerationStop(creditError);
+        return { ok: false, code: 'network' };
       }
     }
 
+    markGenerationStage(1);
     await ensureFirestoreForSave();
     
     // Generate specification - try queue API first, fallback to direct API
@@ -1601,10 +1634,13 @@ async function generateSpecification() {
             message: paywallPayload.message || 'You have no remaining spec credits'
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+            window.SpecFlowFeedback.dismissGenerationProgress();
+          }
         } catch (redirectError) {
-          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Subscribe to Pro for unlimited specifications.');
+          reportGenerationStop('credits');
         }
-        return;
+        return { ok: false, code: 'credits' };
       }
       // Handle other errors
       let errorMessage = error.message || 'Failed to generate specification';
@@ -1672,8 +1708,9 @@ async function generateSpecification() {
       
       // Redirect to spec viewer immediately - listener will update when ready
       // welcome=1 triggers the first-visit spotlight tour once
+      markGenerationStage(2);
       window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
-      return; // Exit early - queue will handle the rest
+      return { ok: true, specId: firebaseId }; // Exit early - queue will handle the rest
     }
     
     // Normal flow - direct API was used
@@ -1739,7 +1776,9 @@ async function generateSpecification() {
     
     // Redirect to spec viewer immediately with Firebase ID
     // welcome=1 triggers the first-visit spotlight tour once
+    markGenerationStage(2);
     window.location.href = `/pages/spec-viewer.html?id=${firebaseId}&welcome=1`;
+    return { ok: true, specId: firebaseId };
     
   } catch (error) {
     // Reset button loading state
@@ -1748,10 +1787,8 @@ async function generateSpecification() {
       setButtonLoading(generateButton, false);
     }
     
-    const errorMessage = error.message || 'Error generating specification. Please try again.';
-    
-    // Show user-friendly error message
-    alert(`Error: ${errorMessage}\n\nPlease check the console for more details.`);
+    reportGenerationStop(error);
+    return { ok: false, code: 'generic' };
   }
 }
 
@@ -2596,19 +2633,19 @@ function triggerPlatformHint() {
   const scrollDelayInterval = 5000; // 5 seconds after scroll
 
   function switchTab(index) {
-    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    const tabButtons = document.querySelectorAll('button.browser-window-tab[role="tab"]');
     if (tabButtons.length === 0) return;
 
-    // Remove active class from all tabs
     tabButtons.forEach(tab => {
       tab.classList.remove('active');
       tab.setAttribute('aria-selected', 'false');
+      tab.tabIndex = -1;
     });
 
-    // Add active class to current tab
     if (tabButtons[index]) {
       tabButtons[index].classList.add('active');
       tabButtons[index].setAttribute('aria-selected', 'true');
+      tabButtons[index].tabIndex = 0;
     }
 
     // Show corresponding content
@@ -2616,9 +2653,12 @@ function triggerPlatformHint() {
     const currentTab = tabs[index];
     
     tabContents.forEach(content => {
-      content.classList.remove('active');
-      if (content.getAttribute('data-tab-content') === currentTab) {
-        content.classList.add('active');
+      const isActive = content.getAttribute('data-tab-content') === currentTab;
+      content.classList.toggle('active', isActive);
+      content.hidden = !isActive;
+      if (isActive) content.removeAttribute('aria-hidden');
+      else content.setAttribute('aria-hidden', 'true');
+      if (isActive) {
         
         // Render Mermaid diagrams if diagrams tab is active
         if (currentTab === 'diagrams') {
@@ -2760,7 +2800,7 @@ function triggerPlatformHint() {
 
   // Initialize tabs on page load
   document.addEventListener('DOMContentLoaded', function() {
-    const tabButtons = document.querySelectorAll('.browser-window-tab');
+    const tabButtons = document.querySelectorAll('button.browser-window-tab[role="tab"]');
     if (tabButtons.length === 0) return;
     
     
