@@ -320,6 +320,11 @@
     height: 56px;
     align-items: center;
     overflow-x: hidden;
+    gap: 12px;
+  }
+  .header-left {
+    flex: 0 0 auto;
+    max-width: 58%;
   }
   .logo a {
     font-size: 1rem;
@@ -329,15 +334,20 @@
   }
   .header-right {
     justify-content: flex-end;
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
     margin-left: 0;
     align-items: center;
     width: auto;
-    max-width: 100%;
+    max-width: 46%;
   }
   .header-center {
+    position: static;
+    flex: 1 1 auto;
+    justify-content: center;
     align-items: center;
+    min-width: 0;
+    padding-inline: 8px;
   }
   .header-center .logo {
     display: flex;
