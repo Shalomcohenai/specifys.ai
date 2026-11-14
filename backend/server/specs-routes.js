@@ -300,8 +300,8 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
 });
 
 /**
- * Generate all specs by dependency order:
- * technical -> market -> design -> architecture -> visibility -> prompts
+ * Generate all specs in dependency waves:
+ * technical + market + design in parallel, then architecture + visibility in parallel, then prompts.
  * POST /api/specs/:id/generate-all
  * Body: { overview: string, answers: Array }
  * Returns: 202 Accepted immediately, processes in background

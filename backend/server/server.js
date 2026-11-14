@@ -1107,8 +1107,10 @@ const server = app.listen(port, () => {
     logger.info({ type: 'config_check' }, '✅ Google Sheets webhook URL configured');
   }
 
-  // Keep-alive mechanism: ping health endpoint every 30 minutes to prevent Render from sleeping
-  const KEEP_ALIVE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+  // Keep-alive: Render free web services spin down after 15 minutes without inbound
+  // HTTP. A 30-minute ping misses that window, so the next spec pays a cold start
+  // before overview begins. 10 minutes stays inside the free-tier idle window.
+  const KEEP_ALIVE_INTERVAL = 10 * 60 * 1000;
   // Use external URL if available (for Render), otherwise fallback to localhost
   // Prefer RENDER_EXTERNAL_URL (set automatically by Render) over RENDER_URL
   const baseUrl = process.env.RENDER_EXTERNAL_URL 
