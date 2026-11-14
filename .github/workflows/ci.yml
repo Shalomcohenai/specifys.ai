@@ -26,7 +26,7 @@ jobs:
       - name: Run linting (if configured)
         run: |
           if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f "eslint.config.js" ]; then
-            npm run lint || echo "Linting not configured"
+            npm run lint
           else
             echo "No linting configuration found, skipping..."
           fi
@@ -61,20 +61,15 @@ jobs:
 
       - name: Build with Vite
         run: npm run build:vite
-        continue-on-error: true
 
       - name: Build Jekyll site
         run: bundle exec jekyll build
-        continue-on-error: true
 
       - name: Verify build output
         run: |
-          if [ -d "_site" ]; then
-            echo "Build successful - _site directory exists"
-            ls -la _site/ | head -20
-          else
-            echo "Warning: _site directory not found"
-          fi
+          test -d _site
+          test -f _site/index.html
+          test -f _site/pages/pricing.html
 
   test:
     name: Test
@@ -92,12 +87,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests (if configured)
+      - name: Install backend dependencies
+        run: npm ci --omit=dev
+        working-directory: backend
+
+      - name: Run frontend unit tests
+        run: node --test assets/js/features/*.test.js
+
+      - name: Run backend unit tests
+        run: node --test backend/server/*.test.js
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Serve the repo for browser specs
         run: |
-          if [ -f "package.json" ] && grep -q '"test"' package.json; then
-            npm test || echo "Tests not configured"
-          else
-            echo "No tests configured, skipping..."
-          fi
+          python3 -m http.server 4000 >/tmp/playwright-server.log 2>&1 &
+          for _ in $(seq 1 50); do
+            if curl -sf -o /dev/null http://127.0.0.1:4000/; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          echo "Static server did not start" >&2
+          cat /tmp/playwright-server.log >&2
+          exit 1
 
-
+      - name: Run Playwright specs
+        run: npx playwright test
