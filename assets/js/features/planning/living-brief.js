@@ -2609,8 +2609,35 @@
     }
   }
 
+  function restoreLivingBrief(snapshot) {
+    const { root, messages, input } = els();
+    if (!root || !messages || !snapshot) return false;
+    if (!state.initialized) initLivingBrief();
+    if (!state.initialized) return false;
+
+    if (snapshot.draft && typeof snapshot.draft === 'object') {
+      state.draft = Object.assign(emptyDraft(), snapshot.draft);
+    }
+    const saved = Array.isArray(snapshot.messages)
+      ? snapshot.messages.filter((message) => message && (message.role === 'user' || message.role === 'assistant') && message.content)
+      : [];
+    if (saved.length) {
+      state.messages = saved.map((message) => ({ role: message.role, content: String(message.content) }));
+      messages.innerHTML = '';
+      state.messages.forEach((message) => appendMessage(message.role, message.content));
+    }
+    if (input && typeof snapshot.composer === 'string') {
+      input.value = snapshot.composer;
+    }
+    syncPitch();
+    try { renderStatus(); } catch (e) { /* status widgets are optional */ }
+    scrollChatToEnd();
+    return true;
+  }
+
   window.LivingBrief = {
     init: initLivingBrief,
+    restore: restoreLivingBrief,
     send: handleSend,
     sendFromForm: function (event) {
       if (event && typeof event.preventDefault === 'function') event.preventDefault();
