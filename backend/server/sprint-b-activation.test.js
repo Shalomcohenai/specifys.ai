@@ -112,7 +112,9 @@ console.log('\n=== B3 Overview → Prompts cliff ===');
       // SPEC_PROGRESS_STAGES uses key: 'overview' etc.
     }
   }
-  assert('progress stages include prompts', viewerJs.includes("key: 'prompts'"));
+  const progressJs = read('assets/js/features/spec-viewer/spec-generation-progress.js');
+  assert('progress stages include prompts', progressJs.includes("key: 'prompts'"));
+  assert('viewer loads progress helper', viewerHtml.includes('spec-generation-progress.js'));
   assert('approveOverview starts generate-all', viewerJs.includes('generate-all'));
 }
 
