@@ -7,7 +7,8 @@
     "dev": "nodemon server/server.js",
     "build": "echo 'No build step'",
     "verify:email": "node scripts/verify-resend-email.js --dry-run",
-    "verify:email:send": "node scripts/verify-resend-email.js --send --to=delivered@resend.dev"
+    "verify:email:send": "node scripts/verify-resend-email.js --send --to=delivered@resend.dev",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-specify-rules \"node --test firestore-rules.test.mjs\""
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",
@@ -35,6 +36,9 @@
     "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.6.0",
+    "firebase-tools": "^14.26.0",
     "nodemon": "^3.0.0"
   }
 }
