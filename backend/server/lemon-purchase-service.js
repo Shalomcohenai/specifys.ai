@@ -104,7 +104,10 @@ async function recordPurchase({
     });
   }
   
-  return purchaseData;
+  return {
+    ...purchaseData,
+    alreadyRecorded: existing.exists
+  };
 }
 
 async function getPurchasesForUser(userId, { limit = 50 } = {}) {

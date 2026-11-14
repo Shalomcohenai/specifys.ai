@@ -1,2 +1,2 @@
 export { PROMPTS, formatUserRequirements } from './index.cjs';
-export { STAGE_NAMES, buildStageUserMessage, assembleFullPrompt, buildIntegrationsPrompt, TOTAL_STAGES } from './stages.js';
+export { STAGE_NAMES, buildStageUserMessage, assembleFullPrompt, buildIntegrationsPrompt, TOTAL_STAGES, PROMPT_CONTEXT_CAPS, compactSpecContext } from './stages.js';

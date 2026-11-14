@@ -109,6 +109,15 @@
   letter-spacing: -0.02em;
 }
 
+.lb-deliverable-hint {
+  margin: 0;
+  padding: 10px 18px 12px;
+  border-bottom: 1px solid var(--lb-line);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--lb-muted, #5c564f);
+}
+
 .lb-progress {
   display: flex;
   flex-direction: column;
