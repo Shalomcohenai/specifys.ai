@@ -133,16 +133,26 @@ custom_js_modules:
             
             <!-- Approval Actions Container — hidden until overview content is actually ready -->
             <div id="approval-container" class="approval-container hidden" hidden aria-hidden="true">
-                <div class="approval-message">
-                    <i class="fa fa-info-circle"></i>
-                    <span><strong>Overview ready.</strong> Continue to generate Technical, Market, Design, Architecture, GEO &amp; SEO, and <strong>Prompts</strong> — then Copy to Cursor / Connect MCP.</span>
+                <div class="approval-copy">
+                    <p class="spec-stepper-kicker">Step 1 of 2 complete. Overview is ready.</p>
+                    <ol class="spec-stepper" aria-label="Spec generation stages">
+                        <li class="spec-stepper-step is-done">
+                            <span class="spec-stepper-index" aria-hidden="true">1</span>
+                            <span><strong>Overview.</strong> Problem, audience, features, and user flow. This part is done.</span>
+                        </li>
+                        <li class="spec-stepper-step is-current" aria-current="step">
+                            <span class="spec-stepper-index" aria-hidden="true">2</span>
+                            <span><strong>Full spec.</strong> Technical, Market research, Design, Architecture, GEO &amp; SEO, and Prompts. This starts when you continue.</span>
+                        </li>
+                    </ol>
+                    <p class="approval-message" id="approval-message">Nothing else is written until you generate the full spec.</p>
                 </div>
-                <div class="approval-actions" role="group" aria-label="Approval actions">
+                <div class="approval-actions" role="group" aria-label="Next step">
                     <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()" aria-label="Edit overview specification">
-                        <i class="fa fa-pencil" aria-hidden="true"></i> Edit
+                        <i class="fa fa-pencil" aria-hidden="true"></i> Edit overview
                     </button>
-                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Continue to technical specification and prompts" data-tour-target="approve">
-                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Continue to Technical + Prompts
+                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Generate the full spec" data-tour-target="approve">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec
                     </button>
                 </div>
             </div>

@@ -7101,7 +7101,7 @@ async function approveOverview() {
         setFeatureLoading('overview', false);
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec';
         }
         
     } catch (error) {
@@ -7120,7 +7120,7 @@ async function approveOverview() {
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec';
         }
     }
 }
@@ -9840,7 +9840,7 @@ function updateStageRecoveryBanner(spec) {
             msgEl.textContent = overviewErrMsg;
         } else {
             msgEl.textContent = overviewNeedsRetry
-                ? `${parts.join('. ')}. Retry overview generation, then Continue to Technical + Prompts.`
+                ? `${parts.join('. ')}. Retry overview generation, then choose Generate full spec.`
                 : `${parts.join('. ')}. Retry to continue toward Prompts, then Copy to Cursor / Connect MCP.`;
         }
     }
