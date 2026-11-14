@@ -91,7 +91,8 @@ console.log('\n=== B2 Lifecycle email call sites ===');
 console.log('\n=== B3 Overview → Prompts cliff ===');
 {
   const viewerHtml = read('pages/spec-viewer.html');
-  assert('continue CTA on overview', viewerHtml.includes('Continue to Technical + Prompts'));
+  assert('continue CTA on overview', viewerHtml.includes('Generate full spec'));
+  assert('two-step stepper names both stages', viewerHtml.includes('Step 1 of 2 complete. Overview is ready.') && viewerHtml.includes('aria-current="step"'));
   assert('stage recovery banner markup', viewerHtml.includes('stage-recovery-banner'));
 
   const viewerJs = read('assets/js/features/spec-viewer/spec-viewer-main.js');
