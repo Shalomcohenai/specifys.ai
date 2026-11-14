@@ -1159,6 +1159,16 @@ function updateMicrophoneButton() {
 // (Demo function and all data permanently removed)
 
 // ===== API INTEGRATION =====
+async function ensureFirestoreForSave() {
+  if (typeof firebase !== 'undefined' && typeof firebase.firestore === 'function') return;
+  if (typeof window.__specifysEnsureFirestore === 'function') {
+    await window.__specifysEnsureFirestore();
+  }
+  if (typeof firebase === 'undefined' || typeof firebase.firestore !== 'function') {
+    throw new Error('Firestore is not available');
+  }
+}
+
 async function generateSpecification() {
   try {
     // Clear any previous spec data to force creating a NEW spec
@@ -1413,6 +1423,8 @@ async function generateSpecification() {
         return;
       }
     }
+
+    await ensureFirestoreForSave();
     
     // Generate specification - try queue API first, fallback to direct API
     // Now that credit is consumed, we can safely create spec and start background job
@@ -1771,6 +1783,7 @@ window.setButtonLoading = setButtonLoading;
 // ===== FIREBASE INTEGRATION =====
 async function saveSpecToFirebase(overviewContent, answers) {
   try {
+    await ensureFirestoreForSave();
     const user = firebase.auth().currentUser;
     if (!user) {
       throw new Error('User must be authenticated to save to Firebase');
