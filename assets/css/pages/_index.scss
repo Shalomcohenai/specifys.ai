@@ -1547,19 +1547,19 @@ body .logo a:hover .logo-dot {
 }
 
 .pricing-btn:hover {
-  background: #FF6B35;
+  background: var(--orange-control, #B33A00);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .pricing-btn.highlight-btn {
-  background: #FF6B35;
+  background: var(--orange-control, #B33A00);
   color: white;
 }
 
 .pricing-btn.highlight-btn:hover {
-  background: #FF8551;
+  background: var(--orange-control-hover, #8F2E00);
   color: white;
 }
 

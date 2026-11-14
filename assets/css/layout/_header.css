@@ -130,12 +130,12 @@
 }
 
 .auth-btn.primary {
-  background: var(--primary-color);
+  background: var(--orange-control, #B33A00);
   color: var(--text-white);
 }
 
 .auth-btn.primary:hover {
-  background: var(--button-hover);
+  background: var(--orange-control-hover, #8F2E00);
 }
 
 /* User Info & Dropdown */
@@ -194,7 +194,7 @@
   align-items: center;
   justify-content: center;
   padding: 4px 12px;
-  background: #FF6B35;
+  background: var(--orange-control, #B33A00);
   color: white;
   border-radius: 4px;
   font-size: 12px;
@@ -207,7 +207,7 @@
 }
 
 .credits-container:hover {
-  background: #FF8551;
+  background: var(--orange-control-hover, #8F2E00);
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
