@@ -7,6 +7,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const vm = require('node:vm');
 
 const { mapWithConcurrency } = require('./async-pool');
 const {
@@ -19,8 +20,20 @@ const {
   compactSpecContext,
   PROMPT_CONTEXT_CAPS
 } = require('../../packages/spec-prompts/stages.cjs');
-require('../../assets/js/features/spec-viewer/spec-generation-progress.js');
-const { computeSpecGenerationProgress } = globalThis.SpecGenerationProgress;
+function loadSpecGenerationProgress() {
+  // The viewer script is ESM because the repo root package.json sets "type": "module".
+  // Node 18 CI cannot require() it. Evaluate the classic-script build instead.
+  const filename = path.join(__dirname, '../../assets/js/features/spec-viewer/spec-generation-progress.js');
+  const sandbox = { console };
+  sandbox.globalThis = sandbox;
+  sandbox.window = sandbox;
+  sandbox.module = { exports: {} };
+  sandbox.exports = sandbox.module.exports;
+  vm.runInNewContext(fs.readFileSync(filename, 'utf8'), sandbox, { filename });
+  return sandbox.module.exports;
+}
+
+const { computeSpecGenerationProgress } = loadSpecGenerationProgress();
 const { runPromptStages, PROMPT_STAGE_CONCURRENCY } = require('./prompts-stage-runner');
 
 test('prompt stages use low reasoning and a smaller completion cap on gpt-5.6-luna', () => {
