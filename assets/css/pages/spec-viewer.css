@@ -4067,6 +4067,31 @@ body:has(.side-menu) .thematic-header .header-right {
   background: #fff8f0;
 }
 
+.pipeline-step.is-skipped {
+  color: #6b5e54;
+  background: #f7f4f1;
+}
+
+.prompt-skipped {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(27, 27, 30, 0.1);
+  border-radius: 8px;
+  background: #f7f4f1;
+}
+
+.prompt-skipped summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.prompt-skipped li {
+  margin: 8px 0;
+}
+
 .pipeline-num {
   width: 28px;
   height: 28px;
