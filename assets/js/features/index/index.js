@@ -1276,6 +1276,9 @@ async function generateSpecification() {
         };
         if (typeof window.showPaywall === 'function') {
           window.showPaywall(paywallPayload);
+          if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+            window.SpecFlowFeedback.dismissGenerationProgress();
+          }
         } else {
           try {
             const searchParams = new URLSearchParams({
@@ -1283,11 +1286,13 @@ async function generateSpecification() {
               message: paywallPayload.message || 'Your free credit is used up'
             });
             window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+            if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+              window.SpecFlowFeedback.dismissGenerationProgress();
+            }
           } catch (redirectError) {
             reportGenerationStop('credits');
           }
         }
-        reportGenerationStop('credits');
         return { ok: false, code: 'credits' };
       }
     }
@@ -1412,6 +1417,9 @@ async function generateSpecification() {
           };
           if (typeof window.showPaywall === 'function') {
             window.showPaywall(paywallPayload);
+            if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+              window.SpecFlowFeedback.dismissGenerationProgress();
+            }
           } else {
             try {
               const searchParams = new URLSearchParams({
@@ -1419,11 +1427,13 @@ async function generateSpecification() {
                 message: paywallPayload.message
               });
               window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+              if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+                window.SpecFlowFeedback.dismissGenerationProgress();
+              }
             } catch (redirectError) {
               reportGenerationStop('credits');
             }
           }
-          reportGenerationStop('credits');
           return { ok: false, code: 'credits' };
         }
         
@@ -1610,10 +1620,12 @@ async function generateSpecification() {
             message: paywallPayload.message || 'You have no remaining spec credits'
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+          if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.dismissGenerationProgress === 'function') {
+            window.SpecFlowFeedback.dismissGenerationProgress();
+          }
         } catch (redirectError) {
           reportGenerationStop('credits');
         }
-        reportGenerationStop('credits');
         return { ok: false, code: 'credits' };
       }
       // Handle other errors

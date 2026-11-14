@@ -288,6 +288,13 @@
     });
   }
 
+  function dismissGenerationProgress() {
+    clearProgressTimer();
+    if (!progressHost) return;
+    progressHost.innerHTML = '';
+    progressHost.hidden = true;
+  }
+
   function presentGenerationStop(input, handlers) {
     clearProgressTimer();
     var html = renderNoticeHTML(describeGenerationError(input));
@@ -324,6 +331,7 @@
     mountProgress: mountProgress,
     setGenerationStage: setGenerationStage,
     startGenerationProgress: startGenerationProgress,
+    dismissGenerationProgress: dismissGenerationProgress,
     presentGenerationStop: presentGenerationStop,
     fillContainer: fillContainer,
     escapeHtml: escapeHtml
