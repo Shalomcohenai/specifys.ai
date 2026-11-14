@@ -456,7 +456,9 @@ Always reference specific parts of the spec when relevant.`,
     }
 
     const m = String(model).toLowerCase();
-    const usesCompletionTokens = /^o[0-9]/.test(m) || /^gpt-5/.test(m);
+    // GPT-5 and GPT-6 reasoning models reject max_tokens and temperature.
+    // GPT-6.1 Sol has no "none" reasoning effort, so omit temperature here.
+    const usesCompletionTokens = /^o[0-9]/.test(m) || /^gpt-5/.test(m) || /^gpt-6/.test(m);
     if (usesCompletionTokens) {
       body.max_completion_tokens = 16384;
     } else {

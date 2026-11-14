@@ -477,7 +477,7 @@ class SpecGenerationServiceV2 {
 
   /**
    * Generate architecture as structured JSON then serialize to Markdown for storage.
-   * Uses assistant model (default: gpt-5.6-luna via OPENAI_SPEC_GENERATION_MODEL) via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
+   * Uses assistant model (default: gpt-6.1-sol via OPENAI_SPEC_GENERATION_MODEL) via runStage with ArchitectureSchema; prompt is opinionated and Mermaid-strict.
    * @param {string} specId - Spec ID
    * @param {string} overview - Overview content
    * @param {string} technical - Technical content
