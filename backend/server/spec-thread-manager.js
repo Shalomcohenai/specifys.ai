@@ -8,6 +8,7 @@
 const admin = require('firebase-admin');
 const { logger } = require('./logger');
 const { buildResponseFormat, parseAndValidateStage } = require('../schemas/spec-schemas');
+const { getStageCallOptions } = require('./spec-generation-call-options');
 
 /** System instructions for spec JSON stages when not using OPENAI_SPEC_GENERATOR_ASSISTANT_ID. */
 const SPEC_GENERATOR_INSTRUCTIONS =
@@ -135,7 +136,13 @@ class SpecThreadManager {
 
     let text;
     try {
-      text = await this.openaiStorage.runSpecGeneration(threadId, target, userMessage, responseFormat);
+      text = await this.openaiStorage.runSpecGeneration(
+        threadId,
+        target,
+        userMessage,
+        responseFormat,
+        getStageCallOptions(stage)
+      );
     } catch (err) {
       logger.error({
         stage,
@@ -224,7 +231,8 @@ ${brokenSource}`;
         'chat-completions',
         repairTarget,
         userMessage,
-        MERMAID_REPAIR_RESPONSE_FORMAT
+        MERMAID_REPAIR_RESPONSE_FORMAT,
+        getStageCallOptions('mermaid-repair')
       );
     } catch (err) {
       logger.warn({ err: err.message, diagramKind }, '[SpecThreadManager] Mermaid repair call failed');
