@@ -31,7 +31,8 @@ const _listeners = {
   loadingChanged: new Set()
 };
 
-const POLL_INTERVAL_MS = window.SPECIFYS_TIMEOUTS?.apiPollMs || 5000;
+const POLL_INTERVAL_MS = window.SPECIFYS_TIMEOUTS?.apiPollMs || 3000;
+const PIPELINE_STATUS_KEYS = ['overview', 'technical', 'market', 'design', 'architecture', 'visibility', 'prompts'];
 
 function mirrorLegacyWindowState() {
   if (typeof window !== 'undefined') {
@@ -270,9 +271,10 @@ export function isPolling() {
 export function startStatusPolling(specId, callbacks = {}) {
   stopStatusPolling();
   let pollCount = 0;
-  const maxPolls = 120;
+  const maxPolls = 240;
   let lastOverviewStatus = _state.spec?.status?.overview;
   let lastHadOverview = Boolean(_state.spec?.overview);
+  let lastStatusSignature = '';
 
   _state.pollInterval = setInterval(async () => {
     pollCount += 1;
@@ -301,20 +303,23 @@ export function startStatusPolling(specId, callbacks = {}) {
           const specData = { id: doc.id, ...doc.data() };
           const status = specData.status || {};
           const hasOverview = Boolean(specData.overview);
+          const statusSignature = PIPELINE_STATUS_KEYS.map((key) => `${key}:${status[key] || ''}`).join('|');
           const overviewChanged =
             status.overview !== lastOverviewStatus || hasOverview !== lastHadOverview;
+          const statusChanged = statusSignature !== lastStatusSignature;
           lastOverviewStatus = status.overview;
           lastHadOverview = hasOverview;
+          lastStatusSignature = statusSignature;
 
-          if (overviewChanged) {
+          if (overviewChanged || statusChanged) {
             setSpec(specData);
             await callbacks.onSpecReloaded?.(specData);
           }
 
-          const advancedGenerating = ['technical', 'market', 'design', 'architecture'].some(
+          const advancedGenerating = ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].some(
             (stage) => status[stage] === 'generating'
           );
-          const advancedAllDone = ['technical', 'market', 'design'].every(
+          const advancedAllDone = ['technical', 'market', 'design', 'architecture', 'visibility', 'prompts'].every(
             (stage) => status[stage] === 'ready' || status[stage] === 'error'
           );
           const overviewTerminal = status.overview === 'ready' || status.overview === 'error';
