@@ -209,9 +209,13 @@ function roundToNearest5(num) {
 // ===== LOAD DYNAMIC STATS =====
 async function loadDynamicStats() {
   try {
-    // Prefer API (Firestore) for tools count; fallback to static tools.json
+    // Prefer API (Firestore) for tools count; fallback to static tools.json.
+    // Relative /api/tools/count 404s on Vercel. Use the same backend base as other API calls.
     let toolsCount = 0;
-    const countResponse = await fetch('/api/tools/count');
+    const countUrl = (typeof resolveToolsCountUrl === 'function')
+      ? resolveToolsCountUrl(window)
+      : 'https://specifys-ai-backend.onrender.com/api/tools/count';
+    const countResponse = await fetch(countUrl);
     if (countResponse.ok) {
       const countData = await countResponse.json();
       toolsCount = countData.count ?? 0;
