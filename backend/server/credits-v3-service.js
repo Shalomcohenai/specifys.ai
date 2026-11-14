@@ -1,4 +1,5 @@
 const { db, admin } = require('./firebase-admin');
+const { proGrantDecision } = require('./lemon-pro-grant');
 const crypto = require('crypto');
 const { logger } = require('./logger');
 const { recordSubscriptionChange, recordCreditConsumption } = require('./admin-activity-service');
@@ -1359,14 +1360,39 @@ async function enableProSubscription(userId, options = {}) {
     const userRef = db.collection(USERS_COLLECTION).doc(userId);
     
     const creditsDoc = await transaction.get(creditsRef);
+    const subscriptionSnap = await transaction.get(subscriptionRef);
     const credits = creditsDoc.exists
       ? creditsDoc.data()
       : getDefaultCredits(userId);
+    const subscriptionState = credits.subscription || {};
+    const archivedSubscription = subscriptionSnap.exists ? (subscriptionSnap.data() || {}) : {};
+    const lastOrderId = archivedSubscription.last_order_id || null;
+    const storedSubscriptionId = archivedSubscription.lemon_subscription_id || subscriptionState.lemonSubscriptionId || null;
+    const decision = proGrantDecision({
+      subscriptionType: subscriptionState.type,
+      subscriptionStatus: subscriptionState.status,
+      lastOrderId,
+      orderId,
+      storedSubscriptionId,
+      subscriptionId
+    });
     
     const currentCredits = calculateTotal(credits.balances);
     // "paid" status also means active subscription
-    const alreadyUnlimited = credits.subscription.type === 'pro' &&
-      isProStatusActive(credits.subscription.status);
+    const alreadyUnlimited = subscriptionState.type === 'pro' &&
+      isProStatusActive(subscriptionState.status);
+
+    if (!decision.grant) {
+      return {
+        alreadyProcessed: true,
+        previouslyUnlimited: true,
+        previousCredits: currentCredits,
+        preservedCredits: currentCredits,
+        previousRenewsAt: subscriptionState.renewsAt || null,
+        previousCancelAtPeriodEnd: !!subscriptionState.cancelAtPeriodEnd,
+        finalPeriodEnd: subscriptionState.renewsAt || subscriptionState.expiresAt || null
+      };
+    }
     
     // Preserve current credits
     const preservedCredits = currentCredits;
@@ -1415,8 +1441,7 @@ async function enableProSubscription(userId, options = {}) {
       variant_id: variantId ? variantId.toString() : null,
       status: normalizedSubscriptionStatus,
       billing_interval: subscriptionInterval || null,
-      lemon_subscription_id: subscriptionId || null,
-      last_order_id: orderId || null,
+      ...(subscriptionId ? { lemon_subscription_id: String(subscriptionId) } : {}),
       last_order_total: typeof total === 'number' ? total : null,
       currency: currency || 'USD',
       cancel_at_period_end: !!cancelAtPeriodEnd,
@@ -1427,6 +1452,10 @@ async function enableProSubscription(userId, options = {}) {
       last_synced_mode: 'live'
     };
     
+    if (orderId) {
+      subscriptionData.last_order_id = String(orderId);
+    }
+
     if (finalPeriodEnd) {
       subscriptionData.current_period_end = finalPeriodEnd;
       subscriptionData.renews_at = finalPeriodEnd;
@@ -1434,13 +1463,11 @@ async function enableProSubscription(userId, options = {}) {
     
     transaction.set(subscriptionRef, subscriptionData, { merge: true });
     
-    // Update users.plan to 'pro'
-    transaction.update(userRef, { plan: 'pro' });
+    // Create or merge users/{uid}. A missing profile must not abort the grant.
+    transaction.set(userRef, decision.userWrite.data, { merge: decision.userWrite.merge === true });
     
-    const previousRenewsAt = credits.subscription && credits.subscription.renewsAt
-      ? credits.subscription.renewsAt
-      : null;
-    const previousCancelAtPeriodEnd = !!(credits.subscription && credits.subscription.cancelAtPeriodEnd);
+    const previousRenewsAt = subscriptionState.renewsAt || null;
+    const previousCancelAtPeriodEnd = !!subscriptionState.cancelAtPeriodEnd;
 
     return {
       previouslyUnlimited: alreadyUnlimited,
@@ -1453,6 +1480,11 @@ async function enableProSubscription(userId, options = {}) {
   });
   
   logger.info({ requestId, userId, result }, '[CREDITS-V3] Pro access enabled');
+
+  if (result.alreadyProcessed) {
+    logger.info({ requestId, userId, orderId }, '[CREDITS-V3] Pro grant already applied for this order');
+    return result;
+  }
 
   const activityAction = resolveProActivityAction({
     alreadyUnlimited: result.previouslyUnlimited,

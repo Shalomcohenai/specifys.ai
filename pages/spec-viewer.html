@@ -26,6 +26,7 @@ extra_js:
   - /assets/js/features/spec-viewer/spec-viewer-scroll.js
   - /assets/js/features/spec-viewer/spec-viewer-auth.js
   - /assets/js/features/spec-viewer/spec-viewer-tour.js
+  - /assets/js/features/spec-viewer/spec-generation-progress.js
   - /assets/js/features/spec-viewer/spec-viewer-main.js
 defer_js:
   - /assets/js/services/prompts.js
@@ -464,6 +465,7 @@ custom_js_modules:
                                 <button id="generate-export-btn" class="btn btn-primary export-generate-btn" onclick="generateExport()">
                                     <i class="fa fa-file-download"></i> Export
                                 </button>
+                                <p id="export-status" class="export-status" role="status" aria-live="polite"></p>
                             </div>
                             
                             <div id="export-progress" class="export-progress hidden">

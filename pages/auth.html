@@ -223,7 +223,7 @@
                     <!-- Newsletter Subscription Checkbox -->
                     <div class="checkbox-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="newsletter-subscription" checked aria-label="Subscribe to newsletter for updates about new AI tools">
+                            <input type="checkbox" id="newsletter-subscription" aria-label="Subscribe to newsletter for updates about new AI tools">
                             <span class="checkmark" aria-hidden="true"></span>
                             Send me updates about new AI tools
                         </label>
@@ -232,9 +232,9 @@
                     <!-- Privacy Policy Checkbox -->
                     <div class="checkbox-group" id="privacy-policy-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="privacy-policy-agreement" required checked aria-describedby="privacy-policy-error">
+                            <input type="checkbox" id="privacy-policy-agreement" required aria-describedby="privacy-policy-error">
                             <span class="checkmark" aria-hidden="true"></span>
-                            I have read and agree to the <a href="#" class="privacy-link" id="privacy-policy-link" aria-label="Read privacy policy"> privacy policy</a>
+                            I have read and agree to the <a href="/pages/privacy.html" class="privacy-link" id="privacy-policy-link" target="_blank" rel="noopener noreferrer" aria-label="Read privacy policy">privacy policy</a>
                         </label>
                     </div>
                     <div id="privacy-policy-error" class="checkbox-error" role="alert" aria-live="assertive"></div>
@@ -605,14 +605,7 @@
             // Clear messages
             hideMessages();
             
-            // Ensure privacy policy checkbox is checked when switching to register tab
-            if (tab === 'register') {
-                const privacyCheckbox = document.getElementById('privacy-policy-agreement');
-                if (privacyCheckbox && !privacyCheckbox.checked) {
-                    privacyCheckbox.checked = true;
-                    hidePrivacyPolicyError();
-                }
-            }
+            // Privacy agreement stays unchecked until the person checks it.
         }
         
         // Setup tab event listeners
@@ -627,14 +620,7 @@
                 });
             });
             
-            // Setup privacy policy link
-            const privacyLink = document.getElementById('privacy-policy-link');
-            if (privacyLink) {
-                privacyLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    openPrivacyModal();
-                });
-            }
+            // The privacy link opens /pages/privacy.html. Do not intercept the click.
             
             // Setup privacy modal close button
             const privacyModalClose = document.getElementById('privacy-modal-close');
@@ -1093,21 +1079,8 @@
             }
         });
 
-        // Ensure privacy policy checkbox is checked on page load
-        function ensurePrivacyCheckboxChecked() {
-            const privacyCheckbox = document.getElementById('privacy-policy-agreement');
-            if (privacyCheckbox && !privacyCheckbox.checked) {
-                privacyCheckbox.checked = true;
-                hidePrivacyPolicyError();
-            }
-        }
-        
-        // Run on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', ensurePrivacyCheckboxChecked);
-        } else {
-            ensurePrivacyCheckboxChecked();
-        }
+        // Privacy agreement is required and starts unchecked. Signup still
+        // refuses to submit until the person checks it.
     </script>
 
 

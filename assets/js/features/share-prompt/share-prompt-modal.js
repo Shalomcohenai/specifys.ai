@@ -27,7 +27,7 @@ Market & UX thinking.
 Built with @SpecifysAI`;
 
   /**
-   * Soft bottom banner — does not block the page
+   * Soft banner under the header — does not cover the bottom tab bar
    */
   function createShareBanner() {
     if (shareBanner) return shareBanner;
@@ -453,13 +453,14 @@ Built with @SpecifysAI`;
         position: fixed;
         left: 16px;
         right: 16px;
-        bottom: 16px;
+        top: 72px;
+        bottom: auto;
         z-index: 9000;
         display: flex;
         justify-content: center;
         pointer-events: none;
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(-12px);
         transition: opacity 0.28s ease, transform 0.28s ease;
       }
 
@@ -732,7 +733,8 @@ Built with @SpecifysAI`;
         .share-prompt-banner {
           left: 12px;
           right: 12px;
-          bottom: 12px;
+          top: 72px;
+          bottom: auto;
         }
 
         .share-prompt-banner-inner {

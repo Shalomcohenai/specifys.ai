@@ -12,6 +12,77 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+const ACTION_START = /^(step\s+\d+\b|user|users|customer|customers|client|clients|admin|admins|owner|guest|visitor|they|open|opens|create|creates|add|adds|book|books|select|selects|choose|chooses|view|views|sign|log|pay|pays|confirm|confirms|receive|receives|see|sees|start|starts|finish|finishes|land|lands|browse|browses|enter|enters|submit|submits|review|reviews|complete|completes|tap|taps|click|clicks|pick|picks|schedule|schedules)\b/i;
+
+function wordCount(value) {
+  return String(value || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function looksLikeActionStep(step) {
+  const text = String(step || '').trim();
+  if (!text) return false;
+  if (ACTION_START.test(text) && wordCount(text) >= 2) return true;
+  return false;
+}
+
+function looksLikeFragment(step) {
+  const text = String(step || '').trim();
+  if (!text) return true;
+  if (/^(start|done)$/i.test(text)) return true;
+  if (looksLikeActionStep(text)) return false;
+  if (/[.!?]$/.test(text) && wordCount(text) >= 5) return false;
+  if (wordCount(text) <= 14) return true;
+  return /^(and|or|for|with|like|to|of|the|a|an|in|on)\b/i.test(text);
+}
+
+/**
+ * Join chopped clauses back into readable steps.
+ * Real action steps ("User books a slot") are left alone.
+ * Fragments of one sentence, including a Start / text / Done wrapper, are rejoined.
+ */
+export function coalesceFlowSteps(steps) {
+  const list = (Array.isArray(steps) ? steps : [])
+    .map((step) => String(step ?? '').trim())
+    .filter(Boolean);
+  if (list.length < 2) return list;
+
+  if (
+    list.length === 3 &&
+    /^start$/i.test(list[0]) &&
+    /^done$/i.test(list[2]) &&
+    !looksLikeActionStep(list[1])
+  ) {
+    return [list[1]];
+  }
+
+  const fragmentCount = list.filter(looksLikeFragment).length;
+  if (fragmentCount / list.length < 0.6) return list;
+
+  const joined = list
+    .filter((step) => !/^(start|done)$/i.test(step))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;!?])/g, '$1')
+    .trim();
+  if (!joined) return list;
+
+  const sentences = joined
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 12);
+  if (sentences.length >= 2) return sentences;
+
+  if (/\bthen\b|→|->/.test(joined)) {
+    const parts = joined
+      .split(/\s*(?:→|->|\bthen\b)\s*/i)
+      .map((part) => part.trim())
+      .filter((part) => part.length > 8);
+    if (parts.length >= 2) return parts;
+  }
+
+  return [joined];
+}
+
 /**
  * Lightly parse a step string into { title, detail } for the journey rail.
  * Handles "Step N: …", first-sentence titles, and plain text.
@@ -52,7 +123,8 @@ export function parseFlowStep(step, index) {
  * @param {{ heading?: boolean, headingHtml?: string }} [opts]
  */
 export function renderDetailedUserFlowRail(steps, opts = {}) {
-  if (!Array.isArray(steps) || !steps.length) return '';
+  const readable = coalesceFlowSteps(steps);
+  if (!readable.length) return '';
   const includeHeading = opts.heading !== false;
   const headingHtml =
     opts.headingHtml ||
@@ -63,9 +135,9 @@ export function renderDetailedUserFlowRail(steps, opts = {}) {
   if (includeHeading) parts.push(headingHtml);
   parts.push('<ol class="user-flow-rail" aria-label="Detailed user flow">');
 
-  steps.forEach((step, i) => {
+  readable.forEach((step, i) => {
     const { n, title, detail } = parseFlowStep(step, i);
-    const isLast = i === steps.length - 1;
+    const isLast = i === readable.length - 1;
     parts.push(`<li class="user-flow-rail-step${isLast ? ' is-last' : ''}">`);
     parts.push('<div class="user-flow-rail-track" aria-hidden="true">');
     parts.push(`<span class="user-flow-rail-node"><span class="user-flow-rail-index">${n}</span></span>`);

@@ -217,6 +217,17 @@ export function renderEnrichedVisibility(visibility) {
   return parts.length > 2 ? parts.join('') : '';
 }
 
+function isSkippedPromptTicket(ticket) {
+  const sample = `${ticket?.name || ''}\n${ticket?.body || ''}`.slice(0, 900);
+  return /skipped:\s*not in scope/i.test(sample) || /## Goal\s*\n+\s*skipped\b/i.test(ticket?.body || '');
+}
+
+function skippedPromptReason(ticket) {
+  const goal = ((ticket.body || '').match(/## Goal\n([\s\S]*?)(?=\n## |$)/i) || [])[1] || '';
+  const reason = goal.replace(/\s+/g, ' ').trim();
+  return reason || 'Skipped: not in scope for this product.';
+}
+
 export function renderEnrichedPrompts(prompts) {
   if (!prompts || typeof prompts !== 'object') return '';
   const full = prompts.fullPrompt || '';
@@ -244,14 +255,30 @@ export function renderEnrichedPrompts(prompts) {
 
   if (!tickets.length) return '';
 
+  const skipped = tickets.filter(isSkippedPromptTicket);
+  const active = tickets.filter((ticket) => !isSkippedPromptTicket(ticket));
+  const shown = active.length ? active : tickets;
+
   const parts = ['<div class="enriched-stage-block enriched-prompts">'];
   parts.push('<div class="prompt-pipeline-stepper">');
-  tickets.forEach((t, i) => {
-    parts.push(`<div class="pipeline-step${i === 0 ? ' is-active' : ''}"><span class="pipeline-num">${esc(t.num)}</span><span>${esc(t.name)}</span></div>`);
+  tickets.forEach((t) => {
+    const isSkipped = isSkippedPromptTicket(t);
+    const isFirstActive = !isSkipped && t === shown[0];
+    parts.push(`<div class="pipeline-step${isFirstActive ? ' is-active' : ''}${isSkipped ? ' is-skipped' : ''}"><span class="pipeline-num">${esc(t.num)}</span><span>${esc(t.name)}${isSkipped ? ' (skipped)' : ''}</span></div>`);
   });
   parts.push('</div>');
 
-  tickets.forEach((t) => {
+  if (skipped.length && active.length) {
+    const noun = skipped.length === 1 ? 'step' : 'steps';
+    parts.push(`<details class="prompt-skipped"><summary>${skipped.length} ${noun} skipped. They are not in this product.</summary><ul>`);
+    skipped.forEach((ticket) => {
+      const reason = skippedPromptReason(ticket);
+      parts.push(`<li><strong>Stage ${esc(ticket.num)}: ${esc(ticket.name)}</strong> ${esc(reason)}</li>`);
+    });
+    parts.push('</ul></details>');
+  }
+
+  shown.forEach((t) => {
     const goal = (t.body.match(/## Goal\n([\s\S]*?)(?=\n## |$)/i) || [])[1]?.trim();
     const acBlock = (t.body.match(/## Acceptance criteria\n([\s\S]*?)(?=\n## |$)/i) || [])[1] || '';
     const acLines = acBlock
