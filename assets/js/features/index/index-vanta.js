@@ -210,51 +210,25 @@
     });
   }
   
-  // Load when hero section is visible
+  // The hero is on screen at first paint, so an intersection observer
+  // loads Three.js and Vanta during the initial main-thread window.
+  // Start on the first input instead. A long fallback still shows the
+  // animation for visitors who never interact. The hero CSS covers the wait.
   var heroSection = document.querySelector('.hero-section');
-  if (heroSection) {
-    var observer = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        loadVantaOnDemand();
-        observer.disconnect();
-      }
-    }, { threshold: 0.1 });
-    
-    observer.observe(heroSection);
-  }
-  
-  // Fallback: Load after idle / 4s — never compete with LCP paint
   function scheduleDeferredVanta() {
     var run = function () {
       if (!vantaLoaded && document.visibilityState === 'visible') {
         loadVantaOnDemand();
       }
     };
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(run, { timeout: 5000 });
-    } else {
-      setTimeout(run, 4000);
-    }
+    ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (event) {
+      window.addEventListener(event, run, { once: true, passive: true, capture: true });
+    });
+    window.addEventListener('load', function () {
+      setTimeout(run, 20000);
+    });
   }
   scheduleDeferredVanta();
-  // Hard fallback if idle never fires
-  setTimeout(function () {
-    if (!vantaLoaded && document.visibilityState === 'visible') {
-      loadVantaOnDemand();
-    }
-  }, 6000);
-  
-  // Also load on user interaction
-  var interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];
-  var interactionHappened = false;
-  interactionEvents.forEach(function(event) {
-    document.addEventListener(event, function() {
-      if (!interactionHappened && heroSection) {
-        interactionHappened = true;
-        loadVantaOnDemand();
-      }
-    }, { once: true });
-  });
   
   // Add resize listener
   window.addEventListener('resize', handleResize);
