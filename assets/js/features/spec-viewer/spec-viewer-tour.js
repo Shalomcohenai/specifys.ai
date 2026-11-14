@@ -92,7 +92,7 @@
         fallbackSelector: '#approveBtn',
         title: 'Continue to unlock advanced specs',
         body:
-          'When Overview looks right, press <strong>Continue to Technical + Prompts</strong>. That queues Technical, Market, Design, Architecture, GEO &amp; SEO, and Prompts in the background.'
+          'Step 1 of 2 is done. Press <strong>Generate full spec</strong> to write Technical, Market, Design, Architecture, GEO &amp; SEO, and Prompts. That work continues in the background.'
       },
       {
         id: 'tools',

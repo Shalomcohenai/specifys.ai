@@ -4236,9 +4236,10 @@ body .logo a:hover .logo-dot {
   }
   
   .browser-window-tab {
-    padding: 8px 6px;
-    font-size: 8.8px;
-    min-width: 80px;
+    padding: 8px 10px;
+    font-size: 12px;
+    min-width: 44px;
+    min-height: 40px;
   }
   
   .browser-window-content {

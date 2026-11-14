@@ -348,11 +348,18 @@
         .map((s) => s.replace(/^[,.\s]+|[,.\s]+$/g, '').trim())
         .filter((s) => s.length > 1 && s.length < 120);
     } else if (describesUserFlow(body)) {
-      steps = body
+      const pieces = body
         .split(/[,;]|\band\b/i)
         .map((s) => s.trim())
-        .filter((s) => s.length > 2 && s.length < 100)
-        .slice(0, 6);
+        .filter((s) => s.length > 2 && s.length < 100);
+      const actionish = pieces.filter((piece) =>
+        /^(user|users|customer|admin|they|open|create|add|book|select|choose|view|sign|pay|confirm|see|start|browse|enter|submit|pick|tap|click)/i.test(piece)
+      );
+      // Only split when the pieces are actions. A normal sentence with commas
+      // is one step, not a pile of fragments.
+      if (actionish.length >= 2 && actionish.length >= pieces.length - 1) {
+        steps = pieces.slice(0, 6);
+      }
     }
     return steps.slice(0, 8);
   }
@@ -361,9 +368,9 @@
     const steps = extractFlowSteps(text);
     if (steps.length >= 2) {
       addWorkflowWithData('Core happy path', steps);
-    } else if (describesUserFlow(text) || (state.lastAskedGap === 'structure' && stripTags(text).length >= 28)) {
-      const one = stripTags(text).trim().slice(0, 160);
-      addWorkflowWithData('Core happy path', ['Start', one, 'Done']);
+    } else if (state.lastAskedGap === 'structure' && stripTags(text).length >= 28) {
+      const one = stripTags(text).trim().slice(0, 240);
+      if (one) addWorkflowWithData('Core happy path', [one]);
     } else {
       return false;
     }
@@ -2602,8 +2609,35 @@
     }
   }
 
+  function restoreLivingBrief(snapshot) {
+    const { root, messages, input } = els();
+    if (!root || !messages || !snapshot) return false;
+    if (!state.initialized) initLivingBrief();
+    if (!state.initialized) return false;
+
+    if (snapshot.draft && typeof snapshot.draft === 'object') {
+      state.draft = Object.assign(emptyDraft(), snapshot.draft);
+    }
+    const saved = Array.isArray(snapshot.messages)
+      ? snapshot.messages.filter((message) => message && (message.role === 'user' || message.role === 'assistant') && message.content)
+      : [];
+    if (saved.length) {
+      state.messages = saved.map((message) => ({ role: message.role, content: String(message.content) }));
+      messages.innerHTML = '';
+      state.messages.forEach((message) => appendMessage(message.role, message.content));
+    }
+    if (input && typeof snapshot.composer === 'string') {
+      input.value = snapshot.composer;
+    }
+    syncPitch();
+    try { renderStatus(); } catch (e) { /* status widgets are optional */ }
+    scrollChatToEnd();
+    return true;
+  }
+
   window.LivingBrief = {
     init: initLivingBrief,
+    restore: restoreLivingBrief,
     send: handleSend,
     sendFromForm: function (event) {
       if (event && typeof event.preventDefault === 'function') event.preventDefault();

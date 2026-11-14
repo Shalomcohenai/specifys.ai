@@ -432,6 +432,10 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                             </div>
                         </div>
 
+                        <p class="lb-deliverable-hint" id="lbDeliverableHint">
+                            A spec is a PRD: the plan for what you are building. You get an Overview first, then Technical, Market research, Design, Architecture, GEO &amp; SEO, and Prompts.
+                        </p>
+
                         <div class="lb-chat-scroll" id="lbChatScroll" role="log" aria-live="polite" aria-relevant="additions">
                             <div id="lbMessages"></div>
                             <div class="lb-ideas-inline" id="lbIdeasInline" hidden>
@@ -717,14 +721,45 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
                 <p class="value-number-label">Fewer prompt iterations</p>
             </div>
             <div class="value-number">
-                <p class="value-number-value">8 to 10 min</p>
-                <p class="value-number-label">Typical full spec</p>
+                <p class="value-number-value">about 3 to 5 min</p>
+                <p class="value-number-label">Usual generation time</p>
             </div>
             <div class="value-number">
                 <p class="value-number-value">~25 pages</p>
                 <p class="value-number-label">Typical full spec</p>
             </div>
         </div>
+    </div>
+</section>
+
+<section class="deliverable-section" id="what-you-get" aria-labelledby="deliverable-title">
+    <div class="deliverable-inner">
+        <h2 id="deliverable-title" class="value-section-title">What a spec is, and what you get</h2>
+        <p class="deliverable-lead">A spec, also called a PRD, is the written plan for the product: who it is for, what it includes, and how it should be built. Specifys writes that plan from your brief. Overview comes first. The other sections are a second step.</p>
+        <ol class="deliverable-stages">
+            <li class="deliverable-stage">
+                <h3>1. Describe the product</h3>
+                <p>Say what you want to build in your own words. You do not fill out a form first.</p>
+            </li>
+            <li class="deliverable-stage">
+                <h3>2. Overview</h3>
+                <p>The first part of the PRD: the problem, who it is for, the main features, and the user flow.</p>
+            </li>
+            <li class="deliverable-stage">
+                <h3>3. Full spec</h3>
+                <p>After the overview looks right, you generate the rest. That second step is a separate click.</p>
+            </li>
+        </ol>
+        <h3 class="deliverable-list-title">Sections in the finished spec</h3>
+        <ul class="deliverable-sections">
+            <li><strong>Overview</strong> Problem, audience, features, and user flow</li>
+            <li><strong>Technical</strong> Stack, data, and API</li>
+            <li><strong>Market research</strong> Who else serves this customer</li>
+            <li><strong>Design</strong> Screens and visual direction</li>
+            <li><strong>Architecture</strong> How the pieces fit together</li>
+            <li><strong>GEO &amp; SEO</strong> How people and search can find it</li>
+            <li><strong>Prompts</strong> Build steps you can hand to an AI coding tool</li>
+        </ul>
     </div>
 </section>
 
@@ -891,12 +926,12 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
 <div id="registrationModal" class="welcome-modal hidden">
   <div class="welcome-content">
     <div class="welcome-header">
-      <h3>🔐 Registration Required</h3>
+      <h3>Your idea is saved</h3>
       <button class="welcome-close" onclick="closeRegistrationModal()" aria-label="Close registration message">×</button>
     </div>
     <div class="welcome-body">
-      <p><strong>To start planning your app, you need to create a free account!</strong></p>
-      <p>Registration allows you to:</p>
+      <p><strong>Your brief stays on this device.</strong> Create a free account to generate the spec. No card.</p>
+      <p>A free account lets you:</p>
       <div class="welcome-features">
         <div class="feature-highlight">
           <i class="fa fa-save"></i>
@@ -918,7 +953,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
     </div>
     <div class="welcome-actions">
       <button type="button" onclick="closeRegistrationModal()" class="btn-continue">Maybe Later</button>
-      <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Create Free Account', 'registration_modal')">Create Free Account</a>
+      <a href="/pages/auth.html?next=%2F%3FresumeBrief%3D1&amp;redirect=profile" class="btn-register" onclick="trackCTA('Create Free Account', 'registration_modal')">Create free account</a>
     </div>
   </div>
 </div>

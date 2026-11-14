@@ -324,9 +324,34 @@ function setProductButtonsDisabled(disabled) {
     });
 }
 
-function updateProductButtonsForUser(user) {
-    const shouldDisable = !user;
-    setProductButtonsDisabled(shouldDisable);
+function updateProductButtonsForUser() {
+    setProductButtonsDisabled(false);
+}
+
+let pendingResumeCheckout = null;
+
+function captureResumeCheckout() {
+    if (!window.PricingCheckoutRedirect || typeof window.PricingCheckoutRedirect.readResumeCheckout !== 'function') {
+        return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const key = window.PricingCheckoutRedirect.readResumeCheckout(params);
+    if (!key) {
+        return;
+    }
+    pendingResumeCheckout = key;
+    params.delete('resumeCheckout');
+    const next = window.location.pathname + (params.toString() ? `?${params.toString()}` : '') + window.location.hash;
+    window.history.replaceState({}, '', next);
+}
+
+function resumeCheckoutIfReady(user) {
+    if (!user || !pendingResumeCheckout) {
+        return;
+    }
+    const key = pendingResumeCheckout;
+    pendingResumeCheckout = null;
+    purchaseSpec(null, key);
 }
 
 function getPricingAlertContainer() {
@@ -680,7 +705,7 @@ function restoreButtonText(button) {
 async function purchaseSpec(evt, productKey) {
     const triggerButton = evt?.currentTarget || document.querySelector(`button[data-product-key="${productKey}"]`);
 
-    if (triggerButton && triggerButton.disabled) {
+    if (!triggerButton || triggerButton.disabled) {
         return;
     }
 
@@ -696,10 +721,13 @@ async function purchaseSpec(evt, productKey) {
     try {
         hidePricingAlert();
 
-        const user = firebase.auth().currentUser;
+        const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
         if (!user) {
-            showPricingAlert('Please log in to purchase.', 'info');
-            window.location.href = '/pages/auth.html';
+            showPricingAlert('Please log in to subscribe. We will bring you back to checkout.', 'info');
+            const redirect = (window.PricingCheckoutRedirect && typeof window.PricingCheckoutRedirect.buildPricingAuthUrl === 'function')
+                ? window.PricingCheckoutRedirect.buildPricingAuthUrl(productKey)
+                : '/pages/auth.html';
+            window.location.href = redirect;
             return;
         }
 
@@ -1105,7 +1133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initProductButtons();
     initFeatureShowcase();
     handleCheckoutRedirect();
-    setProductButtonsDisabled(true);
+    captureResumeCheckout();
+    updateProductButtonsForUser();
 
     // Wake up the server immediately when page loads
     wakeUpServer();
@@ -1115,7 +1144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProductButtonsForUser(user);
 
             if (user) {
-                applyCurrentPlanHighlight();
+                applyCurrentPlanHighlight().catch(function () {}).then(function () {
+                    resumeCheckoutIfReady(user);
+                });
             } else {
                 clearCurrentPlanHighlights();
             }

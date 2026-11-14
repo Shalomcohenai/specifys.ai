@@ -14,7 +14,6 @@ extra_css:
   - /assets/css/components/flow-states.css
 extra_js:
   - /assets/js/features/spec-flow-feedback.js
-  - /assets/js/features/spec-generation-progress.js
   - /assets/js/script.js
   # Credits system moved to header.html (credits-v3-manager.js and credits-v3-display.js)
   - /assets/js/services/spec-cache.js
@@ -27,6 +26,7 @@ extra_js:
   - /assets/js/features/spec-viewer/spec-viewer-scroll.js
   - /assets/js/features/spec-viewer/spec-viewer-auth.js
   - /assets/js/features/spec-viewer/spec-viewer-tour.js
+  - /assets/js/features/spec-viewer/spec-generation-progress.js
   - /assets/js/features/spec-viewer/spec-viewer-main.js
 defer_js:
   - /assets/js/services/prompts.js
@@ -124,26 +124,36 @@ custom_js_modules:
             <div id="spec-generation-progress" class="spec-generation-progress hidden" role="status" aria-live="polite">
                 <div class="progress-bar-header">
                     <span class="progress-bar-stage" id="progress-stage-label">Preparing your specifications...</span>
-                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Current section">Section 1 of 7</span>
+                    <span class="progress-bar-percent" id="progress-percent-label" aria-label="Progress percentage">0%</span>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
                 </div>
-                <div class="progress-message" id="progress-message">Understanding your idea...</div>
+                <div class="progress-message is-status" id="progress-message">A full spec usually takes about 3 to 5 minutes.</div>
             </div>
             
             <!-- Approval Actions Container — hidden until overview content is actually ready -->
             <div id="approval-container" class="approval-container hidden" hidden aria-hidden="true">
-                <div class="approval-message">
-                    <i class="fa fa-info-circle"></i>
-                    <span><strong>Overview ready.</strong> Continue to generate Technical, Market, Design, Architecture, GEO &amp; SEO, and <strong>Prompts</strong> — then Copy to Cursor / Connect MCP.</span>
+                <div class="approval-copy">
+                    <p class="spec-stepper-kicker">Step 1 of 2 complete. Overview is ready.</p>
+                    <ol class="spec-stepper" aria-label="Spec generation stages">
+                        <li class="spec-stepper-step is-done">
+                            <span class="spec-stepper-index" aria-hidden="true">1</span>
+                            <span><strong>Overview.</strong> Problem, audience, features, and user flow. This part is done.</span>
+                        </li>
+                        <li class="spec-stepper-step is-current" aria-current="step">
+                            <span class="spec-stepper-index" aria-hidden="true">2</span>
+                            <span><strong>Full spec.</strong> Technical, Market research, Design, Architecture, GEO &amp; SEO, and Prompts. This starts when you continue.</span>
+                        </li>
+                    </ol>
+                    <p class="approval-message" id="approval-message">Nothing else is written until you generate the full spec.</p>
                 </div>
-                <div class="approval-actions" role="group" aria-label="Approval actions">
+                <div class="approval-actions" role="group" aria-label="Next step">
                     <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()" aria-label="Edit overview specification">
-                        <i class="fa fa-pencil" aria-hidden="true"></i> Edit
+                        <i class="fa fa-pencil" aria-hidden="true"></i> Edit overview
                     </button>
-                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Continue to technical specification and prompts" data-tour-target="approve">
-                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Continue to Technical + Prompts
+                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()" aria-label="Generate the full spec" data-tour-target="approve">
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec
                     </button>
                 </div>
             </div>
@@ -455,6 +465,7 @@ custom_js_modules:
                                 <button id="generate-export-btn" class="btn btn-primary export-generate-btn" onclick="generateExport()">
                                     <i class="fa fa-file-download"></i> Export
                                 </button>
+                                <p id="export-status" class="export-status" role="status" aria-live="polite"></p>
                             </div>
                             
                             <div id="export-progress" class="export-progress hidden">

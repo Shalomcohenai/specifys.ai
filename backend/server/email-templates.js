@@ -511,7 +511,7 @@ function overviewStuckEmail(userName, specTitle, continueUrl) {
         get Cursor-ready prompts. Approve Overview to generate Technical, Architecture, and Prompts.
       </p>
       <div class="btn-container">
-        <a href="${continueUrl}" class="btn">Continue to Technical + Prompts</a>
+        <a href="${continueUrl}" class="btn">Generate full spec</a>
       </div>
   `;
   return getBaseTemplate(headerTitle, bodyContent);

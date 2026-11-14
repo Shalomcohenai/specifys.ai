@@ -151,11 +151,14 @@
 
 .side-menu-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: clamp(32px, 4vw, 40px);
-  min-height: clamp(32px, 4vw, 40px);
-  padding: 0;
+  gap: 2px;
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 8px;
   border-radius: 8px;
   border: none;
   background: #ffffff;
@@ -165,8 +168,9 @@
 }
 
 .spec-nav-list--bottom .side-menu-button {
-  width: clamp(32px, 4vw, 40px);
-  min-height: clamp(32px, 4vw, 40px);
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 8px;
   background: #ffffff;
 }
@@ -235,80 +239,40 @@
 }
 
 .side-menu-button .side-menu-text {
-  position: absolute;
-  top: calc(100% + 7px);
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
+  position: static;
+  transform: none;
+  opacity: 1;
   pointer-events: none;
+  display: block;
   max-width: none;
   overflow: visible;
-  border-radius: 7px;
-  background: #0f172a;
-  color: #fff;
-  font-size: 11px;
-  padding: 5px 8px;
+  text-overflow: clip;
+  border-radius: 0;
+  background: transparent;
+  color: #1a1510;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  padding: 0;
   white-space: nowrap;
-  z-index: 30;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+  box-shadow: none;
 }
 
-/* Top nav: hover labels stack above neighbors; protrude below the white pill */
-.spec-nav-list--top .side-menu-item:hover,
-.spec-nav-list--top .side-menu-item:focus-within {
-  z-index: 100000;
+.side-menu-button.active .side-menu-text,
+.side-menu-button.active:hover .side-menu-text,
+.side-menu-item:focus-within .side-menu-button.active .side-menu-text {
+  color: #ffffff;
 }
 
-.spec-nav-list--top .side-menu-button .side-menu-text {
-  display: block;
-  background: #ffffff;
-  color: #FF6B35;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 10px;
-  z-index: 100001;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+.side-menu-button:disabled .side-menu-text {
+  color: #6b5e54;
 }
 
-.spec-nav-list--top .side-menu-button.active .side-menu-text {
-  color: #FF6B35;
-}
-
-.spec-nav-list--top .side-menu-button:disabled .side-menu-text {
-  color: #FF6B35;
-}
-
-/* Bottom nav: same hover card as top, protruding upward above the pill */
-.spec-nav-list--bottom .side-menu-item:hover,
-.spec-nav-list--bottom .side-menu-item:focus-within {
-  z-index: 100000;
-}
-
-.spec-nav-list--bottom .side-menu-button .side-menu-text {
-  top: auto;
-  bottom: calc(100% + 7px);
-  display: block;
-  background: #ffffff;
-  color: #FF6B35;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 10px;
-  z-index: 100001;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
-}
-
-.spec-nav-list--bottom .side-menu-button.active .side-menu-text,
-.spec-nav-list--bottom .side-menu-button:disabled .side-menu-text {
-  color: #FF6B35;
-}
-
-.side-menu-item:hover .side-menu-text,
-.side-menu-item:focus-within .side-menu-text {
-  opacity: 1;
+.spec-nav-list--top,
+.spec-nav-list--bottom {
+  overflow-x: auto;
+  justify-content: flex-start;
+  max-width: calc(100vw - 24px);
 }
 
 .side-menu-expand-sub {

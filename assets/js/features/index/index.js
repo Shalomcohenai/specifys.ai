@@ -1206,9 +1206,6 @@ async function generateSpecification() {
     if (window.planningText) {
       planningText = window.planningText;
       planningData = window.planningData;
-      // Clear after using
-      delete window.planningText;
-      delete window.planningData;
     }
     
     // Fallback: Check if answers come from Live Brief modal (old flow)
@@ -1241,12 +1238,24 @@ async function generateSpecification() {
       if (generateButton) {
         setButtonLoading(generateButton, false);
       }
-      // Persist draft so signup → return continues value-first flow
+      // Persist the brief before the auth redirect. The window copies are
+      // still the locals captured above; they used to be deleted first.
       try {
-        if (window.planningData || window.planningText) {
+        const briefState = window.LivingBrief && typeof window.LivingBrief.getState === 'function'
+          ? window.LivingBrief.getState()
+          : null;
+        const composer = document.getElementById('lbInput');
+        const messages = briefState && Array.isArray(briefState.messages)
+          ? briefState.messages.filter((message) => message && (message.role === 'user' || message.role === 'assistant') && message.content)
+              .map((message) => ({ role: message.role, content: String(message.content).slice(0, 4000) }))
+          : [];
+        if (planningData || planningText || messages.length) {
           localStorage.setItem('pendingGuestBrief', JSON.stringify({
-            planningData: window.planningData || null,
-            planningText: window.planningText || null,
+            planningData: planningData || null,
+            planningText: planningText || null,
+            draft: briefState ? briefState.draft : null,
+            messages: messages,
+            composer: composer ? String(composer.value || '').slice(0, 4000) : '',
             savedAt: Date.now()
           }));
         }
@@ -1313,6 +1322,11 @@ async function generateSpecification() {
         return { ok: false, code: 'credits' };
       }
     }
+
+    // Generation is starting for a signed-in user. Drop the guest copy.
+    delete window.planningText;
+    delete window.planningData;
+    try { localStorage.removeItem('pendingGuestBrief'); } catch (_) { /* ignore */ }
     
     // Show loading state on button
     const generateButton = document.querySelector('button[onclick="generateSpecFromPlanning()"]');
@@ -2012,6 +2026,27 @@ function checkAutoStart() {
 }
 
 // ===== GUEST BRIEF RESUME (Sprint B — auth friction) =====
+function scheduleGuestBriefRestore(attempt) {
+  const brief = window.LivingBrief;
+  if (!brief || typeof brief.restore !== 'function') {
+    if ((attempt || 0) < 30) {
+      setTimeout(function () { scheduleGuestBriefRestore((attempt || 0) + 1); }, 100);
+    }
+    return;
+  }
+  let draft = null;
+  try {
+    draft = JSON.parse(localStorage.getItem('pendingGuestBrief') || 'null');
+  } catch (_) {
+    draft = null;
+  }
+  if (!draft) return;
+  const restored = brief.restore(draft);
+  if (!restored && (attempt || 0) < 30) {
+    setTimeout(function () { scheduleGuestBriefRestore((attempt || 0) + 1); }, 100);
+  }
+}
+
 function resumeGuestBriefIfNeeded() {
   let shouldResume = false;
   try {
@@ -2031,6 +2066,7 @@ function resumeGuestBriefIfNeeded() {
   if (!shouldResume) return;
 
   showPlanningInterface();
+  scheduleGuestBriefRestore(0);
 
   try {
     const url = new URL(window.location.href);

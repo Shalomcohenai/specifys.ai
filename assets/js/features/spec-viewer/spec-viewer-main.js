@@ -836,9 +836,10 @@ function showNotification(message, type = 'info') {
     // Add styles
     notification.style.cssText = `
         position: fixed !important;
-        bottom: 150px !important;
+        top: 76px !important;
+        bottom: auto !important;
         left: 50% !important;
-        transform: translateX(-50%) translateY(100px) !important;
+        transform: translateX(-50%) translateY(-16px) !important;
         background: #FF6B35 !important;
         backdrop-filter: blur(10px) !important;
         color: #ffffff !important;
@@ -910,7 +911,7 @@ function showNotification(message, type = 'info') {
         
         @keyframes slideUpIn {
             from {
-                transform: translateX(-50%) translateY(100px);
+                transform: translateX(-50%) translateY(-16px);
                 opacity: 0;
             }
             to {
@@ -925,7 +926,7 @@ function showNotification(message, type = 'info') {
                 opacity: 1;
             }
             to {
-                transform: translateX(-50%) translateY(100px);
+                transform: translateX(-50%) translateY(-16px);
                 opacity: 0;
             }
         }
@@ -7101,7 +7102,7 @@ async function approveOverview() {
         setFeatureLoading('overview', false);
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec';
         }
         
     } catch (error) {
@@ -7120,7 +7121,7 @@ async function approveOverview() {
         const approveBtn = document.getElementById('approveBtn');
         if (approveBtn) {
             approveBtn.disabled = false;
-            approveBtn.innerHTML = '<i class="fa fa-arrow-right"></i> Continue to Technical + Prompts';
+            approveBtn.innerHTML = '<i class="fa fa-arrow-right" aria-hidden="true"></i> Generate full spec';
         }
     }
 }
@@ -9677,34 +9678,23 @@ function displaySectionLoading(headerElement, isLoading) {
 let progressMessageInterval = null;
 let currentProgressMessageIndex = 0;
 
-const progressMessages = [
-    'Understanding your idea...',
-    'Defining core features...',
-    'Mapping user workflows...',
-    'Analyzing technical requirements...',
-    'Researching market opportunities...',
-    'Designing user experience...',
-    'Finalizing specification...'
-];
+// Weights and the easing curve live in spec-generation-progress.js so the Prompts
+// stage does not jump to ~97% the moment it starts (that file is loaded first).
+let specProgressTickTimer = null;
 
-// Stage list lives in spec-generation-progress.js (key: 'prompts' is the last section).
-// Completed sections move the bar. The section that is still running does not add a
-// fake partial percent, which used to leave Prompts looking stuck at 97%.
 function computeSpecGenerationProgress(spec) {
-    if (window.SpecGenerationProgress && typeof window.SpecGenerationProgress.compute === 'function') {
-        return window.SpecGenerationProgress.compute(spec);
+    const api = window.SpecGenerationProgress;
+    if (!api || typeof api.computeSpecGenerationProgress !== 'function') {
+        return { percent: 0, currentStage: null, completed: 0, total: 0, allDone: false };
     }
-    return {
-        percent: 0,
-        headline: 'Preparing your specification',
-        detail: '',
-        expectation: 'A full spec usually takes 8 to 10 minutes.',
-        background: 'You can leave this page. Generation continues in the background, and we email you when it is ready.',
-        completed: 0,
-        total: 7,
-        allDone: false,
-        currentStage: { key: 'overview', label: 'Overview' }
-    };
+    return api.computeSpecGenerationProgress(spec);
+}
+
+function stopSpecProgressTick() {
+    if (specProgressTickTimer) {
+        clearInterval(specProgressTickTimer);
+        specProgressTickTimer = null;
+    }
 }
 
 /**
@@ -9718,22 +9708,38 @@ function renderSpecGenerationProgress(spec) {
     const stageLabel = document.getElementById('progress-stage-label');
     if (!fill || !percentLabel || !stageLabel) return;
 
-    const model = computeSpecGenerationProgress(spec);
-    const percent = model.allDone ? 100 : Math.round((model.completed / model.total) * 100);
-    const sectionNumber = model.allDone ? model.total : Math.min(model.completed + 1, model.total);
+    const { percent, currentStage, completed, total, allDone } = computeSpecGenerationProgress(spec);
 
     fill.style.width = `${percent}%`;
-    fill.classList.toggle('is-working', !model.allDone);
-    percentLabel.textContent = model.allDone ? 'Done' : `Section ${sectionNumber} of ${model.total}`;
-    percentLabel.setAttribute('aria-label', percentLabel.textContent);
-    stageLabel.textContent = model.headline || 'Preparing your specification';
-
+    percentLabel.textContent = `${percent}%`;
     const messageElement = document.getElementById('progress-message');
     if (messageElement) {
-        const parts = [model.detail, model.expectation, model.background].filter(Boolean);
-        messageElement.textContent = parts.join(' ');
+        messageElement.textContent = allDone
+            ? 'You can open any section.'
+            : 'A full spec usually takes about 3 to 5 minutes. You can leave this page. Generation continues in the background, and we email you when it is ready.';
         messageElement.classList.add('is-status');
     }
+
+    if (allDone) {
+        stopSpecProgressTick();
+        stageLabel.textContent = `All specifications ready · ${total}/${total}`;
+        updateStageRecoveryBanner(spec);
+        return;
+    }
+
+    // Firestore only changes when a stage finishes. Ease the active stage locally
+    // so Prompts does not sit frozen near the top of the bar.
+    if (!specProgressTickTimer) {
+        specProgressTickTimer = setInterval(() => {
+            try { renderSpecGenerationProgress(currentSpecData); } catch (e) { /* no-op */ }
+        }, 1000);
+    }
+
+    const status = spec?.status || {};
+    const stageStatus = currentStage ? status[currentStage.key] : undefined;
+    const verb = stageStatus === 'generating' ? 'Generating' : (stageStatus === 'error' ? 'Failed' : 'Queued');
+    const safeLabel = currentStage?.label || 'Next stage';
+    stageLabel.textContent = `${verb}: ${safeLabel} · ${completed}/${total} done`;
     updateStageRecoveryBanner(spec);
 }
 
@@ -9798,7 +9804,7 @@ function updateStageRecoveryBanner(spec) {
             msgEl.textContent = overviewErrMsg;
         } else {
             msgEl.textContent = overviewNeedsRetry
-                ? `${parts.join('. ')}. Retry overview generation, then Continue to Technical + Prompts.`
+                ? `${parts.join('. ')}. Retry overview generation, then choose Generate full spec.`
                 : `${parts.join('. ')}. Retry to continue toward Prompts, then Copy to Cursor / Connect MCP.`;
         }
     }
@@ -9880,8 +9886,9 @@ function startProgressBar() {
         return;
     }
     
-    // Status text comes from the real stage. Do not rotate placeholder sentences
-    // over a section that is still running.
+    // The stage label names the running section. Keep one honest time sentence
+    // here instead of rotating placeholder lines over it.
+    messageElement.textContent = 'A full spec usually takes about 3 to 5 minutes. You can leave this page. Generation continues in the background, and we email you when it is ready.';
     messageElement.classList.add('is-status');
     currentProgressMessageIndex = 0;
     
@@ -9906,6 +9913,7 @@ function stopProgressBar() {
         progressMessageInterval = null;
         console.log('[stopProgressBar] Interval cleared');
     }
+    stopSpecProgressTick();
 }
 
 // ============================================
