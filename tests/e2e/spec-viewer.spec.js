@@ -152,8 +152,7 @@ test('spec viewer modular smoke', async ({ page, baseURL }) => {
   );
 
   const afterLoads = await page.evaluate(() => window.__mermaidLoads());
-  // Accept either mermaid was loaded or was already available
-  expect(afterLoads).toBeGreaterThanOrEqual(0);
+  expect(afterLoads).toBeGreaterThan(0);
 
   const diagramLoadingEnded = await page.evaluate(() => window.dataService.isLoading('diagramLoading'));
   expect(diagramLoadingEnded).toBe(false);

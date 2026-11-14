@@ -8,10 +8,10 @@ Disallow: /pages/new-admin-dashboard.html
 Disallow: /pages/legacy-viewer.html
 
 # Sitemap
-Sitemap: https://www.specifys-ai.com/sitemap.xml
+Sitemap: https://specifys-ai.com/sitemap.xml
 
 # AI discovery index
-# https://www.specifys-ai.com/llms.txt
+# https://specifys-ai.com/llms.txt
 
 # Specific rules for major search engines
 User-agent: Googlebot
