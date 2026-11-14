@@ -1,3 +1,78 @@
+{% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
+{% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
+{% if optimize_lcp %}
+<!-- Homepage: defer Auth so it does not block first paint. Firestore loads on Start, not on first view. -->
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+  window.__specifysEnsureFirestore = function () {
+    if (window.firebase && typeof window.firebase.firestore === 'function') {
+      return Promise.resolve();
+    }
+    if (!window.__specifysFirestoreScript) {
+      window.__specifysFirestoreScript = new Promise(function (resolve, reject) {
+        var script = document.createElement('script');
+        script.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js';
+        script.async = true;
+        script.onload = function () { resolve(); };
+        script.onerror = function () { reject(new Error('firestore')); };
+        document.head.appendChild(script);
+      });
+    }
+    return window.__specifysFirestoreScript;
+  };
+</script>
+<script type="module">
+  function bootFirebase() {
+    var firebaseSdk = window.firebase;
+    if (!firebaseSdk || typeof firebaseSdk.initializeApp !== 'function') {
+      setTimeout(bootFirebase, 20);
+      return;
+    }
+    if (window.__specifysFirebaseBooted) return;
+    window.__specifysFirebaseBooted = true;
+
+    var firebaseConfig = {
+      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+      authDomain: "specify-ai.firebaseapp.com",
+      projectId: "specify-ai",
+      storageBucket: "specify-ai.firebasestorage.app",
+      messagingSenderId: "734278787482",
+      appId: "1:734278787482:web:0e312fb6f197e849695a23",
+      measurementId: "G-4YR9LK63MR"
+    };
+
+    firebaseSdk.initializeApp(firebaseConfig);
+    var auth = firebaseSdk.auth();
+    var dbInitialized = false;
+    var dbInstance = null;
+
+    function getFirestore() {
+      if (!dbInitialized) {
+        if (typeof firebaseSdk.firestore !== 'function') {
+          if (typeof window.__specifysEnsureFirestore === 'function') {
+            window.__specifysEnsureFirestore();
+          }
+          return null;
+        }
+        dbInitialized = true;
+        dbInstance = firebaseSdk.firestore();
+        return dbInstance;
+      }
+      return dbInstance;
+    }
+
+    window.auth = auth;
+    Object.defineProperty(window, 'db', {
+      get: getFirestore,
+      configurable: true,
+      enumerable: true
+    });
+    window.dispatchEvent(new Event('firebase-ready'));
+  }
+  bootFirebase();
+</script>
+{% else %}
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -18,36 +93,36 @@
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  
+
   // Delay Firestore initialization to prevent IndexedDB blocking main thread
   // Firestore will be initialized on-demand when needed (lazy loading)
   // This improves initial page load performance by avoiding IndexedDB creation during startup
   let dbInitialized = false;
   let dbInstance = null;
-  
+
   const getFirestore = function() {
     if (!dbInitialized) {
       dbInitialized = true;
-      
+
       // Defer Firestore initialization until after page is interactive
       // This prevents IndexedDB from blocking the main thread during initial page load
       // Initialize immediately but defer the actual IndexedDB creation
       dbInstance = firebase.firestore();
       window.db = dbInstance;
-      
+
       // Note: firebase.firestore() creates IndexedDB synchronously in compat mode
       // However, by using lazy loading (only initializing when window.db is accessed),
       // we ensure it's not created during initial page load unless actually needed
       // The actual IndexedDB operations happen asynchronously in the background
-      
+
       return dbInstance;
     }
     return dbInstance || window.db;
   };
-  
+
   // Make auth available globally immediately (needed for auth checks)
   window.auth = auth;
-  
+
   // Make db a getter that initializes on first access (lazy loading)
   // This prevents IndexedDB from being created during initial page load
   Object.defineProperty(window, 'db', {
@@ -55,8 +130,8 @@
     configurable: true,
     enumerable: true
   });
-  
+
   // Dispatch firebase-ready event for other scripts
   window.dispatchEvent(new Event('firebase-ready'));
 </script>
-
+{% endif %}

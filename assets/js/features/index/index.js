@@ -329,6 +329,9 @@ function handleStartButtonClick() {
   var startBtn = document.getElementById('startButton');
   if (startBtn) startBtn.disabled = true;
 
+  if (typeof window.__specifysEnsureFirestore === 'function') {
+    window.__specifysEnsureFirestore();
+  }
   var ensureLibs = (typeof window.__specifysEnsureIdleScripts === 'function')
     ? window.__specifysEnsureIdleScripts()
     : Promise.resolve();
@@ -1156,6 +1159,16 @@ function updateMicrophoneButton() {
 // (Demo function and all data permanently removed)
 
 // ===== API INTEGRATION =====
+async function ensureFirestoreForSave() {
+  if (typeof firebase !== 'undefined' && typeof firebase.firestore === 'function') return;
+  if (typeof window.__specifysEnsureFirestore === 'function') {
+    await window.__specifysEnsureFirestore();
+  }
+  if (typeof firebase === 'undefined' || typeof firebase.firestore !== 'function') {
+    throw new Error('Firestore is not available');
+  }
+}
+
 function reportGenerationStop(input) {
   if (window.SpecFlowFeedback && typeof window.SpecFlowFeedback.presentGenerationStop === 'function') {
     window.SpecFlowFeedback.presentGenerationStop(input, {
@@ -1444,6 +1457,7 @@ async function generateSpecification() {
     }
 
     markGenerationStage(1);
+    await ensureFirestoreForSave();
     
     // Generate specification - try queue API first, fallback to direct API
     // Now that credit is consumed, we can safely create spec and start background job
@@ -1806,6 +1820,7 @@ window.setButtonLoading = setButtonLoading;
 // ===== FIREBASE INTEGRATION =====
 async function saveSpecToFirebase(overviewContent, answers) {
   try {
+    await ensureFirestoreForSave();
     const user = firebase.auth().currentUser;
     if (!user) {
       throw new Error('User must be authenticated to save to Firebase');
@@ -2693,18 +2708,19 @@ function triggerPlatformHint() {
   }
 
   function renderBrowserDiagrams() {
+    const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
+    if (!diagramsContainer) return;
+    const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
+      return !el.querySelector('svg');
+    });
+    // Homepage ships a pre-rendered SVG. Do not download Mermaid (~1MB) until a raw diagram exists.
+    if (mermaidElements.length === 0) return;
+
     loadMermaidWithFallbacks().then(function (m) {
       if (!m && typeof mermaid !== 'undefined') m = mermaid;
       if (!m) return;
 
       try {
-        const diagramsContainer = document.querySelector('.browser-tab-content[data-tab-content="diagrams"]');
-        if (!diagramsContainer) return;
-        
-        const mermaidElements = Array.from(diagramsContainer.querySelectorAll('.mermaid')).filter(function (el) {
-          return !el.querySelector('svg');
-        });
-        if (mermaidElements.length === 0) return;
 
         if (typeof window.sanitizeMermaidSource === 'function') {
           mermaidElements.forEach(function (el) {
