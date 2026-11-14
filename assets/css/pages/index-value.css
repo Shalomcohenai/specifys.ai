@@ -162,11 +162,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0 0 0.5rem;
-  color: var(--text-muted, #999);
+  color: #4b4b4b;
 }
 
 .before-after-card--after .before-after-eyebrow {
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
 }
 
 .before-after-heading {
@@ -206,7 +206,7 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
   font-weight: 700;
 }
 
@@ -229,7 +229,7 @@
   font-family: "Montserrat", sans-serif;
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
   font-weight: 700;
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
   line-height: 1.2;
   margin: 0 0 0.25rem;
 }
@@ -277,7 +277,7 @@
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  background: var(--primary-color, #FF6B35);
+  background: #B33A00;
   color: #fff;
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
@@ -357,7 +357,7 @@
   justify-content: center;
   border-radius: 10px;
   background: linear-gradient(145deg, #FFF4F0 0%, #FFE8DE 100%);
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
   margin-bottom: 0.95rem;
   font-size: 1.15rem;
   transition: transform 0.25s ease;
@@ -405,14 +405,14 @@
 }
 
 .example-spec-btn-primary {
-  background: var(--primary-color, #FF6B35);
+  background: #B33A00;
   color: #fff;
-  border: 1px solid var(--primary-color, #FF6B35);
+  border: 1px solid #B33A00;
 }
 
 .example-spec-btn-primary:hover {
-  background: var(--primary-hover, #FF8551);
-  border-color: var(--primary-hover, #FF8551);
+  background: #9A3412;
+  border-color: #9A3412;
   color: #fff;
   text-decoration: none;
 }
@@ -425,8 +425,8 @@
 
 .example-spec-btn-secondary:hover {
   background: var(--primary-light, #FFF4F0);
-  border-color: rgba(255, 107, 53, 0.35);
-  color: var(--primary-color, #FF6B35);
+  border-color: rgba(179, 58, 0, 0.35);
+  color: #B33A00;
   text-decoration: none;
 }
 
@@ -438,7 +438,7 @@
 .example-specs-footer a {
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
   text-decoration: none;
 }
 
@@ -469,7 +469,7 @@
 }
 
 .mcp-bridge-text a {
-  color: var(--primary-color, #FF6B35);
+  color: #B33A00;
   font-weight: 600;
   text-decoration: none;
 }
