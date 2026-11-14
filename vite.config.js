@@ -41,9 +41,8 @@ export default defineConfig({
           }
           return 'assets/[name]-[hash][extname]';
         },
-        manualChunks: {
-          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-        },
+        // Firebase is loaded via CDN (see _includes/firebase-init.html), not bundled
+        // manualChunks removed to fix build error: "Could not resolve entry module 'firebase/app'"
       },
     },
     cssCodeSplit: true,
