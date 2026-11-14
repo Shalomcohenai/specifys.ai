@@ -891,12 +891,12 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
 <div id="registrationModal" class="welcome-modal hidden">
   <div class="welcome-content">
     <div class="welcome-header">
-      <h3>🔐 Registration Required</h3>
+      <h3>Your idea is saved</h3>
       <button class="welcome-close" onclick="closeRegistrationModal()" aria-label="Close registration message">×</button>
     </div>
     <div class="welcome-body">
-      <p><strong>To start planning your app, you need to create a free account!</strong></p>
-      <p>Registration allows you to:</p>
+      <p><strong>Your brief stays on this device.</strong> Create a free account to generate the spec. No card.</p>
+      <p>A free account lets you:</p>
       <div class="welcome-features">
         <div class="feature-highlight">
           <i class="fa fa-save"></i>
@@ -918,7 +918,7 @@ Implement Inbox list UI against mocked thread API matching Overview screens and 
     </div>
     <div class="welcome-actions">
       <button type="button" onclick="closeRegistrationModal()" class="btn-continue">Maybe Later</button>
-      <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Create Free Account', 'registration_modal')">Create Free Account</a>
+      <a href="/pages/auth.html?next=%2F%3FresumeBrief%3D1&amp;redirect=profile" class="btn-register" onclick="trackCTA('Create Free Account', 'registration_modal')">Create free account</a>
     </div>
   </div>
 </div>
