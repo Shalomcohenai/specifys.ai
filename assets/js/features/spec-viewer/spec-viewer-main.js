@@ -9678,16 +9678,6 @@ function displaySectionLoading(headerElement, isLoading) {
 let progressMessageInterval = null;
 let currentProgressMessageIndex = 0;
 
-const progressMessages = [
-    'Understanding your idea...',
-    'Defining core features...',
-    'Mapping user workflows...',
-    'Analyzing technical requirements...',
-    'Researching market opportunities...',
-    'Designing user experience...',
-    'Finalizing specification...'
-];
-
 // Weights and the easing curve live in spec-generation-progress.js so the Prompts
 // stage does not jump to ~97% the moment it starts (that file is loaded first).
 let specProgressTickTimer = null;
@@ -9722,6 +9712,13 @@ function renderSpecGenerationProgress(spec) {
 
     fill.style.width = `${percent}%`;
     percentLabel.textContent = `${percent}%`;
+    const messageElement = document.getElementById('progress-message');
+    if (messageElement) {
+        messageElement.textContent = allDone
+            ? 'You can open any section.'
+            : 'A full spec usually takes about 3 to 5 minutes. You can leave this page. Generation continues in the background, and we email you when it is ready.';
+        messageElement.classList.add('is-status');
+    }
 
     if (allDone) {
         stopSpecProgressTick();
@@ -9889,17 +9886,11 @@ function startProgressBar() {
         return;
     }
     
-    // Set initial message
-    messageElement.textContent = progressMessages[0];
+    // The stage label names the running section. Keep one honest time sentence
+    // here instead of rotating placeholder lines over it.
+    messageElement.textContent = 'A full spec usually takes about 3 to 5 minutes. You can leave this page. Generation continues in the background, and we email you when it is ready.';
+    messageElement.classList.add('is-status');
     currentProgressMessageIndex = 0;
-    console.log('[startProgressBar] Initial message set:', progressMessages[0]);
-    
-    // Rotate messages every 3.5 seconds
-    progressMessageInterval = setInterval(() => {
-        currentProgressMessageIndex = (currentProgressMessageIndex + 1) % progressMessages.length;
-        messageElement.textContent = progressMessages[currentProgressMessageIndex];
-        console.log('[startProgressBar] Message rotated to:', progressMessages[currentProgressMessageIndex]);
-    }, 3500);
     
     console.log('[startProgressBar] Progress bar started successfully');
 }

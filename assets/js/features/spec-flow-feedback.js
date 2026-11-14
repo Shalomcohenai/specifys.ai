@@ -155,7 +155,7 @@
     }
     return {
       title: 'No specifications yet',
-      message: 'A spec is a PRD, technical plan, and prompts. Most are ready in a few minutes.',
+      message: 'A spec is a PRD, technical plan, and prompts. A full spec usually takes about 3 to 5 minutes.',
       nextStep: 'Describe the product on the homepage, then choose Generate.',
       actions: [
         { label: 'Create your first spec', action: 'create', primary: true },
