@@ -755,19 +755,24 @@ async function generateExport() {
     if (mockupsCheckbox?.checked && !mockupsCheckbox.disabled) selectedSections.push('mockups');
     
     if (selectedSections.length === 0) {
+        setExportStatus('Select at least one section, then export again.', 'error');
         showNotification('Please select at least one section to export', 'error');
         return;
     }
     
     // Show progress
     const progressContainer = document.getElementById('export-progress');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
     const generateBtn = document.getElementById('generate-export-btn');
     
-    progressContainer.style.display = 'block';
-    generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
+    if (progressContainer) {
+        progressContainer.classList.remove('hidden');
+        progressContainer.style.display = 'block';
+    }
+    if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
+    }
+    setExportStatus('Preparing the HTML export.', '');
     
     try {
         // Step 1: Prepare content
@@ -814,24 +819,32 @@ async function generateExport() {
         updateProgress(90, 'Preparing download...');
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        downloadHTML(htmlContent, currentSpecData.title || 'specification');
+        presentHtmlDownload(htmlContent, currentSpecData.title || 'specification');
         
-        updateProgress(100, 'Export completed!');
-        
-        setTimeout(() => {
-            progressContainer.style.display = 'none';
+        updateProgress(100, 'Export ready.');
+        showNotification('Export ready. Use the download link if the file did not save.', 'success');
+        if (generateBtn) {
             generateBtn.disabled = false;
             generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Export';
-            showNotification('Export generated successfully!', 'success');
-        }, 1000);
+        }
         
     } catch (error) {
-        // Error generating export
-        showNotification('Error generating export: ' + error.message, 'error');
-        progressContainer.style.display = 'none';
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Export';
+        const message = error && error.message ? error.message : 'Try again.';
+        setExportStatus('Export failed. ' + message, 'error');
+        showNotification('Error generating export: ' + message, 'error');
+        if (progressContainer) progressContainer.style.display = 'none';
+        if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Export';
+        }
     }
+}
+
+function setExportStatus(message, kind) {
+    const status = document.getElementById('export-status');
+    if (!status) return;
+    status.textContent = message || '';
+    status.className = 'export-status' + (kind ? ' is-' + kind : '');
 }
 
 /**
@@ -1169,16 +1182,32 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
 /**
  * Download HTML file
  */
-function downloadHTML(htmlContent, filename) {
+function presentHtmlDownload(htmlContent, filename) {
+    const safeName = `${String(filename || 'specification').replace(/[^a-z0-9]/gi, '_')}_export_${new Date().toISOString().split('T')[0]}.html`;
     const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${filename.replace(/[^a-z0-9]/gi, '_')}_export_${new Date().toISOString().split('T')[0]}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const status = document.getElementById('export-status');
+    if (status) {
+        const previous = status.querySelector('.export-download-link');
+        if (previous && previous.href) URL.revokeObjectURL(previous.href);
+        status.textContent = '';
+        const text = document.createElement('span');
+        text.textContent = 'Export ready. ';
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = safeName;
+        link.className = 'export-download-link';
+        link.textContent = 'Download ' + safeName;
+        status.appendChild(text);
+        status.appendChild(link);
+        status.className = 'export-status is-success';
+        link.click();
+    }
+    return safeName;
+}
+
+function downloadHTML(htmlContent, filename) {
+    presentHtmlDownload(htmlContent, filename);
 }
 
 /**

@@ -9688,66 +9688,23 @@ const progressMessages = [
     'Finalizing specification...'
 ];
 
-// Pipeline stages displayed in the progress bar. Weights reflect typical generation
-// time so the percentage moves at a roughly steady pace as each section completes.
-// Total of weights MUST equal 100.
-const SPEC_PROGRESS_STAGES = [
-    { key: 'overview',     weight: 5,  label: 'Overview' },
-    { key: 'technical',    weight: 25, label: 'Technical Specification' },
-    { key: 'market',       weight: 20, label: 'Market Research' },
-    { key: 'design',       weight: 20, label: 'Design & Branding' },
-    { key: 'architecture', weight: 15, label: 'Architecture' },
-    { key: 'visibility',   weight: 8,  label: 'GEO & SEO' },
-    { key: 'prompts',      weight: 7,  label: 'Prompts' },
-];
+// Weights and the easing curve live in spec-generation-progress.js so the Prompts
+// stage does not jump to ~97% the moment it starts (that file is loaded first).
+let specProgressTickTimer = null;
 
-/**
- * Compute a percentage and contextual label from spec.status.
- * - ready / error counts as fully done (terminal)
- * - generating counts as half done (so the bar moves the moment a stage starts)
- * - pending / undefined counts as not started
- */
 function computeSpecGenerationProgress(spec) {
-    const status = spec?.status || {};
-    let earned = 0;
-    let totalWeight = 0;
-    let currentStage = null;
-    let completed = 0;
-
-    for (const stage of SPEC_PROGRESS_STAGES) {
-        totalWeight += stage.weight;
-        const s = status[stage.key];
-        if (s === 'ready' || s === 'error') {
-            earned += stage.weight;
-            completed += 1;
-        } else if (s === 'generating') {
-            earned += stage.weight * 0.5;
-            if (!currentStage) currentStage = stage;
-        }
+    const api = window.SpecGenerationProgress;
+    if (!api || typeof api.computeSpecGenerationProgress !== 'function') {
+        return { percent: 0, currentStage: null, completed: 0, total: 0, allDone: false };
     }
+    return api.computeSpecGenerationProgress(spec);
+}
 
-    if (!currentStage) {
-        // No stage is actively generating; pick the first non-terminal stage as "next up"
-        currentStage = SPEC_PROGRESS_STAGES.find(s => {
-            const st = status[s.key];
-            return st !== 'ready' && st !== 'error';
-        }) || SPEC_PROGRESS_STAGES[SPEC_PROGRESS_STAGES.length - 1];
+function stopSpecProgressTick() {
+    if (specProgressTickTimer) {
+        clearInterval(specProgressTickTimer);
+        specProgressTickTimer = null;
     }
-
-    const percent = totalWeight > 0
-        ? Math.max(0, Math.min(100, Math.round((earned / totalWeight) * 100)))
-        : 0;
-
-    return {
-        percent,
-        currentStage,
-        completed,
-        total: SPEC_PROGRESS_STAGES.length,
-        allDone: SPEC_PROGRESS_STAGES.every(s => {
-            const st = status[s.key];
-            return st === 'ready' || st === 'error';
-        }),
-    };
 }
 
 /**
@@ -9767,9 +9724,18 @@ function renderSpecGenerationProgress(spec) {
     percentLabel.textContent = `${percent}%`;
 
     if (allDone) {
+        stopSpecProgressTick();
         stageLabel.textContent = `All specifications ready · ${total}/${total}`;
         updateStageRecoveryBanner(spec);
         return;
+    }
+
+    // Firestore only changes when a stage finishes. Ease the active stage locally
+    // so Prompts does not sit frozen near the top of the bar.
+    if (!specProgressTickTimer) {
+        specProgressTickTimer = setInterval(() => {
+            try { renderSpecGenerationProgress(currentSpecData); } catch (e) { /* no-op */ }
+        }, 1000);
     }
 
     const status = spec?.status || {};
@@ -9956,6 +9922,7 @@ function stopProgressBar() {
         progressMessageInterval = null;
         console.log('[stopProgressBar] Interval cleared');
     }
+    stopSpecProgressTick();
 }
 
 // ============================================
