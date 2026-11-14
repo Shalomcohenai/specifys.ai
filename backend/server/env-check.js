@@ -13,10 +13,17 @@ function hasFirebaseCredentials() {
   );
 }
 
+function lemonWebhookSecretWarnings(env = process.env) {
+  if (env.LEMON_WEBHOOK_SECRET) return [];
+  if (env.LEMON_SQUEEZY_WEBHOOK_SECRET) {
+    return ['LEMON_WEBHOOK_SECRET (LEMON_SQUEEZY_WEBHOOK_SECRET is set and will be used as a fallback)'];
+  }
+  return ['LEMON_WEBHOOK_SECRET'];
+}
+
 function assertEnv() {
   const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
-  const warnings = [];
-  if (!process.env.LEMON_SQUEEZY_WEBHOOK_SECRET) warnings.push('LEMON_SQUEEZY_WEBHOOK_SECRET');
+  const warnings = lemonWebhookSecretWarnings();
   if (!hasFirebaseCredentials()) warnings.push('FIREBASE_SERVICE_ACCOUNT_KEY / FIREBASE_SERVICE_ACCOUNT_KEY_FILE (or FIREBASE_SA_*)');
 
   if (missing.length > 0) {
@@ -32,4 +39,4 @@ function assertEnv() {
   }
 }
 
-module.exports = { assertEnv };
+module.exports = { assertEnv, lemonWebhookSecretWarnings };

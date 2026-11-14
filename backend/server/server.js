@@ -47,6 +47,7 @@ const { syncAllUsers } = require('./user-management');
 const { startScheduledJobs } = require('./scheduled-jobs');
 const { initializeErrorCapture } = require('./render-error-capture');
 const { assertEnv } = require('./env-check');
+const { buildLemonStartupLog } = require('./lemon-pro-grant');
 const { geoMiddleware } = require('./middleware/geo');
 const emailService = require('./email-service');
 
@@ -1047,6 +1048,9 @@ const VERSION = '2.0.0-unified-server-' + Date.now();
 
 // Start the server
 const server = app.listen(port, () => {
+  const lemonStartup = buildLemonStartupLog();
+  logger.info(lemonStartup.fields, lemonStartup.message);
+
   // Log comprehensive server startup summary
   logger.info({
     type: 'server_start',
