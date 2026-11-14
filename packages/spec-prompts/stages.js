@@ -13,24 +13,63 @@ export const STAGE_NAMES = {
 
 export const TOTAL_STAGES = 10;
 
+/** Caps for the spec text repeated on every prompt-stage call. Head+tail keep later sections. */
+export const PROMPT_CONTEXT_CAPS = {
+  overview: 14000,
+  technical: 18000,
+  design: 12000
+};
+
+export function compactSpecContext(text, maxChars) {
+  if (text == null || text === '') return '';
+  let out = String(text).trim();
+  if ((out.startsWith('{') && out.endsWith('}')) || (out.startsWith('[') && out.endsWith(']'))) {
+    try {
+      out = JSON.stringify(JSON.parse(out));
+    } catch (_) {
+      /* keep the trimmed source */
+    }
+  }
+  if (out.length <= maxChars) return out;
+  const marker = '\n…[truncated]…\n';
+  const budget = Math.max(0, maxChars - marker.length);
+  const head = Math.floor(budget * 0.7);
+  const tail = Math.max(0, budget - head);
+  return `${out.slice(0, head)}${marker}${tail ? out.slice(out.length - tail) : ''}`;
+}
+
+function stagePipelineOutline(stageNumber) {
+  const lines = Object.keys(STAGE_NAMES)
+    .map((n) => Number(n))
+    .sort((a, b) => a - b)
+    .map((n) => `${n}. ${STAGE_NAMES[n]}`);
+  return `PIPELINE (write ONLY stage ${stageNumber}; do not include the other tickets):\n${lines.join('\n')}\n\n`;
+}
+
 /**
  * Agent-ticket quality stage prompt.
  * Each stage returns Build / Review / Tests variants inside one fullPrompt string.
+ * previousStages is optional. The server runs stages in parallel and passes []
+ * plus the pipeline outline, so a stage does not wait on earlier tickets.
  */
 export function buildStageUserMessage(stageNumber, overviewContent, technicalContent, designContent, previousStages) {
   const stageName = STAGE_NAMES[stageNumber];
-  const prevContext = previousStages.length > 0
-    ? `PREVIOUS STAGES CONTEXT:\n${previousStages.map((s, i) => `Stage ${i + 1} (summary): ${s.substring(0, 400)}...`).join('\n\n')}\n\n`
-    : '';
+  const prior = Array.isArray(previousStages) ? previousStages : [];
+  const prevContext = prior.length > 0
+    ? `PREVIOUS STAGES CONTEXT:\n${prior.map((s, i) => `Stage ${i + 1} (summary): ${String(s).substring(0, 400)}...`).join('\n\n')}\n\n`
+    : stagePipelineOutline(stageNumber);
+  const overview = compactSpecContext(overviewContent, PROMPT_CONTEXT_CAPS.overview) || 'Not provided';
+  const technical = compactSpecContext(technicalContent, PROMPT_CONTEXT_CAPS.technical) || 'Not provided';
+  const design = compactSpecContext(designContent, PROMPT_CONTEXT_CAPS.design) || 'Not provided';
 
   return `Application Overview:
-${overviewContent || 'Not provided'}
+${overview}
 
 Technical Specification:
-${technicalContent || 'Not provided'}
+${technical}
 
 Design Specification:
-${designContent || 'Not provided'}
+${design}
 
 You are writing STAGE ${stageNumber}: ${stageName} as an Agent Ticket for an implementation agent.
 
@@ -116,12 +155,14 @@ Each stage below is an Agent Ticket with Goal, Non-goals, Files, AC, Commands, D
 `;
 
   generatedStages.forEach((stageContent, index) => {
-    const stageNum = index + 1;
-    const stageName = STAGE_NAMES[stageNum];
+    const entry = stageContent && typeof stageContent === 'object' && typeof stageContent.content === 'string'
+      ? { stageNum: Number(stageContent.stageNumber) || index + 1, body: stageContent.content }
+      : { stageNum: index + 1, body: stageContent };
+    const stageName = STAGE_NAMES[entry.stageNum] || `STAGE ${entry.stageNum}`;
     fullPrompt += `═══════════════════════════════════════════════════════════════\n`;
-    fullPrompt += `STAGE ${stageNum}: ${stageName}\n`;
+    fullPrompt += `STAGE ${entry.stageNum}: ${stageName}\n`;
     fullPrompt += `═══════════════════════════════════════════════════════════════\n\n`;
-    fullPrompt += stageContent;
+    fullPrompt += entry.body;
     fullPrompt += `\n\n`;
   });
 
@@ -172,13 +213,15 @@ Please build this application following best practices, ensuring scalability, se
 }
 
 export function buildIntegrationsPrompt(overviewContent, technicalContent) {
+  const overview = compactSpecContext(overviewContent, PROMPT_CONTEXT_CAPS.overview) || 'Not provided';
+  const technical = compactSpecContext(technicalContent, PROMPT_CONTEXT_CAPS.technical) || 'Not provided';
   return `Generate third-party integration instructions based on the technical specification.
 
 Application Overview:
-${overviewContent || 'Not provided'}
+${overview}
 
 Technical Specification:
-${technicalContent || 'Not provided'}
+${technical}
 
 Return ONLY valid JSON with key "thirdPartyIntegrations" containing an array. Each item must have:
 - service: Service name

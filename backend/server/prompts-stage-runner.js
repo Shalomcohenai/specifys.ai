@@ -3,6 +3,7 @@
  */
 
 const { logger } = require('./logger');
+const { mapWithConcurrency } = require('./async-pool');
 const {
   TOTAL_STAGES,
   buildStageUserMessage,
@@ -10,40 +11,43 @@ const {
   buildIntegrationsPrompt
 } = require('../../packages/spec-prompts/stages.cjs');
 
+/** Four in flight stays under typical Luna rate limits while cutting the 10-deep chain. */
+const PROMPT_STAGE_CONCURRENCY = 4;
+
 /**
- * Generate all PRD development stages sequentially via OpenAI structured output.
+ * Generate all PRD development stages concurrently via OpenAI structured output.
+ * Stage order in the returned list matches stage numbers, not completion order.
+ * Each item is `{ stageNumber, content }` so assembly keeps the real stage header
+ * when one stage fails.
  * @param {import('./spec-thread-manager').SpecThreadManager} threadManager
  * @param {string} threadId
- * @param {{ overview: string, technical: string, design: string, specId?: string }} ctx
- * @returns {Promise<string[]>}
+ * @param {{ overview: string, technical: string, design: string, specId?: string, concurrency?: number }} ctx
+ * @returns {Promise<Array<{ stageNumber: number, content: string }>>}
  */
-async function runPromptStages(threadManager, threadId, { overview, technical, design, specId }) {
-  const generatedStages = [];
-  const previousStages = [];
-
-  for (let stageNum = 1; stageNum <= TOTAL_STAGES; stageNum += 1) {
+async function runPromptStages(threadManager, threadId, { overview, technical, design, specId, concurrency }) {
+  const stageNumbers = Array.from({ length: TOTAL_STAGES }, (_, i) => i + 1);
+  const limit = Math.max(1, concurrency || PROMPT_STAGE_CONCURRENCY);
+  const settled = await mapWithConcurrency(stageNumbers, limit, async (stageNum) => {
+    const started = Date.now();
     try {
-      const userMessage = buildStageUserMessage(
-        stageNum,
-        overview,
-        technical,
-        design,
-        previousStages
-      );
+      const userMessage = buildStageUserMessage(stageNum, overview, technical, design, []);
       const payload = await threadManager.runStage(threadId, 'prompt-stage', userMessage);
       const content = payload?.prompts?.fullPrompt;
       if (!content || typeof content !== 'string' || !content.trim()) {
         throw new Error(`Stage ${stageNum} returned empty fullPrompt`);
       }
-      generatedStages.push(content);
-      previousStages.push(content);
-      logger.info({ specId, stageNum }, '[PromptStageRunner] Stage completed');
+      logger.info({ specId, stageNum, durationMs: Date.now() - started }, '[PromptStageRunner] Stage completed');
+      return { stageNumber: stageNum, content };
     } catch (err) {
-      logger.warn({ specId, stageNum, error: err.message }, '[PromptStageRunner] Stage failed — continuing');
+      logger.warn(
+        { specId, stageNum, error: err.message, durationMs: Date.now() - started },
+        '[PromptStageRunner] Stage failed — continuing'
+      );
+      return null;
     }
-  }
+  });
 
-  return generatedStages;
+  return settled.filter(Boolean);
 }
 
 /**
@@ -69,5 +73,6 @@ module.exports = {
   runPromptStages,
   runIntegrations,
   assembleFullPrompt,
-  TOTAL_STAGES
+  TOTAL_STAGES,
+  PROMPT_STAGE_CONCURRENCY
 };
