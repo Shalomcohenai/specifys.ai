@@ -560,8 +560,8 @@ textarea:focus-visible {
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--primary-color);
-  color: white;
+  background: #9A3412;
+  color: #fff;
   padding: 8px 16px;
   text-decoration: none;
   z-index: 10000;
