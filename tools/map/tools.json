@@ -551,7 +551,9 @@
       "users": "150K+ business customers",
       "globalRating": 4.4,
       "ARR": "N/A"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 27,
@@ -691,7 +693,9 @@
     "stats": {
       "users": "10K+ devs",
       "globalRating": 4.2
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 34,
@@ -731,7 +735,9 @@
     "stats": {
       "users": "Limited beta",
       "globalRating": 4
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 36,
@@ -1197,7 +1203,9 @@
       "globalRating": 4.3,
       "monthlyUsage": "N/A",
       "ARR": "N/A"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 58,
@@ -1243,7 +1251,9 @@
       "globalRating": 4.5,
       "monthlyUsage": "N/A",
       "ARR": "$25M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 60,
@@ -1267,7 +1277,9 @@
       "globalRating": 4.4,
       "monthlyUsage": "N/A",
       "ARR": "$20M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 61,
@@ -1339,7 +1351,9 @@
       "globalRating": 4.3,
       "monthlyUsage": "N/A",
       "ARR": "$12M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 64,
@@ -1363,7 +1377,9 @@
       "globalRating": 4.4,
       "monthlyUsage": "N/A",
       "ARR": "$8M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 65,
@@ -1387,7 +1403,9 @@
       "globalRating": 4.8,
       "monthlyUsage": "N/A",
       "ARR": "$30M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 66,
@@ -1411,7 +1429,9 @@
       "globalRating": 4.7,
       "monthlyUsage": "N/A",
       "ARR": "$18M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 67,
@@ -1459,7 +1479,9 @@
       "globalRating": 4.6,
       "monthlyUsage": "N/A",
       "ARR": "$10M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 69,
@@ -1507,7 +1529,9 @@
       "globalRating": 4.7,
       "monthlyUsage": "N/A",
       "ARR": "N/A"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 71,
@@ -1531,7 +1555,9 @@
       "globalRating": 4.5,
       "monthlyUsage": "N/A",
       "ARR": "$12M"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 72,
@@ -1893,7 +1919,9 @@
       "globalRating": 4.8,
       "monthlyUsage": "N/A",
       "ARR": "N/A"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 90,
@@ -2131,7 +2159,9 @@
       "globalRating": 4.6,
       "monthlyUsage": "N/A",
       "ARR": "N/A"
-    }
+    },
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 100,
@@ -2519,7 +2549,9 @@
       "Pricing remains at $5 per million input tokens and $25 per million output tokens"
     ],
     "special": "launched-2026-05-30",
-    "added": "2026-05-31"
+    "added": "2026-05-31",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 121,
@@ -3474,7 +3506,9 @@
       "Potential complexity in setup and maintenance"
     ],
     "special": "launched-2026-06-17",
-    "added": "2026-07-28"
+    "added": "2026-07-28",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 180,
@@ -3508,7 +3542,9 @@
       "Potential compatibility issues with certain devices"
     ],
     "special": "launched-2026-06-17",
-    "added": "2026-07-28"
+    "added": "2026-07-28",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 182,
@@ -3559,7 +3595,9 @@
       "Potential learning curve for new users"
     ],
     "special": "launched-2026-06-17",
-    "added": "2026-07-28"
+    "added": "2026-07-28",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 185,
@@ -3592,7 +3630,9 @@
       "Dependent on AWS ecosystem"
     ],
     "special": "launched-2026-06-17",
-    "added": "2026-07-29"
+    "added": "2026-07-29",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 187,
@@ -3609,7 +3649,9 @@
       "May have a learning curve for new users"
     ],
     "special": "launched-2026-06-17",
-    "added": "2026-07-30"
+    "added": "2026-07-30",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 188,
@@ -3784,7 +3826,9 @@
       "May not support all revenue sources"
     ],
     "special": "launched-2026-07-24",
-    "added": "2026-08-09"
+    "added": "2026-08-09",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 199,
@@ -3801,7 +3845,9 @@
       "Subscription-based pricing"
     ],
     "special": "launched-2026-07-24",
-    "added": "2026-08-09"
+    "added": "2026-08-09",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 200,
@@ -3818,7 +3864,9 @@
       "May incur additional costs"
     ],
     "special": "launched-2026-07-24",
-    "added": "2026-08-09"
+    "added": "2026-08-09",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 201,
@@ -3835,7 +3883,9 @@
       "Subscription-based pricing"
     ],
     "special": "launched-2026-07-24",
-    "added": "2026-08-09"
+    "added": "2026-08-09",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   },
   {
     "id": 202,
@@ -3852,6 +3902,8 @@
       "Limited integration options"
     ],
     "special": "launched-2026-07-24",
-    "added": "2026-08-09"
+    "added": "2026-08-09",
+    "unavailable": true,
+    "unavailableReason": "confirmed HTTP 404"
   }
 ]

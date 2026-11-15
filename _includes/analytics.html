@@ -1,7 +1,8 @@
 {% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
+{% assign defer_gtag = page.defer_gtag | default: layout.defer_gtag %}
 {% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
-<!-- Google Analytics. Homepage delays the library until interaction so it stays out of the first-load main thread. Both measurement IDs are unchanged. -->
-{% if optimize_lcp %}
+<!-- Google Analytics. Homepage and defer_gtag pages delay the library until interaction so it stays out of the first-load main thread. Both measurement IDs stay on one snippet. -->
+{% if optimize_lcp or defer_gtag %}
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
