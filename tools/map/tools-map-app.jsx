@@ -51,20 +51,20 @@ async function fetchTools() {
 }
 
 const categoryColors = {
-  'Prompt-to-App Builders': '#23a6d5',
-  'Prototyping Tools': '#e57373',
-  'User Design': '#888',
-  'AI-Augmented IDEs & Code Assistants': '#e73c7e',
-  'AI Agent & Workflow Tools': '#ee7752',
-  'Deployment, Marketing & Integrations': '#2e7d32',
-  'Data-Driven App Builders': '#0288d1',
-  'Business Process Automation': '#7b1fa2',
-  'Game Development Tools': '#d81b60',
-  'Code Security Tools': '#388e3c',
-  'UI/UX Code Tools': '#f57c00',
-  'Educational & Coding Tools': '#00838f',
-  'AR/VR Development Tools': '#c2185b',
-  'Misc Tools': '#6b7280'
+  'Prompt-to-App Builders': '#0F5F78',
+  'Prototyping Tools': '#9B2C2C',
+  'User Design': '#3F3F46',
+  'AI-Augmented IDEs & Code Assistants': '#9D174D',
+  'AI Agent & Workflow Tools': '#9A3412',
+  'Deployment, Marketing & Integrations': '#166534',
+  'Data-Driven App Builders': '#075985',
+  'Business Process Automation': '#6B21A8',
+  'Game Development Tools': '#9D174D',
+  'Code Security Tools': '#166534',
+  'UI/UX Code Tools': '#9A3412',
+  'Educational & Coding Tools': '#155E75',
+  'AR/VR Development Tools': '#9D174D',
+  'Misc Tools': '#374151'
 };
 
 function categoryClass(category) {
