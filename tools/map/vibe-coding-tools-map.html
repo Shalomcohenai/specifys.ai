@@ -9,8 +9,6 @@ extra_js:
 ---
 
 <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=block");
-
     :root {
       --background-color: #f5f5f5;
       --header-background: rgba(255, 255, 255, 0.9);
@@ -61,7 +59,7 @@ extra_js:
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      background: #f5f5f5 !important;
+      background: #f5f5f5;
     }
     
     
@@ -689,8 +687,9 @@ extra_js:
     .tool-tooltip {
       visibility: hidden;
       position: absolute;
-      top: -30px;
-      right: 0;
+      top: auto;
+      bottom: 52px;
+      right: 12px;
       background: var(--tool-card-background);
       border: 1px solid var(--tool-card-border);
       border-radius: 5px;
@@ -975,7 +974,7 @@ extra_js:
       .category-filter button { width: 100%; text-align: center; }
       .show-more-btn { width: 50%; }
       .tool-card { padding: 10px; min-height: 160px; }
-      .tool-tooltip { top: -40px; right: 0; }
+      .tool-tooltip { top: auto; bottom: 48px; right: 8px; }
       .cta-box { padding: 15px; max-width: 650px; }
       .cta-box p { font-size: 1rem; }
       footer { padding: 15px 1rem; }
@@ -1001,7 +1000,7 @@ extra_js:
       .category-filter { padding: 10px; max-width: 90%; margin-top: 8.5rem; }
       .show-more-btn { width: 70%; }
       .tool-card { padding: 8px; min-height: 140px; }
-      .tool-tooltip { top: -35px; font-size: 0.75rem; right: 0; }
+      .tool-tooltip { top: auto; bottom: 44px; font-size: 0.75rem; right: 8px; }
       .cta-box { padding: 10px; max-width: 90%; }
       .cta-box p { font-size: 0.9rem; }
       .footer-content { gap: 8px; }

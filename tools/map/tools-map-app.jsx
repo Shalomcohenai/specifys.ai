@@ -175,7 +175,6 @@ function ToolCard({ tool }) {
       }}
       role="button"
       tabIndex={0}
-      aria-label={tool.link === '#' ? `Placeholder: ${tool.name}` : `Open ${tool.name} website`}
     >
       {tool.special ? <div className="tool-special">{tool.special}</div> : null}
       <div>
@@ -197,7 +196,7 @@ function ToolCard({ tool }) {
       {tool.link !== '#' ? (
         <>
           <i className="fas fa-arrow-right tool-link-icon" aria-hidden="true"></i>
-          <span className="tool-tooltip">Visit Website</span>
+          <span className="tool-tooltip" aria-hidden="true">Visit Website</span>
         </>
       ) : null}
       <button
@@ -209,9 +208,9 @@ function ToolCard({ tool }) {
           backgroundColor: isAdded ? '#28a745' : getCategoryColor(tool.category),
           borderColor: getCategoryColor(tool.category)
         }}
-        aria-label={isAdded ? `Remove ${tool.name} from your list` : `Add ${tool.name} to your list`}
       >
         <span>{isAdded ? '✓ In My List' : '+ Add to List'}</span>
+        <span className="visually-hidden"> {tool.name}</span>
       </button>
     </div>
   );
