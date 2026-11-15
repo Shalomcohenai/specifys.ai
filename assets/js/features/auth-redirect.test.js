@@ -8,6 +8,8 @@ const authHtml = fs.readFileSync(new URL('../../../pages/auth.html', import.meta
 test('auto-start waits for Firebase to restore the session and guards redirect loops', () => {
   assert.match(indexJs, /function waitForInitialAuthUser\(/);
   assert.match(indexJs, /authStateReady/);
+  assert.match(indexJs, /AUTH_READY_TIMEOUT_MS = 10000/);
+  assert.match(indexJs, /Date\.now\(\) >= deadline/);
   assert.match(indexJs, /specifys_auto_start_redirect_at/);
   const start = indexJs.indexOf('function tryAutoStartPlanning');
   const end = indexJs.indexOf('function scheduleGuestBriefRestore');

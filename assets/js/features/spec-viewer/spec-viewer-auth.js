@@ -16,7 +16,7 @@
     } else {
       // User is not logged in
       authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
+        <button class="auth-btn" onclick="showLoginModal()"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
       `;
     }
   }
@@ -94,7 +94,7 @@
     const authButtons = document.getElementById('auth-buttons');
     if (authButtons && !authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Log in/Sign up</button>
+        <button class="auth-btn login-btn"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
       `;
       
       const loginBtn = authButtons.querySelector('.login-btn');

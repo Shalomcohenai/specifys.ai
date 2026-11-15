@@ -35,7 +35,7 @@
     } else {
       // User is not logged in
       authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
+        <button class="auth-btn" onclick="showLoginModal()"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
       `;
       try { localStorage.removeItem('specifys_auth_hint'); } catch (_) { /* ignore */ }
     }
@@ -293,7 +293,7 @@
       authButtons.classList.remove('auth-buttons--pending');
       authButtons.removeAttribute('aria-busy');
       authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Log in/Sign up</button>
+        <button class="auth-btn login-btn"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
       `;
       
       const loginBtn = authButtons.querySelector('.login-btn');

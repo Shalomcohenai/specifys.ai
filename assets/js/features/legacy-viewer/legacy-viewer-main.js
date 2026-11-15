@@ -137,7 +137,7 @@ function updateAuthUI(user) {
         `;
     } else {
         authButtons.innerHTML = `
-            <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Log in/Sign up</button>
+            <button class="auth-btn" onclick="window.location.href='/pages/auth.html'"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
         `;
     }
 }
