@@ -30,14 +30,14 @@ test('spec tabs show text labels at desktop and mobile sizes', async ({ page }) 
   `);
   await page.addStyleTag({ path: path.resolve('assets/css/pages/spec-viewer-navigation.css') });
 
-  for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 844 }]) {
+  for (const viewport of [{ width: 1280, height: 800 }, { width: 768, height: 1024 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
     const overview = page.getByRole('button', { name: 'Overview section' });
     await expect(overview).toBeVisible();
     await expect(overview.locator('.side-menu-text')).toBeVisible();
     await expect(overview.locator('.side-menu-text')).toHaveText('Overview');
     const fontSize = await overview.locator('.side-menu-text').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-    expect(fontSize).toBeGreaterThanOrEqual(12);
+    expect(fontSize).toBeGreaterThanOrEqual(14);
     const box = await overview.boundingBox();
     expect(box.height).toBeGreaterThanOrEqual(40);
     expect(box.width).toBeGreaterThanOrEqual(40);
