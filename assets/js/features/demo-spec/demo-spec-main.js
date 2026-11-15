@@ -453,6 +453,13 @@ async function main() {
     window.demoSpecData = spec;
     window.demoSpecMeta = entry;
     await renderAll(spec, entry);
+    const highlightLater = () => {
+      if (window.LibraryLoader && typeof window.LibraryLoader.loadLibraries === 'function') {
+        window.LibraryLoader.loadLibraries(['highlightjs']).catch(() => {});
+      }
+    };
+    if (window.requestIdleCallback) requestIdleCallback(highlightLater, { timeout: 4000 });
+    else setTimeout(highlightLater, 1500);
     setActiveTab(tabFromLocation());
     if (tabFromLocation() === 'diagrams') {
       await window.renderDiagrams?.();
