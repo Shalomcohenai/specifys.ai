@@ -62,7 +62,7 @@
   justify-content: center;
   background: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  color: #FF6B35;
+  color: #9A3412;
   font-size: 1.75rem;
 }
 
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #999;
+  color: #4d4d4d;
   font-size: 1.4rem;
 }
 
@@ -114,7 +114,7 @@
 .track-card h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #FF6B35;
+  color: #9A3412;
   margin-bottom: 15px;
   font-family: "Montserrat", sans-serif;
 }
@@ -147,7 +147,7 @@
   content: "\f058";
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
-  color: #FF6B35;
+  color: #9A3412;
   position: absolute;
   left: 0;
   top: 2px;
@@ -229,7 +229,7 @@
 }
 
 .tool-icon.tools-map-icon {
-  color: #FF6B35;
+  color: #9A3412;
 }
 
 .tool-icon.tool-finder-icon {
@@ -237,7 +237,7 @@
 }
 
 .tool-icon.spec-generator-icon {
-  color: #ffc107;
+  color: #7A5B00;
 }
 
 .tool-icon.market-research-icon {
@@ -277,19 +277,19 @@
   position: absolute;
   left: 0;
   top: 2px;
-  color: #FF6B35;
+  color: #9A3412;
 }
 
 .tool-card.tools-map li i.fa-check {
-  color: #FF6B35;
+  color: #9A3412;
 }
 
 .tool-card.tool-finder li i.fa-check {
-  color: #28a745;
+  color: #146c2e;
 }
 
 .tool-card.spec-generator li i.fa-check {
-  color: #ffc107;
+  color: #7A5B00;
 }
 
 .tool-card.market-research li i.fa-check {
