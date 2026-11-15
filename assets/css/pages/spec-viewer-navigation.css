@@ -250,7 +250,7 @@
   border-radius: 0;
   background: transparent;
   color: #1a1510;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
   line-height: 1.2;
   padding: 0;
@@ -272,7 +272,18 @@
 .spec-nav-list--bottom {
   overflow-x: auto;
   justify-content: flex-start;
+  flex-wrap: nowrap;
   max-width: calc(100vw - 24px);
+}
+
+@media (max-width: 768px) {
+  .side-menu-button .side-menu-text {
+    font-size: 14px;
+  }
+
+  .side-menu-item {
+    flex: 0 0 auto;
+  }
 }
 
 .side-menu-expand-sub {

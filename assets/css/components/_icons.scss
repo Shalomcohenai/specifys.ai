@@ -50,11 +50,19 @@ body.dark-mode .btn i {
 
 /* Scroll to Top Button */
 .scroll-to-top {
-  bottom: var(--spacing-lg);
-  left: var(--spacing-lg);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  bottom: 16px;
+  left: 16px;
   display: flex;
   transform: rotate(180deg);
   transition: transform var(--transition-normal);
+}
+
+#main-content {
+  padding-bottom: 88px;
 }
 
 .scroll-to-top i {
@@ -87,12 +95,26 @@ body.dark-mode .btn i {
     height: 35px;
     font-size: var(--font-size-base);
   }
+
+  .scroll-to-top {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 @media (max-width: 480px) {
   .icon-btn {
     width: 32px;
     height: 32px;
     font-size: var(--font-size-sm);
+  }
+
+  .scroll-to-top {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 .search-icon {
