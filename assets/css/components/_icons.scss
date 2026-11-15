@@ -57,8 +57,17 @@ body.dark-mode .btn i {
   bottom: 16px;
   left: 16px;
   display: flex;
-  transform: rotate(180deg);
+  transform: translateY(calc(100% + 24px)) rotate(180deg);
   transition: transform var(--transition-normal);
+}
+
+.scroll-to-top.scrolled-down {
+  transform: rotate(0deg);
+}
+
+.scroll-to-top.is-parked {
+  transform: translateY(calc(100% + 24px));
+  pointer-events: none;
 }
 
 #main-content {
@@ -70,10 +79,6 @@ body.dark-mode .btn i {
   display: block;
   transform: rotate(0deg);
   transition: none;
-}
-
-.scroll-to-top.scrolled-down {
-  transform: rotate(0deg);
 }
 
 .scroll-to-top:hover {
