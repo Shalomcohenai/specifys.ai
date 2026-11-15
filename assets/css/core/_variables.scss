@@ -7,6 +7,9 @@
   /* ===== Primary Colors ===== */
   --primary-color: #FF6B35;
   --primary-hover: #FF8551;
+  /* Text and links. #9A3412 on white is about 7.3:1. #FF6B35 stays a decorative accent. */
+  --orange-text: #9A3412;
+  --orange-text-hover: #7C2D12;
   /* Filled controls with white text. #FF6B35 on white is about 2.8:1 and fails WCAG. */
   --orange-control: #B33A00;
   --orange-control-hover: #8F2E00;

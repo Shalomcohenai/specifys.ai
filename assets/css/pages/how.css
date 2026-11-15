@@ -5,6 +5,10 @@
    Extracted from main-compiled.css.backup.old
 */
 
+.how-page h2 {
+  color: var(--orange-text, #9A3412);
+}
+
 .how-intro {
   font-size: 1.2rem;
   color: #666;

@@ -3600,7 +3600,7 @@ body:has(.side-menu) .thematic-header .header-right {
 }
 
 .persona-role {
-  color: #ff6b35;
+  color: var(--orange-text, #9A3412);
   font-weight: 600;
   margin: 0 0 6px;
 }
@@ -3679,7 +3679,7 @@ body:has(.side-menu) .thematic-header .header-right {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6c757d;
+  color: #4b5158;
 }
 
 .kpi-value {
@@ -3759,7 +3759,7 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .permissions-role {
   font-weight: 700;
-  color: #ff6b35;
+  color: var(--orange-text, #9A3412);
 }
 
 .state-chip {
@@ -3774,7 +3774,7 @@ body:has(.side-menu) .thematic-header .header-right {
 
 .state-empty { background: #e8f5e9; color: #2e7d32; }
 .state-error { background: #fdecea; color: #c62828; }
-.state-edge { background: #fff3e0; color: #e65100; }
+.state-edge { background: #fff3e0; color: #9A3412; }
 
 .glossary-list dt {
   font-weight: 700;

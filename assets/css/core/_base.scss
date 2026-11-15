@@ -20,7 +20,7 @@ h1 {
 h2 {
   font-size: 1.8rem;
   font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
+  color: var(--orange-text);
   margin: 30px 0 15px;
 }
 
@@ -54,14 +54,20 @@ p {
 
 /* Links */
 a {
-  color: var(--primary-color);
+  color: var(--orange-text);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--primary-hover);
+  color: var(--orange-text-hover);
   text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--orange-text);
+  outline-offset: 2px;
 }
 
 /* Buttons should never have underline on hover */
