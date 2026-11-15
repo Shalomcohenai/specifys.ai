@@ -383,10 +383,46 @@
         }
 
         function redirectAfterAuth(message, preferProfile) {
-            showSuccess(message || 'Success! Taking you to your workspace...');
+            const text = message || 'Success! Taking you to your workspace...';
+            showSuccess(text);
+            const successMsg = document.getElementById('success-message');
+            if (successMsg) {
+                successMsg.textContent = text;
+                successMsg.classList.remove('hidden');
+                // switchTab() writes an inline display:none. Clear it so the
+                // status region is actually on screen before we leave.
+                successMsg.style.display = 'block';
+            }
             setTimeout(() => {
                 window.location.href = getPostAuthRedirect({ preferProfile: !!preferProfile });
             }, 1200);
+        }
+
+        // While signup is creating the account and calling /api/users/initialize,
+        // the global onAuthStateChanged listener must not navigate away.
+        let suppressAuthRedirect = false;
+        const SIGNUP_INIT_TIMEOUT_MS = 8000;
+
+        function awaitWithTimeout(promise, ms) {
+            return new Promise((resolve) => {
+                let done = false;
+                const timer = setTimeout(() => {
+                    if (done) return;
+                    done = true;
+                    resolve(null);
+                }, ms);
+                Promise.resolve(promise).then((value) => {
+                    if (done) return;
+                    done = true;
+                    clearTimeout(timer);
+                    resolve(value);
+                }, () => {
+                    if (done) return;
+                    done = true;
+                    clearTimeout(timer);
+                    resolve(null);
+                });
+            });
         }
 
         /**
@@ -755,11 +791,17 @@
 
         // Auth functions
         async function registerWithEmail(email, password) {
+            suppressAuthRedirect = true;
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                // createUserWithEmailAndPassword always creates a new user, so this is always a new user
-                const initResult = await createUserDocument(userCredential.user, true);
+                // createUserWithEmailAndPassword always creates a new user, so this is always a new user.
+                // Wait for initialize (bounded) so the request is not aborted by the redirect,
+                // then the caller shows success before leaving the page.
+                const initResult = await awaitWithTimeout(
+                    createUserDocument(userCredential.user, true),
+                    SIGNUP_INIT_TIMEOUT_MS
+                );
 
                 // Persist welcome-credit signal for the next page using the server-reported count
                 // (falls back to 1 when initResult is null, e.g. on 404/network).
@@ -767,6 +809,7 @@
 
                 return userCredential.user;
             } catch (error) {
+                suppressAuthRedirect = false;
                 throw new Error(getAuthErrorMessage(error.code));
             }
         }
@@ -940,6 +983,7 @@
             console.log('[Auth] loginWithGoogle: called, origin=', window.location.origin, 'calling signInWithPopup at', Date.now());
             checkBrowserCompatibility();
             googlePopupInProgress = true;
+            suppressAuthRedirect = true;
 
             const popupPromise = signInWithPopup(auth, googleProvider);
 
@@ -950,7 +994,10 @@
                     const additionalUserInfo = getAdditionalUserInfo(result);
                     const isNewUser = additionalUserInfo?.isNewUser === true;
                     console.log('[Auth] signInWithPopup: createUserDocument start');
-                    const createResult = await createUserDocument(result.user, isNewUser);
+                    const createResult = await awaitWithTimeout(
+                        createUserDocument(result.user, isNewUser),
+                        SIGNUP_INIT_TIMEOUT_MS
+                    );
                     console.log('[Auth] signInWithPopup: createUserDocument done, redirecting in 1.5s');
                     if (isNewUser || (createResult && createResult.isNewUser)) {
                         persistWelcomeCreditSignal(createResult);
@@ -961,6 +1008,7 @@
                 })
                 .catch((error) => {
                     googlePopupInProgress = false;
+                    suppressAuthRedirect = false;
                     const currentUser = auth.currentUser;
                     console.error('[Auth] signInWithPopup: rejected', error?.code, error?.message, error);
                     console.log('[Auth] signInWithPopup: on reject auth.currentUser=', currentUser ? { uid: currentUser.uid, email: currentUser.email } : null, '(if set, sign-in may have succeeded but postMessage failed)');
@@ -1072,8 +1120,8 @@
 
         // Redirect if already logged in (skip when popup in progress to avoid "Sign-in cancelled" race)
         onAuthStateChanged(auth, (user) => {
-            console.log('[Auth] onAuthStateChanged(2): user=', user ? { uid: user.uid, email: user.email } : null, 'googlePopupInProgress=', googlePopupInProgress, 'willRedirect=', !!(user && !googlePopupInProgress));
-            if (user && !googlePopupInProgress) {
+            console.log('[Auth] onAuthStateChanged(2): user=', user ? { uid: user.uid, email: user.email } : null, 'googlePopupInProgress=', googlePopupInProgress, 'suppressAuthRedirect=', suppressAuthRedirect, 'willRedirect=', !!(user && !googlePopupInProgress && !suppressAuthRedirect));
+            if (user && !googlePopupInProgress && !suppressAuthRedirect) {
                 console.log('[Auth] onAuthStateChanged(2): redirecting to index');
                 window.location.href = getPostAuthRedirect();
             }
