@@ -2660,9 +2660,18 @@
     }
   };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('livingBrief') && !document.getElementById('planningContainer')?.classList.contains('hidden')) {
-      initLivingBrief();
-    }
-  });
+  function maybeInitLivingBrief() {
+    if (!document.getElementById('livingBrief')) return;
+    const container = document.getElementById('planningContainer');
+    if (container && container.classList.contains('hidden')) return;
+    initLivingBrief();
+  }
+
+  // Idle injection happens after DOMContentLoaded, so the listener above
+  // would never run. Init immediately when the document is already loaded.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeInitLivingBrief);
+  } else {
+    maybeInitLivingBrief();
+  }
 })();

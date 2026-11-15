@@ -349,8 +349,46 @@ function handleStartButtonClick() {
   });
 }
 
+function hasLivingBriefApi() {
+  return !!(window.LivingBrief && typeof window.LivingBrief.init === 'function');
+}
+
+function waitForLivingBriefApi() {
+  return new Promise(function (resolve) {
+    (function tick() {
+      if (hasLivingBriefApi()) {
+        resolve(window.LivingBrief);
+        return;
+      }
+      setTimeout(tick, 50);
+    })();
+  });
+}
+
+// Living Brief is an idle script. Callers must wait on the loader promise
+// (or a later injection) instead of a fixed retry count — DOMContentLoaded
+// has already fired by the time the lazy script runs.
+function whenLivingBriefReady() {
+  if (hasLivingBriefApi()) return Promise.resolve(window.LivingBrief);
+  if (typeof window.__specifysEnsureIdleScripts === 'function') {
+    return Promise.resolve()
+      .then(function () { return window.__specifysEnsureIdleScripts(); })
+      .then(function () {
+        return hasLivingBriefApi() ? window.LivingBrief : waitForLivingBriefApi();
+      })
+      .catch(function () { return null; });
+  }
+  return waitForLivingBriefApi();
+}
+
+function ensureIdleScripts() {
+  if (typeof window.__specifysEnsureIdleScripts !== 'function') return Promise.resolve();
+  return Promise.resolve(window.__specifysEnsureIdleScripts()).catch(function () {});
+}
+
 // ===== PLANNING INTERFACE =====
 function showPlanningInterface() {
+  ensureIdleScripts();
   const heroContent = document.getElementById('heroContent');
   const planningContainer = document.getElementById('planningContainer');
   
@@ -382,16 +420,9 @@ function showPlanningInterface() {
       if (typeof renderPredefinedPages === 'function') {
         renderPredefinedPages();
       }
-      function bootLivingBrief(attempt) {
-        if (window.LivingBrief && typeof window.LivingBrief.init === 'function') {
-          window.LivingBrief.init();
-          return;
-        }
-        if ((attempt || 0) < 20) {
-          setTimeout(function () { bootLivingBrief((attempt || 0) + 1); }, 100);
-        }
-      }
-      bootLivingBrief(0);
+      whenLivingBriefReady().then(function (brief) {
+        if (brief && typeof brief.init === 'function') brief.init();
+      });
     }
   }, 500);
 }
@@ -1979,6 +2010,66 @@ function checkAutoStart() {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
+  function redirectToAuthForAutoStart() {
+    var now = Date.now();
+    var last = 0;
+    try {
+      last = Number(sessionStorage.getItem('specifys_auto_start_redirect_at') || '0');
+    } catch (e) {
+      last = 0;
+    }
+    // auth.html sends a signed-in person straight back. A second decision
+    // inside a few seconds means the session was judged before Firebase
+    // restored it — stop the ping-pong instead of bouncing again.
+    if (last && (now - last) < 3000) {
+      try {
+        sessionStorage.removeItem('specifys_auto_start');
+        sessionStorage.removeItem('specifys_auto_start_redirect_at');
+      } catch (e) { /* ignore */ }
+      return;
+    }
+    try {
+      sessionStorage.setItem('specifys_auto_start_redirect_at', String(now));
+    } catch (e) { /* ignore */ }
+    const redirect = '/?autoStart=true' + (templateId ? '&template=' + encodeURIComponent(templateId) : '');
+    window.location.href = '/pages/auth.html?redirect=' + encodeURIComponent(redirect);
+  }
+
+  function waitForInitialAuthUser() {
+    return new Promise(function (resolve) {
+      var started = false;
+      function attach(auth) {
+        if (auth && typeof auth.authStateReady === 'function') {
+          Promise.resolve(auth.authStateReady()).then(function () {
+            resolve(auth.currentUser || null);
+          }).catch(function () {
+            resolve(auth.currentUser || null);
+          });
+          return;
+        }
+        var settled = false;
+        auth.onAuthStateChanged(function (user) {
+          if (settled) return;
+          settled = true;
+          resolve(user || null);
+        });
+      }
+      function tryAttach() {
+        if (started) return true;
+        if (typeof firebase === 'undefined' || !firebase.auth) return false;
+        started = true;
+        attach(firebase.auth());
+        return true;
+      }
+      if (tryAttach()) return;
+      window.addEventListener('firebase-ready', function () { tryAttach(); }, { once: true });
+      (function poll() {
+        if (tryAttach()) return;
+        setTimeout(poll, 50);
+      })();
+    });
+  }
+
   function tryAutoStartPlanning() {
     let shouldStart = false;
     try {
@@ -1988,20 +2079,31 @@ function checkAutoStart() {
     }
     if (!shouldStart) return;
 
-    if (!isUserAuthenticated()) {
-      const redirect = '/?autoStart=true' + (templateId ? '&template=' + encodeURIComponent(templateId) : '');
-      window.location.href = '/pages/auth.html?redirect=' + encodeURIComponent(redirect);
-      return;
-    }
+    // currentUser is null until the first auth callback restores persistence.
+    waitForInitialAuthUser().then(function (user) {
+      let still = false;
+      try {
+        still = sessionStorage.getItem('specifys_auto_start') === '1';
+      } catch (e) {
+        still = false;
+      }
+      if (!still) return;
 
-    try {
-      sessionStorage.removeItem('specifys_auto_start');
-    } catch (e) {
-      /* ignore */
-    }
-    setTimeout(() => {
-      proceedWithAppPlanning();
-    }, 500);
+      if (!user) {
+        redirectToAuthForAutoStart();
+        return;
+      }
+
+      try {
+        sessionStorage.removeItem('specifys_auto_start');
+        sessionStorage.removeItem('specifys_auto_start_redirect_at');
+      } catch (e) {
+        /* ignore */
+      }
+      setTimeout(() => {
+        proceedWithAppPlanning();
+      }, 500);
+    });
   }
 
   if (autoStart === 'true') {
@@ -2026,25 +2128,21 @@ function checkAutoStart() {
 }
 
 // ===== GUEST BRIEF RESUME (Sprint B — auth friction) =====
-function scheduleGuestBriefRestore(attempt) {
-  const brief = window.LivingBrief;
-  if (!brief || typeof brief.restore !== 'function') {
-    if ((attempt || 0) < 30) {
-      setTimeout(function () { scheduleGuestBriefRestore((attempt || 0) + 1); }, 100);
+function scheduleGuestBriefRestore() {
+  whenLivingBriefReady().then(function (brief) {
+    if (!brief || typeof brief.restore !== 'function') return;
+    let draft = null;
+    try {
+      draft = JSON.parse(localStorage.getItem('pendingGuestBrief') || 'null');
+    } catch (_) {
+      draft = null;
     }
-    return;
-  }
-  let draft = null;
-  try {
-    draft = JSON.parse(localStorage.getItem('pendingGuestBrief') || 'null');
-  } catch (_) {
-    draft = null;
-  }
-  if (!draft) return;
-  const restored = brief.restore(draft);
-  if (!restored && (attempt || 0) < 30) {
-    setTimeout(function () { scheduleGuestBriefRestore((attempt || 0) + 1); }, 100);
-  }
+    if (!draft) return;
+    const restored = brief.restore(draft);
+    if (!restored && document.getElementById('livingBrief') && !document.getElementById('lbMessages')) {
+      setTimeout(scheduleGuestBriefRestore, 50);
+    }
+  });
 }
 
 function resumeGuestBriefIfNeeded() {
@@ -2065,8 +2163,12 @@ function resumeGuestBriefIfNeeded() {
 
   if (!shouldResume) return;
 
+  // guestBriefStarted survives the first Start click. Resume has to load
+  // living-brief.js itself — the idle loader otherwise waits for a key
+  // or 20s, and its DOMContentLoaded init never runs.
+  ensureIdleScripts();
   showPlanningInterface();
-  scheduleGuestBriefRestore(0);
+  scheduleGuestBriefRestore();
 
   try {
     const url = new URL(window.location.href);
