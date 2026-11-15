@@ -296,42 +296,44 @@ graph TD
 </main>
 
 <script>
-    // Initialize Mermaid after page load
     document.addEventListener('DOMContentLoaded', function() {
-        // Load Mermaid library using LibraryLoader
-        if (typeof LibraryLoader !== 'undefined') {
-            LibraryLoader.loadMermaid().then(function() {
-                if (typeof mermaid !== 'undefined') {
-                    mermaid.initialize({ 
-                        startOnLoad: true,
-                        theme: 'default',
-                        themeVariables: {
-                            primaryColor: '#FF6B35',
-                            primaryTextColor: '#333',
-                            primaryBorderColor: '#FF6B35',
-                            lineColor: '#333',
-                            secondaryColor: '#f5f5f5',
-                            tertiaryColor: '#fff'
-                        }
-                    });
+        var node = document.getElementById('why-page-planning-flow-mermaid');
+        if (!node) return;
+        var started = false;
+        function start() {
+            if (started) return;
+            started = true;
+            var load = (window.LibraryLoader && window.LibraryLoader.loadMermaid)
+                ? window.LibraryLoader.loadMermaid()
+                : Promise.resolve();
+            load.then(function() {
+                if (typeof mermaid === 'undefined') return;
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'default',
+                    themeVariables: {
+                        primaryColor: '#FF6B35',
+                        primaryTextColor: '#333',
+                        primaryBorderColor: '#FF6B35',
+                        lineColor: '#333',
+                        secondaryColor: '#f5f5f5',
+                        tertiaryColor: '#fff'
+                    }
+                });
+                if (typeof mermaid.run === 'function') {
+                    mermaid.run({ nodes: [node] });
                 }
-            }).catch(function(error) {
-                // Failed to load Mermaid
-            });
-        } else if (typeof mermaid !== 'undefined') {
-            // Fallback if LibraryLoader is not available but mermaid is already loaded
-            mermaid.initialize({ 
-                startOnLoad: true,
-                theme: 'default',
-                themeVariables: {
-                    primaryColor: '#FF6B35',
-                    primaryTextColor: '#333',
-                    primaryBorderColor: '#FF6B35',
-                    lineColor: '#333',
-                    secondaryColor: '#f5f5f5',
-                    tertiaryColor: '#fff'
-                }
-            });
+            }).catch(function() {});
         }
+        if (typeof IntersectionObserver === 'undefined') {
+            start();
+            return;
+        }
+        var observer = new IntersectionObserver(function(entries) {
+            if (!entries.some(function(entry) { return entry.isIntersecting; })) return;
+            observer.disconnect();
+            start();
+        }, { rootMargin: '240px 0px' });
+        observer.observe(node);
     });
 </script>
