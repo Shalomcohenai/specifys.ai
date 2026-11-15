@@ -246,84 +246,200 @@
 /* ----- What a spec contains ----- */
 .deliverable-section {
   padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
-  background: #fff8f3;
+  background: #fff;
+  border-top: 1px solid var(--border-light, #e9ecef);
+  border-bottom: 1px solid var(--border-light, #e9ecef);
   position: relative;
   z-index: 2;
 }
 
 .deliverable-inner {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
-.deliverable-lead {
-  font-family: "Montserrat", sans-serif;
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--text-color, #333);
-  margin: 0 0 1.5rem;
-  max-width: 42rem;
+.deliverable-section .value-section-subtitle {
+  margin-bottom: 1.5rem;
 }
 
-.deliverable-stages {
+.deliverable-stepper {
   list-style: none;
-  margin: 0 0 1.75rem;
+  margin: 0 auto 1.75rem;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 680px;
 }
 
-.deliverable-stage {
-  background: #fff;
-  border: 1px solid #f0d9c8;
-  border-radius: 12px;
-  padding: 1rem 1rem 1.1rem;
+.deliverable-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0 0.5rem;
 }
 
-.deliverable-stage h3 {
+.deliverable-step-index {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.55rem;
+  border-radius: 50%;
+  background: #B33A00;
+  color: #fff;
   font-family: "Montserrat", sans-serif;
-  font-size: 1rem;
   font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.deliverable-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 1.125rem;
+  left: calc(50% + 1.35rem);
+  width: calc(100% - 2.7rem);
+  height: 2px;
+  background: #f0d9c8;
+  z-index: 0;
+}
+
+.deliverable-step-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.deliverable-step-note {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+.deliverable-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
+.deliverable-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 1.1rem 1rem 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.deliverable-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color, #FF6B35), #FF8551);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.deliverable-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 107, 53, 0.35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+}
+
+.deliverable-card:hover::before {
+  opacity: 1;
+}
+
+.deliverable-card-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #FFF4F0 0%, #FFE8DE 100%);
   color: #B33A00;
-  margin: 0 0 0.4rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
 }
 
-.deliverable-stage p {
+.deliverable-card-title {
   font-family: "Montserrat", sans-serif;
   font-size: 0.95rem;
-  line-height: 1.45;
-  color: var(--text-color, #333);
-  margin: 0;
-}
-
-.deliverable-list-title {
-  font-family: "Montserrat", sans-serif;
-  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-color, #333);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
-.deliverable-sections {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem 1.25rem;
-}
-
-.deliverable-sections li {
+.deliverable-card-text {
   font-family: "Montserrat", sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   line-height: 1.4;
-  color: var(--text-color, #333);
+  color: var(--text-secondary, #666);
   margin: 0;
 }
 
-.deliverable-sections strong {
-  color: #1a1510;
+.deliverable-sample {
+  text-align: center;
+  margin: 1.35rem 0 0;
+}
+
+.deliverable-sample a {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #B33A00;
+  text-decoration: none;
+}
+
+.deliverable-sample a:hover {
+  text-decoration: underline;
+}
+
+.deliverable-sample a:focus-visible {
+  outline: 2px solid #B33A00;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deliverable-card,
+  .deliverable-card::before {
+    transition: none;
+  }
+
+  .deliverable-card:hover {
+    transform: none;
+  }
 }
 
 /* ----- How it works (3 steps) ----- */
@@ -655,9 +771,40 @@
     gap: 1.75rem;
   }
 
-  .deliverable-stages,
-  .deliverable-sections {
+  .deliverable-stepper {
     grid-template-columns: 1fr;
+    max-width: 16.5rem;
+    gap: 0;
+  }
+
+  .deliverable-step {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    align-items: center;
+    text-align: left;
+    padding: 0.7rem 0;
+  }
+
+  .deliverable-step-index {
+    margin-bottom: 0;
+  }
+
+  .deliverable-step:not(:last-child)::after {
+    top: calc(0.7rem + 2.25rem);
+    left: calc(1.125rem - 1px);
+    width: 2px;
+    height: auto;
+    bottom: -0.7rem;
+  }
+
+  .deliverable-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .deliverable-card {
+    padding: 0.9rem 0.8rem 0.85rem;
   }
 
   .value-numbers {
