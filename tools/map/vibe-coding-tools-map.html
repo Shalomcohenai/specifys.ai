@@ -2,6 +2,10 @@
 layout: default
 title: "Vibe Coding Tools Map - Specifys.ai"
 permalink: /tools/map/vibe-coding-tools-map.html
+defer_gtag: true
+defer_firebase: true
+extra_js:
+  - /tools/map/tools-map.bundle.js
 ---
 
 <style>
@@ -372,7 +376,9 @@ permalink: /tools/map/vibe-coding-tools-map.html
       background: var(--category-filter-button);
       border: 1px solid var(--category-filter-button-border);
       border-radius: 5px;
-      padding: 8px 16px;
+      padding: 10px 16px;
+      min-height: 44px;
+      min-width: 44px;
       cursor: pointer;
       font-size: 0.9rem;
       color: var(--content-text);
@@ -482,7 +488,9 @@ permalink: /tools/map/vibe-coding-tools-map.html
       background: var(--content-background);
       border: 1px solid var(--category-filter-button-border);
       border-radius: 5px;
-      padding: 8px 16px;
+      padding: 10px 16px;
+      min-height: 44px;
+      min-width: 44px;
       cursor: pointer;
       font-size: 0.9rem;
       color: var(--content-link);
@@ -596,8 +604,10 @@ permalink: /tools/map/vibe-coding-tools-map.html
       color: white;
       border: none;
       border-radius: 15px;
-      padding: 6px 12px;
-      font-size: 0.7rem;
+      padding: 10px 16px;
+      min-height: 44px;
+      min-width: 44px;
+      font-size: 0.875rem;
       cursor: pointer;
       transition: all 0.3s ease;
       opacity: 0;
@@ -608,6 +618,12 @@ permalink: /tools/map/vibe-coding-tools-map.html
     .tool-card:hover .add-to-list-btn {
       opacity: 1;
       transform: translateX(-50%) scale(1.05);
+    }
+
+    @media (hover: none) {
+      .add-to-list-btn {
+        opacity: 1;
+      }
     }
 
     .tool-card:hover .add-to-list-btn.added {
@@ -933,8 +949,8 @@ permalink: /tools/map/vibe-coding-tools-map.html
       padding: 3px;
       border-radius: 50%;
       transition: background-color 0.3s ease;
-      width: 20px;
-      height: 20px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -974,7 +990,7 @@ permalink: /tools/map/vibe-coding-tools-map.html
       .newsletter-container form { flex-direction: column; gap: 0.2rem; }
       .newsletter-container input { padding: 0.3rem; }
       .newsletter-container button { padding: 0.3rem 0.8rem; }
-      .newsletter-close { font-size: 0.8rem; width: 18px; height: 18px; }
+      .newsletter-close { font-size: 0.9rem; width: 44px; height: 44px; }
     }
 
     @media (max-width: 480px) {
@@ -994,7 +1010,7 @@ permalink: /tools/map/vibe-coding-tools-map.html
       .footer-social a { font-size: 0.9rem; }
       .newsletter-container { bottom: 3.5rem; }
       .newsletter-container input { width: 100%; }
-      .newsletter-close { font-size: 0.7rem; width: 16px; height: 16px; }
+      .newsletter-close { font-size: 0.9rem; width: 44px; height: 44px; }
 
     }
 
@@ -1018,24 +1034,12 @@ permalink: /tools/map/vibe-coding-tools-map.html
       </p>
     </div>
 
-    <div id="root">
+    <div id="root" data-tools-url="{{ "/tools/map/tools.json" | relative_url }}">
       <div style="padding: 20px; text-align: center; color: #666;">
         <p>Loading Tools Map...</p>
         <p style="font-size: 0.9em;">If this message persists, please refresh the page.</p>
       </div>
     </div>
-
-  <!-- React, ReactDOM, and Babel - Required for React functionality -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Debug script to check if libraries are loaded -->
-  <script>
-    console.log('React loaded:', typeof React !== 'undefined');
-    console.log('ReactDOM loaded:', typeof ReactDOM !== 'undefined');
-    console.log('Babel loaded:', typeof Babel !== 'undefined');
-  </script>
 
     <div class="newsletter-container hidden" id="newsletter-container">
       <button class="newsletter-close" onclick="closeNewsletter()" aria-label="Close newsletter">
@@ -1053,12 +1057,3 @@ permalink: /tools/map/vibe-coding-tools-map.html
   <div class="cta-box">
     <p>Looking to turn your app idea into a real plan? Try <a href="../../index.html">Specifys.ai</a> - the AI-powered spec generator trusted by indie makers.</p>
   </div>
-
-<script>
-  // Pre-process Jekyll variables
-  // Fallback to JSON if API is not available
-  const TOOLS_JSON_URL = '{{ "/tools/map/tools.json" | relative_url }}';
-  // API endpoint will be used first, with JSON as fallback
-</script>
-
-<script type="text/babel" src="{{ "/tools/map/tools-map-react.js" | relative_url }}"></script>

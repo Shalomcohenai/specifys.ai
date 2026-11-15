@@ -1,7 +1,8 @@
 {% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
+{% assign defer_firebase = page.defer_firebase | default: layout.defer_firebase %}
 {% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
-{% if optimize_lcp %}
-<!-- Homepage: defer Auth so it does not block first paint. Firestore loads on Start, not on first view. -->
+{% if optimize_lcp or defer_firebase %}
+<!-- Defer Auth so it does not block first paint. Firestore loads on demand, not on first view. -->
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
