@@ -80,16 +80,30 @@
     
     <!-- Removed heavy libraries: Mermaid, Marked, Highlight.js, jsPDF (not needed on auth page) -->
     
-    <!-- Google Analytics - Deferred for better performance -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <!-- Google Analytics
+         The stub queues every gtag() call, including config and later conversion events.
+         gtag.js itself loads on the first pointer, key, or touch, or after 5s of idle,
+         then drains dataLayer. Page views and conversions are not dropped; they wait in the queue. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
       gtag('js', new Date());
-      gtag('config', 'G-RWBT69JCM7', {
-        'send_page_view': true
-      });
+      gtag('config', 'G-RWBT69JCM7', { 'send_page_view': true });
       gtag('config', 'G-4YR9LK63MR');
+      function loadGtag() {
+        if (window.__gtagLoaded) return;
+        window.__gtagLoaded = true;
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7';
+        document.head.appendChild(script);
+      }
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+        window.addEventListener(type, loadGtag, { once: true, passive: true });
+      });
+      if (window.requestIdleCallback) requestIdleCallback(loadGtag, { timeout: 5000 });
+      else setTimeout(loadGtag, 5000);
     </script>
     <!-- Analytics Events functions are available via includes/analytics-events.html -->
 <!-- Structured Data (JSON-LD) for SEO -->
@@ -173,15 +187,16 @@
                 </div>
 
                 <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
-                    <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true" aria-controls="login-form" id="login-tab">Login</button>
-                    <button class="auth-tab" data-tab="register" role="tab" aria-selected="false" aria-controls="register-form" id="register-tab">Register</button>
+                    <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true" aria-controls="login-panel" id="login-tab">Login</button>
+                    <button class="auth-tab" data-tab="register" role="tab" aria-selected="false" aria-controls="register-panel" id="register-tab">Register</button>
                 </div>
 
                 <div id="error-message" class="error-message hidden" role="alert" aria-live="assertive" aria-atomic="true"></div>
                 <div id="success-message" class="success-message hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 
                 <!-- Login Form -->
-                <form id="login-form" class="auth-form active" role="tabpanel" aria-labelledby="login-tab">
+                <div id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+                <form id="login-form" class="auth-form active">
                     <div class="compact-form-group">
                         <label for="login-email">Email</label>
                         <input type="email" id="login-email" required autocomplete="email" aria-required="true" aria-describedby="login-email-error login-email-help">
@@ -198,9 +213,11 @@
                         <span id="login-btn-text">Sign In</span>
                     </button>
                 </form>
+                </div>
 
                 <!-- Register Form -->
-                <form id="register-form" class="auth-form" role="tabpanel" aria-labelledby="register-tab">
+                <div id="register-panel" role="tabpanel" aria-labelledby="register-tab" hidden>
+                <form id="register-form" class="auth-form">
                     <div class="compact-form-group">
                         <label for="register-email">Email</label>
                         <input type="email" id="register-email" required autocomplete="email" aria-required="true" aria-describedby="register-email-error register-email-help">
@@ -243,6 +260,7 @@
                         <span id="register-btn-text">Sign Up</span>
                     </button>
                 </form>
+                </div>
 
                 <div class="compact-divider">
                     <span>or</span>
@@ -630,12 +648,15 @@
             // Update forms
             document.querySelectorAll('.auth-form').forEach(form => {
                 form.classList.remove('active');
-                form.setAttribute('aria-hidden', 'true');
+            });
+            document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                panel.hidden = true;
             });
             const activeForm = document.getElementById(`${tab}-form`);
             if (activeForm) {
                 activeForm.classList.add('active');
-                activeForm.setAttribute('aria-hidden', 'false');
+                const panel = document.getElementById(`${tab}-panel`);
+                if (panel) panel.hidden = false;
             }
             
             // Clear messages
@@ -653,6 +674,16 @@
                     if (tab) {
                         switchTab(tab);
                     }
+                });
+                btn.addEventListener('keydown', function(event) {
+                    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+                    event.preventDefault();
+                    const tabs = Array.from(tabButtons);
+                    const index = tabs.indexOf(this);
+                    const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+                    tabs[next].focus();
+                    const tab = tabs[next].getAttribute('data-tab');
+                    if (tab) switchTab(tab);
                 });
             });
             
