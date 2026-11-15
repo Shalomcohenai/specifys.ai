@@ -117,13 +117,13 @@
 
 /* Fade in from left for content-image in content-layout (not prompt-section) */
 .why-section:not(.prompt-section) .content-layout .content-image {
-  opacity: 0 !important;
+  opacity: 0;
   transform: translateX(-50px);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .why-section:not(.prompt-section) .content-layout.revealed .content-image {
-  opacity: 1 !important;
+  opacity: 1;
   transform: translateX(0);
 }
 
@@ -140,13 +140,13 @@
 
 /* Fade in from right for content-text in content-layout (not prompt-section) */
 .why-section:not(.prompt-section) .content-layout .content-text {
-  opacity: 0 !important;
+  opacity: 0;
   transform: translateX(50px);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .why-section:not(.prompt-section) .content-layout.revealed .content-text {
-  opacity: 1 !important;
+  opacity: 1;
   transform: translateX(0);
 }
 
@@ -160,6 +160,15 @@
 .why-section:not(.prompt-section) .content-layout.revealed .content-text .section-container {
   opacity: 1;
   transform: translateX(0);
+}
+
+.why-section[data-section="0"] .section-title,
+.why-section[data-section="0"] .section-subtitle,
+.why-section[data-section="0"]:not(.prompt-section) .content-layout .content-image,
+.why-section[data-section="0"]:not(.prompt-section) .content-layout .content-text,
+.why-section[data-section="0"]:not(.prompt-section) .content-layout .content-text .section-container {
+  opacity: 1;
+  transform: none;
 }
 
 .content-text-centered .section-container {
@@ -652,7 +661,7 @@
   box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
-.process-step h4 {
+.process-step h3 {
   font-size: 1rem;
   font-weight: 600;
   color: #333;
@@ -986,7 +995,7 @@
     font-size: 1.3rem;
   }
   
-  .process-step h4 {
+  .process-step h3 {
     font-size: 1.1rem;
   }
   
@@ -1011,7 +1020,7 @@
     font-size: 1.2rem;
   }
   
-  .process-step h4 {
+  .process-step h3 {
     font-size: 1rem;
   }
   
