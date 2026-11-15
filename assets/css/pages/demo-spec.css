@@ -90,14 +90,14 @@ body:has(.demo-header) .main-content {
 }
 
 .spec-tab:hover {
-  color: #FF6B35;
+  color: #9A3412;
   transform: translateY(-2px);
 }
 
 .spec-tab.active {
-  color: white;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-  border-color: #FF6B35;
+  color: #fff;
+  background: #9A3412;
+  border-color: #9A3412;
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
   transform: translateY(-2px);
 }
@@ -140,10 +140,7 @@ body:has(.demo-header) .main-content {
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 16px 0;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #9A3412;
   text-align: center;
   line-height: 1.2;
 }
@@ -167,7 +164,7 @@ body:has(.demo-header) .main-content {
 
 .loading-spinner {
   font-size: 48px;
-  color: #FF6B35;
+  color: #9A3412;
   margin-bottom: 20px;
   display: block;
 }
@@ -240,8 +237,8 @@ body:has(.demo-header) .main-content {
 
 .chat-send-btn {
   padding: 12px 24px;
-  background: #FF6B35;
-  color: white;
+  background: #9A3412;
+  color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -249,7 +246,7 @@ body:has(.demo-header) .main-content {
 }
 
 .chat-send-btn:hover {
-  background: #FF8551;
+  background: #7C2D12;
 }
 
 .chat-welcome {
@@ -260,14 +257,14 @@ body:has(.demo-header) .main-content {
 
 .chat-welcome i {
   font-size: 48px;
-  color: #FF6B35;
+  color: #9A3412;
   margin-bottom: 15px;
   display: block;
 }
 
 .demo-notice {
   background: #FFF9E6;
-  border: 1px solid #FFD700;
+  border: 1px solid #856404;
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
@@ -275,7 +272,7 @@ body:has(.demo-header) .main-content {
 }
 
 .demo-notice i {
-  color: #FFD700;
+  color: #856404;
   margin-right: 8px;
 }
 

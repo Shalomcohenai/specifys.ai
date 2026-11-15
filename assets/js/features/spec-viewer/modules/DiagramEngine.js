@@ -74,6 +74,21 @@ function buildInlineDiagramFallback(source, errorMessage) {
   `;
 }
 
+function injectMermaidScript() {
+  return new Promise((resolve, reject) => {
+    if (typeof mermaid !== 'undefined') {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Mermaid'));
+    document.head.appendChild(script);
+  });
+}
+
 export async function ensureMermaid() {
   if (typeof mermaid !== 'undefined' && mermaid.render) {
     return mermaid;
@@ -85,13 +100,17 @@ export async function ensureMermaid() {
         if (!window.mermaidManager.isInitialized && window.mermaidManager.initialize) {
           await window.mermaidManager.initialize();
         }
+      } else if (typeof mermaid === 'undefined' && window.LibraryLoader?.loadMermaid) {
+        await window.LibraryLoader.loadMermaid();
+      } else if (typeof mermaid === 'undefined') {
+        await injectMermaidScript();
       }
       if (typeof mermaid !== 'undefined' && mermaid.initialize) {
         try {
           mermaid.initialize(MERMAID_THEME);
         } catch (error) {}
       }
-      return mermaid;
+      return typeof mermaid === 'undefined' ? null : mermaid;
     })();
   }
   return mermaidReadyPromise;
@@ -400,38 +419,78 @@ export async function renderArchitectureMermaid(targetElement, mermaidCode) {
   }
 }
 
-export async function renderSpecMermaidPlaceholders(container) {
-  if (!container) return;
+async function renderSpecMermaidNode(node, idx) {
+  if (!node || node.dataset.mermaidRendered === '1') return;
+  node.dataset.mermaidRendered = '1';
+  const raw = node.getAttribute('data-spec-mermaid');
+  if (!raw) return;
   await ensureMermaid();
-  const nodes = container.querySelectorAll('[data-spec-mermaid]');
-  await Promise.all(Array.from(nodes).map(async (node, idx) => {
-    const raw = node.getAttribute('data-spec-mermaid');
-    if (!raw) return;
-    // The placeholder attribute is produced via encodeURIComponent() in
-    // spec-formatter.js / spec-viewer-main.js so it can live inside an HTML
-    // attribute. Decode here before handing off to mermaid; fall back to the
-    // raw value if the attribute happens to be un-encoded (defensive).
-    let decoded;
-    try {
-      decoded = decodeURIComponent(raw);
-    } catch (e) {
-      decoded = raw;
+  let decoded;
+  try {
+    decoded = decodeURIComponent(raw);
+  } catch (e) {
+    decoded = raw;
+  }
+  const source = (typeof window.sanitizeMermaidSource === 'function'
+    ? window.sanitizeMermaidSource(decoded)
+    : decoded) || decoded;
+  try {
+    if (typeof mermaid === 'undefined' || !mermaid.render) {
+      throw new Error('Mermaid did not load');
     }
-    const source = (typeof window.sanitizeMermaidSource === 'function'
-      ? window.sanitizeMermaidSource(decoded)
-      : decoded) || decoded;
-    try {
-      if (typeof mermaid.parse === 'function') {
-        try { mermaid.parse(source); } catch (parseErr) { throw parseErr; }
-      }
-      const id = `spec-mermaid-${Date.now()}-${idx}`;
-      const result = await mermaid.render(id, source);
-      node.innerHTML = result.svg;
-    } catch (error) {
-      // Inline fallback: keep the surrounding section intact, surface source.
-      node.innerHTML = buildInlineDiagramFallback(source, error?.message);
+    if (typeof mermaid.parse === 'function') {
+      try { mermaid.parse(source); } catch (parseErr) { throw parseErr; }
     }
-  }));
+    const id = `spec-mermaid-${Date.now()}-${idx}`;
+    const result = await mermaid.render(id, source);
+    node.innerHTML = result.svg;
+  } catch (error) {
+    node.innerHTML = buildInlineDiagramFallback(source, error?.message);
+  }
+}
+
+function diagramIsInView(node) {
+  let parent = node;
+  while (parent && parent !== document.documentElement) {
+    const style = window.getComputedStyle(parent);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+    parent = parent.parentElement;
+  }
+  const rect = node.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return false;
+  const margin = 240;
+  return rect.bottom >= -margin && rect.top <= window.innerHeight + margin;
+}
+
+/**
+ * Draw Mermaid only for placeholders that are on screen. Hidden tabs and
+ * diagrams below the fold do not download the library.
+ * Resolves immediately so callers that await this do not block on a hidden tab.
+ */
+export function renderSpecMermaidPlaceholders(container) {
+  if (!container) return Promise.resolve();
+  const nodes = Array.from(container.querySelectorAll('[data-spec-mermaid]'));
+  nodes.forEach((node, idx) => {
+    if (node.dataset.mermaidWatch === '1' || node.dataset.mermaidRendered === '1') return;
+    node.dataset.mermaidWatch = '1';
+    if (!node.style.minHeight) node.style.minHeight = '24px';
+    const draw = () => { renderSpecMermaidNode(node, idx); };
+    if (typeof IntersectionObserver === 'undefined') {
+      draw();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      draw();
+    }, { rootMargin: '240px 0px' });
+    observer.observe(node);
+    if (diagramIsInView(node)) {
+      observer.disconnect();
+      draw();
+    }
+  });
+  return Promise.resolve();
 }
 
 function digestSpec(spec) {

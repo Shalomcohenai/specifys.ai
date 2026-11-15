@@ -322,7 +322,7 @@
       ]
     },
     "apiDesign": {
-      "endpointsOverviewDiagramMermaid": "flowchart TD\n  Client[\"SPA\"] --> Auth[\"POST /auth/magic-link\"]\n  Client --> Inbox[\"GET /orders\"]\n  Client --> Reply[\"POST /orders/{id}/replies\"]\n  Client --> Listing templates[\"CRUD /macros\"]",
+      "endpointsOverviewDiagramMermaid": "flowchart TD\n  Client[\"SPA\"] --> Auth[\"POST /auth/magic-link\"]\n  Client --> Inbox[\"GET /orders\"]\n  Client --> Reply[\"POST /orders/{id}/replies\"]\n  Client --> ListingTemplates[\"CRUD /macros\"]",
       "endpoints": [
         {
           "path": "/api/orders",
@@ -1006,11 +1006,11 @@
     },
     "informationArchitecture": {
       "narrative": "Workspace is the tenancy root. Users, mailbox, orders/messages, macros, and sla_policy hang off workspace.",
-      "diagramMermaid": "flowchart LR\n  WS[\"Workspace\"] --> Users[\"Users\"]\n  WS --> Catalog[\"Catalog\"]\n  WS --> Orders[\"Orders\"]\n  Orders --> Messages[\"Messages\"]\n  WS --> Listing templates[\"Listing templates\"]\n  WS --> SLA[\"SLA Policy\"]"
+      "diagramMermaid": "flowchart LR\n  WS[\"Workspace\"] --> Users[\"Users\"]\n  WS --> Catalog[\"Catalog\"]\n  WS --> Orders[\"Orders\"]\n  Orders --> Messages[\"Messages\"]\n  WS --> ListingTemplates[\"Listing templates\"]\n  WS --> SLA[\"SLA Policy\"]"
     },
     "functionalArchitecture": {
       "narrative": "Modules: Auth, Inbox, Composer/Listing templates, SLA, Email Sync, Admin/Settings.",
-      "diagramMermaid": "flowchart TD\n  Auth[\"Auth\"] --> Inbox[\"Inbox\"]\n  Inbox --> Composer[\"Composer\"]\n  Composer --> Listing templates[\"Listing templates\"]\n  Inbox --> SLA[\"SLA Lite\"]\n  Sync[\"Email Sync\"] --> Inbox\n  Settings[\"Settings\"] --> Auth\n  Settings --> Sync"
+      "diagramMermaid": "flowchart TD\n  Auth[\"Auth\"] --> Inbox[\"Inbox\"]\n  Inbox --> Composer[\"Composer\"]\n  Composer --> ListingTemplates[\"Listing templates\"]\n  Inbox --> SLA[\"SLA Lite\"]\n  Sync[\"Email Sync\"] --> Inbox\n  Settings[\"Settings\"] --> Auth\n  Settings --> Sync"
     },
     "repositoryStructure": "stallio/\n  apps/web/          # Vite React SPA\n  apps/api/          # Express API\n  apps/worker/       # Email sync worker\n  packages/shared/   # Types and validators\n  docs/architecture/ # ADRs and runbooks",
     "coreFlows": {
@@ -1028,7 +1028,7 @@
     "nonFunctionalQuality": "Availability target 99.5% monthly for API. Inbox p95 400ms. Email sync lag alert at 10 minutes. Attachments max 10MB.",
     "observabilityOperability": "Structured logs with workspaceId; metrics: sync_lag_seconds, reply_send_failures, sla_breach_count; traces on ingest and send.",
     "securityArchitectureDeepDive": "Session cookies HttpOnly Secure SameSite=Lax; CSRF tokens on mutating routes; HTML sanitizer allowlist; secrets in env only; least-privilege DB roles.",
-    "architectureDecisionLog": "See structured adrs[] for magic-link auth, outbox events, and HTML sanitization.",
+    "architectureDecisionLog": "Seestructuredadrs[] for magic-link auth, outbox events, and HTML sanitization.",
     "risksAndOpenDecisions": "IMAP vs API-first providers; multi-mailbox later; whether to add webhooks for order.created externally.",
     "contextDiagramMermaid": "flowchart LR\n  Founder[\"Founder\"] --> System[\"Stallio\"]\n  Agent[\"Agent\"] --> System\n  System --> Mail[\"Payments\"]\n  System --> Store[\"Object Storage\"]\n  System --> TxMail[\"Magic-link email\"]",
     "containerDiagramMermaid": "flowchart TB\n  SPA[\"SPA container\"] --> API[\"API container\"]\n  Worker[\"Worker container\"] --> API\n  API --> PG[(Postgres)]\n  API --> Obj[(Object storage)]\n  API --> Redis[(Redis)]",
