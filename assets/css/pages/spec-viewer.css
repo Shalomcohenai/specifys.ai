@@ -2212,7 +2212,7 @@ body:has(.side-menu) .thematic-header .header-right {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #ff6b35;
+  background: #B33A00;
   color: #fff;
   display: inline-flex;
   align-items: center;
@@ -2251,6 +2251,7 @@ body:has(.side-menu) .thematic-header .header-right {
   font-weight: 650;
   color: #1b1b1e;
   line-height: 1.35;
+  overflow-wrap: break-word;
 }
 
 .user-flow-rail-detail {
@@ -2264,18 +2265,19 @@ body:has(.side-menu) .thematic-header .header-right {
 @media (min-width: 900px) {
   .user-flow-rail {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
-    gap: 0;
-    overflow-x: auto;
+    gap: 8px 16px;
+    overflow-x: visible;
     padding-bottom: 8px;
   }
 
   .user-flow-rail-step {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
-    flex: 1 1 0;
-    min-width: 140px;
-    max-width: 220px;
+    flex: 1 1 240px;
+    min-width: 240px;
+    max-width: 100%;
   }
 
   .user-flow-rail-track {
