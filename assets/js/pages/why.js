@@ -8,7 +8,9 @@
     initScrollReveal();
     initScrollDownIndicators();
     // initPromptAnimation(); // Disabled - removed background animations (dollars and prompts)
-    initLogoJumpAnimation();
+    const startLogos = function () { initLogoJumpAnimation(); };
+    if (window.requestIdleCallback) requestIdleCallback(startLogos, { timeout: 1500 });
+    else setTimeout(startLogos, 300);
   });
 
   // Manages the scroll-down indicators: reveals each section once visible
