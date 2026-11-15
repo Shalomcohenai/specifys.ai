@@ -2095,7 +2095,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             } else {
                 // User is not logged in
                 authButtons.innerHTML = `
-                    <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
+                    <button class="auth-btn" onclick="showLoginModal()"><span class="auth-label-full">Log in/Sign up</span><span class="auth-label-short">Log in</span></button>
                 `;
             }
             

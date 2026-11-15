@@ -2035,27 +2035,33 @@ function checkAutoStart() {
     window.location.href = '/pages/auth.html?redirect=' + encodeURIComponent(redirect);
   }
 
+  var AUTH_READY_TIMEOUT_MS = 10000;
+
   function waitForInitialAuthUser() {
     return new Promise(function (resolve) {
       var started = false;
+      var settled = false;
+      var deadline = Date.now() + AUTH_READY_TIMEOUT_MS;
+      function finish(user) {
+        if (settled) return;
+        settled = true;
+        resolve(user || null);
+      }
       function attach(auth) {
         if (auth && typeof auth.authStateReady === 'function') {
           Promise.resolve(auth.authStateReady()).then(function () {
-            resolve(auth.currentUser || null);
+            finish(auth.currentUser || null);
           }).catch(function () {
-            resolve(auth.currentUser || null);
+            finish(auth.currentUser || null);
           });
           return;
         }
-        var settled = false;
         auth.onAuthStateChanged(function (user) {
-          if (settled) return;
-          settled = true;
-          resolve(user || null);
+          finish(user || null);
         });
       }
       function tryAttach() {
-        if (started) return true;
+        if (started || settled) return started;
         if (typeof firebase === 'undefined' || !firebase.auth) return false;
         started = true;
         attach(firebase.auth());
@@ -2064,7 +2070,12 @@ function checkAutoStart() {
       if (tryAttach()) return;
       window.addEventListener('firebase-ready', function () { tryAttach(); }, { once: true });
       (function poll() {
+        if (settled) return;
         if (tryAttach()) return;
+        if (Date.now() >= deadline) {
+          finish(null);
+          return;
+        }
         setTimeout(poll, 50);
       })();
     });
