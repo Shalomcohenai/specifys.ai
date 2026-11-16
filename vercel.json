@@ -786,7 +786,7 @@
       ]
     },
     {
-      "source": "/(.*)-[A-Za-z0-9_-]{8,}\\.(js|mjs|css|woff2|png|jpe?g|webp|gif|avif|svg|ico)",
+      "source": "/:path(.*-[A-Za-z0-9_-]{8,}\\.(?:js|mjs|css|woff2|png|jpe?g|webp|gif|avif|svg|ico))",
       "headers": [
         {
           "key": "Cache-Control",
