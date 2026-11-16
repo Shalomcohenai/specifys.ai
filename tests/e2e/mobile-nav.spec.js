@@ -31,14 +31,18 @@ test('the header menu opens from a real click and closes with Escape', async ({ 
       <div class="header-right">
         <a class="auth-btn primary" href="/pages/pricing.html">Pricing</a>
       </div>
-    </header>`);
-  await page.addStyleTag({ content: compiledCss });
+      </header>`);
+  await page.addStyleTag({
+    content: compiledCss + '\n.logo a{font-size:1.5rem}.header-center{position:absolute;left:0;right:0;top:0;bottom:0}'
+  });
   await page.addScriptTag({ content: fs.readFileSync('assets/js/header-menu.js', 'utf8') });
 
   const toggle = page.locator('.header-menu-toggle');
   const box = await toggle.boundingBox();
   expect(box.width).toBeGreaterThanOrEqual(44);
   expect(box.height).toBeGreaterThanOrEqual(44);
+  const wordmark = await page.locator('.logo-text').boundingBox();
+  expect(wordmark.x).toBeGreaterThanOrEqual(box.x + box.width - 1);
   const hit = await toggle.evaluate((el) => {
     const rect = el.getBoundingClientRect();
     const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);

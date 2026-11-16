@@ -11,4 +11,7 @@ test('the tools map paints without a blocking font and keeps the tooltip inside 
   assert.doesNotMatch(html, /top:\s*-30px/);
   assert.doesNotMatch(jsx, /Open \$\{tool\.name\} website/);
   assert.match(jsx, /visually-hidden/);
+  assert.match(jsx, /ToolsMapSkeleton/);
+  assert.match(html, /min-height:\s*70vh/);
+  assert.match(html, /Montserrat Fallback/);
 });

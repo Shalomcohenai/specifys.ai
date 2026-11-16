@@ -52,8 +52,17 @@ extra_js:
       height: 100%;
     }
 
+    @font-face {
+      font-family: "Montserrat Fallback";
+      src: local("Arial");
+      size-adjust: 110%;
+      ascent-override: 92%;
+      descent-override: 24%;
+      line-gap-override: 0%;
+    }
+
     body {
-      font-family: "Montserrat", sans-serif;
+      font-family: "Montserrat", "Montserrat Fallback", Arial, sans-serif;
       position: relative;
       overflow-x: hidden;
       display: flex;
@@ -368,6 +377,7 @@ extra_js:
       margin-bottom: 10px;
       flex-wrap: wrap;
       z-index: 4;
+      min-height: 84px;
     }
 
     .category-filter button {
@@ -577,6 +587,31 @@ extra_js:
     .tool-rating {
       font-size: 0.9rem;
       color: var(--tool-rating);
+      min-height: 1.25em;
+      line-height: 1;
+    }
+
+    .tool-rating .fa-star {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      text-align: center;
+    }
+
+    #root {
+      width: 100%;
+      min-height: 70vh;
+    }
+
+    .tools-map-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      height: 44px;
+      border-radius: 5px;
+      background: var(--category-filter-button, #f5f5f5);
+      border: 1px solid var(--category-filter-button-border, #ddd);
     }
 
     .tool-link-icon {
@@ -970,7 +1005,8 @@ extra_js:
       .header-text { top: 5rem; }
       .header-text h1 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
       .header-text p { font-size: 0.9rem; padding: 10px; }
-      .category-filter { padding: 15px; max-width: 650px; flex-direction: column; gap: 10px; margin-top: 9rem; }
+      .category-filter { padding: 15px; max-width: 650px; flex-direction: column; gap: 10px; margin-top: 9rem; min-height: 236px; }
+      .tools-map-slot { width: 100%; }
       .category-filter button { width: 100%; text-align: center; }
       .show-more-btn { width: 50%; }
       .tool-card { padding: 10px; min-height: 160px; }
@@ -1034,9 +1070,23 @@ extra_js:
     </div>
 
     <div id="root" data-tools-url="{{ "/tools/map/tools.json" | relative_url }}">
-      <div style="padding: 20px; text-align: center; color: #666;">
-        <p>Loading Tools Map...</p>
-        <p style="font-size: 0.9em;">If this message persists, please refresh the page.</p>
+      <div class="tools-map-pending" aria-hidden="true">
+        <div class="category-filter">
+          <span class="tools-map-slot"></span>
+          <span class="tools-map-slot"></span>
+          <span class="tools-map-slot"></span>
+          <span class="tools-map-slot"></span>
+        </div>
+        <span class="show-more-btn">Show More</span>
+        <h2 class="text-center mb-3">Tools</h2>
+        <div class="row">
+          <div class="col"><div class="tool-card"></div></div>
+          <div class="col"><div class="tool-card"></div></div>
+          <div class="col"><div class="tool-card"></div></div>
+          <div class="col"><div class="tool-card"></div></div>
+          <div class="col"><div class="tool-card"></div></div>
+          <div class="col"><div class="tool-card"></div></div>
+        </div>
       </div>
     </div>
 
