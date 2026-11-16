@@ -216,6 +216,28 @@ function ToolCard({ tool }) {
   );
 }
 
+function ToolsMapSkeleton() {
+  return (
+    <div className="tools-map-pending" aria-hidden="true">
+      <div className="category-filter">
+        <span className="tools-map-slot" />
+        <span className="tools-map-slot" />
+        <span className="tools-map-slot" />
+        <span className="tools-map-slot" />
+      </div>
+      <span className="show-more-btn">Show More</span>
+      <h2 className="text-center mb-3">Tools</h2>
+      <div className="row">
+        {Array.from({ length: 6 }, (_, index) => (
+          <div className="col" key={index}>
+            <div className="tool-card" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ToolMap() {
   const [tools, setTools] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -239,6 +261,7 @@ function ToolMap() {
   const initialCategories = ['Prompt-to-App Builders', 'User Design', 'Prototyping Tools'];
   const displayedCategories = showAllCategories ? categories : ['All', ...initialCategories];
   const filteredTools = selectedCategory ? tools.filter((tool) => tool.category === selectedCategory) : tools;
+  if (!tools.length && !error) return <ToolsMapSkeleton />;
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category === 'all' ? null : category);

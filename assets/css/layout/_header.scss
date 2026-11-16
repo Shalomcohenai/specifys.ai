@@ -466,4 +466,32 @@
     font-size: 10px;
     min-height: 32px;
   }
+
+  header.thematic-header > .header-left,
+  header.thematic-header > .header-right {
+    flex: 0 0 auto;
+    z-index: 4;
+  }
+  header.thematic-header > .header-center {
+    position: static;
+    inset: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: auto;
+  }
+  header.thematic-header .header-center .logo {
+    max-width: 100%;
+    min-width: 0;
+    pointer-events: auto;
+  }
+  header.thematic-header .header-center .logo a,
+  header.thematic-header .logo-text {
+    font-size: 1rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
 }

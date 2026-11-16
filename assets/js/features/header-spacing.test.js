@@ -22,5 +22,6 @@ test('narrow header shows a full Log in label and compiles the menu from Sass', 
   assert.match(compiled, /\.header-menu-toggle\s*\{[^}]*min-width:\s*44px/s);
   assert.match(compiled, /\.thematic-header\.nav-open \.header-nav\s*\{[^}]*display:\s*flex/s);
   assert.match(compiled, /\.auth-label-short\s*\{[^}]*display:\s*inline/s);
+  assert.match(compiled, /header\.thematic-header > \.header-center\s*\{[^}]*position:\s*static/s);
   assert.doesNotMatch(compiled, /50%\s*-\s*78px/);
 });
