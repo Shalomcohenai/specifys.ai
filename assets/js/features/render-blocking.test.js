@@ -25,6 +25,15 @@ test('global CSS is non-blocking and unused scripts stay off pages that do not n
   assert.match(spec, /needs_geo:\s*true/);
   assert.match(vercel, /max-age=31536000, immutable/);
   assert.match(vercel, /max-age=0, must-revalidate/);
+  const hashed = JSON.parse(vercel).headers.find((rule) => rule.source.startsWith('/:path'));
+  const inner = hashed.source.slice('/:path('.length, -1);
+  const hashedPath = new RegExp(`^/${inner}$`);
+  assert.match('/assets/js/bundle-AbCdEf12.js', hashedPath);
+  assert.match('/assets/dist/app-a1b2c3d4.css', hashedPath);
+  assert.doesNotMatch('/assets/css/main-compiled.css', hashedPath);
+  assert.doesNotMatch('/assets/js/contact-us-modal.js', hashedPath);
+  assert.doesNotMatch('/assets/js/config.js', hashedPath);
+  assert.doesNotMatch('/pages/how.html', hashedPath);
   assert.match(vercel, /X-Content-Type-Options/);
   assert.doesNotMatch(critical, /!important/);
 });
