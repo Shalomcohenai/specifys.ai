@@ -49,7 +49,7 @@ defer_mermaid: true
     <section class="why-section prompt-section" data-section="1">
         <h2 class="section-title">The Promise That Falls Short</h2>
         <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
-        <div class="prompt-animation-container" id="promptAnimationContainer" aria-label="Prompt animation demonstration" aria-live="polite">
+        <div class="prompt-animation-container" id="promptAnimationContainer" role="status" aria-label="Prompt animation demonstration" aria-live="polite">
             <!-- Credit counters and prompts will be generated dynamically -->
         </div>
         <div class="content-text-centered">
@@ -73,7 +73,7 @@ defer_mermaid: true
         <div class="content-layout">
             <div class="content-image">
                 <div class="planning-visual">
-                    <div class="mermaid-diagram" aria-label="Development process diagram">
+                    <div class="mermaid-diagram" role="img" aria-label="Development process diagram">
                         <div class="mermaid" id="why-page-planning-flow-mermaid" aria-hidden="true">
 graph TD
     A[Data Structures] --> B[Functions]
@@ -124,7 +124,7 @@ graph TD
             <div class="content-image">
                     <div class="questions-box-preview" role="region" aria-label="Question interface preview" inert>
                     <div class="questions-header-preview">
-                        <div class="current-question-preview" aria-label="Current question">Describe your application</div>
+                        <div class="current-question-preview">Describe your application</div>
                         <div class="mode-toggle-preview" role="group" aria-label="Input mode selection">
                             <span class="mode-label-preview">Voice</span>
                             <div class="toggle-switch-preview" aria-hidden="true"></div>
@@ -202,8 +202,8 @@ graph TD
     <section class="why-section" data-section="5">
         <h2 class="section-title">What You Get</h2>
         <p class="section-subtitle">A complete specification across all areas of your app.</p>
-        <div class="spec-cards-showcase-orange" role="list" aria-label="Specification features">
-                <article class="spec-card-square-orange" role="listitem">
+        <ul class="spec-cards-showcase-orange" aria-label="Specification features">
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-book"></i>
                     </div>
@@ -211,8 +211,8 @@ graph TD
                         <h3>Overview</h3>
                         <p>Your app's story - Summary, Audience, Proposition, Features Overview, Journey Summary, Statement, User Flow, Descriptions</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-cog"></i>
                     </div>
@@ -220,8 +220,8 @@ graph TD
                         <h3>Technical</h3>
                         <p>The foundation - Tech Stack, Data Structures, API Endpoints, Functions. The blueprint that makes everything work.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-chart-line"></i>
                     </div>
@@ -229,8 +229,8 @@ graph TD
                         <h3>Market Research</h3>
                         <p>Your competitive landscape - Competitors, Market Analysis, Opportunities. Who else is doing this, what gaps exist.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-paint-brush"></i>
                     </div>
@@ -238,8 +238,8 @@ graph TD
                         <h3>Design & Branding</h3>
                         <p>Visual identity - Colors, Typography, Style Guidelines. The look and feel that matches your vision.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-sitemap"></i>
                     </div>
@@ -247,8 +247,8 @@ graph TD
                         <h3>Diagrams</h3>
                         <p>Visual maps - User Flows, System Architecture, Relationships. See how everything connects.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-terminal"></i>
                     </div>
@@ -256,8 +256,8 @@ graph TD
                         <h3>Prompts</h3>
                         <p>Ready-to-use prompts for coding tools. Take your spec and turn it into code with the right instructions.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-robot"></i>
                     </div>
@@ -265,8 +265,8 @@ graph TD
                         <h3>AI Chat</h3>
                         <p>Interactive AI assistant to refine your specification. Ask questions, get clarifications, improve your plan.</p>
                     </div>
-                </article>
-                <article class="spec-card-square-orange" role="listitem">
+                </li>
+                <li class="spec-card-square-orange">
                     <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-file-alt"></i>
                     </div>
@@ -274,8 +274,8 @@ graph TD
                         <h3>Export & Share</h3>
                         <p>Export your specification in multiple formats (HTML, Jira, <a href="/pages/cursor-windsurf-integration.html" style="color: #9A3412; text-decoration: underline; font-weight: 600;">Cursor & Windsurf</a>). Share with your team, developers, or stakeholders.</p>
                     </div>
-                </article>
-            </div>
+                </li>
+            </ul>
             <div class="cta-container cta-centered">
                 <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
             </div>

@@ -98,7 +98,7 @@ extra_css:
         <li>Generate UX flows, user stories, and delivery notes tailored for handoff.</li>
         <li>Export the full spec package to share with teams or collaborators.</li>
       </ul>
-      <a href="/" class="btn" aria-label="Start creating your app specification - Non-Programmers track" onclick="trackButtonClick('Start Non-Programmers Track', 'How It Works', 'track_card')">Start Non-Programmers Track</a>
+      <a href="/" class="btn" aria-label="Start Non-Programmers Track" onclick="trackButtonClick('Start Non-Programmers Track', 'How It Works', 'track_card')">Start Non-Programmers Track</a>
     </article>
     <article class="track-card" role="article" aria-labelledby="entrepreneurs-title">
       <h2 id="entrepreneurs-title">Entrepreneurs</h2>
@@ -109,7 +109,7 @@ extra_css:
         <li>Review an executive overview before unlocking the full research report.</li>
         <li>Download pitch-ready documents that align product, market, and roadmap.</li>
       </ul>
-      <a href="/" class="btn" aria-label="Start researching your app idea - Entrepreneurs track" onclick="trackButtonClick('Start Entrepreneurs Track', 'How It Works', 'track_card')">Start Entrepreneurs Track</a>
+      <a href="/" class="btn" aria-label="Start Entrepreneurs Track" onclick="trackButtonClick('Start Entrepreneurs Track', 'How It Works', 'track_card')">Start Entrepreneurs Track</a>
     </article>
   </section>
 
@@ -118,10 +118,10 @@ extra_css:
     <h2>Available Tools</h2>
     <p>Explore our powerful collection of AI-driven tools designed to support every aspect of your app development journey.</p>
     
-    <div class="tools-grid" role="list">
+    <ul class="tools-grid">
       
       <!-- Vibe Coding Tools Map -->
-      <article class="tool-card tools-map" role="listitem">
+      <li class="tool-card tools-map">
         <div class="tool-icon tools-map-icon" aria-hidden="true">
           <i class="fas fa-map-marked-alt"></i>
         </div>
@@ -141,11 +141,11 @@ extra_css:
             Detailed tool comparisons and recommendations
           </li>
         </ul>
-        <a href="/tools/map/vibe-coding-tools-map.html" class="btn" aria-label="Explore Vibe Coding Tools Map" onclick="trackToolUsage('Vibe Coding Tools Map', 'explore_from_how')">Explore Tools Map</a>
-      </article>
+        <a href="/tools/map/vibe-coding-tools-map.html" class="btn" aria-label="Explore Tools Map" onclick="trackToolUsage('Vibe Coding Tools Map', 'explore_from_how')">Explore Tools Map</a>
+      </li>
 
       <!-- AI Tool Finder -->
-      <article class="tool-card tool-finder" role="listitem">
+      <li class="tool-card tool-finder">
         <div class="tool-icon tool-finder-icon" aria-hidden="true">
           <i class="fas fa-search-plus"></i>
         </div>
@@ -165,11 +165,11 @@ extra_css:
             Direct integration with recommended tools
           </li>
         </ul>
-        <a href="/pages/ToolPicker.html" class="btn" aria-label="Find your tools with AI Tool Finder" onclick="trackToolUsage('Tool Finder', 'find_from_how')">Find Your Tools</a>
-      </article>
+        <a href="/pages/ToolPicker.html" class="btn" aria-label="Find Your Tools" onclick="trackToolUsage('Tool Finder', 'find_from_how')">Find Your Tools</a>
+      </li>
 
       <!-- Specification Generator -->
-      <article class="tool-card spec-generator" role="listitem">
+      <li class="tool-card spec-generator">
         <div class="tool-icon spec-generator-icon" aria-hidden="true">
           <i class="fas fa-dollar-sign"></i>
         </div>
@@ -189,11 +189,11 @@ extra_css:
             Export to multiple formats (PDF, JSON, Markdown)
           </li>
         </ul>
-        <a href="/" class="btn" aria-label="Generate specification for your app" onclick="trackButtonClick('Generate Specification', 'Tools', 'how_page')">Generate Specification</a>
-      </article>
+        <a href="/" class="btn" aria-label="Generate Specification" onclick="trackButtonClick('Generate Specification', 'Tools', 'how_page')">Generate Specification</a>
+      </li>
 
       <!-- Market Research Analyzer -->
-      <article class="tool-card market-research" role="listitem">
+      <li class="tool-card market-research">
         <div class="tool-icon market-research-icon" aria-hidden="true">
           <i class="fas fa-chart-line"></i>
         </div>
@@ -213,8 +213,8 @@ extra_css:
             Investment-ready market reports
           </li>
         </ul>
-        <a href="/pages/spec-viewer.html" class="btn" aria-label="Create your specification" onclick="trackButtonClick('Create Spec', 'Tools', 'how_page')">Create Your Spec</a>
-      </article>
+        <a href="/pages/spec-viewer.html" class="btn" aria-label="Create Your Spec" onclick="trackButtonClick('Create Spec', 'Tools', 'how_page')">Create Your Spec</a>
+      </li>
 
-    </div>
+    </ul>
   </section>
