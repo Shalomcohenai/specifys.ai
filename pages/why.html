@@ -49,7 +49,7 @@ defer_mermaid: true
     <section class="why-section prompt-section" data-section="1">
         <h2 class="section-title">The Promise That Falls Short</h2>
         <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
-        <div class="prompt-animation-container" id="promptAnimationContainer" aria-label="Prompt animation demonstration" aria-live="polite">
+        <div class="prompt-animation-container" id="promptAnimationContainer" role="status" aria-label="Prompt animation demonstration" aria-live="polite">
             <!-- Credit counters and prompts will be generated dynamically -->
         </div>
         <div class="content-text-centered">
@@ -73,7 +73,7 @@ defer_mermaid: true
         <div class="content-layout">
             <div class="content-image">
                 <div class="planning-visual">
-                    <div class="mermaid-diagram" aria-label="Development process diagram">
+                    <div class="mermaid-diagram" role="img" aria-label="Development process diagram">
                         <div class="mermaid" id="why-page-planning-flow-mermaid" aria-hidden="true">
 graph TD
     A[Data Structures] --> B[Functions]

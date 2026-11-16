@@ -27,6 +27,8 @@ test('why and how cards are real lists and names include the visible text', asyn
   assert.match(how, /<ul class="tools-grid">/);
   assert.match(how, /<\/ul>\s*<\/section>\s*$/);
   assert.doesNotMatch(why, /aria-label="Current question"/);
+  assert.match(why, /class="prompt-animation-container"[^>]*role="status"/);
+  assert.match(why, /class="mermaid-diagram"[^>]*role="img"/);
   assert.match(whyCss, /\.spec-cards-showcase-orange\s*\{[^}]*list-style:\s*none/s);
   assert.match(howCss, /\.tools-grid\s*\{[^}]*list-style:\s*none/s);
   assert.deepEqual(visibleNameContained(why), []);
