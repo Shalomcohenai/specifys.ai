@@ -181,32 +181,11 @@
     {% assign optimize_lcp = page.optimize_lcp | default: layout.optimize_lcp %}
     {% if optimize_lcp == nil and page.permalink == '/' %}{% assign optimize_lcp = true %}{% endif %}
 
-    <!-- CSS - Unified compiled CSS file -->
-    <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}">
-    <!-- Components -->
-    <link rel="stylesheet" href="{{ '/assets/css/components/buttons.css' | relative_url }}">
-    {% if optimize_lcp %}
-    <!-- Small utility sheets are not needed for first paint. .hidden is inlined in critical CSS. -->
-    <link rel="preload" href="{{ '/assets/css/utilities/display.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="{{ '/assets/css/utilities/text.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-      <link rel="stylesheet" href="{{ '/assets/css/utilities/display.css' | relative_url }}">
-      <link rel="stylesheet" href="{{ '/assets/css/utilities/text.css' | relative_url }}">
-      <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
-      <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
-    </noscript>
-    {% else %}
-    <!-- Display Utilities -->
-    <link rel="stylesheet" href="{{ '/assets/css/utilities/display.css' | relative_url }}">
-    <!-- Text Utilities -->
-    <link rel="stylesheet" href="{{ '/assets/css/utilities/text.css' | relative_url }}">
-    <!-- Spacing Utilities -->
-    <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
-    <!-- Visually Hidden Utility (for accessibility) -->
-    <link rel="stylesheet" href="{{ '/assets/css/utilities/visually-hidden.css' | relative_url }}">
-    {% endif %}
+    {% include critical-shell.html %}
+    <!-- Full stylesheet is compiled from assets/css/main.scss (buttons and utilities included). -->
+    <link rel="preload" href="{{ '/assets/css/main-compiled.css' | relative_url }}" as="style">
+    <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}"></noscript>
     {% if optimize_lcp %}
     {% include critical-lcp-home.html %}
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
@@ -237,21 +216,20 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <link rel="preload" as="script" href="{{ '/assets/js/core/config.js' | relative_url }}">
     <script defer src="{{ '/assets/js/core/config.js' | relative_url }}"></script>
     
     <!-- API Client (must load after config.js) -->
-    <link rel="preload" as="script" href="{{ '/assets/js/core/api-client.js' | relative_url }}">
     <script defer src="{{ '/assets/js/core/api-client.js' | relative_url }}"></script>
+    {% if page.needs_geo or layout.needs_geo %}
     <script defer src="{{ '/assets/js/core/geo-context.js' | relative_url }}"></script>
+    {% endif %}
     
     {% unless perf_shell == 'lean' %}
     <!-- Focus Manager (must load early for accessibility) -->
     <script defer src="{{ '/assets/js/core/focus-manager.js' | relative_url }}"></script>
-    
-    <!-- Components (must load before page-specific JS) -->
-    <script type="module" src="{{ '/assets/js/components/base.js' | relative_url }}"></script>
+    {% if page.needs_ui_components or layout.needs_ui_components %}
     <script type="module" src="{{ '/assets/js/components/Modal.js' | relative_url }}"></script>
+    {% endif %}
     {% endunless %}
     
     <!-- State Management -->
@@ -260,26 +238,22 @@
     <!-- Safe localStorage utilities (must load early) -->
     <script defer src="{{ '/assets/js/utils/localStorage-safe.js' | relative_url }}"></script>
     
-    {% unless perf_shell == 'lean' %}
-    <!-- Mermaid source cleanup (HTML / translated graph keywords); used by spec viewer & marketing pages -->
+    {% assign load_mermaid_sanitize = false %}
+    {% if page.defer_mermaid or layout.defer_mermaid or page.needs_mermaid or layout.needs_mermaid %}
+      {% assign load_mermaid_sanitize = true %}
+    {% endif %}
+    {% if page.requires_libs contains 'mermaid' or page.permalink == '/' %}
+      {% assign load_mermaid_sanitize = true %}
+    {% endif %}
+    {% if load_mermaid_sanitize %}
     <script defer src="{{ '/assets/js/utils/mermaid-sanitize.js' | relative_url }}"></script>
-    {% endunless %}
+    {% endif %}
     
     <!-- Application Logger -->
     <script defer src="{{ '/assets/js/core/app-logger.js' | relative_url }}"></script>
     
     <!-- Web Vitals Tracking (for SEO performance monitoring) -->
     <script defer src="{{ '/assets/js/core/web-vitals.js' | relative_url }}"></script>
-    
-    {% unless perf_shell == 'lean' or optimize_lcp %}
-    <!-- CSS Monitoring Script -->
-    <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
-    {% endunless %}
-    
-    {% unless perf_shell == 'lean' or optimize_lcp %}
-    <!-- Security Utils -->
-    <script type="module" src="{{ '/assets/js/core/security-utils.js' | relative_url }}"></script>
-    {% endunless %}
     
     <!-- Core Bundle (if exists) -->
     {% if site.data.bundles.core %}
