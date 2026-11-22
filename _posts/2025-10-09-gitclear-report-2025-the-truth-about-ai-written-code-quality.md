@@ -26,6 +26,8 @@ The report introduces a new metric called Cumulative Refactor Deficit (CRD) — 
 AI-heavy repositories showed a 34% higher CRD than traditional codebases.
 In other words, developers using AI assistants tend to accept more “temporary fixes” that become permanent over time.
 The cause isn’t laziness; it’s a subtle shift in how people think when AI is involved. When an assistant produces functional code instantly, there’s less emotional incentive to revisit and polish it later.
+
+Further reading: [The Vibe Coding Trap: Why AI-Generated Code Sprawl and Technical Debt Happen](https://prd.it.com/blog/vibe-coding-trap-ai-technical-debt) follows that same gap: unread model diffs that leave a system with two ways to apply one rule.
 Code Quality by the Numbers
 GitClear used static analysis, test coverage tracking, and semantic diff metrics to evaluate quality. Key insights included:
 Bug frequency: 19% lower short-term, but 12% higher over 6 months (suggesting delayed consequences).

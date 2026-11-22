@@ -1,3 +1,8 @@
+---
+permalink: /llms-full.txt
+layout: null
+sitemap: false
+---
 # Specifys.ai — extended context for AI retrieval
 
 > Machine-readable extended index. Start with /llms.txt for the curated short index.
@@ -57,3 +62,9 @@ Specifys maintains a DefinedTermSet glossary at /pages/glossary/index.html cover
 - https://www.specifys-ai.com/sitemap.xml
 - https://www.specifys-ai.com/robots.txt
 - https://www.specifys-ai.com/pages/for-ai-assistants.html
+
+## Blog
+
+Published posts, newest first. The summary is the post description, or the opening excerpt when that is longer.
+
+{% include llms-post-index.html variant="full" %}

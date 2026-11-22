@@ -24,6 +24,8 @@ Logic Engineer → Writes business rules, connects APIs.
 Security Analyst → Monitors dependencies and vulnerabilities.
 Ops Automator → Pushes builds, runs tests, deploys to staging.
 They don’t just follow prompts — they collaborate, sharing a live memory context powered by protocols like MCP and LangGraph. The result: real-time consensus among AI teammates.
+
+Further reading: [What is Model Context Protocol (MCP)?](https://prd.it.com/blog/what-is-model-context-protocol-mcp) explains how that protocol lets an editor pull tools and resources from a server instead of pasting the spec into every chat.
 Inside an Agentic Pipeline
 Here’s what a modern vibe-coded build might look like:
 The developer writes: “Create a dashboard for supplier analytics with export options and alerts.”

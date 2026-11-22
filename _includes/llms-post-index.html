@@ -1,0 +1,54 @@
+{%- comment -%}
+  Published posts for /llms.txt and /llms-full.txt.
+  variant=line: one markdown link plus a one-line summary.
+  variant=full: title, canonical URL, and a longer summary.
+  Jekyll site.posts already omits drafts, published: false, and future dates.
+{%- endcomment -%}
+{%- capture nl %}
+{% endcapture -%}
+{%- for post in site.posts -%}
+{%- assign plain = post.excerpt | replace: '</p>', ' ' | replace: '</h1>', ' ' | replace: '</h2>', ' ' | replace: '</h3>', ' ' | replace: '</li>', ' ' | replace: '<br>', ' ' | replace: '<br />', ' ' | replace: '<br/>', ' ' -%}
+{%- assign plain = plain | strip_html | replace: nl, ' ' | strip -%}
+{%- assign plain = plain | replace: '  ', ' ' | replace: '  ', ' ' | replace: '  ', ' ' -%}
+{%- assign desc = post.description | default: '' | strip_html | replace: nl, ' ' | strip -%}
+{%- assign desc = desc | replace: '  ', ' ' | replace: '  ', ' ' | replace: '  ', ' ' -%}
+{%- if desc != blank -%}
+{%- assign short = desc -%}
+{%- else -%}
+{%- assign short = plain -%}
+{%- endif -%}
+{%- assign short = short | truncate: 220 -%}
+{%- if plain.size > desc.size -%}
+{%- assign long = plain | truncate: 560 -%}
+{%- elsif desc != blank -%}
+{%- assign long = desc | truncate: 560 -%}
+{%- else -%}
+{%- assign long = short -%}
+{%- endif -%}
+{%- assign link_title = post.title | replace: nl, ' ' | replace: '[', '(' | replace: ']', ')' | strip -%}
+{%- assign post_url = post.url | absolute_url -%}
+{%- if post.canonical_url -%}
+{%- assign canon = post.canonical_url | strip -%}
+{%- if canon contains 'https://www.specifys-ai.com' -%}
+{%- assign post_url = canon -%}
+{%- endif -%}
+{%- endif -%}
+{%- assign url_last = post_url | slice: -1, 1 -%}
+{%- unless url_last == '/' -%}
+{%- assign post_url = post_url | append: '/' -%}
+{%- endunless -%}
+{%- if include.variant == 'full' -%}
+{%- capture entry %}
+### {{ link_title }}
+
+{{ post_url }}
+
+{{ long }}
+{% endcapture -%}
+{%- else -%}
+{%- capture entry %}
+- [{{ link_title }}]({{ post_url }}): {{ short }}
+{% endcapture -%}
+{%- endif -%}
+{{ entry | strip }}{{ nl }}{% if include.variant == 'full' %}{{ nl }}{% endif %}
+{%- endfor -%}
