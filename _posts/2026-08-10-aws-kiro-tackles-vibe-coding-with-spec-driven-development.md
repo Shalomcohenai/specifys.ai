@@ -44,6 +44,8 @@ In a practical demonstration, Kiro was used to develop a Customer Lookup API wit
 
 Traditional 'vibe coding' often leads to undocumented and unmaintainable code. Kiro's structured approach mitigates these issues by ensuring that all code is backed by formal specifications, enhancing code quality and maintainability. ([builder.aws.com](https://builder.aws.com/content/38J8UunyCZ7xso5BM1GOnMlMeJ8/beyond-vibe-coding-a-deep-dive-into-amazon-kiro?utm_source=openai))
 
+Further reading: [Why Structured PRDs Are the Antidote to Vibe Coding](https://prd.it.com/blog/structured-prds-antidote-vibe-coding) describes a specification that names the actors, states, invariants, and errors an agent must not invent.
+
 ## Pricing and Availability
 
 As of August 2026, AWS Kiro is available in three pricing tiers:

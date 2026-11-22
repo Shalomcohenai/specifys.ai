@@ -1,3 +1,8 @@
+---
+permalink: /llms.txt
+layout: null
+sitemap: false
+---
 # Specifys.ai
 
 > Specifys.ai helps teams turn app ideas into production-ready specifications with AI. The platform generates structured product documentation, technical architecture, prompts, and delivery assets from a single planning flow. Use this site for practical guidance on AI-assisted app planning, vibe coding workflows, and shipping readiness.
@@ -57,3 +62,9 @@ Primary entity for retrieval: **AI app specification generator** (Specifys.ai).
 
 - [About Specifys](https://www.specifys-ai.com/pages/about.html)
 - [Contact](https://www.specifys-ai.com/pages/contact.html)
+
+## Blog
+
+Published posts, newest first. Each line is the title, the canonical www URL, and a one-line summary from the post description or opening excerpt.
+
+{% include llms-post-index.html variant="line" %}
